@@ -109,20 +109,10 @@ LITE_OS_SEC_TEXT_INIT VOID OsExcInfoDisplay(ExcInfo *exc)
     g_PC_regs = exc->context->uwPC;
 }
 
-/* ****************************************************************************
- Function : OsExcHandleEntry
- Description : EXC模块的处理分发函数
- Input  : excType
-        : faultAddr
-        : pid
-        : excBufAddr --- EXC寄存器信息的首地址
- Output : None
- Return : None
- **************************************************************************** */
 LITE_OS_SEC_TEXT_INIT VOID OsExcHandleEntry(UINT32 excType, UINT32 faultAddr, UINT32 pid,
                                             EXC_CONTEXT_S *excBufAddr)
 {
-    UINT16 tmpFlag = (excType >> 16) & OS_NULL_SHORT;  // 为2在中断中，为1 faultAddr有效
+    UINT16 tmpFlag = (excType >> 16) & OS_NULL_SHORT;
     g_curNestCount++;
     g_vuwIntCount++;
     g_excInfo.nestCnt = g_curNestCount;
@@ -168,40 +158,33 @@ static VOID OsExcSaveIntStatus()
     *((UINT32 *)g_excContent) = OS_EXC_TYPE_NVIC;
     g_excContent = (UINT8 *)g_excContent + sizeof(UINT32);
 
-    // = OS_NVIC_INT_ENABLE_SIZE + OS_NVIC_INT_PEND_SIZE + OS_NVIC_INT_ACT_SIZE + OS_NVIC_INT_PRI_SIZE + 12 + 4 + 4
     *((UINT32 *)g_excContent) = EXC_INT_STATUS_LEN;
     g_excContent = (UINT8 *)g_excContent + sizeof(UINT32);
-    /* 保存中断ENABLE寄存器组 */
+
     ret = memcpy_s(g_excContent, MAX_EXC_MEM_SIZE, (const VOID *)OS_NVIC_SETENA_BASE, OS_NVIC_INT_ENABLE_SIZE);
     g_excContent = (UINT8 *)g_excContent + OS_NVIC_INT_ENABLE_SIZE;
     failCnt += (ret == EOK) ? 0 : 1;
 
-    /* 保存中断PEND寄存器组 */
     ret = memcpy_s(g_excContent, MAX_EXC_MEM_SIZE, (const VOID *)OS_NVIC_SETPEND_BASE, OS_NVIC_INT_PEND_SIZE);
     g_excContent = (UINT8 *)g_excContent + OS_NVIC_INT_PEND_SIZE;
     failCnt += (ret == EOK) ? 0 : 1;
 
-    /* 保存中断ACTIVE寄存器组 */
     ret = memcpy_s(g_excContent, MAX_EXC_MEM_SIZE, (const VOID *)OS_NVIC_INT_ACT_BASE, OS_NVIC_INT_ACT_SIZE);
     g_excContent = (UINT8 *)g_excContent + OS_NVIC_INT_ACT_SIZE;
     failCnt += (ret == EOK) ? 0 : 1;
 
-    /* 保存中断优先级寄存器组 */
     ret = memcpy_s(g_excContent, MAX_EXC_MEM_SIZE, (const VOID *)OS_NVIC_PRI_BASE, OS_NVIC_INT_PRI_SIZE);
     g_excContent = (UINT8 *)g_excContent + OS_NVIC_INT_PRI_SIZE;
     failCnt += (ret == EOK) ? 0 : 1;
 
-    /* 	系统异常优先级寄存器组 */
     ret = memcpy_s(g_excContent, MAX_EXC_MEM_SIZE, (const VOID *)OS_NVIC_EXCPRI_BASE, OS_NVIC_EXCPRI_SIZE);
     g_excContent = (UINT8 *)g_excContent + OS_NVIC_EXCPRI_SIZE;
     failCnt += (ret == EOK) ? 0 : 1;
 
-    /* 保存系统Handler控制及状态寄存器SHCSR */
     ret = memcpy_s(g_excContent, MAX_EXC_MEM_SIZE, (const VOID *)OS_NVIC_SHCSR, OS_NVIC_SHCSR_SIZE);
     g_excContent = (UINT8 *)g_excContent + sizeof(UINT32);
     failCnt += (ret == EOK) ? 0 : 1;
 
-    /* 保存中断控制及状态寄存器ICSR */
     ret = memcpy_s(g_excContent, MAX_EXC_MEM_SIZE, (const VOID *)OS_NVIC_INT_CTRL, OS_NVIC_INT_CTRL_SIZE);
     g_excContent = (UINT8 *)g_excContent + sizeof(UINT32);
     failCnt += (ret == EOK) ? 0 : 1;
@@ -364,7 +347,7 @@ LITE_OS_SEC_TEXT_INIT VOID OsExcInit(UINT32 arraySize)
     g_hwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT] = OsExcSvcCall;
     /* Enable USGFAULT, BUSFAULT, MEMFAULT */
     *(volatile UINT32 *)OS_NVIC_SHCSR |= (USGFAULT | BUSFAULT | MEMFAULT);
-    /* Enable DIV 0 and unaligned exception */  // 因为文件系统存在非对齐操作，故此异常暂不接管
+    /* Enable DIV 0 and unaligned exception */
 
     *(volatile UINT32 *)OS_NVIC_CCR |= DIV0FAULT;
     g_excArraySize = arraySize;
