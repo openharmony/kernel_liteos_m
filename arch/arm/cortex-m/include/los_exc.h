@@ -191,155 +191,55 @@ extern UINT8 g_aucTaskArray[];
 */
 VOID LOS_Panic(const CHAR *fmt, ...);
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器入栈时发生错误
- */
 #define OS_EXC_BF_STKERR           1
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器出栈时发生错误
- */
 #define OS_EXC_BF_UNSTKERR         2
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器不精确的数据访问违例
- */
 #define OS_EXC_BF_IMPRECISERR      3
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器精确的数据访问违例
- */
 #define OS_EXC_BF_PRECISERR        4
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器取指时的访问违例
- */
 #define OS_EXC_BF_IBUSERR          5
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器入栈时发生错误
- */
 #define OS_EXC_MF_MSTKERR          6
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器出栈时发生错误
- */
 #define OS_EXC_MF_MUNSTKERR        7
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器数据访问违例
- */
 #define OS_EXC_MF_DACCVIOL         8
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器取指访问违例
- */
 #define OS_EXC_MF_IACCVIOL         9
 
-
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，表示除法运算时除数为零
- */
 #define OS_EXC_UF_DIVBYZERO        10
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，未对齐访问导致的错误
- */
 #define OS_EXC_UF_UNALIGNED        11
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，试图执行协处理器相关指令
- */
 #define OS_EXC_UF_NOCP             12
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，在异常返回时试图非法地加载EXC_RETURN到PC
- */
 #define OS_EXC_UF_INVPC            13
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，试图切入ARM状态
- */
 #define OS_EXC_UF_INVSTATE         14
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，执行的指令其编码是未定义的——解码不能
- */
 #define OS_EXC_UF_UNDEFINSTR       15
-
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:NMI中断
- */
 
 #define OS_EXC_CAUSE_NMI           16
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:硬fault
- */
 #define OS_EXC_CAUSE_HARDFAULT     17
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:任务处理函数退出
- */
 #define OS_EXC_CAUSE_TASK_EXIT     18
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:致命错误
- */
 #define OS_EXC_CAUSE_FATAL_ERR     19
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:调试事件导致的硬fault
- */
 #define OS_EXC_CAUSE_DEBUGEVT      20
 
-/**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:取向量时发生的硬fault
- */
 #define OS_EXC_CAUSE_VECTBL        21
 
-/**
- *@ingroup los_exc
- * 异常信息结构体
- *
- * 描述:M4平台下的异常触发时保存的异常信息
- *
- */
 typedef struct tagExcInfo {
-    /**< 异常发生阶段： 0表示异常发生在初始化中，1表示异常发生在任务中，2表示异常发生在中断中 */
     UINT16 phase;
-    /**< 异常类型,出异常时对照上面列出的1-19号 */
     UINT16 type;
-    /**< 若为精确地址访问错误表示异常发生时的错误访问地址 */
     UINT32 faultAddr;
-    /**< 在中断中发生异常，表示中断号。在任务中发生异常，表示任务id，如果发生在初始化中，则为0xffffffff */
     UINT32 thrdPid;
-    /**< 异常嵌套个数，目前仅支持第一次进入异常时执行注册的钩子函数 */
     UINT16 nestCnt;
-    /**< 保留 */
     UINT16 reserved;
-    /**< 自动压栈浮点寄存器的异常发生时刻的硬件上下文 */
     EXC_CONTEXT_S * context;
 } ExcInfo;
 
