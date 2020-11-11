@@ -997,6 +997,44 @@ extern  UINT32 LOS_NewTaskIDGet(VOID);
   */
 extern CHAR* LOS_TaskNameGet(UINT32 taskID);
 
+/* *
+ * @ingroup  los_hw
+ * @brief: Task scheduling Function.
+ *
+ * @par Description:
+ * This API is used to scheduling task.
+ *
+ * @attention:
+ * <ul><li>None.</li></ul>
+ *
+ * @param  None.
+ *
+ * @retval: None.
+ * @par Dependency:
+ * <ul><li>los_hw.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern VOID OsSchedule(VOID);
+
+/* *
+ * @ingroup  los_hw
+ * @brief: Function to determine whether task scheduling is required.
+ *
+ * @par Description:
+ * This API is used to Judge and entry task scheduling.
+ *
+ * @attention:
+ * <ul><li>None.</li></ul>
+ *
+ * @param  None.
+ *
+ * @retval: None.
+ * @par Dependency:
+ * <ul><li>los_hw.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern VOID LOS_Schedule(VOID);
+
 extern UINT32 OsTaskNextSwitchTimeGet(VOID);
 #ifdef __cplusplus
 #if __cplusplus
