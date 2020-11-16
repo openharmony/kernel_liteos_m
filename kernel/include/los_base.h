@@ -41,7 +41,6 @@
 #include "los_builddef.h"
 #include "los_typedef.h"
 #include "los_config.h"
-#include "los_printf.h"
 #include "los_list.h"
 #include "los_errno.h"
 #include "los_compiler.h"
