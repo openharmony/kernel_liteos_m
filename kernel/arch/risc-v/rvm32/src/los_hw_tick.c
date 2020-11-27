@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2020, Huawei Technologies Co., Ltd. All rights reserved.
  * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,13 +29,10 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_COMPILER_H
-#define _LOS_COMPILER_H
-
-/* for IAR Compiler */
-#ifdef __ICCARM__
-#include"iccarm_builtin.h"
-#endif
+#include "los_hw_tick_pri.h"
+#include "los_hwi.h"
+#include "los_tick_pri.h"
+#include "riscv_hal.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -43,101 +40,27 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-/* for IAR Compiler */
-#ifdef __ICCARM__
+#define NS_PER_SECOND  1000000000.0
 
-#ifndef ASM
-#define ASM           __asm
-#endif
+LITE_OS_SEC_TEXT_INIT UINT32 OsTickStart(VOID)
+{
+    g_sysClock = OS_SYS_CLOCK;
+    g_cyclesPerTick = g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND;
+    g_intCount = 0;
 
-#ifndef INLINE
-#define INLINE        inline
-#endif
+    SysClockInit(g_cyclesPerTick);
 
-#ifndef STATIC_INLINE
-#define STATIC_INLINE static inline
-#endif
+    return LOS_OK;
+}
 
-#ifndef USED
-#define USED          __root
-#endif
-
-#ifndef WEAK
-#define WEAK          __weak
-#endif
-
-#ifndef CLZ
-#define CLZ           __iar_builtin_CLZ
-#endif
-
-/* for ARM Compiler */
-#elif defined(__CC_ARM)
-
-#ifndef ASM
-#define ASM           __asm
-#endif
-
-#ifndef INLINE
-#define INLINE        __inline
-#endif
-
-#ifndef STATIC_INLINE
-#define STATIC_INLINE static __inline
-#endif
-
-#ifndef USED
-#define USED          __attribute__((used))
-#endif
-
-#ifndef WEAK
-#define WEAK          __attribute__((weak))
-#endif
-
-#ifndef CLZ
-#define CLZ           __clz
-#endif
-
-#pragma anon_unions
-
-/* for GNU Compiler */
-#elif defined(__GNUC__)
-
-#ifndef ASM
-#define ASM           __asm
-#endif
-
-#ifndef INLINE
-#define INLINE        inline
-#endif
-
-#ifndef STATIC
-#define STATIC        static
-#endif
-
-#ifndef STATIC_INLINE
-#define STATIC_INLINE static inline
-#endif
-
-#ifndef USED
-#define USED          __attribute__((used))
-#endif
-
-#ifndef WEAK
-#define WEAK          __attribute__((weak))
-#endif
-
-#ifndef CLZ
-#define CLZ           __builtin_clz
-#endif
-
-#else
-#error Unknown compiler.
-#endif
+LITE_OS_SEC_TEXT_MINOR VOID LOS_GetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
+{
+    OsGetCpuCycle(cntHi, cntLo);
+    return;
+}
 
 #ifdef __cplusplus
 #if __cplusplus
 }
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-
-#endif /* _LOS_COMPILER_H */

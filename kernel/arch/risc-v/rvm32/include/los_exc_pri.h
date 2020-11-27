@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2020, Huawei Technologies Co., Ltd. All rights reserved.
  * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,13 +29,11 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_COMPILER_H
-#define _LOS_COMPILER_H
+#ifndef _LOS_EXC_PRI_H
+#define _LOS_EXC_PRI_H
 
-/* for IAR Compiler */
-#ifdef __ICCARM__
-#include"iccarm_builtin.h"
-#endif
+#include "los_typedef.h"
+#include "los_hw_pri.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -43,96 +41,22 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-/* for IAR Compiler */
-#ifdef __ICCARM__
+extern VOID BackTraceSub(UINT32 fp);
 
-#ifndef ASM
-#define ASM           __asm
-#endif
+typedef struct {
+    UINT32      mcause;
+    UINT32      mtval;
+    UINT32      medeleg;
+    UINT32      gp;
+    TaskContext taskContext;
+} LosExcContext;
 
-#ifndef INLINE
-#define INLINE        inline
-#endif
-
-#ifndef STATIC_INLINE
-#define STATIC_INLINE static inline
-#endif
-
-#ifndef USED
-#define USED          __root
-#endif
-
-#ifndef WEAK
-#define WEAK          __weak
-#endif
-
-#ifndef CLZ
-#define CLZ           __iar_builtin_CLZ
-#endif
-
-/* for ARM Compiler */
-#elif defined(__CC_ARM)
-
-#ifndef ASM
-#define ASM           __asm
-#endif
-
-#ifndef INLINE
-#define INLINE        __inline
-#endif
-
-#ifndef STATIC_INLINE
-#define STATIC_INLINE static __inline
-#endif
-
-#ifndef USED
-#define USED          __attribute__((used))
-#endif
-
-#ifndef WEAK
-#define WEAK          __attribute__((weak))
-#endif
-
-#ifndef CLZ
-#define CLZ           __clz
-#endif
-
-#pragma anon_unions
-
-/* for GNU Compiler */
-#elif defined(__GNUC__)
-
-#ifndef ASM
-#define ASM           __asm
-#endif
-
-#ifndef INLINE
-#define INLINE        inline
-#endif
-
-#ifndef STATIC
-#define STATIC        static
-#endif
-
-#ifndef STATIC_INLINE
-#define STATIC_INLINE static inline
-#endif
-
-#ifndef USED
-#define USED          __attribute__((used))
-#endif
-
-#ifndef WEAK
-#define WEAK          __attribute__((weak))
-#endif
-
-#ifndef CLZ
-#define CLZ           __builtin_clz
-#endif
-
-#else
-#error Unknown compiler.
-#endif
+typedef struct {
+    UINT16 nestCnt;
+    UINT16 type;
+    UINT32 thrID;
+    LosExcContext *context;
+} LosExcInfo;
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -140,4 +64,4 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* _LOS_COMPILER_H */
+#endif /* _LOS_EXC_PRI_H */
