@@ -1567,7 +1567,7 @@ VOID LOS_Schedule(VOID)
 
 	/* In case that running is not highest then reschedule */
 	if (g_losTask.runTask != g_losTask.newTask) {
-		if (!g_losTaskLock) {
+		if (LOS_CHECK_SCHEDULE) {
 			LOS_IntRestore(intSave);
 
 			osTaskSchedule();

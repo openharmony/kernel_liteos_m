@@ -90,6 +90,7 @@ LITE_OS_SEC_TEXT VOID OsSwtmrTask(VOID)
     UINT32 ret;
     UINT64 tick;
     readSzie = sizeof(SwtmrHandlerItem);
+
     for (;;) {
         ret = LOS_QueueReadCopy(g_swtmrHandlerQueue, &swtmrHandle, &readSzie, LOS_WAIT_FOREVER);
         if ((ret == LOS_OK) && (readSzie == sizeof(SwtmrHandlerItem))) {
