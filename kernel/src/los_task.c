@@ -28,32 +28,26 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include "los_task_pri.h"
-#include "string.h"
+#include "los_config.h"
 #include "securec.h"
-#include "los_base_pri.h"
-#include "los_memory_pri.h"
-#include "los_memstat_pri.h"
-#include "los_priqueue_pri.h"
-#include "los_sem_pri.h"
-#include "los_mux_pri.h"
+#include "los_sem.h"
+#include "los_mux.h"
+#include "los_memory.h"
 #if (LOSCFG_PLATFORM_EXC == YES)
-#include "los_exc_pri.h"
+#include "los_interrupt.h"
 #endif
 #if (LOSCFG_KERNEL_TICKLESS == YES)
-#include "los_tickless_pri.h"
+#include "los_tick.h"
 #endif
 #if (LOSCFG_BASE_CORE_CPUP == YES)
-#include "los_cpup_pri.h"
+#include "los_cpup.h"
 #endif
-#include "los_hw.h"
 
 #if (LOSCFG_KERNEL_TRACE == YES)
-#include "los_trace.h"
+#include "los_debug.h"
 #endif
 //#include "los_sleep.h"
-#include "los_printf.h"
+#include "los_debug.h"
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -108,6 +102,12 @@ extern "C" {
  */
 #define OS_TASK_STACK_TOP_OFFSET                4
 
+LITE_OS_SEC_BSS LOS_DL_LIST *g_losPriorityQueueList = NULL;
+static LITE_OS_SEC_BSS UINT32 g_priqueueBitmap = 0;
+
+#define PRIQUEUE_PRIOR0_BIT           (UINT32)0x80000000
+#define OS_PRIORITY_QUEUE_PRIORITYNUM 32
+
 LITE_OS_SEC_BSS  LosTaskCB                           *g_taskCBArray = NULL;
 LITE_OS_SEC_BSS  LosTask                             g_losTask;
 LITE_OS_SEC_BSS  UINT16                              g_losTaskLock;
@@ -129,6 +129,66 @@ TSKSWITCHHOOK g_pfnUsrTskSwitchHook = NULL;
 
 TaskSwitchInfo g_taskSwitchInfo;
 #endif
+
+STATIC UINT32 OsPriqueueInit(VOID)
+{
+    UINT32 priority;
+    UINT32 size = OS_PRIORITY_QUEUE_PRIORITYNUM * sizeof(LOS_DL_LIST);
+
+    g_losPriorityQueueList = (LOS_DL_LIST *)LOS_MemAlloc(m_aucSysMem0, size);
+    if (g_losPriorityQueueList == NULL) {
+        return LOS_NOK;
+    }
+
+    for (priority = 0; priority < OS_PRIORITY_QUEUE_PRIORITYNUM; ++priority) {
+        LOS_ListInit(&g_losPriorityQueueList[priority]);
+    }
+    return LOS_OK;
+}
+
+STATIC VOID OsPriqueueEnqueue(LOS_DL_LIST *priqueueItem, UINT32 priority)
+{
+    if (LOS_ListEmpty(&g_losPriorityQueueList[priority])) {
+        g_priqueueBitmap |= (PRIQUEUE_PRIOR0_BIT >> priority);
+    }
+
+    LOS_ListTailInsert(&g_losPriorityQueueList[priority], priqueueItem);
+}
+
+STATIC VOID OsPriqueueDequeue(LOS_DL_LIST *priqueueItem)
+{
+    LosTaskCB *runningTask = NULL;
+    LOS_ListDelete(priqueueItem);
+
+    runningTask = LOS_DL_LIST_ENTRY(priqueueItem, LosTaskCB, pendList);
+    if (LOS_ListEmpty(&g_losPriorityQueueList[runningTask->priority])) {
+        g_priqueueBitmap &= ~(PRIQUEUE_PRIOR0_BIT >> runningTask->priority);
+    }
+}
+
+STATIC LOS_DL_LIST *OsPriqueueTop(VOID)
+{
+    UINT32 priority;
+
+    if (g_priqueueBitmap != 0) {
+        priority = CLZ(g_priqueueBitmap);
+        return LOS_DL_LIST_FIRST(&g_losPriorityQueueList[priority]);
+    }
+
+    return (LOS_DL_LIST *)NULL;
+}
+
+STATIC UINT32 OsPriqueueSize(UINT32 priority)
+{
+    UINT32 itemCnt = 0;
+    LOS_DL_LIST *curPQNode = (LOS_DL_LIST *)NULL;
+
+    LOS_DL_LIST_FOR_EACH(curPQNode, &g_losPriorityQueueList[priority]) {
+        ++itemCnt;
+    }
+
+    return itemCnt;
+}
 
 STATIC_INLINE UINT32 OsCheckTaskIDValid(UINT32 taskID)
 {
@@ -1579,6 +1639,66 @@ VOID LOS_Schedule(VOID)
 	LOS_IntRestore(intSave);
 }
 
+
+
+#if (LOSCFG_BASE_CORE_TIMESLICE == YES)
+LITE_OS_SEC_BSS OsTaskRobin g_taskTimeSlice;
+
+/*****************************************************************************
+ Function     : OsTimesliceInit
+ Description  : Initialztion Timeslice
+ Input        : None
+ Output       : None
+ Return       : None
+ *****************************************************************************/
+LITE_OS_SEC_TEXT_INIT VOID OsTimesliceInit(VOID)
+{
+    g_taskTimeSlice.task = (LosTaskCB *)NULL;
+    g_taskTimeSlice.tout = LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT;
+}
+
+/*****************************************************************************
+ Function     : OsTimesliceCheck
+ Description  : check Timeslice
+ Input        : None
+ Output       : None
+ Return       : None
+ *****************************************************************************/
+LITE_OS_SEC_TEXT VOID OsTimesliceCheck(VOID)
+{
+    if (g_taskTimeSlice.task != g_losTask.runTask) {
+        g_taskTimeSlice.task = g_losTask.runTask;
+        g_taskTimeSlice.time = ((UINT16)g_ullTickCount + g_taskTimeSlice.tout) - 1;
+    }
+
+    if (g_taskTimeSlice.time  == (UINT16)g_ullTickCount) {
+        g_taskTimeSlice.task = (LosTaskCB *)NULL;
+        if (LOS_TaskYield() != LOS_OK) {
+            PRINT_INFO("%s, %d\n", __FUNCTION__, __LINE__);
+        }
+    }
+}
+#endif
+
+LITE_OS_SEC_TEXT_MINOR VOID LOS_Msleep(UINT32 mSecs)
+{
+    UINT32 interval;
+
+    if (OS_INT_ACTIVE) {
+        return;
+    }
+
+    if (mSecs == 0) {
+        interval = 0;
+    } else {
+        interval = LOS_MS2Tick(mSecs);
+        if (interval == 0) {
+            interval = 1;
+        }
+    }
+
+    (VOID)LOS_TaskDelay(interval);
+}
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -1,0 +1,12 @@
+Root directory "//" refers to "/vendor/hisi/hi3861/hi3861".
+We use header files from musl ("//platform/os/Huawei_LiteOS/components/lib/libc/musl/include").
+
+Some posix apis are already defined in different places:
+errno is defined in             //build/libs/libc_base.o
+malloc and free are defined in  //build/libs/libc_base.o
+pthread_mutex_* are defined in  //build/libs/hi3861/release/no_mesh/liblitekernel_flash.a
+semaphore is defined in         //build/libs/hi3861/release/no_mesh/liblitekernel_flash.a
+usleep is defined in            //build/libs/hi3861/release/no_mesh/liblitekernel_flash.a
+clock_* are defined in          //build/libs/liblitekernel_base.o
+printf is defined in            //build/libs/liblitekernel_base.o
+fcntl and socket apis are defined in //build/libs/liblwip.a

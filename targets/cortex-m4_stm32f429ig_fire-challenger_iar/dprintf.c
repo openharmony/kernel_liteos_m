@@ -31,7 +31,7 @@
 
 #include "stdarg.h"
 #include <stdio.h>
-#include "los_printf.h"
+#include "los_debug.h"
 #include "stm32f4xx_usart.h"
 #include "stm324x9i_eval.h"
 

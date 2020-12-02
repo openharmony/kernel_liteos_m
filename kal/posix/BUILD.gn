@@ -1,0 +1,20 @@
+# Copyright (c) Huawei Technologies Co., Ltd. 2020. All rights reserved.
+import("//build/lite/config/component/lite_component.gni")
+
+static_library("posix") {
+  sources = [
+    "src/file.c",
+    "src/pthread.c",
+    "src/pthread_attr.c",
+    "src/time.c",
+    "src/version.c",
+  ]
+
+  include_dirs = [ "include" ]
+  defines = [
+    "LIBC_VERSION_NUM=0x00010000",
+    "LIBC_VERSION_STR=\"1.0.0-liteos_m\"",
+  ]
+
+  cflags = [ "-Werror" ]
+}

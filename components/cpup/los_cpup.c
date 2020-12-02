@@ -29,12 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "string.h"
-#include "securec.h"
-#include "los_cpup_pri.h"
-#include "los_task_pri.h"
-#include "los_memory_pri.h"
-
+#include "los_cpup.h"
+#include "los_debug.h"
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -55,12 +51,23 @@ extern "C" {
  */
 #define OS_THREAD_TYPE_HWI      1
 
+#define OS_CPUP_RECORD_PERIOD   (g_sysClock)
+
 LITE_OS_SEC_BSS UINT16    g_cpupInitFlg = 0;
 LITE_OS_SEC_BSS OsCpupCB  *g_cpup = NULL;
 LITE_OS_SEC_BSS UINT64    g_lastRecordTime;
 LITE_OS_SEC_BSS UINT16    g_hisPos; /* <current Sampling point of historyTime */
+
+
 extern VOID LOS_GetCpuCycle(UINT32 *cntHi, UINT32 *cntLo);
-#define OS_CPUP_RECORD_PERIOD   (g_sysClock)
+LITE_OS_SEC_TEXT_MINOR STATIC INLINE UINT64 OsGetCurrentCyclesCount(VOID)
+{
+    UINT32 high = 0;
+    UINT32 low = 0;
+    LOS_GetCpuCycle(&high, &low);
+    return (((UINT64)high << 32) + low); // 32 means bits of word
+}
+
 /*****************************************************************************
 Function   : OsCpupInit
 Description: initialization of CPUP
@@ -86,19 +93,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsCpupInit()
 }
 
 /*****************************************************************************
-Function   : OsGetCpuCycle
-Description: get current cycles count
-Input      : None
-Return     : current cycles count
-*****************************************************************************/
-LITE_OS_SEC_TEXT_MINOR UINT64 OsGetCpuCycle(VOID)
-{
-    UINT32 high = 0;
-    UINT32 low = 0;
-    LOS_GetCpuCycle(&high, &low);
-    return (((UINT64)high << 32) + low); // 32 means bits of word
-}
-/*****************************************************************************
 Function   : OsTskCycleStart
 Description: start task to get cycles count in current task begining
 Input      : None
@@ -114,7 +108,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleStart(VOID)
 
     taskID = g_losTask.newTask->taskID;
     g_cpup[taskID].cpupID = taskID;
-    g_cpup[taskID].startTime = OsGetCpuCycle();
+    g_cpup[taskID].startTime = OsGetCurrentCyclesCount();
 
     return;
 }
@@ -139,7 +133,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleEnd(VOID)
         return;
     }
 
-    cpuCycle = OsGetCpuCycle();
+    cpuCycle = OsGetCurrentCyclesCount();
 
     if (cpuCycle < g_cpup[taskID].startTime) {
         cpuCycle += g_cyclesPerTick;
@@ -167,7 +161,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleEndStart(VOID)
     }
 
     taskID = g_losTask.runTask->taskID;
-    cpuCycle = OsGetCpuCycle();
+    cpuCycle = OsGetCurrentCyclesCount();
 
     if (g_cpup[taskID].startTime != 0) {
         if (cpuCycle < g_cpup[taskID].startTime) {

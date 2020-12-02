@@ -37,7 +37,6 @@
 #ifndef _LOS_CONFIG_H
 #define _LOS_CONFIG_H
 
-#include "los_typedef.h"
 #include "target_config.h"
 
 #ifdef __cplusplus
@@ -442,7 +441,7 @@ extern UINT32 g_sysMemAddrEnd;
  * Configuration module tailoring of more mempry pool checking
  */
 #ifndef LOSCFG_MEM_MUL_POOL
-#define LOSCFG_MEM_MUL_POOL                                 NO
+#define LOSCFG_MEM_MUL_POOL                                 YES
 #endif
 
 /**

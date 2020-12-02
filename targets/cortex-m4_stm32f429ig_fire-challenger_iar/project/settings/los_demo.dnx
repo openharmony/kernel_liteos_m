@@ -1,16 +1,5 @@
 <?xml version="1.0"?>
 <settings>
-    <Stack>
-        <FillEnabled>0</FillEnabled>
-        <OverflowWarningsEnabled>1</OverflowWarningsEnabled>
-        <WarningThreshold>90</WarningThreshold>
-        <SpWarningsEnabled>1</SpWarningsEnabled>
-        <WarnLogOnly>1</WarnLogOnly>
-        <UseTrigger>1</UseTrigger>
-        <TriggerName>main</TriggerName>
-        <LimitSize>0</LimitSize>
-        <ByteLimit>50</ByteLimit>
-    </Stack>
     <InterruptLog>
         <LogEnabled>0</LogEnabled>
         <GraphEnabled>0</GraphEnabled>
@@ -26,6 +15,17 @@
         <SumEnabled>0</SumEnabled>
         <ShowTimeSum>1</ShowTimeSum>
     </DataLog>
+    <Stack>
+        <FillEnabled>0</FillEnabled>
+        <OverflowWarningsEnabled>1</OverflowWarningsEnabled>
+        <WarningThreshold>90</WarningThreshold>
+        <SpWarningsEnabled>1</SpWarningsEnabled>
+        <WarnLogOnly>1</WarnLogOnly>
+        <UseTrigger>1</UseTrigger>
+        <TriggerName>main</TriggerName>
+        <LimitSize>0</LimitSize>
+        <ByteLimit>50</ByteLimit>
+    </Stack>
     <Interrupts>
         <Enabled>1</Enabled>
     </Interrupts>
@@ -41,12 +41,8 @@
         <FreqHi>0</FreqHi>
         <MultiCoreRunAll>1</MultiCoreRunAll>
     </Simulator>
-    <JLinkDriver>
-        <CStepIntDis>_ 0</CStepIntDis>
-        <LeaveTargetRunning>_ 0</LeaveTargetRunning>
-    </JLinkDriver>
     <DebugChecksum>
-        <Checksum>4073699465</Checksum>
+        <Checksum>1748958015</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -57,11 +53,14 @@
     </CodeCoverage>
     <Disassembly>
         <InstrCount>0</InstrCount>
-        <MixedMode>1</MixedMode>
     </Disassembly>
     <CallStack>
         <ShowArgs>0</ShowArgs>
     </CallStack>
+    <JLinkDriver>
+        <CStepIntDis>_ 0</CStepIntDis>
+        <LeaveTargetRunning>_ 0</LeaveTargetRunning>
+    </JLinkDriver>
     <Trace1>
         <Enabled>0</Enabled>
         <ShowSource>1</ShowSource>
@@ -92,9 +91,7 @@
         <mode>0</mode>
     </DisassembleMode>
     <Breakpoints2>
-        <Bp0>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main.c}.82.5" 0 0 1 "" 0 "" 0</Bp0>
-        <Bp1>_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\main.c}.82.5" 0 0 1 "" 0 "" 0</Bp1>
-        <Count>2</Count>
+        <Count>0</Count>
     </Breakpoints2>
     <Aliases>
         <Count>0</Count>

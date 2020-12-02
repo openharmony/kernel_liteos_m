@@ -31,11 +31,9 @@
 
 #ifndef _LOS_MEMORY_H
 #define _LOS_MEMORY_H
-#include "los_base.h"
-#if (LOSCFG_KERNEL_MEM_SLAB == YES)
-#include <los_slab.h>
-#endif
-#include <los_heap.h>
+
+#include "los_config.h"
+#include "los_list.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -43,15 +41,13 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-typedef struct __s_LOS_MEM_STATUS {
-    UINT32 totalSize;
-    UINT32 usedSize;
-    UINT32 freeSize;
-    UINT32 allocCount;
-    UINT32 freeCount;
-} LOS_MEM_STATUS;
-
-#if (LOSCFG_MEMORY_BESTFIT == YES)
+#define IS_ALIGNED(value)                       ((((UINT32)(value)) & ((UINT32)((value) - 1))) == 0)
+#define OS_MEM_ALIGN(value, align)              (((UINT32)(UINTPTR)(value) + (UINT32)((align) - 1)) & \
+                                                (~(UINT32)((align) - 1)))
+#define OS_MEM_ALIGN_FLAG                       0x80000000
+#define OS_MEM_SET_ALIGN_FLAG(align)            ((align) = ((align) | OS_MEM_ALIGN_FLAG))
+#define OS_MEM_GET_ALIGN_FLAG(align)            ((align) & OS_MEM_ALIGN_FLAG)
+#define OS_MEM_GET_ALIGN_GAPSIZE(align)         ((align) & (~OS_MEM_ALIGN_FLAG))
 
 /**
  * @ingroup los_memory
@@ -64,10 +60,92 @@ typedef struct {
     UINT32 uwPoolWaterLine;     /**< Maximum usage size in a memory pool */
     UINT32 uwPoolCurUsedSize;   /**< Current usage size in a memory pool */
 #endif
-#ifdef LOSCFG_MEM_MUL_POOL
+//#ifdef LOSCFG_MEM_MUL_POOL
     VOID *pNextPool;
-#endif
+//#endif
 } LOS_MEM_POOL_INFO;
+
+
+
+
+typedef struct __s_LOS_MEM_STATUS {
+    UINT32 totalSize;
+    UINT32 usedSize;
+    UINT32 freeSize;
+    UINT32 allocCount;
+    UINT32 freeCount;
+} LOS_MEM_STATUS;
+
+
+#define MEM_INFO_SIZE                   ((sizeof(MEM_INFO) * OS_SYS_MEM_NUM) + 4)
+extern UINT8 g_memMang[];
+
+enum _MEM_MANG_TYPE {
+    MEM_MANG_MEMBOX,
+    MEM_MANG_MEMORY,
+    MEM_MANG_EMPTY,
+};
+
+enum _MEM_MANG_SOUCE {
+    MEM_MANG_UNUSED,
+    MEM_MANG_INIT,
+    MEM_MANG_INT,
+    MEM_MANG_TASK,
+};
+
+typedef struct _MEM_INFO {
+    UINT32 uwType;
+    UINT32 uwStartAddr;
+    UINT32 uwSize;
+    VOID * blkAddrArray;
+}MEM_INFO;
+
+typedef struct _SLAB_INFO {
+    UINT32 item_sz;
+    UINT32 item_cnt;
+    UINT32 cur_usage;
+}SLAB_INFO;
+
+#define SLAB_CLASS_NUM                  (4U)
+typedef struct _MEM_INFO_S {
+    UINT32 uwType;
+    UINT32 uwStartAddr;
+    UINT32 uwSize;
+    UINT32 uwFree;
+    UINT32 uwBlockSize;
+    UINT32 uwErrorAddr;
+    UINT32 uwErrorLen;
+    UINT32 uwErrorOwner;
+    SLAB_INFO stSlabInfo[SLAB_CLASS_NUM];
+}MEM_INFO_S;
+
+/**
+ * @ingroup los_memboxcheck
+ * @brief Get the information of the exc memory.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to get the information of the exc memory.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param memNum       [IN]     Type #UINT32  Memory pool number.
+ * @param memExcInfo   [IN/OUT] Type #MEM_INFO_S *  information of the exc memory.
+ *
+ * @retval UINT32 Get information result.
+ * @par Dependency:
+ * <ul>
+ * <li>los_memboxcheck.h: the header file that contains the API declaration.</li>
+ * </ul>
+ * @see None.
+ */
+UINT32 LOS_MemExcInfoGet(UINT32 memNum, MEM_INFO_S *memExcInfo);
+
+//#if (LOSCFG_MEMORY_BESTFIT == YES)
+
 
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == YES)
 extern UINT8 g_memMang[];
@@ -82,6 +160,7 @@ extern UINT8 g_memMang[];
 #ifdef LOSCFG_MEM_MUL_POOL
 extern VOID *g_memPoolHead;
 #endif
+
 typedef VOID (*MALLOC_HOOK)(VOID);
 
 extern MALLOC_HOOK g_mallocHook;
@@ -364,7 +443,6 @@ extern UINT8 LOS_MemCheckLevelGet(VOID);
  * <ul><li>los_memory.h: the header file that contains the API declaration.</li></ul>
  */
 extern UINT32 LOS_MemInfoGet(VOID *pool, LOS_MEM_STATUS *status);
-#else
 
 /**
  * @ingroup los_memory
@@ -412,7 +490,7 @@ extern UINT32 LOS_MemStatisticsGet(VOID *pool, LOS_MEM_STATUS *status);
  * @see LOS_MemAlloc | LOS_MemRealloc | LOS_MemFree
  */
 extern UINT32 LOS_MemGetMaxFreeBlkSize(VOID *pool);
-#endif
+//#endif
 
 /**
  * @ingroup los_memory
@@ -599,6 +677,225 @@ extern UINT32 LOS_MemDeInit(const VOID *pool);
  * @see None.
  */
 extern UINT32 LOS_MemPoolList(VOID);
+#endif
+
+#if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == YES)
+/**
+ * @ingroup los_memboxcheck
+ * @brief Update the information of the memory.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to update the information of the memory.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param pool       [IN/OUT]  Type #VOID  *  Memory pool number.
+ * @param size       [IN] Type #UINT32   Memory size.
+ * @param type       [IN] Type #UINT32   Memory mang type.
+ *
+ * @retval UINT32 Updateinformation result.
+ * @par Dependency:
+ * <ul>
+ * <li>los_memboxcheck_pri.h: the header file that contains the API declaration.</li>
+ * </ul>
+ * @see None.
+ */
+UINT32 OsMemInfoUpdate(VOID *pool, UINT32 size, UINT32 type);
+#endif
+
+#define OS_MEM_ENABLE_MEM_STATISTICS
+
+/*
+ * memcheck error code: the stack have not inited
+ * Value: 0x02000100
+ * Solution: do memcheck must after stack mem init
+ */
+#define  OS_ERRNO_MEMCHECK_NOT_INIT      LOS_ERRNO_OS_ERROR(LOS_MOD_MEM, 0x0)
+
+/*
+ *  memcheck error code: the pPtr is NULL
+ *  Value: 0x02000101
+ *  Solution: don't give a NULL parameter
+ */
+#define  OS_ERRNO_MEMCHECK_PARA_NULL      LOS_ERRNO_OS_ERROR(LOS_MOD_MEM, 0x1)
+
+/*
+ *  memcheck error code: the pPtr addr not in the suit range
+ *  Value: 0x02000102
+ *  Solution: check pPtr and comfirm it included by stack
+ */
+#define  OS_ERRNO_MEMCHECK_OUTSIDE      LOS_ERRNO_OS_ERROR(LOS_MOD_MEM, 0x2)
+
+/*
+ *  memcheck error code: can't find the ctrl node
+ *  Value: 0x02000103
+ *  Solution: confirm the pPtr if this node has been freed or has not been alloced
+ */
+#define  OS_ERRNO_MEMCHECK_NO_HEAD      LOS_ERRNO_OS_ERROR(LOS_MOD_MEM, 0x3)
+
+/*
+ *  memcheck error code: the para level is wrong
+ *  Value: 0x02000104
+ *  Solution: checkout the memcheck level by the func "OS_GetMemCheck_Level"
+ */
+#define  OS_ERRNO_MEMCHECK_WRONG_LEVEL      LOS_ERRNO_OS_ERROR(LOS_MOD_MEM, 0x4)
+
+/*
+ *  memcheck error code: memcheck func not open
+ *  Value: 0x02000105
+ *  Solution: enable memcheck by the func "OS_SetMemCheck_Level"
+ */
+#define  OS_ERRNO_MEMCHECK_DISABLED      LOS_ERRNO_OS_ERROR(LOS_MOD_MEM, 0x5)
+
+/**
+ * @ingroup los_memory
+ * @brief Initialization the memory system.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to initialization the memory system.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval UINT32 Initialization result.
+ * @par Dependency:
+ * <ul><li>los_memory_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern UINT32 OsMemSystemInit(VOID);
+
+/**
+ * @ingroup los_memory
+ * Memory linked list node structure
+ */
+typedef struct tagLosMemDynNode {
+    LOS_DL_LIST freeNodeInfo;         /**< Free memory node  */
+    struct tagLosMemDynNode *preNode; /**< Pointer to the previous memory node */
+    UINT32 sizeAndFlag;               /**< Size and flag of the current node(the highest bit
+                                           represents a flag, and the rest bits specify the size) */
+} LosMemDynNode;
+
+#define OS_MEM_TASKID_SET(node, ID) \
+    do { \
+        UINTPTR tmp = (UINTPTR)(((LosMemDynNode *)(node))->freeNodeInfo.pstNext); \
+        tmp = tmp & 0xffff0000; \
+        tmp |= (ID); \
+        ((LosMemDynNode *)(node))->freeNodeInfo.pstNext = (LOS_DL_LIST *)(tmp); \
+    } while (0)
+
+#define OS_MEM_TASKID_GET(node) ((UINT32)(UINTPTR)(((LosMemDynNode *)(node))->freeNodeInfo.pstNext) & 0xffff)
+
+#define OS_MEM_MODID_SET(node, ID) \
+    do { \
+        UINTPTR tmp = (UINTPTR)(((LosMemDynNode *)(node))->freeNodeInfo.pstNext); \
+        tmp = tmp & 0xffff; \
+        tmp |= (ID) << 16; \
+        ((LosMemDynNode *)(node))->freeNodeInfo.pstNext = (LOS_DL_LIST *)(tmp); \
+    } while (0)
+
+#define OS_MEM_MODID_GET(node) ((UINT32)(((LosMemDynNode *)(node))->freeNodeInfo.pstNext) >> 16)
+
+#define OS_MEM_NODE_HEAD_SIZE    sizeof(LosMemDynNode)
+#define OS_MEM_MIN_POOL_SIZE     (OS_DLNK_HEAD_SIZE + (2 * OS_MEM_NODE_HEAD_SIZE) + sizeof(LOS_MEM_POOL_INFO))
+#define OS_MEM_ALIGN_SIZE        4
+#define OS_MEM_NODE_USED_FLAG    0x80000000
+#define OS_MEM_NODE_ALIGNED_FLAG 0x40000000
+#define OS_MEM_NODE_ALIGN_SIZE   64
+#define OS_MEM_NODE_NUM          2
+#define OS_MEM_NODE_DATA_SIZE    4
+#define OS_MEM_NODE_COUNT_NUM    8
+#define OS_MULTI_DLNK_SIZE       (OS_MAX_MULTI_DLNK_LOG2 - OS_MIN_MULTI_DLNK_LOG2)
+
+#define OS_MEM_NODE_GET_ALIGNED_FLAG(sizeAndFlag) ((sizeAndFlag) & OS_MEM_NODE_ALIGNED_FLAG)
+#define OS_MEM_NODE_SET_ALIGNED_FLAG(sizeAndFlag) ((sizeAndFlag) = ((sizeAndFlag) | OS_MEM_NODE_ALIGNED_FLAG))
+#define OS_MEM_NODE_GET_ALIGNED_GAPSIZE(sizeAndFlag) ((sizeAndFlag) & (~OS_MEM_NODE_ALIGNED_FLAG))
+#define OS_MEM_NODE_GET_USED_FLAG(sizeAndFlag) ((sizeAndFlag) & OS_MEM_NODE_USED_FLAG)
+#define OS_MEM_NODE_SET_USED_FLAG(sizeAndFlag) ((sizeAndFlag) = ((sizeAndFlag) | OS_MEM_NODE_USED_FLAG))
+#define OS_MEM_NODE_GET_SIZE(sizeAndFlag) ((sizeAndFlag) & (~OS_MEM_NODE_USED_FLAG))
+#define OS_MEM_IS_NODE_NEXT_EXIST(node, poolInfo) (((UINT32)(node) + (node)->sizeAndFlag) < \
+                                                         ((UINT32)(poolInfo) + (poolInfo)->uwPoolSize))
+#define OS_MEM_HEAD(pool, size) OS_DLNK_HEAD(OS_MEM_HEAD_ADDR(pool), size)
+#define OS_MEM_HEAD_ADDR(pool) ((VOID *)((UINT32)(UINTPTR)(pool) + sizeof(LOS_MEM_POOL_INFO)))
+#define OS_MEM_NEXT_NODE(node) ((LosMemDynNode *)((UINT8 *)(node) + \
+                                   OS_MEM_NODE_GET_SIZE((node)->sizeAndFlag)))
+#define OS_MEM_FIRST_NODE(pool) ((LosMemDynNode *)((UINT8 *)OS_MEM_HEAD_ADDR(pool) + OS_DLNK_HEAD_SIZE))
+#define OS_MEM_END_NODE(pool, size) ((LosMemDynNode *)(((UINT8 *)(pool) + (size)) - OS_MEM_NODE_HEAD_SIZE))
+#define OS_MEM_MIDDLE_ADDR_OPEN_END(startAddr, middleAddr, endAddr)  \
+    (((UINT8 *)(startAddr) <= (UINT8 *)(middleAddr)) && ((UINT8 *)(middleAddr) < (UINT8 *)(endAddr)))
+#define OS_MEM_MIDDLE_ADDR(startAddr, middleAddr, endAddr) (((UINT8 *)(startAddr) <= (UINT8 *)(middleAddr)) && \
+                                                            ((UINT8 *)(middleAddr) <= (UINT8 *)(endAddr)))
+#define OS_MEM_SET_MAGIC(value) (value) = (LOS_DL_LIST *)(UINTPTR)((UINT32)(UINTPTR)(&(value)) ^ 0xffffffff)
+#define OS_MEM_MAGIC_VALID(value) ((((UINT32)(UINTPTR)(value)) ^ ((UINT32)(UINTPTR)(&(value)))) == 0xffffffff)
+
+#define OS_MAX_MULTI_DLNK_LOG2              30
+#define OS_MIN_MULTI_DLNK_LOG2              4
+#define OS_MULTI_DLNK_NUM                   ((OS_MAX_MULTI_DLNK_LOG2 - OS_MIN_MULTI_DLNK_LOG2) + 1)
+#define OS_DLNK_HEAD_SIZE                   OS_MULTI_DLNK_HEAD_SIZE
+#define OS_DLNK_INIT_HEAD                   OsDLnkInitMultiHead
+#define OS_DLNK_HEAD                        OsDLnkMultiHead
+#define OS_DLNK_NEXT_HEAD                   OsDLnkNextMultiHead
+#define OS_DLNK_FIRST_HEAD                  OsDLnkFirstMultiHead
+#define OS_MULTI_DLNK_HEAD_SIZE             sizeof(LosMultipleDlinkHead)
+
+typedef struct {
+    LOS_DL_LIST listHead[OS_MULTI_DLNK_NUM];
+} LosMultipleDlinkHead;
+
+STATIC_INLINE LOS_DL_LIST *OsDLnkNextMultiHead(VOID *headAddr, LOS_DL_LIST *listHead)
+{
+    LosMultipleDlinkHead *head = (LosMultipleDlinkHead *)headAddr;
+
+    return (&(head->listHead[OS_MULTI_DLNK_NUM - 1]) == listHead) ? NULL : (listHead + 1);
+}
+
+STATIC_INLINE LOS_DL_LIST *OsDLnkFirstMultiHead(VOID *headAddr)
+{
+    return (LOS_DL_LIST *)headAddr;
+}
+
+extern VOID OsDLnkInitMultiHead(VOID *headAddr);
+extern LOS_DL_LIST *OsDLnkMultiHead(VOID *headAddr, UINT32 size);
+
+#if (LOSCFG_MEMORY_BESTFIT == YES)
+
+extern VOID OsTaskMemUsedInc(UINT32 usedSize, UINT32 taskID);
+extern VOID OsTaskMemUsedDec(UINT32 usedSize, UINT32 taskID);
+extern UINT32 OsTaskMemUsage(UINT32 taskID);
+extern VOID  OsTaskMemClear(UINT32 taskID);
+
+#ifdef OS_MEM_ENABLE_MEM_STATISTICS
+#define OS_MEM_ADD_USED(usedSize, taskID)         OsTaskMemUsedInc(usedSize, taskID)
+#define OS_MEM_REDUCE_USED(usedSize, taskID)      OsTaskMemUsedDec(usedSize, taskID)
+#define OS_MEM_CLEAR(taskID)                      OsTaskMemClear(taskID)
+#else
+#define OS_MEM_ADD_USED(usedSize, taskID)
+#define OS_MEM_REDUCE_USED(usedSize, taskID)
+#define OS_MEM_CLEAR(taskID)
+#endif
+
+#else
+
+#if (LOSCFG_KERNEL_MEM_STATISTICS == YES)
+typedef struct {
+    UINT32 memUsed;
+    UINT32 memPeak;
+} TaskMemUsedInfo;
+
+extern VOID OsTaskMemStatInit(TaskMemUsedInfo *memStats);
+extern VOID OsTaskMemUsedInc(TaskMemUsedInfo *memStats, UINT32 usedSize, UINT32 taskID);
+extern VOID OsTaskMemUsedDec(TaskMemUsedInfo *memStats, UINT32 usedSize, UINT32 taskID);
+extern UINT32 OsTaskMemUsage(TaskMemUsedInfo *memStats, UINT32 taskID);
+extern VOID OsTaskMemClear(TaskMemUsedInfo *memStats, UINT32 taskID);
+#endif
 #endif
 
 #ifdef __cplusplus

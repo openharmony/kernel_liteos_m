@@ -37,13 +37,9 @@
 #ifndef _LOS_TASK_H
 #define _LOS_TASK_H
 
-#include "los_base.h"
-#include "los_list.h"
-#include "los_sys.h"
-#include "los_hw.h"
 #include "los_tick.h"
+#include "los_context.h"
 #include "los_event.h"
-#include "los_err.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -438,6 +434,94 @@ typedef struct tagTskInfo {
     UINT32              uwPeakUsed;                 /**< Task stack usage peak          */
     BOOL                bOvf;                       /**< Flag that indicates whether a task stack overflow occurs */
 } TSK_INFO_S;
+
+
+
+/**
+ * @ingroup los_base
+ * Define the timeout interval as LOS_NO_WAIT.
+ */
+#define LOS_NO_WAIT                      0
+
+/**
+ * @ingroup los_base
+ * Define the timeout interval as LOS_WAIT_FOREVER.
+ */
+#define LOS_WAIT_FOREVER                 0xFFFFFFFF
+
+
+
+/**
+ * @ingroup los_base
+ * @brief Sleep the current task.
+ *
+ * @par Description:
+ * This API is used to delay the execution of the current task. The task is able to be scheduled
+ * after it is delayed for a specified number of Ticks.
+ *
+ * @attention
+ * <ul>
+ * <li>The task fails to be delayed if it is being delayed during interrupt processing or it is locked.</li>
+ * <li>If 0 is passed in and the task scheduling is not locked,
+ * execute the next task in the queue of tasks with the priority of the current task.
+ * If no ready task with the priority of the current task is available,
+ * the task scheduling will not occur, and the current task continues to be executed.</li>
+ * <li>The parameter passed in can not be equal to LOS_WAIT_FOREVER(0xFFFFFFFF).
+ * If that happens, the task will not sleep 0xFFFFFFFF milliseconds or sleep forever but sleep 0xFFFFFFFF Ticks.</li>
+ * </ul>
+ *
+ * @param mSecs [IN] Type #UINT32 Number of MS for which the task is delayed.
+ *
+ * @retval None
+ * @par Dependency:
+ * <ul><li>los_base.h: the header file that contains the API declaration.</li></ul>
+ * @see None
+ */
+extern VOID LOS_Msleep(UINT32 mSecs);
+
+/**
+ * @ingroup los_base
+ * @brief System kernel initialization function.
+ *
+ * @par Description:
+ * This API is used to start liteOS .
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param: None.
+ *
+ * @retval #LOS_OK                                  0:LiteOS start success.
+ *
+ * @par Dependency:
+ * <ul><li>los_config.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+extern UINT32 LOS_Start(VOID);
+
+/**
+ * @ingroup los_base
+ * @brief System kernel initialization function.
+ *
+ * @par Description:
+ * This API is used to Initialize kernel ,configure all system modules.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param: None.
+ *
+ * @retval #LOS_OK                                  0:System kernel initialization success.
+ *
+ * @par Dependency:
+ * <ul><li>los_config.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+extern UINT32 LOS_KernelInit(VOID);
 
 /**
  * @ingroup  los_task
@@ -1036,6 +1120,920 @@ extern VOID OsSchedule(VOID);
 extern VOID LOS_Schedule(VOID);
 
 extern UINT32 OsTaskNextSwitchTimeGet(VOID);
+
+
+
+/**
+* @ingroup los_cpup
+* CPU usage error code: The request for memory fails.
+*
+* Value: 0x02001e00
+*
+* Solution: Decrease the maximum number of tasks.
+*/
+#define LOS_ERRNO_CPUP_NO_MEMORY             LOS_ERRNO_OS_ERROR(LOS_MOD_CPUP, 0x00)
+
+/**
+* @ingroup los_cpup
+* CPU usage error code: The pointer to an input parameter is NULL.
+*
+* Value: 0x02001e01
+*
+* Solution: Check whether the pointer to the input parameter is usable.
+*/
+#define LOS_ERRNO_CPUP_TASK_PTR_NULL         LOS_ERRNO_OS_ERROR(LOS_MOD_CPUP, 0x01)
+
+/**
+* @ingroup los_cpup
+* CPU usage error code: The CPU usage is not initialized.
+*
+* Value: 0x02001e02
+*
+* Solution: Check whether the CPU usage is initialized.
+*/
+#define LOS_ERRNO_CPUP_NO_INIT               LOS_ERRNO_OS_ERROR(LOS_MOD_CPUP, 0x02)
+
+/**
+* @ingroup los_cpup
+* CPU usage error code: The number of threads is invalid.
+*
+* Value: 0x02001e03
+*
+* Solution: Check whether the number of threads is applicable for the current operation.
+*/
+#define LOS_ERRNO_CPUP_MAXNUM_INVALID        LOS_ERRNO_OS_ERROR(LOS_MOD_CPUP, 0x03)
+
+/**
+* @ingroup los_cpup
+* CPU usage error code: The target thread is not created.
+*
+* Value: 0x02001e04
+*
+* Solution: Check whether the target thread is created.
+*/
+#define LOS_ERRNO_CPUP_THREAD_NO_CREATED     LOS_ERRNO_OS_ERROR(LOS_MOD_CPUP, 0x04)
+
+/**
+* @ingroup los_cpup
+* CPU usage error code: The target task ID is invalid.
+*
+* Value: 0x02001e05
+*
+* Solution: Check whether the target task ID is applicable for the current operation.
+*/
+#define LOS_ERRNO_CPUP_TSK_ID_INVALID        LOS_ERRNO_OS_ERROR(LOS_MOD_CPUP, 0x05)
+
+/**
+* @ingroup los_cpup
+* Sum of cpup with all tasks. It means the value of cpup is a permillage.
+*/
+#define LOS_CPUP_PRECISION                   1000
+
+/**
+* @ingroup los_cpup
+* Multiple of current cpup precision change to percent.
+*/
+#define LOS_CPUP_PRECISION_MULT              (LOS_CPUP_PRECISION / 100)
+
+/**
+ * @ingroup los_cpup
+ * Count the CPU usage structures of all tasks.
+ */
+typedef struct tagCpupInfo {
+    UINT16 usStatus;            /**< save the cur task status     */
+    UINT32 uwUsage;             /**< Usage. The value range is [0,1000].   */
+} CPUP_INFO_S;
+
+/**
+ * @ingroup los_monitor
+ * Type of the CPU usage query.
+ */
+typedef enum {
+    SYS_CPU_USAGE = 0,   /* system cpu occupancy rate */
+    TASK_CPU_USAGE,      /* task cpu occupancy rate */
+} CPUP_TYPE_E;
+
+/**
+ * @ingroup los_monitor
+ * Mode of the CPU usage query.
+ */
+typedef enum {
+    CPUP_IN_10S = 0,     /* cpu occupancy rate in 10s */
+    CPUP_IN_1S,          /* cpu occupancy rate in 1s */
+    CPUP_LESS_THAN_1S,   /* cpu occupancy rate less than 1s, if the input mode is none of them, it will be this. */
+} CPUP_MODE_E;
+
+/**
+ * @ingroup los_cpup
+ * @brief Obtain the current CPU usage.
+ *
+ * @par Description:
+ * This API is used to obtain the current CPU usage.
+ * @attention
+ * <ul>
+ * <li>This API can be called only after the CPU usage is initialized. Otherwise, error codes will be returned.</li>
+ * <li> The precision of the CPU usage can be adjusted by changing the value of the CPUP_PRECISION macro.</li>
+ * </ul>
+ *
+ * @param None.
+ *
+ * @retval #OS_ERRNO_CPUP_NO_INIT           0x02001e02: The CPU usage is not initialized.
+ * @retval #cpup                            [0,100], current CPU usage, of which the precision is adjustable.
+ * @par Dependency:
+ * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_SysCpuUsage
+ */
+extern UINT32 LOS_SysCpuUsage(VOID);
+
+/**
+ * @ingroup los_cpup
+ * @brief Obtain the historical CPU usage.
+ *
+ * @par Description:
+ * This API is used to obtain the historical CPU usage.
+ * @attention
+ * <ul>
+ * <li>This API can be called only after the CPU usage is initialized. Otherwise, the CPU usage fails to be obtained.</li>
+ * </ul>
+ *
+ * @param  mode     [IN] UINT16. Task mode. The parameter value 0 indicates that the CPU usage within 10s will be
+ * obtained, and the parameter value 1 indicates that the CPU usage in the former 1s will be obtained. Other values
+ * indicate that the CPU usage in the period that is less than 1s will be obtained.
+ *
+ * @retval #OS_ERRNO_CPUP_NO_INIT           0x02001e02: The CPU usage is not initialized.
+ * @retval #cpup                            [0,100], historical CPU usage, of which the precision is adjustable.
+ * @par Dependency:
+ * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_HistoryTaskCpuUsage
+ */
+extern UINT32 LOS_HistorySysCpuUsage(UINT16 mode);
+
+/**
+ * @ingroup los_cpup
+ * @brief Obtain the CPU usage of a specified task.
+ *
+ * @par Description:
+ * This API is used to obtain the CPU usage of a task specified by a passed-in task ID.
+ * @attention
+ * <ul>
+ * <li>This API can be called only after the CPU usage is initialized. Otherwise, the CPU usage fails to be obtained.</li>
+ * <li>The passed-in task ID must be valid and the task specified by the task ID must be created. Otherwise,
+ * the CPU usage fails to be obtained.</li>
+ * </ul>
+ *
+ * @param taskID   [IN] UINT32. Task ID.
+ *
+ * @retval #OS_ERRNO_CPUP_NO_INIT             0x02001e02: The CPU usage is not initialized.
+ * @retval #OS_ERRNO_CPUP_TSK_ID_INVALID      0x02001e05: The target task ID is invalid.
+ * @retval #OS_ERRNO_CPUP_THREAD_NO_CREATED   0x02001e04: The target thread is not created.
+ * @retval #cpup                              [0,100], CPU usage of the specified task.
+ * @par Dependency:
+ * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_HistoryTaskCpuUsage
+ */
+extern UINT32 LOS_TaskCpuUsage(UINT32 taskID);
+
+/**
+ * @ingroup los_cpup
+ * @brief  Obtain the historical CPU usage of a specified task.
+ *
+ * @par Description:
+ * This API is used to obtain the historical CPU usage of a task specified by a passed-in task ID.
+ * @attention
+ * <ul>
+ * <li>This API can be called only after the CPU usage is initialized. Otherwise,
+ * the CPU usage fails to be obtained.</li>
+ * <li>The passed-in task ID must be valid and the task specified by the task ID must be created. Otherwise,
+ * the CPU usage fails to be obtained.</li>
+ * </ul>
+ *
+ * @param taskID   [IN] UINT32. Task ID.
+ * @param mode     [IN] UINT16. Task mode. The parameter value 0 indicates that the CPU usage within 10s
+ * will be obtained, and the parameter value 1 indicates that the CPU usage in the former 1s will be obtained.
+ * Other values indicate that the CPU usage in the period that is less than 1s will be obtained.
+ *
+ * @retval #OS_ERRNO_CPUP_NO_INIT             0x02001e02: The CPU usage is not initialized.
+ * @retval #OS_ERRNO_CPUP_TSK_ID_INVALID      0x02001e05: The target task ID is invalid.
+ * @retval #OS_ERRNO_CPUP_THREAD_NO_CREATED   0x02001e04: The target thread is not created.
+ * @retval #cpup                              [0,100], CPU usage of the specified task.
+ * @par Dependency:
+ * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_HistorySysCpuUsage
+ */
+extern UINT32 LOS_HistoryTaskCpuUsage(UINT32 taskID, UINT16 mode);
+
+/**
+ * @ingroup los_cpup
+ * @brief Obtain the CPU usage of all tasks.
+ *
+ * @par Description:
+ * This API is used to obtain the CPU usage of all tasks according to maximum number of threads.
+ * @attention
+ * <ul>
+ * <li>This API can be called only after the CPU usage is initialized. Otherwise, the CPU usage fails to be obtained.</li>
+ * <li>The input parameter pointer must not be NULL, Otherwise, the CPU usage fails to be obtained.</li>
+ * </ul>
+ *
+ * @param cpupInfo    [OUT]Type.   CPUP_INFO_S* Pointer to the task CPUP information structure to be obtained.
+ * @param mode        [IN] UINT16. Task mode. The parameter value 0 indicates that the CPU usage within 10s
+ * will be obtained, and the parameter value 1 indicates that the CPU usage in the former 1s will be obtained.
+ * Other values indicate that the CPU usage in the period that is less than 1s will be obtained.
+ *
+ * @retval #OS_ERRNO_CPUP_NO_INIT           0x02001e02: The CPU usage is not initialized.
+ * @retval #OS_ERRNO_CPUP_TASK_PTR_NULL     0x02001e01: The input parameter pointer is NULL.
+ * @retval #LOS_OK                          0x00000000: The CPU usage of all tasks is successfully obtained.
+ * @par Dependency:
+ * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_SysCpuUsage
+ */
+extern UINT32 LOS_AllTaskCpuUsage(CPUP_INFO_S *cpupInfo, UINT16 mode);
+
+/**
+ * @ingroup los_monitor
+ * @brief Obtain CPU usage history of certain task.
+ *
+ * @par Description:
+ * This API is used to obtain CPU usage history of certain task.
+ * @attention
+ * <ul>
+ * <li>This API can be called only after the CPU usage is initialized. Otherwise, -1 will be returned.</li>
+ * <li> Only in SYS_CPU_USAGE type, uwTaskID is invalid.</li>
+ * </ul>
+ *
+ * @param type        [IN] cpup type, SYS_CPU_USAGE and TASK_CPU_USAGE
+ * @param mode        [IN] mode,CPUP_IN_10S = usage in 10s,CPUP_IN_1S = usage in last 1s,
+ * CPUP_LESS_THAN_1S = less than 1s, if the inpuit mode is none of them, it will be as CPUP_LESS_THAN_1S.
+ * @param taskID      [IN] task ID, Only in SYS_CPU_USAGE type, taskID is invalid
+ *
+ * @retval #OS_ERROR           -1:CPU usage info obtain failed.
+ * @retval #LOS_OK              0:CPU usage info is successfully obtained.
+ * @par Dependency:
+ * <ul><li>los_monitor.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_CpupUsageMonitor
+ */
+extern UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E mode, UINT32 taskID);
+
+/**
+ * @ingroup los_task
+ * Null task ID
+ *
+ */
+#define OS_TASK_ERRORID                             0xFFFFFFFF
+
+/**
+ * @ingroup los_task
+ * Define a usable task priority.
+ *
+ * Highest task priority.
+ */
+#define OS_TASK_PRIORITY_HIGHEST                    0
+
+/**
+ * @ingroup los_task
+ * Define a usable task priority.
+ *
+ * Lowest task priority.
+ */
+#define OS_TASK_PRIORITY_LOWEST                     31
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * The task control block is unused.
+ */
+#define OS_TASK_STATUS_UNUSED                       0x0001
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * The task is suspended.
+ */
+#define OS_TASK_STATUS_SUSPEND                      0x0002
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * The task is ready.
+ */
+#define OS_TASK_STATUS_READY                        0x0004
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * The task is blocked.
+ */
+#define OS_TASK_STATUS_PEND                         0x0008
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * The task is running.
+ */
+#define OS_TASK_STATUS_RUNNING                      0x0010
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * The task is delayed.
+ */
+#define OS_TASK_STATUS_DELAY                        0x0020
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * The time for waiting for an event to occur expires.
+ */
+#define OS_TASK_STATUS_TIMEOUT                      0x0040
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * The task is waiting for an event to occur.
+ */
+#define OS_TASK_STATUS_EVENT                        0x0400
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * The task is reading an event.
+ */
+#define OS_TASK_STATUS_EVENT_READ                   0x0800
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * A software timer is waiting for an event to occur.
+ */
+#define OS_TASK_STATUS_SWTMR_WAIT                   0x1000
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * The task is blocked on a queue.
+ */
+#define OS_TASK_STATUS_PEND_QUEUE                   0x2000
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task is in userspace.
+ *
+ * The task is a user task.
+ */
+#define OS_TASK_STATUS_USERSPACE                    0x8000
+
+/**
+ * @ingroup los_task
+ * Boundary on which the stack size is aligned.
+ *
+ */
+#define OS_TASK_STACK_SIZE_ALIGN                    16
+
+/**
+ * @ingroup los_task
+ * Boundary on which the stack address is aligned.
+ *
+ */
+#define OS_TASK_STACK_ADDR_ALIGN                    8
+
+/**
+ * @ingroup los_task
+ * Task stack top magic number.
+ *
+ */
+#define OS_TASK_MAGIC_WORD                          0xCCCCCCCC
+
+/**
+ * @ingroup los_task
+ * Initial task stack value.
+ *
+ */
+#define OS_TASK_STACK_INIT                          0xCACACACA
+
+/**
+ * @ingroup los_task
+ * Number of usable task priorities.
+ */
+#define OS_TSK_PRINUM                               ((OS_TASK_PRIORITY_LOWEST - OS_TASK_PRIORITY_HIGHEST) + 1)
+
+/**
+ * @ingroup los_task
+ * @brief the num of delayed tasks bucket
+ */
+#define OS_TSK_SORTLINK_LEN                         32
+
+/**
+ * @ingroup los_task
+ * @brief the bit width occupied by the delayed ticks of task
+ */
+#define OS_TSK_SORTLINK_LOGLEN                      5
+
+/**
+ * @ingroup los_task
+ * @brief the mask of delayed tasks bucket id.
+ */
+#define OS_TSK_SORTLINK_MASK                        (OS_TSK_SORTLINK_LEN - 1)
+
+/**
+ * @ingroup los_task
+ * @brief the max task count for switch.
+ */
+#define OS_TASK_SWITCH_INFO_COUNT                   0xA
+
+/**
+ * @ingroup  los_task
+ * @brief Check whether a task ID is valid.
+ *
+ * @par Description:
+ * This API is used to check whether a task ID, excluding the idle task ID, is valid.
+ * @attention None.
+ *
+ * @param  taskID [IN] Task ID.
+ *
+ * @retval 0 or 1. One indicates that the task ID is invalid, whereas zero indicates that the task ID is valid.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+#define OS_TSK_GET_INDEX(taskID)                      (taskID)
+
+/**
+ * @ingroup  los_task
+ * @brief Obtain the pointer to a task control block.
+ *
+ * @par Description:
+ * This API is used to obtain the pointer to a task control block using a corresponding parameter.
+ * @attention None.
+ *
+ * @param  ptr [IN] Parameter used for obtaining the task control block.
+ *
+ * @retval Pointer to the task control block.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+#define OS_TCB_FROM_PENDLIST(ptr)                       LOS_DL_LIST_ENTRY(ptr, LosTaskCB, pendList)
+
+/**
+ * @ingroup  los_task
+ * @brief Obtain the pointer to a task control block.
+ *
+ * @par Description:
+ * This API is used to obtain the pointer to a task control block that has a specified task ID.
+ * @attention None.
+ *
+ * @param  taskID [IN] task ID.
+ *
+ * @retval Pointer to the task control block.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+#define OS_TCB_FROM_TID(taskID)                       (((LosTaskCB *)g_taskCBArray) + (taskID))
+#define OS_IDLE_TASK_ENTRY                            ((TSK_ENTRY_FUNC)OsIdleTask)
+
+
+/**
+ * @ingroup los_task
+ * Define the task control block structure.
+ */
+typedef struct {
+    VOID                        *stackPointer;            /**< Task stack pointer */
+    UINT16                      taskStatus;
+    UINT16                      priority;
+    UINT32                      stackSize;                /**< Task stack size */
+    UINT32                      topOfStack;               /**< Task stack top */
+    UINT32                      taskID;                   /**< Task ID */
+    TSK_ENTRY_FUNC              taskEntry;                /**< Task entrance function */
+    VOID                        *taskSem;                 /**< Task-held semaphore */
+    VOID                        *taskMux;                 /**< Task-held mutex */
+    UINT32                      arg;                      /**< Parameter */
+    CHAR                        *taskName;                /**< Task name */
+    LOS_DL_LIST                 pendList;
+    LOS_DL_LIST                 timerList;
+    UINT32                      idxRollNum;
+    EVENT_CB_S                  event;
+    UINT32                      eventMask;                /**< Event mask */
+    UINT32                      eventMode;                /**< Event mode */
+    VOID                        *msg;                     /**< Memory allocated to queues */
+} LosTaskCB;
+
+typedef struct {
+    LosTaskCB   *runTask;
+    LosTaskCB   *newTask;
+} LosTask;
+
+typedef struct {
+    LOS_DL_LIST     *sortLink;
+    UINT16          cursor;
+    UINT16          unused;
+} TaskSortLinkAttr;
+
+/**
+ * @ingroup los_task
+ * Time slice structure.
+ */
+typedef struct TaskTimeSlice {
+    LosTaskCB               *task;                        /**< Current running task */
+    UINT16                  time;                         /**< Expiration time point */
+    UINT16                  tout;                         /**< Expiration duration */
+} OsTaskRobin;
+
+typedef struct {
+    UINT8 maxCnt : 7;   // bits [6:0] store count of task switch info
+    UINT8 isFull : 1;   // bit [7] store isfull status
+} TaskCountInfo;
+
+/**
+ * @ingroup los_task
+ * Task switch information structure.
+ *
+ */
+typedef struct {
+    UINT8 idx;
+    TaskCountInfo cntInfo;
+    UINT16 pid[OS_TASK_SWITCH_INFO_COUNT];
+    CHAR   name[OS_TASK_SWITCH_INFO_COUNT][LOS_TASK_NAMELEN];
+}TaskSwitchInfo;
+
+
+extern LosTask              g_losTask;
+
+/**
+ * @ingroup los_task
+ * Task lock flag.
+ *
+ */
+extern UINT16               g_losTaskLock;
+
+/**
+ * @ingroup los_task
+ * Maximum number of tasks.
+ *
+ */
+extern UINT32               g_taskMaxNum;
+
+/**
+ * @ingroup los_task
+ * Idle task ID.
+ *
+ */
+extern UINT32               g_idleTaskID;
+
+/**
+ * @ingroup los_task
+ * Software timer task ID.
+ *
+ */
+extern UINT32               g_swtmrTaskID;
+
+/**
+ * @ingroup los_task
+ * Starting address of a task.
+ *
+ */
+extern LosTaskCB            *g_taskCBArray;
+
+/**
+ * @ingroup los_task
+ * Free task linked list.
+ *
+ */
+extern LOS_DL_LIST          g_losFreeTask;
+
+/**
+ * @ingroup los_task
+ * Circular linked list that stores tasks that are deleted automatically.
+ *
+ */
+extern LOS_DL_LIST          g_taskRecyleList;
+
+/**
+ * @ingroup los_task
+ * @brief the block status of task
+ */
+extern VOID OsTaskSchedule(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Modify the priority of task.
+ *
+ * @par Description:
+ * This API is used to modify the priority of task.
+ *
+ * @attention
+ * <ul>
+ * <li>The taskCB should be a correct pointer to task control block structure.</li>
+ * <li>the priority should be in [0, OS_TASK_PRIORITY_LOWEST].</li>
+ * </ul>
+ *
+ * @param  taskCB    [IN] Type #LosTaskCB * pointer to task control block structure.
+ * @param  priority  [IN] Type #UINT16 the priority of task.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+extern VOID OsTaskPriModify(LosTaskCB *taskCB, UINT16 priority);
+
+/**
+ * @ingroup  los_task
+ * @brief Scan a task.
+ *
+ * @par Description:
+ * This API is used to scan a task.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+extern VOID OsTaskScan(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Initialization a task.
+ *
+ * @par Description:
+ * This API is used to initialization a task.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval  UINT32    Initialization result.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+extern UINT32 OsTaskInit(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Create idle task.
+ *
+ * @par Description:
+ * This API is used to create idle task.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval  UINT32   Create result.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+extern UINT32 OsIdleTaskCreate(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Check task switch.
+ *
+ * @par Description:
+ * This API is used to check task switch.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+extern VOID OsTaskSwitchCheck(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief TaskMonInit.
+ *
+ * @par Description:
+ * This API is used to taskMonInit.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+extern VOID OsTaskMonInit(VOID);
+
+/**
+ * @ingroup  los_task
+ * @brief Task entry.
+ *
+ * @par Description:
+ * This API is used to task entry.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  taskID  [IN] Type #UINT32   task id.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+extern VOID OsTaskEntry(UINT32 taskID);
+
+/**
+ * @ingroup  los_task
+ * @brief pend running task to pendlist
+ *
+ * @par Description:
+ * This API is used to pend task to  pendlist and add to sorted delay list.
+ *
+ * @attention
+ * <ul>
+ * <li>The pstList should be a vaild pointer to pendlist.</li>
+ * </ul>
+ *
+ * @param  list       [IN] Type #LOS_DL_LIST * pointer to list which running task will be pended.
+ * @param  taskStatus [IN] Type #UINT32  Task Status.
+ * @param  timeOut    [IN] Type #UINT32  Expiry time. The value range is [0,LOS_WAIT_FOREVER].
+ *
+ * @retval  LOS_OK       wait success
+ * @retval  LOS_NOK      pend out
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see OsTaskWake
+ */
+extern VOID OsTaskWait(LOS_DL_LIST *list, UINT32 taskStatus, UINT32 timeOut);
+
+/**
+ * @ingroup  los_task
+ * @brief delete task from pendlist.
+ *
+ * @par Description:
+ * This API is used to delete task from pendlist and also add to the priqueue.
+ *
+ * @attention
+ * <ul>
+ * <li>The pstList should be a vaild pointer to pend list.</li>
+ * </ul>
+ *
+ * @param  resumedTask [IN] Type #LosTaskCB * pointer to the task which will be add to priqueue.
+ * @param  taskStatus  [IN] Type #UINT32  Task Status.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see OsTaskWait
+ */
+extern VOID OsTaskWake(LosTaskCB *resumedTask, UINT32 taskStatus);
+
+/**
+ * @ingroup  los_task
+ * @brief Get the task water line.
+ *
+ * @par Description:
+ * This API is used to get the task water line.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  taskID [IN] Type #UINT32 task id.
+ *
+ * @retval  UINT32  Task water line.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern UINT32 OsGetTaskWaterLine(UINT32 taskID);
+
+/**
+ * @ingroup  los_task
+ * @brief Convert task status to string.
+ *
+ * @par Description:
+ * This API is used to convert task status to string.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  taskStatus [IN] Type #UINT16 task status.
+ *
+ * @retval  UINT8 *  String.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern UINT8 *OsConvertTskStatus(UINT16 taskStatus);
+
+/**
+ * @ingroup  los_task
+ * @brief Add task to sorted delay list.
+ *
+ * @par Description:
+ * This API is used to add task to sorted delay list.
+ *
+ * @attention
+ * <ul>
+ * <li>The taskCB should be a correct pointer to task control block structure.</li>
+ * </ul>
+ *
+ * @param  taskCB     [IN] Type #LosTaskCB * pointer to task control block structure.
+ * @param  timeout    [IN] Type #UINT32 wait time, ticks.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see OsTimerListDelete
+ */
+extern VOID OsTaskAdd2TimerList(LosTaskCB *taskCB, UINT32 timeout);
+
+/**
+ * @ingroup  los_task
+ * @brief delete task from sorted delay list.
+ *
+ * @par Description:
+ * This API is used to delete task from sorted delay list.
+ *
+ * @attention
+ * <ul>
+ * <li>The taskCB should be a correct pointer to task control block structure.</li>
+ * </ul>
+ *
+ * @param  taskCB [IN] Type #LosTaskCB * pointer to task control block structure.
+ *
+ * @retval  None.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see OsTaskAdd2TimerList
+ */
+extern VOID OsTimerListDelete(LosTaskCB *taskCB);
+
+/**
+ * @ingroup  los_task
+ * @brief Get all task information.
+ *
+ * @par Description:
+ * This API is used to get all task information.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval  UINT32  All task information.
+ * @par Dependency:
+ * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern UINT32 OsGetAllTskInfo(VOID);
+
+
+extern VOID *OsTskUserStackInit(VOID* stackPtr, VOID* userSP, UINT32 userStackSize);
+
+extern VOID *OsTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack);
+
+extern VOID OsSchedule(VOID);
+
+extern VOID osTaskSchedule(VOID);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

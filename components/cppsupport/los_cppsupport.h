@@ -37,7 +37,7 @@
 #ifndef _LOS_CPPSUPPORT_H
 #define _LOS_CPPSUPPORT_H
 
-#include "los_typedef.h"
+#include "los_compiler.h"
 
 #ifdef __cplusplus
 #if __cplusplus

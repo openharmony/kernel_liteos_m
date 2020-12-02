@@ -1,0 +1,15 @@
+# Copyright (c) Huawei Technologies Co., Ltd. 2020. All rights reserved.
+import("//build/lite/config/component/lite_component.gni")
+
+static_library("cmsis") {
+  sources = [ "cmsis_liteos.c" ]
+
+  include_dirs = [
+    "//kernel/liteos_m/kal",
+    "//third_party/bounds_checking_function/include",
+  ]
+
+  defines = [ "LITEOS_WIFI_IOT_VERSION" ]
+
+  cflags = [ "-Wno-error" ]
+}

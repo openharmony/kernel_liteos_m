@@ -29,10 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_memcheck.h"
-#include "los_memory_pri.h"
-#include "los_membox_pri.h"
-#include "los_multipledlinkhead_pri.h"
+#include "los_membox.h"
+//#include "los_multipledlinkhead_pri.h"
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {

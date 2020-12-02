@@ -29,14 +29,10 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_tick_pri.h"
-#include "los_base_pri.h"
-#include "los_swtmr_pri.h"
-#include "los_task_pri.h"
-#include "los_timeslice_pri.h"
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-#include "los_tickless_pri.h"
-#endif
+#include "los_tick.h"
+#include "los_config.h"
+#include "los_task.h"
+#include "los_swtmr.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -109,6 +105,122 @@ UINT32 LOS_SysClockGet(VOID)
 {
     return g_sysClock;
 }
+
+
+/*****************************************************************************
+Function    : LOS_TickCountGet
+Description : get current tick
+Input       : None
+Output      : None
+Return      : current tick
+*****************************************************************************/
+LITE_OS_SEC_TEXT_MINOR UINT64 LOS_TickCountGet(VOID)
+{
+    return g_ullTickCount;
+}
+
+/*****************************************************************************
+Function    : LOS_CyclePerTickGet
+Description : Get System cycle number corresponding to each tick
+Input       : None
+Output      : None
+Return      : cycle number corresponding to each tick
+*****************************************************************************/
+LITE_OS_SEC_TEXT_MINOR UINT32 LOS_CyclePerTickGet(VOID)
+{
+    return g_cyclesPerTick;
+}
+
+/*****************************************************************************
+Function    : LOS_MS2Tick
+Description : milliseconds convert to Tick
+Input       : millisec ---------- milliseconds
+Output      : None
+Return      : Tick
+*****************************************************************************/
+LITE_OS_SEC_TEXT_MINOR UINT32 LOS_MS2Tick(UINT32 millisec)
+{
+    if (millisec == OS_NULL_INT) {
+        return OS_NULL_INT;
+    }
+
+    return ((UINT64)millisec * LOSCFG_BASE_CORE_TICK_PER_SECOND) / OS_SYS_MS_PER_SECOND;
+}
+
+/*****************************************************************************
+Function    : LOS_Tick2MS
+Description : Tick convert to milliseconds
+Input       : ticks ---------- ticks
+Output      : None
+Return      : milliseconds
+*****************************************************************************/
+LITE_OS_SEC_TEXT_MINOR UINT32 LOS_Tick2MS(UINT32 ticks)
+{
+    return ((UINT64)ticks * OS_SYS_MS_PER_SECOND) / LOSCFG_BASE_CORE_TICK_PER_SECOND;
+}
+
+/*****************************************************************************
+Function    : OsCpuTick2MS
+Description : cycle convert to milliseconds
+Input       : cpuTick ---------- cycle
+Output      : msHi    ---------- High 32 milliseconds
+              msLo    ---------- Low 32 milliseconds
+Return      : LOS_OK on success ,or error code on failure
+*****************************************************************************/
+LITE_OS_SEC_TEXT_INIT UINT32 OsCpuTick2MS(CpuTick *cpuTick, UINT32 *msHi, UINT32 *msLo)
+{
+    UINT64 tmpCpuTick;
+    DOUBLE temp;
+
+    if ((cpuTick == NULL) || (msHi == NULL) || (msLo == NULL)) {
+        return LOS_ERRNO_SYS_PTR_NULL;
+    }
+
+    if (g_sysClock == 0) {
+        return LOS_ERRNO_SYS_CLOCK_INVALID;
+    }
+    tmpCpuTick = ((UINT64)cpuTick->cntHi << OS_SYS_MV_32_BIT) | cpuTick->cntLo;
+    temp = tmpCpuTick / ((DOUBLE)g_sysClock / OS_SYS_MS_PER_SECOND);
+
+    tmpCpuTick = (UINT64)temp;
+
+    *msLo = (UINT32)tmpCpuTick;
+    *msHi = (UINT32)(tmpCpuTick >> OS_SYS_MV_32_BIT);
+
+    return LOS_OK;
+}
+
+/*****************************************************************************
+Function    : OsCpuTick2US
+Description : cycle convert to Microsecond
+Input       : cpuTick ---------- cycle
+Output      : usHi    ---------- High 32 Microsecond
+              usLo    ---------- Low 32 Microsecond
+Return      : LOS_OK on success ,or error code on failure
+*****************************************************************************/
+LITE_OS_SEC_TEXT_INIT UINT32 OsCpuTick2US(CpuTick *cpuTick, UINT32 *usHi, UINT32 *usLo)
+{
+    UINT64 tmpCpuTick;
+    DOUBLE temp;
+
+    if ((cpuTick == NULL) || (usHi == NULL) || (usLo == NULL)) {
+        return LOS_ERRNO_SYS_PTR_NULL;
+    }
+
+    if (g_sysClock == 0) {
+        return LOS_ERRNO_SYS_CLOCK_INVALID;
+    }
+    tmpCpuTick = ((UINT64)cpuTick->cntHi << OS_SYS_MV_32_BIT) | cpuTick->cntLo;
+    temp = tmpCpuTick / ((DOUBLE)g_sysClock / OS_SYS_US_PER_SECOND);
+
+    tmpCpuTick = (UINT64)temp;
+
+    *usLo = (UINT32)tmpCpuTick;
+    *usHi = (UINT32)(tmpCpuTick >> OS_SYS_MV_32_BIT);
+
+    return LOS_OK;
+}
+
 
 #ifdef __cplusplus
 #if __cplusplus

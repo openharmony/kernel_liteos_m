@@ -37,8 +37,6 @@
 #ifndef _LOS_SWTMR_H
 #define _LOS_SWTMR_H
 
-#include "los_base.h"
-#include "los_task.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -432,6 +430,119 @@ extern UINT32 LOS_SwtmrCreate(UINT32 interval,
  * @see LOS_SwtmrCreate
  */
 extern UINT32 LOS_SwtmrDelete(UINT16 swtmrID);
+
+/**
+ * @ingroup los_swtmr
+ * Software timer state
+ */
+enum SwtmrState {
+    OS_SWTMR_STATUS_UNUSED,             /**< The software timer is not used. */
+    OS_SWTMR_STATUS_CREATED,            /**< The software timer is created. */
+    OS_SWTMR_STATUS_TICKING             /**< The software timer is timing. */
+};
+
+/**
+ * @ingroup los_swtmr
+ * Structure of the callback function that handles software timer timeout
+ */
+typedef struct {
+    SWTMR_PROC_FUNC     handler;        /**< Callback function that handles software timer timeout */
+    UINT32              arg;            /**< Parameter passed in when the callback function
+                                             that handles software timer timeout is called */
+} SwtmrHandlerItem;
+
+extern SWTMR_CTRL_S *g_swtmrCBArray;
+
+#define OS_SWT_FROM_SID(swtmrId)    ((SWTMR_CTRL_S *)g_swtmrCBArray + ((swtmrId) % LOSCFG_BASE_CORE_SWTMR_LIMIT))
+
+/**
+ * @ingroup los_swtmr
+ * @brief Scan a software timer.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to scan a software timer when a Tick interrupt occurs and determine whether the software timer
+   expires.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_swtmr_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_SwtmrStop
+ */
+extern UINT32 OsSwtmrScan(VOID);
+
+/**
+ * @ingroup los_swtmr
+ * @brief Initialization software timer.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to initialization software.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_swtmr_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern UINT32 OsSwtmrInit(VOID);
+
+/**
+ * @ingroup los_swtmr
+ * @brief Get next timeout.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to get next timeout.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  None.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_swtmr_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern UINT32 OsSwtmrGetNextTimeout(VOID);
+
+/**
+ * @ingroup los_swtmr
+ * @brief Adjust software timer list.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to adjust software timer list.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  sleepTime    [IN]    UINT32 Sleep time.
+ *
+ * @retval UINT32    Sleep time.
+ * @par Dependency:
+ * <ul><li>los_swtmr_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern VOID OsSwtmrAdjust(UINT32 sleepTime);
 
 #ifdef __cplusplus
 #if __cplusplus

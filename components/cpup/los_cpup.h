@@ -37,9 +37,7 @@
 #ifndef _LOS_CPUP_H
 #define _LOS_CPUP_H
 
-#include "los_hwi.h"
-#include "los_base.h"
-#include "los_sys.h"
+#include "los_interrupt.h"
 #include "los_task.h"
 
 #ifdef __cplusplus
@@ -123,181 +121,65 @@ extern "C" {
 
 /**
  * @ingroup los_cpup
- * Count the CPU usage structures of all tasks.
+ * Number of historical running time records
  */
-typedef struct tagCpupInfo {
-    UINT16 usStatus;            /**< save the cur task status     */
-    UINT32 uwUsage;             /**< Usage. The value range is [0,1000].   */
-} CPUP_INFO_S;
-
-/**
- * @ingroup los_monitor
- * Type of the CPU usage query.
- */
-typedef enum {
-    SYS_CPU_USAGE = 0,   /* system cpu occupancy rate */
-    TASK_CPU_USAGE,      /* task cpu occupancy rate */
-} CPUP_TYPE_E;
-
-/**
- * @ingroup los_monitor
- * Mode of the CPU usage query.
- */
-typedef enum {
-    CPUP_IN_10S = 0,     /* cpu occupancy rate in 10s */
-    CPUP_IN_1S,          /* cpu occupancy rate in 1s */
-    CPUP_LESS_THAN_1S,   /* cpu occupancy rate less than 1s, if the input mode is none of them, it will be this. */
-} CPUP_MODE_E;
+#define OS_CPUP_HISTORY_RECORD_NUM   10
 
 /**
  * @ingroup los_cpup
- * @brief Obtain the current CPU usage.
+ * Count the CPU usage structures of a task.
+ */
+typedef struct {
+    UINT32 cpupID;                                        /**< Task ID */
+    UINT16 status;                                        /**< Task status */
+    UINT64 allTime;                                       /**< Total running time */
+    UINT64 startTime;                                     /**< Time before a task is invoked */
+    UINT64 historyTime[OS_CPUP_HISTORY_RECORD_NUM];       /**< Historical running time */
+} OsCpupCB;
+
+extern OsCpupCB    *g_cpup;
+
+/**
+ * @ingroup los_cpup
+ * @brief Initialization cpup.
  *
  * @par Description:
- * This API is used to obtain the current CPU usage.
+ * This API is used to initialization cpup.
  * @attention
  * <ul>
- * <li>This API can be called only after the CPU usage is initialized. Otherwise, error codes will be returned.</li>
- * <li> The precision of the CPU usage can be adjusted by changing the value of the CPUP_PRECISION macro.</li>
+ * <li>None.</li>
  * </ul>
  *
  * @param None.
  *
- * @retval #OS_ERRNO_CPUP_NO_INIT           0x02001e02: The CPU usage is not initialized.
- * @retval #cpup                            [0,100], current CPU usage, of which the precision is adjustable.
+ * @retval UINT32   Initialization result.
  * @par Dependency:
  * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_SysCpuUsage
+ * @see None.
  */
-extern UINT32 LOS_SysCpuUsage(VOID);
+extern UINT32 OsCpupInit(VOID);
 
 /**
  * @ingroup los_cpup
- * @brief Obtain the historical CPU usage.
+ * @brief Start task to get cycles count in current task ending.
  *
  * @par Description:
- * This API is used to obtain the historical CPU usage.
+ * This API is used to start task to get cycles count in current task ending.
  * @attention
  * <ul>
- * <li>This API can be called only after the CPU usage is initialized. Otherwise, the CPU usage fails to be obtained.</li>
+ * <li>None.</li>
  * </ul>
  *
- * @param  mode     [IN] UINT16. Task mode. The parameter value 0 indicates that the CPU usage within 10s will be
- * obtained, and the parameter value 1 indicates that the CPU usage in the former 1s will be obtained. Other values
- * indicate that the CPU usage in the period that is less than 1s will be obtained.
+ * @param None.
  *
- * @retval #OS_ERRNO_CPUP_NO_INIT           0x02001e02: The CPU usage is not initialized.
- * @retval #cpup                            [0,100], historical CPU usage, of which the precision is adjustable.
+ * @retval None.
  * @par Dependency:
  * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_HistoryTaskCpuUsage
+ * @see None.
  */
-extern UINT32 LOS_HistorySysCpuUsage(UINT16 mode);
+extern VOID OsTskCycleEndStart(VOID);
 
-/**
- * @ingroup los_cpup
- * @brief Obtain the CPU usage of a specified task.
- *
- * @par Description:
- * This API is used to obtain the CPU usage of a task specified by a passed-in task ID.
- * @attention
- * <ul>
- * <li>This API can be called only after the CPU usage is initialized. Otherwise, the CPU usage fails to be obtained.</li>
- * <li>The passed-in task ID must be valid and the task specified by the task ID must be created. Otherwise,
- * the CPU usage fails to be obtained.</li>
- * </ul>
- *
- * @param taskID   [IN] UINT32. Task ID.
- *
- * @retval #OS_ERRNO_CPUP_NO_INIT             0x02001e02: The CPU usage is not initialized.
- * @retval #OS_ERRNO_CPUP_TSK_ID_INVALID      0x02001e05: The target task ID is invalid.
- * @retval #OS_ERRNO_CPUP_THREAD_NO_CREATED   0x02001e04: The target thread is not created.
- * @retval #cpup                              [0,100], CPU usage of the specified task.
- * @par Dependency:
- * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_HistoryTaskCpuUsage
- */
-extern UINT32 LOS_TaskCpuUsage(UINT32 taskID);
 
-/**
- * @ingroup los_cpup
- * @brief  Obtain the historical CPU usage of a specified task.
- *
- * @par Description:
- * This API is used to obtain the historical CPU usage of a task specified by a passed-in task ID.
- * @attention
- * <ul>
- * <li>This API can be called only after the CPU usage is initialized. Otherwise,
- * the CPU usage fails to be obtained.</li>
- * <li>The passed-in task ID must be valid and the task specified by the task ID must be created. Otherwise,
- * the CPU usage fails to be obtained.</li>
- * </ul>
- *
- * @param taskID   [IN] UINT32. Task ID.
- * @param mode     [IN] UINT16. Task mode. The parameter value 0 indicates that the CPU usage within 10s
- * will be obtained, and the parameter value 1 indicates that the CPU usage in the former 1s will be obtained.
- * Other values indicate that the CPU usage in the period that is less than 1s will be obtained.
- *
- * @retval #OS_ERRNO_CPUP_NO_INIT             0x02001e02: The CPU usage is not initialized.
- * @retval #OS_ERRNO_CPUP_TSK_ID_INVALID      0x02001e05: The target task ID is invalid.
- * @retval #OS_ERRNO_CPUP_THREAD_NO_CREATED   0x02001e04: The target thread is not created.
- * @retval #cpup                              [0,100], CPU usage of the specified task.
- * @par Dependency:
- * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_HistorySysCpuUsage
- */
-extern UINT32 LOS_HistoryTaskCpuUsage(UINT32 taskID, UINT16 mode);
-
-/**
- * @ingroup los_cpup
- * @brief Obtain the CPU usage of all tasks.
- *
- * @par Description:
- * This API is used to obtain the CPU usage of all tasks according to maximum number of threads.
- * @attention
- * <ul>
- * <li>This API can be called only after the CPU usage is initialized. Otherwise, the CPU usage fails to be obtained.</li>
- * <li>The input parameter pointer must not be NULL, Otherwise, the CPU usage fails to be obtained.</li>
- * </ul>
- *
- * @param cpupInfo    [OUT]Type.   CPUP_INFO_S* Pointer to the task CPUP information structure to be obtained.
- * @param mode        [IN] UINT16. Task mode. The parameter value 0 indicates that the CPU usage within 10s
- * will be obtained, and the parameter value 1 indicates that the CPU usage in the former 1s will be obtained.
- * Other values indicate that the CPU usage in the period that is less than 1s will be obtained.
- *
- * @retval #OS_ERRNO_CPUP_NO_INIT           0x02001e02: The CPU usage is not initialized.
- * @retval #OS_ERRNO_CPUP_TASK_PTR_NULL     0x02001e01: The input parameter pointer is NULL.
- * @retval #LOS_OK                          0x00000000: The CPU usage of all tasks is successfully obtained.
- * @par Dependency:
- * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_SysCpuUsage
- */
-extern UINT32 LOS_AllTaskCpuUsage(CPUP_INFO_S *cpupInfo, UINT16 mode);
-
-/**
- * @ingroup los_monitor
- * @brief Obtain CPU usage history of certain task.
- *
- * @par Description:
- * This API is used to obtain CPU usage history of certain task.
- * @attention
- * <ul>
- * <li>This API can be called only after the CPU usage is initialized. Otherwise, -1 will be returned.</li>
- * <li> Only in SYS_CPU_USAGE type, uwTaskID is invalid.</li>
- * </ul>
- *
- * @param type        [IN] cpup type, SYS_CPU_USAGE and TASK_CPU_USAGE
- * @param mode        [IN] mode,CPUP_IN_10S = usage in 10s,CPUP_IN_1S = usage in last 1s,
- * CPUP_LESS_THAN_1S = less than 1s, if the inpuit mode is none of them, it will be as CPUP_LESS_THAN_1S.
- * @param taskID      [IN] task ID, Only in SYS_CPU_USAGE type, taskID is invalid
- *
- * @retval #OS_ERROR           -1:CPU usage info obtain failed.
- * @retval #LOS_OK              0:CPU usage info is successfully obtained.
- * @par Dependency:
- * <ul><li>los_monitor.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_CpupUsageMonitor
- */
-extern UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E mode, UINT32 taskID);
 
 #ifdef __cplusplus
 #if __cplusplus

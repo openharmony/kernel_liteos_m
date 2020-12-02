@@ -29,11 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_memstat_pri.h"
-#include "los_task_pri.h"
-#include "los_config.h"
-#include "los_printf.h"
-
+#include "los_debug.h"
+#include "los_interrupt.h"
 
 typedef struct {
     UINT32 memUsed;
