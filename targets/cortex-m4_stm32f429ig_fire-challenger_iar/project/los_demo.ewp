@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.20.2.14834</state>
+                    <state>8.22.1.15696</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -2078,9 +2078,12 @@
                 <name>$PROJ_DIR$\..\..\..\components\cpup\los_cpup.c</name>
             </file>
         </group>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\kernel\src\los_err.c</name>
-        </file>
+        <group>
+            <name>utils</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\utils\los_error.c</name>
+            </file>
+        </group>
         <file>
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_event.c</name>
         </file>
@@ -2098,9 +2101,6 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\kernel\src\mm\los_memstat.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\kernel\src\los_misc.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_mux.c</name>
