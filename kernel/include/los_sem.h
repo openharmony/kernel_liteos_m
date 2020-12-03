@@ -37,9 +37,6 @@
 #ifndef _LOS_SEM_H
 #define _LOS_SEM_H
 
-#include "los_base.h"
-#include "los_err.h"
-#include "los_list.h"
 #include "los_task.h"
 
 #ifdef __cplusplus
@@ -287,6 +284,91 @@ extern UINT32 LOS_SemPend(UINT32 semHandle, UINT32 timeout);
  * @see LOS_SemPend | LOS_SemCreate
  */
 extern UINT32 LOS_SemPost(UINT32 semHandle);
+
+enum LosSemMaxCount {
+    OS_SEM_COUNTING_MAX_COUNT = 0xFFFF, /**< Max count of counting semaphores */
+    OS_SEM_BINARY_MAX_COUNT = 1         /**< Max count of binary semaphores */
+};
+
+/**
+ * @ingroup los_sem
+ * Semaphore control structure.
+ */
+typedef struct {
+    UINT16 semStat;      /**< Semaphore state */
+    UINT16 semCount;     /**< Number of available semaphores */
+    UINT16 maxSemCount;  /**< Max number of available semaphores */
+    UINT16 semID;        /**< Semaphore control structure ID */
+    LOS_DL_LIST semList; /**< Queue of tasks that are waiting on a semaphore */
+} LosSemCB;
+
+/**
+ * @ingroup los_sem
+ * The semaphore is not in use.
+ *
+ */
+#define OS_SEM_UNUSED 0
+/**
+ * @ingroup los_sem
+ * The semaphore is used.
+ *
+ */
+#define OS_SEM_USED   1
+/**
+ * @ingroup los_sem
+ * Obtain the head node in a semaphore doubly linked list.
+ *
+ */
+#define GET_SEM_LIST(ptr) LOS_DL_LIST_ENTRY(ptr, LosSemCB, semList)
+extern LosSemCB *g_allSem;
+/**
+ * @ingroup los_sem
+ * Obtain a semaphore ID.
+ *
+ */
+#define GET_SEM(semid) (((LosSemCB *)g_allSem) + (semid))
+
+/**
+ * @ingroup los_sem
+ * @brief Initialize the  Semaphore doubly linked list.
+ *
+ * @par Description:
+ * This API is used to initialize the  Semaphore doubly linked list.
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param None.
+ *
+ * @retval UINT32   Initialization result.
+ * @par Dependency:
+ * <ul><li>los_sem_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern UINT32 OsSemInit(VOID);
+
+/**
+ * @ingroup los_sem
+ * @brief Create Semaphore.
+ *
+ * @par Description:
+ * This API is used to create Semaphore.
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param  count      [IN]Type  #UINT16 Semaphore count.
+ * @param  maxCount   [IN]Type  #UINT16 Max semaphore count.
+ * @param  semHandle  [OUT]Type #UINT32 * Index of semaphore.
+ *
+ * @retval UINT32   Create result.
+ * @par Dependency:
+ * <ul><li>los_sem_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+UINT32 OsSemCreate(UINT16 count, UINT16 maxCount, UINT32 *semHandle);
 
 #ifdef __cplusplus
 #if __cplusplus

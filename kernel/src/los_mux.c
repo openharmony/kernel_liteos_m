@@ -28,16 +28,10 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include "los_mux_pri.h"
-#include "los_err_pri.h"
-#include "los_memory_pri.h"
-#include "los_priqueue_pri.h"
-#include "los_task_pri.h"
-#if (LOSCFG_PLATFORM_EXC == YES)
-#include "los_exc.h"
-#endif
-#include "los_hw.h"
+#include "los_mux.h"
+#include "los_interrupt.h"
+#include "los_memory.h"
+#include "los_debug.h"
 
 #ifdef __cplusplus
 #if __cplusplus

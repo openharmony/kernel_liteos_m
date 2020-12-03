@@ -2374,26 +2374,26 @@
         <group>
             <name>arch</name>
             <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_dispatch_iar.S</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_exc.c</name>
+                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_dispatch.S</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_hw.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_hw_exc_iar.S</name>
+                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_hw_exc.S</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_hw_tick.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_hwi.c</name>
+                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_interrupt.c</name>
             </file>
         </group>
         <group>
-            <name>utils</name>
+            <name>components</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\components\cppsupport\los_cppsupport.c</name>
+            </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\components\cpup\los_cpup.c</name>
             </file>
@@ -2423,13 +2423,7 @@
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_misc.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\kernel\src\mm\los_multipledlinkhead.c</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_mux.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\kernel\src\los_priqueue.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_queue.c</name>
@@ -2441,16 +2435,10 @@
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_swtmr.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\kernel\src\los_sys.c</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_task.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_tick.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\kernel\src\los_timeslice.c</name>
         </file>
     </group>
     <group>

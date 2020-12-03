@@ -29,12 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_event_pri.h"
-#include "los_priqueue_pri.h"
-#include "los_task_pri.h"
-#include "los_hw.h"
-#include "los_hwi.h"
-
+#include "los_task.h"
+#include "los_interrupt.h"
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -56,6 +52,9 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventPoll(UINT32 *eventID, UINT32 eventMask, UINT32 
     UINT32 ret = 0;
     UINTPTR intSave;
 
+    if (eventID == NULL) {
+        return LOS_ERRNO_EVENT_PTR_NULL;
+    }
     intSave = LOS_IntLock();
     if (mode & LOS_WAITMODE_OR) {
         if ((*eventID & eventMask) != 0) {

@@ -37,9 +37,8 @@
 #ifndef _TARGET_CONFIG_H
 #define _TARGET_CONFIG_H
 
-#include "los_typedef.h"
+#include "los_compiler.h"
 #include "stm32f4xx.h"
-
 
 #ifdef __cplusplus
 #if __cplusplus

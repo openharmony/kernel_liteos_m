@@ -29,27 +29,23 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_sys.h"
-#include "los_tick.h"
-#include "los_task_pri.h"
-#include "los_tick_pri.h"
 #include "los_config.h"
-#if (LOSCFG_KERNEL_RUNSTOP == YES)
-#include "los_sr.h"
-#endif
+#include "los_queue.h"
+#include "los_memory.h"
+#include "los_mux.h"
 
 #if (LOSCFG_PLATFORM_EXC == YES)
-#include "los_exc_pri.h"
+#include "los_interrupt.h"
 #endif
 
 #if (LOSCFG_KERNEL_TRACE == YES)
-#include "los_trace.h"
+#include "los_debug.h"
 #endif
 
 #if (LOSCFG_KERNEL_CPPSUPPORT == YES)
 #include "los_cppsupport.h"
 #endif
-#include "los_printf.h"
+#include "los_debug.h"
 
 
 #ifdef __cplusplus
@@ -113,6 +109,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_Start(VOID)
 }
 
 extern UINT8 g_memStart[OS_SYS_MEM_SIZE];
+
 /*****************************************************************************
  Function    : LOS_KernelInit
  Description : System kernel initialization function, configure all system modules
@@ -122,8 +119,8 @@ extern UINT8 g_memStart[OS_SYS_MEM_SIZE];
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
 {
-    printf("entering kernel init...\n");
     UINT32 ret;
+    printf("entering kernel init...\n");
 
     OsRegister();
     m_aucSysMem0 = g_memStart;
@@ -136,10 +133,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
 
 #if (LOSCFG_PLATFORM_HWI == YES)
     OsHwiInit();
-#endif
-
-#if (LOSCFG_PLATFORM_EXC == YES)
-    OsExcInit(MAX_EXC_MEM_SIZE);
 #endif
 
     ret = OsTaskInit();

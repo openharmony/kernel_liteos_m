@@ -29,13 +29,11 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
 #include "securec.h"
-#include "los_hwi.h"
-#include "los_typedef.h"
+#include "los_interrupt.h"
 #include "los_membox.h"
 #include "los_memory.h"
-#include "los_memcheck_pri.h"
+#include "los_debug.h"
 
 #if (LOSCFG_PLATFORM_EXC == YES) || (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == YES)
 UINT8 g_memMang[MEM_INFO_SIZE];
@@ -110,6 +108,9 @@ VOID *LOS_MemboxAlloc(VOID *boxMem)
     VOID *ret = NULL;
     UINTPTR intSave;
 
+    if (boxMem == NULL) {
+        return NULL;
+    }
     intSave = LOS_IntLock();
     if (((OS_MEMBOX_S_P)boxMem)->uwBlkCnt < ((OS_MEMBOX_S_P)boxMem)->uwMaxBlk) {
         ret = LOS_MemAlloc(m_aucSysMem0, ((OS_MEMBOX_S_P)boxMem)->uwBlkSize);
@@ -149,6 +150,9 @@ UINT32 LOS_MemboxFree(const VOID *boxMem, VOID *box)
     UINT32 freeRes;
     UINTPTR intSave;
 
+    if (boxMem == NULL) {
+        return LOS_NOK;
+    }
     freeRes = LOS_MemFree(m_aucSysMem0, box);
     if (freeRes == LOS_OK) {
         intSave = LOS_IntLock();
@@ -183,6 +187,9 @@ UINT32 LOS_MemboxFree(const VOID *boxMem, VOID *box)
 /* --------------------------- LOS_MemboxClr ---------------------------------- */
 VOID LOS_MemboxClr(const VOID *boxMem, VOID *box)
 {
+    if (boxMem == NULL || box == NULL) {
+        return;
+    }
     // Ignore the return code when matching CSEC rule 6.6(2).
     (VOID)memset_s(box, ((OS_MEMBOX_S_P)boxMem)->uwBlkSize, 0, ((OS_MEMBOX_S_P)boxMem)->uwBlkSize);
 }

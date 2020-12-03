@@ -37,7 +37,6 @@
 #ifndef _LOS_EVENT_H
 #define _LOS_EVENT_H
 
-#include "los_base.h"
 #include "los_list.h"
 
 #ifdef __cplusplus
@@ -320,6 +319,9 @@ extern UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 events);
  * @see LOS_EventPoll | LOS_EventRead | LOS_EventWrite
  */
 extern UINT32 LOS_EventDestroy(PEVENT_CB_S eventCB);
+
+extern UINT32 OsEventReadOnce(PEVENT_CB_S eventCB, UINT32 eventMask, UINT32 mode, UINT32 timeOut);
+extern UINT32 OsEventWriteOnce(PEVENT_CB_S eventCB, UINT32 events);
 
 #ifdef __cplusplus
 #if __cplusplus

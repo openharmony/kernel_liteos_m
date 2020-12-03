@@ -37,10 +37,8 @@
 #ifndef _LOS_MUX_H
 #define _LOS_MUX_H
 
-#include "los_base.h"
-#include "los_sys.h"
-#include "los_list.h"
 #include "los_task.h"
+
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -283,6 +281,65 @@ extern UINT32 LOS_MuxPend(UINT32 muxHandle, UINT32 timeout);
  * @see LOS_MuxCreate | LOS_MuxPend
  */
 extern UINT32 LOS_MuxPost(UINT32 muxHandle);
+
+/**
+ * @ingroup los_mux
+ * Mutex object.
+ */
+typedef struct {
+    UINT8 muxStat;       /**< State OS_MUX_UNUSED,OS_MUX_USED  */
+    UINT16 muxCount;     /**< Times of locking a mutex */
+    UINT32 muxID;        /**< Handle ID */
+    LOS_DL_LIST muxList; /**< Mutex linked list */
+    LosTaskCB *owner;    /**< The current thread that is locking a mutex */
+    UINT16 priority;     /**< Priority of the thread that is locking a mutex */
+} LosMuxCB;
+
+/**
+ * @ingroup los_mux
+ * Mutex state: not in use.
+ */
+#define OS_MUX_UNUSED 0
+
+/**
+ * @ingroup los_mux
+ * Mutex state: in use.
+ */
+#define OS_MUX_USED   1
+
+extern LosMuxCB *g_allMux;
+
+/**
+ * @ingroup los_mux
+ * Obtain the pointer to a mutex object of the mutex that has a specified handle.
+ */
+#define GET_MUX(muxid) (((LosMuxCB *)g_allMux) + (muxid))
+
+/**
+ * @ingroup los_mux
+ * @brief Initializes the mutex.
+ *
+ * @par Description:
+ * This API is used to initializes the mutex.
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param None.
+ *
+ * @retval UINT32     Initialization result.
+ * @par Dependency:
+ * <ul><li>los_mux_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_MuxDelete
+ */
+extern UINT32 OsMuxInit(VOID);
+
+/**
+ * @ingroup los_mux
+ * Obtain the pointer to the linked list in the mutex pointed to by a specified pointer.
+ */
+#define GET_MUX_LIST(ptr) LOS_DL_LIST_ENTRY(ptr, LosMuxCB, muxList)
 
 #ifdef __cplusplus
 #if __cplusplus

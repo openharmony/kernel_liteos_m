@@ -1,1 +1,0 @@
-../../../../../third_party/cmsis/CMSIS/RTOS2/Include/cmsis_os2.h

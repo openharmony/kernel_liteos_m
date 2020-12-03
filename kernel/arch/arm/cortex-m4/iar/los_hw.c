@@ -29,10 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_task_pri.h"
-#include "los_hw.h"
+#include "los_task.h"
 #include "securec.h"
-
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {

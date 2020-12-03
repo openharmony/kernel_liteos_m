@@ -29,12 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_tick_pri.h"
-#include "los_base.h"
-#include "los_task_pri.h"
-#include "los_swtmr.h"
-#include "los_hwi.h"
-
+#include "los_tick.h"
+#include "los_interrupt.h"
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -245,11 +241,11 @@ VOID LOS_EnterSleep(LOS_SysSleepEnum sleep)
 VOID LOS_SystemWakeup(UINT32 hwiIndex)
 {
 }
-extern unsigned int SystemCoreClock;
+//extern unsigned int SystemCoreClock;
 void LOS_HalDelay(UINT32 ticks)
 {
 	UINT32 delayTimes;
-
+#if 0
 	/* there are 4 machine cycle in loop */
 	if ((ticks * (SystemCoreClock / MACHINE_CYCLE_DEALAY_TIMES)) >= 0xffffffff) {
 		delayTimes = 0xffffffff;
@@ -260,6 +256,7 @@ void LOS_HalDelay(UINT32 ticks)
 	while (delayTimes) {
 		delayTimes = delayTimes - 1;
 	}
+#endif
 }
 
 #ifdef __cplusplus

@@ -28,23 +28,16 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "securec.h"
-#include "los_memory_pri.h"
-#include "los_memstat_pri.h"
-#include "los_multipledlinkhead_pri.h"
-#include "los_task_pri.h"
-#include "los_exc.h"
-#include "los_printf.h"
-#ifdef LOS_MEM_LEAK_CHECK
-#include "los_membox_pri.h"
-#endif
-#if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == YES)
-#include "los_memcheck_pri.h"
-#endif
+#include "los_memory.h"
+#include "los_task.h"
+#include "los_interrupt.h"
+#include "los_debug.h"
+#include "los_membox.h"
 #ifdef LOSCFG_LIB_LIBC
-#include "string.h"
 #endif
+
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -54,6 +47,8 @@ extern "C" {
 #if (LOSCFG_MEM_MUL_POOL == YES)
 VOID *g_memPoolHead = NULL;
 #endif
+
+MALLOC_HOOK g_mallocHook = (MALLOC_HOOK)(UINTPTR)NULL;
 
 #if (LOSCFG_BASE_CORE_TASKSTACK_INDEPENDENT == YES)
 __attribute__((section(".data"))) UINT32 g_sysStackAddrEnd;
@@ -76,7 +71,39 @@ int g_memCheckFlag = 0;
 UINT32 g_memInfo[MEM_MODULE_MAX + 1] = {0};
 #endif
 
-MALLOC_HOOK g_mallocHook = (MALLOC_HOOK)(UINTPTR)NULL;
+#define OS_BITS_PER_BYTE 8
+STATIC_INLINE UINT32 OsLog2(UINT32 size)
+{
+    return size ? ((sizeof(size) * OS_BITS_PER_BYTE) - CLZ(size) - 1) : 0;
+}
+
+LITE_OS_SEC_TEXT_INIT VOID OsDLnkInitMultiHead(VOID *headAddr)
+{
+    LosMultipleDlinkHead *head = (LosMultipleDlinkHead *)headAddr;
+    LOS_DL_LIST *listHead = head->listHead;
+    UINT32 idx;
+
+    for (idx = 0; idx < OS_MULTI_DLNK_NUM; ++idx, ++listHead) {
+        LOS_ListInit(listHead);
+    }
+}
+
+LITE_OS_SEC_TEXT_MINOR LOS_DL_LIST *OsDLnkMultiHead(VOID *headAddr, UINT32 size)
+{
+    LosMultipleDlinkHead *head = (LosMultipleDlinkHead *)headAddr;
+    UINT32 idx = OsLog2(size);
+
+    if (idx > OS_MAX_MULTI_DLNK_LOG2) {
+        return (LOS_DL_LIST *)NULL;
+    }
+
+    if (idx <= OS_MIN_MULTI_DLNK_LOG2) {
+        idx = OS_MIN_MULTI_DLNK_LOG2;
+    }
+
+    return head->listHead + (idx - OS_MIN_MULTI_DLNK_LOG2);
+}
+
 LITE_OS_SEC_TEXT_INIT UINT32 OsMemSystemInit()
 {
     UINT32 ret;
@@ -269,6 +296,9 @@ STATIC_INLINE VOID OsMemFreeNode(LosMemDynNode *node, VOID *pool)
 STATIC_INLINE LosMemDynNode *OsMemGetNodeFromPtr(VOID *ptr)
 {
     UINT32 gapSize;
+    if (((UINT32 *)((UINTPTR)ptr - OS_MEM_NODE_DATA_SIZE)) == NULL) {
+        return (LosMemDynNode *)NULL;
+    }
     gapSize = *((UINT32 *)((UINTPTR)ptr - OS_MEM_NODE_DATA_SIZE));
     if (OS_MEM_NODE_GET_ALIGNED_FLAG(gapSize)) {
         gapSize = OS_MEM_NODE_GET_ALIGNED_GAPSIZE(gapSize);
@@ -1512,6 +1542,10 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_MemNodeSizeCheck(VOID *pool, VOID *ptr, UINT32
     }
 
     if ((pool == NULL) || (ptr == NULL)) {
+        return OS_ERRNO_MEMCHECK_PARA_NULL;
+    }
+
+    if (totalSize == NULL || availSize == NULL) {
         return OS_ERRNO_MEMCHECK_PARA_NULL;
     }
 

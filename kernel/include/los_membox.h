@@ -32,9 +32,8 @@
 #ifndef _LOS_MEMBOX_H
 #define _LOS_MEMBOX_H
 
-#include "los_config.h"
 #if (LOSCFG_PLATFORM_EXC == YES)
-#include "los_memcheck.h"
+#include "los_memory.h"
 #endif
 
 #define BOX_ALIGN_8                   0x80000000
@@ -197,5 +196,19 @@ extern VOID LOS_MemboxClr(const VOID *boxMem, VOID *box);
  * @see LOS_MemAlloc | LOS_MemRealloc | LOS_MemFree
  */
 extern UINT32 LOS_MemboxStatisticsGet(const VOID *boxMem, UINT32 *maxBlk, UINT32 *blkCnt, UINT32 *blkSize);
+
+#define OS_MEMBOX_NEXT(addr, blkSize) (LOS_MEMBOX_NODE *)((UINT8 *)(addr) + (blkSize))
+
+#ifdef LOS_MEMBOX_CHECK
+#define OS_MEMBOX_MAGIC 0xa55a5aa5
+#define OS_MEMBOX_SET_MAGIC(addr) (*((UINT32 *)(addr)) = OS_MEMBOX_MAGIC)
+#define OS_MEMBOX_CHECK_MAGIC(addr) ((*((UINT32 *)(addr)) == OS_MEMBOX_MAGIC) ? LOS_OK : LOS_NOK)
+#else
+#define OS_MEMBOX_SET_MAGIC(addr)
+#define OS_MEMBOX_CHECK_MAGIC(addr) LOS_OK
+#endif
+
+#define OS_MEMBOX_USER_ADDR(addr) ((VOID *)((UINT8 *)(addr) + LOS_MEMBOX_MAGIC_SIZE))
+#define OS_MEMBOX_NODE_ADDR(addr) ((LOS_MEMBOX_NODE *)((UINT8 *)(addr) - LOS_MEMBOX_MAGIC_SIZE))
 
 #endif

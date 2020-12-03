@@ -28,23 +28,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include "string.h"
 #include "securec.h"
-#include "los_swtmr_pri.h"
-#include "los_base_pri.h"
-#include "los_sys.h"
-#include "los_membox_pri.h"
-#include "los_memory_pri.h"
-#include "los_queue_pri.h"
-#include "los_task_pri.h"
-#include "los_hwi.h"
-#include "los_printf.h"
-#if (LOSCFG_PLATFORM_EXC == YES)
-#include "los_exc.h"
-#endif
-
-#include "los_printf.h"
+#include "los_interrupt.h"
+#include "los_swtmr.h"
+#include "los_task.h"
+#include "los_memory.h"
+#include "los_queue.h"
+#include "los_debug.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -344,7 +334,9 @@ LITE_OS_SEC_TEXT VOID OsSwtmrStop(const SWTMR_CTRL_S *swtmr)
         prev = cur;
         cur = cur->pstNext;
     }
-
+    if (cur == NULL) {
+        return;
+    }
     if (cur->pstNext != NULL) {
         cur->pstNext->uwCount += cur->uwCount;
     }

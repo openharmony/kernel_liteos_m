@@ -30,12 +30,12 @@
  * applicable export control laws and regulations.
  */
 
-#include "los_sys.h"
 #include "los_tick.h"
 #include "los_task.h"
 #include "los_config.h"
-#include "los_exc.h"
-#include "los_printf.h"
+#include "los_interrupt.h"
+#include "los_debug.h"
+#include "los_compiler.h"
 #include "iar_stm32f429ig_fire-challenger.h"
 
 #ifdef __cplusplus
