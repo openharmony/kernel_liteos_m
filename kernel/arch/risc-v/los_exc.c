@@ -120,7 +120,7 @@ LITE_OS_SEC_TEXT_INIT VOID OsHwiInit(VOID)
 }
 
 typedef VOID (*HwiProcFunc)(UINTPTR);
-LITE_OS_SEC_TEXT_INIT VOID OsHwiInterruptDone(HWI_HANDLE_T hwiNum)
+__attribute__((section(".interrupt.text"))) VOID OsHwiInterruptDone(HWI_HANDLE_T hwiNum)
 {
     g_intCount++;
 
