@@ -30,9 +30,9 @@
  */
 
 #include "los_tick.h"
-#include "los_config.h"
 #include "los_task.h"
 #include "los_swtmr.h"
+#include "los_config.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -46,57 +46,25 @@ LITE_OS_SEC_BSS UINT32 g_uwCyclePerSec;
 LITE_OS_SEC_BSS UINT32 g_cyclesPerTick;
 LITE_OS_SEC_BSS UINT32 g_sysClock;
 
-#if (LOSCFG_BASE_CORE_TICK_HW_TIME == YES)
+#if (LOSCFG_BASE_CORE_TICK_HW_TIME == 1)
 extern VOID platform_tick_handler(VOID);
-#endif
-
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-LITE_OS_SEC_TEXT VOID OsTickHandlerLoop(UINT32 elapseTicks)
-{
-    UINT32 index;
-
-    for (index = 0; index < elapseTicks; index++) {
-#if (LOSCFG_BASE_CORE_TICK_HW_TIME == YES)
-        platform_tick_handler();
-#endif
-
-        g_ullTickCount++;
-
-#if (LOSCFG_BASE_CORE_TIMESLICE == YES)
-        OsTimesliceCheck();
-#endif
-        OsTaskScan();  // task timeout scan
-#if (LOSCFG_BASE_CORE_SWTMR == YES)
-        (VOID)OsSwtmrScan();
-#endif
-    }
-}
-
 #endif
 
 LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)
 {
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-    if (g_reloadSysTickFlag) {
-        LOS_SysTickReload(g_cyclesPerTick);
-        g_reloadSysTickFlag = 0;
-    }
-    g_tickIrqFlag = g_ticklessFlag;
-#endif
-
-#if (LOSCFG_BASE_CORE_TICK_HW_TIME == YES)
+#if (LOSCFG_BASE_CORE_TICK_HW_TIME == 1)
     platform_tick_handler();
 #endif
 
     g_ullTickCount++;
 
-#if (LOSCFG_BASE_CORE_TIMESLICE == YES)
+#if (LOSCFG_BASE_CORE_TIMESLICE == 1)
     OsTimesliceCheck();
 #endif
 
     OsTaskScan();  // task timeout scan
 
-#if (LOSCFG_BASE_CORE_SWTMR == YES)
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
     (VOID)OsSwtmrScan();
 #endif
 }

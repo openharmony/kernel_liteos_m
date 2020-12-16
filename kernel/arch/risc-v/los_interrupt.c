@@ -31,7 +31,9 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include "los_interrupt.h"
+#include "los_arch.h"
+#include "los_arch_interrupt.h"
+#include "los_arch_context.h"
 #include "los_task.h"
 #include "los_debug.h"
 #include "riscv_hal.h"
@@ -69,7 +71,7 @@ const CHAR g_excInformation[RISCV_EXC_TYPE_NUM][50] = {
 #define FP_OFFSET         8
 #define OS_MAX_BACKTRACE  15
 #define FP_ALIGN(value)   (((UINT32)(value) & (UINT32)(LOSCFG_STACK_POINT_ALIGN_SIZE - 1)) == 0)
-#define FP_CHECK(value)   (OsBackTraceFpCheck(value) && ((UINT32)(value) != FP_INIT_VALUE) && FP_ALIGN(value))
+#define FP_CHECK(value)   (HalBackTraceFpCheck(value) && ((UINT32)(value) != FP_INIT_VALUE) && FP_ALIGN(value))
 
 LITE_OS_SEC_BSS UINT32  g_intCount = 0;
 LITE_OS_SEC_BSS UINT32 g_hwiFormCnt[OS_HWI_MAX_NUM];
@@ -77,16 +79,16 @@ LITE_OS_SEC_DATA_INIT HWI_HANDLE_FORM_S g_hwiForm[OS_HWI_MAX_NUM] = {
     { .pfnHook = NULL, .uwParam = 0 }, // 0 User software interrupt handler
     { .pfnHook = NULL, .uwParam = 0 }, // 1 Supervisor software interrupt handler
     { .pfnHook = NULL, .uwParam = 0 }, // 2 Reserved
-    { .pfnHook = OsHwiDefaultHandler, .uwParam = 0 }, // 3 Machine software interrupt handler
+    { .pfnHook = HalHwiDefaultHandler, .uwParam = 0 }, // 3 Machine software interrupt handler
     { .pfnHook = NULL, .uwParam = 0 }, // 4 User timer interrupt handler
     { .pfnHook = NULL, .uwParam = 0 }, // 5 Supervisor timer interrupt handler
     { .pfnHook = NULL, .uwParam = 0 }, // 6  Reserved
-    { .pfnHook = OsHwiDefaultHandler, .uwParam = 0 }, // 7 Machine timer interrupt handler
+    { .pfnHook = HalHwiDefaultHandler, .uwParam = 0 }, // 7 Machine timer interrupt handler
     { .pfnHook = NULL, .uwParam = 0 }, // 8  User external interrupt handler
     { .pfnHook = NULL, .uwParam = 0 }, // 9 Supervisor external interrupt handler
     { .pfnHook = NULL, .uwParam = 0 }, // 10 Reserved
-    { .pfnHook = OsHwiDefaultHandler, .uwParam = 0 }, // 11 Machine external interrupt handler
-    { .pfnHook = OsHwiDefaultHandler, .uwParam = 0 }, // 12 NMI handler
+    { .pfnHook = HalHwiDefaultHandler, .uwParam = 0 }, // 11 Machine external interrupt handler
+    { .pfnHook = HalHwiDefaultHandler, .uwParam = 0 }, // 12 NMI handler
     { .pfnHook = NULL, .uwParam = 0 }, // 13 Reserved
     { .pfnHook = NULL, .uwParam = 0 }, // 14 Reserved
     { .pfnHook = NULL, .uwParam = 0 }, // 15 Reserved
@@ -102,7 +104,7 @@ LITE_OS_SEC_DATA_INIT HWI_HANDLE_FORM_S g_hwiForm[OS_HWI_MAX_NUM] = {
     { .pfnHook = NULL, .uwParam = 0 }, // 25 Reserved
 };
 
-LITE_OS_SEC_TEXT_INIT VOID OsHwiDefaultHandler(UINTPTR arg)
+LITE_OS_SEC_TEXT_INIT VOID HalHwiDefaultHandler(VOID *arg)
 {
     (VOID)arg;
     PRINT_ERR("default handler\n");
@@ -110,17 +112,17 @@ LITE_OS_SEC_TEXT_INIT VOID OsHwiDefaultHandler(UINTPTR arg)
     }
 }
 
-LITE_OS_SEC_TEXT_INIT VOID OsHwiInit(VOID)
+LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
 {
     UINT32 index;
     for (index = OS_RISCV_SYS_VECTOR_CNT; index < OS_HWI_MAX_NUM; index++) {
-        g_hwiForm[index].pfnHook = OsHwiDefaultHandler;
+        g_hwiForm[index].pfnHook = HalHwiDefaultHandler;
         g_hwiForm[index].uwParam = 0;
     }
 }
 
-typedef VOID (*HwiProcFunc)(UINTPTR);
-__attribute__((section(".interrupt.text"))) VOID OsHwiInterruptDone(HWI_HANDLE_T hwiNum)
+typedef VOID (*HwiProcFunc)(VOID *arg);
+__attribute__((section(".interrupt.text"))) VOID HalHwiInterruptDone(HWI_HANDLE_T hwiNum)
 {
     g_intCount++;
 
@@ -133,7 +135,7 @@ __attribute__((section(".interrupt.text"))) VOID OsHwiInterruptDone(HWI_HANDLE_T
     g_intCount--;
 }
 
-LITE_OS_SEC_TEXT UINT32 OsGetHwiFormCnt(HWI_HANDLE_T hwiNum)
+LITE_OS_SEC_TEXT UINT32 HalGetHwiFormCnt(HWI_HANDLE_T hwiNum)
 {
     if (hwiNum < OS_HWI_MAX_NUM) {
         return g_hwiFormCnt[hwiNum];
@@ -142,13 +144,19 @@ LITE_OS_SEC_TEXT UINT32 OsGetHwiFormCnt(HWI_HANDLE_T hwiNum)
     return LOS_NOK;
 }
 
-LITE_OS_SEC_TEXT HWI_HANDLE_FORM_S *OsGetHwiForm(VOID)
+LITE_OS_SEC_TEXT HWI_HANDLE_FORM_S *HalGetHwiForm(VOID)
 {
     return g_hwiForm;
 }
 
+
+inline UINT32 HalIsIntAcvive(VOID)
+{
+    return (g_intCount > 0);
+}
+
 /*****************************************************************************
- Function    : LOS_HwiCreate
+ Function    : HalHwiCreate
  Description : create hardware interrupt
  Input       : hwiNum     --- hwi num to create
                hwiPrio    --- priority of the hwi
@@ -158,11 +166,11 @@ LITE_OS_SEC_TEXT HWI_HANDLE_FORM_S *OsGetHwiForm(VOID)
  Output      : None
  Return      : LOS_OK on success or error code on failure
  *****************************************************************************/
-LITE_OS_SEC_TEXT UINT32 LOS_HwiCreate(HWI_HANDLE_T hwiNum,
+LITE_OS_SEC_TEXT UINT32 HalHwiCreate(HWI_HANDLE_T hwiNum,
                                       HWI_PRIOR_T hwiPrio,
                                       HWI_MODE_T hwiMode,
                                       HWI_PROC_FUNC hwiHandler,
-                                      HWI_IRQ_PARAM_S irqParam)
+                                      HWI_ARG_T irqParam)
 {
     UINT32 intSave;
 
@@ -174,7 +182,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_HwiCreate(HWI_HANDLE_T hwiNum,
     }
     if (g_hwiForm[hwiNum].pfnHook == NULL) {
         return OS_ERRNO_HWI_NUM_INVALID;
-    } else if (g_hwiForm[hwiNum].pfnHook != OsHwiDefaultHandler) {
+    } else if (g_hwiForm[hwiNum].pfnHook != HalHwiDefaultHandler) {
         return OS_ERRNO_HWI_NUM_INVALID;
     }
     if ((hwiPrio < OS_HWI_PRIO_LOWEST) || (hwiPrio > OS_HWI_PRIO_HIGHEST)) {
@@ -183,10 +191,10 @@ LITE_OS_SEC_TEXT UINT32 LOS_HwiCreate(HWI_HANDLE_T hwiNum,
 
     intSave = LOS_IntLock();
     g_hwiForm[hwiNum].pfnHook = hwiHandler;
-    g_hwiForm[hwiNum].uwParam = irqParam;
+    g_hwiForm[hwiNum].uwParam = (VOID *)irqParam;
 
     if (hwiNum >= OS_RISCV_SYS_VECTOR_CNT) {
-        OsSetLocalInterPri(hwiNum, hwiPrio);
+        HalSetLocalInterPri(hwiNum, hwiPrio);
     }
 
     LOS_IntRestore(intSave);
@@ -195,12 +203,12 @@ LITE_OS_SEC_TEXT UINT32 LOS_HwiCreate(HWI_HANDLE_T hwiNum,
 }
 
 /*****************************************************************************
- Function    : LOS_HwiDelete
+ Function    : HalHwiDelete
  Description : Delete hardware interrupt
  Input       : hwiNum   --- hwi num to delete
  Return      : LOS_OK on success or error code on failure
  *****************************************************************************/
-LITE_OS_SEC_TEXT UINT32 LOS_HwiDelete(HWI_HANDLE_T hwiNum, HWI_IRQ_PARAM_S irqParam)
+LITE_OS_SEC_TEXT UINT32 HalHwiDelete(HWI_HANDLE_T hwiNum)
 {
     UINT32 intSave;
 
@@ -209,13 +217,13 @@ LITE_OS_SEC_TEXT UINT32 LOS_HwiDelete(HWI_HANDLE_T hwiNum, HWI_IRQ_PARAM_S irqPa
     }
 
     intSave = LOS_IntLock();
-    g_hwiForm[hwiNum].pfnHook = OsHwiDefaultHandler;
+    g_hwiForm[hwiNum].pfnHook = HalHwiDefaultHandler;
     g_hwiForm[hwiNum].uwParam = 0;
     LOS_IntRestore(intSave);
     return LOS_OK;
 }
 
-LITE_OS_SEC_TEXT VOID BackTraceSub(UINT32 fp)
+STATIC VOID BackTraceSub(UINT32 fp)
 {
     UINT32 backFp = fp;
     UINT32 tmpFp;
@@ -231,21 +239,21 @@ LITE_OS_SEC_TEXT VOID BackTraceSub(UINT32 fp)
         count++;
 
         if ((count == OS_MAX_BACKTRACE) || (backFp == tmpFp) || \
-            (!OsBackTraceRaCheck(backRa))) {
+            (!HalBackTraceRaCheck(backRa))) {
             break;
         }
     }
     PRINTK("*******backtrace end*******\n");
 }
 
-LITE_OS_SEC_TEXT VOID BackTrace(UINT32 fp)
+STATIC VOID BackTrace(UINT32 fp)
 {
     PRINTK("*******backtrace begin*******\n");
 
     BackTraceSub(fp);
 }
 
-LITE_OS_SEC_TEXT static VOID OsExcBackTrace(UINT32 fp, UINT32 ra)
+STATIC VOID ExcBackTrace(UINT32 fp, UINT32 ra)
 {
     UINT32 backFp;
     if (FP_CHECK(fp)) {
@@ -259,54 +267,7 @@ LITE_OS_SEC_TEXT static VOID OsExcBackTrace(UINT32 fp, UINT32 ra)
     }
 }
 
-LITE_OS_SEC_TEXT VOID OsTaskBackTrace(UINT32 taskID)
-{
-    LosTaskCB *taskCB = NULL;
-
-    if (taskID >= g_taskMaxNum) {
-        PRINT_ERR("\r\nTask PID is invalid!\n");
-        return;
-    }
-
-    taskCB = OS_TCB_FROM_TID(taskID);
-    if ((taskCB->taskStatus & OS_TASK_STATUS_UNUSED) || (taskCB->taskEntry == NULL) ||
-        (taskCB->taskName == NULL)) {
-        PRINT_ERR("\r\nThe task is not created!\n");
-        return;
-    }
-
-    if (taskCB->taskStatus & OS_TASK_STATUS_RUNNING) {
-        OsBackTrace();
-        return;
-    }
-
-    PRINTK("taskName = %s\n", taskCB->taskName);
-    PRINTK("taskID   = 0x%x\n", taskCB->taskID);
-    PRINTK("curr ra  = 0x%08x\n", ((TaskContext *)(taskCB->stackPointer))->ra);
-    OsExcBackTrace(((TaskContext  *)(taskCB->stackPointer))->s0, ((TaskContext *)(taskCB->stackPointer))->ra);
-}
-
-LITE_OS_SEC_TEXT VOID OsBackTrace(VOID)
-{
-    UINT32 fp = GetFp();
-    PRINTK("taskName = %s\n", g_losTask.runTask->taskName);
-    PRINTK("taskID   = %u\n", g_losTask.runTask->taskID);
-    PRINTK("curr fp  = 0x%08x \n", fp);
-    BackTrace(fp);
-}
-
-LITE_OS_SEC_TEXT VOID LOS_Panic(const CHAR *fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    PRINTK(fmt, ap);
-    va_end(ap);
-    OsDisableIRQ();
-    while (1) {
-    }
-}
-
-STATIC VOID OsDisplayTaskInfo(VOID)
+STATIC VOID DisplayTaskInfo(VOID)
 {
     TSK_INFO_S taskInfo;
     UINT32 index;
@@ -326,7 +287,7 @@ STATIC VOID OsDisplayTaskInfo(VOID)
     return;
 }
 
-LITE_OS_SEC_TEXT STATIC VOID OsExcInfoDisplayContext(const LosExcInfo *exc)
+STATIC VOID ExcInfoDisplayContext(const LosExcInfo *exc)
 {
     const TaskContext *taskContext = &(exc->context->taskContext);
 
@@ -366,10 +327,10 @@ LITE_OS_SEC_TEXT STATIC VOID OsExcInfoDisplayContext(const LosExcInfo *exc)
     PRINTK("t5         = 0x%x\n", taskContext->t5);
     PRINTK("t6         = 0x%x\n", taskContext->t6);
 
-    OsExcBackTrace(taskContext->s0, taskContext->ra);
+    ExcBackTrace(taskContext->s0, taskContext->ra);
 }
 
-LITE_OS_SEC_TEXT VOID OsExcInfoDisplay(const LosExcContext *excBufAddr)
+STATIC VOID ExcInfoDisplay(const LosExcContext *excBufAddr)
 {
     g_excInfo.type = excBufAddr->mcause;
     g_excInfo.context = (LosExcContext *)excBufAddr;
@@ -385,31 +346,31 @@ LITE_OS_SEC_TEXT VOID OsExcInfoDisplay(const LosExcContext *excBufAddr)
     PRINTK("taskName = %s\n\r", g_losTask.runTask->taskName);
     PRINTK("taskID = %u\n\r", g_losTask.runTask->taskID);
     PRINTK("system mem addr:0x%x\n\r", (UINTPTR)OS_SYS_MEM_ADDR);
-    OsExcInfoDisplayContext(&g_excInfo);
+    ExcInfoDisplayContext(&g_excInfo);
 }
 
-VOID OsExcEntry(const LosExcContext *excBufAddr)
+VOID HalExcEntry(const LosExcContext *excBufAddr)
 {
     if (g_excInfo.nestCnt > 2) {
         PRINTK("hard faule!\n\r");
         goto SYSTEM_DEATH;
     }
 
-    OsExcInfoDisplay(excBufAddr);
+    ExcInfoDisplay(excBufAddr);
 
     PRINTK("----------------All Task infomation ------------\n\r");
-    OsDisplayTaskInfo();
+    DisplayTaskInfo();
 
 SYSTEM_DEATH:
     while (1) {
     }
 }
 
-VOID OsExcRegister(ExcInfoType type, EXC_INFO_SAVE_CALLBACK func, VOID *arg)
+VOID HalExcRegister(ExcInfoType type, EXC_INFO_SAVE_CALLBACK func, VOID *arg)
 {
     ExcInfoArray *excInfo = NULL;
     if ((type >= OS_EXC_TYPE_MAX) || (func == NULL)) {
-        PRINT_ERR("OsExcRegister ERROR!\n");
+        PRINT_ERR("HalExcRegister ERROR!\n");
         return;
     }
     excInfo = &(g_excArray[type]);
@@ -417,6 +378,42 @@ VOID OsExcRegister(ExcInfoType type, EXC_INFO_SAVE_CALLBACK func, VOID *arg)
     excInfo->pFnExcInfoCb = func;
     excInfo->pArg = arg;
     excInfo->uwValid = TRUE;
+}
+
+LITE_OS_SEC_TEXT VOID HalTaskBackTrace(UINT32 taskID)
+{
+    LosTaskCB *taskCB = NULL;
+
+    if (taskID >= g_taskMaxNum) {
+        PRINT_ERR("\r\nTask PID is invalid!\n");
+        return;
+    }
+
+    taskCB = OS_TCB_FROM_TID(taskID);
+    if ((taskCB->taskStatus & OS_TASK_STATUS_UNUSED) || (taskCB->taskEntry == NULL) ||
+        (taskCB->taskName == NULL)) {
+        PRINT_ERR("\r\nThe task is not created!\n");
+        return;
+    }
+
+    if (taskCB->taskStatus & OS_TASK_STATUS_RUNNING) {
+        HalBackTrace();
+        return;
+    }
+
+    PRINTK("taskName = %s\n", taskCB->taskName);
+    PRINTK("taskID   = 0x%x\n", taskCB->taskID);
+    PRINTK("curr ra  = 0x%08x\n", ((TaskContext *)(taskCB->stackPointer))->ra);
+    ExcBackTrace(((TaskContext  *)(taskCB->stackPointer))->s0, ((TaskContext *)(taskCB->stackPointer))->ra);
+}
+
+LITE_OS_SEC_TEXT VOID HalBackTrace(VOID)
+{
+    UINT32 fp = GetFp();
+    PRINTK("taskName = %s\n", g_losTask.runTask->taskName);
+    PRINTK("taskID   = %u\n", g_losTask.runTask->taskID);
+    PRINTK("curr fp  = 0x%08x \n", fp);
+    BackTrace(fp);
 }
 
 /* stack protector */

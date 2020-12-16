@@ -72,15 +72,19 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         return EINVAL;
     }
 
+    taskInitParam.usTaskPrio = LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO;
+    taskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     if (attr) {
         if (attr->detachstate == PTHREAD_CREATE_DETACHED) {
             return ENOTSUP;
         }
+        if (attr->stackaddr_set) {
+            return ENOTSUP;
+        }
+        if (attr->stacksize_set) {
+            taskInitParam.uwStackSize = attr->stacksize;
+        }
         taskInitParam.usTaskPrio = (UINT16)attr->schedparam.sched_priority;
-        taskInitParam.uwStackSize = attr->stacksize;
-    } else {
-        taskInitParam.usTaskPrio = LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO;
-        taskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     }
 
     taskInitParam.pcName       = malloc(PTHREAD_NAMELEN);

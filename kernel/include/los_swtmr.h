@@ -211,7 +211,7 @@ extern "C" {
  */
 #define LOS_ERRNO_SWTMR_TICK_PTR_NULL               LOS_ERRNO_OS_ERROR(LOS_MOD_SWTMR, 0x10)
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 #define OS_ERRNO_SWTMR_ROUSES_INVALID               LOS_ERRNO_OS_ERROR(LOS_MOD_SWTMR, 0x11)
 #define OS_ERRNO_SWTMR_ALIGN_INVALID                LOS_ERRNO_OS_ERROR(LOS_MOD_SWTMR, 0x12)
 
@@ -269,7 +269,7 @@ typedef struct tagSwTmrCtrl {
     struct tagSwTmrCtrl *pstNext;       /* Pointer to the next software timer                    */
     UINT8               ucState;        /* Software timer state                                  */
     UINT8               ucMode;         /* Software timer mode                                   */
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     UINT8               ucRouses;       /* wake up enable                                        */
     UINT8               ucSensitive;    /* align enable                                          */
 #endif
@@ -391,7 +391,7 @@ extern UINT32 LOS_SwtmrTimeGet(UINT16 swtmrID, UINT32 *tick);
  * <ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_SwtmrDelete
  */
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 extern UINT32 LOS_SwtmrCreate(UINT32 interval,
                               UINT8 mode,
                               SWTMR_PROC_FUNC handler,

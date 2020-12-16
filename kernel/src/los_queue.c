@@ -28,12 +28,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "los_interrupt.h"
-#include "securec.h"
+#include "los_config.h"
 #include "los_queue.h"
+#include "securec.h"
 #include "los_membox.h"
 #include "los_task.h"
-#if (LOSCFG_PLATFORM_EXC == YES)
+#include "los_memory.h"
+#if (LOSCFG_PLATFORM_EXC == 1)
 #include "los_interrupt.h"
 #endif
 #include "los_debug.h"
@@ -45,11 +46,11 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
-#if (LOSCFG_BASE_IPC_QUEUE == YES)
+#if (LOSCFG_BASE_IPC_QUEUE == 1)
 
 LITE_OS_SEC_BSS LosQueueCB *g_allQueue = NULL ;
 LITE_OS_SEC_BSS LOS_DL_LIST g_freeQueueList;
-#if (LOSCFG_PLATFORM_EXC == YES)
+#if (LOSCFG_PLATFORM_EXC == 1)
 LITE_OS_SEC_BSS UINT32 g_excQueueMaxNum;
 #endif
 
@@ -84,9 +85,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsQueueInit(VOID)
         LOS_ListTailInsert(&g_freeQueueList, &queueNode->readWriteList[OS_QUEUE_WRITE]);
     }
 
-#if (LOSCFG_PLATFORM_EXC == YES)
+#if (LOSCFG_PLATFORM_EXC == 1)
     g_excQueueMaxNum = LOSCFG_BASE_IPC_QUEUE_LIMIT;
-    OsExcRegister(OS_EXC_TYPE_QUE, (EXC_INFO_SAVE_CALLBACK)LOS_QueueInfoGet, &g_excQueueMaxNum);
+    HalExcRegister(OS_EXC_TYPE_QUE, (EXC_INFO_SAVE_CALLBACK)LOS_QueueInfoGet, &g_excQueueMaxNum);
 #endif
 
     return LOS_OK;
@@ -670,7 +671,7 @@ QUEUE_END:
     return ret;
 }
 
-#endif /* (LOSCFG_BASE_IPC_QUEUE == YES) */
+#endif /* (LOSCFG_BASE_IPC_QUEUE == 1) */
 
 #ifdef __cplusplus
 #if __cplusplus

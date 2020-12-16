@@ -656,8 +656,8 @@ uint32_t osKernelGetSysTimerFreq (void);
 /**
 * @brief Creates an active thread.
 *
-* The priority ranges from 9 to 38. Select a proper priority as required.
-* The maximum of tasks is LOSCFG_BASE_CORE_TSK_LIMIT(LOSCFG_BASE_CORE_TSK_LIMIT is defined in the traget_config.h).
+* The task priority ranges from 9 (highest priority) to 38 (lowest priority). {@code LOSCFG_BASE_CORE_TSK_LIMIT} declared in target_config.h specifies the
+maximum number of tasks running in this system.
 * @param func Indicates the entry of the thread callback function.
 * @param argument Indicates the pointer to the argument passed to the thread.
 * @param attr Indicates the thread attributes.
@@ -956,7 +956,7 @@ uint32_t osEventFlagsGet (osEventFlagsId_t ef_id);
 /**
 * @brief Waits for event flags to trigger.
 *
-* When the specified flag of the event is set, the function returns immediately. Otherwise, the thread is blocked.
+* This function is blocked if the specified event flags are not set via {@code flags}.
 * @param ef_id Indicates the event flags ID, which is obtained using osEventFlagsNew.
 * @param flags Indicates the event flags to trigger.
 * @param options Indicates the configuration of the event flags to trigger.
@@ -1054,7 +1054,7 @@ const char *osSemaphoreGetName (osSemaphoreId_t semaphore_id);
 * @brief Acquires a token of a semaphore object.
 *
 * @param semaphore_id Indicates the semaphore ID, which is obtained using osSemaphoreNew.
-* @param timeout Indicates the timeout duration. This parameter is the number of ticks.
+* @param timeout Indicates the timeout duration, in ticks.
 * @return Returns the CMSIS-RTOS running result.
 * @since 1.0
 * @version 1.0

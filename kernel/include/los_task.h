@@ -500,6 +500,9 @@ extern VOID LOS_Msleep(UINT32 mSecs);
  * @see
  */
 extern UINT32 LOS_Start(VOID);
+extern VOID LOS_Reboot(VOID);
+extern VOID LOS_Panic(const CHAR *fmt, ...);
+
 
 /**
  * @ingroup los_base
@@ -1081,24 +1084,6 @@ extern  UINT32 LOS_NewTaskIDGet(VOID);
   */
 extern CHAR* LOS_TaskNameGet(UINT32 taskID);
 
-/* *
- * @ingroup  los_hw
- * @brief: Task scheduling Function.
- *
- * @par Description:
- * This API is used to scheduling task.
- *
- * @attention:
- * <ul><li>None.</li></ul>
- *
- * @param  None.
- *
- * @retval: None.
- * @par Dependency:
- * <ul><li>los_hw.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-extern VOID OsSchedule(VOID);
 
 /* *
  * @ingroup  los_hw
@@ -1676,6 +1661,13 @@ extern LosTask              g_losTask;
  */
 extern UINT16               g_losTaskLock;
 
+/* *
+ * @ingroup los_hw
+ * Check task schedule.
+ */
+#define LOS_CHECK_SCHEDULE ((!g_losTaskLock))
+
+
 /**
  * @ingroup los_task
  * Maximum number of tasks.
@@ -1717,12 +1709,6 @@ extern LOS_DL_LIST          g_losFreeTask;
  *
  */
 extern LOS_DL_LIST          g_taskRecyleList;
-
-/**
- * @ingroup los_task
- * @brief the block status of task
- */
-extern VOID OsTaskSchedule(VOID);
 
 /**
  * @ingroup  los_task
@@ -2025,14 +2011,52 @@ extern VOID OsTimerListDelete(LosTaskCB *taskCB);
  */
 extern UINT32 OsGetAllTskInfo(VOID);
 
-
 extern VOID *OsTskUserStackInit(VOID* stackPtr, VOID* userSP, UINT32 userStackSize);
 
-extern VOID *OsTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack);
+/**
+ * @ingroup los_timeslice
+ * @brief Initialize time slices.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to initialize time slices that defines the cycle of time slices according to
+   LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param None.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_timeslice_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern VOID OsTimesliceInit(VOID);
 
-extern VOID OsSchedule(VOID);
-
-extern VOID osTaskSchedule(VOID);
+/**
+ * @ingroup los_timeslice
+ * @brief Check time slices.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to check time slices. If the number of Ticks equals to the time for task switch, tasks are switched. Otherwise, the Tick counting continues.</li>
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param None.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_timeslice_pri.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern VOID OsTimesliceCheck(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

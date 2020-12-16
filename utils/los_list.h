@@ -207,27 +207,6 @@ LITE_OS_SEC_ALW_INLINE STATIC_INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *node)
 
 /**
  * @ingroup los_list
- * @brief Obtain the offset of a field to a structure address.
- *
- * @par  Description:
- * This API is used to obtain the offset of a field to a structure address.
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param type   [IN] Structure name.
- * @param field  [IN] Name of the field of which the offset is to be measured.
- *
- * @retval Offset of the field to the structure address.
- * @par Dependency:
- * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
- * @see
- */
-#define OFFSET_OF_FIELD(type, field) ((UINT32)&(((type *)0)->field))
-
-/**
- * @ingroup los_list
  * @brief Obtain the pointer to a doubly linked list in a structure.
  *
  * @par Description:

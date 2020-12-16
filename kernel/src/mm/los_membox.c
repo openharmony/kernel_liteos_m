@@ -31,11 +31,12 @@
 
 #include "securec.h"
 #include "los_interrupt.h"
+#include "los_context.h"
 #include "los_membox.h"
 #include "los_memory.h"
 #include "los_debug.h"
 
-#if (LOSCFG_PLATFORM_EXC == YES) || (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == YES)
+#if (LOSCFG_PLATFORM_EXC == 0) || (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
 UINT8 g_memMang[MEM_INFO_SIZE];
 #endif
 

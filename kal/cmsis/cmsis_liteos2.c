@@ -30,24 +30,21 @@
  */
 
 #include "cmsis_os.h"
-#include "los_typedef.h"
-#include "los_printf.h"
-
 #include "los_event.h"
 #include "los_membox.h"
 #include "los_memory.h"
-#include "los_hwi.h"
+#include "los_interrupt.h"
+#include "los_mux.h"
+#include "los_queue.h"
+#include "los_sem.h"
+#include "los_swtmr.h"
+#include "los_task.h"
+#include "kal.h"
+#include "los_debug.h"
 
-#include "los_mux_pri.h"
-#include "los_queue_pri.h"
-#include "los_sem_pri.h"
-#include "los_swtmr_pri.h"
-#include "los_sys_pri.h"
-#include "los_task_pri.h"
-#include "los_tick_pri.h"
 #include "string.h"
 #include "securec.h"
-//#include "system_config.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -74,7 +71,7 @@ const osVersion_t g_stLosVersion = { 001, 001 };
                                    ((UINT32)LITEOS_VERSION_BUILD *        1UL))
 
 #define KERNEL_ID "HUAWEI-LiteOS"
-#define UNUSED(var) do { (void)var; } while(0)
+#define UNUSED(var) do { (void)var; } while (0)
 
 //  ==== Kernel Management Functions ====
 uint32_t osTaskStackWaterMarkGet(UINT32 taskID);
@@ -659,7 +656,7 @@ uint32_t osThreadGetCount(void)
 
 
 //  ==== Generic Wait Functions ====
-WEAK UINT32 LOS_HalDelay(UINT32 ticks)
+WEAK UINT32 HalDelay(UINT32 ticks)
 {
     UNUSED(ticks);
     return LOS_ERRNO_TSK_DELAY_IN_INT;
@@ -668,12 +665,12 @@ WEAK UINT32 LOS_HalDelay(UINT32 ticks)
 
 osStatus_t osDelay(uint32_t ticks)
 {
-    UINT32 uwRet = 0;
+    UINT32 uwRet;
     if (ticks == 0) {
         return osOK;
     }
     if (osKernelGetState() != osKernelRunning) {
-        uwRet = LOS_HalDelay(ticks);
+        uwRet = HalDelay(ticks);
     } else {
         uwRet = LOS_TaskDelay(ticks);
     }
@@ -706,41 +703,14 @@ osStatus_t osDelayUntil(uint32_t ticks)
 }
 
 //  ==== Timer Management Functions ====
-#if (LOSCFG_BASE_CORE_SWTMR == YES)
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
-#if 0
-osTimerId_t osTimerExtNew(osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr,
-    os_timer_rouses_type ucRouses, os_timer_align_type ucSensitive)
-{
-    UNUSED(attr);
-    UINT16 usSwTmrID;
-    UINT8 mode;
-
-    if ((OS_INT_ACTIVE) || (NULL == func) || ((osTimerOnce != type) && (osTimerPeriodic != type))) {
-        return (osTimerId_t)NULL;
-    }
-
-    if (osTimerOnce == type) {
-        mode = LOS_SWTMR_MODE_NO_SELFDELETE;
-    } else {
-        mode = LOS_SWTMR_MODE_PERIOD;
-    }
-    if (LOS_OK != LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func, &usSwTmrID, (UINT32)(UINTPTR)argument, ucRouses, ucSensitive)) {
-        return (osTimerId_t)NULL;
-    }
-
-    return (osTimerId_t)OS_SWT_FROM_SID(usSwTmrID);
-}
-#endif
-#endif
-#if 1 
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
 osTimerId_t osTimerNew(osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr)
 {
     UNUSED(attr);
     UINT16 usSwTmrID;
     UINT8 mode;
 
-    if ((OS_INT_ACTIVE) || (NULL == func) || ((osTimerOnce != type) && (osTimerPeriodic != type))) {
+    if ((NULL == func) || ((osTimerOnce != type) && (osTimerPeriodic != type))) {
         return (osTimerId_t)NULL;
     }
 
@@ -749,7 +719,7 @@ osTimerId_t osTimerNew(osTimerFunc_t func, osTimerType_t type, void *argument, c
     } else {
         mode = LOS_SWTMR_MODE_PERIOD;
     }
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     if (LOS_OK != LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func, &usSwTmrID, (UINT32)(UINTPTR)argument,
         osTimerRousesAllow, osTimerAlignIgnore)) {
         return (osTimerId_t)NULL;
@@ -762,7 +732,7 @@ osTimerId_t osTimerNew(osTimerFunc_t func, osTimerType_t type, void *argument, c
 
     return (osTimerId_t)OS_SWT_FROM_SID(usSwTmrID);
 }
-#endif
+
 osStatus_t osTimerStart(osTimerId_t timer_id, uint32_t ticks)
 {
     UINT32 uwRet;
@@ -772,9 +742,11 @@ osStatus_t osTimerStart(osTimerId_t timer_id, uint32_t ticks)
         return osErrorParameter;
     }
 
+    UINTPTR intSave = LOS_IntLock();
     pstSwtmr = (SWTMR_CTRL_S *)timer_id;
     pstSwtmr->uwInterval = ticks;
     uwRet = LOS_SwtmrStart(pstSwtmr->usTimerID);
+    LOS_IntRestore(intSave);
     if (LOS_OK == uwRet) {
         return osOK;
     } else if (LOS_ERRNO_SWTMR_ID_INVALID == uwRet) {
@@ -797,10 +769,6 @@ osStatus_t osTimerStop(osTimerId_t timer_id)
     UINT32 uwRet;
     SWTMR_CTRL_S *pstSwtmr = (SWTMR_CTRL_S *)timer_id;
 
-    if (OS_INT_ACTIVE) {
-        return osErrorISR;
-    }
-
     if (NULL == pstSwtmr) {
         return osErrorParameter;
     }
@@ -818,7 +786,7 @@ osStatus_t osTimerStop(osTimerId_t timer_id)
 
 uint32_t osTimerIsRunning(osTimerId_t timer_id)
 {
-    if ((OS_INT_ACTIVE) || (NULL == timer_id)) {
+    if (NULL == timer_id) {
         return 0;
     }
 
@@ -830,10 +798,6 @@ osStatus_t osTimerDelete(osTimerId_t timer_id)
 {
     UINT32 uwRet;
     SWTMR_CTRL_S *pstSwtmr = (SWTMR_CTRL_S *)timer_id;
-
-    if (OS_INT_ACTIVE) {
-        return osErrorISR;
-    }
 
     if (NULL == pstSwtmr) {
         return osErrorParameter;
@@ -1014,7 +978,7 @@ osStatus_t osEventFlagsDelete(osEventFlagsId_t ef_id)
 }
 
 //  ==== Mutex Management Functions ====
-#if (LOSCFG_BASE_IPC_MUX == YES)
+#if (LOSCFG_BASE_IPC_MUX == 1)
 osMutexId_t osMutexNew(const osMutexAttr_t *attr)
 {
     UINT32 uwRet;
@@ -1122,7 +1086,7 @@ osStatus_t osMutexDelete(osMutexId_t mutex_id)
 #endif
 
 //  ==== Semaphore Management Functions ====
-#if (LOSCFG_BASE_IPC_SEM == YES)
+#if (LOSCFG_BASE_IPC_SEM == 1)
 
 osSemaphoreId_t osSemaphoreNew(uint32_t max_count, uint32_t initial_count, const osSemaphoreAttr_t *attr)
 {
@@ -1241,7 +1205,7 @@ osStatus_t osSemaphoreDelete(osSemaphoreId_t semaphore_id)
 
 
 //  ==== Message Queue Management Functions ====
-#if (LOSCFG_BASE_IPC_QUEUE == YES)
+#if (LOSCFG_BASE_IPC_QUEUE == 1)
 osMessageQueueId_t osMessageQueueNew(uint32_t msg_count, uint32_t msg_size, const osMessageQueueAttr_t *attr)
 {
     UINT32 uwQueueID;

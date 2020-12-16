@@ -31,15 +31,16 @@
 
 #include "soc.h"
 
-.global  LOS_IntLock
-.global  LOS_IntUnLock
-.global  LOS_IntRestore
-.global  LOS_StartToRun
-.global  osTaskSchedule
-.global  OsDisableIRQ
-.global  TaskSwitch
+.global  HalEnableIRQ
+.global  HalDisableIRQ
+.global  HalIntLock
+.global  HalIntUnLock
+.global  HalIntRestore
+.global  HalStartToRun
+.global  HalTaskSchedule
+.global  HalTaskSwitch
 .extern  __irq_stack_top
-.extern OsTaskScheduleCheck
+.extern HalTaskScheduleCheck
 .extern printk
 .equ        OS_TASK_STATUS_RUNNING,     0x0010
 .equ        OS_TASK_STATUS_NOT_RUNNING, 0xFFEF
@@ -132,7 +133,7 @@
     addi  sp, sp, 32 * REGBYTES
 .endm
 
-LOS_StartToRun:
+HalStartToRun:
 // disable interrupts
     csrci   mstatus, RISCV_MSTATUS_MIE
 
@@ -143,18 +144,23 @@ LOS_StartToRun:
 
     j       SwitchNewTask
 
-osTaskSchedule:
+HalTaskSchedule:
+    la      t0, g_intCount
+    lw      t1, 0(t0)
+    bne     t1, zero, 1f
+
     li      t0, RISCV_MSTATUS_MIE | RISCV_MSTATUS_MPIE
     csrrc   a1, mstatus, t0
 
     la      t0, g_losTask
     lw      t1, 0(t0)
     lw      t2, 4(t0)
-    bne     t1, t2, 1f
+    bne     t1, t2, 2f
 
     csrw    mstatus, a1
-    ret
 1:
+    ret
+2:
     addi    sp, sp, -(32 * REGBYTES)
     andi    a1, a1, RISCV_MSTATUS_MIE
     ori     a1, a1, 0x180
@@ -164,7 +170,7 @@ osTaskSchedule:
 
     j       SaveContextAndSwitchTask
 
-TaskSwitch:
+HalTaskSwitch:
     la      t0, g_losTaskLock
     lw      t1, 0(t0)
     bgtz    t1, NotSwitch
@@ -191,7 +197,7 @@ SaveContextAndSwitchTask:
     sh      t2, TASK_CB_STATUS(t1)
     sw      sp, TASK_CB_KERNEL_SP(t1)
 
-    call    OsTaskScheduleCheck
+    call    HalTaskScheduleCheck
 
 SwitchNewTask:
 // copy newTask into runTask
@@ -227,27 +233,27 @@ NotSwitch:
     mret
 
 .section .text
-OsDisableIRQ:
+HalDisableIRQ:
     li      t0, (RISCV_MSTATUS_MPIE | RISCV_MSTATUS_MIE) // mpie | mie
     csrrc   zero, mstatus, t0
     ret
 
-OsEnableIRQ:
+HalEnableIRQ:
     csrsi  mstatus, RISCV_MSTATUS_MIE
     ret
 
-LOS_IntLock:
+HalIntLock:
     csrr    a0, mstatus           // return value
     li      t0, RISCV_MSTATUS_MIE   // mie
     csrrc   zero, mstatus, t0
     ret
 
-LOS_IntUnLock:
+HalIntUnLock:
     csrr    a0, mstatus           // return value
     li      t0, RISCV_MSTATUS_MIE   // mie
     csrrs   zero, mstatus, t0
     ret
 
-LOS_IntRestore:
+HalIntRestore:
     csrw mstatus, a0
     ret

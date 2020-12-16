@@ -29,10 +29,11 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_HW_H
-#define _LOS_HW_H
+#ifndef _LOS_ARCH_CONTEXT_H
+#define _LOS_ARCH_CONTEXT_H
 
 #include "los_compiler.h"
+#include "los_context.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -45,12 +46,6 @@ extern "C" {
  * The initialization value of stack space.
  */
 #define EMPTY_STACK                 0xCACA
-
-/**
- * @ingroup los_hw
- * Check task schedule.
- */
-#define LOS_CHECK_SCHEDULE          ((!g_losTaskLock) && (!OS_INT_ACTIVE))
 
 #define TP_INIT_VALUE  0x02020202L
 #define SP_INIT_VALUE  0x03030303L
@@ -127,8 +122,14 @@ STATIC INLINE UINTPTR GetSP(VOID)
     return spSave;
 }
 
-extern VOID *OsTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack);
-extern VOID OsTaskScheduleCheck(VOID);
+STATIC INLINE UINTPTR GetFp(VOID)
+{
+    UINTPTR fpSave = 0;
+    __asm__ __volatile__("mv %0, s0" : "=r"(fpSave));
+    return fpSave;
+}
+
+extern VOID HalStartToRun(VOID);
 
 /**
  * @ingroup los_hw

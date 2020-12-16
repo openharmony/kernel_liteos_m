@@ -28,9 +28,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+#include "los_config.h"
 #include "los_task.h"
 #include "securec.h"
+#include "los_interrupt.h"
+#include "los_arch_context.h"
+#include "los_arch_interrupt.h"
+#include "los_arch_timer.h"
 #include "ARMCM3.h"
 #ifdef __cplusplus
 #if __cplusplus
@@ -39,20 +43,32 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* ****************************************************************************
- Function    : OsTaskExit
- Description : Task exit function
+ Function    : HalArchInit
+ Description : arch init function
  Input       : None
  Output      : None
  Return      : None
  **************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID OsTaskExit(VOID)
+LITE_OS_SEC_TEXT_INIT VOID HalArchInit()
+{
+    HalHwiInit();
+}
+
+/* ****************************************************************************
+ Function    : HalSysExit
+ Description : exit function
+ Input       : None
+ Output      : None
+ Return      : None
+ **************************************************************************** */
+LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID)
 {
     LOS_IntLock();
     for(;;);
 }
 
 /* ****************************************************************************
- Function    : OsTskStackInit
+ Function    : HalTskStackInit
  Description : Task stack initialization function
  Input       : taskID     --- TaskID
                stackSize  --- Total size of the stack
@@ -60,7 +76,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTaskExit(VOID)
  Output      : None
  Return      : Context pointer
  **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT VOID *OsTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
+LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
 {
     TaskContext *context = NULL;
     errno_t result;
@@ -126,18 +142,27 @@ LITE_OS_SEC_TEXT_INIT VOID *OsTskStackInit(UINT32 taskID, UINT32 stackSize, VOID
     context->uwR2 = 0x02020202L;
     context->uwR3 = 0x03030303L;
     context->uwR12 = 0x12121212L;
-    context->uwLR = (UINT32)(UINTPTR)OsTaskExit;
+    context->uwLR = (UINT32)(UINTPTR)HalSysExit;
     context->uwPC = (UINT32)(UINTPTR)OsTaskEntry;
     context->uwxPSR = 0x01000000L;
 
     return (VOID *)context;
 }
 
-LITE_OS_SEC_TEXT_INIT VOID OsEnterSleep(VOID)
+void HalBackTrace()
 {
-    __DSB();
-    __WFI();
-    __ISB();
+  
+}
+
+LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
+{
+    UINT32 ret;
+    ret = HalTickStart(handler);
+    if (ret != LOS_OK) {
+        return ret;
+    }
+    HalStartToRun();
+    return LOS_OK; /* never return */
 }
 
 #ifdef __cplusplus

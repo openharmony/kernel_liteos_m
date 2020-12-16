@@ -29,8 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_TRAP_S
-#define _LOS_TRAP_S
+#ifndef _LOS_EXC_S
+#define _LOS_EXC_S
 #include "soc.h"
 
 .macro PUSH_ECALL_CALLER_REG
@@ -114,11 +114,11 @@
 .endm
 
 .section .interrupt.text
-.extern OsExcEntry
+.extern HalExcEntry
 .extern g_excInfo
-.global TrapEntry
+.global HalTrapEntry
 .align 4
-TrapEntry:
+HalTrapEntry:
     PUSH_OTHER_REG
     addi  sp, sp, -4 * REGBYTES
     sw    a0, 0 * REGBYTES(sp)
@@ -142,7 +142,7 @@ TrapEntry:
 1:
     addi  t1, t1, 0x1
     sh    t1, 0(t0)
-    call  OsExcEntry
+    call  HalExcEntry
     la    t0, g_excInfo
     sh    zero, 0(t0)
     csrr  sp, mscratch
@@ -156,23 +156,23 @@ TrapEntry:
 
 
 .section .interrupt.text
-.extern TrapEntry
-.global TrapVector
+.extern HalTrapEntry
+.global HalTrapVector
 .equ TRAP_INTERRUPT_MODE_MASK, 0x80000000
 .equ TRAP_INTERRUPT_NUM_MASK, 0x7FFFFFFF
 .align 4
-TrapVector:
+HalTrapVector:
     PUSH_ECALL_CALLER_REG
     csrr  a0, mcause
     li    a1, TRAP_INTERRUPT_MODE_MASK
     li    a2, TRAP_INTERRUPT_NUM_MASK
     and   a1, a0, a1
     and   a0, a2, a0
-    beqz  a1, TrapEntry
+    beqz  a1, HalTrapEntry
     PUSH_OTHER_CALLER_REG
     csrw  mscratch, sp
     la    sp, __start_and_irq_stack_top
-    jal   OsHwiInterruptDone
-    j     TaskSwitch
+    jal   HalHwiInterruptDone
+    j     HalTaskSwitch
 
 #endif /* _LOS_TRAP_S */
