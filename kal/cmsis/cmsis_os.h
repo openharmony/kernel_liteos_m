@@ -29,6 +29,9 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef CMSIS_OS_H_
+#define CMSIS_OS_H_
+
 #include "los_config.h"
 
 #if (CMSIS_OS_VER == 1)
@@ -37,3 +40,4 @@
 #include "cmsis_os2.h"
 #endif
 
+#endif /* CMSIS_OS_H_ */

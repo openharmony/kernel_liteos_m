@@ -30,6 +30,8 @@
  */
 
 #include "los_cpup.h"
+#include "securec.h"
+#include "los_memory.h"
 #include "los_debug.h"
 #ifdef __cplusplus
 #if __cplusplus
@@ -37,7 +39,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if (LOSCFG_BASE_CORE_CPUP == YES)
+#if (LOSCFG_BASE_CORE_CPUP == 1)
 
 /**
  * @ingroup los_cpup

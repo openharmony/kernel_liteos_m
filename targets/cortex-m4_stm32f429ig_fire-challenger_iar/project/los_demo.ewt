@@ -2374,19 +2374,19 @@
         <group>
             <name>arch</name>
             <file>
+                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_context.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_dispatch.S</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_hw.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_hw_exc.S</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_hw_tick.c</name>
+                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_exc.S</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_interrupt.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\kernel\arch\arm\cortex-m4\iar\los_timer.c</name>
             </file>
         </group>
         <group>
@@ -2414,13 +2414,7 @@
             <name>$PROJ_DIR$\..\..\..\kernel\src\mm\los_membox.c</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\kernel\src\mm\los_memcheck.c</name>
-        </file>
-        <file>
             <name>$PROJ_DIR$\..\..\..\kernel\src\mm\los_memory.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\..\..\kernel\src\mm\los_memstat.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_mux.c</name>

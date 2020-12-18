@@ -28,9 +28,11 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "los_config.h"
+#include "los_arch.h"
 #include "los_sem.h"
 #include "los_memory.h"
-#if (LOSCFG_PLATFORM_EXC == YES)
+#if (LOSCFG_PLATFORM_EXC == 1)
 #include "los_interrupt.h"
 #endif
 #include "los_debug.h"
@@ -41,7 +43,7 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
-#if (LOSCFG_BASE_IPC_SEM == YES)
+#if (LOSCFG_BASE_IPC_SEM == 1)
 
 LITE_OS_SEC_DATA_INIT LOS_DL_LIST g_unusedSemList;
 LITE_OS_SEC_BSS LosSemCB *g_allSem = NULL;
@@ -195,16 +197,16 @@ STATIC_INLINE UINT32 OsSemValidCheck(LosSemCB *semPended)
 
     if (OS_INT_ACTIVE) {
         PRINT_ERR("!!!LOS_ERRNO_SEM_PEND_INTERR!!!\n");
-#if (LOSCFG_PLATFORM_EXC == YES)
-        OsBackTrace();
+#if (LOSCFG_PLATFORM_EXC == 1)
+        LOS_BackTrace();
 #endif
         return LOS_ERRNO_SEM_PEND_INTERR;
     }
 
     if (g_losTaskLock) {
         PRINT_ERR("!!!LOS_ERRNO_SEM_PEND_IN_LOCK!!!\n");
-#if (LOSCFG_PLATFORM_EXC == YES)
-        OsBackTrace();
+#if (LOSCFG_PLATFORM_EXC == 1)
+        LOS_BackTrace();
 #endif
         return LOS_ERRNO_SEM_PEND_IN_LOCK;
     }
@@ -313,7 +315,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPost(UINT32 semHandle)
     return LOS_OK;
 }
 
-#endif /* (LOSCFG_BASE_IPC_SEM == YES) */
+#endif /* (LOSCFG_BASE_IPC_SEM == 1) */
 
 #ifdef __cplusplus
 #if __cplusplus

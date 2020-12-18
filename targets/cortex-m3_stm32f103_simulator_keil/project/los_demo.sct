@@ -4,7 +4,7 @@
 
 LR_IROM1 0x08000000 0x00200000  {    ; load region size_region
   ER_IROM1 0x08000000 0x00200000  {  ; load address = execution address
-   	LOS_vendor.o (RESET, +First)
+   	los_startup.o (RESET, +First)
    *(InRoot$$Sections)
    * (+RO)
   }

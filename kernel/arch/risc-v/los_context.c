@@ -29,10 +29,12 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_context.h"
-#include "los_interrupt.h"
+#include "los_arch_context.h"
+#include "los_arch_interrupt.h"
+#include "los_arch_timer.h"
 #include "los_task.h"
 #include "los_memory.h"
+#include "los_timer.h"
 #include "soc.h"
 
 #ifdef __cplusplus
@@ -41,14 +43,19 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-LITE_OS_SEC_TEXT_MINOR VOID OsTaskExit(VOID)
+LITE_OS_SEC_TEXT_INIT VOID HalArchInit(VOID)
 {
-    OsDisableIRQ();
+    HalHwiInit();
+}
+
+LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID)
+{
+    HalIntLock();
     while (1) {
     }
 }
 
-LITE_OS_SEC_TEXT_INIT VOID *OsTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
+LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
 {
     UINT32 index;
     TaskContext  *context = NULL;
@@ -92,13 +99,24 @@ LITE_OS_SEC_TEXT_INIT VOID *OsTskStackInit(UINT32 taskID, UINT32 stackSize, VOID
     context->t2 = T2_INIT_VALUE;
     context->t1 = T1_INIT_VALUE;
     context->t0 = T0_INIT_VALUE;
-    context->ra = (UINT32)(UINTPTR)OsTaskExit;
+    context->ra = (UINT32)(UINTPTR)HalSysExit;
     return (VOID *)context;
 }
 
-LITE_OS_SEC_TEXT VOID OsTaskScheduleCheck(VOID)
+LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
 {
-#if (LOSCFG_BASE_CORE_TSK_MONITOR == YES)
+    UINT32 ret;
+    ret = HalTickStart(handler);
+    if (ret != LOS_OK) {
+        return ret;
+    }
+    HalStartToRun();
+    return LOS_OK; /* never return */
+}
+
+LITE_OS_SEC_TEXT VOID HalTaskScheduleCheck(VOID)
+{
+#if (LOSCFG_BASE_CORE_TSK_MONITOR == 1)
     OsTaskSwitchCheck();
 #endif
     return;
@@ -117,6 +135,11 @@ LITE_OS_SEC_TEXT VOID mb(VOID)
 LITE_OS_SEC_TEXT VOID dsb(VOID)
 {
     __asm__ __volatile__("fence":::"memory");
+}
+
+VOID HalEnterSleep(LOS_SysSleepEnum sleep)
+{
+    wfi();
 }
 
 #ifdef __cplusplus

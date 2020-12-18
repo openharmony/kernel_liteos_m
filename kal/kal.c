@@ -29,65 +29,43 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_debug.h"
-#include "los_interrupt.h"
+#include "kal.h"
+#include "los_swtmr.h"
 
-typedef struct {
-    UINT32 memUsed;
-} TskMemUsedInfo;
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cpluscplus */
+#endif /* __cpluscplus */
 
-LITE_OS_SEC_BSS_MINOR TskMemUsedInfo g_tskMemUsedInfo[LOSCFG_BASE_CORE_TSK_LIMIT + 1];
-
-LITE_OS_SEC_TEXT_MINOR VOID OsTaskMemUsedInc(UINT32 usedSize, UINT32 taskID)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
+osTimerId_t osTimerExtNew(osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr,
+    osTimerRouses_t ucRouses, osTimerAlign_t ucSensitive)
 {
-    if (taskID > LOSCFG_BASE_CORE_TSK_LIMIT) {
-        return;
+    UNUSED(attr);
+    UINT16 usSwTmrID;
+    UINT8 mode;
+
+    if ((OS_INT_ACTIVE) || (NULL == func) || ((osTimerOnce != type) && (osTimerPeriodic != type))) {
+        return (osTimerId_t)NULL;
     }
 
-    if (OS_INT_ACTIVE) {
-        return;
+    if (osTimerOnce == type) {
+        mode = LOS_SWTMR_MODE_NO_SELFDELETE;
+    } else {
+        mode = LOS_SWTMR_MODE_PERIOD;
     }
-    g_tskMemUsedInfo[taskID].memUsed += usedSize;
+    if (LOS_OK != LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func, &usSwTmrID,
+        (UINT32)(UINTPTR)argument, ucRouses, ucSensitive)) {
+        return (osTimerId_t)NULL;
+    }
+
+    return (osTimerId_t)OS_SWT_FROM_SID(usSwTmrID);
 }
+#endif
 
-LITE_OS_SEC_TEXT_MINOR VOID OsTaskMemUsedDec(UINT32 usedSize, UINT32 taskID)
-{
-    if (taskID > LOSCFG_BASE_CORE_TSK_LIMIT) {
-        return;
-    }
-
-    if (OS_INT_ACTIVE) {
-        return;
-    }
-
-    if (g_tskMemUsedInfo[taskID].memUsed < usedSize) {
-        PRINT_INFO("mem used of current task '%s':0x%x, decrease size:0x%x\n",
-                   g_losTask.runTask->taskName, g_tskMemUsedInfo[taskID].memUsed, usedSize);
-        return;
-    }
-
-    g_tskMemUsedInfo[taskID].memUsed -= usedSize;
+#ifdef __cplusplus
+#if __cplusplus
 }
-
-LITE_OS_SEC_TEXT_MINOR UINT32 OsTaskMemUsage(UINT32 taskId)
-{
-    if ((UINT32)taskId > LOSCFG_BASE_CORE_TSK_LIMIT) {
-        return LOS_NOK;
-    }
-
-    return g_tskMemUsedInfo[(UINT32)taskId].memUsed;
-}
-
-LITE_OS_SEC_TEXT_MINOR VOID OsTaskMemClear(UINT32 taskID)
-{
-    if (taskID > LOSCFG_BASE_CORE_TSK_LIMIT) {
-        return;
-    }
-
-    if (g_tskMemUsedInfo[taskID].memUsed != 0) {
-        PRINT_INFO("mem used of task '%s' is:0x%x, not zero when task being deleted\n",
-                   g_losTask.runTask->taskName, g_tskMemUsedInfo[taskID].memUsed);
-    }
-    g_tskMemUsedInfo[taskID].memUsed = 0;
-    return;
-}
+#endif /* __cpluscplus */
+#endif /* __cpluscplus */

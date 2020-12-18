@@ -30,22 +30,25 @@
  */
 
 #include "los_config.h"
+#include "los_arch.h"
 #include "los_queue.h"
 #include "los_memory.h"
 #include "los_mux.h"
+#include "los_sem.h"
+#include "los_debug.h"
+#include "stdarg.h"
 
-#if (LOSCFG_PLATFORM_EXC == YES)
+#if (LOSCFG_PLATFORM_HWI == 1)
 #include "los_interrupt.h"
 #endif
 
-#if (LOSCFG_KERNEL_TRACE == YES)
+#if (LOSCFG_KERNEL_TRACE == 1)
 #include "los_debug.h"
 #endif
 
-#if (LOSCFG_KERNEL_CPPSUPPORT == YES)
-#include "los_cppsupport.h"
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
+#include "los_swtmr.h"
 #endif
-#include "los_debug.h"
 
 
 #ifdef __cplusplus
@@ -56,16 +59,6 @@ extern "C" {
 
 UINT8 *m_aucSysMem0;
 
-#if (LOSCFG_PLATFORM_EXC == YES)
-UINT8 g_aucTaskArray[MAX_EXC_MEM_SIZE];
-#endif
-#define FPU_ENABLE ((3UL << 20) | (3UL << 22))
-
-VOID OsEnableFPU(VOID)
-{
-    *(volatile UINT32 *)0xE000ED88 |= FPU_ENABLE; /* CPACR is located at address 0xE000ED88. */
-}
-
 /*****************************************************************************
  Function    : LOS_Reboot
  Description : system exception, die in here, wait for watchdog.
@@ -75,10 +68,19 @@ VOID OsEnableFPU(VOID)
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT VOID LOS_Reboot(VOID)
 {
-    (VOID)LOS_IntLock();
-    while (1) {
-    }
+    HalSysExit();
 }
+
+LITE_OS_SEC_TEXT_INIT VOID LOS_Panic(const CHAR *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    PRINT_ERR(fmt, ap);
+    va_end(ap);
+    HalSysExit();
+}
+
+
 /*****************************************************************************
  Function    : OsRegister
  Description : Configuring the maximum number of tasks
@@ -95,17 +97,7 @@ LITE_OS_SEC_TEXT_INIT static VOID OsRegister(VOID)
 
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_Start(VOID)
 {
-    UINT32 ret;
-
-    ret = OsTickStart();
-    if (ret != LOS_OK) {
-        PRINT_ERR("OsTickStart error\n");
-        return ret;
-    }
-
-    LOS_StartToRun();
-
-    return ret;
+    return HalStartSchedule(OsTickHandler);
 }
 
 extern UINT8 g_memStart[OS_SYS_MEM_SIZE];
@@ -131,9 +123,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
         return ret;
     }
 
-#if (LOSCFG_PLATFORM_HWI == YES)
-    OsHwiInit();
-#endif
+    HalArchInit();
 
     ret = OsTaskInit();
     if (ret != LOS_OK) {
@@ -141,11 +131,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
         return ret;
     }
 
-#if (LOSCFG_BASE_CORE_TSK_MONITOR == YES)
+#if (LOSCFG_BASE_CORE_TSK_MONITOR == 1)
         OsTaskMonInit();
 #endif
 
-#if (LOSCFG_BASE_CORE_CPUP == YES)
+#if (LOSCFG_BASE_CORE_CPUP == 1)
     ret = OsCpupInit();
     if (ret != LOS_OK) {
         PRINT_ERR("OsCpupInit error\n");
@@ -153,21 +143,21 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 #endif
 
-#if (LOSCFG_BASE_IPC_SEM == YES)
+#if (LOSCFG_BASE_IPC_SEM == 1)
     ret = OsSemInit();
     if (ret != LOS_OK) {
         return ret;
     }
 #endif
 
-#if (LOSCFG_BASE_IPC_MUX == YES)
+#if (LOSCFG_BASE_IPC_MUX == 1)
     ret = OsMuxInit();
     if (ret != LOS_OK) {
         return ret;
     }
 #endif
 
-#if (LOSCFG_BASE_IPC_QUEUE == YES)
+#if (LOSCFG_BASE_IPC_QUEUE == 1)
     ret = OsQueueInit();
     if (ret != LOS_OK) {
         PRINT_ERR("OsQueueInit error\n");
@@ -175,7 +165,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 #endif
 
-#if (LOSCFG_BASE_CORE_SWTMR == YES)
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
     ret = OsSwtmrInit();
     if (ret != LOS_OK) {
         PRINT_ERR("OsSwtmrInit error\n");
@@ -183,7 +173,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 #endif
 
-#if (LOSCFG_BASE_CORE_TIMESLICE == YES)
+#if (LOSCFG_BASE_CORE_TIMESLICE == 1)
     OsTimesliceInit();
 #endif
 
@@ -192,7 +182,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
         return ret;
     }
 
-#if (LOSCFG_KERNEL_TRACE == YES)
+#if (LOSCFG_KERNEL_TRACE == 1)
     ret = LOS_TraceInit();
     if (ret != LOS_OK) {
         PRINT_ERR("LOS_TraceInit error\n");
@@ -200,10 +190,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 #endif
 
-#if (LOSCFG_KERNEL_CPPSUPPORT == YES)
-     extern char __init_array_start,__init_array_end;
-     LOS_CppSystemInit((UINTPTR)&__init_array_start,(UINTPTR)&__init_array_end);
-#endif
 #ifdef LOSCFG_TEST
     //ret = los_TestInit();
     //if (ret != LOS_OK) {

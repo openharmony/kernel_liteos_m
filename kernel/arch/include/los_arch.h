@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
  * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,46 +29,28 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_tick.h"
+#ifndef _LOS_ARCH_H
+#define _LOS_ARCH_H
+
 #include "los_config.h"
-#include "los_interrupt.h"
-#include "riscv_hal.h"
+#include "los_compiler.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+#endif /* __cpluscplus */
+#endif /* __cpluscplus */
 
-#define NS_PER_SECOND  1000000000.0
 
-LITE_OS_SEC_TEXT_INIT UINT32 OsTickStart(VOID)
-{
-    g_sysClock = OS_SYS_CLOCK;
-    g_cyclesPerTick = g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND;
-    g_intCount = 0;
-
-    SysClockInit(g_cyclesPerTick);
-
-    return LOS_OK;
-}
-
-/* ****************************************************************************
-Function    : LOS_GetCpuCycle
-Description : Get System cycle count
-Input       : none
-output      : cntHi  --- CpuTick High 4 byte
-              cntLo  --- CpuTick Low 4 byte
-return      : none
-**************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID LOS_GetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
-{
-    OsGetCpuCycle(cntHi, cntLo);
-    return;
-}
+VOID HalArchInit();
+void HalBackTrace();
+#define LOS_BackTrace HalBackTrace
 
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cplusplus */
-#endif /* __cplusplus */
+#endif /* __cpluscplus */
+#endif /* __cpluscplus */
+
+#endif /* _LOS_ARCH_H */
+

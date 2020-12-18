@@ -37,93 +37,13 @@
 #ifndef _LOS_HW_H
 #define _LOS_HW_H
 
+#include "los_compiler.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-
-/* *
- * @ingroup los_hw
- * The initialization value of stack space.
- */
-#define EMPTY_STACK        0xCACA
-
-/* *
- * @ingroup los_hw
- * Trigger a task.
- */
-#define OsTaskTrap() __asm("   TRAP    #31")
-
-/* *
- * @ingroup los_hw
- * Check task schedule.
- */
-#define LOS_CHECK_SCHEDULE ((!g_losTaskLock))
-
-/* *
- * @ingroup los_hw
- * Define the type of a task context control block.
- */
-typedef struct tagTskContext {
-#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined(__FPU_USED) && (__FPU_USED == 1U)))
-    UINT32 S16;
-    UINT32 S17;
-    UINT32 S18;
-    UINT32 S19;
-    UINT32 S20;
-    UINT32 S21;
-    UINT32 S22;
-    UINT32 S23;
-    UINT32 S24;
-    UINT32 S25;
-    UINT32 S26;
-    UINT32 S27;
-    UINT32 S28;
-    UINT32 S29;
-    UINT32 S30;
-    UINT32 S31;
-#endif
-    UINT32 uwR4;
-    UINT32 uwR5;
-    UINT32 uwR6;
-    UINT32 uwR7;
-    UINT32 uwR8;
-    UINT32 uwR9;
-    UINT32 uwR10;
-    UINT32 uwR11;
-    UINT32 uwPriMask;
-    UINT32 uwR0;
-    UINT32 uwR1;
-    UINT32 uwR2;
-    UINT32 uwR3;
-    UINT32 uwR12;
-    UINT32 uwLR;
-    UINT32 uwPC;
-    UINT32 uwxPSR;
-#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined(__FPU_USED) && (__FPU_USED == 1U)))
-    UINT32 S0;
-    UINT32 S1;
-    UINT32 S2;
-    UINT32 S3;
-    UINT32 S4;
-    UINT32 S5;
-    UINT32 S6;
-    UINT32 S7;
-    UINT32 S8;
-    UINT32 S9;
-    UINT32 S10;
-    UINT32 S11;
-    UINT32 S12;
-    UINT32 S13;
-    UINT32 S14;
-    UINT32 S15;
-    UINT32 FPSCR;
-    UINT32 NO_NAME;
-#endif
-} TaskContext;
 
 /* *
  * @ingroup  los_hw
@@ -144,14 +64,13 @@ typedef struct tagTskContext {
  * <ul><li>los_hw.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
-extern VOID *OsTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack);
-
+extern VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack);
 /**
  * @ingroup  los_hw
- * @brief: Function to task exit.
+ * @brief: Function to sys exit.
  *
  * @par Description:
- * This API is used to exit task.
+ * This API is used to sys exit.
  *
  * @attention:
  * <ul><li>None.</li></ul>
@@ -163,14 +82,14 @@ extern VOID *OsTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack);
  * <ul><li>los_hw.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
-LITE_OS_SEC_TEXT_MINOR VOID OsTaskExit(VOID);
+LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID);
 
 /* *
- * @ingroup  los_hw
- * @brief: The M3 wait interrupt instruction.
+ * @ingroup  los_context
+ * @brief: Task scheduling Function.
  *
  * @par Description:
- * This API is used to make CPU enter to power-save mode.
+ * This API is used to scheduling task.
  *
  * @attention:
  * <ul><li>None.</li></ul>
@@ -179,10 +98,24 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTaskExit(VOID);
  *
  * @retval: None.
  * @par Dependency:
- * <ul><li>los_hw.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_context.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
-extern VOID OsEnterSleep(VOID);
+extern VOID HalTaskSchedule(VOID);
+
+typedef VOID (*OS_TICK_HANDLER)(VOID);
+UINT32 HalStartSchedule(OS_TICK_HANDLER handler);
+
+UINTPTR HalIntLock(VOID);
+#define LOS_IntLock HalIntLock
+
+VOID HalIntRestore(UINTPTR intSave);
+#define LOS_IntRestore HalIntRestore
+
+UINTPTR HalIntUnLock(VOID);
+#define LOS_IntUnLock HalIntUnLock
+
+
 
 #ifdef __cplusplus
 #if __cplusplus

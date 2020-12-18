@@ -28,8 +28,10 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "los_mux.h"
+#include "los_config.h"
 #include "los_interrupt.h"
+#include "los_arch.h"
+#include "los_mux.h"
 #include "los_memory.h"
 #include "los_debug.h"
 
@@ -39,7 +41,7 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
-#if (LOSCFG_BASE_IPC_MUX == YES)
+#if (LOSCFG_BASE_IPC_MUX == 1)
 
 LITE_OS_SEC_BSS       LosMuxCB*   g_allMux = NULL;
 LITE_OS_SEC_DATA_INIT LOS_DL_LIST g_unusedMuxList;
@@ -168,8 +170,8 @@ STATIC_INLINE UINT32 OsMuxValidCheck(LosMuxCB *muxPended)
 
     if (g_losTaskLock) {
         PRINT_ERR("!!!LOS_ERRNO_MUX_PEND_IN_LOCK!!!\n");
-#if (LOSCFG_PLATFORM_EXC == YES)
-        OsBackTrace();
+#if (LOSCFG_PLATFORM_EXC == 1)
+        LOS_BackTrace();
 #endif
         return LOS_ERRNO_MUX_PEND_IN_LOCK;
     }
@@ -303,7 +305,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
 
     return LOS_OK;
 }
-#endif /* (LOSCFG_BASE_IPC_MUX == YES) */
+#endif /* (LOSCFG_BASE_IPC_MUX == 1) */
 
 #ifdef __cplusplus
 #if __cplusplus

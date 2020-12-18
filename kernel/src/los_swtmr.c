@@ -28,6 +28,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "los_config.h"
 #include "securec.h"
 #include "los_interrupt.h"
 #include "los_swtmr.h"
@@ -42,14 +43,14 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if (LOSCFG_BASE_CORE_SWTMR == YES)
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
 
 LITE_OS_SEC_BSS UINT32          g_swtmrHandlerQueue;           /* Software Timer timeout queue ID */
 LITE_OS_SEC_BSS SWTMR_CTRL_S    *g_swtmrCBArray = NULL;        /* first address in Timer memory space */
 LITE_OS_SEC_BSS SWTMR_CTRL_S    *g_swtmrFreeList = NULL;       /* Free list of Softwaer Timer */
 LITE_OS_SEC_BSS SWTMR_CTRL_S    *g_swtmrSortList = NULL;       /* The software timer count list */
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 typedef struct SwtmrAlignDataStr {
     UINT32 times : 24;
     UINT32 : 5;
@@ -139,7 +140,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsSwtmrInit(VOID)
     SWTMR_CTRL_S *swtmr = NULL;
     SWTMR_CTRL_S *temp = NULL;
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     // Ignore the return code when matching CSEC rule 6.6(1).
     (VOID)memset_s((VOID *)g_swtmrAlignID, sizeof(SwtmrAlignData) * LOSCFG_BASE_CORE_SWTMR_LIMIT,
                    0, sizeof(SwtmrAlignData) * LOSCFG_BASE_CORE_SWTMR_LIMIT);
@@ -180,7 +181,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsSwtmrInit(VOID)
     return LOS_OK;
 }
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 STATIC_INLINE UINT32 OsSwtmrCalcAlignCount(UINT32 interval, UINT16 timerId)
 {
     SWTMR_CTRL_S *cur = g_swtmrSortList;
@@ -269,7 +270,7 @@ LITE_OS_SEC_TEXT VOID OsSwtmrStart(SWTMR_CTRL_S *swtmr)
 
     swtmr->uwCount = swtmr->uwInterval;
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     if ((g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT].canAlign == 1) &&
         (g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT].isAligned == 0)) {
         g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT].isAligned = 1;
@@ -312,7 +313,7 @@ STATIC_INLINE VOID OsSwtmrDelete(SWTMR_CTRL_S *swtmr)
     g_swtmrFreeList = swtmr;
     swtmr->ucState = OS_SWTMR_STATUS_UNUSED;
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     (VOID)memset_s((VOID *)&g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT],
                    sizeof(SwtmrAlignData), 0, sizeof(SwtmrAlignData));
 #endif
@@ -350,7 +351,7 @@ LITE_OS_SEC_TEXT VOID OsSwtmrStop(const SWTMR_CTRL_S *swtmr)
     cur->pstNext = (SWTMR_CTRL_S *)NULL;
     cur->ucState = OS_SWTMR_STATUS_CREATED;
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT].isAligned = 0;
 #endif
 }
@@ -415,7 +416,7 @@ Input       : None
 Output      : None
 Return      : Count of the Timer list
 *****************************************************************************/
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 LITE_OS_SEC_TEXT UINT32 OsSwtmrGetNextTimeout(VOID)
 {
     SWTMR_CTRL_S *cur = NULL;
@@ -464,7 +465,7 @@ Input       : **head, *swtmr
 Output      : **head, *swtmr
 Return      : None
 *****************************************************************************/
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 VOID OsSwtimerInsert(SWTMR_CTRL_S **head, SWTMR_CTRL_S *swtmr)
 {
     SWTMR_CTRL_S *prev = NULL;
@@ -507,7 +508,7 @@ Input       : sleepTime
 Output      : None
 Return      : None
 *****************************************************************************/
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 LITE_OS_SEC_TEXT VOID OsSwtmrAdjust(UINT32 sleepTime)
 {
     SWTMR_CTRL_S  *cur = NULL;
@@ -595,7 +596,7 @@ Input       : interval
 Output      : swtmrId
 Return      : LOS_OK on success or error code on failure
 *****************************************************************************/
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_SwtmrCreate(UINT32 interval,
                                              UINT8 mode,
                                              SWTMR_PROC_FUNC handler,
@@ -632,7 +633,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_SwtmrCreate(UINT32 interval,
         return LOS_ERRNO_SWTMR_RET_PTR_NULL;
     }
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     if ((rouses != OS_SWTMR_ROUSES_IGNORE) && (rouses != OS_SWTMR_ROUSES_ALLOW)) {
         return OS_ERRNO_SWTMR_ROUSES_INVALID;
     }
@@ -657,7 +658,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_SwtmrCreate(UINT32 interval,
     swtmr->pstNext       = (SWTMR_CTRL_S *)NULL;
     swtmr->uwCount       = 0;
     swtmr->uwArg         = arg;
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     swtmr->ucRouses      = rouses;
     swtmr->ucSensitive   = sensitive;
 #endif
@@ -678,7 +679,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStart(UINT16 swtmrId)
 {
     SWTMR_CTRL_S *swtmr = NULL;
     UINTPTR intSave;
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     UINT32 times;
     UINT32 swtmrAlignIdIndex = 0;
 #endif
@@ -696,7 +697,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStart(UINT16 swtmrId)
         return LOS_ERRNO_SWTMR_ID_INVALID;
     }
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     if ((swtmr->ucSensitive == OS_SWTMR_ALIGN_INSENSITIVE) && (swtmr->ucMode == LOS_SWTMR_MODE_PERIOD)) {
         swtmrAlignIdIndex = swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT;
         g_swtmrAlignID[swtmrAlignIdIndex].canAlign = 1;
@@ -856,7 +857,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrDelete(UINT16 swtmrId)
     return ret;
 }
 
-#endif /* (LOSCFG_BASE_CORE_SWTMR == YES) */
+#endif /* (LOSCFG_BASE_CORE_SWTMR == 1) */
 
 
 #ifdef __cplusplus

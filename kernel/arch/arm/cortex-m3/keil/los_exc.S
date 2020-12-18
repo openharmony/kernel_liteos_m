@@ -33,16 +33,14 @@
     AREA  |.text|, CODE, READONLY
     THUMB
 
-    EXPORT  OsExcNMI
-    EXPORT  OsExcHardFault
-    EXPORT  OsExcMemFault
-    EXPORT  OsExcBusFault
-    EXPORT  OsExcUsageFault
-    EXPORT  OsExcSvcCall
+    EXPORT  HalExcNMI
+    EXPORT  HalExcHardFault
+    EXPORT  HalExcMemFault
+    EXPORT  HalExcBusFault
+    EXPORT  HalExcUsageFault
+    EXPORT  HalExcSvcCall
 
-    IMPORT OsExcHandleEntry
-    ;IMPORT g_vuwLosFlag
-    ;IMPORT g_curNestCount
+    IMPORT HalExcHandleEntry
     IMPORT g_uwExcTbl
     IMPORT g_taskScheduled
 
@@ -66,12 +64,12 @@ OS_NVIC_ACT_BASE            EQU   0xE000E300
 OS_NVIC_SHCSRS              EQU   0xE000ED24
 OS_NVIC_SHCSR_MASK          EQU   0xC00
 
-OsExcNMI
+HalExcNMI
     MOV  R0, #OS_EXC_CAUSE_NMI
     MOV  R1, #0
     B  osExcDispatch
 
-OsExcHardFault
+HalExcHardFault
     MOV  R0, #OS_EXC_CAUSE_HARDFAULT
     LDR  R2, =OS_NVIC_HFSR
     LDR  R2, [R2]
@@ -122,7 +120,7 @@ osHFExcCommonBMU
     ORR  R0, R0 ,R12
     B    osExcDispatch
 
-OsExcSvcCall
+HalExcSvcCall
     TST   LR, #0x4
     ITE   EQ
     MRSEQ R0, MSP
@@ -132,7 +130,7 @@ OsExcSvcCall
     MOV   R1, #0
     B     osExcDispatch
 
-OsExcBusFault
+HalExcBusFault
     LDR  R0, =OS_NVIC_FSR
     LDR  R0, [R0]
 
@@ -149,7 +147,7 @@ _ExcBusNoADDR
     MOV  R12,#0
     B    osExcCommonBMU
 
-OsExcMemFault
+HalExcMemFault
     LDR  R0, =OS_NVIC_FSR
     LDR  R0, [R0]
 
@@ -166,7 +164,7 @@ _ExcMemNoADDR
     MOV  R12,#0
     B    osExcCommonBMU
 
-OsExcUsageFault
+HalExcUsageFault
     LDR  R0, =OS_NVIC_FSR
     LDR  R0, [R0]
 
@@ -281,7 +279,7 @@ _handleEntry
     MOV R3, R13                         ; R13:the 4th param
     CPSID I
     CPSID F
-    B  OsExcHandleEntry
+    B  HalExcHandleEntry
 
     NOP
     END

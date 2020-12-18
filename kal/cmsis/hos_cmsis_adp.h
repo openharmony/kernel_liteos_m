@@ -33,7 +33,7 @@
 #define HOS_CMSIS_ADP_H
 
 #include "cmsis_os.h"
-#include "ohos_types.h"
+#include "los_compiler.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -43,8 +43,8 @@ extern "C" {
 
 typedef struct {
     osSemaphoreAttr_t attr;
-    uint32 maxCount;
-    uint32 initialCount;
+    UINT32 maxCount;
+    UINT32 initialCount;
 } SemaphoreEx;
 
 #ifdef __cplusplus

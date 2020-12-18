@@ -32,7 +32,7 @@
 #ifndef _LOS_MEMBOX_H
 #define _LOS_MEMBOX_H
 
-#if (LOSCFG_PLATFORM_EXC == YES)
+#if (LOSCFG_PLATFORM_EXC == 1)
 #include "los_memory.h"
 #endif
 
@@ -44,7 +44,7 @@
  * @ingroup los_membox
  * Define whether to check the address validity
  */
-#if (LOSCFG_PLATFORM_EXC == YES)
+#if (LOSCFG_PLATFORM_EXC == 0)
 #define LOS_MEMBOX_CHECK
 extern UINT8 g_memMang[];
 #endif

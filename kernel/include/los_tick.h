@@ -98,44 +98,7 @@ extern "C" {
  * */
 extern UINT32 LOS_SysClockGet(VOID);
 
-/**
- * @ingroup  los_tickless
- * @brief enable the tickless mode.
- *
- * @par Description:
- * This API is used to enable the tickless mode. System can change from periodic clock mode to dynamic clock mode.
- *
- * @attention
- * <ul>
- * </ul>
- *
- * @param  None.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_tickless.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_TicklessDisable
- */
-extern VOID LOS_TicklessEnable(VOID);
-/**
- * @ingroup  los_tickless
- * @brief disable the tickless mode.
- *
- * @par Description:
- * This API is used to diable the tickless mode. System will not change from periodic clock mode to dynamic clock mode.
- *
- * @attention
- * <ul>
- * </ul>
- *
- * @param  None.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_tickless.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_TicklessEnable
- */
-extern VOID LOS_TicklessDisable(VOID);
+
 
 /**
  * @ingroup los_sys
@@ -344,77 +307,6 @@ extern UINT32    g_sysClock;
  * @see None.
  */
 extern VOID OsTickHandler(VOID);
-
-#if (LOSCFG_KERNEL_TICKLESS == YES)
-LITE_OS_SEC_TEXT VOID OsTickHandlerLoop(UINT32 elapseTicks);
-#endif
-
-/**
- * @ingroup  los_tick
- * @brief tick modul init.
- *
- * @par Description:
- * This API is called when the system initializating.
- *
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  systemClock   [IN]  Type  #UINT32  SystemClock.
- * @param  tickPerSecond [IN]  Type  #UINT32  TickPerSecond.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_tick_pri.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-extern UINT32 OsTickInit(UINT32 systemClock, UINT32 tickPerSecond);
-
-/**
- * @ingroup los_timeslice
- * @brief Initialize time slices.
- *
- * @par Description:
- * <ul>
- * <li>This API is used to initialize time slices that defines the cycle of time slices according to
-   LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT.</li>
- * </ul>
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param None.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_timeslice_pri.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-extern VOID OsTimesliceInit(VOID);
-
-/**
- * @ingroup los_timeslice
- * @brief Check time slices.
- *
- * @par Description:
- * <ul>
- * <li>This API is used to check time slices. If the number of Ticks equals to the time for task switch, tasks are switched. Otherwise, the Tick counting continues.</li>
- * </ul>
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param None.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_timeslice_pri.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-extern VOID OsTimesliceCheck(VOID);
 
 /**
  * @ingroup los_base

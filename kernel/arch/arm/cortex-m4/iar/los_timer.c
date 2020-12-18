@@ -28,28 +28,27 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+#include "los_config.h"
 #include "los_tick.h"
-#include "los_interrupt.h"
+#include "los_arch_interrupt.h"
+#include "los_timer.h"
+#include "los_context.h"
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
-#define TICK_CHECK                           0x4000000
-#define CYCLE_CHECK                          0xFFFFFFFFU
-#define SHIFT_32_BIT                          32
 
 
 /* ****************************************************************************
-Function    : OsTickStart
+Function    : HalTickStart
 Description : Configure Tick Interrupt Start
 Input       : none
 output      : none
 return      : LOS_OK - Success , or LOS_ERRNO_TICK_CFG_INVALID - failed
 **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT UINT32 OsTickStart(VOID)
+LITE_OS_SEC_TEXT_INIT UINT32 HalTickStart(OS_TICK_HANDLER *handler)
 {
     UINT32 ret;
 
@@ -59,10 +58,10 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsTickStart(VOID)
         return LOS_ERRNO_TICK_CFG_INVALID;
     }
 
-#if (OS_HWI_WITH_ARG == YES)
-    OsSetVector(SysTick_IRQn, (HWI_PROC_FUNC)OsTickHandler, NULL);
+#if (OS_HWI_WITH_ARG == 1)
+    OsSetVector(SysTick_IRQn, (HWI_PROC_FUNC)handler, NULL);
 #else
-    OsSetVector(SysTick_IRQn, OsTickHandler);
+    OsSetVector(SysTick_IRQn, (HWI_PROC_FUNC)handler);
 #endif
 
     g_cyclesPerTick = OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;
@@ -76,32 +75,14 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsTickStart(VOID)
     return LOS_OK;
 }
 
-#if (LOSCFG_KERNEL_TICKLESS == YES)
 /* ****************************************************************************
-Function    : LOS_SysTickReload
-Description : reconfig systick, and clear SysTick_IRQn
-Input       : cyclesPerTick --- cycles Per Tick
-output      : none
-return      : none
-**************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID LOS_SysTickReload(UINT32 cyclesPerTick)
-{
-    SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
-    NVIC_ClearPendingIRQ(SysTick_IRQn);
-    SysTick->LOAD = (UINT32)(cyclesPerTick - 1UL); /* set reload register */
-    SysTick->VAL = 0UL; /* Load the SysTick Counter Value */
-    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
-}
-#endif
-
-/* ****************************************************************************
-Function    : LOS_SysTickCurrCycleGet
+Function    : HalSysTickCurrCycleGet
 Description : Get System cycle count
 Input       : none
 output      : none
 return      : hwCycle --- the system cycle count
 **************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR UINT32 LOS_SysTickCurrCycleGet(VOID)
+LITE_OS_SEC_TEXT_MINOR UINT32 HalSysTickCurrCycleGet(VOID)
 {
     UINT32 hwCycle;
     UINTPTR intSave;
@@ -121,14 +102,14 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_SysTickCurrCycleGet(VOID)
 }
 
 /* ****************************************************************************
-Function    : LOS_GetCpuCycle
+Function    : HalGetCpuCycle
 Description : Get System cycle count
 Input       : none
 output      : cntHi  --- CpuTick High 4 byte
               cntLo  --- CpuTick Low 4 byte
 return      : none
 **************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID LOS_GetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
+LITE_OS_SEC_TEXT_MINOR VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
 {
     UINT64 swTick;
     UINT64 cycle;
@@ -157,14 +138,14 @@ LITE_OS_SEC_TEXT_MINOR VOID LOS_GetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
 }
 
 /* ****************************************************************************
-Function    : LOS_GetSystickCycle
+Function    : HalGetSystickCycle
 Description : Get Sys tick cycle count
 Input       : none
 output      : cntHi  --- SysTick count High 4 byte
               cntLo  --- SysTick count Low 4 byte
 return      : none
 **************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID LOS_GetSystickCycle(UINT32 *cntHi, UINT32 *cntLo)
+LITE_OS_SEC_TEXT_MINOR VOID HalGetSystickCycle(UINT32 *cntHi, UINT32 *cntLo)
 {
     UINT64 swTick;
     UINT64 cycle;
@@ -200,62 +181,49 @@ LITE_OS_SEC_TEXT_MINOR VOID LOS_GetSystickCycle(UINT32 *cntHi, UINT32 *cntLo)
     return;
 }
 
-#define MAX_HOUR 24
-#define MAX_MINUTES 60
-#define MAX_SECONDS 60
-#define MILSEC 1000
-#define RTC_WAKEUPCLOCK_RTCCLK 32768
-#define RTC_WAKEUPCLOCK_RTCCLK_DIV 16
-#define RTC_CALIBRATE_SLEEP_TIME 8
-#define MACHINE_CYCLE_DEALAY_TIMES 4000
-	
 static BOOL g_sysSleepFlag = FALSE;
 
-VOID LOS_TickLock(VOID)
+VOID HalTickLock(VOID)
 {
 	SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
 }
 
-VOID LOS_TickUnlock(VOID)
+VOID HalTickUnlock(VOID)
 {
 	SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 }
 
-BOOL LOS_GetSysSleepFlag(VOID)
+BOOL HalGetSysSleepFlag(VOID)
 {
 	return g_sysSleepFlag;
 }
 
-VOID LOS_ClearSysSleepFlag(VOID)
+VOID HalClearSysSleepFlag(VOID)
 {
 	g_sysSleepFlag = FALSE;
 }
 
-VOID LOS_EnterSleep(LOS_SysSleepEnum sleep)
+VOID HalEnterSleep(LOS_SysSleepEnum sleep)
 {
 	__DSB();
 	__WFI();
 	__ISB();
 }
 
-VOID LOS_SystemWakeup(UINT32 hwiIndex)
-{
-}
 //extern unsigned int SystemCoreClock;
-void LOS_HalDelay(UINT32 ticks)
+void HalDelay(UINT32 ticks)
 {
-	UINT32 delayTimes;
 #if 0
-	/* there are 4 machine cycle in loop */
-	if ((ticks * (SystemCoreClock / MACHINE_CYCLE_DEALAY_TIMES)) >= 0xffffffff) {
-		delayTimes = 0xffffffff;
-	} else {
-		delayTimes = ticks * (SystemCoreClock / MACHINE_CYCLE_DEALAY_TIMES);
-	}
-
-	while (delayTimes) {
-		delayTimes = delayTimes - 1;
-	}
+    UINT32 delayTimes;
+    /* there are 4 machine cycle in loop */
+    if ((ticks * (SystemCoreClock / MACHINE_CYCLE_DEALAY_TIMES)) >= 0xffffffff) {
+        delayTimes = 0xffffffff;
+    } else {
+        delayTimes = ticks * (SystemCoreClock / MACHINE_CYCLE_DEALAY_TIMES);
+    }
+    while (delayTimes) {
+        delayTimes = delayTimes - 1;
+    }
 #endif
 }
 
