@@ -155,17 +155,16 @@ HalTrapEntry:
     mret
 
 
-.section .interrupt.text
+.section .interrupt.HalTrapVector.text
 .extern HalTrapEntry
 .global HalTrapVector
 .equ TRAP_INTERRUPT_MODE_MASK, 0x80000000
-.equ TRAP_INTERRUPT_NUM_MASK, 0x7FFFFFFF
 .align 4
 HalTrapVector:
     PUSH_ECALL_CALLER_REG
     csrr  a0, mcause
     li    a1, TRAP_INTERRUPT_MODE_MASK
-    li    a2, TRAP_INTERRUPT_NUM_MASK
+    li    a2, MCAUSE_INT_ID_MASK
     and   a1, a0, a1
     and   a0, a2, a0
     beqz  a1, HalTrapEntry
