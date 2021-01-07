@@ -225,7 +225,7 @@ HalExcUsageFault:
     LDR  R0, =OS_NVIC_FSR
     LDR  R0, [R0]
 
-    MOV  R1, #0x030F
+    MOVW  R1, #0x030F
     LSL  R1, R1, #16
     AND  R0, R0, R1
     MOV  R12, #0

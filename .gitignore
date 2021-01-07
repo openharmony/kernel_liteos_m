@@ -3,3 +3,4 @@ test
 tags
 cscope.*
 *.swp
+targets/cortex-m7_nucleo_f767zi_gcc/build

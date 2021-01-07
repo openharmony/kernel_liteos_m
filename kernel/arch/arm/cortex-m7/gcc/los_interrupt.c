@@ -35,8 +35,6 @@
 #include "los_debug.h"
 #include "los_task.h"
 
-#include "stm32f7xx_it.h"
-
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
