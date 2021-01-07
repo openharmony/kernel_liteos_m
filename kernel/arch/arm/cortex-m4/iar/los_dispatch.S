@@ -77,6 +77,8 @@ HalStartToRun
     STRH    R7,  [R0 , #4]
 
     LDR     R12, [R0]
+#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
+     (defined(__FPU_USED) && (__FPU_USED == 1U)))
     ADD     R12, R12, #100
 
     LDMFD   R12!, {R0-R7}
@@ -84,7 +86,12 @@ HalStartToRun
     MSR     PSP, R12
     VPUSH   S0;
     VPOP    S0;
+#else
+    ADD     R12, R12, #100
 
+    LDMFD   R12!, {R0-R7}
+    MSR     PSP, R12
+#endif
     MOV     LR, R5
    ;MSR     xPSR, R7
 
@@ -120,7 +127,10 @@ HalTaskSwitch
     MRS     R0, PSP
 
     STMFD   R0!, {R4-R12}
+#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
+     (defined(__FPU_USED) && (__FPU_USED == 1U)))
     VSTMDB  R0!, {D8-D15}
+#endif
 
     LDR     R5, =g_losTask
     LDR     R6, [R5]
@@ -144,7 +154,10 @@ HalTaskSwitch
     STRH    R7,  [R0 , #4]
 
     LDR     R1,   [R0]
+#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
+     (defined(__FPU_USED) && (__FPU_USED == 1U)))
     VLDMIA  R1!, {D8-D15}
+#endif
     LDMFD   R1!, {R4-R12}
     MSR     PSP,  R1
 
