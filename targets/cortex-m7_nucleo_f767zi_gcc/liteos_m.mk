@@ -1,4 +1,4 @@
-LITEOSTOPDIR := ../../../../kernel/liteos_m
+LITEOSTOPDIR := ../../
 LITEOSTOPDIR := $(realpath $(LITEOSTOPDIR))
 
 # Common
