@@ -95,7 +95,8 @@ CPU = -mcpu=cortex-m7
 FPU = -mfpu=fpv5-d16
 
 # float-abi
-FLOAT-ABI = -mfloat-abi=hard
+#FLOAT-ABI = -mfloat-abi=hard
+FLOAT-ABI = -mfloat-abi=soft
 
 # mcu
 MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
