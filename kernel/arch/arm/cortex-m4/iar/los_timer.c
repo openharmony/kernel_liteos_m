@@ -58,12 +58,13 @@ LITE_OS_SEC_TEXT_INIT UINT32 HalTickStart(OS_TICK_HANDLER *handler)
         return LOS_ERRNO_TICK_CFG_INVALID;
     }
 
+#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)
 #if (OS_HWI_WITH_ARG == 1)
     OsSetVector(SysTick_IRQn, (HWI_PROC_FUNC)handler, NULL);
 #else
     OsSetVector(SysTick_IRQn, (HWI_PROC_FUNC)handler);
 #endif
-
+#endif
     g_cyclesPerTick = OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;
     g_ullTickCount = 0;
 

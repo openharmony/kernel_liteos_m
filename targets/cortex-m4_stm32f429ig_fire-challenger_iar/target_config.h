@@ -37,6 +37,7 @@
 #define _TARGET_CONFIG_H
 
 #include "stm32f4xx.h"
+#include "stm32f4xx_it.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -54,6 +55,7 @@ extern "C" {
                                         Hardware interrupt module configuration
 =============================================================================*/
 #define LOSCFG_PLATFORM_HWI                                 1
+#define LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT                 0
 #define LOSCFG_PLATFORM_HWI_LIMIT                           128
 /*=============================================================================
                                        Task module configuration

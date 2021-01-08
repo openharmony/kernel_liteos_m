@@ -26,3 +26,15 @@ void USART_Config(void)
 
   STM_EVAL_COMInit(COM1, &USART_InitStructure);
 }
+
+extern void OsTickHandler(void);
+void SysTick_Handler(void)
+{
+    OsTickHandler();
+}
+
+extern void HalPendSV(void);
+void PendSV_Handler(void)
+{
+    HalPendSV();
+}
