@@ -49,14 +49,14 @@
 
 /************************ mstatus ************************/
 #define RISCV_MSTATUS_UIE                   0x00000001
-#define RISCV_MSTATUS_MIE                   0x00000004
+#define RISCV_MSTATUS_MIE                   0x00000008
 #define RISCV_MSTATUS_UPIE                  0x00000010
 #define RISCV_MSTATUS_MPIE                  0x00000080
 #define RISCV_MSTATUS_MPP                   0x00001800
 
 /************************ mie ***************************/
 #define RISCV_MIE_USIE                      0x000000001
-#define RISCV_MIE_MSIE                      0x000000004
+#define RISCV_MIE_MSIE                      0x000000008
 #define RISCV_MIE_UTIE                      0x000000010
 #define RISCV_MIE_MTIE                      0x000000080
 #define RISCV_MIE_UEIE                      0x000000100
