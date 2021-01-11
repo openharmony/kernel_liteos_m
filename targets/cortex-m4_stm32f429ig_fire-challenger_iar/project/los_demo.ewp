@@ -527,8 +527,7 @@
                 </option>
                 <option>
                     <name>ADefines</name>
-                    <state>__FPU_PRESENT=1</state>
-                    <state>__FPU_USED=1</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>AList</name>
