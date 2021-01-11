@@ -41,6 +41,8 @@
         IMPORT  g_losTask
         IMPORT  g_taskScheduled
 
+OS_FPU_CPACR                EQU     0xE000ED88
+OS_FPU_CPACR_ENABLE         EQU     0x00F00000
 OS_NVIC_INT_CTRL            EQU     0xE000ED04
 OS_NVIC_SYSPRI2             EQU     0xE000ED20
 OS_NVIC_PENDSV_PRI          EQU     0xF0F00000
@@ -77,8 +79,11 @@ HalStartToRun
     STRH    R7,  [R0 , #4]
 
     LDR     R12, [R0]
-#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined(__FPU_USED) && (__FPU_USED == 1U)))
+
+    LDR.W   R1, =OS_FPU_CPACR
+    LDR     R1, [R1]
+    AND     R1, R1, #OS_FPU_CPACR_ENABLE
+    BNE     __DisabledFPU
     ADD     R12, R12, #100
 
     LDMFD   R12!, {R0-R7}
@@ -86,15 +91,16 @@ HalStartToRun
     MSR     PSP, R12
     VPUSH   S0;
     VPOP    S0;
-#else
+    MOV     LR, R5
+    CPSIE   I
+    BX      R6
+
+__DisabledFPU
     ADD     R12, R12, #36
 
     LDMFD   R12!, {R0-R7}
     MSR     PSP, R12
-#endif
     MOV     LR, R5
-   ;MSR     xPSR, R7
-
     CPSIE   I
     BX      R6
 
@@ -127,11 +133,13 @@ HalTaskSwitch
     MRS     R0, PSP
 
     STMFD   R0!, {R4-R12}
-#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined(__FPU_USED) && (__FPU_USED == 1U)))
+    LDR.W   R3, =OS_FPU_CPACR
+    LDR     R3, [R3]
+    AND     R3, R3, #OS_FPU_CPACR_ENABLE
+    BNE     __DisabledFPU1
     VSTMDB  R0!, {D8-D15}
-#endif
 
+__DisabledFPU1
     LDR     R5, =g_losTask
     LDR     R6, [R5]
     STR     R0, [R6]
@@ -154,10 +162,11 @@ HalTaskSwitch
     STRH    R7,  [R0 , #4]
 
     LDR     R1,   [R0]
-#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined(__FPU_USED) && (__FPU_USED == 1U)))
+    AND     R3, R3, #OS_FPU_CPACR_ENABLE
+    BNE     __DisabledFPU2
     VLDMIA  R1!, {D8-D15}
-#endif
+
+__DisabledFPU2
     LDMFD   R1!, {R4-R12}
     MSR     PSP,  R1
 
@@ -165,3 +174,4 @@ HalTaskSwitch
     BX      LR
 
     END
+
