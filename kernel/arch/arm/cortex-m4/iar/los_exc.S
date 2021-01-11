@@ -198,16 +198,13 @@ _hwiActiveCheck
     ADD   R2, R2, R12, LSL #5               ; calculate R2 (hwi number) as uwPid
 
 _ExcInMSP
-    CMP   LR, #0XFFFFFFED
+    CMP   LR, #0xFFFFFFED
     BNE   _NoFloatInMsp
     ADD   R3, R13, #104
     PUSH  {R3}
     MRS   R12, PRIMASK                  ; store message-->exc: disable int?
     PUSH {R4-R12}                       ; store message-->exc: {R4-R12}
-#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined(__FPU_USED) && (__FPU_USED == 1U)))
     VPUSH {D8-D15}
-#endif
     B     _handleEntry
 
 _NoFloatInMsp
