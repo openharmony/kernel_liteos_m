@@ -355,6 +355,7 @@ VOID HalExcRegister(ExcInfoType type, EXC_INFO_SAVE_CALLBACK func, VOID *arg)
  **************************************************************************** */
 LITE_OS_SEC_TEXT_INIT VOID HalHwiInit()
 {
+#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)
     UINT32 index;
     g_hwiForm[0] = 0;             /* [0] Top of Stack */
     g_hwiForm[1] = Reset_Handler; /* [1] reset */
@@ -372,6 +373,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit()
 
     /* Interrupt vector table location */
     SCB->VTOR = (UINT32)(UINTPTR)g_hwiForm;
+#endif
 #if (__CORTEX_M >= 0x03U) /* only for Cortex-M3 and above */
     NVIC_SetPriorityGrouping(OS_NVIC_AIRCR_PRIGROUP);
 #endif

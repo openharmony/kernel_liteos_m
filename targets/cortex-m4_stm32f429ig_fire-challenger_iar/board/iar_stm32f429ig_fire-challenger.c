@@ -1,3 +1,5 @@
+#include "los_arch_interrupt.h"
+#include "los_tick.h"
 #include "stm324x9i_eval.h"
 
 /**
@@ -25,4 +27,16 @@ void USART_Config(void)
   USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 
   STM_EVAL_COMInit(COM1, &USART_InitStructure);
+}
+
+extern void OsTickHandler(void);
+void SysTick_Handler(void)
+{
+    OsTickHandler();
+}
+
+extern void HalPendSV(void);
+void PendSV_Handler(void)
+{
+    HalPendSV();
 }

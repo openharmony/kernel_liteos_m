@@ -116,6 +116,24 @@ extern "C" {
 
 /**
  * @ingroup los_config
+ * Configuration item for using system defined vector base address and interrupt handlers.
+ * If LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT is set to 0, vector base address will not be
+ * modified by system. In arm, it should be noted that PendSV_Handler and SysTick_Handler should
+ * be redefined to HalPendSV and OsTickHandler respectly in this case, because system depends on
+ * these interrupt handlers to run normally. What's more, LOS_HwiCreate will not register handlers.
+ */
+#ifndef LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT
+#define LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT                 1
+#endif
+
+#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)
+    #if (LOSCFG_PLATFORM_HWI == 0)
+        #error "if LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT is set to 1, then LOSCFG_PLATFORM_HWI must also be set to 1"
+    #endif
+#endif
+
+/**
+ * @ingroup los_config
  * Maximum number of used hardware interrupts, including Tick timer interrupts.
  */
 #ifndef LOSCFG_PLATFORM_HWI_LIMIT
@@ -326,7 +344,7 @@ extern "C" {
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     #if (LOSCFG_BASE_CORE_SWTMR == 0)
-        #error "if LOSCFG_BASE_CORE_SWTMR_ALIGN is set to 1, then LOSCFG_BASE_CORE_SWTMR must alse be set to 1"
+        #error "if LOSCFG_BASE_CORE_SWTMR_ALIGN is set to 1, then LOSCFG_BASE_CORE_SWTMR must also be set to 1"
     #endif
 #endif
 
@@ -356,7 +374,7 @@ extern "C" {
 
 #if (LOSCFG_BASE_CORE_SWTMR == 1)
     #if (LOSCFG_BASE_IPC_QUEUE == 0)
-        #error "if LOSCFG_BASE_CORE_SWTMR is set to 1, then LOSCFG_BASE_IPC_QUEUE must alse be set to 1"
+        #error "if LOSCFG_BASE_CORE_SWTMR is set to 1, then LOSCFG_BASE_IPC_QUEUE must also be set to 1"
     #endif
 #endif
 /* =============================================================================
