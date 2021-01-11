@@ -1,3 +1,5 @@
+#include "los_arch_interrupt.h"
+#include "los_tick.h"
 #include "stm324x9i_eval.h"
 
 /**
