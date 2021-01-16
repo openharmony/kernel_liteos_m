@@ -279,6 +279,8 @@ extern UINT32 g_intCount;
  */
 #define OS_ERRNO_HWI_HWINUM_UNCREATE LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x0b)
 
+extern UINT32 HalUnalignedAccessFix(UINTPTR mcause, UINTPTR mepc, UINTPTR mtval, VOID *sp);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

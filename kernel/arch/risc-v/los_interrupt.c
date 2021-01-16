@@ -48,6 +48,8 @@ static ExcInfoArray g_excArray[OS_EXC_TYPE_MAX];
 
 LosExcInfo g_excInfo;
 #define RISCV_EXC_TYPE_NUM 16
+#define RISCV_EXC_LOAD_MISALIGNED 4
+#define RISCV_EXC_STORE_MISALIGNED 6
 const CHAR g_excInformation[RISCV_EXC_TYPE_NUM][50] = {
     { "Instruction address misaligned!" },
     { "Instruction access fault!" },
@@ -332,13 +334,10 @@ STATIC VOID ExcInfoDisplayContext(const LosExcInfo *exc)
 
 STATIC VOID ExcInfoDisplay(const LosExcContext *excBufAddr)
 {
-    g_excInfo.type = excBufAddr->mcause;
-    g_excInfo.context = (LosExcContext *)excBufAddr;
-
     PRINTK("\r\nException Information     \n\r");
 
-    if (excBufAddr->mcause < RISCV_EXC_TYPE_NUM) {
-        PRINTK("Exc  type : Oops  - %s\n\r", g_excInformation[excBufAddr->mcause]);
+    if (g_excInfo.type < RISCV_EXC_TYPE_NUM) {
+        PRINTK("Exc  type : Oops  - %s\n\r", g_excInformation[g_excInfo.type]);
     } else {
         PRINTK("Exc  type : Oops  - Invalid\n\r");
     }
@@ -349,11 +348,31 @@ STATIC VOID ExcInfoDisplay(const LosExcContext *excBufAddr)
     ExcInfoDisplayContext(&g_excInfo);
 }
 
+WEAK UINT32 HalUnalignedAccessFix(UINTPTR mcause, UINTPTR mepc, UINTPTR mtval, VOID *sp)
+{
+    /* Unaligned acess fixes are not supported by default */
+    PRINTK("Unaligned acess fixes are not support by default!\n\r");
+    return LOS_NOK;
+}
+
 VOID HalExcEntry(const LosExcContext *excBufAddr)
 {
+    UINT32 ret;
+    g_excInfo.type = excBufAddr->mcause & 0x1FF;
+    g_excInfo.context = (LosExcContext *)excBufAddr;
+
     if (g_excInfo.nestCnt > 2) {
         PRINTK("hard faule!\n\r");
         goto SYSTEM_DEATH;
+    }
+
+    if ((g_excInfo.type == RISCV_EXC_LOAD_MISALIGNED) ||
+        (g_excInfo.type == RISCV_EXC_STORE_MISALIGNED)) {
+        ret = HalUnalignedAccessFix(excBufAddr->mcause, excBufAddr->taskContext.mepc, excBufAddr->mtval,
+                                    (VOID *)excBufAddr);
+        if (!ret) {
+            return;
+        }
     }
 
     ExcInfoDisplay(excBufAddr);
