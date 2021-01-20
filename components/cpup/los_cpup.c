@@ -32,7 +32,9 @@
 #include "los_cpup.h"
 #include "securec.h"
 #include "los_memory.h"
+#include "los_timer.h"
 #include "los_debug.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -60,13 +62,11 @@ LITE_OS_SEC_BSS OsCpupCB  *g_cpup = NULL;
 LITE_OS_SEC_BSS UINT64    g_lastRecordTime;
 LITE_OS_SEC_BSS UINT16    g_hisPos; /* <current Sampling point of historyTime */
 
-
-extern VOID LOS_GetCpuCycle(UINT32 *cntHi, UINT32 *cntLo);
 LITE_OS_SEC_TEXT_MINOR STATIC INLINE UINT64 OsGetCurrentCyclesCount(VOID)
 {
     UINT32 high = 0;
     UINT32 low = 0;
-    LOS_GetCpuCycle(&high, &low);
+    HalGetCpuCycle(&high, &low);
     return (((UINT64)high << 32) + low); // 32 means bits of word
 }
 
