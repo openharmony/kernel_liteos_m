@@ -50,6 +50,9 @@
 #include "los_swtmr.h"
 #endif
 
+#if (LOSCFG_BASE_CORE_CPUP == 1)
+#include "los_cpup.h"
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -132,7 +135,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 
 #if (LOSCFG_BASE_CORE_TSK_MONITOR == 1)
-        OsTaskMonInit();
+    OsTaskMonInit();
 #endif
 
 #if (LOSCFG_BASE_CORE_CPUP == 1)
