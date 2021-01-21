@@ -29,43 +29,42 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "pthread_impl.h"
 #include <errno.h>
-#include <pthread.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <securec.h>
+#include "los_config.h"
 #include "los_task.h"
-#include "los_task_pri.h"
 
 #define PTHREAD_NAMELEN 16
 
-/* this is just an assertion: LOS_TASK_ARG_NUM >= 4 */
-typedef char NULNAM[-!((LOS_TASK_ARG_NUM * 4) >= PTHREAD_NAMELEN)];
+typedef struct {
+    void *(*startRoutine)(void *);
+    void *param;
+    char name[PTHREAD_NAMELEN];
+}PthreadData;
 
-static void *_pthread_entry(UINT32 param1, UINT32 param2, UINT32 param3, UINT32 param4)
+static void *PthreadEntry(UINT32 param)
 {
-    void *(*startRoutine)(void *) = (void *)(UINTPTR)param1;
-    void *param = (void *)(UINTPTR)param2;
-    (void)param3;
-    (void)param4;
-    int ret;
+    PthreadData *pthreadData = (PthreadData *)(UINTPTR)param;
+    void *(*startRoutine)(void *) = pthreadData->startRoutine;
+    void *ret = startRoutine(pthreadData->param);
+    free(pthreadData);
+    return ret;
+}
 
-    LosTaskCB *tcb = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
-    char *tmp = tcb->taskName;
-    tcb->taskName = (char *)tcb->args; /* args are reused as task name */
-    ret = strcpy_s(tcb->taskName, PTHREAD_NAMELEN, tmp);
-    if (ret != 0) {
-        free(tmp);
-        return NULL;
-    }
-    free(tmp);
-
-    return startRoutine(param);
+static inline int IsPthread(pthread_t thread)
+{
+    return ((UINT32)thread <= LOSCFG_BASE_CORE_TSK_LIMIT) &&
+           (OS_TCB_FROM_TID((UINT32)thread)->taskEntry == PthreadEntry);
 }
 
 int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
                    void *(*startRoutine)(void *), void *arg)
 {
     TSK_INIT_PARAM_S taskInitParam = {0};
+    PthreadData *pthreadData = NULL;
     UINT32 taskID;
 
     if ((thread == NULL) || (startRoutine == NULL)) {
@@ -87,17 +86,17 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         taskInitParam.usTaskPrio = (UINT16)attr->schedparam.sched_priority;
     }
 
-    taskInitParam.pcName       = malloc(PTHREAD_NAMELEN);
-    if (taskInitParam.pcName == NULL) {
+    pthreadData = (PthreadData *)malloc(sizeof(PthreadData));
+    if (pthreadData == NULL) {
         return ENOMEM;
     }
 
-    taskInitParam.pfnTaskEntry = _pthread_entry;
-    taskInitParam.auwArgs[0]   = (UINT32)(UINTPTR)startRoutine;
-    taskInitParam.auwArgs[1]   = (UINT32)(UINTPTR)arg;
+    taskInitParam.pcName       = pthreadData->name;
+    taskInitParam.pfnTaskEntry = PthreadEntry;
+    taskInitParam.uwArg   = (UINT32)(UINTPTR)pthreadData;
 
     if (LOS_TaskCreate(&taskID, &taskInitParam) != LOS_OK) {
-        free(taskInitParam.pcName);
+        free(pthreadData);
         return EINVAL;
     }
 
@@ -105,12 +104,13 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     (void)sprintf_s(taskInitParam.pcName, PTHREAD_NAMELEN, "pthread%u", taskID);
 
     *thread = (pthread_t)taskID;
-    return ENOERR;
+    return 0;
 }
 
 int pthread_setschedparam(pthread_t thread, int policy, const struct sched_param *param)
 {
-    if ((param == NULL) || (param->sched_priority > OS_TASK_PRIORITY_LOWEST)) {
+    if ((param == NULL) || (param->sched_priority < OS_TASK_PRIORITY_HIGHEST) ||
+        (param->sched_priority >= OS_TASK_PRIORITY_LOWEST) || !IsPthread(thread)) {
         return EINVAL;
     }
 
@@ -123,14 +123,14 @@ int pthread_setschedparam(pthread_t thread, int policy, const struct sched_param
         return EINVAL;
     }
 
-    return ENOERR;
+    return 0;
 }
 
 int pthread_getschedparam(pthread_t thread, int *policy, struct sched_param *param)
 {
     UINT32 prio;
 
-    if ((policy == NULL) || (param == NULL)) {
+    if ((policy == NULL) || (param == NULL) || !IsPthread(thread)) {
         return EINVAL;
     }
 
@@ -141,7 +141,7 @@ int pthread_getschedparam(pthread_t thread, int *policy, struct sched_param *par
 
     *policy = SCHED_RR;
     param->sched_priority = prio;
-    return ENOERR;
+    return 0;
 }
 
 pthread_t pthread_self(void)
@@ -151,35 +151,20 @@ pthread_t pthread_self(void)
 
 int pthread_cancel(pthread_t thread)
 {
-    (void)thread;
+    if (!IsPthread(thread)) {
+        return EINVAL;
+    }
+
     return ENOSYS;
-}
-
-static void *void_task(UINT32 param1, UINT32 param2, UINT32 param3, UINT32 param4)
-{
-    (void)param1;
-    (void)param2;
-    (void)param3;
-    (void)param4;
-    return 0;
-}
-
-static void cleanup_task_resource(void)
-{
-    TSK_INIT_PARAM_S taskInitParam = {0};
-    UINT32 taskID;
-
-    taskInitParam.pcName       = "void";
-    taskInitParam.pfnTaskEntry = void_task;
-    taskInitParam.usTaskPrio = LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO;
-    taskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE;
-
-    (void)LOS_TaskCreate(&taskID, &taskInitParam);
 }
 
 int pthread_join(pthread_t thread, void **retval)
 {
     UINT32 taskStatus;
+
+    if (!IsPthread(thread)) {
+        return EINVAL;
+    }
 
     if (retval) {
         /* retrieve thread exit code is not supported currently */
@@ -194,26 +179,30 @@ int pthread_join(pthread_t thread, void **retval)
         usleep(10000);
     }
 
-    cleanup_task_resource();
     return 0;
 }
 
 int pthread_detach(pthread_t thread)
 {
-    (void)thread;
+    if (!IsPthread(thread)) {
+        return EINVAL;
+    }
+
     return ENOSYS;
 }
 
 void pthread_exit(void *retVal)
 {
     (void)retVal;
+    LosTaskCB *tcb = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
+    free((PthreadData *)(UINTPTR)tcb->arg);
     (void)LOS_TaskDelete(LOS_CurTaskIDGet());
 }
 
 int pthread_setname_np(pthread_t thread, const char *name)
 {
     char *taskName = LOS_TaskNameGet((UINT32)thread);
-    if (taskName == NULL) {
+    if (taskName == NULL || !IsPthread(thread)) {
         return EINVAL;
     }
     if (strnlen(name, PTHREAD_NAMELEN) >= PTHREAD_NAMELEN) {
@@ -228,7 +217,7 @@ int pthread_getname_np(pthread_t thread, char *buf, size_t buflen)
     int ret;
 
     const char *name = LOS_TaskNameGet((UINT32)thread);
-    if (name == NULL) {
+    if (name == NULL || !IsPthread(thread)) {
         return EINVAL;
     }
     if (buflen > strlen(name)) {

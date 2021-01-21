@@ -29,12 +29,16 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <errno.h>
 #include <time.h>
+#include <stdint.h>
+#include <errno.h>
 #include <signal.h>
 #include <unistd.h>
-#include <los_swtmr.h>
-#include <los_swtmr_pri.h>
+#include "los_debug.h"
+#include "los_task.h"
+#include "los_swtmr.h"
+#include "los_timer.h"
+#include "los_context.h"
 
 #ifndef STATIC
 #define STATIC static
@@ -45,11 +49,8 @@
 #define OS_SYS_US_PER_SECOND 1000000
 #define OS_SYS_MS_PER_SECOND 1000
 
-STATIC INLINE BOOL ValidTimerID(UINT16 swtmrID)
-{
-    /* check timer id */
-    return (swtmrID < LOSCFG_BASE_CORE_SWTMR_LIMIT);
-}
+/* accumulative time delta from discontinuous modify */
+STATIC struct timespec g_accDeltaFromSet;
 
 /* internal functions */
 STATIC INLINE BOOL ValidTimeSpec(const struct timespec *tp)
@@ -87,19 +88,38 @@ STATIC INLINE VOID OsTick2TimeSpec(struct timespec *tp, UINT32 tick)
     tp->tv_nsec = (long)(ns % OS_SYS_NS_PER_SECOND);
 }
 
-int nanosleep(const struct timespec *req, struct timespec *rem)
+int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
 {
-    UINT64 us = (UINT64)req->tv_sec * OS_SYS_US_PER_SECOND + (req->tv_nsec + OS_SYS_NS_PER_US - 1) / OS_SYS_NS_PER_US;
-    if (us > 0xFFFFFFFFU) {
+    UINT64 nseconds;
+    UINT64 tick;
+    UINT32 ret;
+    const UINT32 nsPerTick = OS_SYS_NS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND;
+
+    if (!ValidTimeSpec(rqtp)) {
         errno = EINVAL;
         return -1;
     }
-    if (usleep(us) == 0) {
-        if (rem) {
-            rem->tv_sec = rem->tv_nsec = 0;
+
+    nseconds = (UINT64)rqtp->tv_sec * OS_SYS_NS_PER_SECOND + rqtp->tv_nsec;
+
+    tick = (nseconds + nsPerTick - 1) / nsPerTick; // Round up for ticks
+
+    if (tick >= UINT32_MAX) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    /* PS: skip the first tick because it is NOT a full tick. */
+    ret = LOS_TaskDelay(tick ? (UINT32)(tick + 1) : 0);
+    if (ret == LOS_OK || ret == LOS_ERRNO_TSK_YIELD_NOT_ENOUGH_TASK) {
+        if (rmtp) {
+            rmtp->tv_sec = rmtp->tv_nsec = 0;
         }
         return 0;
     }
+
+    /* sleep in interrupt context or in task sched lock state */
+    errno = EPERM;
     return -1;
 }
 
@@ -119,7 +139,11 @@ int timer_create(clockid_t clockID, struct sigevent *restrict evp, timer_t *rest
     }
 
     ret = LOS_SwtmrCreate(1, LOS_SWTMR_MODE_ONCE, (SWTMR_PROC_FUNC)evp->sigev_notify_function,
-                          &swtmrID, (UINT32)(UINTPTR)evp->sigev_value.sival_ptr);
+                          &swtmrID, (UINT32)(UINTPTR)evp->sigev_value.sival_ptr
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
+                          , OS_SWTMR_ROUSES_IGNORE, OS_SWTMR_ALIGN_INSENSITIVE
+#endif
+    );
     if (ret != LOS_OK) {
         errno = (ret == LOS_ERRNO_SWTMR_MAXSIZE) ? EAGAIN : EINVAL;
         return -1;
@@ -132,12 +156,6 @@ int timer_create(clockid_t clockID, struct sigevent *restrict evp, timer_t *rest
 int timer_delete(timer_t timerID)
 {
     UINT16 swtmrID = (UINT16)(UINTPTR)timerID;
-
-    if (!ValidTimerID(swtmrID)) {
-        errno = EINVAL;
-        return -1;
-    }
-
     if (LOS_SwtmrDelete(swtmrID) != LOS_OK) {
         errno = EINVAL;
         return -1;
@@ -150,6 +168,7 @@ int timer_settime(timer_t timerID, int flags,
                   const struct itimerspec *restrict value,
                   struct itimerspec *restrict oldValue)
 {
+    UINTPTR intSave;
     UINT16 swtmrID = (UINT16)(UINTPTR)timerID;
     SWTMR_CTRL_S *swtmr = NULL;
     UINT32 interval, expiry, ret;
@@ -160,7 +179,7 @@ int timer_settime(timer_t timerID, int flags,
         return -1;
     }
 
-    if (value == NULL || !ValidTimerID(swtmrID)) {
+    if (value == NULL) {
         errno = EINVAL;
         return -1;
     }
@@ -189,13 +208,11 @@ int timer_settime(timer_t timerID, int flags,
         return -1;
     }
 
+    intSave = LOS_IntLock();
     swtmr = OS_SWT_FROM_SID(swtmrID);
-    ret = LOS_SwtmrModify(swtmrID, expiry, (interval ? LOS_SWTMR_MODE_PERIOD : LOS_SWTMR_MODE_NO_SELFDELETE),
-                          swtmr->pfnHandler, swtmr->uwArg);
-    if (ret != LOS_OK) {
-        errno = EINVAL;
-        return -1;
-    }
+    swtmr->ucMode = (interval ? LOS_SWTMR_MODE_PERIOD : LOS_SWTMR_MODE_NO_SELFDELETE);
+    swtmr->uwInterval = interval;
+    LOS_IntRestore(intSave);
 
     if ((value->it_value.tv_sec == 0) && (value->it_value.tv_nsec == 0)) {
         /*
@@ -221,7 +238,7 @@ int timer_gettime(timer_t timerID, struct itimerspec *value)
     UINT16 swtmrID = (UINT16)(UINTPTR)timerID;
     UINT32 ret;
 
-    if ((value == NULL) || !ValidTimerID(swtmrID)) {
+    if (value == NULL) {
         errno = EINVAL;
         return -1;
     }
@@ -242,13 +259,168 @@ int timer_gettime(timer_t timerID, struct itimerspec *value)
 
 int timer_getoverrun(timer_t timerID)
 {
-    UINT16 swtmrID = (UINT16)(UINTPTR)timerID;
+    (void)timerID;
 
-    if (!ValidTimerID(swtmrID)) {
+    errno = ENOSYS;
+    return -1;
+}
+
+STATIC VOID OsGetHwTime(struct timespec *hwTime)
+{
+    UINT64 nowNsec;
+    UINT32 countHigh = 0;
+    UINT32 countLow = 0;
+    HalGetCpuCycle(&countHigh, &countLow);
+    nowNsec = (((UINT64)countHigh * OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK) << 32) +
+              ((((UINT64)countHigh * OS_SYS_NS_PER_SECOND % OS_SYS_CLOCK) << 32) / OS_SYS_CLOCK) +
+              ((UINT64)countLow * OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK);
+    hwTime->tv_sec = nowNsec / OS_SYS_NS_PER_SECOND;
+    hwTime->tv_nsec = nowNsec % OS_SYS_NS_PER_SECOND;
+}
+
+STATIC VOID OsGetRealTime(struct timespec *realTime)
+{
+    UINTPTR intSave;
+    struct timespec hwTime = {0};
+    OsGetHwTime(&hwTime);
+    intSave = LOS_IntLock();
+    realTime->tv_nsec = hwTime.tv_nsec + g_accDeltaFromSet.tv_nsec;
+    realTime->tv_sec = hwTime.tv_sec + g_accDeltaFromSet.tv_sec + (realTime->tv_nsec >= OS_SYS_NS_PER_SECOND);
+    realTime->tv_nsec %= OS_SYS_NS_PER_SECOND;
+    LOS_IntRestore(intSave);
+}
+
+STATIC VOID OsSetRealTime(const struct timespec *realTime)
+{
+    UINTPTR intSave;
+    struct timespec hwTime = {0};
+    OsGetHwTime(&hwTime);
+    intSave = LOS_IntLock();
+    g_accDeltaFromSet.tv_nsec = realTime->tv_nsec - hwTime.tv_nsec;
+    g_accDeltaFromSet.tv_sec = realTime->tv_sec - hwTime.tv_sec - (g_accDeltaFromSet.tv_nsec < 0);
+    g_accDeltaFromSet.tv_nsec = (g_accDeltaFromSet.tv_nsec + OS_SYS_NS_PER_SECOND) % OS_SYS_NS_PER_SECOND;
+    LOS_IntRestore(intSave);
+}
+
+int clock_settime(clockid_t clockID, const struct timespec *tp)
+{
+    if (!ValidTimeSpec(tp)) {
         errno = EINVAL;
         return -1;
     }
 
-    errno = ENOSYS;
-    return -1;
+    switch (clockID) {
+        case CLOCK_REALTIME:
+            /* we only support the realtime clock currently */
+            OsSetRealTime(tp);
+            return 0;
+        case CLOCK_MONOTONIC_COARSE:
+        case CLOCK_REALTIME_COARSE:
+        case CLOCK_MONOTONIC_RAW:
+        case CLOCK_PROCESS_CPUTIME_ID:
+        case CLOCK_BOOTTIME:
+        case CLOCK_REALTIME_ALARM:
+        case CLOCK_BOOTTIME_ALARM:
+        case CLOCK_SGI_CYCLE:
+        case CLOCK_TAI:
+        case CLOCK_THREAD_CPUTIME_ID:
+            errno = ENOTSUP;
+            return -1;
+        case CLOCK_MONOTONIC:
+        default:
+            errno = EINVAL;
+            return -1;
+    }
+}
+
+int clock_gettime(clockid_t clockID, struct timespec *tp)
+{
+    if (tp == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    switch (clockID) {
+        case CLOCK_MONOTONIC_RAW:
+        case CLOCK_MONOTONIC:
+        case CLOCK_MONOTONIC_COARSE:
+            OsGetHwTime(tp);
+            return 0;
+        case CLOCK_REALTIME:
+        case CLOCK_REALTIME_COARSE:
+            OsGetRealTime(tp);
+            return 0;
+        case CLOCK_THREAD_CPUTIME_ID:
+        case CLOCK_PROCESS_CPUTIME_ID:
+        case CLOCK_BOOTTIME:
+        case CLOCK_REALTIME_ALARM:
+        case CLOCK_BOOTTIME_ALARM:
+        case CLOCK_SGI_CYCLE:
+        case CLOCK_TAI:
+            errno = ENOTSUP;
+            return -1;
+        default:
+            errno = EINVAL;
+            return -1;
+    }
+}
+
+int clock_getres(clockid_t clockID, struct timespec *tp)
+{
+    if (tp == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    switch (clockID) {
+        case CLOCK_MONOTONIC_RAW:
+        case CLOCK_MONOTONIC:
+        case CLOCK_REALTIME:
+        case CLOCK_MONOTONIC_COARSE:
+        case CLOCK_REALTIME_COARSE:
+            tp->tv_nsec = OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK;
+            tp->tv_sec = 0;
+            return 0;
+        case CLOCK_THREAD_CPUTIME_ID:
+        case CLOCK_PROCESS_CPUTIME_ID:
+        case CLOCK_BOOTTIME:
+        case CLOCK_REALTIME_ALARM:
+        case CLOCK_BOOTTIME_ALARM:
+        case CLOCK_SGI_CYCLE:
+        case CLOCK_TAI:
+            errno = ENOTSUP;
+            return -1;
+        default:
+            errno = EINVAL;
+            return -1;
+    }
+}
+
+int clock_nanosleep(clockid_t clk, int flags, const struct timespec *req, struct timespec *rem)
+{
+    switch (clk) {
+        case CLOCK_REALTIME:
+            if (flags == 0) {
+                /* we only support the realtime clock currently */
+                return nanosleep(req, rem);
+            }
+            /* fallthrough */
+        case CLOCK_MONOTONIC_COARSE:
+        case CLOCK_REALTIME_COARSE:
+        case CLOCK_MONOTONIC_RAW:
+        case CLOCK_MONOTONIC:
+        case CLOCK_PROCESS_CPUTIME_ID:
+        case CLOCK_BOOTTIME:
+        case CLOCK_REALTIME_ALARM:
+        case CLOCK_BOOTTIME_ALARM:
+        case CLOCK_SGI_CYCLE:
+        case CLOCK_TAI:
+            if (flags == 0 || flags == TIMER_ABSTIME) {
+                return ENOTSUP;
+            }
+            /* fallthrough */
+        case CLOCK_THREAD_CPUTIME_ID:
+        default:
+            return EINVAL;
+    }
 }

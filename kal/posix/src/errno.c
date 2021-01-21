@@ -29,22 +29,21 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <version.h>
+#include <errno.h>
+#include "los_interrupt.h"
+#include "los_task.h"
 
-/**
- * get libc version string.
- * @return libc version string. the format is <major>.<minor>.<patch>[-<platform>[-<desc>]]
- */
-const char *libc_get_version_string(void)
-{
-    return LIBC_VERSION_STR;
-}
+/* the specific errno get or set in interrupt service routine */
+static int g_isrErrno;
 
-/**
- * get libc version code.
- * @return libc version code. the format is 0x00XXYYZZ, XX is major version, YY is minor version and ZZ is patch version
- */
-int libc_get_version(void)
+int *__errno_location(void)
 {
-    return LIBC_VERSION_NUM;
+    LosTaskCB *runTask = NULL;
+
+    if (OS_INT_INACTIVE) {
+        runTask = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
+        return &runTask->errorNo;
+    } else {
+        return &g_isrErrno;
+    }
 }
