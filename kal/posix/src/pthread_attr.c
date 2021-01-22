@@ -29,11 +29,10 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "pthread_impl.h"
 #include <errno.h>
-#include <pthread.h>
-
-#define PTHREAD_STACK_MIN LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE
-
+#include <limits.h>
+#include "los_config.h"
 
 int pthread_attr_init(pthread_attr_t *attr)
 {
@@ -51,7 +50,7 @@ int pthread_attr_init(pthread_attr_t *attr)
     attr->stacksize_set               = 1;
     attr->stacksize                   = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
 
-    return ENOERR;
+    return 0;
 }
 
 int pthread_attr_destroy(pthread_attr_t *attr)
@@ -61,14 +60,14 @@ int pthread_attr_destroy(pthread_attr_t *attr)
     }
 
     /* Nothing to do here... */
-    return ENOERR;
+    return 0;
 }
 
 int pthread_attr_setdetachstate(pthread_attr_t *attr, int detachState)
 {
     if ((attr != NULL) && ((detachState == PTHREAD_CREATE_JOINABLE) || (detachState == PTHREAD_CREATE_DETACHED))) {
         attr->detachstate = (UINT32)detachState;
-        return ENOERR;
+        return 0;
     }
 
     return EINVAL;
@@ -82,7 +81,7 @@ int pthread_attr_getdetachstate(const pthread_attr_t *attr, int *detachState)
 
     *detachState = (int)attr->detachstate;
 
-    return ENOERR;
+    return 0;
 }
 
 int pthread_attr_setscope(pthread_attr_t *attr, int scope)
@@ -93,7 +92,7 @@ int pthread_attr_setscope(pthread_attr_t *attr, int scope)
 
     if (scope == PTHREAD_SCOPE_PROCESS) {
         attr->scope = (unsigned int)scope;
-        return ENOERR;
+        return 0;
     }
 
     if (scope == PTHREAD_SCOPE_SYSTEM) {
@@ -111,14 +110,14 @@ int pthread_attr_getscope(const pthread_attr_t *attr, int *scope)
 
     *scope = (int)attr->scope;
 
-    return ENOERR;
+    return 0;
 }
 
 int pthread_attr_setinheritsched(pthread_attr_t *attr, int inherit)
 {
     if ((attr != NULL) && ((inherit == PTHREAD_INHERIT_SCHED) || (inherit == PTHREAD_EXPLICIT_SCHED))) {
         attr->inheritsched = (UINT32)inherit;
-        return ENOERR;
+        return 0;
     }
 
     return EINVAL;
@@ -132,14 +131,14 @@ int pthread_attr_getinheritsched(const pthread_attr_t *attr, int *inherit)
 
     *inherit = (int)attr->inheritsched;
 
-    return ENOERR;
+    return 0;
 }
 
 int pthread_attr_setschedpolicy(pthread_attr_t *attr, int policy)
 {
     if ((attr != NULL) && (policy == SCHED_RR)) {
         attr->schedpolicy = SCHED_RR;
-        return ENOERR;
+        return 0;
     }
 
     return EINVAL;
@@ -153,20 +152,21 @@ int pthread_attr_getschedpolicy(const pthread_attr_t *attr, int *policy)
 
     *policy = (int)attr->schedpolicy;
 
-    return ENOERR;
+    return 0;
 }
 
 int pthread_attr_setschedparam(pthread_attr_t *attr, const struct sched_param *param)
 {
     if ((attr == NULL) || (param == NULL)) {
         return EINVAL;
-    } else if ((param->sched_priority < 0) || (param->sched_priority > OS_TASK_PRIORITY_LOWEST)) {
+    } else if ((param->sched_priority < LOS_TASK_PRIORITY_HIGHEST) ||
+               (param->sched_priority >= LOS_TASK_PRIORITY_LOWEST)) {
         return ENOTSUP;
     }
 
     attr->schedparam = *param;
 
-    return ENOERR;
+    return 0;
 }
 
 int pthread_attr_getschedparam(const pthread_attr_t *attr, struct sched_param *param)
@@ -177,7 +177,7 @@ int pthread_attr_getschedparam(const pthread_attr_t *attr, struct sched_param *p
 
     *param = attr->schedparam;
 
-    return ENOERR;
+    return 0;
 }
 
 /*
@@ -194,14 +194,14 @@ int pthread_attr_setstackaddr(pthread_attr_t *attr, void *stackAddr)
     attr->stackaddr_set = 1;
     attr->stackaddr     = stackAddr;
 
-    return ENOERR;
+    return 0;
 }
 
 int pthread_attr_getstackaddr(const pthread_attr_t *attr, void **stackAddr)
 {
     if (((attr != NULL) && (stackAddr != NULL)) && attr->stackaddr_set) {
         *stackAddr = attr->stackaddr;
-        return ENOERR;
+        return 0;
     }
 
     return EINVAL; /* Stack address not set, return EINVAL. */
@@ -217,7 +217,7 @@ int pthread_attr_setstacksize(pthread_attr_t *attr, size_t stackSize)
     attr->stacksize_set = 1;
     attr->stacksize     = stackSize;
 
-    return ENOERR;
+    return 0;
 }
 
 int pthread_attr_getstacksize(const pthread_attr_t *attr, size_t *stackSize)
@@ -229,5 +229,5 @@ int pthread_attr_getstacksize(const pthread_attr_t *attr, size_t *stackSize)
 
     *stackSize = attr->stacksize;
 
-    return ENOERR;
+    return 0;
 }

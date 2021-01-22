@@ -1611,6 +1611,7 @@ typedef struct {
     UINT32                      eventMask;                /**< Event mask */
     UINT32                      eventMode;                /**< Event mode */
     VOID                        *msg;                     /**< Memory allocated to queues */
+    INT32                       errorNo;
 } LosTaskCB;
 
 typedef struct {
