@@ -74,18 +74,18 @@
 .endm
 
 .macro PUSH_CALLEE_REG
-    SREG  s11, 9 * REGBYTES(sp)
-    SREG  s10, 10 * REGBYTES(sp)
-    SREG  s9, 11 * REGBYTES(sp)
-    SREG  s8, 12 * REGBYTES(sp)
-    SREG  s7, 13 * REGBYTES(sp)
-    SREG  s6, 14 * REGBYTES(sp)
-    SREG  s5, 15 * REGBYTES(sp)
-    SREG  s4, 26 * REGBYTES(sp)
-    SREG  s3, 27 * REGBYTES(sp)
-    SREG  s2, 28 * REGBYTES(sp)
-    SREG  s1, 29 * REGBYTES(sp)
-    SREG  s0, 30 * REGBYTES(sp)
+   SREG  s11, 9 * REGBYTES(sp)
+   SREG  s10, 10 * REGBYTES(sp)
+   SREG  s9, 11 * REGBYTES(sp)
+   SREG  s8, 12 * REGBYTES(sp)
+   SREG  s7, 13 * REGBYTES(sp)
+   SREG  s6, 14 * REGBYTES(sp)
+   SREG  s5, 15 * REGBYTES(sp)
+   SREG  s4, 26 * REGBYTES(sp)
+   SREG  s3, 27 * REGBYTES(sp)
+   SREG  s2, 28 * REGBYTES(sp)
+   SREG  s1, 29 * REGBYTES(sp)
+   SREG  s0, 30 * REGBYTES(sp)
 .endm
 
 .macro POP_ALL_REG

@@ -30,16 +30,15 @@
  */
 #include "los_config.h"
 #include "securec.h"
-#include "los_sem.h"
-#include "los_mux.h"
 #include "los_memory.h"
+#include "los_mux.h"
+#include "los_sem.h"
 #include "los_timer.h"
 #include "los_interrupt.h"
 #if (LOSCFG_BASE_CORE_CPUP == 1)
 #include "los_cpup.h"
 #endif
 #include "los_debug.h"
-
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -51,20 +50,20 @@ extern "C" {
  * @brief Convinence macro for bitwise operation of task module
  */
 #define EVALUATE_L(NUMBER, VALUE)  \
-            ((NUMBER) = (((NUMBER) & 0xf8000000) | (VALUE)))
+            ((NUMBER) = (((NUMBER) & OS_TSK_HIGH_BITS_MASK) | (VALUE)))
 
 #define EVALUATE_H(NUMBER, VALUE)  \
-            ((NUMBER) = (((NUMBER) & 0x07ffffff) | ((VALUE) << 27)))
+            ((NUMBER) = (((NUMBER) & OS_TSK_LOW_BITS_MASK) | ((VALUE) << OS_TSK_LOW_BITS)))
 
 #define UWROLLNUMSUB(NUMBER1, NUMBER2)  \
-            ((NUMBER1) = (((NUMBER1) & 0xf8000000) | (UWROLLNUM(NUMBER1) - UWROLLNUM(NUMBER2))))
+            ((NUMBER1) = (((NUMBER1) & OS_TSK_HIGH_BITS_MASK) | (UWROLLNUM(NUMBER1) - UWROLLNUM(NUMBER2))))
 
 #define UWROLLNUMADD(NUMBER1, NUMBER2)  \
-            ((NUMBER1) = (((NUMBER1) & 0xf8000000) | (UWROLLNUM(NUMBER1) + UWROLLNUM(NUMBER2))))
+            ((NUMBER1) = (((NUMBER1) & OS_TSK_HIGH_BITS_MASK) | (UWROLLNUM(NUMBER1) + UWROLLNUM(NUMBER2))))
 
-#define UWROLLNUM(NUMBER) ((NUMBER) & 0x07ffffff)
+#define UWROLLNUM(NUMBER) ((NUMBER) & OS_TSK_LOW_BITS_MASK)
 
-#define UWSORTINDEX(NUMBER) ((NUMBER) >> 27)
+#define UWSORTINDEX(NUMBER) ((NUMBER) >> OS_TSK_LOW_BITS)
 
 #define UWROLLNUMDEC(NUMBER)  \
             ((NUMBER) = ((NUMBER) - 1))
@@ -116,7 +115,6 @@ TSKSWITCHHOOK g_pfnUsrTskSwitchHook = NULL;
 #endif /* LOSCFG_BASE_CORE_TSK_MONITOR == 1 */
 
 #if (LOSCFG_BASE_CORE_EXC_TSK_SWITCH == 1)
-
 TaskSwitchInfo g_taskSwitchInfo;
 #endif
 
@@ -207,6 +205,28 @@ STATIC VOID OsRecyleFinishedTask(VOID)
         taskCB->topOfStack = (UINT32)NULL;
     }
     LOS_IntRestore(intSave);
+}
+
+UINT32 OsTaskNextSwitchTimeGet(VOID)
+{
+    LosTaskCB *taskCB = NULL;
+    UINT32 taskSortLinkTick = LOS_WAIT_FOREVER;
+    LOS_DL_LIST *listObject = NULL;
+    UINT32 tempTicks;
+    UINT32 index;
+
+    for (index = 0; index < OS_TSK_SORTLINK_LEN; index++) {
+        listObject = g_taskSortLink.sortLink + ((g_taskSortLink.cursor + index) % OS_TSK_SORTLINK_LEN);
+        if (!LOS_ListEmpty(listObject)) {
+            taskCB = LOS_DL_LIST_ENTRY((listObject)->pstNext, LosTaskCB, timerList);
+            tempTicks = (index == 0) ? OS_TSK_SORTLINK_LEN : index;
+            tempTicks += (UINT32)(UWROLLNUM((UINT32)taskCB->idxRollNum) * OS_TSK_SORTLINK_LEN);
+            if (taskSortLinkTick > tempTicks) {
+                taskSortLinkTick = tempTicks;
+            }
+        }
+    }
+    return taskSortLinkTick;
 }
 
 /*****************************************************************************
@@ -495,6 +515,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsPrintAllTskInfoHeader()
  *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
 {
+#if (LOSCFG_KERNEL_PRINTF != 0)
     LosTaskCB    *taskCB = (LosTaskCB *)NULL;
     UINT32       loopNum;
     UINT32       semID;
@@ -551,7 +572,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
     (VOID)LOS_MemFree((VOID *)OS_SYS_MEM_ADDR, cpuTenSec);
     (VOID)LOS_MemFree((VOID *)OS_SYS_MEM_ADDR, cpuOneSec);
 #endif
-
+#endif
     return LOS_OK;
 }
 
@@ -612,9 +633,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsTaskInit(VOID)
         LOS_ListInit(listObject);
     }
 
-#if (LOSCFG_PLATFORM_EXC == 1)
-    HalExcRegister((ExcInfoType)OS_EXC_TYPE_TSK, (EXC_INFO_SAVE_CALLBACK)LOS_TaskInfoGet, &g_taskMaxNum);
-#endif
     return LOS_OK;
 }
 
@@ -693,6 +711,50 @@ LITE_OS_SEC_TEXT CHAR *LOS_CurTaskNameGet(VOID)
     return taskName;
 }
 
+#if (LOSCFG_BASE_CORE_TSK_MONITOR == 1)
+#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 0)
+/*****************************************************************************
+ Function    : OsHandleRunTaskStackOverflow
+ Description : handle stack overflow exception of the run task.
+ Input       : None
+ Output      : None
+ Return      : None
+ *****************************************************************************/
+LITE_OS_SEC_TEXT STATIC VOID OsHandleRunTaskStackOverflow(VOID)
+{
+    PRINT_ERR("CURRENT task ID: %s:%d stack overflow!\n",
+              g_losTask.runTask->taskName, g_losTask.runTask->taskID);
+    OsDoExcHook(EXC_STACKOVERFLOW);
+}
+
+/*****************************************************************************
+ Function    : OsHandleNewTaskStackOverflow
+ Description : handle stack overflow exception of the new task.
+ Input       : None
+ Output      : None
+ Return      : None
+ *****************************************************************************/
+LITE_OS_SEC_TEXT STATIC VOID OsHandleNewTaskStackOverflow(VOID)
+{
+    LosTaskCB *tmp = NULL;
+
+    PRINT_ERR("HIGHEST task ID: %s:%d SP error!\n",
+              g_losTask.newTask->taskName, g_losTask.newTask->taskID);
+    PRINT_ERR("HIGHEST task StackPointer: 0x%x TopOfStack: 0x%x\n",
+              (UINT32)(UINTPTR)(g_losTask.newTask->stackPointer), g_losTask.newTask->topOfStack);
+
+    /*
+     * make sure LOS_CurTaskIDGet and LOS_CurTaskNameGet returns the ID and name of which task
+     * that occurred stack overflow exception in OsDoExcHook temporary.
+     */
+    tmp = g_losTask.runTask;
+    g_losTask.runTask = g_losTask.newTask;
+    OsDoExcHook(EXC_STACKOVERFLOW);
+    g_losTask.runTask = tmp;
+}
+#endif
+#endif
+
 /*****************************************************************************
  Function    : OsTaskSwitchCheck
  Description : Check task switch
@@ -703,19 +765,16 @@ LITE_OS_SEC_TEXT CHAR *LOS_CurTaskNameGet(VOID)
 #if (LOSCFG_BASE_CORE_TSK_MONITOR == 1)
 LITE_OS_SEC_TEXT VOID OsTaskSwitchCheck(VOID)
 {
+    UINTPTR intSave = LOS_IntLock();
 #if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 0)
     UINT32 endOfStack = g_losTask.newTask->topOfStack + g_losTask.newTask->stackSize;
 
     if ((*(UINT32 *)(UINTPTR)(g_losTask.runTask->topOfStack)) != OS_TASK_MAGIC_WORD) {
-        PRINT_ERR("CURRENT task ID: %s:%d stack overflow!\n",
-                  g_losTask.runTask->taskName, g_losTask.runTask->taskID);
+        OsHandleRunTaskStackOverflow();
     }
     if (((UINT32)(UINTPTR)(g_losTask.newTask->stackPointer) <= (g_losTask.newTask->topOfStack)) ||
         ((UINT32)(UINTPTR)(g_losTask.newTask->stackPointer) > endOfStack)) {
-        PRINT_ERR("HIGHEST task ID: %s:%d SP error!\n",
-                  g_losTask.newTask->taskName, g_losTask.newTask->taskID);
-        PRINT_ERR("HIGHEST task StackPointer: 0x%x TopOfStack: 0x%x\n",
-                  (UINT32)(UINTPTR)(g_losTask.newTask->stackPointer), g_losTask.newTask->topOfStack);
+        OsHandleNewTaskStackOverflow();
     }
 #endif
 
@@ -747,6 +806,7 @@ LITE_OS_SEC_TEXT VOID OsTaskSwitchCheck(VOID)
 #if (LOSCFG_BASE_CORE_CPUP == 1)
     OsTskCycleEndStart();
 #endif /* LOSCFG_BASE_CORE_CPUP */
+    LOS_IntRestore(intSave);
 }
 
 LITE_OS_SEC_TEXT_MINOR VOID OsTaskMonInit(VOID)
@@ -755,11 +815,6 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTaskMonInit(VOID)
     // Ignore the return code when matching CSEC rule 6.6(4).
     (VOID)memset_s(&g_taskSwitchInfo, sizeof(TaskSwitchInfo), 0, sizeof(TaskSwitchInfo));
     g_taskSwitchInfo.cntInfo.maxCnt = OS_TASK_SWITCH_INFO_COUNT;
-#if (LOSCFG_PLATFORM_EXC == 1)
-    HalExcRegister((ExcInfoType)OS_EXC_TYPE_TSK_SWITCH,
-                  (EXC_INFO_SAVE_CALLBACK)LOS_TaskSwitchInfoGet,
-                  &g_taskSwitchInfo);
-#endif
 #endif
     g_pfnUsrTskSwitchHook = NULL;
     return;
@@ -813,7 +868,7 @@ LITE_OS_SEC_TEXT_INIT STATIC_INLINE UINT32 OsTaskInitParamCheck(TSK_INIT_PARAM_S
         return LOS_ERRNO_TSK_PRIOR_ERROR;
     }
 
-    if (taskInitParam->uwStackSize > OS_SYS_MEM_SIZE) {
+    if (taskInitParam->uwStackSize > LOSCFG_SYS_HEAP_SIZE) {
         return LOS_ERRNO_TSK_STKSZ_TOO_LARGE;
     }
 
@@ -1600,6 +1655,8 @@ VOID LOS_Schedule(VOID)
     }
     LOS_IntRestore(intSave);
 }
+
+
 
 #if (LOSCFG_BASE_CORE_TIMESLICE == 1)
 LITE_OS_SEC_BSS OsTaskRobin g_taskTimeSlice;

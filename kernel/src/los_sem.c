@@ -32,9 +32,7 @@
 #include "los_arch.h"
 #include "los_sem.h"
 #include "los_memory.h"
-#if (LOSCFG_PLATFORM_EXC == 1)
 #include "los_interrupt.h"
-#endif
 #include "los_debug.h"
 
 #ifdef __cplusplus

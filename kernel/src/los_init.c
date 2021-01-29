@@ -54,13 +54,15 @@
 #include "los_cpup.h"
 #endif
 
+#if (LOSCFG_PLATFORM_EXC == 1)
+#include "los_exc_info.h"
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
-
-UINT8 *m_aucSysMem0;
 
 /*****************************************************************************
  Function    : LOS_Reboot
@@ -71,6 +73,7 @@ UINT8 *m_aucSysMem0;
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT VOID LOS_Reboot(VOID)
 {
+    OsDoExcHook(EXC_REBOOT);
     HalSysExit();
 }
 
@@ -103,8 +106,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_Start(VOID)
     return HalStartSchedule(OsTickHandler);
 }
 
-extern UINT8 g_memStart[OS_SYS_MEM_SIZE];
-
 /*****************************************************************************
  Function    : LOS_KernelInit
  Description : System kernel initialization function, configure all system modules
@@ -115,11 +116,9 @@ extern UINT8 g_memStart[OS_SYS_MEM_SIZE];
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
 {
     UINT32 ret;
-    printf("entering kernel init...\n");
+    PRINTK("entering kernel init...\n");
 
     OsRegister();
-    m_aucSysMem0 = g_memStart;
-    g_sysMemAddrEnd = ((UINT32)OS_SYS_MEM_ADDR + OS_SYS_MEM_SIZE);
     ret = OsMemSystemInit();
     if (ret != LOS_OK) {
         PRINT_ERR("OsMemSystemInit error %d\n", ret);
@@ -193,13 +192,10 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 #endif
 
-#ifdef LOSCFG_TEST
-    //ret = los_TestInit();
-    //if (ret != LOS_OK) {
-    //    PRINT_ERR("los_TestInit error\n");
-    //    return ret;
-    //}
+#if (LOSCFG_PLATFORM_EXC == 1)
+    OsExcMsgDumpInit();
 #endif
+
     return LOS_OK;
 }
 

@@ -30,9 +30,9 @@
  */
 
 #include "los_tick.h"
+#include "los_config.h"
 #include "los_task.h"
 #include "los_swtmr.h"
-#include "los_config.h"
 
 #ifdef __cplusplus
 #if __cplusplus

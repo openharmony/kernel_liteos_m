@@ -49,7 +49,7 @@ Input       : none
 output      : none
 return      : LOS_OK - Success , or LOS_ERRNO_TICK_CFG_INVALID - failed
 **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT UINT32 HalTickStart(OS_TICK_HANDLER *handler)
+WEAK UINT32 HalTickStart(OS_TICK_HANDLER *handler)
 {
     UINT32 ret;
 
@@ -76,6 +76,15 @@ LITE_OS_SEC_TEXT_INIT UINT32 HalTickStart(OS_TICK_HANDLER *handler)
     }
 
     return LOS_OK;
+}
+
+VOID HalSysTickReload(UINT32 cyclesPerTick)
+{
+    SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+    NVIC_ClearPendingIRQ(SysTick_IRQn);
+    SysTick->LOAD = (UINT32)(cyclesPerTick - 1UL); /* set reload register */
+    SysTick->VAL = 0UL; /* Load the SysTick Counter Value */
+    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 }
 
 /* ****************************************************************************
@@ -213,21 +222,34 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep)
 	__ISB();
 }
 
-//extern unsigned int SystemCoreClock;
-void HalDelay(UINT32 ticks)
+WEAK VOID HalDelay(UINT32 ticks)
 {
-#if 0
-    UINT32 delayTimes;
-    /* there are 4 machine cycle in loop */
-    if ((ticks * (SystemCoreClock / MACHINE_CYCLE_DEALAY_TIMES)) >= 0xffffffff) {
-        delayTimes = 0xffffffff;
-    } else {
-        delayTimes = ticks * (SystemCoreClock / MACHINE_CYCLE_DEALAY_TIMES);
-    }
-    while (delayTimes) {
-        delayTimes = delayTimes - 1;
-    }
-#endif
+
+}
+
+WEAK UINT64 HalGetExpandTick(VOID)
+{
+    return LOS_OK;
+}
+
+WEAK INT32 HalGetRtcTime(UINT64 *usec)
+{
+    return LOS_OK;
+}
+
+WEAK INT32 HalGetRtcTimeZone(INT32 *timeZone)
+{
+    return LOS_OK;
+}
+
+WEAK INT32 HalSetRtcTime(UINT64 utcTime, UINT64 *usec)
+{
+    return LOS_OK;
+}
+
+WEAK INT32 HalSetRtcTimeZone(INT32 timeZone)
+{
+    return LOS_OK;
 }
 
 #ifdef __cplusplus

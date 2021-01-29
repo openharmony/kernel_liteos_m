@@ -29,33 +29,70 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_ARCH_H
-#define _LOS_ARCH_H
-
-#include "los_config.h"
-#include "los_compiler.h"
+#include "los_debug.h"
+#include "stdarg.h"
+#include "los_context.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
+#if (LOSCFG_KERNEL_PRINTF == 1)
+STATIC const CHAR *g_logString[] = {
+    "EMG",
+    "COMMON",
+    "ERR",
+    "WARN",
+    "INFO",
+    "DEBUG",
+};
+#endif
 
-VOID HalArchInit();
-void HalBackTrace();
-#define LOS_BackTrace HalBackTrace
+STATIC ExcHookFn g_excHook;
 
-#if (LOSCFG_MEM_LEAKCHECK == 1)
-VOID HalRecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount,
-                 UINTPTR stackStart, UINTPTR stackEnd);
+VOID OsExcHookRegister(ExcHookFn excHookFn)
+{
+    UINTPTR intSave = LOS_IntLock();
+    if (!g_excHook) {
+        g_excHook = excHookFn;
+    }
+    LOS_IntRestore(intSave);
+}
+
+VOID OsDoExcHook(EXC_TYPE excType)
+{
+    UINTPTR intSave = LOS_IntLock();
+    if (g_excHook) {
+        g_excHook(excType);
+    }
+    LOS_IntRestore(intSave);
+}
+
+#if (LOSCFG_KERNEL_PRINTF == 1)
+INT32 OsLogLevelCheck(INT32 level)
+{
+    if (level > PRINT_LEVEL) {
+        return LOS_NOK;
+    }
+
+    if ((level != LOG_COMMON_LEVEL) && ((level > LOG_EMG_LEVEL) && (level <= LOG_DEBUG_LEVEL))) {
+        PRINTK("[%s]", g_logString[level]);
+    }
+
+    return LOS_OK;
+}
+#endif
+
+#if (LOSCFG_KERNEL_PRINTF > 1)
+WEAK VOID HalConsoleOutput(LogModuleType type, INT32 level, const CHAR *fmt, ...)
+{
+}
 #endif
 
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
-
-#endif /* _LOS_ARCH_H */
-
+#endif /* __cplusplus */
+#endif /* __cplusplus */

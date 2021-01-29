@@ -29,33 +29,77 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_ARCH_H
-#define _LOS_ARCH_H
+/**
+ * @defgroup los_exchook Exception hooks
+ * @ingroup kernel
+ */
 
-#include "los_config.h"
-#include "los_compiler.h"
+#ifndef _LOS_EXCHOOK_H
+#define _LOS_EXCHOOK_H
+
+#include "los_tick.h"
+#include "los_debug.h"
+#include "los_arch_interrupt.h"
+#include "los_interrupt.h"
+#include "los_task.h"
+#include "los_queue.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
+/**
+ *  @ingroup  los_exchook
+ *  @brief: System exception hooks register function.
+ *
+ *  @par Description:
+ *  This API is used to register exception hooks.
+ *  Hooks will be invoked in reverse order.
+ *
+ * @attention:
+ * <ul><li>This function should not be call in excHookFn.</li></ul>
+ *
+ * @param: None.
+ *
+ * @retval: LOS_OK  success.
+ *          LOS_ERRNO_SYS_HOOK_IS_FULL  too many hooks registered. @see LOSCFG_BASE_EXC_HOOK_LIMIT
+ *          LOS_ERRNO_SYS_PTR_NULL  excHookFn is null or invalid excType.
+ *
+ * @par Dependency:
+ * <ul><li>los_exchook.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ *
+ * */
+extern UINT32 LOS_RegExcHook(EXC_TYPE excType, ExcHookFn excHookFn);
 
-VOID HalArchInit();
-void HalBackTrace();
-#define LOS_BackTrace HalBackTrace
-
-#if (LOSCFG_MEM_LEAKCHECK == 1)
-VOID HalRecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount,
-                 UINTPTR stackStart, UINTPTR stackEnd);
-#endif
+/**
+ *  @ingroup  los_exchook
+ *  @brief: System exception hooks unregister function.
+ *
+ *  @par Description:
+ *  This API is used to unregister exception hooks.
+ *
+ * @attention:
+ * <ul><li>This function should not be call in excHookFn.</li></ul>
+ *
+ * @param: None.
+ *
+ * @retval: LOS_OK  success.
+ *          LOS_ERRNO_SYS_PTR_NULL  excHookFn is null or invalid excType.
+ *
+ * @par Dependency:
+ * <ul><li>los_exchook.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ *
+ * */
+extern UINT32 LOS_UnRegExcHook(EXC_TYPE excType, ExcHookFn excHookFn);
 
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif /* _LOS_ARCH_H */
-
+#endif /* _LOS_EXCHOOK_H */

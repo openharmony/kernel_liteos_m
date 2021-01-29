@@ -461,6 +461,8 @@ extern VOID HalPendSV(VOID);
 #define OS_NVIC_INT_ENABLE_SIZE             0x20
 #define OS_NVIC_INT_PRI_SIZE                0xF0
 #define OS_NVIC_EXCPRI_SIZE                 0xC
+#define OS_NVIC_INT_CTRL_SIZE               4
+#define OS_NVIC_SHCSR_SIZE                  4
 
 #define OS_NVIC_INT_PEND_SIZE               OS_NVIC_INT_ACT_SIZE
 #define OS_NVIC_INT_ACT_SIZE                OS_NVIC_INT_ENABLE_SIZE
@@ -729,48 +731,10 @@ typedef struct tagExcInfo {
 
 extern UINT32 g_curNestCount;
 extern UINT32 g_intCount;
-
-static VOID OsExcSave2DDR(VOID);
-VOID OsExcInfoDisplay(ExcInfo *exc);
-
 extern UINT8 g_uwExcTbl[32];
+extern ExcInfo g_excInfo;
 
-
-
-typedef struct tagExcInfoCallBackArray {
-    ExcInfoType           uwType;
-    UINT32                  uwValid;
-    EXC_INFO_SAVE_CALLBACK  pFnExcInfoCb;
-    VOID*                   pArg;
-} ExcInfoArray;
-
-
-
-#define MAX_SCENE_INFO_SIZE     (8 + sizeof(ExcInfo) - 4 + sizeof(EXC_CONTEXT_S))
-#define MAX_TSK_INFO_SIZE       (8 + sizeof(TSK_INFO_S) * (LOSCFG_BASE_CORE_TSK_LIMIT + 1))
 #define MAX_INT_INFO_SIZE       (8 + 0x164)
-
-#if (LOSCFG_BASE_IPC_QUEUE == 1)
-#define MAX_QUEUE_INFO_SIZE     (8 + sizeof(QUEUE_INFO_S) * LOSCFG_BASE_IPC_QUEUE_LIMIT)
-#else
-#define MAX_QUEUE_INFO_SIZE     (0)
-#endif
-
-#if (LOSCFG_BASE_CORE_EXC_TSK_SWITCH == 1)
-#define MAX_SWITCH_INFO_SIZE    (8 + (sizeof(UINT32) + sizeof(CHAR) * LOS_TASK_NAMELEN) * OS_TASK_SWITCH_INFO_COUNT)
-#else
-#define MAX_SWITCH_INFO_SIZE    (0)
-#endif
-
-#if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
-#define MAX_MEM_INFO_SIZE       (8 + sizeof(MEM_INFO_S) * OS_SYS_MEM_NUM)
-#else
-#define MAX_MEM_INFO_SIZE       (0)
-#endif
-
-#define MAX_EXC_MEM_SIZE ( 4 + MAX_SCENE_INFO_SIZE + MAX_TSK_INFO_SIZE + MAX_QUEUE_INFO_SIZE + MAX_INT_INFO_SIZE + MAX_SWITCH_INFO_SIZE + MAX_MEM_INFO_SIZE + 4)
-
-
 
 #ifdef __cplusplus
 #if __cplusplus

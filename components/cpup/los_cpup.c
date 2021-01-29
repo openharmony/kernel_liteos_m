@@ -32,9 +32,8 @@
 #include "los_cpup.h"
 #include "securec.h"
 #include "los_memory.h"
-#include "los_timer.h"
 #include "los_debug.h"
-
+#include "los_timer.h"
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -61,6 +60,7 @@ LITE_OS_SEC_BSS UINT16    g_cpupInitFlg = 0;
 LITE_OS_SEC_BSS OsCpupCB  *g_cpup = NULL;
 LITE_OS_SEC_BSS UINT64    g_lastRecordTime;
 LITE_OS_SEC_BSS UINT16    g_hisPos; /* <current Sampling point of historyTime */
+
 
 LITE_OS_SEC_TEXT_MINOR STATIC INLINE UINT64 OsGetCurrentCyclesCount(VOID)
 {

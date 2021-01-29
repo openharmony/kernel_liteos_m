@@ -98,7 +98,7 @@ extern "C" {
 /*=============================================================================
                                         Exception module configuration
 =============================================================================*/
-#define LOSCFG_PLATFORM_EXC                                 1
+#define LOSCFG_PLATFORM_EXC                                 0
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -28,6 +28,18 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#ifndef LOS_TIMER_H
+#define LOS_TIMER_H
+
+#include "los_compiler.h"
+
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
 #define TICK_CHECK                           0x4000000
 #define CYCLE_CHECK                          0xFFFFFFFFU
 #define SHIFT_32_BIT                          32
@@ -38,7 +50,7 @@
 #define RTC_WAKEUPCLOCK_RTCCLK 32768
 #define RTC_WAKEUPCLOCK_RTCCLK_DIV 16
 #define RTC_CALIBRATE_SLEEP_TIME 8
-#define MACHINE_CYCLE_DEALAY_TIMES 4000
+#define MACHINE_CYCLE_DEALAY_TIMES (LOSCFG_BASE_CORE_TICK_PER_SECOND << 2)
 
 typedef enum {
 	OS_SYS_NORMAL_SLEEP = 0,
@@ -51,11 +63,21 @@ VOID HalTickUnlock(VOID);
 
 BOOL HalGetSysSleepFlag(VOID);
 
-VOID  HalClearSysSleepFlag(VOID);
-
+VOID HalClearSysSleepFlag(VOID);
 
 VOID HalEnterSleep(LOS_SysSleepEnum sleep);
 
+VOID HalDelay(UINT32 ticks);
+
+UINT64 HalGetExpandTick(VOID);
+
+INT32 HalGetRtcTime(UINT64 *usec);
+
+INT32 HalGetRtcTimeZone(INT32 *timeZone);
+
+INT32 HalSetRtcTime(UINT64 utcTime, UINT64 *usec);
+
+INT32 HalSetRtcTimeZone(INT32 timeZone);
 
  /**
  * @ingroup los_timer
@@ -79,7 +101,6 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep);
  * @see
  */
 
-#if (LOSCFG_KERNEL_TICKLESS == YES)
 /**
  * @ingroup los_hwi
  * @brief reconfig systick, and clear SysTick_IRQn.
@@ -98,10 +119,9 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep);
  * @retval None.
  * @par Dependency:
  * <ul><li>los_hwi.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_IntRestore
+ * @see None
  */
 extern VOID HalSysTickReload(UINT32 cyclesPerTick);
-#endif
 
 /**
  * @ingroup los_hwi
@@ -191,3 +211,11 @@ extern VOID HalTicklessEnable(VOID);
  * @see LOS_TicklessEnable
  */
 extern VOID HalTicklessDisable(VOID);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif

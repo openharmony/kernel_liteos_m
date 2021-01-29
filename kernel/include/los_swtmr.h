@@ -273,7 +273,7 @@ typedef struct tagSwTmrCtrl {
     UINT8               ucRouses;       /* wake up enable                                        */
     UINT8               ucSensitive;    /* align enable                                          */
 #endif
-    UINT16              usTimerID;      /* Software timer ID                                     */
+    UINT32              usTimerID;      /* Software timer ID                                     */
     UINT32              uwCount;        /* Times that a software timer works                     */
     UINT32              uwInterval;     /* Timeout interval of a periodic software timer         */
     UINT32              uwArg;          /* Parameter passed in when the callback function
@@ -293,8 +293,7 @@ typedef struct tagSwTmrCtrl {
  * <li>The specific timer must be created first</li>
  * </ul>
  *
- * @param  swtmrID  [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
- * [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
+ * @param  swtmrID  [IN] Software timer ID created by LOS_SwtmrCreate.
  *
  * @retval #LOS_ERRNO_SWTMR_ID_INVALID       Invalid software timer ID.
  * @retval #LOS_ERRNO_SWTMR_NOT_CREATED      The software timer is not created.
@@ -304,7 +303,7 @@ typedef struct tagSwTmrCtrl {
  * <ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_SwtmrStop | LOS_SwtmrCreate
  */
-extern UINT32 LOS_SwtmrStart(UINT16 swtmrID);
+extern UINT32 LOS_SwtmrStart(UINT32 swtmrID);
 
 /**
  * @ingroup los_swtmr
@@ -317,8 +316,7 @@ extern UINT32 LOS_SwtmrStart(UINT16 swtmrID);
  * <li>The specific timer should be created and started firstly.</li>
  * </ul>
  *
- * @param  swtmrID  [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
- * [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
+ * @param  swtmrID  [IN] Software timer ID created by LOS_SwtmrCreate.
  *
  * @retval #LOS_ERRNO_SWTMR_ID_INVALID       Invalid software timer ID.
  * @retval #LOS_ERRNO_SWTMR_NOT_CREATED      The software timer is not created.
@@ -329,7 +327,7 @@ extern UINT32 LOS_SwtmrStart(UINT16 swtmrID);
  * <ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_SwtmrStart | LOS_SwtmrCreate
  */
-extern UINT32 LOS_SwtmrStop(UINT16 swtmrID);
+extern UINT32 LOS_SwtmrStop(UINT32 swtmrID);
 
 /**
  * @ingroup los_swtmr
@@ -343,8 +341,7 @@ extern UINT32 LOS_SwtmrStop(UINT16 swtmrID);
  * <li>The specific timer should be created and started successfully, error happends otherwise.</li>
  * </ul>
  *
- * @param  swtmrID  [IN]  Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
- * [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
+ * @param  swtmrID  [IN]  Software timer ID created by LOS_SwtmrCreate.
  * @param  tick     [OUT] Number of remaining Ticks configured on the software timer.
  *
  * @retval #LOS_ERRNO_SWTMR_ID_INVALID      Invalid software timer ID.
@@ -356,7 +353,7 @@ extern UINT32 LOS_SwtmrStop(UINT16 swtmrID);
  * <ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_SwtmrCreate
  */
-extern UINT32 LOS_SwtmrTimeGet(UINT16 swtmrID, UINT32 *tick);
+extern UINT32 LOS_SwtmrTimeGet(UINT32 swtmrID, UINT32 *tick);
 
 /**
  * @ingroup los_swtmr
@@ -395,7 +392,7 @@ extern UINT32 LOS_SwtmrTimeGet(UINT16 swtmrID, UINT32 *tick);
 extern UINT32 LOS_SwtmrCreate(UINT32 interval,
                               UINT8 mode,
                               SWTMR_PROC_FUNC handler,
-                              UINT16 *swtmrID,
+                              UINT32 *swtmrID,
                               UINT32 arg,
                               UINT8 rouses,
                               UINT8 sensitive);
@@ -403,7 +400,7 @@ extern UINT32 LOS_SwtmrCreate(UINT32 interval,
 extern UINT32 LOS_SwtmrCreate(UINT32 interval,
                               UINT8 mode,
                               SWTMR_PROC_FUNC handler,
-                              UINT16 *swtmrID,
+                              UINT32 *swtmrID,
                               UINT32 arg);
 #endif
 
@@ -418,8 +415,7 @@ extern UINT32 LOS_SwtmrCreate(UINT32 interval,
  * <li>The specific timer should be created and then stopped firstly.</li>
  * </ul>
  *
- * @param  swtmrID     [IN] Software timer ID created by LOS_SwtmrCreate. The value of ID should be in
- * [0, LOSCFG_BASE_CORE_SWTMR_LIMIT - 1].
+ * @param  swtmrID     [IN] Software timer ID created by LOS_SwtmrCreate.
  *
  * @retval #LOS_ERRNO_SWTMR_ID_INVALID        Invalid software timer ID.
  * @retval #LOS_ERRNO_SWTMR_NOT_CREATED       The software timer is not created.
@@ -429,7 +425,7 @@ extern UINT32 LOS_SwtmrCreate(UINT32 interval,
  * <ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_SwtmrCreate
  */
-extern UINT32 LOS_SwtmrDelete(UINT16 swtmrID);
+extern UINT32 LOS_SwtmrDelete(UINT32 swtmrID);
 
 /**
  * @ingroup los_swtmr

@@ -48,7 +48,7 @@ extern "C" {
 /*=============================================================================
                                         System clock module configuration
 =============================================================================*/
-#define OS_SYS_CLOCK                                        64000000
+#define OS_SYS_CLOCK                                        180000000
 #define LOSCFG_BASE_CORE_TICK_PER_SECOND                    (1000UL)
 #define LOSCFG_BASE_CORE_TICK_HW_TIME                       0
 /*=============================================================================
@@ -90,16 +90,12 @@ extern "C" {
 /*=============================================================================
                                        Memory module configuration
 =============================================================================*/
-#define OS_SYS_MEM_SIZE                                     0x00013000
-#define LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK                0
-#define LOSCFG_BASE_MEM_NODE_SIZE_CHECK                     1
 #define LOSCFG_MEM_MUL_POOL                                 1
 #define OS_SYS_MEM_NUM                                      20
-#define LOSCFG_KERNEL_MEM_SLAB                              0
-/*=============================================================================
-                                        Exception module configuration
-=============================================================================*/
-#define LOSCFG_PLATFORM_EXC                                 1
+/* =============================================================================
+                                       printf module configuration
+============================================================================= */
+#define LOSCFG_KERNEL_PRINTF                                1
 
 #ifdef __cplusplus
 #if __cplusplus

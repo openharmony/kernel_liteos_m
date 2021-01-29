@@ -34,11 +34,8 @@
 #include "los_membox.h"
 #include "los_task.h"
 #include "los_memory.h"
-#if (LOSCFG_PLATFORM_EXC == 1)
 #include "los_interrupt.h"
-#endif
 #include "los_debug.h"
-
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -50,9 +47,6 @@ extern "C" {
 
 LITE_OS_SEC_BSS LosQueueCB *g_allQueue = NULL ;
 LITE_OS_SEC_BSS LOS_DL_LIST g_freeQueueList;
-#if (LOSCFG_PLATFORM_EXC == 1)
-LITE_OS_SEC_BSS UINT32 g_excQueueMaxNum;
-#endif
 
 /**************************************************************************
  Function    : OsQueueInit
@@ -84,11 +78,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsQueueInit(VOID)
         queueNode->queueID = index;
         LOS_ListTailInsert(&g_freeQueueList, &queueNode->readWriteList[OS_QUEUE_WRITE]);
     }
-
-#if (LOSCFG_PLATFORM_EXC == 1)
-    g_excQueueMaxNum = LOSCFG_BASE_IPC_QUEUE_LIMIT;
-    HalExcRegister(OS_EXC_TYPE_QUE, (EXC_INFO_SAVE_CALLBACK)LOS_QueueInfoGet, &g_excQueueMaxNum);
-#endif
 
     return LOS_OK;
 }

@@ -64,8 +64,8 @@ static SWTMR_CTRL_S                 *g_swtmrRouses = NULL;    /* first swtmr tha
 static SWTMR_CTRL_S                 *g_swtmrRousesPrev = NULL;
 #endif
 
-#define SWTMR_MAX_RUNNING_TICKS     2
-
+#define SWTMR_MAX_RUNNING_TICKS 2
+#define OS_SWTMR_MAX_TIMERID    ((0xFFFFFFFF / LOSCFG_BASE_CORE_SWTMR_LIMIT) * LOSCFG_BASE_CORE_SWTMR_LIMIT)
 
 /*****************************************************************************
 Function    : OsSwtmrTask
@@ -182,7 +182,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsSwtmrInit(VOID)
 }
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
-STATIC_INLINE UINT32 OsSwtmrCalcAlignCount(UINT32 interval, UINT16 timerId)
+STATIC_INLINE UINT32 OsSwtmrCalcAlignCount(UINT32 interval, UINT32 timerId)
 {
     SWTMR_CTRL_S *cur = g_swtmrSortList;
     UINT32 count = 0;
@@ -600,7 +600,7 @@ Return      : LOS_OK on success or error code on failure
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_SwtmrCreate(UINT32 interval,
                                              UINT8 mode,
                                              SWTMR_PROC_FUNC handler,
-                                             UINT16 *swtmrId,
+                                             UINT32 *swtmrId,
                                              UINT32 arg,
                                              UINT8 rouses,
                                              UINT8 sensitive)
@@ -608,7 +608,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_SwtmrCreate(UINT32 interval,
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_SwtmrCreate(UINT32 interval,
                                              UINT8 mode,
                                              SWTMR_PROC_FUNC handler,
-                                             UINT16 *swtmrId,
+                                             UINT32 *swtmrId,
                                              UINT32 arg)
 #endif
 {
@@ -675,7 +675,7 @@ Input       : swtmrId ------- Software timer ID
 Output      : None
 Return      : LOS_OK on success or error code on failure
 *****************************************************************************/
-LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStart(UINT16 swtmrId)
+LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStart(UINT32 swtmrId)
 {
     SWTMR_CTRL_S *swtmr = NULL;
     UINTPTR intSave;
@@ -735,7 +735,7 @@ Input       : swtmrId ------- Software timer ID
 Output      : None
 Return      : LOS_OK on success or error code on failure
 *****************************************************************************/
-LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStop(UINT16 swtmrId)
+LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStop(UINT32 swtmrId)
 {
     SWTMR_CTRL_S *swtmr = NULL;
     UINTPTR intSave;
@@ -772,7 +772,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStop(UINT16 swtmrId)
     return ret;
 }
 
-LITE_OS_SEC_TEXT UINT32 LOS_SwtmrTimeGet(UINT16 swtmrId, UINT32 *tick)
+LITE_OS_SEC_TEXT UINT32 LOS_SwtmrTimeGet(UINT32 swtmrId, UINT32 *tick)
 {
     SWTMR_CTRL_S *swtmr = NULL;
     UINTPTR intSave;
@@ -820,7 +820,7 @@ Input       : swtmrId ------- Software timer ID
 Output      : None
 Return      : LOS_OK on success or error code on failure
 *****************************************************************************/
-LITE_OS_SEC_TEXT UINT32 LOS_SwtmrDelete(UINT16 swtmrId)
+LITE_OS_SEC_TEXT UINT32 LOS_SwtmrDelete(UINT32 swtmrId)
 {
     SWTMR_CTRL_S *swtmr = NULL;
     UINTPTR intSave;

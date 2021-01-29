@@ -29,33 +29,52 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_ARCH_H
-#define _LOS_ARCH_H
-
-#include "los_config.h"
-#include "los_compiler.h"
+#ifndef _FATFS_H
+#define _FATFS_H
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
+/* Format options */
+#define FMT_FAT      0x01
+#define FMT_FAT32    0x02
+#define FMT_ANY      0x07
 
-VOID HalArchInit();
-void HalBackTrace();
-#define LOS_BackTrace HalBackTrace
+/**
+  * @brief divide a physical drive (SD card, U disk, and MMC card), this function is OHOS-specific
+  * @param pdrv physical drive number.
+  * @param partTbl list of partition size to create on the drive.
+  *   -- item is <= 100: specifies the partition size in percentage of the entire drive space.
+  *   -- item is > 100: specifies number of sectors.
+  * @return fdisk result
+  * @retval -1 fdisk error
+  * @retval 0 fdisk successful
+  */
+int fatfs_fdisk(int pdrv, const unsigned int *partTbl);
 
-#if (LOSCFG_MEM_LEAKCHECK == 1)
-VOID HalRecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount,
-                 UINTPTR stackStart, UINTPTR stackEnd);
-#endif
+/**
+  * @brief format FAT device (SD card, U disk, and MMC card), this function is OHOS-specific
+  * @param dev device name.
+  * @param sectors sectors per cluster, can be 0 OR power of 2. The sector size for standard FAT volumes is 512 bytes.
+  *    -- sector number is 0 OR >128: automatically choose the appropriate cluster size.
+  *    -- sector number is 1 ~ 128: cluster size = sectors per cluster * 512B.
+  * @param option file system type.
+  *    -- FMT_FAT
+  *    -- FMT_FAT32
+  *    -- FMT_ANY
+  * @return format result
+  * @retval -1 format error
+  * @retval 0 format successful
+  */
+int fatfs_format(const char *dev, int sectors, int option);
 
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif /* _LOS_ARCH_H */
-
+#endif /* _FATFS_H */

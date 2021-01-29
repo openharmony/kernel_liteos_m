@@ -29,33 +29,65 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_ARCH_H
-#define _LOS_ARCH_H
+/**
+ * @defgroup memory protection
+ * @ingroup kernel
+ */
 
-#include "los_config.h"
+#ifndef _LOS_MPU_H
+#define _LOS_MPU_H
+
 #include "los_compiler.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
+typedef enum {
+    MPU_RW_BY_PRIVILEGED_ONLY = 0,
+    MPU_RW_ANY = 1,
+    MPU_RO_BY_PRIVILEGED_ONLY = 2,
+    MPU_RO_ANY = 3,
+} MpuAccessPermission;
 
-VOID HalArchInit();
-void HalBackTrace();
-#define LOS_BackTrace HalBackTrace
+typedef enum {
+    MPU_EXECUTABLE = 0,
+    MPU_NON_EXECUTABLE = 1,
+} MpuExecutable;
 
-#if (LOSCFG_MEM_LEAKCHECK == 1)
-VOID HalRecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount,
-                 UINTPTR stackStart, UINTPTR stackEnd);
-#endif
+typedef enum {
+    MPU_NO_SHARE = 0,
+    MPU_SHARE = 1,
+} MpuShareability;
+
+typedef enum {
+    MPU_MEM_ON_CHIP_ROM = 0,
+    MPU_MEM_ON_CHIP_RAM = 1,
+    MPU_MEM_XIP_PSRAM = 2,
+    MPU_MEM_XIP_NOR_FLASH = 3,
+    MPU_MEM_SHARE_MEM = 4,
+} MpuMemType;
+
+typedef struct {
+    UINT32 baseAddr;
+    UINT64 size; /* armv7 size == 2^x (5 <= x <= 32)  128B - 4GB */
+    MpuAccessPermission permission;
+    MpuExecutable executable;
+    MpuShareability shareability;
+    MpuMemType memType;
+} MPU_CFG_PARA;
+
+VOID HalMpuEnable(UINT32 defaultRegionEnable);
+VOID HalMpuDisable();
+UINT32 HalMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para);
+UINT32 HalMpuDisableRegion(UINT32 regionId);
 
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif /* _LOS_ARCH_H */
-
+#endif /* _LOS_MPU_H */
