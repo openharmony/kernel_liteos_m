@@ -44,8 +44,6 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-static ExcInfoArray g_excArray[OS_EXC_TYPE_MAX];
-
 LosExcInfo g_excInfo;
 #define RISCV_EXC_TYPE_NUM 16
 #define RISCV_EXC_LOAD_MISALIGNED 4
@@ -344,7 +342,7 @@ STATIC VOID ExcInfoDisplay(const LosExcContext *excBufAddr)
 
     PRINTK("taskName = %s\n\r", g_losTask.runTask->taskName);
     PRINTK("taskID = %u\n\r", g_losTask.runTask->taskID);
-    PRINTK("system mem addr:0x%x\n\r", (UINTPTR)OS_SYS_MEM_ADDR);
+    PRINTK("system mem addr:0x%x\n\r", (UINTPTR)LOSCFG_SYS_HEAP_ADDR);
     ExcInfoDisplayContext(&g_excInfo);
 }
 
@@ -361,7 +359,7 @@ VOID HalExcEntry(const LosExcContext *excBufAddr)
     g_excInfo.type = excBufAddr->mcause & 0x1FF;
     g_excInfo.context = (LosExcContext *)excBufAddr;
 
-    if (g_excInfo.nestCnt > 2) {
+    if (g_excInfo.nestCnt > 2) { /* 2: Number of layers of exception nesting */
         PRINTK("hard faule!\n\r");
         goto SYSTEM_DEATH;
     }
@@ -381,22 +379,9 @@ VOID HalExcEntry(const LosExcContext *excBufAddr)
     DisplayTaskInfo();
 
 SYSTEM_DEATH:
+    OsDoExcHook(EXC_INTERRUPT);
     while (1) {
     }
-}
-
-VOID HalExcRegister(ExcInfoType type, EXC_INFO_SAVE_CALLBACK func, VOID *arg)
-{
-    ExcInfoArray *excInfo = NULL;
-    if ((type >= OS_EXC_TYPE_MAX) || (func == NULL)) {
-        PRINT_ERR("HalExcRegister ERROR!\n");
-        return;
-    }
-    excInfo = &(g_excArray[type]);
-    excInfo->uwType = type;
-    excInfo->pFnExcInfoCb = func;
-    excInfo->pArg = arg;
-    excInfo->uwValid = TRUE;
 }
 
 LITE_OS_SEC_TEXT VOID HalTaskBackTrace(UINT32 taskID)
@@ -435,11 +420,19 @@ LITE_OS_SEC_TEXT VOID HalBackTrace(VOID)
     BackTrace(fp);
 }
 
+#if (LOSCFG_MEM_LEAKCHECK == 1)
+VOID HalRecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount,
+                 UINTPTR stackStart, UINTPTR stackEnd)
+{
+}
+#endif
+
 /* stack protector */
 UINT32 __stack_chk_guard = 0xd00a0dff;
 
 VOID __stack_chk_fail(VOID)
 {
+    OsDoExcHook(EXC_STACKOVERFLOW);
     /* __builtin_return_address is a builtin function, building in gcc */
     LOS_Panic("stack-protector: Kernel stack is corrupted in: %p\n",
               __builtin_return_address(0));

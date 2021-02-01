@@ -1519,6 +1519,24 @@ extern UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E mode, UINT32 ta
 
 /**
  * @ingroup los_task
+ * @brief the num of high-order bit
+ */
+#define OS_TSK_HIGH_BITS                            5U
+
+/**
+ * @ingroup los_task
+ * @brief the num of low-order bit
+ */
+#define OS_TSK_LOW_BITS                             (32U - OS_TSK_HIGH_BITS)
+
+/**
+ * @ingroup los_task
+ * @brief the max num of roll
+ */
+#define OS_TSK_MAX_ROLLNUM                          (0xFFFFFFFFU - OS_TSK_SORTLINK_LEN)
+
+/**
+ * @ingroup los_task
  * @brief the bit width occupied by the delayed ticks of task
  */
 #define OS_TSK_SORTLINK_LOGLEN                      5
@@ -1527,7 +1545,19 @@ extern UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E mode, UINT32 ta
  * @ingroup los_task
  * @brief the mask of delayed tasks bucket id.
  */
-#define OS_TSK_SORTLINK_MASK                        (OS_TSK_SORTLINK_LEN - 1)
+#define OS_TSK_SORTLINK_MASK                        (OS_TSK_SORTLINK_LEN - 1U)
+
+/**
+ * @ingroup los_task
+ * @brief the high-order mask of roll num.
+ */
+#define OS_TSK_HIGH_BITS_MASK  (OS_TSK_SORTLINK_MASK << OS_TSK_LOW_BITS)
+
+/**
+ * @ingroup los_task
+ * @brief the low-order mask of roll num.
+ */
+#define OS_TSK_LOW_BITS_MASK   (~OS_TSK_HIGH_BITS_MASK)
 
 /**
  * @ingroup los_task
@@ -1620,9 +1650,9 @@ typedef struct {
 } LosTask;
 
 typedef struct {
-    LOS_DL_LIST     *sortLink;
-    UINT16          cursor;
-    UINT16          unused;
+    LOS_DL_LIST *sortLink;
+    UINT16 cursor;
+    UINT16 reserved;
 } TaskSortLinkAttr;
 
 /**
@@ -1650,8 +1680,11 @@ typedef struct {
     TaskCountInfo cntInfo;
     UINT16 pid[OS_TASK_SWITCH_INFO_COUNT];
     CHAR   name[OS_TASK_SWITCH_INFO_COUNT][LOS_TASK_NAMELEN];
-}TaskSwitchInfo;
+} TaskSwitchInfo;
 
+#if (LOSCFG_BASE_CORE_EXC_TSK_SWITCH == 1)
+extern TaskSwitchInfo g_taskSwitchInfo;
+#endif
 
 extern LosTask              g_losTask;
 

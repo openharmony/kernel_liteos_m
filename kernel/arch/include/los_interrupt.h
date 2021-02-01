@@ -56,18 +56,6 @@ typedef UINT16 HWI_MODE_T;
 
 typedef UINT32 HWI_ARG_T;
 
-typedef enum {
-    OS_EXC_TYPE_CONTEXT     = 0,
-    OS_EXC_TYPE_TSK         = 1,
-    OS_EXC_TYPE_QUE         = 2,
-    OS_EXC_TYPE_NVIC        = 3,
-    OS_EXC_TYPE_TSK_SWITCH  = 4,
-    OS_EXC_TYPE_MEM         = 5,
-    OS_EXC_TYPE_MAX         = 6
-} ExcInfoType;
-
-typedef UINT32 (*EXC_INFO_SAVE_CALLBACK)(UINT32, VOID*);
-
 #if (OS_HWI_WITH_ARG == 1)
 typedef VOID (*HWI_PROC_FUNC)(VOID *parm);
 typedef struct {
@@ -84,7 +72,6 @@ UINT32 HalIsIntAcvive(VOID);
 #define OS_INT_ACTIVE    (HalIsIntAcvive())
 #define OS_INT_INACTIVE  (!(OS_INT_ACTIVE))
 
-VOID HalExcRegister(ExcInfoType type, EXC_INFO_SAVE_CALLBACK func, VOID *arg);
 /* *
  * @ingroup  los_hwi
  * @brief Delete hardware interrupt.

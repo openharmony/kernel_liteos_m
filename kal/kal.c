@@ -30,6 +30,7 @@
  */
 
 #include "kal.h"
+#include "los_interrupt.h"
 #include "los_swtmr.h"
 
 #ifdef __cplusplus
@@ -43,7 +44,7 @@ osTimerId_t osTimerExtNew(osTimerFunc_t func, osTimerType_t type, void *argument
     osTimerRouses_t ucRouses, osTimerAlign_t ucSensitive)
 {
     UNUSED(attr);
-    UINT16 usSwTmrID;
+    UINT32 usSwTmrID;
     UINT8 mode;
 
     if ((OS_INT_ACTIVE) || (NULL == func) || ((osTimerOnce != type) && (osTimerPeriodic != type))) {

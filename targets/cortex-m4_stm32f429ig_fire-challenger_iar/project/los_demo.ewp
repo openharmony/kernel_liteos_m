@@ -2078,9 +2078,15 @@
             <file>
                 <name>$PROJ_DIR$\..\..\..\components\cpup\los_cpup.c</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\components\exchook\los_exchook.c</name>
+            </file>
         </group>
         <group>
             <name>utils</name>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\utils\los_debug.c</name>
+            </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\utils\los_error.c</name>
             </file>

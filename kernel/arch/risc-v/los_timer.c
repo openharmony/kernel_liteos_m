@@ -33,6 +33,7 @@
 #include "los_config.h"
 #include "los_arch_interrupt.h"
 #include "riscv_hal.h"
+#include "los_timer.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -42,7 +43,7 @@ extern "C" {
 
 #define NS_PER_SECOND  1000000000.0
 
-LITE_OS_SEC_TEXT_INIT UINT32 HalTickStart(OS_TICK_HANDLER handler)
+WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
 {
     g_sysClock = OS_SYS_CLOCK;
     g_cyclesPerTick = g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND;
@@ -64,6 +65,36 @@ LITE_OS_SEC_TEXT_MINOR VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
 {
     HalGetSysCpuCycle(cntHi, cntLo);
     return;
+}
+
+WEAK VOID HalDelay(UINT32 ticks)
+{
+
+}
+
+WEAK UINT64 HalGetExpandTick(VOID)
+{
+    return LOS_OK;
+}
+
+WEAK INT32 HalGetRtcTime(UINT64 *usec)
+{
+    return LOS_OK;
+}
+
+WEAK INT32 HalGetRtcTimeZone(INT32 *timeZone)
+{
+    return LOS_OK;
+}
+
+WEAK INT32 HalSetRtcTime(UINT64 utcTime, UINT64 *usec)
+{
+    return LOS_OK;
+}
+
+WEAK INT32 HalSetRtcTimeZone(INT32 timeZone)
+{
+    return LOS_OK;
 }
 
 #ifdef __cplusplus

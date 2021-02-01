@@ -43,7 +43,7 @@ extern "C" {
 #endif /* __cpluscplus */
 
 #pragma data_alignment=8
-UINT8 g_memStart[OS_SYS_MEM_SIZE];
+UINT8 g_memStart[LOSCFG_SYS_HEAP_SIZE];
 
 VOID taskSampleEntry2(VOID)
 {

@@ -29,13 +29,11 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_tick.h"
-#include "los_task.h"
+#ifndef _LOS_ARCH_CONTEXT_H
+#define _LOS_ARCH_CONTEXT_H
+
 #include "los_config.h"
-#include "los_interrupt.h"
-#include "los_debug.h"
 #include "los_compiler.h"
-#include "iar_stm32f429ig_fire-challenger.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -43,77 +41,91 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
-VOID taskSampleEntry2(VOID)
-{
-    while(1) {
-      LOS_TaskDelay(10000);
-      printf("taskSampleEntry2 running...\n");
-    }
-}
+typedef struct tagTskContext {
+#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
+     (defined(__FPU_USED) && (__FPU_USED == 1U)))
+    UINT32 S16;
+    UINT32 S17;
+    UINT32 S18;
+    UINT32 S19;
+    UINT32 S20;
+    UINT32 S21;
+    UINT32 S22;
+    UINT32 S23;
+    UINT32 S24;
+    UINT32 S25;
+    UINT32 S26;
+    UINT32 S27;
+    UINT32 S28;
+    UINT32 S29;
+    UINT32 S30;
+    UINT32 S31;
+#endif
+    UINT32 uwR4;
+    UINT32 uwR5;
+    UINT32 uwR6;
+    UINT32 uwR7;
+    UINT32 uwR8;
+    UINT32 uwR9;
+    UINT32 uwR10;
+    UINT32 uwR11;
+    UINT32 uwPriMask;
+    UINT32 uwR0;
+    UINT32 uwR1;
+    UINT32 uwR2;
+    UINT32 uwR3;
+    UINT32 uwR12;
+    UINT32 uwLR;
+    UINT32 uwPC;
+    UINT32 uwxPSR;
+#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
+     (defined(__FPU_USED) && (__FPU_USED == 1U)))
+    UINT32 S0;
+    UINT32 S1;
+    UINT32 S2;
+    UINT32 S3;
+    UINT32 S4;
+    UINT32 S5;
+    UINT32 S6;
+    UINT32 S7;
+    UINT32 S8;
+    UINT32 S9;
+    UINT32 S10;
+    UINT32 S11;
+    UINT32 S12;
+    UINT32 S13;
+    UINT32 S14;
+    UINT32 S15;
+    UINT32 FPSCR;
+    UINT32 NO_NAME;
+#endif
+} TaskContext;
 
-
-VOID taskSampleEntry1(VOID)
-{
-    while(1) {
-      LOS_TaskDelay(2000);
-      printf("taskSampleEntry1 running...\n");
-    }
-
-}
-
-UINT32 taskSample(VOID)
-{
-    UINT32  uwRet;
-    UINT32  taskID1,taskID2;
-    TSK_INIT_PARAM_S stTask1={0};
-    stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)taskSampleEntry1;
-    stTask1.uwStackSize  = 0X1000;
-    stTask1.pcName       = "taskSampleEntry1";
-    stTask1.usTaskPrio   = 6;
-    uwRet = LOS_TaskCreate(&taskID1, &stTask1);
-    if (uwRet != LOS_OK) {
-        printf("task1 create failed\n");
-    }
-
-    stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)taskSampleEntry2;
-    stTask1.uwStackSize  = 0X1000;
-    stTask1.pcName       = "taskSampleEntry2";
-    stTask1.usTaskPrio   = 7;
-    uwRet = LOS_TaskCreate(&taskID2, &stTask1);
-    if (uwRet != LOS_OK) {
-        printf("task2 create failed\n");
-    }
-    return LOS_OK;
-}
-
-/*****************************************************************************
- Function    : main
- Description : Main function entry
- Input       : None
- Output      : None
- Return      : None
- *****************************************************************************/
-LITE_OS_SEC_TEXT_INIT int main(void)
-{
-    unsigned int ret;
-
-    USART_Config();
-
-    printf("\n\rhello world!!\n\r");
-
-    ret = LOS_KernelInit();
-	taskSample();
-    if (ret == LOS_OK) {
-        LOS_Start();
-    }
-
-    while (1) {
-        __asm volatile("wfi");
-    }
-}
+/**
+ * @ingroup  los_config
+ * @brief: Task start running function.
+ *
+ * @par Description:
+ * This API is used to start a task.
+ *
+ * @attention:
+ * <ul><li>None.</li></ul>
+ *
+ * @param: None.
+ *
+ * @retval None.
+ *
+ * @par Dependency:
+ * <ul><li>los_config.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern VOID HalStartToRun(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
+
+#endif /* _LOS_ARCH_CONTEXT_H */
+

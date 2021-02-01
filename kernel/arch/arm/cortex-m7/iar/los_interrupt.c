@@ -45,14 +45,20 @@ extern "C" {
 UINT32 g_intCount = 0;
 
 /*lint -restore*/
-
-HWI_PROC_FUNC __attribute__((aligned(0x100))) g_hwiForm[OS_VECTOR_CNT] = {0};
+#pragma location = ".data.vector"
+#pragma data_alignment=0x100
+HWI_PROC_FUNC g_hwiForm[OS_VECTOR_CNT] = {0};
 
 #if (OS_HWI_WITH_ARG == 1)
 HWI_SLAVE_FUNC g_hwiSlaveForm[OS_VECTOR_CNT] = {{ (HWI_PROC_FUNC)0, (HWI_ARG_T)0 }};
 #else
 HWI_PROC_FUNC g_hwiSlaveForm[OS_VECTOR_CNT] = {0};
 #endif
+
+WEAK VOID SysTick_Handler(VOID)
+{
+    return;
+}
 
 /* ****************************************************************************
  Function    : HalIntNumGet
@@ -229,6 +235,7 @@ UINT8 g_uwExcTbl[FAULT_STATUS_REG_BIT] = {
     0, 0, 0, OS_EXC_MF_MSTKERR, OS_EXC_MF_MUNSTKERR, 0, OS_EXC_MF_DACCVIOL, OS_EXC_MF_IACCVIOL
 };
 
+#if (LOSCFG_KERNEL_PRINTF != 0)
 UINT32 HalExcNvicDump(UINT32 index, UINT32 *excContent)
 {
     UINT32 *base = NULL;
@@ -253,7 +260,7 @@ UINT32 HalExcNvicDump(UINT32 index, UINT32 *excContent)
     for (i = 0; i < OS_NR_NVIC_EXC_DUMP_Types; i++) {
         base = (UINT32 *)rgNvicBases[i];
         len = rgNvicLens[i];
-        PRINTK("interrupt %s register, base address: 0x%x, size: 0x%x\n", strRgs[i], (UINTPTR)base, len);
+        PRINTK("interrupt %s register, base address: 0x%x, size: 0x%x\n", strRgs[i], base, len);
         len = (len >> 2);
         for (j = 0; j < len; j++) {
             PRINTK("0x%x ", *(base + j));
@@ -262,6 +269,7 @@ UINT32 HalExcNvicDump(UINT32 index, UINT32 *excContent)
     }
     return 0;
 }
+#endif
 
 UINT32 HalExcContextDump(UINT32 index, UINT32 *excContent)
 {

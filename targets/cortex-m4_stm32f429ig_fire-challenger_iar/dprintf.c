@@ -174,5 +174,5 @@ int printf(char const  *fmt, ...)
     va_start(ap, fmt); /*lint !e1055 !e534 !e530*/
     __dprintf(fmt, ap, fputc, 0); /*lint !e611 !e64*/
     va_end(ap);
-	return 0;
+    return 0;
 }

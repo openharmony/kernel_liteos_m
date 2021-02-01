@@ -39,6 +39,7 @@
 #include "los_sem.h"
 #include "los_swtmr.h"
 #include "los_task.h"
+#include "los_timer.h"
 #include "kal.h"
 #include "los_debug.h"
 
@@ -71,7 +72,6 @@ const osVersion_t g_stLosVersion = { 001, 001 };
                                    ((UINT32)LITEOS_VERSION_BUILD *        1UL))
 
 #define KERNEL_ID "HUAWEI-LiteOS"
-#define UNUSED(var) do { (void)var; } while (0)
 
 //  ==== Kernel Management Functions ====
 uint32_t osTaskStackWaterMarkGet(UINT32 taskID);
@@ -277,7 +277,6 @@ uint32_t osKernelGetTickFreq(void)
     return (freq);
 }
 
-extern VOID LOS_GetCpuCycle(UINT32 *puwCntHi, UINT32 *puwCntLo);
 uint32_t osKernelGetSysTimerCount(void)
 {
     uint32_t countHigh = 0;
@@ -285,7 +284,7 @@ uint32_t osKernelGetSysTimerCount(void)
     if (OS_INT_ACTIVE) {
         countLow = 0U;
     } else {
-        LOS_GetCpuCycle((UINT32 *)&countHigh, (UINT32 *)&countLow);
+        HalGetCpuCycle((UINT32 *)&countHigh, (UINT32 *)&countLow);
     }
     return countLow;
 }
@@ -655,22 +654,14 @@ uint32_t osThreadGetCount(void)
 }
 
 
-//  ==== Generic Wait Functions ====
-WEAK UINT32 HalDelay(UINT32 ticks)
-{
-    UNUSED(ticks);
-    return LOS_ERRNO_TSK_DELAY_IN_INT;
-}
-
-
 osStatus_t osDelay(uint32_t ticks)
 {
-    UINT32 uwRet;
+    UINT32 uwRet = LOS_OK;
     if (ticks == 0) {
         return osOK;
     }
     if (osKernelGetState() != osKernelRunning) {
-        uwRet = HalDelay(ticks);
+        HalDelay(ticks);
     } else {
         uwRet = LOS_TaskDelay(ticks);
     }
@@ -707,7 +698,7 @@ osStatus_t osDelayUntil(uint32_t ticks)
 osTimerId_t osTimerNew(osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr)
 {
     UNUSED(attr);
-    UINT16 usSwTmrID;
+    UINT32 usSwTmrID;
     UINT8 mode;
 
     if ((NULL == func) || ((osTimerOnce != type) && (osTimerPeriodic != type))) {
@@ -1368,6 +1359,293 @@ void osThreadExit(void)
     return;
 }
 #endif
+
+#define MP_ALLOC        1U
+#define MD_ALLOC        2U
+#define MEM_POOL_VALID  0xFFEEFF00
+
+typedef struct {
+    LOS_MEMBOX_INFO poolInfo;
+    void            *poolBase;
+    uint32_t        poolSize;
+    uint32_t        status;
+    const char      *name;
+} MemPoolCB;
+
+osMemoryPoolId_t osMemoryPoolNew(uint32_t block_count, uint32_t block_size, const osMemoryPoolAttr_t *attr)
+{
+    MemPoolCB *mp = NULL;
+    const char *name = NULL;
+    LOS_MEMBOX_NODE *node = NULL;
+    uint32_t memCB = 0;
+    uint32_t memMP = 0;
+    uint32_t size;
+    uint32_t index;
+
+    if (OS_INT_ACTIVE) {
+        return NULL;
+    }
+
+    if ((block_count == 0) || (block_size == 0)) {
+        return NULL;
+    }
+
+    size = block_count * block_size;
+
+    if (attr != NULL) {
+        if ((attr->cb_mem != NULL) && (attr->cb_size >= sizeof(MemPoolCB))) {
+            memCB = 1;
+        }
+
+        if ((attr->mp_mem != NULL) &&
+            (((UINTPTR)attr->mp_mem & 0x3) == 0) &&  /* 0x3: Check if array is 4-byte aligned. */
+            (attr->mp_size >= size)) {
+            memMP = 1;
+        }
+        name = attr->name;
+    }
+
+    if (memCB == 0) {
+        mp = LOS_MemAlloc(OS_SYS_MEM_ADDR, sizeof(MemPoolCB));
+        if (mp == NULL) {
+            return NULL;
+        }
+        mp->status = MP_ALLOC;
+    } else {
+        mp = attr->cb_mem;
+        mp->status = 0;
+    }
+
+    if (memMP == 0) {
+        mp->poolBase = LOS_MemAlloc(OS_SYS_MEM_ADDR, size);
+        if (mp->poolBase == NULL) {
+            (void)LOS_MemFree(OS_SYS_MEM_ADDR, mp);
+            return NULL;
+        }
+        mp->status |= MD_ALLOC;
+    } else {
+        mp->poolBase = attr->mp_mem;
+    }
+    mp->poolSize = size;
+    mp->name = name;
+    mp->poolInfo.uwBlkCnt = 0;
+    mp->poolInfo.uwBlkNum = block_count;
+    mp->poolInfo.uwBlkSize = block_size;
+
+    node = (LOS_MEMBOX_NODE *)mp->poolBase;
+    mp->poolInfo.stFreeList.pstNext = node;
+    for (index = 0; index < block_count - 1; ++index) {
+        node->pstNext = OS_MEMBOX_NEXT(node, block_size);
+        node = node->pstNext;
+    }
+    node->pstNext = NULL;
+
+    mp->status |= MEM_POOL_VALID;
+
+    return mp;
+}
+
+void *osMemoryPoolAlloc(osMemoryPoolId_t mp_id, uint32_t timeout)
+{
+    MemPoolCB *mp = (MemPoolCB *)mp_id;
+    LOS_MEMBOX_NODE *node = NULL;
+    UINTPTR intSave;
+
+    UNUSED(timeout);
+
+    if (mp_id == NULL) {
+        return NULL;
+    }
+
+    intSave = LOS_IntLock();
+    if ((mp->status & MEM_POOL_VALID) == MEM_POOL_VALID) {
+        node = mp->poolInfo.stFreeList.pstNext;
+        if (node != NULL) {
+            mp->poolInfo.stFreeList.pstNext = node->pstNext;
+            mp->poolInfo.uwBlkCnt++;
+        }
+    }
+    LOS_IntRestore(intSave);
+
+    return node;
+}
+
+osStatus_t osMemoryPoolFree(osMemoryPoolId_t mp_id, void *block)
+{
+
+    MemPoolCB *mp = (MemPoolCB *)mp_id;
+    LOS_MEMBOX_NODE *node = NULL;
+    LOS_MEMBOX_NODE *nodeTmp = NULL;
+    UINTPTR intSave;
+
+    if ((mp_id == NULL) || (block == NULL)) {
+        return osErrorParameter;
+    }
+
+    intSave = LOS_IntLock();
+    if ((mp->status & MEM_POOL_VALID) != MEM_POOL_VALID) {
+        LOS_IntRestore(intSave);
+        return osErrorResource;
+    }
+
+    if (((UINTPTR)block < (UINTPTR)mp->poolBase) ||
+        ((UINTPTR)block >= ((UINTPTR)mp->poolBase + (UINTPTR)mp->poolSize))) {
+        LOS_IntRestore(intSave);
+        return osErrorParameter;
+    }
+
+    node = (LOS_MEMBOX_NODE *)block;
+    nodeTmp = mp->poolInfo.stFreeList.pstNext;
+    mp->poolInfo.stFreeList.pstNext = node;
+    node->pstNext = nodeTmp;
+    mp->poolInfo.uwBlkCnt--;
+    LOS_IntRestore(intSave);
+
+    return osOK;
+}
+
+osStatus_t osMemoryPoolDelete(osMemoryPoolId_t mp_id)
+{
+    MemPoolCB *mp = (MemPoolCB *)mp_id;
+    UINTPTR intSave;
+
+    if (OS_INT_ACTIVE) {
+        return osErrorISR;
+    }
+
+    if (mp_id == NULL) {
+        return osErrorParameter;
+    }
+
+    intSave = LOS_IntLock();
+    if ((mp->status & MEM_POOL_VALID) != MEM_POOL_VALID) {
+        LOS_IntRestore(intSave);
+        return osErrorResource;
+    }
+
+    if (mp->status & MD_ALLOC) {
+        (void)LOS_MemFree(OS_SYS_MEM_ADDR, mp->poolBase);
+        mp->poolBase = NULL;
+    }
+
+    mp->name = NULL;
+    mp->status &= ~MEM_POOL_VALID;
+
+    if (mp->status & MP_ALLOC) {
+        (void)LOS_MemFree(OS_SYS_MEM_ADDR, mp);
+    }
+    LOS_IntRestore(intSave);
+
+    return osOK;
+}
+
+uint32_t osMemoryPoolGetCapacity(osMemoryPoolId_t mp_id)
+{
+    MemPoolCB *mp = (MemPoolCB *)mp_id;
+    UINTPTR intSave;
+    uint32_t num;
+
+    if (mp_id == NULL) {
+        return 0;
+    }
+
+    intSave = LOS_IntLock();
+    if ((mp->status & MEM_POOL_VALID) != MEM_POOL_VALID) {
+        num = 0;
+    } else {
+        num = mp->poolInfo.uwBlkNum;
+    }
+    LOS_IntRestore(intSave);
+
+    return num;
+}
+
+uint32_t osMemoryPoolGetBlockSize(osMemoryPoolId_t mp_id)
+{
+    MemPoolCB *mp = (MemPoolCB *)mp_id;
+    UINTPTR intSave;
+    uint32_t size;
+
+    if (mp_id == NULL) {
+        return 0;
+    }
+
+    intSave = LOS_IntLock();
+    if ((mp->status & MEM_POOL_VALID) != MEM_POOL_VALID) {
+        size = 0;
+    } else {
+        size = mp->poolInfo.uwBlkSize;
+    }
+    LOS_IntRestore(intSave);
+
+    return size;
+}
+
+uint32_t osMemoryPoolGetCount(osMemoryPoolId_t mp_id)
+{
+    MemPoolCB *mp = (MemPoolCB *)mp_id;
+    UINTPTR intSave;
+    uint32_t count;
+
+    if (mp_id == NULL) {
+        return 0;
+    }
+
+    intSave = LOS_IntLock();
+    if ((mp->status & MEM_POOL_VALID) != MEM_POOL_VALID) {
+        count = 0;
+    } else {
+        count = mp->poolInfo.uwBlkCnt;
+    }
+    LOS_IntRestore(intSave);
+
+    return count;
+}
+
+uint32_t osMemoryPoolGetSpace(osMemoryPoolId_t mp_id)
+{
+    MemPoolCB *mp = (MemPoolCB *)mp_id;
+    UINTPTR intSave;
+    uint32_t space;
+
+    if (mp_id == NULL) {
+        return 0;
+    }
+
+    intSave = LOS_IntLock();
+    if ((mp->status & MEM_POOL_VALID) != MEM_POOL_VALID) {
+        space = 0;
+    } else {
+        space = mp->poolInfo.uwBlkCnt - mp->poolInfo.uwBlkCnt;
+    }
+    LOS_IntRestore(intSave);
+
+    return space;
+
+}
+
+const char *osMemoryPoolGetName(osMemoryPoolId_t mp_id)
+{
+    MemPoolCB *mp = (MemPoolCB *)mp_id;
+    const char *p = NULL;
+    UINTPTR intSave;
+
+    if (mp_id == NULL) {
+        return NULL;
+    }
+
+    if (OS_INT_ACTIVE) {
+        return NULL;
+    }
+
+    intSave = LOS_IntLock();
+    if ((mp->status & MEM_POOL_VALID) == MEM_POOL_VALID) {
+        p = mp->name;
+    }
+    LOS_IntRestore(intSave);
+
+    return p;
+}
 
 #endif // (CMSIS_OS_VER == 2)
 #ifdef __cplusplus

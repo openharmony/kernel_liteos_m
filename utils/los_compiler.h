@@ -308,7 +308,11 @@ typedef signed int             INTPTR;
 #endif
 
 #ifndef NULL
+#ifdef __cplusplus
+#define NULL          0L
+#else
 #define NULL          ((VOID *)0)
+#endif
 #endif
 
 #define OS_NULL_BYTE  ((UINT8)0xFF)
@@ -382,6 +386,12 @@ static inline UINT32 LOS_Align(UINT32 addr, UINT32 boundary)
             goto LOS_ERREND; \
         } while (0)
 
+#ifndef UNUSED
+#define UNUSED(var)    \
+        do {           \
+            (void)var; \
+        } while (0)
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

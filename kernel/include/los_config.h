@@ -120,7 +120,7 @@ extern "C" {
  * If LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT is set to 0, vector base address will not be
  * modified by system. In arm, it should be noted that PendSV_Handler and SysTick_Handler should
  * be redefined to HalPendSV and OsTickHandler respectly in this case, because system depends on
- * these interrupt handlers to run normally. What's more, LOS_HwiCreate will not register handlers.
+ * these interrupt handlers to run normally. What's more, LOS_HwiCreate will not register handler.
  */
 #ifndef LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT
 #define LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT                 1
@@ -350,14 +350,6 @@ extern "C" {
 
 /**
  * @ingroup los_config
- * Max number of software timers ID
- */
-#ifndef OS_SWTMR_MAX_TIMERID
-#define OS_SWTMR_MAX_TIMERID                                ((65535 / LOSCFG_BASE_CORE_SWTMR_LIMIT) * LOSCFG_BASE_CORE_SWTMR_LIMIT)
-#endif
-
-/**
- * @ingroup los_config
  * Maximum size of a software timer queue
  */
 #ifndef OS_SWTMR_HANDLE_QUEUE_SIZE
@@ -384,10 +376,18 @@ extern UINT8 *m_aucSysMem0;
 
 /**
  * @ingroup los_config
+ * Configure whether the kernel uses external heap memory
+ */
+#ifndef LOSCFG_SYS_EXTERNAL_HEAP
+#define LOSCFG_SYS_EXTERNAL_HEAP                            0
+#endif
+
+/**
+ * @ingroup los_config
  * Starting address of the memory
  */
-#ifndef OS_SYS_MEM_ADDR
-#define OS_SYS_MEM_ADDR                                     (&m_aucSysMem0[0])
+#ifndef LOSCFG_SYS_HEAP_ADDR
+#define LOSCFG_SYS_HEAP_ADDR                                (&m_aucSysMem0[0])
 #endif
 
 /**
@@ -395,25 +395,15 @@ extern UINT8 *m_aucSysMem0;
  * Starting address of the task stack
  */
 #ifndef OS_TASK_STACK_ADDR
-#define OS_TASK_STACK_ADDR                                  OS_SYS_MEM_ADDR
+#define OS_TASK_STACK_ADDR                                  LOSCFG_SYS_HEAP_ADDR
 #endif
-
-/**
- * @ingroup los_config
- * Ending address of the memory
- */
-extern UINT32 g_sysMemAddrEnd;
 
 /**
  * @ingroup los_config
  * Memory size
  */
-#ifndef OS_SYS_MEM_SIZE
-#define OS_SYS_MEM_SIZE                                     0x10000UL
-#endif
-
-#ifndef LOSCFG_MEMORY_BESTFIT
-#define LOSCFG_MEMORY_BESTFIT                               1
+#ifndef LOSCFG_SYS_HEAP_SIZE
+#define LOSCFG_SYS_HEAP_SIZE                                0x10000UL
 #endif
 
 /**
@@ -426,6 +416,14 @@ extern UINT32 g_sysMemAddrEnd;
 
 /**
  * @ingroup los_config
+ * Configuration module tailoring of memory released by task id
+ */
+#ifndef LOSCFG_MEM_FREE_BY_TASKID
+#define LOSCFG_MEM_FREE_BY_TASKID                           0
+#endif
+
+/**
+ * @ingroup los_config
  * Configuration module tailoring of mem node integrity checking
  */
 #ifndef LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK
@@ -434,18 +432,26 @@ extern UINT32 g_sysMemAddrEnd;
 
 /**
  * @ingroup los_config
- * Configuration module tailoring of mem node size checking
+ * Configuration memory leak detection
  */
-#ifndef LOSCFG_BASE_MEM_NODE_SIZE_CHECK
-#define LOSCFG_BASE_MEM_NODE_SIZE_CHECK                     0
+#ifndef LOSCFG_MEM_LEAKCHECK
+#define LOSCFG_MEM_LEAKCHECK                                0
 #endif
 
 /**
  * @ingroup los_config
- * Configuration of memory statistics
+ * Configuration memory leak recorded num
  */
-#ifndef LOSCFG_KERNEL_MEM_STATISTICS
-#define LOSCFG_KERNEL_MEM_STATISTICS                        0
+#ifndef LOSCFG_MEM_LEAKCHECK_RECORD_MAX_NUM
+#define LOSCFG_MEM_LEAKCHECK_RECORD_MAX_NUM                 1024
+#endif
+
+/**
+ * @ingroup los_config
+ * Configuration of memory pool record memory consumption waterline
+ */
+#ifndef LOSCFG_MEM_WATERLINE
+#define LOSCFG_MEM_WATERLINE                                1
 #endif
 
 /**
@@ -454,14 +460,6 @@ extern UINT32 g_sysMemAddrEnd;
  */
 #ifndef OS_SYS_MEM_NUM
 #define OS_SYS_MEM_NUM                                      20
-#endif
-
-/**
- * @ingroup los_config
- * Configuration heap memory peak statistics
- */
-#ifndef LOSCFG_HEAP_MEMORY_PEAK_STATISTICS
-#define LOSCFG_HEAP_MEMORY_PEAK_STATISTICS                  1
 #endif
 
 /**
@@ -523,7 +521,7 @@ extern UINT32 g_sysMemAddrEnd;
  * Configuration CMSIS_OS_VER
  */
 #ifndef CMSIS_OS_VER
-#define CMSIS_OS_VER                                        1
+#define CMSIS_OS_VER                                        2
 #endif
 
 /* =============================================================================
@@ -537,6 +535,16 @@ extern UINT32 g_sysMemAddrEnd;
 #define LOSCFG_KERNEL_TRACE                                 0
 #endif
 
+/* =============================================================================
+                                       printf configuration
+============================================================================= */
+/**
+ * @ingroup los_config
+ * Configuration liteos printf
+ */
+#ifndef LOSCFG_KERNEL_PRINTF
+#define LOSCFG_KERNEL_PRINTF                                1
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

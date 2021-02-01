@@ -151,8 +151,75 @@ LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOI
 
 void HalBackTrace()
 {
-  
+
 }
+
+#if (LOSCFG_MEM_LEAKCHECK == 1)
+#define CODE_SECTION_NAME   ".text"
+#pragma section=CODE_SECTION_NAME
+#define CODE_START_ADDR     ((UINTPTR)__section_begin(CODE_SECTION_NAME))
+#define CODE_END_ADDR       ((UINTPTR)__section_end(CODE_SECTION_NAME))
+
+/* check the disassembly instruction is 'BL' or 'BLX' */
+STATIC INLINE BOOL HalInsIsBlOrBlx(UINTPTR addr)
+{
+#define BL_INS_MASK     0xF800
+#define BL_INS_HIGH     0xF800
+#define BL_INS_LOW      0xF000
+#define BLX_INX_MASK    0xFF00
+#define BLX_INX         0x4700
+    UINT16 ins1 = *((UINT16 *)addr);
+    UINT16 ins2 = *((UINT16 *)(addr + 2)); /* 2: Thumb instruction is two bytes. */
+
+    if (((ins2 & BL_INS_MASK) == BL_INS_HIGH) && ((ins1 & BL_INS_MASK) == BL_INS_LOW)) {
+        return TRUE;
+    } else if ((ins2 & BLX_INX_MASK) == BLX_INX) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
+VOID HalRecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount,
+                 UINTPTR stackStart, UINTPTR stackEnd)
+{
+    if (LR == NULL) {
+        return;
+    }
+
+    UINT32 count = 0;
+    UINT32 index = 0;
+    UINTPTR sp = stackStart;
+    UINTPTR pc;
+
+    /* copy called function address */
+    for (; sp < stackEnd; sp += sizeof(UINTPTR)) {
+        /* the *sp value may be LR, so need decrease a word to PC */
+        pc = *((UINTPTR *)sp) - sizeof(UINTPTR);
+        /* the Cortex-M using thumb instruction, so the pc must be an odd number */
+        if ((pc & 0x1) == 0) {
+            continue;
+        }
+        /* fix the PC address in thumb mode */
+        pc = *((UINTPTR *)sp) - 1;
+        if ((pc >= CODE_START_ADDR) && (pc <= CODE_END_ADDR) &&(count < LRSize) &&
+            HalInsIsBlOrBlx(pc - sizeof(UINTPTR))) {
+            if (index++ < jumpCount) {
+                continue;
+            }
+            LR[count++] = pc;
+            if (count == LRSize) {
+                break;
+            }
+        }
+    }
+
+    /* if linkReg is not enough,clean up the last of the effective LR as the end. */
+    if (count < LRSize) {
+        LR[count] = 0;
+    }
+}
+#endif
 
 LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
 {

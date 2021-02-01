@@ -39,6 +39,7 @@
 
 #include "los_config.h"
 #include "los_list.h"
+#include "los_debug.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -46,33 +47,53 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#ifdef LOSCFG_MEM_LEAKCHECK
-
-/**
- * @ingroup los_memory
- * The omit layers of function call from call kernel memory interfaces
- * such as LOS_MemAlloc/LOS_MemAllocAlign/LOS_MemRealloc/LOS_MemFree.
- */
-#define LOS_OMIT_LR_CNT 2
-
-/**
- * @ingroup los_memory
- * The recored layes of function call.
- */
-#define LOS_RECORD_LR_CNT 3
+#if (LOSCFG_PLATFORM_EXC == 1)
+UINT32 OsMemExcInfoGet(UINT32 memNumMax, MemInfoCB *memExcInfo);
 #endif
 
 /**
  * @ingroup los_memory
- * The memory Maximum memory usage statistics.
- * @attention
- * <ul> <li>If running as debug mode, it will affect the performance of memory malloc and free.</li>
- * <li> OS_MEM_WATERLINE=YES: open the function for Maximum memory usage statistics </li>
- * <li> OS_MEM_WATERLINE=NO: close the function for Maximum memory usage statistics, it set to NO as usual </li>
- * </ul>
+ * Starting address of the memory.
  */
-#ifdef LOSCFG_MEM_WATERLINE
-#define OS_MEM_WATERLINE NO
+#define OS_SYS_MEM_ADDR     LOSCFG_SYS_HEAP_ADDR
+
+#if (LOSCFG_MEM_LEAKCHECK == 1)
+
+/**
+ * @ingroup los_memory
+ * The default is 5, which means that the function call stack is recorded from the kernel interface,</li>
+ * such as LOS_MemAlloc/LOS_MemAllocAlign/LOS_MemRealloc/LOS_MemFree. If you want to further ignore</li>
+ * the number of function call layers, you can increase this value appropriately.
+ *
+ */
+#define LOS_OMIT_LR_CNT 5
+
+/**
+ * @ingroup los_memory
+ * The record number of layers of the function call relationship starting from the number of</li>
+ * ignored layers(LOS_OMIT_LR_CNT).
+ */
+#define LOS_RECORD_LR_CNT 3
+
+/**
+ * @ingroup los_memory
+ * @brief Print function call stack information of all used nodes.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to print function call stack information of all used nodes.</li>
+ * </ul>
+ *
+ * @param pool          [IN] Starting address of memory.
+ *
+ * @retval none.
+ * @par Dependency:
+ * <ul>
+ * <li>los_memory.h: the header file that contains the API declaration.</li>
+ * </ul>
+ * @see None.
+ */
+extern VOID LOS_MemUsedNodeShow(VOID *pool);
 #endif
 
 #if (LOSCFG_MEM_MUL_POOL == 1)
@@ -126,7 +147,7 @@ typedef struct {
     UINT32 maxFreeNodeSize;
     UINT32 usedNodeNum;
     UINT32 freeNodeNum;
-#if defined(OS_MEM_WATERLINE) && (OS_MEM_WATERLINE == YES)
+#if (LOSCFG_MEM_WATERLINE == 1)
     UINT32 usageWaterLine;
 #endif
 } LOS_MEM_POOL_STATUS;
@@ -395,6 +416,33 @@ extern UINT32 LOS_MemFreeNodeShow(VOID *pool);
  * @see None.
  */
 extern UINT32 LOS_MemIntegrityCheck(const VOID *pool);
+
+/**
+ * @ingroup los_memory
+ * @brief Enable memory pool to support no internal lock during using interfaces.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to enable memory pool to support no internal lock during using interfaces,</li>
+ * <li>such as LOS_MemAlloc/LOS_MemAllocAlign/LOS_MemRealloc/LOS_MemFree and so on.
+ * </ul>
+ * @attention
+ * <ul>
+ * <li>The memory pool does not support multi-threaded concurrent application scenarios.
+ * <li>If you want to use this function, you need to call this interface before the memory
+ * pool is used, it cannot be called during the trial period.</li>
+ * </ul>
+ *
+ * @param pool         [IN] Starting address of memory.
+ *
+ * @retval node.
+ * @par Dependency:
+ * <ul>
+ * <li>los_memory.h: the header file that contains the API declaration.</li>
+ * </ul>
+ * @see None.
+ */
+extern VOID LOS_MemUnlockEnable(VOID *pool);
 
 extern UINT32 OsMemSystemInit(VOID);
 

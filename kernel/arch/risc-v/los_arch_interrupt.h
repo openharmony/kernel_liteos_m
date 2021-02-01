@@ -67,17 +67,6 @@ typedef struct {
     LosExcContext *context;
 } LosExcInfo;
 
-typedef UINT32 (*EXC_INFO_SAVE_CALLBACK)(UINT32, VOID*);
-
-typedef struct {
-    ExcInfoType           uwType;
-    UINT32                  uwValid;
-    EXC_INFO_SAVE_CALLBACK  pFnExcInfoCb;
-    VOID*                   pArg;
-} ExcInfoArray;
-
-#define MAX_EXC_MEM_SIZE           0
-
 /**
  * @ingroup los_hwi
  * Highest priority of a hardware interrupt.

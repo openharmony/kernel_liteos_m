@@ -30,6 +30,7 @@
  */
 
 #include <time.h>
+#include <sys/time.h>
 #include <stdint.h>
 #include <errno.h>
 #include <signal.h>
@@ -49,8 +50,63 @@
 #define OS_SYS_US_PER_SECOND 1000000
 #define OS_SYS_MS_PER_SECOND 1000
 
+#define TM_YEAR_BASE         1900
+#define EPOCH_YEAR           1970
+#define SECS_PER_MIN         60
+#define MINS_PER_HOUR        60
+#define SECS_PER_HOUR        3600  /* 60 * 60 */
+#define SECS_PER_DAY         86400 /* 60 * 60 * 24 */
+#define SECS_PER_NORMAL_YEAR 31536000 /* 60 * 60 * 24 * 365 */
+#define DAYS_PER_WEEK        7
+#define DAYS_PER_NORMAL_YEAR 365
+#define DAYS_PER_LEAP_YEAR   366
+#define BEGIN_WEEKDAY        4
+#define TIME_ZONE_MAX        720 /* 12 * 60 */
+#define TIME_ZONE_MIN        (-840) /* -14 * 60 */
+
 /* accumulative time delta from discontinuous modify */
 STATIC struct timespec g_accDeltaFromSet;
+
+STATIC const UINT16 g_daysInMonth[2][13] = {
+    /* Normal years.  */
+    { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
+    /* Leap years.  */
+    { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
+};
+
+STATIC const UINT8 g_montbl[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+/*
+ * Nonzero if YEAR is a leap year (every 4 years,
+ * except every 100th isn't, and every 400th is).
+ */
+#ifndef IS_LEAP_YEAR
+#define IS_LEAP_YEAR(year) \
+    (((year) % 4 == 0) && (((year) % 100 != 0) || ((year) % 400 == 0)))
+#endif
+/* The lowest two bytes indicate minutes of the time zone */
+#ifndef OFFSET_TO_MINUTE
+#define OFFSET_TO_MINUTE(time) (((time) < 0) ? (-(time)) : (time))
+#endif
+/* The highest 31 bytes, 1 indicates eastern time zone£¬0 indicates western time zone */
+#ifndef TIME_ZONE_SIGN
+#define TIME_ZONE_SIGN(time) ((time) >> 31)
+#endif
+
+#define DIV(a, b) (((a) / (b)) - ((a) % (b) < 0))
+#define LEAPS_THRU_END_OF(y) (DIV (y, 4) - DIV (y, 100) + DIV (y, 400))
+
+/* 946656000000ms is the UTC 2000-01-01 00:00:00 */
+static UINT64 g_rtcTimeBase = 946656000000;
+static UINT64 g_systickBase = 0;
+
+/*
+ * Time zone information, stored in minutes,
+ * negative values indicate the east of UTC,
+ * positive values indicate the west of UTC.
+ */
+static INT32 g_rtcTimeZone = -480;
+static struct tm g_tm = {0};
 
 /* internal functions */
 STATIC INLINE BOOL ValidTimeSpec(const struct timespec *tp)
@@ -126,7 +182,7 @@ int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
 int timer_create(clockid_t clockID, struct sigevent *restrict evp, timer_t *restrict timerID)
 {
     UINT32 ret;
-    UINT16 swtmrID;
+    UINT32 swtmrID;
 
     if (!timerID || (clockID != CLOCK_REALTIME)) {
         errno = EINVAL;
@@ -155,7 +211,7 @@ int timer_create(clockid_t clockID, struct sigevent *restrict evp, timer_t *rest
 
 int timer_delete(timer_t timerID)
 {
-    UINT16 swtmrID = (UINT16)(UINTPTR)timerID;
+    UINT32 swtmrID = (UINT32)(UINTPTR)timerID;
     if (LOS_SwtmrDelete(swtmrID) != LOS_OK) {
         errno = EINVAL;
         return -1;
@@ -169,7 +225,7 @@ int timer_settime(timer_t timerID, int flags,
                   struct itimerspec *restrict oldValue)
 {
     UINTPTR intSave;
-    UINT16 swtmrID = (UINT16)(UINTPTR)timerID;
+    UINT32 swtmrID = (UINT32)(UINTPTR)timerID;
     SWTMR_CTRL_S *swtmr = NULL;
     UINT32 interval, expiry, ret;
 
@@ -235,7 +291,7 @@ int timer_gettime(timer_t timerID, struct itimerspec *value)
 {
     UINT32 tick = 0;
     SWTMR_CTRL_S *swtmr = NULL;
-    UINT16 swtmrID = (UINT16)(UINTPTR)timerID;
+    UINT32 swtmrID = (UINT16)(UINTPTR)timerID;
     UINT32 ret;
 
     if (value == NULL) {
@@ -423,4 +479,252 @@ int clock_nanosleep(clockid_t clk, int flags, const struct timespec *req, struct
         default:
             return EINVAL;
     }
+}
+
+clock_t clock(void)
+{
+    return HalGetExpandTick();
+}
+
+time_t time(time_t *timer)
+{
+    UINT64 usec = 0;
+    time_t sec;
+    INT32 rtcRet;
+    UINT32 offsetSec;
+    HalGetRtcTimeZone(&g_rtcTimeZone);
+
+    rtcRet = HalGetRtcTime(&usec);
+    if (rtcRet != 0) {
+        UINT64 currentTime;
+        UINT64 tickDelta;
+        UINT64 currentTick = HalGetExpandTick();
+        if ((g_systickBase != 0) && (currentTick > g_systickBase)) {
+            tickDelta = currentTick - g_systickBase;
+        }
+        currentTime = g_rtcTimeBase + tickDelta;
+        sec = currentTime / OS_SYS_MS_PER_SECOND;
+    } else {
+        sec = usec / OS_SYS_US_PER_SECOND;
+    }
+    offsetSec = (OFFSET_TO_MINUTE(g_rtcTimeZone)) * SECS_PER_MIN;
+    if (TIME_ZONE_SIGN(g_rtcTimeZone)) {
+        sec += (time_t)offsetSec;
+    } else {
+        sec -= (time_t)offsetSec;
+    }
+    if (timer != NULL) {
+        *timer = sec;
+    }
+    return sec;
+}
+
+/*
+ * Compute the `struct tm' representation of T,
+ * offset OFFSET seconds east of UTC,
+ * and store year, yday, mon, mday, wday, hour, min, sec into *TP.
+ * Return nonzero if successful.
+ */
+static INT32 ConvertSecs2Utc(time_t t, INT32 offset, struct tm *tp)
+{
+    time_t days;
+    time_t rem;
+    time_t year;
+    time_t month;
+    time_t yearGuess;
+
+    days = t / SECS_PER_DAY;
+    rem = t % SECS_PER_DAY;
+    rem += offset;
+    while (rem < 0) {
+        rem += SECS_PER_DAY;
+        --days;
+    }
+    while (rem >= SECS_PER_DAY) {
+        rem -= SECS_PER_DAY;
+        ++days;
+    }
+    tp->tm_hour = rem / SECS_PER_HOUR;
+    rem %= SECS_PER_HOUR;
+    tp->tm_min = rem / SECS_PER_MIN;
+    tp->tm_sec = rem % SECS_PER_MIN;
+    /* January 1, 1970 was a Thursday.  */
+    tp->tm_wday = (BEGIN_WEEKDAY + days) % DAYS_PER_WEEK;
+    if (tp->tm_wday < 0) {
+        tp->tm_wday += DAYS_PER_WEEK;
+    }
+    year = EPOCH_YEAR;
+
+    while ((days < 0) ||
+           (days >= (IS_LEAP_YEAR (year) ? DAYS_PER_LEAP_YEAR : DAYS_PER_NORMAL_YEAR))) {
+        /* Guess a corrected year, assuming 365 days per year.  */
+        yearGuess = year + days / DAYS_PER_NORMAL_YEAR - (days % DAYS_PER_NORMAL_YEAR < 0);
+
+        /* Adjust days and year to match the guessed year.  */
+        days -= ((yearGuess - year) * DAYS_PER_NORMAL_YEAR +
+                 LEAPS_THRU_END_OF (yearGuess - 1) -
+                 LEAPS_THRU_END_OF (year - 1));
+        year = yearGuess;
+    }
+    tp->tm_year = year - TM_YEAR_BASE;
+    if (tp->tm_year != year - TM_YEAR_BASE) {
+        return 0;
+    }
+    tp->tm_yday = days;
+    const UINT16 *daysInMonth = g_daysInMonth[IS_LEAP_YEAR(year)];
+    /* valid month value is 0-11 */
+    for (month = 11; days < (long int) daysInMonth[month]; --month) {
+        continue;
+    }
+    days -= daysInMonth[month];
+    tp->tm_mon = month;
+    tp->tm_mday = days + 1;
+    return 1;
+}
+
+struct tm *gmtime_r(const time_t *timer, struct tm *tp)
+{
+    time_t t64;
+    UINT32 intSave;
+    if ((timer == NULL) || (tp == NULL)) {
+        return NULL;
+    }
+    intSave = LOS_IntLock();
+    t64 = *timer;
+    if (!ConvertSecs2Utc(t64, 0, tp)) {
+        tp = NULL;
+    }
+    (void)LOS_IntRestore(intSave);
+    return tp;
+}
+
+struct tm *gmtime(const time_t *timer)
+{
+    return gmtime_r(timer, &g_tm);
+}
+
+struct tm *localtime_r(const time_t *timer, struct tm *tp)
+{
+    UINT32 intSave;
+    time_t t64;
+    INT32 offset;
+    if ((timer == NULL) || (tp == NULL)) {
+        return NULL;
+    }
+    intSave = LOS_IntLock();
+    t64 = *timer;
+    offset = -(g_rtcTimeZone * SECS_PER_MIN);
+    if (!ConvertSecs2Utc(t64, offset, tp)) {
+        tp = NULL;
+    }
+    (void)LOS_IntRestore(intSave);
+    return tp;
+}
+
+struct tm *localtime(const time_t *timer)
+{
+    return localtime_r(timer, &g_tm);
+}
+
+static time_t ConvertUtc2Secs(struct tm *tm)
+{
+    time_t seconds = 0;
+    INT32 month = 0;
+    UINT8 leap = 0;
+
+    INT32 year = (EPOCH_YEAR - TM_YEAR_BASE);
+    while (year < tm->tm_year) {
+        seconds += SECS_PER_NORMAL_YEAR;
+        if (IS_LEAP_YEAR(year + TM_YEAR_BASE)) {
+            seconds += SECS_PER_DAY;
+        }
+        year++;
+    }
+
+    if (IS_LEAP_YEAR(tm->tm_year + TM_YEAR_BASE)) {
+        leap = 1;
+    }
+    while (month < tm->tm_mon) {
+        if ((month == 1) && leap) {
+            seconds += (g_montbl[month] + 1) * SECS_PER_DAY;
+        } else {
+            seconds += g_montbl[month] * SECS_PER_DAY;
+        }
+        month++;
+    }
+
+    seconds += (tm->tm_mday - 1) * SECS_PER_DAY;
+
+    seconds += tm->tm_hour * SECS_PER_HOUR + tm->tm_min * SECS_PER_MIN + tm->tm_sec;
+
+    return seconds;
+}
+
+time_t mktime(struct tm *tmptr)
+{
+    struct tm tempTime;
+    time_t timeInSeconds;
+    if (tmptr == NULL) {
+        return 0;
+    }
+    if (tmptr->tm_year < (EPOCH_YEAR - TM_YEAR_BASE)) {
+        return 0;
+    }
+    tempTime = *tmptr;
+    timeInSeconds = ConvertUtc2Secs(&tempTime);
+    timeInSeconds += g_rtcTimeZone * SECS_PER_MIN;
+    return timeInSeconds;
+}
+
+int gettimeofday(struct timeval *tv, void *ptz)
+{
+    INT32 rtcRet;
+    INT32 timeZone = 0;
+    UINT64 usec = 0;
+    UINT64 currentTime;
+    UINT64 tickDelta = 0;
+    UINT64 currentTick;
+
+    struct timezone *tz = (struct timezone *)ptz;
+    if ((tv == NULL) && (tz == NULL)) {
+        return -1;
+    }
+    if (tv != NULL) {
+        rtcRet = HalGetRtcTime(&usec);
+        if (rtcRet != 0) {
+            currentTick = HalGetExpandTick();
+            if ((g_systickBase != 0) && (currentTick > g_systickBase)) {
+                tickDelta = currentTick - g_systickBase;
+            }
+            currentTime = g_rtcTimeBase + tickDelta;
+            tv->tv_sec = currentTime / OS_SYS_MS_PER_SECOND;
+            tv->tv_usec = (currentTime % OS_SYS_MS_PER_SECOND) * OS_SYS_MS_PER_SECOND;
+        } else {
+            tv->tv_sec = usec / OS_SYS_US_PER_SECOND;
+            tv->tv_usec = usec % OS_SYS_US_PER_SECOND;
+        }
+    }
+    HalGetRtcTimeZone(&timeZone);
+    if (tz != NULL) {
+        tz->tz_minuteswest = timeZone;
+    }
+    return 0;
+}
+
+int settimeofday(const struct timeval *tv, const struct timezone *tz)
+{
+    UINT64 usec;
+    if ((tv == NULL) || (tz == NULL)) {
+        return -1;
+    }
+    g_rtcTimeBase = tv->tv_sec * OS_SYS_MS_PER_SECOND + tv->tv_usec / OS_SYS_MS_PER_SECOND;
+    g_systickBase = HalGetExpandTick();
+    if ((tz->tz_minuteswest > TIME_ZONE_MIN) &&
+        (tz->tz_minuteswest < TIME_ZONE_MAX)) {
+        g_rtcTimeZone = tz->tz_minuteswest;
+    }
+    usec = tv->tv_sec * OS_SYS_US_PER_SECOND + tv->tv_usec;
+    HalSetRtcTime(g_rtcTimeBase, &usec);
+    HalSetRtcTimeZone(g_rtcTimeZone);
+    return 0;
 }

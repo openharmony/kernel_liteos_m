@@ -29,13 +29,12 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_tick.h"
-#include "los_task.h"
+#ifndef _LOS_ARCH_TIMER_H
+#define _LOS_ARCH_TIMER_H
+
 #include "los_config.h"
-#include "los_interrupt.h"
-#include "los_debug.h"
 #include "los_compiler.h"
-#include "iar_stm32f429ig_fire-challenger.h"
+#include "los_context.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -43,77 +42,13 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
-VOID taskSampleEntry2(VOID)
-{
-    while(1) {
-      LOS_TaskDelay(10000);
-      printf("taskSampleEntry2 running...\n");
-    }
-}
-
-
-VOID taskSampleEntry1(VOID)
-{
-    while(1) {
-      LOS_TaskDelay(2000);
-      printf("taskSampleEntry1 running...\n");
-    }
-
-}
-
-UINT32 taskSample(VOID)
-{
-    UINT32  uwRet;
-    UINT32  taskID1,taskID2;
-    TSK_INIT_PARAM_S stTask1={0};
-    stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)taskSampleEntry1;
-    stTask1.uwStackSize  = 0X1000;
-    stTask1.pcName       = "taskSampleEntry1";
-    stTask1.usTaskPrio   = 6;
-    uwRet = LOS_TaskCreate(&taskID1, &stTask1);
-    if (uwRet != LOS_OK) {
-        printf("task1 create failed\n");
-    }
-
-    stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)taskSampleEntry2;
-    stTask1.uwStackSize  = 0X1000;
-    stTask1.pcName       = "taskSampleEntry2";
-    stTask1.usTaskPrio   = 7;
-    uwRet = LOS_TaskCreate(&taskID2, &stTask1);
-    if (uwRet != LOS_OK) {
-        printf("task2 create failed\n");
-    }
-    return LOS_OK;
-}
-
-/*****************************************************************************
- Function    : main
- Description : Main function entry
- Input       : None
- Output      : None
- Return      : None
- *****************************************************************************/
-LITE_OS_SEC_TEXT_INIT int main(void)
-{
-    unsigned int ret;
-
-    USART_Config();
-
-    printf("\n\rhello world!!\n\r");
-
-    ret = LOS_KernelInit();
-	taskSample();
-    if (ret == LOS_OK) {
-        LOS_Start();
-    }
-
-    while (1) {
-        __asm volatile("wfi");
-    }
-}
+UINT32 HalTickStart(OS_TICK_HANDLER handler);
 
 #ifdef __cplusplus
 #if __cplusplus
 }
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
+
+#endif /* _LOS_ARCH_TIMER_H */
+

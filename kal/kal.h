@@ -32,8 +32,9 @@
 #ifndef _KAL_H
 #define _KAL_H
 
-#include "cmsis_os2.h"
+#include "los_config.h"
 #include "los_compiler.h"
+#include "cmsis_os2.h"
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -36,6 +36,7 @@
 #ifndef _LOS_DEBUG_H
 #define _LOS_DEBUG_H
 
+#include "los_config.h"
 #include "los_compiler.h"
 
 #ifdef __cplusplus
@@ -44,26 +45,71 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#if (LOSCFG_PLATFORM_EXC == 1)
+enum MemMangType {
+    MEM_MANG_MEMBOX,
+    MEM_MANG_MEMORY,
+    MEM_MANG_EMPTY
+};
 
-#define LOS_EMG_LEVEL   0
+typedef struct {
+    UINT32 type;
+    UINT32 startAddr;
+    UINT32 size;
+    VOID *blkAddrArray;
+} MemInfo;
 
-#define LOS_COMMOM_LEVEL   (LOS_EMG_LEVEL + 1)
-
-#define LOS_ERR_LEVEL   (LOS_COMMOM_LEVEL + 1)
-
-#define LOS_WARN_LEVEL  (LOS_ERR_LEVEL + 1)
-
-#define LOS_INFO_LEVEL  (LOS_WARN_LEVEL + 1)
-
-#define LOS_DEBUG_LEVEL (LOS_INFO_LEVEL + 1)
-
-#ifndef PRINT_LEVEL
-#define PRINT_LEVEL LOS_ERR_LEVEL
+typedef struct {
+    enum MemMangType type;
+    UINT32 startAddr;
+    UINT32 size;
+    UINT32 free;
+    UINT32 blockSize;
+    UINT32 errorAddr;
+    UINT32 errorLen;
+    UINT32 errorOwner;
+} MemInfoCB;
 #endif
 
+typedef enum {
+    EXC_REBOOT,
+    EXC_ASSERT,
+    EXC_STACKOVERFLOW,
+    EXC_INTERRUPT,
+    EXC_TYPE_END
+} EXC_TYPE;
+
+typedef VOID (*ExcHookFn)(EXC_TYPE excType);
+
+VOID OsExcHookRegister(ExcHookFn excHookFn);
+
+VOID OsDoExcHook(EXC_TYPE excType);
+
+#define LOG_EMG_LEVEL       0
+
+#define LOG_COMMON_LEVEL    (LOG_EMG_LEVEL + 1)
+
+#define LOG_ERR_LEVEL       (LOG_COMMON_LEVEL + 1)
+
+#define LOG_WARN_LEVEL      (LOG_ERR_LEVEL + 1)
+
+#define LOG_INFO_LEVEL      (LOG_WARN_LEVEL + 1)
+
+#define LOG_DEBUG_LEVEL     (LOG_INFO_LEVEL + 1)
+
+#ifndef PRINT_LEVEL
+#define PRINT_LEVEL         LOG_ERR_LEVEL
+#endif
+
+typedef enum {
+    LOG_MODULE_KERNEL,
+    LOG_MODULE_FS,
+    LOS_MODULE_OTHERS
+} LogModuleType;
+
 /**
- *@ingroup los_printf
- *@brief Format and print data.
+ * @ingroup los_printf
+ * @brief Format and print data.
  *
  * @par Description:
  * Print argument(s) according to fmt.
@@ -73,62 +119,45 @@ extern "C" {
  * <li>None</li>
  * </ul>
  *
- *@param fmt [IN] Type char* controls the ouput as in C printf.
+ * @param type  [IN] Type LogModuleType indicates the log type.
+ * @param level [IN] Type LogLevel indicates the log level.
+ * @param fmt   [IN] Type char* controls the ouput as in C printf.
  *
- *@retval None
- *@par Dependency:
- *<ul><li>los_printf.h: the header file that contains the API declaration.</li></ul>
- *@see printf
- *@since Huawei LiteOS V100R001C00
+ * @retval None
+ * @par Dependency:
+ * <ul><li>los_printf.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_Printf
+ * @since none
  */
-extern int printf(char const *str, ...);
-#define PRINT printf
-
-
-#if PRINT_LEVEL < LOS_DEBUG_LEVEL
-#define PRINT_DEBUG(fmt, args...)
+#if (LOSCFG_KERNEL_PRINTF == 1)
+extern INT32 printf(const CHAR *fmt, ...);
+extern INT32 OsLogLevelCheck(INT32 level);
+#define LOS_Printf(type, level, fmt, args...)   do { \
+    if (!OsLogLevelCheck(level)) {                   \
+        printf(fmt, ##args);                         \
+    }                                                \
+} while (0)
+#elif (LOSCFG_KERNEL_PRINTF == 0)
+#define LOS_Printf(type, level, fmt, args...)
 #else
-#define PRINT_DEBUG(fmt, args...)   do{(PRINT("[DEBUG] "), PRINT(fmt, ##args));}while(0)
+extern VOID HalConsoleOutput(LogModuleType type, INT32 level, const CHAR *fmt, ...);
+#define LOS_Printf HalConsoleOutput
 #endif
 
-#if PRINT_LEVEL < LOS_INFO_LEVEL
-#define PRINT_INFO(fmt, args...)
-#else
-#define PRINT_INFO(fmt, args...)    do{(PRINT("[INFO] "), PRINT(fmt, ##args));}while(0)
-#endif
+#define PRINT_DEBUG(fmt, args...)    LOS_Printf(LOG_MODULE_KERNEL, LOG_DEBUG_LEVEL, fmt, ##args)
+#define PRINT_INFO(fmt, args...)     LOS_Printf(LOG_MODULE_KERNEL, LOG_INFO_LEVEL, fmt, ##args)
+#define PRINT_WARN(fmt, args...)     LOS_Printf(LOG_MODULE_KERNEL, LOG_WARN_LEVEL, fmt, ##args)
+#define PRINT_ERR(fmt, args...)      LOS_Printf(LOG_MODULE_KERNEL, LOG_ERR_LEVEL, fmt, ##args)
+#define PRINTK(fmt, args...)         LOS_Printf(LOG_MODULE_KERNEL, LOG_COMMON_LEVEL, fmt, ##args)
+#define PRINT_EMG(fmt, args...)      LOS_Printf(LOG_MODULE_KERNEL, LOG_EMG_LEVEL, fmt, ##args)
 
-#if PRINT_LEVEL < LOS_WARN_LEVEL
-#define PRINT_WARN(fmt, args...)
-#else
-#define PRINT_WARN(fmt, args...)    do{(PRINT("[WARN] "), PRINT(fmt, ##args));}while(0)
-#endif
-
-#if PRINT_LEVEL < LOS_ERR_LEVEL
-#define PRINT_ERR(fmt, args...)
-#else
-#define PRINT_ERR(fmt, args...)     do{(PRINT("[ERR] "), PRINT(fmt, ##args));}while(0)
-#endif
-
-#if PRINT_LEVEL < LOS_COMMOM_LEVEL
-#define PRINTK(fmt, args...)
-#else
-#define PRINTK(fmt, args...)     PRINT(fmt, ##args)
-#endif
-
-#if PRINT_LEVEL < LOS_EMG_LEVEL
-#define PRINT_EMG(fmt, args...)
-#else
-#define PRINT_EMG(fmt, args...)     do{(PRINT("[EMG] "), PRINT(fmt, ##args));}while(0)
-#endif
-
-#define PRINT_RELEASE(fmt, args...)   PRINT(fmt, ##args)
-
-#if PRINT_LEVEL < LOS_ERR_LEVEL
+#if PRINT_LEVEL < LOG_ERR_LEVEL
 #define LOS_ASSERT(judge)
 #else
 #define LOS_ASSERT(judge)                                                          \
     do {                                                                           \
         if ((judge) == 0) {                                                        \
+            OsDoExcHook(EXC_ASSERT);                                               \
             (VOID)LOS_IntLock();                                                   \
             PRINT_ERR("ASSERT ERROR! %s, %d, %s\n", __FILE__, __LINE__, __func__); \
             while (1) { }                                                          \
