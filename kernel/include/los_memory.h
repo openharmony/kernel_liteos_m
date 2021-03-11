@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -58,23 +58,6 @@ UINT32 OsMemExcInfoGet(UINT32 memNumMax, MemInfoCB *memExcInfo);
 #define OS_SYS_MEM_ADDR     LOSCFG_SYS_HEAP_ADDR
 
 #if (LOSCFG_MEM_LEAKCHECK == 1)
-
-/**
- * @ingroup los_memory
- * The default is 5, which means that the function call stack is recorded from the kernel interface,</li>
- * such as LOS_MemAlloc/LOS_MemAllocAlign/LOS_MemRealloc/LOS_MemFree. If you want to further ignore</li>
- * the number of function call layers, you can increase this value appropriately.
- *
- */
-#define LOS_OMIT_LR_CNT 5
-
-/**
- * @ingroup los_memory
- * The record number of layers of the function call relationship starting from the number of</li>
- * ignored layers(LOS_OMIT_LR_CNT).
- */
-#define LOS_RECORD_LR_CNT 3
-
 /**
  * @ingroup los_memory
  * @brief Print function call stack information of all used nodes.

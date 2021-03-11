@@ -9,26 +9,13 @@ extern "C" {
 #define __NEED_struct_timespec
 #define __NEED_pid_t
 #define __NEED_time_t
+#define __NEED_sched_param
 
 #ifdef _GNU_SOURCE
 #define __NEED_size_t
 #endif
 
 #include <bits/alltypes.h>
-
-struct sched_param {
-	int sched_priority;
-	int __reserved1;
-#if _REDIR_TIME64
-	long __reserved2[4];
-#else
-	struct {
-		time_t __reserved1;
-		long __reserved2;
-	} __reserved2[2];
-#endif
-	int __reserved3;
-};
 
 int    sched_get_priority_max(int);
 int    sched_get_priority_min(int);

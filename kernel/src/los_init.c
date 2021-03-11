@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -190,6 +190,14 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
         PRINT_ERR("LOS_TraceInit error\n");
         return ret;
     }
+#endif
+
+#ifdef LOSCFG_TEST
+    //ret = los_TestInit();
+    //if (ret != LOS_OK) {
+    //    PRINT_ERR("los_TestInit error\n");
+    //    return ret;
+    //}
 #endif
 
 #if (LOSCFG_PLATFORM_EXC == 1)

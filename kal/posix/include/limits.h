@@ -2,6 +2,7 @@
 #define _LIMITS_H
 
 #ifdef __ICCARM__ /* for iar */
+#define PTHREAD_STACK_MIN LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE
 #include_next <limits.h>
 #else
 
@@ -68,7 +69,7 @@
 /* Implementation choices... */
 
 #define PTHREAD_KEYS_MAX 128
-#define PTHREAD_STACK_MIN 2048
+#define PTHREAD_STACK_MIN LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE
 #define PTHREAD_DESTRUCTOR_ITERATIONS 4
 #define SEM_VALUE_MAX 0x7fffffff
 #define SEM_NSEMS_MAX 256

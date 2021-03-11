@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -28,18 +28,18 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include "los_timer.h"
 #include "los_config.h"
 #include "los_tick.h"
 #include "los_arch_interrupt.h"
-#include "los_timer.h"
 #include "los_context.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
-
-
 
 /* ****************************************************************************
 Function    : HalTickStart
@@ -65,6 +65,8 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER *handler)
     OsSetVector(SysTick_IRQn, (HWI_PROC_FUNC)handler);
 #endif
 #endif
+
+    g_sysClock = OS_SYS_CLOCK;
     g_cyclesPerTick = OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;
     g_ullTickCount = 0;
 
@@ -195,34 +197,34 @@ static BOOL g_sysSleepFlag = FALSE;
 
 VOID HalTickLock(VOID)
 {
-	SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+    SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
 }
 
 VOID HalTickUnlock(VOID)
 {
-	SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
+    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 }
 
 BOOL HalGetSysSleepFlag(VOID)
 {
-	return g_sysSleepFlag;
+    return g_sysSleepFlag;
 }
 
 VOID HalClearSysSleepFlag(VOID)
 {
-	g_sysSleepFlag = FALSE;
+    g_sysSleepFlag = FALSE;
 }
 
 VOID HalEnterSleep(LOS_SysSleepEnum sleep)
 {
-	__DSB();
-	__WFI();
-	__ISB();
+    __DSB();
+    __WFI();
+    __ISB();
 }
 
 WEAK VOID HalDelay(UINT32 ticks)
 {
-
+    return;
 }
 
 WEAK UINT64 HalGetExpandTick(VOID)

@@ -312,7 +312,7 @@
                 </option>
                 <option>
                     <name>CCDiagWarnAreErr</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>CCCompilerRuntimeInfo</name>
@@ -354,6 +354,7 @@
                     <state>$PROJ_DIR$\..\Utilities\STM32_EVAL\Common</state>
                     <state>$PROJ_DIR$\..\..\..\components\bounds_checking_function\include</state>
                     <state>$PROJ_DIR$\..\..\..\utils</state>
+                    <state>$PROJ_DIR$\..\..\..\components\exchook</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -653,7 +654,7 @@
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>los_demo.srec</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -1671,7 +1672,7 @@
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state></state>
+                    <state>los_demo.srec</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -2077,6 +2078,9 @@
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\components\cpup\los_cpup.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\components\exchook\los_exc_info.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\..\components\exchook\los_exchook.c</name>

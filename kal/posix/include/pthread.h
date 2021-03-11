@@ -26,7 +26,6 @@ extern "C" {
 #define __NEED_size_t
 
 #include <bits/alltypes.h>
-
 #include <sched.h>
 #include <time.h>
 
@@ -82,7 +81,7 @@ extern "C" {
 
 int pthread_create(pthread_t *__restrict, const pthread_attr_t *__restrict, void *(*)(void *), void *__restrict);
 int pthread_detach(pthread_t);
-_Noreturn void pthread_exit(void *);
+void pthread_exit(void *);
 int pthread_join(pthread_t, void **);
 
 #ifdef __GNUC__

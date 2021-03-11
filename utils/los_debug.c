@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -51,6 +51,24 @@ STATIC const CHAR *g_logString[] = {
 #endif
 
 STATIC ExcHookFn g_excHook;
+STATIC BACK_TRACE_HOOK g_backTraceHook = NULL;
+
+VOID OsBackTraceHookSet(BACK_TRACE_HOOK hook)
+{
+    if (g_backTraceHook == NULL) {
+        g_backTraceHook = hook;
+    }
+}
+
+VOID OsBackTraceHookCall(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount)
+{
+    if (g_backTraceHook != NULL) {
+        g_backTraceHook(LR, LRSize, jumpCount);
+    } else {
+        PRINT_ERR("Record LR failed, because of g_backTraceHook is not registered, "
+                  "should call LOS_BackTraceInit firstly\n");
+    }
+}
 
 VOID OsExcHookRegister(ExcHookFn excHookFn)
 {

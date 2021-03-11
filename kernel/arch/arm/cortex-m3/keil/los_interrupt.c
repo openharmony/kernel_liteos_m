@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -51,12 +51,56 @@ UINT32 g_intCount = 0;
 #pragma data_alignment=0x100
 LITE_OS_SEC_VEC
 #endif
-HWI_PROC_FUNC g_hwiForm[OS_VECTOR_CNT] = {0};
+/* *
+ * @ingroup los_hwi
+ * hardware interrupt form mapping handling function array.
+ */
+STATIC HWI_PROC_FUNC g_hwiForm[OS_VECTOR_CNT] = {0};
 
 #if (OS_HWI_WITH_ARG == 1)
-HWI_SLAVE_FUNC g_hwiSlaveForm[OS_VECTOR_CNT] = {{ (HWI_PROC_FUNC)0, (HWI_ARG_T)0 }};
+
+typedef struct {
+    HWI_PROC_FUNC pfnHandler;
+    VOID *pParm;
+} HWI_HANDLER_FUNC;
+
+/* *
+ * @ingroup los_hwi
+ * hardware interrupt handler form mapping handling function array.
+ */
+STATIC HWI_HANDLER_FUNC g_hwiHandlerForm[OS_VECTOR_CNT] = {{ (HWI_PROC_FUNC)0, (HWI_ARG_T)0 }};
+
+/* *
+ * @ingroup los_hwi
+ * Set interrupt vector table.
+ */
+VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector, VOID *arg)
+{
+    if ((num + OS_SYS_VECTOR_CNT) < OS_VECTOR_CNT) {
+        g_hwiForm[num + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalInterrupt;
+        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT].pfnHandler = vector;
+        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT].pParm = arg;
+    }
+}
+
 #else
-HWI_PROC_FUNC g_hwiSlaveForm[OS_VECTOR_CNT] = {0};
+/* *
+ * @ingroup los_hwi
+ * hardware interrupt handler form mapping handling function array.
+ */
+STATIC HWI_PROC_FUNC g_hwiHandlerForm[OS_VECTOR_CNT] = {0};
+
+/* *
+ * @ingroup los_hwi
+ * Set interrupt vector table.
+ */
+VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector)
+{
+    if ((num + OS_SYS_VECTOR_CNT) < OS_VECTOR_CNT) {
+        g_hwiForm[num + OS_SYS_VECTOR_CNT] = HalInterrupt;
+        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT] = vector;
+    }
+}
 #endif
 
 __weak VOID SysTick_Handler(VOID)
@@ -132,12 +176,12 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
     HalPreInterruptHandler(hwiIndex);
 
 #if (OS_HWI_WITH_ARG == 1)
-    if (g_hwiSlaveForm[hwiIndex].pfnHandler != 0) {
-        g_hwiSlaveForm[hwiIndex].pfnHandler((VOID *)g_hwiSlaveForm[hwiIndex].pParm);
+    if (g_hwiHandlerForm[hwiIndex].pfnHandler != 0) {
+        g_hwiHandlerForm[hwiIndex].pfnHandler((VOID *)g_hwiHandlerForm[hwiIndex].pParm);
     }
 #else
-    if (g_hwiSlaveForm[hwiIndex] != 0) {
-        g_hwiSlaveForm[hwiIndex]();
+    if (g_hwiHandlerForm[hwiIndex] != 0) {
+        g_hwiHandlerForm[hwiIndex]();
     }
 #endif
 

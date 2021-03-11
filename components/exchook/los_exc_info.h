@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -41,6 +41,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#if (LOSCFG_PLATFORM_EXC == 1)
 #define INFO_TYPE_AND_SIZE      8
 
 #define MAX_SCENE_INFO_SIZE     (INFO_TYPE_AND_SIZE + sizeof(ExcInfo) + sizeof(EXC_CONTEXT_S))
@@ -108,6 +109,7 @@ typedef struct {
 
 VOID OsExcMsgDumpInit(VOID);
 extern UINT8 g_excMsgArray[MAX_EXC_MEM_SIZE];
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

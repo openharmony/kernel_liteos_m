@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,12 +29,11 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "los_interrupt.h"
+#include <stdarg.h>
 #include "los_context.h"
 #include "los_arch_interrupt.h"
-#include <stdarg.h>
 #include "los_debug.h"
 #include "los_task.h"
-#include "los_tick.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -43,8 +42,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*lint -save -e40 -e522 -e533*/
-
 UINT32 g_intCount = 0;
+
 /*lint -restore*/
 #ifdef __ICCARM__
 #pragma location = ".data.vector"
@@ -52,13 +51,62 @@ UINT32 g_intCount = 0;
 #elif defined(__CC_ARM) || defined(__GNUC__)
 LITE_OS_SEC_VEC
 #endif
-HWI_PROC_FUNC g_hwiForm[OS_VECTOR_CNT] = {0};
+/* *
+ * @ingroup los_hwi
+ * hardware interrupt form mapping handling function array.
+ */
+STATIC HWI_PROC_FUNC g_hwiForm[OS_VECTOR_CNT] = {0};
 
 #if (OS_HWI_WITH_ARG == 1)
-HWI_SLAVE_FUNC g_hwiSlaveForm[OS_VECTOR_CNT] = {{ (HWI_PROC_FUNC)0, (HWI_ARG_T)0 }};
+
+typedef struct {
+    HWI_PROC_FUNC pfnHandler;
+    VOID *pParm;
+} HWI_HANDLER_FUNC;
+
+/* *
+ * @ingroup los_hwi
+ * hardware interrupt handler form mapping handling function array.
+ */
+STATIC HWI_HANDLER_FUNC g_hwiHandlerForm[OS_VECTOR_CNT] = {{ (HWI_PROC_FUNC)0, (HWI_ARG_T)0 }};
+
+/* *
+ * @ingroup los_hwi
+ * Set interrupt vector table.
+ */
+VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector, VOID *arg)
+{
+    if ((num + OS_SYS_VECTOR_CNT) < OS_VECTOR_CNT) {
+        g_hwiForm[num + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalInterrupt;
+        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT].pfnHandler = vector;
+        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT].pParm = arg;
+    }
+}
+
 #else
-HWI_PROC_FUNC g_hwiSlaveForm[OS_VECTOR_CNT] = {0};
+/* *
+ * @ingroup los_hwi
+ * hardware interrupt handler form mapping handling function array.
+ */
+STATIC HWI_PROC_FUNC g_hwiHandlerForm[OS_VECTOR_CNT] = {0};
+
+/* *
+ * @ingroup los_hwi
+ * Set interrupt vector table.
+ */
+VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector)
+{
+    if ((num + OS_SYS_VECTOR_CNT) < OS_VECTOR_CNT) {
+        g_hwiForm[num + OS_SYS_VECTOR_CNT] = HalInterrupt;
+        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT] = vector;
+    }
+}
 #endif
+
+WEAK VOID SysTick_Handler(VOID)
+{
+    return;
+}
 
 /* ****************************************************************************
  Function    : HalIntNumGet
@@ -91,6 +139,16 @@ LITE_OS_SEC_TEXT_MINOR VOID HalHwiDefaultHandler(VOID)
     while (1) {}
 }
 
+WEAK VOID HalPreInterruptHandler(UINT32 arg)
+{
+    return;
+}
+
+WEAK VOID HalAftInterruptHandler(UINT32 arg)
+{
+    return;
+}
+
 /* ****************************************************************************
  Function    : HalInterrupt
  Description : Hardware interrupt entry function
@@ -115,15 +173,20 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
 
     hwiIndex = HalIntNumGet();
 
+    HalPreInterruptHandler(hwiIndex);
+
 #if (OS_HWI_WITH_ARG == 1)
-    if (g_hwiSlaveForm[hwiIndex].pfnHandler != 0) {
-        g_hwiSlaveForm[hwiIndex].pfnHandler((VOID *)g_hwiSlaveForm[hwiIndex].pParm);
+    if (g_hwiHandlerForm[hwiIndex].pfnHandler != 0) {
+        g_hwiHandlerForm[hwiIndex].pfnHandler((VOID *)g_hwiHandlerForm[hwiIndex].pParm);
     }
 #else
-    if (g_hwiSlaveForm[hwiIndex] != 0) {
-        g_hwiSlaveForm[hwiIndex]();
+    if (g_hwiHandlerForm[hwiIndex] != 0) {
+        g_hwiHandlerForm[hwiIndex]();
     }
 #endif
+
+    HalAftInterruptHandler(hwiIndex);
+
     intSave = LOS_IntLock();
     g_intCount--;
     LOS_IntRestore(intSave);
@@ -141,10 +204,10 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
  Return      : LOS_OK on success or error code on failure
  **************************************************************************** */
 LITE_OS_SEC_TEXT_INIT UINT32 HalHwiCreate(HWI_HANDLE_T hwiNum,
-                                           HWI_PRIOR_T hwiPrio,
-                                           HWI_MODE_T mode,
-                                           HWI_PROC_FUNC handler,
-                                           HWI_ARG_T arg)
+                                          HWI_PRIOR_T hwiPrio,
+                                          HWI_MODE_T mode,
+                                          HWI_PROC_FUNC handler,
+                                          HWI_ARG_T arg)
 {
     UINTPTR intSave;
 
@@ -204,8 +267,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 HalHwiDelete(HWI_HANDLE_T hwiNum)
     return LOS_OK;
 }
 
-#define OS_NVIC_INT_CTRL_SIZE           4
-#define OS_NVIC_SHCSR_SIZE              4
 #define FAULT_STATUS_REG_BIT            32
 #define USGFAULT                        (1 << 18)
 #define BUSFAULT                        (1 << 17)
@@ -213,9 +274,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 HalHwiDelete(HWI_HANDLE_T hwiNum)
 #define DIV0FAULT                       (1 << 4)
 #define HARDFAULT_IRQN                  (-13)
 
-static ExcInfoArray g_excArray[OS_EXC_TYPE_MAX];
-
-static ExcInfo g_excInfo = {0};
+ExcInfo g_excInfo = {0};
 
 UINT8 g_uwExcTbl[FAULT_STATUS_REG_BIT] = {
     0, 0, 0, 0, 0, 0, OS_EXC_UF_DIVBYZERO, OS_EXC_UF_UNALIGNED,
@@ -224,15 +283,20 @@ UINT8 g_uwExcTbl[FAULT_STATUS_REG_BIT] = {
     0, 0, 0, OS_EXC_MF_MSTKERR, OS_EXC_MF_MUNSTKERR, 0, OS_EXC_MF_DACCVIOL, OS_EXC_MF_IACCVIOL
 };
 
+#if (LOSCFG_KERNEL_PRINTF != 0)
 UINT32 HalExcNvicDump(UINT32 index, UINT32 *excContent)
 {
     UINT32 *base = NULL;
-    UINT32 len = 0, i, j;
+    UINT32 len, i, j;
 #define OS_NR_NVIC_EXC_DUMP_Types      7
-    UINT32 rgNvicBases[OS_NR_NVIC_EXC_DUMP_Types] = {OS_NVIC_SETENA_BASE, OS_NVIC_SETPEND_BASE,
-        OS_NVIC_INT_ACT_BASE, OS_NVIC_PRI_BASE, OS_NVIC_EXCPRI_BASE, OS_NVIC_SHCSR, OS_NVIC_INT_CTRL};
-    UINT32 rgNvicLens[OS_NR_NVIC_EXC_DUMP_Types] = {OS_NVIC_INT_ENABLE_SIZE, OS_NVIC_INT_PEND_SIZE,
-        OS_NVIC_INT_ACT_SIZE, OS_NVIC_INT_PRI_SIZE, OS_NVIC_EXCPRI_SIZE, OS_NVIC_SHCSR_SIZE, OS_NVIC_INT_CTRL_SIZE};
+    UINT32 rgNvicBases[OS_NR_NVIC_EXC_DUMP_Types] = {
+        OS_NVIC_SETENA_BASE, OS_NVIC_SETPEND_BASE, OS_NVIC_INT_ACT_BASE,
+        OS_NVIC_PRI_BASE, OS_NVIC_EXCPRI_BASE, OS_NVIC_SHCSR, OS_NVIC_INT_CTRL
+    };
+    UINT32 rgNvicLens[OS_NR_NVIC_EXC_DUMP_Types] = {
+        OS_NVIC_INT_ENABLE_SIZE, OS_NVIC_INT_PEND_SIZE, OS_NVIC_INT_ACT_SIZE,
+        OS_NVIC_INT_PRI_SIZE, OS_NVIC_EXCPRI_SIZE, OS_NVIC_SHCSR_SIZE, OS_NVIC_INT_CTRL_SIZE
+    };
     char strRgEnable[] = "enable";
     char strRgPending[] = "pending";
     char strRgActive[] = "active";
@@ -240,7 +304,10 @@ UINT32 HalExcNvicDump(UINT32 index, UINT32 *excContent)
     char strRgException[] = "exception";
     char strRgShcsr[] = "shcsr";
     char strRgIntCtrl[] = "control";
-    char *strRgs[] = {strRgEnable, strRgPending, strRgActive, strRgPriority, strRgException, strRgShcsr, strRgIntCtrl};
+    char *strRgs[] = {
+        strRgEnable, strRgPending, strRgActive, strRgPriority,
+        strRgException, strRgShcsr, strRgIntCtrl
+    };
     (VOID)index;
     (VOID)excContent;
 
@@ -249,7 +316,7 @@ UINT32 HalExcNvicDump(UINT32 index, UINT32 *excContent)
         base = (UINT32 *)rgNvicBases[i];
         len = rgNvicLens[i];
         PRINTK("interrupt %s register, base address: 0x%x, size: 0x%x\n", strRgs[i], base, len);
-        len = (len >> 2);
+        len = (len >> 2); /* 2: Gets the next register offset */
         for (j = 0; j < len; j++) {
             PRINTK("0x%x ", *(base + j));
         }
@@ -257,6 +324,7 @@ UINT32 HalExcNvicDump(UINT32 index, UINT32 *excContent)
     }
     return 0;
 }
+#endif
 
 UINT32 HalExcContextDump(UINT32 index, UINT32 *excContent)
 {
@@ -288,20 +356,9 @@ UINT32 HalExcContextDump(UINT32 index, UINT32 *excContent)
     return 0;
 }
 
-VOID HalDumpMsg(VOID)
-{
-    UINT32 index = 0;
-    for (index = 0; index < (OS_EXC_TYPE_MAX - 1); index++) {
-        if (g_excArray[index].uwValid == FALSE) {
-            continue;
-        }
-        g_excArray[index].pFnExcInfoCb(index, g_excArray[index].pArg);
-    }
-}
-
 LITE_OS_SEC_TEXT_INIT VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, UINT32 pid, EXC_CONTEXT_S *excBufAddr)
 {
-    UINT16 tmpFlag = (excType >> 16) & OS_NULL_SHORT;
+    UINT16 tmpFlag = (excType >> 16) & OS_NULL_SHORT; /* 16: Get Exception Type */
     g_intCount++;
     g_excInfo.nestCnt++;
 
@@ -329,22 +386,9 @@ LITE_OS_SEC_TEXT_INIT VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, U
     } else {
         g_excInfo.context = excBufAddr;
     }
-    HalDumpMsg();
-    HalSysExit();
-}
 
-VOID HalExcRegister(ExcInfoType type, EXC_INFO_SAVE_CALLBACK func, VOID *arg)
-{
-    ExcInfoArray *excInfo = NULL;
-    if ((type >= OS_EXC_TYPE_MAX) || (func == NULL)) {
-        PRINT_ERR("HalExcRegister ERROR!\n");
-        return;
-    }
-    excInfo = &(g_excArray[type]);
-    excInfo->uwType = type;
-    excInfo->pFnExcInfoCb = func;
-    excInfo->pArg = arg;
-    excInfo->uwValid = TRUE;
+    OsDoExcHook(EXC_INTERRUPT);
+    HalSysExit();
 }
 
 /* ****************************************************************************
@@ -360,7 +404,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit()
     UINT32 index;
     g_hwiForm[0] = 0;             /* [0] Top of Stack */
     g_hwiForm[1] = Reset_Handler; /* [1] reset */
-    for (index = 2; index < OS_VECTOR_CNT; index++) {
+    for (index = 2; index < OS_VECTOR_CNT; index++) { /* 2: The starting position of the interrupt */
         g_hwiForm[index] = (HWI_PROC_FUNC)HalHwiDefaultHandler;
     }
     /* Exception handler register */
@@ -371,6 +415,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit()
     g_hwiForm[UsageFault_IRQn + OS_SYS_VECTOR_CNT]       = HalExcUsageFault;
     g_hwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT]           = HalExcSvcCall;
     g_hwiForm[PendSV_IRQn + OS_SYS_VECTOR_CNT]           = HalPendSV;
+    g_hwiForm[SysTick_IRQn + OS_SYS_VECTOR_CNT]          = SysTick_Handler;
 
     /* Interrupt vector table location */
     SCB->VTOR = (UINT32)(UINTPTR)g_hwiForm;
@@ -383,9 +428,6 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit()
     *(volatile UINT32 *)OS_NVIC_SHCSR |= (USGFAULT | BUSFAULT | MEMFAULT);
     /* Enable DIV 0 and unaligned exception */
     *(volatile UINT32 *)OS_NVIC_CCR |= DIV0FAULT;
-
-    HalExcRegister(OS_EXC_TYPE_CONTEXT, (EXC_INFO_SAVE_CALLBACK)HalExcContextDump, NULL);
-    HalExcRegister(OS_EXC_TYPE_NVIC, (EXC_INFO_SAVE_CALLBACK)HalExcNvicDump, NULL);
 
     return;
 }

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -433,9 +433,33 @@ extern UINT8 *m_aucSysMem0;
 /**
  * @ingroup los_config
  * Configuration memory leak detection
+ * @attention
+ * Need to enable backtrace module synchronously by configuration LOSCFG_BACKTRACE_TYPE,
+ * and call LOS_BackTraceInit to complete initialization before the memory pool is initialized.
  */
 #ifndef LOSCFG_MEM_LEAKCHECK
 #define LOSCFG_MEM_LEAKCHECK                                0
+#endif
+
+/**
+ * @ingroup los_config
+ * The default is 4, which means that the function call stack is recorded from the kernel interface,
+ * such as LOS_MemAlloc/LOS_MemAllocAlign/LOS_MemRealloc/LOS_MemFree. If you want to further ignore
+ * the number of function call layers, you can increase this value appropriately.
+ * @attention
+ * The default is in the IAR tool. Under different compilation environments, this value needs to be adjusted.
+ */
+#ifndef LOSCFG_MEM_OMIT_LR_CNT
+#define LOSCFG_MEM_OMIT_LR_CNT                              4
+#endif
+
+/**
+ * @ingroup los_config
+ * The record number of layers of the function call relationship starting from the number of
+ * ignored layers(LOSCFG_MEM_OMIT_LR_CNT).
+ */
+#ifndef LOSCFG_MEM_RECORD_LR_CNT
+#define LOSCFG_MEM_RECORD_LR_CNT                            3
 #endif
 
 /**
@@ -544,6 +568,29 @@ extern UINT8 *m_aucSysMem0;
  */
 #ifndef LOSCFG_KERNEL_PRINTF
 #define LOSCFG_KERNEL_PRINTF                                1
+#endif
+
+/* =============================================================================
+                                       backtrace configuration
+============================================================================= */
+/**
+ * @ingroup los_config
+ * Configuration backtrace type
+ * 0: Close stack analysis module.
+ * 1: Call stack analysis for cortex-m series.
+ * 2: Call stack analysis for risc-v.
+ * others: Not currently supported.
+ */
+#ifndef LOSCFG_BACKTRACE_TYPE
+#define LOSCFG_BACKTRACE_TYPE                                0
+#endif
+
+/**
+ * @ingroup los_config
+ * Configuration backtrace depth.
+ */
+#ifndef LOSCFG_BACKTRACE_DEPTH
+#define LOSCFG_BACKTRACE_DEPTH                               15
 #endif
 
 #ifdef __cplusplus

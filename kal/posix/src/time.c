@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,6 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define _GNU_SOURCE
 #include <time.h>
 #include <sys/time.h>
 #include <stdint.h>
@@ -88,7 +89,7 @@ STATIC const UINT8 g_montbl[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 
 #ifndef OFFSET_TO_MINUTE
 #define OFFSET_TO_MINUTE(time) (((time) < 0) ? (-(time)) : (time))
 #endif
-/* The highest 31 bytes, 1 indicates eastern time zone£¬0 indicates western time zone */
+/* The highest 31 bytes, 1 indicates eastern time zoneï¼Œ0 indicates western time zone */
 #ifndef TIME_ZONE_SIGN
 #define TIME_ZONE_SIGN(time) ((time) >> 31)
 #endif
@@ -96,8 +97,7 @@ STATIC const UINT8 g_montbl[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 
 #define DIV(a, b) (((a) / (b)) - ((a) % (b) < 0))
 #define LEAPS_THRU_END_OF(y) (DIV (y, 4) - DIV (y, 100) + DIV (y, 400))
 
-/* 946656000000ms is the UTC 2000-01-01 00:00:00 */
-static UINT64 g_rtcTimeBase = 946656000000;
+static UINT64 g_rtcTimeBase = 0;
 static UINT64 g_systickBase = 0;
 
 /*
@@ -291,7 +291,7 @@ int timer_gettime(timer_t timerID, struct itimerspec *value)
 {
     UINT32 tick = 0;
     SWTMR_CTRL_S *swtmr = NULL;
-    UINT32 swtmrID = (UINT16)(UINTPTR)timerID;
+    UINT32 swtmrID = (UINT32)(UINTPTR)timerID;
     UINT32 ret;
 
     if (value == NULL) {
@@ -491,8 +491,6 @@ time_t time(time_t *timer)
     UINT64 usec = 0;
     time_t sec;
     INT32 rtcRet;
-    UINT32 offsetSec;
-    HalGetRtcTimeZone(&g_rtcTimeZone);
 
     rtcRet = HalGetRtcTime(&usec);
     if (rtcRet != 0) {
@@ -507,12 +505,7 @@ time_t time(time_t *timer)
     } else {
         sec = usec / OS_SYS_US_PER_SECOND;
     }
-    offsetSec = (OFFSET_TO_MINUTE(g_rtcTimeZone)) * SECS_PER_MIN;
-    if (TIME_ZONE_SIGN(g_rtcTimeZone)) {
-        sec += (time_t)offsetSec;
-    } else {
-        sec -= (time_t)offsetSec;
-    }
+
     if (timer != NULL) {
         *timer = sec;
     }

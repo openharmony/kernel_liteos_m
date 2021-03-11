@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -148,17 +148,6 @@ LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOI
 
     return (VOID *)context;
 }
-
-void HalBackTrace()
-{
-}
-
-#if (LOSCFG_MEM_LEAKCHECK == 1)
-VOID HalRecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount,
-                 UINTPTR stackStart, UINTPTR stackEnd)
-{
-}
-#endif
 
 LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
 {

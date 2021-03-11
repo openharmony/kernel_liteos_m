@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -309,45 +309,18 @@ extern UINT32 _BootVectors[];
  */
 #define OS_EXC_SYS_TICK                       15
 
-/* *
- * @ingroup los_hwi
- * hardware interrupt form mapping handling function array.
- */
-extern HWI_PROC_FUNC g_hwiForm[OS_VECTOR_CNT];
-
 #if (OS_HWI_WITH_ARG == 1)
 /* *
  * @ingroup los_hwi
- * hardware interrupt Slave form mapping handling function array.
- */
-extern HWI_SLAVE_FUNC g_hwiSlaveForm[OS_VECTOR_CNT];
-
-/* *
- * @ingroup los_hwi
  * Set interrupt vector table.
  */
-#define OsSetVectonr(num, vector, arg)                                    \
-    do {                                                                      \
-        g_hwiForm[num + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalInterrupt; \
-        g_hwiSlaveForm[num + OS_SYS_VECTOR_CNT].pfnHandler = vector;  \
-        g_hwiSlaveForm[num + OS_SYS_VECTOR_CNT].pParm = (VOID *)arg;     \
-    } while(0)
+extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector, VOID *arg);
 #else
 /* *
  * @ingroup los_hwi
- * hardware interrupt Slave form mapping handling function array.
- */
-extern HWI_PROC_FUNC g_hwiSlaveForm[OS_VECTOR_CNT];
-
-/* *
- * @ingroup los_hwi
  * Set interrupt vector table.
  */
-#define OsSetVector(num, vector)                             \
-    do {                                                          \
-        g_hwiForm[num + OS_SYS_VECTOR_CNT] = HalInterrupt;    \
-        g_hwiSlaveForm[num + OS_SYS_VECTOR_CNT] = vector; \
-    } while(0)
+extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector);
 #endif
 
 /* *

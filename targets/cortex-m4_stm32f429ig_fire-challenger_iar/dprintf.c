@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -166,6 +166,12 @@ void __dprintf(char const *fmt, va_list ap,
                 pFputc(*fmt++, cookie);
         }
     }
+}
+
+void HalConsoleOutput(LogModuleType type, const char *fmt, va_list ap)
+{
+    (void)type;
+    __dprintf(fmt, ap, fputc, 0);
 }
 
 int printf(char const  *fmt, ...)

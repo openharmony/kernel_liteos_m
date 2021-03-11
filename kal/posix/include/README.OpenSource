@@ -1,0 +1,11 @@
+[
+    {
+        "Name"                  : "musl",
+        "License"               : "MIT License",
+        "License File"          : "COPYRIGHT",
+        "Version Number"        : "1.2.0",
+        "Owner"                 : "jianghan2@huawei.com",
+        "Upstream URL"          : "http://www.musl-libc.org/",
+        "Description"           : "musl is an MIT-licensed implementation of the standard C library"
+    }
+]

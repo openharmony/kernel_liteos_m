@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,7 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "pthread_impl.h"
+#include "pthread.h"
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -91,6 +91,8 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         return ENOMEM;
     }
 
+    pthreadData->startRoutine  = startRoutine;
+    pthreadData->param         = arg;
     taskInitParam.pcName       = pthreadData->name;
     taskInitParam.pfnTaskEntry = PthreadEntry;
     taskInitParam.uwArg   = (UINT32)(UINTPTR)pthreadData;
@@ -176,7 +178,7 @@ int pthread_join(pthread_t thread, void **retval)
     }
 
     while (LOS_TaskStatusGet((UINT32)thread, &taskStatus) == LOS_OK) {
-        usleep(10000);
+        (void)LOS_TaskDelay(10); /* 10: Waiting for the end of thread execution. */
     }
 
     return 0;

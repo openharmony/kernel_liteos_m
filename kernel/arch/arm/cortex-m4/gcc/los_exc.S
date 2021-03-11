@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -224,7 +224,7 @@ HalExcUsageFault:
     LDR  R0, =OS_NVIC_FSR
     LDR  R0, [R0]
 
-    MOV  R1, #0x030F
+    MOVW R1, #0x030F
     LSL  R1, R1, #16
     AND  R0, R0, R1
     MOV  R12, #0
@@ -281,7 +281,7 @@ _ExcInMSP:
     PUSH  {R3}
     MRS   R12, PRIMASK                  // store message-->exc: disable int?
     PUSH {R4-R12}                       // store message-->exc: {R4-R12}
-    #VPUSH {D8-D15}						// FPU
+    #VPUSH {D8-D15}                     // FPU
     B     _handleEntry
   .fnend
 
@@ -291,10 +291,10 @@ _NoFloatInMsp:
     .fnstart
     .cantunwind
     ADD   R3, R13, #32
-    PUSH  {R3} // save IRQ SP            // store message-->exc: MSP(R13)
+    PUSH  {R3}                           // store message-->exc: MSP(R13)
 
-    MRS   R12, PRIMASK                  // store message-->exc: disable int?
-    PUSH {R4-R12}                       // store message-->exc: {R4-R12}
+    MRS   R12, PRIMASK                   // store message-->exc: disable int?
+    PUSH {R4-R12}                        // store message-->exc: {R4-R12}
     ORR   R0, R0, #FLAG_NO_FLOAT
     B     _handleEntry
   .fnend
@@ -320,7 +320,7 @@ _hwiActiveCheckNext:
 
     LDR  R2, =g_taskScheduled
     LDR  R2, [R2]
-    TST  R2, #1         // OS_FLG_BGD_ACTIVE
+    TST  R2, #1                         // OS_FLG_BGD_ACTIVE
     BEQ  _ExcInMSP                      // if exc occured in Init then branch
 
 
@@ -333,7 +333,7 @@ _hwiActiveCheckNext:
 
     MRS   R3,  PSP
     ADD   R12, R3, #104
-    PUSH  {R12}    // save task SP
+    PUSH  {R12}                         // save task SP
 
     MRS   R12, PRIMASK
     PUSH {R4-R12}
@@ -341,8 +341,8 @@ _hwiActiveCheckNext:
     // copy auto saved task register
 
     LDMFD R3!, {R4-R11}                  // R4-R11 store PSP reg(auto push when exc in task)
-    #VLDMIA  R3!, {D8-D15}				 // FPU
-    #VSTMDB  R2!, {D8-D15}				 // FPU
+    #VLDMIA  R3!, {D8-D15}               // FPU
+    #VSTMDB  R2!, {D8-D15}               // FPU
     STMFD R2!, {R4-R11}
     B     _handleEntry
   .fnend
@@ -352,12 +352,12 @@ _hwiActiveCheckNext:
 _NoFloatInPsp:
     .fnstart
     .cantunwind
-    MOV   R2,  R13                           //no auto push floating registers
+    MOV   R2,  R13                      //no auto push floating registers
     SUB   R13, #32                      // add 8 Bytes reg(for STMFD)
 
     MRS   R3,  PSP
     ADD   R12, R3, #32
-    PUSH  {R12}    // save task SP
+    PUSH  {R12}                         // save task SP
 
     MRS   R12, PRIMASK
     PUSH {R4-R12}

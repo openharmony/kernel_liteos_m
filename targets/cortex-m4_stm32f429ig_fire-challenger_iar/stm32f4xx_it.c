@@ -1,28 +1,35 @@
 /**
   ******************************************************************************
-  * @file    Project/STM32F4xx_StdPeriph_Template/stm32f4xx_it.c
+  * @file    Project/STM32F4xx_StdPeriph_Templates/stm32f4xx_it.c 
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    30-September-2011
+  * @version V1.8.0
+  * @date    04-November-2016
   * @brief   Main Interrupt Service Routines.
-  *          This file provides template for all exceptions handler and
+  *          This file provides template for all exceptions handler and 
   *          peripherals interrupt service routine.
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * <h2><center>&copy; COPYRIGHT 2016 STMicroelectronics</center></h2>
   *
-  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
   ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
+#include "main.h"
 
 /** @addtogroup Template_Project
   * @{
@@ -40,7 +47,7 @@
 /******************************************************************************/
 
 /**
-  * @brief   This function handles NMI exception.
+  * @brief  This function handles NMI exception.
   * @param  None
   * @retval None
   */
@@ -105,7 +112,7 @@ void UsageFault_Handler(void)
   * @param  None
   * @retval None
   */
-__weak void SVC_Handler(void)
+void SVC_Handler(void)
 {
 }
 
@@ -123,7 +130,7 @@ void DebugMon_Handler(void)
   * @param  None
   * @retval None
   */
-__weak void PendSV_Handler(void)
+void PendSV_Handler(void)
 {
 }
 
@@ -132,27 +139,30 @@ __weak void PendSV_Handler(void)
   * @param  None
   * @retval None
   */
-__weak void SysTick_Handler(void)
+void SysTick_Handler(void)
 {
-
+  TimingDelay_Decrement();
 }
 
+/******************************************************************************/
+/*                 STM32F4xx Peripherals Interrupt Handlers                   */
+/*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
+/*  available peripheral interrupt handler's name please refer to the startup */
+/*  file (startup_stm32f4xx.s).                                               */
+/******************************************************************************/
+
 /**
-  * @brief  This function handles EXTI 3 interrupt request.
+  * @brief  This function handles PPP interrupt request.
   * @param  None
   * @retval None
   */
-__weak void EXTI9_5_IRQHandler(void)
+/*void PPP_IRQHandler(void)
 {
-}
+}*/
 
 /**
-  * @brief  This function handles EXTI 15-10 interrupt request.
-  * @param  None
-  * @retval None
-  */
-__weak void EXTI15_10_IRQHandler(void)
-{
-}
+  * @}
+  */ 
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

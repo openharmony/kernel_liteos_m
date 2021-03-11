@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,16 +32,50 @@
 #ifndef _FATFS_H
 #define _FATFS_H
 
+#include "fcntl.h"
+#include "dirent.h"
+#include "unistd.h"
+#include "sys/mount.h"
+#include "sys/stat.h"
+#include "sys/statfs.h"
+#include "fs_config.h"
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#ifndef FAT_MAX_OPEN_FILES
+#define FAT_MAX_OPEN_FILES    50
+#endif /* FAT_MAX_OPEN_FILES */
+
 /* Format options */
 #define FMT_FAT      0x01
 #define FMT_FAT32    0x02
 #define FMT_ANY      0x07
+
+int fatfs_mount(const char *source, const char *target,
+          const char *filesystemtype, unsigned long mountflags,
+          const void *data);
+int fatfs_umount(const char *target);
+int fatfs_umount2(const char *target, int flag);
+int fatfs_open(const char *path, int oflag, ...);
+int fatfs_close(int fd);
+ssize_t fatfs_read(int fd, void *buf, size_t nbyte);
+ssize_t fatfs_write(int fd, const void *buf, size_t nbyte);
+off_t fatfs_lseek(int fd, off_t offset, int whence);
+int fatfs_unlink(const char *path);
+int fatfs_fstat(int fd, struct stat *buf);
+int fatfs_stat(const char *path, struct stat *buf);
+int fatfs_fsync(int fd);
+int fatfs_mkdir(const char *path, mode_t mode);
+DIR *fatfs_opendir(const char *dirName);
+struct dirent *fatfs_readdir(DIR *dir);
+int fatfs_closedir(DIR *dir);
+int fatfs_rmdir(const char *path);
+int fatfs_rename(const char *oldName, const char *newName);
+int fatfs_statfs(const char *path, struct statfs *buf);
+int fatfs_ftruncate(int fd, off_t length);
 
 /**
   * @brief divide a physical drive (SD card, U disk, and MMC card), this function is OHOS-specific

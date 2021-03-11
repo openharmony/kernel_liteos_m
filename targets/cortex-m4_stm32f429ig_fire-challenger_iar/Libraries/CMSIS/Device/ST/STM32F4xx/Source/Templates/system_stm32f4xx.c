@@ -473,13 +473,6 @@ static void SystemInit_ExtMemCtl(void);
   * @{
   */
 
-//__root uint32_t SystemCoreClock = __SYSTEM_CLOCK_64M;
-
-//void SystemCoreClockUpdate(void)
-//{
-//    SystemCoreClock = __SYSTEM_CLOCK_64M;
-//}
-
 /**
   * @brief  Setup the microcontroller system
   *         Initialize the Embedded Flash Interface, the PLL and update the 
@@ -526,7 +519,6 @@ void SystemInit(void)
 #else
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
 #endif
-  SystemCoreClockUpdate();
 }
 
 /**

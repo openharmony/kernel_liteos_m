@@ -492,9 +492,35 @@ typedef unsigned short sa_family_t;
 #define __DEFINED_sa_family_t
 #endif
 
+#if (defined(__NEED_sched_param) || defined(__NEED_pthread_attr_t)) && !defined(__DEFINED_sched_param)
+struct sched_param {
+    int sched_priority;
+    int __reserved1;
+#if _REDIR_TIME64
+    long __reserved2[4];
+#else
+    struct {
+        time_t __reserved1;
+        long __reserved2;
+    } __reserved2[2];
+#endif
+    int __reserved3;
+};
+#define __DEFINED_sched_param
+#endif
 
 #if defined(__NEED_pthread_attr_t) && !defined(__DEFINED_pthread_attr_t)
-typedef struct { union { int __i[sizeof(long)==8?14:9]; volatile int __vi[sizeof(long)==8?14:9]; unsigned long __s[sizeof(long)==8?7:9]; } __u; } pthread_attr_t;
+typedef struct {
+    unsigned int detachstate;
+    unsigned int schedpolicy;
+    struct sched_param schedparam;
+    unsigned int inheritsched;
+    unsigned int scope;
+    unsigned int stackaddr_set;
+    void *stackaddr;
+    unsigned int stacksize_set;
+    size_t stacksize;
+} pthread_attr_t;
 #define __DEFINED_pthread_attr_t
 #endif
 

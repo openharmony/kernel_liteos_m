@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -56,7 +56,6 @@ extern "C" {
  * @par Dependency:
  * <ul><li>los_atomic.h: the header file that contains the API declaration.</li></ul>
  * @see
- * @since Huawei LiteOS V100R001C00
  */
 STATIC INLINE INT32 HalAtomicXchg32bits(volatile INT32 *v, INT32 val)
 {
@@ -92,7 +91,6 @@ STATIC INLINE INT32 HalAtomicXchg32bits(volatile INT32 *v, INT32 val)
  * @par Dependency:
  * <ul><li>los_atomic.h: the header file that contains the API declaration.</li></ul>
  * @see
- * @since Huawei LiteOS V100R001C00
  */
 STATIC INLINE INT32 HalAtomicDecRet(volatile INT32 *v)
 {
@@ -129,7 +127,6 @@ STATIC INLINE INT32 HalAtomicDecRet(volatile INT32 *v)
  * @par Dependency:
  * <ul><li>los_atomic.h: the header file that contains the API declaration.</li></ul>
  * @see
- * @since Huawei LiteOS V100R001C00
  */
 STATIC INLINE BOOL HalAtomicCmpXchg32bits(volatile INT32 *v, INT32 val, INT32 oldVal)
 {

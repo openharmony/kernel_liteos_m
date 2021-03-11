@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -58,16 +58,10 @@ typedef UINT32 HWI_ARG_T;
 
 #if (OS_HWI_WITH_ARG == 1)
 typedef VOID (*HWI_PROC_FUNC)(VOID *parm);
-typedef struct {
-    HWI_PROC_FUNC pfnHandler;
-    VOID *pParm;
-} HWI_SLAVE_FUNC;
-
 #else
-
 typedef VOID (*HWI_PROC_FUNC)(void);
-
 #endif
+
 UINT32 HalIsIntAcvive(VOID);
 #define OS_INT_ACTIVE    (HalIsIntAcvive())
 #define OS_INT_INACTIVE  (!(OS_INT_ACTIVE))
@@ -128,10 +122,10 @@ extern UINT32 HalHwiDelete(HWI_HANDLE_T hwiNum);
  * @see None.
  */
 extern UINT32 HalHwiCreate(HWI_HANDLE_T hwiNum,
-                            HWI_PRIOR_T hwiPrio,
-                            HWI_MODE_T mode,
-                            HWI_PROC_FUNC handler,
-                            HWI_ARG_T arg);
+                           HWI_PRIOR_T hwiPrio,
+                           HWI_MODE_T mode,
+                           HWI_PROC_FUNC handler,
+                           HWI_ARG_T arg);
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -48,7 +48,7 @@ extern "C" {
 /*=============================================================================
                                         System clock module configuration
 =============================================================================*/
-#define OS_SYS_CLOCK                                        180000000
+#define OS_SYS_CLOCK                                        64000000
 #define LOSCFG_BASE_CORE_TICK_PER_SECOND                    (1000UL)
 #define LOSCFG_BASE_CORE_TICK_HW_TIME                       0
 /*=============================================================================
@@ -92,6 +92,10 @@ extern "C" {
 =============================================================================*/
 #define LOSCFG_MEM_MUL_POOL                                 1
 #define OS_SYS_MEM_NUM                                      20
+/*=============================================================================
+                                       Exception module configuration
+=============================================================================*/
+#define LOSCFG_PLATFORM_EXC                                 1
 /* =============================================================================
                                        printf module configuration
 ============================================================================= */

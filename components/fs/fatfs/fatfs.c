@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,21 +29,18 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_compiler.h"
-#include "fcntl.h"
-#include "unistd.h"
-#include "sys/mount.h"
-#include "sys/stat.h"
-#include "sys/statfs.h"
-#include "dirent.h"
-#include "stdio.h"
+#include "ff.h"
+#if FF_USE_EXPAND
+#define _GNU_SOURCE
+#endif
+#include "fatfs.h"
 #include "errno.h"
+#include "limits.h"
 #include "pthread.h"
 #include "time.h"
 #include "securec.h"
-#include "ff.h"
+#include "los_compiler.h"
 #include "los_debug.h"
-#include "fatfs.h"
 #include "cmsis_os.h"
 
 #define FS_SUCCESS            0
@@ -54,10 +51,6 @@
 #ifndef FAT_MAX_OPEN_DIRS
 #define FAT_MAX_OPEN_DIRS     8
 #endif /* FAT_MAX_OPEN_DIRS */
-
-#ifndef FAT_MAX_OPEN_FILES
-#define FAT_MAX_OPEN_FILES    50
-#endif /* FAT_MAX_OPEN_FILES */
 
 #ifndef FS_LOCK_TIMEMOUT_SEC
 #define FS_LOCK_TIMEMOUT_SEC  15
@@ -327,9 +320,9 @@ static int FatfsErrno(int result)
     return status;
 }
 
-int mount(const char *source, const char *target,
-          const char *filesystemtype, unsigned long mountflags,
-          const void *data)
+int fatfs_mount(const char *source, const char *target,
+                const char *filesystemtype, unsigned long mountflags,
+                const void *data)
 {
     INT32 index;
     FRESULT res;
@@ -386,7 +379,7 @@ OUT:
     return ret;
 }
 
-int umount(const char *target)
+int fatfs_umount(const char *target)
 {
     FRESULT res;
     INT32 ret;
@@ -482,7 +475,7 @@ static int CloseAll(int index)
     return FS_SUCCESS;
 }
 
-int umount2(const char *target, int flag)
+int fatfs_umount2(const char *target, int flag)
 {
     INT32 index;
     INT32 ret;
@@ -546,7 +539,7 @@ OUT:
     return ret;
 }
 
-int open(const char *path, int oflag, ...)
+int fatfs_open(const char *path, int oflag, ...)
 {
     FRESULT res;
     UINT32 i;
@@ -626,7 +619,7 @@ OUT:
     return ret;
 }
 
-int close(int fd)
+int fatfs_close(int fd)
 {
     FRESULT res;
     INT32 ret;
@@ -667,7 +660,7 @@ int close(int fd)
     return FS_SUCCESS;
 }
 
-ssize_t read(int fd, void *buf, size_t nbyte)
+ssize_t fatfs_read(int fd, void *buf, size_t nbyte)
 {
     FRESULT res;
     INT32 ret;
@@ -699,7 +692,7 @@ ssize_t read(int fd, void *buf, size_t nbyte)
     return (ssize_t)lenRead;
 }
 
-ssize_t write(int fd, const void *buf, size_t nbyte)
+ssize_t fatfs_write(int fd, const void *buf, size_t nbyte)
 {
     FRESULT res;
     INT32 ret;
@@ -743,7 +736,7 @@ ERROUT:
     return FS_FAILURE;
 }
 
-off_t lseek(int fd, off_t offset, int whence)
+off_t fatfs_lseek(int fd, off_t offset, int whence)
 {
     FRESULT res;
     INT32 ret;
@@ -787,7 +780,7 @@ ERROUT:
 }
 
 /* Remove the specified FILE */
-int unlink(const char *path)
+int fatfs_unlink(const char *path)
 {
     FRESULT res;
     INT32 ret;
@@ -833,7 +826,7 @@ OUT:
 }
 
 /* Return information about a file */
-int fstat(int fd, struct stat *buf)
+int fatfs_fstat(int fd, struct stat *buf)
 {
     INT32 ret;
 
@@ -864,7 +857,7 @@ int fstat(int fd, struct stat *buf)
     return FS_SUCCESS;
 }
 
-int stat(const char *__restrict path, struct stat *__restrict buf)
+int fatfs_stat(const char *path, struct stat *buf)
 {
     FRESULT res;
     FILINFO fileInfo = {0};
@@ -918,7 +911,7 @@ OUT:
 }
 
 /* Synchronize all changes to Flash */
-int fsync(int fd)
+int fatfs_fsync(int fd)
 {
     FRESULT res;
     INT32 ret;
@@ -952,7 +945,7 @@ OUT:
     return ret;
 }
 
-int mkdir(const char *path, mode_t mode)
+int fatfs_mkdir(const char *path, mode_t mode)
 {
     FRESULT res;
     INT32 ret;
@@ -996,7 +989,7 @@ OUT:
     return ret;
 }
 
-DIR *opendir(const char *dirName)
+DIR *fatfs_opendir(const char *dirName)
 {
     FRESULT res;
     UINT32 openNum = 0;
@@ -1058,7 +1051,7 @@ ERROUT:
     return NULL;
 }
 
-struct dirent *readdir(DIR *dir)
+struct dirent *fatfs_readdir(DIR *dir)
 {
     FRESULT res;
     INT32 ret;
@@ -1095,7 +1088,7 @@ struct dirent *readdir(DIR *dir)
     return &g_retValue;
 }
 
-int closedir(DIR *dir)
+int fatfs_closedir(DIR *dir)
 {
     FRESULT res;
     INT32 ret;
@@ -1126,7 +1119,7 @@ int closedir(DIR *dir)
     return FS_SUCCESS;
 }
 
-int rmdir(const char *path)
+int fatfs_rmdir(const char *path)
 {
     FRESULT res;
     INT32 ret;
@@ -1170,7 +1163,7 @@ OUT:
     return ret;
 }
 
-int rename(const char *oldName, const char *newName)
+int fatfs_rename(const char *oldName, const char *newName)
 {
     FRESULT res;
     INT32 ret;
@@ -1214,7 +1207,7 @@ OUT:
     return ret;
 }
 
-int statfs(const char *path, struct statfs *buf)
+int fatfs_statfs(const char *path, struct statfs *buf)
 {
     FATFS *fs = NULL;
     UINT32 freeClust;
@@ -1256,6 +1249,85 @@ int statfs(const char *path, struct statfs *buf)
 #else
     buf->f_bsize  = FF_MIN_SS * fs->csize;
 #endif
+
+    ret = FS_SUCCESS;
+
+OUT:
+    FsUnlock();
+    return ret;
+}
+
+static int do_truncate(int fd, off_t length, UINT count)
+{
+    FRESULT res;
+    INT32 ret = FR_OK;
+    DWORD csz;
+
+    csz = (DWORD)(g_handle[fd].fil.obj.fs)->csize * SS(g_handle[fd].fil.obj.fs); /* Cluster size */
+    if (length > csz * count) {
+#if FF_USE_EXPAND
+        res = f_expand(&g_handle[fd].fil, 0, (FSIZE_t)(length), FALLOC_FL_KEEP_SIZE);
+#else
+        errno = ENOSYS;
+        ret = FS_FAILURE;
+        return ret;
+#endif
+    } else if (length < csz * count) {
+        res = f_truncate(&g_handle[fd].fil, (FSIZE_t)length);
+    }
+
+    if (res != FR_OK) {
+        errno = FatfsErrno(res);
+        ret = FS_FAILURE;
+        return ret;
+    }
+
+    g_handle[fd].fil.obj.objsize = length; /* Set file size to length */
+    g_handle[fd].fil.flag |= 0x40; /* Set modified flag */
+
+    return ret;
+}
+
+int fatfs_ftruncate(int fd, off_t length)
+{
+    FRESULT res;
+    INT32 ret;
+    UINT count;
+    DWORD fclust;
+
+    if (!IsValidFd(fd)) {
+        errno = EBADF;
+        return FS_FAILURE;
+    }
+
+    if ((length < 0) || (length > UINT_MAX)) {
+        errno = EINVAL;
+        return FS_FAILURE;
+    }
+
+    ret = FsLock();
+    if (ret != 0) {
+        errno = ret;
+        return FS_FAILURE;
+    }
+
+    if (!FsCheckByID(g_handle[fd].fil.obj.fs->id)) {
+        errno = EACCES;
+        ret = FS_FAILURE;
+        goto OUT;
+    }
+
+    res = f_getclustinfo(&g_handle[fd].fil, &fclust, &count);
+    if (res != FR_OK) {
+        errno = FatfsErrno(res);
+        ret = FS_FAILURE;
+        goto OUT;
+    }
+
+    ret = do_truncate(fd, length, count);
+    if (ret != FR_OK) {
+        goto OUT;
+    }
 
     ret = FS_SUCCESS;
 

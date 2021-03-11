@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -165,6 +165,9 @@ extern VOID HalConsoleOutput(LogModuleType type, INT32 level, const CHAR *fmt, .
     } while (0)
 #endif
 
+typedef VOID (*BACK_TRACE_HOOK)(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount);
+extern VOID OsBackTraceHookSet(BACK_TRACE_HOOK hook);
+extern VOID OsBackTraceHookCall(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount);
 
 /**
  * @ingroup los_trace

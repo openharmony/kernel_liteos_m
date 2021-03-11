@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -236,7 +236,7 @@ extern VOID LOS_ShowBox(VOID *pool);
  * be abnormal.</li>
  * </ul>
  *
- * @param  boxMem       [IN]  Type  #VOID*   Pointer to the calculate membox.
+ * @param  boxMem        [IN]  Type  #VOID*   Pointer to the calculate membox.
  * @param  maxBlk       [OUT] Type  #UINT32* Record membox max block.
  * @param  blkCnt       [OUT] Type  #UINT32* Record membox block count alreay allocated.
  * @param  blkSize      [OUT] Type  #UINT32* Record membox block size.

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -53,8 +53,8 @@ extern "C" {
 #define MACHINE_CYCLE_DEALAY_TIMES (LOSCFG_BASE_CORE_TICK_PER_SECOND << 2)
 
 typedef enum {
-	OS_SYS_NORMAL_SLEEP = 0,
-	OS_SYS_DEEP_SLEEP,
+    OS_SYS_NORMAL_SLEEP = 0,
+    OS_SYS_DEEP_SLEEP,
 } LOS_SysSleepEnum;
 
 VOID HalTickLock(VOID);

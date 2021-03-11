@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020, Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -39,6 +39,7 @@
 #include "los_cpup.h"
 #endif
 #include "los_debug.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -240,7 +241,7 @@ LITE_OS_SEC_TEXT WEAK VOID OsIdleTask(VOID)
 {
     while (1) {
         OsRecyleFinishedTask();
-#if (LOSCFG_KERNEL_RUNSTOP == YES)
+#if (LOSCFG_KERNEL_RUNSTOP == 1)
         HalEnterSleep(OS_SYS_NORMAL_SLEEP);
 #endif
     }
@@ -1655,8 +1656,6 @@ VOID LOS_Schedule(VOID)
     }
     LOS_IntRestore(intSave);
 }
-
-
 
 #if (LOSCFG_BASE_CORE_TIMESLICE == 1)
 LITE_OS_SEC_BSS OsTaskRobin g_taskTimeSlice;
