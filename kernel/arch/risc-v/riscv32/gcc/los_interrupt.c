@@ -242,7 +242,7 @@ STATIC VOID ExcBackTrace(VOID)
     UINTPTR LR[LOSCFG_BACKTRACE_DEPTH] = {0};
     UINT32 index;
 
-    OsBackTraceHookCall(LR, LOSCFG_BACKTRACE_DEPTH, 1); /* 1: Ignore the one layer call relationship within the function. */
+    OsBackTraceHookCall(LR, LOSCFG_BACKTRACE_DEPTH, 1, 0); /* 1: Ignore the one layer call relationship within the function. */
 
     PRINTK("----- traceback start -----\r\n");
     for (index = 0; index < LOSCFG_BACKTRACE_DEPTH; index++) {

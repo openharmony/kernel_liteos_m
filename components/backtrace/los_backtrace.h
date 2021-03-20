@@ -151,7 +151,7 @@ VOID LOS_BackTraceInit(VOID);
 VOID LOS_BackTrace(VOID);
 
 /* This function is used to record the function call stack. */
-VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount);
+VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP);
 #endif
 
 #ifdef __cplusplus

@@ -29,11 +29,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "los_interrupt.h"
+#include <stdarg.h>
+#include "securec.h"
 #include "los_context.h"
 #include "los_arch_interrupt.h"
-#include <stdarg.h>
 #include "los_debug.h"
 #include "los_task.h"
+#include "los_memory.h"
+#include "los_membox.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -194,10 +197,10 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
  Return      : LOS_OK on success or error code on failure
  **************************************************************************** */
 LITE_OS_SEC_TEXT_INIT UINT32 HalHwiCreate(HWI_HANDLE_T hwiNum,
-                                           HWI_PRIOR_T hwiPrio,
-                                           HWI_MODE_T mode,
-                                           HWI_PROC_FUNC handler,
-                                           HWI_ARG_T arg)
+                                          HWI_PRIOR_T hwiPrio,
+                                          HWI_MODE_T mode,
+                                          HWI_PROC_FUNC handler,
+                                          HWI_ARG_T arg)
 {
     UINTPTR intSave;
 
@@ -273,73 +276,174 @@ UINT8 g_uwExcTbl[FAULT_STATUS_REG_BIT] = {
     0, 0, 0, OS_EXC_MF_MSTKERR, OS_EXC_MF_MUNSTKERR, 0, OS_EXC_MF_DACCVIOL, OS_EXC_MF_IACCVIOL
 };
 
-UINT32 HalExcNvicDump(UINT32 index, UINT32 *excContent)
+#if (LOSCFG_KERNEL_PRINTF != 0)
+STATIC VOID OsExcNvicDump(VOID)
 {
+#define OS_NR_NVIC_EXC_DUMP_TYPES   7
     UINT32 *base = NULL;
-    UINT32 len = 0, i, j;
-#define OS_NR_NVIC_EXC_DUMP_Types      7
-    UINT32 rgNvicBases[OS_NR_NVIC_EXC_DUMP_Types] = {OS_NVIC_SETENA_BASE, OS_NVIC_SETPEND_BASE,
-        OS_NVIC_INT_ACT_BASE, OS_NVIC_PRI_BASE, OS_NVIC_EXCPRI_BASE, OS_NVIC_SHCSR, OS_NVIC_INT_CTRL};
-    UINT32 rgNvicLens[OS_NR_NVIC_EXC_DUMP_Types] = {OS_NVIC_INT_ENABLE_SIZE, OS_NVIC_INT_PEND_SIZE,
-        OS_NVIC_INT_ACT_SIZE, OS_NVIC_INT_PRI_SIZE, OS_NVIC_EXCPRI_SIZE, OS_NVIC_SHCSR_SIZE, OS_NVIC_INT_CTRL_SIZE};
-    char strRgEnable[] = "enable";
-    char strRgPending[] = "pending";
-    char strRgActive[] = "active";
-    char strRgPriority[] = "priority";
-    char strRgException[] = "exception";
-    char strRgShcsr[] = "shcsr";
-    char strRgIntCtrl[] = "control";
-    char *strRgs[] = {strRgEnable, strRgPending, strRgActive, strRgPriority, strRgException, strRgShcsr, strRgIntCtrl};
-    (VOID)index;
-    (VOID)excContent;
+    UINT32 len, i, j;
+    UINT32 rgNvicBases[OS_NR_NVIC_EXC_DUMP_TYPES] = {
+        OS_NVIC_SETENA_BASE, OS_NVIC_SETPEND_BASE, OS_NVIC_INT_ACT_BASE,
+        OS_NVIC_PRI_BASE, OS_NVIC_EXCPRI_BASE, OS_NVIC_SHCSR, OS_NVIC_INT_CTRL
+    };
+    UINT32 rgNvicLens[OS_NR_NVIC_EXC_DUMP_TYPES] = {
+        OS_NVIC_INT_ENABLE_SIZE, OS_NVIC_INT_PEND_SIZE, OS_NVIC_INT_ACT_SIZE,
+        OS_NVIC_INT_PRI_SIZE, OS_NVIC_EXCPRI_SIZE, OS_NVIC_SHCSR_SIZE,
+        OS_NVIC_INT_CTRL_SIZE
+    };
+    CHAR strRgEnable[] = "enable";
+    CHAR strRgPending[] = "pending";
+    CHAR strRgActive[] = "active";
+    CHAR strRgPriority[] = "priority";
+    CHAR strRgException[] = "exception";
+    CHAR strRgShcsr[] = "shcsr";
+    CHAR strRgIntCtrl[] = "control";
+    CHAR *strRgs[] = {
+        strRgEnable, strRgPending, strRgActive, strRgPriority,
+        strRgException, strRgShcsr, strRgIntCtrl
+    };
 
-    PRINTK("OS exception NVIC dump: \n");
-    for (i = 0; i < OS_NR_NVIC_EXC_DUMP_Types; i++) {
+    PRINTK("\r\nOS exception NVIC dump:\n");
+    for (i = 0; i < OS_NR_NVIC_EXC_DUMP_TYPES; i++) {
         base = (UINT32 *)rgNvicBases[i];
         len = rgNvicLens[i];
-        PRINTK("interrupt %s register, base address: 0x%x, size: 0x%x\n", strRgs[i], (UINTPTR)base, len);
-        len = (len >> 2);
+        PRINTK("interrupt %s register, base address: 0x%x, size: 0x%x\n", strRgs[i], base, len);
+        len = (len >> 2); /* 2: Gets the next register offset */
         for (j = 0; j < len; j++) {
             PRINTK("0x%x ", *(base + j));
+            if ((j != 0) && ((j % 16) == 0)) { /* 16: print wrap line */
+                PRINTK("\n");
+            }
         }
-        PRINTK("\r\n");
+        PRINTK("\n");
     }
-    return 0;
 }
 
-UINT32 HalExcContextDump(UINT32 index, UINT32 *excContent)
+STATIC VOID OsExcTypeInfo(const ExcInfo *excInfo)
 {
-    (VOID)index;
-    (VOID)excContent;
-    PRINTK("OS exception context dump:\n");
-    PRINTK("Phase      = 0x%x\n", g_excInfo.phase);
-    PRINTK("Type       = 0x%x\n", g_excInfo.type);
-    PRINTK("FaultAddr  = 0x%x\n", g_excInfo.faultAddr);
-    PRINTK("ThrdPid    = 0x%x\n", g_excInfo.thrdPid);
-    PRINTK("R0         = 0x%x\n", g_excInfo.context->uwR0);
-    PRINTK("R1         = 0x%x\n", g_excInfo.context->uwR1);
-    PRINTK("R2         = 0x%x\n", g_excInfo.context->uwR2);
-    PRINTK("R3         = 0x%x\n", g_excInfo.context->uwR3);
-    PRINTK("R4         = 0x%x\n", g_excInfo.context->uwR4);
-    PRINTK("R5         = 0x%x\n", g_excInfo.context->uwR5);
-    PRINTK("R6         = 0x%x\n", g_excInfo.context->uwR6);
-    PRINTK("R7         = 0x%x\n", g_excInfo.context->uwR7);
-    PRINTK("R8         = 0x%x\n", g_excInfo.context->uwR8);
-    PRINTK("R9         = 0x%x\n", g_excInfo.context->uwR9);
-    PRINTK("R10        = 0x%x\n", g_excInfo.context->uwR10);
-    PRINTK("R11        = 0x%x\n", g_excInfo.context->uwR11);
-    PRINTK("R12        = 0x%x\n", g_excInfo.context->uwR12);
-    PRINTK("PriMask    = 0x%x\n", g_excInfo.context->uwPriMask);
-    PRINTK("SP         = 0x%x\n", g_excInfo.context->uwSP);
-    PRINTK("LR         = 0x%x\n", g_excInfo.context->uwLR);
-    PRINTK("PC         = 0x%x\n", g_excInfo.context->uwPC);
-    PRINTK("xPSR       = 0x%x\n", g_excInfo.context->uwxPSR);
-    return 0;
+    CHAR *phaseStr[] = {"exc in init", "exc in task", "exc in hwi"};
+
+    PRINTK("Type      = %d\n", excInfo->type);
+    PRINTK("ThrdPid   = %d\n", excInfo->thrdPid);
+    PRINTK("Phase     = %s\n", phaseStr[excInfo->phase]);
+    PRINTK("FaultAddr = 0x%x\n", excInfo->faultAddr);
+}
+
+STATIC VOID OsExcCurTaskInfo(const ExcInfo *excInfo)
+{
+	PRINTK("Current task info:\n");
+	if (excInfo->phase == OS_EXC_IN_TASK) {
+		LosTaskCB *taskCB = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
+		PRINTK("Task name = %s\n", taskCB->taskName);
+		PRINTK("Task ID   = %d\n", taskCB->taskID);
+		PRINTK("Task SP   = 0x%x\n", taskCB->stackPointer);
+		PRINTK("Task ST   = 0x%x\n", taskCB->topOfStack);
+		PRINTK("Task SS   = 0x%x\n", taskCB->stackSize);
+	} else if (excInfo->phase == OS_EXC_IN_HWI) {
+		PRINTK("Exception occur in interrupt phase!\n");
+	} else {
+		PRINTK("Exception occur in system init phase!\n");
+	}
+}
+
+STATIC VOID OsExcRegInfo(const ExcInfo *excInfo)
+{
+    PRINTK("Exception reg dump:\n");
+    PRINTK("PC        = 0x%x\n", excInfo->context->uwPC);
+    PRINTK("LR        = 0x%x\n", excInfo->context->uwLR);
+    PRINTK("SP        = 0x%x\n", excInfo->context->uwSP);
+    PRINTK("R0        = 0x%x\n", excInfo->context->uwR0);
+    PRINTK("R1        = 0x%x\n", excInfo->context->uwR1);
+    PRINTK("R2        = 0x%x\n", excInfo->context->uwR2);
+    PRINTK("R3        = 0x%x\n", excInfo->context->uwR3);
+    PRINTK("R4        = 0x%x\n", excInfo->context->uwR4);
+    PRINTK("R5        = 0x%x\n", excInfo->context->uwR5);
+    PRINTK("R6        = 0x%x\n", excInfo->context->uwR6);
+    PRINTK("R7        = 0x%x\n", excInfo->context->uwR7);
+    PRINTK("R8        = 0x%x\n", excInfo->context->uwR8);
+    PRINTK("R9        = 0x%x\n", excInfo->context->uwR9);
+    PRINTK("R10       = 0x%x\n", excInfo->context->uwR10);
+    PRINTK("R11       = 0x%x\n", excInfo->context->uwR11);
+    PRINTK("R12       = 0x%x\n", excInfo->context->uwR12);
+    PRINTK("PriMask   = 0x%x\n", excInfo->context->uwPriMask);
+    PRINTK("xPSR      = 0x%x\n", excInfo->context->uwxPSR);
+}
+
+STATIC VOID OsExcBackTraceInfo(const ExcInfo *excInfo)
+{
+    UINTPTR LR[LOSCFG_BACKTRACE_DEPTH] = {0};
+    UINT32 index;
+
+    OsBackTraceHookCall(LR, LOSCFG_BACKTRACE_DEPTH, 0, excInfo->context->uwSP);
+
+    PRINTK("----- backtrace start -----\n");
+    for (index = 0; index < LOSCFG_BACKTRACE_DEPTH; index++) {
+        if (LR[index] == 0) {
+            break;
+        }
+        PRINTK("backtrace %d -- lr = 0x%x\n", index, LR[index]);
+    }
+    PRINTK("----- backtrace end -----\n");
+}
+
+STATIC VOID OsExcMemPoolCheckInfo(VOID)
+{
+    PRINTK("\r\nmemory pools check:\n");
+#if (LOSCFG_PLATFORM_EXC == 1)
+    MemInfoCB memExcInfo[OS_SYS_MEM_NUM];
+    UINT32 errCnt;
+    UINT32 i;
+
+    (VOID)memset_s(memExcInfo, sizeof(memExcInfo), 0, sizeof(memExcInfo));
+
+    errCnt = OsMemExcInfoGet(OS_SYS_MEM_NUM, memExcInfo);
+    if (errCnt < OS_SYS_MEM_NUM) {
+        errCnt += OsMemboxExcInfoGet(OS_SYS_MEM_NUM - errCnt, memExcInfo + errCnt);
+    }
+
+    if (errCnt == 0) {
+        PRINTK("all memory pool check passed!\n");
+        return;
+    }
+
+    for (i = 0; i < errCnt; i++) {
+        PRINTK("pool num    = %d\n", i);
+        PRINTK("pool type   = %d\n", memExcInfo[i].type);
+        PRINTK("pool addr   = 0x%x\n", memExcInfo[i].startAddr);
+        PRINTK("pool size   = 0x%x\n", memExcInfo[i].size);
+        PRINTK("pool free   = 0x%x\n", memExcInfo[i].free);
+        PRINTK("pool blkNum = %d\n", memExcInfo[i].blockSize);
+        PRINTK("pool error node addr  = 0x%x\n", memExcInfo[i].errorAddr);
+        PRINTK("pool error node len   = 0x%x\n", memExcInfo[i].errorLen);
+        PRINTK("pool error node owner = %d\n", memExcInfo[i].errorOwner);
+    }
+#endif
+    UINT32 ret = LOS_MemIntegrityCheck(LOSCFG_SYS_HEAP_ADDR);
+    if (ret == LOS_OK) {
+        PRINTK("system heap memcheck over, all passed!\n");
+    }
+
+    PRINTK("memory pool check end!\n");
+}
+#endif
+
+STATIC VOID OsExcInfoDisplay(const ExcInfo *excInfo)
+{
+#if (LOSCFG_KERNEL_PRINTF != 0)
+    PRINTK("*************Exception Information**************\n");
+    OsExcTypeInfo(excInfo);
+    OsExcCurTaskInfo(excInfo);
+    OsExcRegInfo(excInfo);
+    OsExcBackTraceInfo(excInfo);
+    OsGetAllTskInfo();
+    OsExcNvicDump();
+    OsExcMemPoolCheckInfo();
+#endif
 }
 
 LITE_OS_SEC_TEXT_INIT VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, UINT32 pid, EXC_CONTEXT_S *excBufAddr)
 {
-    UINT16 tmpFlag = (excType >> 16) & OS_NULL_SHORT;
+    UINT16 tmpFlag = (excType >> 16) & OS_NULL_SHORT; /* 16: Get Exception Type */
     g_intCount++;
     g_excInfo.nestCnt++;
 
@@ -369,6 +473,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, U
     }
 
     OsDoExcHook(EXC_INTERRUPT);
+    OsExcInfoDisplay(&g_excInfo);
     HalSysExit();
 }
 
