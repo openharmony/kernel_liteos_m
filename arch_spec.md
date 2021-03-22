@@ -19,7 +19,7 @@
 │   │       ├── los_arch_atomic.h                               --- Atomic operations
 │   │       ├── los_arch_context.h                              --- Context switch
 │   │       ├── los_arch.h                                      --- Initialization
-│   │       └── los_arch_interrupt.h                            --- Interrups
+│   │       └── los_arch_interrupt.h                            --- Interrupts
 │   ├── include
 │   │   ├── los_config.h                                        --- Configuration parameters
 │   │   ├── los_event.h                                         --- Events management
