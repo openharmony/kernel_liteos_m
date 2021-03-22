@@ -62,6 +62,15 @@ make clean; make
 
 After the compilation is successful, the executable file  **NUCLEO-F767.hex**  is generated in the  **cortex-m7\_nucleo\_f767zi\_gcc/build**  directory. Burn the file to the corresponding board using STM32 ST-LINK Utility.
 
+## Change Log
+
+v1.0.1
+1. removed these KAL apis: `KalThreadGetInfo`,`KalDelayUs`,`KalTimerCreate`,`KalTimerStart`,`KalTimerChange`,`KalTimerStop`,`KalTimerDelete`,`KalTimerIsRunning`,`KalTickToMs`,`KalMsToTick`,`KalGetMemInfo`
+2. add some POSIX apis
+
+v1.0
+1. first release
+
 ## Repositories Involved<a name="section1371113476307"></a>
 
 [Kernel subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/kernel.md)
