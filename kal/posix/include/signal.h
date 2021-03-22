@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #define __NEED_pthread_attr_t
+#define __NEED_time_t
 
 #include <bits/alltypes.h>
 
