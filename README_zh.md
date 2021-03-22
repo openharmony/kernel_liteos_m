@@ -62,6 +62,15 @@ make clean; make
 
 编译成功后在cortex-m7\_nucleo\_f767zi\_gcc/build目录下生成NUCLEO-F767.hex可执行文件，通过烧录工具STM32 ST-LINK Utility烧录到对应的单板。
 
+## 修改日志
+
+v1.0.1
+1. 删除以下KAL接口: `KalThreadGetInfo`,`KalDelayUs`,`KalTimerCreate`,`KalTimerStart`,`KalTimerChange`,`KalTimerStop`,`KalTimerDelete`,`KalTimerIsRunning`,`KalTickToMs`,`KalMsToTick`,`KalGetMemInfo`
+2. 添加部分POSIX接口
+
+v1.0
+1. 首次发布
+
 ## 相关仓<a name="section1371113476307"></a>
 
 [内核子系统](https://gitee.com/openharmony/docs/blob/master/zh-cn/readme/%E5%86%85%E6%A0%B8%E5%AD%90%E7%B3%BB%E7%BB%9F.md)
