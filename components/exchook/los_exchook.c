@@ -66,13 +66,14 @@ STATIC VOID DoExcHook(EXC_TYPE excType)
 STATIC struct Node *GetFreeNode(VOID)
 {
     struct Node *node = NULL;
+    int i;
     if (g_excHeads[EXC_TYPE_END] == NULL) {
         if (g_excNodes[0].excHookFn != NULL) {
             /* no free node now */
             return NULL;
         } else {
             /* Initialize the free list */
-            for (int i = 0; i < LOSCFG_BASE_EXC_HOOK_LIMIT; ++i) {
+            for (i = 0; i < LOSCFG_BASE_EXC_HOOK_LIMIT; ++i) {
                 g_excNodes[i].next = g_excHeads[EXC_TYPE_END];
                 g_excHeads[EXC_TYPE_END] = &g_excNodes[i];
             }
