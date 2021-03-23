@@ -73,5 +73,7 @@ v1.0
 
 ## Repositories Involved<a name="section1371113476307"></a>
 
-**[kernel\_liteos\_m](https://gitee.com/openharmony/kernel_liteos_m)**
+[Kernel subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/kernel.md)
+
+**kernel\_liteos\_m**
 
