@@ -493,18 +493,18 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskCpupInfo(CPUP_INFO_S **cpuLessOneSec,
 
 LITE_OS_SEC_TEXT_MINOR VOID OsPrintAllTskInfoHeader()
 {
-    PRINT_ERR("\r\nName                          TID    Priority   Status       "
+    PRINTK("\r\nTID  Priority   Status     "
               "StackSize    WaterLine    StackPoint  TopOfStack   EventMask  SemID");
 #if (LOSCFG_BASE_CORE_CPUP == 1)
-    PRINT_ERR(" CPUUSE   CPUUSE10s  CPUUSE1s  ");
+    PRINTK(" CPUUSE   CPUUSE10s  CPUUSE1s  ");
 #endif /* LOSCFG_BASE_CORE_CPUP */
-    PRINT_ERR("\n");
-    PRINT_ERR("----                          ---    --------   --------     ");
-    PRINT_ERR("---------    ----------   ----------  ----------   ---------  -----");
+    PRINTK("  name\n");
+    PRINTK("---  --------   --------   ");
+    PRINTK("---------    ----------   ----------  ----------   ---------  -----");
 #if (LOSCFG_BASE_CORE_CPUP == 1)
-    PRINT_ERR("  ------- ---------  ---------");
+    PRINTK("  ------- ---------  ---------");
 #endif /* LOSCFG_BASE_CORE_CPUP */
-    PRINT_ERR("\n");
+    PRINTK("  ----\n");
 }
 
 /*****************************************************************************
@@ -544,16 +544,16 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
             continue;
         }
 
-        PRINT_ERR("%-30s, 0x%-5x, %-11d, %-13s, 0x%-11x, 0x%-11x, 0x%-10x, 0x%-11x, 0x%-9x",
-                  taskCB->taskName, taskCB->taskID, taskCB->priority, OsConvertTskStatus(taskCB->taskStatus),
+        PRINTK("%d    %d    %s    0x%x    0x%x    0x%x    0x%x    0x%x    ",
+                  taskCB->taskID, taskCB->priority, OsConvertTskStatus(taskCB->taskStatus),
                   taskCB->stackSize, OsGetTaskWaterLine(taskCB->taskID),
                   (UINT32)(UINTPTR)taskCB->stackPointer, taskCB->topOfStack, taskCB->eventMask);
 
         semID = (taskCB->taskSem == NULL) ? OS_NULL_SHORT : (((LosSemCB *)taskCB->taskSem)->semID);
-        PRINT_ERR("0x%-7x", semID);
+        PRINTK("0x%x    ", semID);
 
 #if (LOSCFG_BASE_CORE_CPUP == 1)
-        PRINT_ERR("%2d.%-7d%2d.%-9d%2d.%-6d",
+        PRINTK("%d.%d %d.%d %d.%d ",
                   cpuLessOneSec[taskCB->taskID].uwUsage / LOS_CPUP_PRECISION_MULT,
                   cpuLessOneSec[taskCB->taskID].uwUsage % LOS_CPUP_PRECISION_MULT,
                   cpuTenSec[taskCB->taskID].uwUsage / LOS_CPUP_PRECISION_MULT,
@@ -561,7 +561,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
                   cpuOneSec[taskCB->taskID].uwUsage / LOS_CPUP_PRECISION_MULT,
                   cpuOneSec[taskCB->taskID].uwUsage % LOS_CPUP_PRECISION_MULT);
 #endif /* LOSCFG_BASE_CORE_CPUP */
-        PRINT_ERR("\n");
+        PRINTK("%s\n", taskCB->taskName);
     }
 
 #if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 1)

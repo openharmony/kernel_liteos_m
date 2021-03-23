@@ -507,7 +507,7 @@ STATIC INLINE VOID OsMemLeakCheckInit(VOID)
 STATIC INLINE VOID OsMemLinkRegisterRecord(struct OsMemNodeHead *node)
 {
     (VOID)memset_s(node->linkReg, sizeof(node->linkReg), 0, sizeof(node->linkReg));
-    OsBackTraceHookCall(node->linkReg, LOSCFG_MEM_RECORD_LR_CNT, LOSCFG_MEM_OMIT_LR_CNT);
+    OsBackTraceHookCall(node->linkReg, LOSCFG_MEM_RECORD_LR_CNT, LOSCFG_MEM_OMIT_LR_CNT, 0);
 }
 
 STATIC INLINE VOID OsMemUsedNodePrint(struct OsMemNodeHead *node)
@@ -1546,13 +1546,13 @@ STATIC INLINE VOID OsMemMagicCheckPrint(struct OsMemNodeHead **tmpNode)
 
 STATIC UINT32 OsMemAddrValidCheckPrint(const VOID *pool, struct OsMemFreeNodeHead **tmpNode)
 {
-    if (((*tmpNode)->prev != NULL) && !OsMemAddrValidCheck(pool, (*tmpNode)->prev)) {
+    if (!OsMemAddrValidCheck(pool, (*tmpNode)->prev)) {
         PRINT_ERR("[%s], %d, memory check error!\n"
                   " freeNode.prev: 0x%x is out of legal mem range\n",
                   __FUNCTION__, __LINE__, (*tmpNode)->prev);
         return LOS_NOK;
     }
-    if (((*tmpNode)->next != NULL) && !OsMemAddrValidCheck(pool, (*tmpNode)->next)) {
+    if (!OsMemAddrValidCheck(pool, (*tmpNode)->next)) {
         PRINT_ERR("[%s], %d, memory check error!\n"
                   " freeNode.next: 0x%x is out of legal mem range\n",
                   __FUNCTION__, __LINE__, (*tmpNode)->next);
@@ -1573,6 +1573,7 @@ STATIC UINT32 OsMemIntegrityCheckSub(struct OsMemNodeHead **tmpNode, const VOID 
         PRINT_ERR("[%s], %d, memory check error!\n"
                   " node prev: 0x%x is out of legal mem range\n",
                   __FUNCTION__, __LINE__, (*tmpNode)->ptr.next);
+        return LOS_NOK;
     }
 
     if (!OS_MEM_NODE_GET_USED_FLAG((*tmpNode)->sizeAndFlag)) { /* is free node, check free node range */
@@ -2036,14 +2037,16 @@ STATIC VOID OsMemExcInfoGetSub(struct OsMemPoolHead *pool, MemInfoCB *memExcInfo
     memExcInfo->type = MEM_MANG_MEMORY;
     memExcInfo->startAddr = (UINTPTR)pool->info.pool;
     memExcInfo->size = pool->info.totalSize;
-    memExcInfo->free = pool->info.totalSize - LOS_MemTotalUsedGet(pool);
+    memExcInfo->free = pool->info.totalSize - pool->info.curUsedSize;
 
-    for (tmpNode = OS_MEM_FIRST_NODE(pool);
-        tmpNode < OS_MEM_END_NODE(pool, pool->info.totalSize);
-        tmpNode = OS_MEM_NEXT_NODE(tmpNode)) {
+    struct OsMemNodeHead *firstNode = OS_MEM_FIRST_NODE(pool);
+    struct OsMemNodeHead *endNode = OS_MEM_END_NODE(pool, pool->info.totalSize);
+
+    for (tmpNode = firstNode; tmpNode < endNode; tmpNode = OS_MEM_NEXT_NODE(tmpNode)) {
         memExcInfo->blockSize++;
         if (OS_MEM_NODE_GET_USED_FLAG(tmpNode->sizeAndFlag)) {
-            if (!OS_MEM_MAGIC_VALID(tmpNode)) {
+            if (!OS_MEM_MAGIC_VALID(tmpNode) ||
+                !OsMemAddrValidCheck(pool, tmpNode->ptr.prev)) {
 #if (LOSCFG_MEM_FREE_BY_TASKID == 1)
                 taskID = ((struct OsMemUsedNodeHead *)tmpNode)->header.taskID;
 #endif
@@ -2051,10 +2054,7 @@ STATIC VOID OsMemExcInfoGetSub(struct OsMemPoolHead *pool, MemInfoCB *memExcInfo
             }
         } else { /* is free node, check free node range */
             struct OsMemFreeNodeHead *freeNode = (struct OsMemFreeNodeHead *)tmpNode;
-            if ((freeNode->prev != NULL) && !OsMemAddrValidCheck(pool, freeNode->prev)) {
-                goto ERROUT;
-            }
-            if ((freeNode->next != NULL) && !OsMemAddrValidCheck(pool, freeNode->next)) {
+            if (OsMemAddrValidCheckPrint(pool, &freeNode)) {
                 goto ERROUT;
             }
         }
