@@ -554,12 +554,12 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
 
 #if (LOSCFG_BASE_CORE_CPUP == 1)
         PRINTK("%d.%d %d.%d %d.%d ",
-                  cpuLessOneSec[taskCB->taskID].uwUsage / LOS_CPUP_PRECISION_MULT,
-                  cpuLessOneSec[taskCB->taskID].uwUsage % LOS_CPUP_PRECISION_MULT,
-                  cpuTenSec[taskCB->taskID].uwUsage / LOS_CPUP_PRECISION_MULT,
-                  cpuTenSec[taskCB->taskID].uwUsage % LOS_CPUP_PRECISION_MULT,
-                  cpuOneSec[taskCB->taskID].uwUsage / LOS_CPUP_PRECISION_MULT,
-                  cpuOneSec[taskCB->taskID].uwUsage % LOS_CPUP_PRECISION_MULT);
+               cpuLessOneSec[taskCB->taskID].uwUsage / LOS_CPUP_PRECISION_MULT,
+               cpuLessOneSec[taskCB->taskID].uwUsage % LOS_CPUP_PRECISION_MULT,
+               cpuTenSec[taskCB->taskID].uwUsage / LOS_CPUP_PRECISION_MULT,
+               cpuTenSec[taskCB->taskID].uwUsage % LOS_CPUP_PRECISION_MULT,
+               cpuOneSec[taskCB->taskID].uwUsage / LOS_CPUP_PRECISION_MULT,
+               cpuOneSec[taskCB->taskID].uwUsage % LOS_CPUP_PRECISION_MULT);
 #endif /* LOSCFG_BASE_CORE_CPUP */
         PRINTK("%s\n", taskCB->taskName);
     }

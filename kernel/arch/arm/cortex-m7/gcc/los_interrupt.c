@@ -331,19 +331,19 @@ STATIC VOID OsExcTypeInfo(const ExcInfo *excInfo)
 
 STATIC VOID OsExcCurTaskInfo(const ExcInfo *excInfo)
 {
-	PRINTK("Current task info:\n");
-	if (excInfo->phase == OS_EXC_IN_TASK) {
-		LosTaskCB *taskCB = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
-		PRINTK("Task name = %s\n", taskCB->taskName);
-		PRINTK("Task ID   = %d\n", taskCB->taskID);
-		PRINTK("Task SP   = 0x%x\n", taskCB->stackPointer);
-		PRINTK("Task ST   = 0x%x\n", taskCB->topOfStack);
-		PRINTK("Task SS   = 0x%x\n", taskCB->stackSize);
-	} else if (excInfo->phase == OS_EXC_IN_HWI) {
-		PRINTK("Exception occur in interrupt phase!\n");
-	} else {
-		PRINTK("Exception occur in system init phase!\n");
-	}
+    PRINTK("Current task info:\n");
+    if (excInfo->phase == OS_EXC_IN_TASK) {
+        LosTaskCB *taskCB = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
+        PRINTK("Task name = %s\n", taskCB->taskName);
+        PRINTK("Task ID   = %d\n", taskCB->taskID);
+        PRINTK("Task SP   = 0x%x\n", taskCB->stackPointer);
+        PRINTK("Task ST   = 0x%x\n", taskCB->topOfStack);
+        PRINTK("Task SS   = 0x%x\n", taskCB->stackSize);
+    } else if (excInfo->phase == OS_EXC_IN_HWI) {
+        PRINTK("Exception occur in interrupt phase!\n");
+    } else {
+        PRINTK("Exception occur in system init phase!\n");
+    }
 }
 
 STATIC VOID OsExcRegInfo(const ExcInfo *excInfo)
