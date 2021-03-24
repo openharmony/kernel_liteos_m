@@ -111,6 +111,8 @@ HalTaskSchedule
     LDR     R0, =OS_NVIC_INT_CTRL
     LDR     R1, =OS_NVIC_PENDSVSET
     STR     R1, [R0]
+    DSB
+    ISB
     BX      LR
 
 HalPendSV
