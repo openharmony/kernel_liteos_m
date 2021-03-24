@@ -145,6 +145,8 @@ HalTaskSchedule:
     ldr     r1, =OS_NVIC_PENDSVSET
     str     r1, [r0]
     bx      lr
+    dsb
+    isb
    .fnend
 
 
