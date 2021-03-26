@@ -38,8 +38,11 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
-#define SIZE_4G_BYTE 0x100000000
-#define MPU_MAX_REGION_NUM 16
+#define SIZE_4G_BYTE        0x100000000
+#define MPU_MAX_REGION_NUM  8
+
+STATIC UINT8 g_regionNumBeUsed[MPU_MAX_REGION_NUM] = {0};
+
 typedef enum {
     MPU_AP_FORBID_USER_FORBID = 0x0, /* Privileged:No access      Unprivileged:No access */
     MPU_AP_RW_USER_FORBID = 0x1,     /* Privileged:Read/Write     Unprivileged:No access */
@@ -157,9 +160,14 @@ UINT32 HalMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para)
     UINTPTR intSave;
     UINT64 size;
 
-    if ((regionId >= MPU_MAX_REGION_NUM)||(para == NULL)) {
+    if ((regionId >= MPU_MAX_REGION_NUM) || (para == NULL)) {
         return LOS_NOK;
     }
+
+    if ((MPU_TYPE_DREGION_Msk & MPU->TYPE) == 0) {
+        return LOS_NOK;
+    }
+
     RNR = regionId;
     encodeSize = HalMpuEncodeSize(para->size);
     if (encodeSize == 0) {
@@ -172,11 +180,16 @@ UINT32 HalMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para)
     RBAR = para->baseAddr & MPU_RBAR_ADDR_Msk;
     RASR = HalMpuGetRASR(encodeSize, para);
     intSave = HalIntLock();
+    if (g_regionNumBeUsed[regionId]) {
+        HalIntRestore(intSave);
+        return LOS_NOK;
+    }
     MPU->RNR = RNR;
     MPU->RBAR = RBAR;
     MPU->RASR = RASR;
     __DSB();
     __ISB();
+    g_regionNumBeUsed[regionId] = 1; /* Set mpu region used flag */
     HalIntRestore(intSave);
     return LOS_OK;
 }
@@ -185,10 +198,17 @@ UINT32 HalMpuDisableRegion(UINT32 regionId)
 {
     volatile UINT32 type;
     UINTPTR intSave;
+
     if (regionId >= MPU_MAX_REGION_NUM) {
         return LOS_NOK;
     }
+
     intSave = HalIntLock();
+    if (!g_regionNumBeUsed[regionId]) {
+        HalIntRestore(intSave);
+        return LOS_NOK;
+    }
+
     type = MPU->TYPE;
     if ((MPU_TYPE_DREGION_Msk & type) != 0) {
         MPU->RNR = regionId;
@@ -196,8 +216,27 @@ UINT32 HalMpuDisableRegion(UINT32 regionId)
         __DSB();
         __ISB();
     }
+    g_regionNumBeUsed[regionId] = 0; /* clear mpu region used flag */
     HalIntRestore(intSave);
     return LOS_OK;
+}
+
+INT32 HalMpuUnusedRegionGet(VOID)
+{
+    INT32 id;
+    UINTPTR intSave = HalIntLock();
+    for (id = 0; id < MPU_MAX_REGION_NUM; id++) {
+        if (!g_regionNumBeUsed[id]) {
+            break;
+        }
+    }
+    HalIntRestore(intSave);
+
+    if (id == MPU_MAX_REGION_NUM) {
+        return -1;
+    } else {
+        return id;
+    }
 }
 
 #ifdef __cplusplus

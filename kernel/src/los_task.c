@@ -39,6 +39,7 @@
 #include "los_cpup.h"
 #endif
 #include "los_debug.h"
+#include "los_mpu.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -97,8 +98,9 @@ extern "C" {
 LITE_OS_SEC_BSS LOS_DL_LIST *g_losPriorityQueueList = NULL;
 static LITE_OS_SEC_BSS UINT32 g_priqueueBitmap = 0;
 
-#define PRIQUEUE_PRIOR0_BIT           (UINT32)0x80000000
-#define OS_PRIORITY_QUEUE_PRIORITYNUM 32
+#define PRIQUEUE_PRIOR0_BIT              (UINT32)0x80000000
+#define OS_PRIORITY_QUEUE_PRIORITYNUM    32
+#define OS_TASK_STACK_PROTECT_SIZE       32
 
 LITE_OS_SEC_BSS  LosTaskCB                           *g_taskCBArray = NULL;
 LITE_OS_SEC_BSS  LosTask                             g_losTask;
@@ -196,13 +198,19 @@ STATIC VOID OsRecyleFinishedTask(VOID)
 {
     LosTaskCB *taskCB = NULL;
     UINTPTR intSave;
+    UINTPTR stackPtr;
 
     intSave = LOS_IntLock();
     while (!LOS_ListEmpty(&g_taskRecyleList)) {
         taskCB = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&g_taskRecyleList));
         LOS_ListDelete(LOS_DL_LIST_FIRST(&g_taskRecyleList));
         LOS_ListAdd(&g_losFreeTask, &taskCB->pendList);
-        (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, (VOID *)(UINTPTR)taskCB->topOfStack);
+#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 1)
+        stackPtr = taskCB->topOfStack - OS_TASK_STACK_PROTECT_SIZE;
+#else
+        stackPtr = taskCB->topOfStack;
+#endif
+        (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, (VOID *)stackPtr);
         taskCB->topOfStack = (UINT32)NULL;
     }
     LOS_IntRestore(intSave);
@@ -534,10 +542,6 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
 
     OsPrintAllTskInfoHeader();
 
-#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 1)
-    UINT32 flag = osStackProtDisable();
-#endif
-
     for (loopNum = 0; loopNum < g_taskMaxNum; loopNum++) {
         taskCB = (((LosTaskCB *)g_taskCBArray) + loopNum);
         if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
@@ -563,10 +567,6 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
 #endif /* LOSCFG_BASE_CORE_CPUP */
         PRINTK("%s\n", taskCB->taskName);
     }
-
-#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 1)
-    osStackProtRestore(flag);
-#endif
 
 #if (LOSCFG_BASE_CORE_CPUP == 1)
     (VOID)LOS_MemFree((VOID *)OS_SYS_MEM_ADDR, cpuLessOneSec);
@@ -753,6 +753,32 @@ LITE_OS_SEC_TEXT STATIC VOID OsHandleNewTaskStackOverflow(VOID)
     OsDoExcHook(EXC_STACKOVERFLOW);
     g_losTask.runTask = tmp;
 }
+#else
+LITE_OS_SEC_TEXT STATIC VOID OsTaskStackProtect(VOID)
+{
+    MPU_CFG_PARA mpuAttr = {0};
+    STATIC INT32 id = -1;
+
+    if (id == -1) {
+        id = HalMpuUnusedRegionGet();
+        if (id < 0) {
+            PRINT_ERR("%s %d, get unused id failed!\n", __FUNCTION__, __LINE__);
+            return;
+        }
+    }
+
+    mpuAttr.baseAddr = g_losTask.newTask->topOfStack - OS_TASK_STACK_PROTECT_SIZE;
+    mpuAttr.size = OS_TASK_STACK_PROTECT_SIZE;
+    mpuAttr.memType = MPU_MEM_ON_CHIP_RAM;
+    mpuAttr.executable = MPU_NON_EXECUTABLE;
+    mpuAttr.shareability = MPU_NO_SHARE;
+    mpuAttr.permission = MPU_RO_BY_PRIVILEGED_ONLY;
+
+    HalMpuDisable();
+    (VOID)HalMpuDisableRegion(id);
+    (VOID)HalMpuSetRegion(id, &mpuAttr);
+    HalMpuEnable(1);
+}
 #endif
 #endif
 
@@ -777,6 +803,8 @@ LITE_OS_SEC_TEXT VOID OsTaskSwitchCheck(VOID)
         ((UINT32)(UINTPTR)(g_losTask.newTask->stackPointer) > endOfStack)) {
         OsHandleNewTaskStackOverflow();
     }
+#else
+    OsTaskStackProtect();
 #endif
 
 #if (LOSCFG_BASE_CORE_EXC_TSK_SWITCH == 1)
@@ -938,8 +966,14 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S
 
     LOS_IntRestore(intSave);
 
+#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 1)
+    UINTPTR stackPtr = (UINTPTR)LOS_MemAllocAlign(OS_TASK_STACK_ADDR, taskInitParam->uwStackSize +
+        OS_TASK_STACK_PROTECT_SIZE, OS_TASK_STACK_PROTECT_SIZE);
+    topOfStack = (VOID *)(stackPtr + OS_TASK_STACK_PROTECT_SIZE);
+#else
     topOfStack = (VOID *)LOS_MemAllocAlign(OS_TASK_STACK_ADDR, taskInitParam->uwStackSize,
         LOSCFG_STACK_POINT_ALIGN_SIZE);
+#endif
     if (topOfStack == NULL) {
         intSave = LOS_IntLock();
         LOS_ListAdd(&g_losFreeTask, &taskCB->pendList);
@@ -1147,6 +1181,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
 {
     UINTPTR intSave;
     LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
+    UINTPTR stackPtr;
 
     UINT32 ret = OsCheckTaskIDValid(taskID);
     if (ret != LOS_OK) {
@@ -1195,7 +1230,12 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
     } else {
         taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
         LOS_ListAdd(&g_losFreeTask, &taskCB->pendList);
-        (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, (VOID *)(UINTPTR)taskCB->topOfStack);
+#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 1)
+        stackPtr = taskCB->topOfStack - OS_TASK_STACK_PROTECT_SIZE;
+#else
+        stackPtr = taskCB->topOfStack;
+#endif
+        (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, (VOID *)stackPtr);
         taskCB->topOfStack = (UINT32)NULL;
     }
 
@@ -1447,9 +1487,6 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskInfoGet(UINT32 taskID, TSK_INFO_S *taskInf
 {
     UINT32 intSave;
     LosTaskCB *taskCB = NULL;
-#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 1)
-    UINT32 flag;
-#endif
 
     if (taskInfo == NULL) {
         return LOS_ERRNO_TSK_PTR_NULL;
@@ -1488,18 +1525,8 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskInfoGet(UINT32 taskID, TSK_INFO_S *taskInf
     taskInfo->uwBottomOfStack = TRUNCATE(((UINT32)(taskCB->topOfStack) + (taskCB->stackSize)),
                                          OS_TASK_STACK_ADDR_ALIGN);
     taskInfo->uwCurrUsed = taskInfo->uwBottomOfStack - taskInfo->uwSP;
-
-#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 1)
-    flag = osStackProtDisable();
-#endif
-
     taskInfo->uwPeakUsed = OsGetTaskWaterLine(taskID);
     taskInfo->bOvf = (taskInfo->uwPeakUsed == OS_NULL_INT) ? TRUE : FALSE;
-
-#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 1)
-    osStackProtRestore(flag);
-#endif
-
     LOS_IntRestore(intSave);
 
     return LOS_OK;
