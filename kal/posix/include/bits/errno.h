@@ -1,3 +1,4 @@
+#define ENOERR           0
 #define EPERM            1
 #define ENOENT           2
 #define ESRCH            3

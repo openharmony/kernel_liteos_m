@@ -437,7 +437,32 @@ typedef struct { unsigned __attr[2]; } pthread_rwlockattr_t;
 
 
 #if defined(__NEED_struct__IO_FILE) && !defined(__DEFINED_struct__IO_FILE)
-struct _IO_FILE { char __x; };
+struct _IO_FILE {
+  unsigned flags;
+  unsigned char *rpos, *rend;
+  int (*close)(struct _IO_FILE *);
+  unsigned char *wend, *wpos;
+  unsigned char *mustbezero_1;
+  unsigned char *wbase;
+  size_t (*read)(struct _IO_FILE *, unsigned char *, size_t);
+  size_t (*write)(struct _IO_FILE *, const unsigned char *, size_t);
+  off_t (*seek)(struct _IO_FILE *, off_t, int);
+  unsigned char *buf;
+  size_t buf_size;
+  struct _IO_FILE *prev, *next;
+  int fd;
+  int pipe_pid;
+  int mode;
+  void *lock;
+  int lbf;
+  void *cookie;
+  off_t off;
+  char *getln_buf;
+  void *mustbezero_2;
+  unsigned char *shend;
+  off_t shlim, shcnt;
+  struct __locale_struct *locale;
+};
 #define __DEFINED_struct__IO_FILE
 #endif
 
@@ -535,7 +560,13 @@ typedef struct { union { int __i[sizeof(long)==8?10:6]; volatile int __vi[sizeof
 #endif
 
 #if defined(__NEED_pthread_cond_t) && !defined(__DEFINED_pthread_cond_t)
-typedef struct { union { int __i[12]; volatile int __vi[12]; void *__p[12*sizeof(int)/sizeof(void*)]; } __u; } pthread_cond_t;
+#include "los_event.h"
+typedef struct pthread_cond {
+  volatile int count;      /**< The number of tasks blocked by condition */
+  EVENT_CB_S event;        /**< Event object*/
+  pthread_mutex_t* mutex;  /**< Mutex locker for condition variable protection */
+  volatile int value;      /**< Condition variable state value*/
+} pthread_cond_t;
 #define __DEFINED_pthread_cond_t
 #endif
 

@@ -32,6 +32,7 @@
 #include <semaphore.h>
 #include <errno.h>
 #include "los_sem.h"
+#include "time_internal.h"
 
 #define _SEM_MAGIC 0xEBCFDEA1
 
@@ -130,6 +131,55 @@ int sem_post(sem_t *sem)
     }
 
     ret = LOS_SemPost((UINT32)sem->s_handle);
+    if (ret != LOS_OK) {
+        errno = MapError(ret);
+        return -1;
+    }
+
+    return 0;
+}
+
+static long long GetTickTimeFromNow(const struct timespec *absTimeSpec)
+{
+    struct timespec tsNow = { 0 };
+    long long ns;
+    long long tick;
+
+    clock_gettime(CLOCK_REALTIME, &tsNow);
+    ns = (absTimeSpec->tv_sec - tsNow.tv_sec) * OS_SYS_NS_PER_SECOND + (absTimeSpec->tv_nsec - tsNow.tv_nsec);
+
+    /* Round up for ticks */
+    tick = (ns * LOSCFG_BASE_CORE_TICK_PER_SECOND + (OS_SYS_NS_PER_SECOND - 1)) / OS_SYS_NS_PER_SECOND;
+    return tick;
+}
+
+int sem_timedwait(sem_t *sem, const struct timespec *timeout)
+{
+    UINT32 ret;
+    long long tickCnt;
+    struct timespec tsNow = { 0 };
+
+    if ((sem == NULL) || (sem->s_magic != _SEM_MAGIC)) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (!ValidTimeSpec(timeout)) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    tickCnt = GetTickTimeFromNow(timeout);
+    if (tickCnt < 0) {
+        errno = ETIMEDOUT;
+        return -1;
+    }
+
+    if (tickCnt > LOS_WAIT_FOREVER) {
+        tickCnt = LOS_WAIT_FOREVER;
+    }
+
+    ret = LOS_SemPend((UINT32)sem->s_handle, (UINT32)tickCnt);
     if (ret != LOS_OK) {
         errno = MapError(ret);
         return -1;
