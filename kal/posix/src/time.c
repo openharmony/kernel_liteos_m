@@ -36,34 +36,12 @@
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
+#include "time_internal.h"
 #include "los_debug.h"
 #include "los_task.h"
 #include "los_swtmr.h"
 #include "los_timer.h"
 #include "los_context.h"
-
-#ifndef STATIC
-#define STATIC static
-#endif
-
-#define OS_SYS_NS_PER_US 1000
-#define OS_SYS_NS_PER_SECOND 1000000000
-#define OS_SYS_US_PER_SECOND 1000000
-#define OS_SYS_MS_PER_SECOND 1000
-
-#define TM_YEAR_BASE         1900
-#define EPOCH_YEAR           1970
-#define SECS_PER_MIN         60
-#define MINS_PER_HOUR        60
-#define SECS_PER_HOUR        3600  /* 60 * 60 */
-#define SECS_PER_DAY         86400 /* 60 * 60 * 24 */
-#define SECS_PER_NORMAL_YEAR 31536000 /* 60 * 60 * 24 * 365 */
-#define DAYS_PER_WEEK        7
-#define DAYS_PER_NORMAL_YEAR 365
-#define DAYS_PER_LEAP_YEAR   366
-#define BEGIN_WEEKDAY        4
-#define TIME_ZONE_MAX        720 /* 12 * 60 */
-#define TIME_ZONE_MIN        (-840) /* -14 * 60 */
 
 /* accumulative time delta from discontinuous modify */
 STATIC struct timespec g_accDeltaFromSet;
@@ -77,26 +55,6 @@ STATIC const UINT16 g_daysInMonth[2][13] = {
 
 STATIC const UINT8 g_montbl[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-/*
- * Nonzero if YEAR is a leap year (every 4 years,
- * except every 100th isn't, and every 400th is).
- */
-#ifndef IS_LEAP_YEAR
-#define IS_LEAP_YEAR(year) \
-    (((year) % 4 == 0) && (((year) % 100 != 0) || ((year) % 400 == 0)))
-#endif
-/* The lowest two bytes indicate minutes of the time zone */
-#ifndef OFFSET_TO_MINUTE
-#define OFFSET_TO_MINUTE(time) (((time) < 0) ? (-(time)) : (time))
-#endif
-/* The highest 31 bytes, 1 indicates eastern time zone，0 indicates western time zone */
-#ifndef TIME_ZONE_SIGN
-#define TIME_ZONE_SIGN(time) ((time) >> 31)
-#endif
-
-#define DIV(a, b) (((a) / (b)) - ((a) % (b) < 0))
-#define LEAPS_THRU_END_OF(y) (DIV (y, 4) - DIV (y, 100) + DIV (y, 400))
-
 static UINT64 g_rtcTimeBase = 0;
 static UINT64 g_systickBase = 0;
 
@@ -107,42 +65,6 @@ static UINT64 g_systickBase = 0;
  */
 static INT32 g_rtcTimeZone = -480;
 static struct tm g_tm = {0};
-
-/* internal functions */
-STATIC INLINE BOOL ValidTimeSpec(const struct timespec *tp)
-{
-    /* Fail a NULL pointer */
-    if (tp == NULL) {
-        return FALSE;
-    }
-
-    /* Fail illegal nanosecond values */
-    if ((tp->tv_nsec < 0) || (tp->tv_nsec >= OS_SYS_NS_PER_SECOND) || (tp->tv_sec < 0)) {
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-STATIC INLINE UINT32 OsTimeSpec2Tick(const struct timespec *tp)
-{
-    UINT64 tick, ns;
-
-    ns = (UINT64)tp->tv_sec * OS_SYS_NS_PER_SECOND + tp->tv_nsec;
-    /* Round up for ticks */
-    tick = (ns * LOSCFG_BASE_CORE_TICK_PER_SECOND + (OS_SYS_NS_PER_SECOND - 1)) / OS_SYS_NS_PER_SECOND;
-    if (tick > LOS_WAIT_FOREVER) {
-        tick = LOS_WAIT_FOREVER;
-    }
-    return (UINT32)tick;
-}
-
-STATIC INLINE VOID OsTick2TimeSpec(struct timespec *tp, UINT32 tick)
-{
-    UINT64 ns = ((UINT64)tick * OS_SYS_NS_PER_SECOND) / LOSCFG_BASE_CORE_TICK_PER_SECOND;
-    tp->tv_sec = (time_t)(ns / OS_SYS_NS_PER_SECOND);
-    tp->tv_nsec = (long)(ns % OS_SYS_NS_PER_SECOND);
-}
 
 int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
 {
@@ -720,4 +642,14 @@ int settimeofday(const struct timeval *tv, const struct timezone *tz)
     HalSetRtcTime(g_rtcTimeBase, &usec);
     HalSetRtcTimeZone(g_rtcTimeZone);
     return 0;
+}
+
+int usleep(unsigned useconds)
+{
+    struct timespec specTime = { 0 };
+    UINT64 nanoseconds = useconds * OS_SYS_NS_PER_US;
+
+    specTime.tv_sec = (time_t)(nanoseconds / OS_SYS_NS_PER_SECOND);
+    specTime.tv_nsec = (long)(nanoseconds % OS_SYS_NS_PER_SECOND);
+    return nanosleep(&specTime, NULL);
 }
