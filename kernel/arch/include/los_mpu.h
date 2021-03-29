@@ -83,6 +83,7 @@ VOID HalMpuEnable(UINT32 defaultRegionEnable);
 VOID HalMpuDisable();
 UINT32 HalMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para);
 UINT32 HalMpuDisableRegion(UINT32 regionId);
+INT32 HalMpuUnusedRegionGet(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus
