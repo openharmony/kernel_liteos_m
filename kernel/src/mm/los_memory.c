@@ -894,7 +894,13 @@ UINT32 LOS_MemInit(VOID *pool, UINT32 size)
         return OS_ERROR;
     }
 
-    size = OS_MEM_ALIGN(size, OS_MEM_ALIGN_SIZE);
+    if (((UINTPTR)pool & (OS_MEM_ALIGN_SIZE - 1)) || \
+        (size & (OS_MEM_ALIGN_SIZE - 1))) {
+        PRINT_ERR("LiteOS heap memory address or size configured not aligned:address:0x%x,size:0x%x, alignsize:%d\n", \
+                  (UINTPTR)pool, size, OS_MEM_ALIGN_SIZE);
+        return OS_ERROR;
+    }
+
     if (OsMemPoolInit(pool, size)) {
         return OS_ERROR;
     }
@@ -2013,11 +2019,6 @@ UINT32 OsMemSystemInit(VOID)
 #else
     m_aucSysMem0 = LOSCFG_SYS_HEAP_ADDR;
 #endif
-
-    if ((UINTPTR)m_aucSysMem0 & (OS_MEM_ALIGN_SIZE - 1)) {
-        m_aucSysMem0 = (UINT8 *)(((UINTPTR)m_aucSysMem0 + (OS_MEM_ALIGN_SIZE - 1)) &
-                       ~(OS_MEM_ALIGN_SIZE - 1));
-    }
 
     ret = LOS_MemInit(m_aucSysMem0, LOSCFG_SYS_HEAP_SIZE);
     PRINT_INFO("LiteOS heap memory address:0x%x,size:0x%x\n", m_aucSysMem0, LOSCFG_SYS_HEAP_SIZE);
