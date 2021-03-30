@@ -41,15 +41,15 @@
 #include <los_timer.h>
 #include <los_config.h>
 
-#define YES 1
-#define NO 0
-#define LOSCFG_KERNEL_SMP NO
+#ifndef LOSCFG_KERNEL_SMP
+#define LOSCFG_KERNEL_SMP 0
+#endif
 
-#if (LOSCFG_KERNEL_SMP == YES)
+#if (LOSCFG_KERNEL_SMP)
 SPIN_LOCK_INIT(arch_protect_spin);
 static u32_t lwprot_thread = LOS_ERRNO_TSK_ID_INVALID;
 static int lwprot_count = 0;
-#endif /* LOSCFG_KERNEL_SMP == YES */
+#endif /* LOSCFG_KERNEL_SMP */
 
 #define ROUND_UP_DIV(val, div) (((val) + (div) - 1) / (div))
 #define LWIP_LOG_BUF_SIZE 64
@@ -98,7 +98,7 @@ u32_t sys_now(void)
  */
 sys_prot_t sys_arch_protect(void)
 {
-#if (LOSCFG_KERNEL_SMP == YES)
+#if (LOSCFG_KERNEL_SMP)
     /* Note that we are using spinlock instead of mutex for LiteOS-SMP here:
      * 1. spinlock is more effective for short critical region protection.
      * 2. this function is called only in task context, not in interrupt handler.
@@ -116,14 +116,14 @@ sys_prot_t sys_arch_protect(void)
     }
 #else
     LOS_TaskLock();
-#endif /* LOSCFG_KERNEL_SMP == YES */
+#endif /* LOSCFG_KERNEL_SMP */
     return 0; /* return value is unused */
 }
 
 void sys_arch_unprotect(sys_prot_t pval)
 {
     LWIP_UNUSED_ARG(pval);
-#if (LOSCFG_KERNEL_SMP == YES)
+#if (LOSCFG_KERNEL_SMP)
     if (lwprot_thread == LOS_CurTaskIDGet()) {
         lwprot_count--;
         if (lwprot_count == 0) {
@@ -133,7 +133,7 @@ void sys_arch_unprotect(sys_prot_t pval)
     }
 #else
     LOS_TaskUnlock();
-#endif /* LOSCFG_KERNEL_SMP == YES */
+#endif /* LOSCFG_KERNEL_SMP */
 }
 
 /**
