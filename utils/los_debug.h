@@ -165,9 +165,9 @@ extern VOID HalConsoleOutput(LogModuleType type, INT32 level, const CHAR *fmt, .
     } while (0)
 #endif
 
-typedef VOID (*BACK_TRACE_HOOK)(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount);
+typedef VOID (*BACK_TRACE_HOOK)(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP);
 extern VOID OsBackTraceHookSet(BACK_TRACE_HOOK hook);
-extern VOID OsBackTraceHookCall(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount);
+extern VOID OsBackTraceHookCall(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP);
 
 /**
  * @ingroup los_trace

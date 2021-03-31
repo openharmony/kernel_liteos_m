@@ -10,6 +10,8 @@
       <TargetName>los_demo</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F103RB</Device>
@@ -30,6 +32,7 @@
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
           <SFDFile>SFD\ST\STM32F1xx\STM32F103xx.sfr</SFDFile>
+          <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
@@ -71,6 +74,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopB1X>0</nStopB1X>
+            <nStopB2X>0</nStopB2X>
           </BeforeMake>
           <AfterMake>
             <RunUserProg1>0</RunUserProg1>
@@ -79,6 +84,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopA1X>0</nStopA1X>
+            <nStopA2X>0</nStopA2X>
           </AfterMake>
           <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
@@ -97,6 +104,7 @@
           <StopOnExitCode>3</StopOnExitCode>
           <CustomArgument></CustomArgument>
           <IncludeLibraryModules></IncludeLibraryModules>
+          <ComprImg>1</ComprImg>
         </CommonProperty>
         <DllOption>
           <SimDllName>SARMCM3.DLL</SimDllName>
@@ -126,6 +134,7 @@
             <RestoreFunctions>1</RestoreFunctions>
             <RestoreToolbox>1</RestoreToolbox>
             <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
+            <RestoreSysVw>1</RestoreSysVw>
           </Simulator>
           <Target>
             <UseTarget>0</UseTarget>
@@ -137,6 +146,7 @@
             <RestoreFunctions>0</RestoreFunctions>
             <RestoreToolbox>1</RestoreToolbox>
             <RestoreTracepoints>1</RestoreTracepoints>
+            <RestoreSysVw>1</RestoreSysVw>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
           <TargetSelection>0</TargetSelection>
@@ -169,6 +179,10 @@
           <Flash2>BIN\UL2CM3.DLL</Flash2>
           <Flash3></Flash3>
           <Flash4></Flash4>
+          <pFcarmOut></pFcarmOut>
+          <pFcarmGrp></pFcarmGrp>
+          <pFcArmRoot></pFcArmRoot>
+          <FcArmLst>0</FcArmLst>
         </Utilities>
         <TargetArmAds>
           <ArmAdsMisc>
@@ -209,12 +223,15 @@
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
             <RvdsVP>0</RvdsVP>
+            <RvdsMve>0</RvdsMve>
+            <RvdsCdeCp>0</RvdsCdeCp>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
             <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
+            <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>3</RwSelD>
             <CodeSel>0</CodeSel>
@@ -347,11 +364,21 @@
             <wLevel>0</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
+            <uC99>0</uC99>
+            <uGnu>0</uGnu>
+            <useXO>0</useXO>
+            <v6Lang>1</v6Lang>
+            <v6LangP>1</v6LangP>
+            <vShortEn>1</vShortEn>
+            <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--gnu</MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\cortex-m3_stm32f103_simulator_keil;..\..\..\kernel\include;..\..\..\kernel\arch\arm\cortex-m3\keil;..\..\..\kernel\arch\arm\cortex-m3\keil\cmsis;..\..\..\kernel\src;..\..\..\components\bounds_checking_function\include;..\..\..\components\cpup;..\..\..\utils;..\..\..\kernel\arch\include</IncludePath>
+              <IncludePath>..\..\cortex-m3_stm32f103_simulator_keil;..\..\..\kernel\include;..\..\..\kernel\arch\arm\cortex-m3\keil;..\..\..\kernel\arch\arm\cortex-m3\keil\cmsis;..\..\..\kernel\src;..\..\..\components\bounds_checking_function\include;..\..\..\components\cpup;..\..\..\utils;..\..\..\kernel\arch\include;..\..\..\components\exchook</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -363,6 +390,8 @@
             <SwStkChk>0</SwStkChk>
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
+            <useXO>0</useXO>
+            <ClangAsOpt>1</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -379,6 +408,7 @@
             <useFile>0</useFile>
             <TextAddressRange>0x08000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
+            <pXoBase></pXoBase>
             <ScatterFile>.\los_demo.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
@@ -438,19 +468,9 @@
               <FilePath>..\..\..\kernel\src\mm\los_membox.c</FilePath>
             </File>
             <File>
-              <FileName>los_memcheck.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\kernel\src\mm\los_memcheck.c</FilePath>
-            </File>
-            <File>
               <FileName>los_memory.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\kernel\src\mm\los_memory.c</FilePath>
-            </File>
-            <File>
-              <FileName>los_memstat.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\kernel\src\mm\los_memstat.c</FilePath>
             </File>
             <File>
               <FileName>los_dispatch.S</FileName>
@@ -512,6 +532,11 @@
               <FileType>2</FileType>
               <FilePath>..\..\..\kernel\arch\arm\cortex-m3\keil\los_startup.s</FilePath>
             </File>
+            <File>
+              <FileName>los_debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\utils\los_debug.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -526,6 +551,11 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>target_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\target_config.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -556,6 +586,26 @@
               <FileName>strncpy_s.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\components\bounds_checking_function\src\strncpy_s.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_exc_info.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\exchook\los_exc_info.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_exc_info.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\components\exchook\los_exc_info.h</FilePath>
+            </File>
+            <File>
+              <FileName>los_exchook.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\components\exchook\los_exchook.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_exchook.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\components\exchook\los_exchook.h</FilePath>
             </File>
           </Files>
         </Group>

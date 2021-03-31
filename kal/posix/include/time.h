@@ -3,6 +3,10 @@
 
 #ifdef __ICCARM__ /* for iar */
 
+#if !defined(_DLIB_TIME_USES_64) || !defined(_DLIB_TIME_USES_LONG) || (_DLIB_TIME_USES_64 == 0) || (_DLIB_TIME_USES_LONG == 0)
+#error "_DLIB_TIME_USES_64=1 and _DLIB_TIME_USES_LONG=1 should be defined in IAR project(C/C++ Compiler->Preprocessor->Defined symbols)."
+#endif
+
 #ifndef tm_isdst
 #define tm_isdst    tm_isdst;	\
 	long __tm_gmtoff;	\
@@ -79,12 +83,13 @@ extern "C" {
 
 #include <features.h>
 
+#ifndef NULL
 #ifdef __cplusplus
 #define NULL 0L
 #else
 #define NULL ((void*)0)
 #endif
-
+#endif
 
 #define __NEED_size_t
 #define __NEED_time_t
