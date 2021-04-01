@@ -29,15 +29,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "securec.h"
-#include "los_config.h"
-#include "los_interrupt.h"
-#include "los_arch.h"
 #include "los_memory.h"
-#include "los_task.h"
+#include "securec.h"
+#include "los_arch.h"
+#include "los_config.h"
 #include "los_debug.h"
-#ifdef LOSCFG_LIB_LIBC
-#endif
+#include "los_hook.h"
+#include "los_interrupt.h"
+#include "los_task.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -911,6 +910,8 @@ UINT32 LOS_MemInit(VOID *pool, UINT32 size)
     LOS_TraceReg(LOS_TRACE_MEM_INFO, OsMemInfoTrace, LOS_TRACE_MEM_INFO_NAME, LOS_TRACE_ENABLE);
 #endif
 
+    OsHookCall(LOS_HOOK_TYPE_MEM_INIT, pool, size);
+
     return LOS_OK;
 }
 
@@ -931,6 +932,8 @@ UINT32 LOS_MemDeInit(VOID *pool)
     LOS_TraceUnreg(LOS_TRACE_MEM_TIME);
     LOS_TraceUnreg(LOS_TRACE_MEM_INFO);
 #endif
+
+    OsHookCall(LOS_HOOK_TYPE_MEM_DEINIT, pool);
 
     return LOS_OK;
 }
@@ -1041,6 +1044,8 @@ VOID *LOS_MemAlloc(VOID *pool, UINT32 size)
               poolStatus.maxFreeNodeSize, poolStatus.usedNodeNum, poolStatus.freeNodeNum);
 #endif
 
+    OsHookCall(LOS_HOOK_TYPE_MEM_ALLOC, pool, size);
+
     return ptr;
 }
 
@@ -1103,6 +1108,8 @@ VOID *LOS_MemAllocAlign(VOID *pool, UINT32 size, UINT32 boundary)
     UINT32 timeUsed = MEM_TRACE_CYCLE_TO_US(end - start);
     LOS_Trace(LOS_TRACE_MEM_TIME, (UINTPTR)pool & MEM_POOL_ADDR_MASK, MEM_TRACE_MEMALIGN, timeUsed);
 #endif
+
+    OsHookCall(LOS_HOOK_TYPE_MEM_ALLOCALIGN, pool, size, boundary);
 
     return ptr;
 }
@@ -1304,6 +1311,8 @@ UINT32 LOS_MemFree(VOID *pool, VOID *ptr)
     LOS_Trace(LOS_TRACE_MEM_TIME, (UINTPTR)pool & MEM_POOL_ADDR_MASK, MEM_TRACE_FREE, timeUsed);
 #endif
 
+    OsHookCall(LOS_HOOK_TYPE_MEM_FREE, pool, ptr);
+
     return ret;
 }
 
@@ -1383,6 +1392,8 @@ VOID *LOS_MemRealloc(VOID *pool, VOID *ptr, UINT32 size)
     if ((pool == NULL) || OS_MEM_NODE_GET_USED_FLAG(size) || OS_MEM_NODE_GET_ALIGNED_FLAG(size)) {
         return NULL;
     }
+
+    OsHookCall(LOS_HOOK_TYPE_MEM_REALLOC, pool, ptr, size);
 
     if (ptr == NULL) {
         return LOS_MemAlloc(pool, size);
@@ -1699,7 +1710,7 @@ STATIC VOID OsMemNodeInfo(const struct OsMemNodeHead *tmpNode,
                usedNode->header.sizeAndFlag);
     } else {
         freeNode = (struct OsMemFreeNodeHead *)tmpNode;
-        PRINTK("\n broken node head: 0x%x  0x%x  "
+        PRINTK("\n broken node head: 0x%x  0x%x  0x%x  "
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
                "0x%x  "
 #endif
@@ -1725,7 +1736,7 @@ STATIC VOID OsMemNodeInfo(const struct OsMemNodeHead *tmpNode,
                usedNode->header.sizeAndFlag);
     } else {
         freeNode = (struct OsMemFreeNodeHead *)preNode;
-        PRINTK("prev node head: 0x%x  0x%x  "
+        PRINTK("prev node head: 0x%x  0x%x  0x%x  "
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
                "0x%x  "
 #endif
@@ -1932,7 +1943,7 @@ STATIC VOID OsMemInfoPrint(VOID *pool)
            "max free node size   used node num     free node num      UsageWaterLine\n");
     PRINTK("---------------    --------     -------       --------     "
            "--------------       -------------      ------------      ------------\n");
-    PRINTK("%-16#x   0x%-8x   0x%-8x    0x%-8x   0x%-16x   0x%-13x    0x%-13x    0x%-13x\n",
+    PRINTK("0x%-16x   0x%-8x   0x%-8x    0x%-8x   0x%-16x   0x%-13x    0x%-13x    0x%-13x\n",
            poolInfo->info.pool, LOS_MemPoolSizeGet(pool), status.totalUsedSize,
            status.totalFreeSize, status.maxFreeNodeSize, status.usedNodeNum,
            status.freeNodeNum, status.usageWaterLine);

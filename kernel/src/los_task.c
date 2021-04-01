@@ -28,18 +28,21 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "los_config.h"
+
+#include "los_task.h"
 #include "securec.h"
+#include "los_config.h"
+#include "los_debug.h"
+#include "los_hook.h"
+#include "los_interrupt.h"
 #include "los_memory.h"
+#include "los_mpu.h"
 #include "los_mux.h"
 #include "los_sem.h"
 #include "los_timer.h"
-#include "los_interrupt.h"
 #if (LOSCFG_BASE_CORE_CPUP == 1)
 #include "los_cpup.h"
 #endif
-#include "los_debug.h"
-#include "los_mpu.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -270,10 +273,12 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTaskPriModify(LosTaskCB *taskCB, UINT16 priority)
         taskCB->taskStatus &= (~OS_TASK_STATUS_READY);
         taskCB->priority = priority;
         taskCB->taskStatus |= OS_TASK_STATUS_READY;
+        OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTOREADYSTATE, taskCB);
         OsPriqueueEnqueue(&taskCB->pendList, taskCB->priority);
     } else {
         taskCB->priority = priority;
     }
+    OsHookCall(LOS_HOOK_TYPE_TASK_PRIMODIFY, taskCB, taskCB->priority);
 }
 
 /*****************************************************************************
@@ -379,6 +384,7 @@ LITE_OS_SEC_TEXT VOID OsTaskScan(VOID)
 
         if (!(tempStatus & OS_TASK_STATUS_SUSPEND)) {
             taskCB->taskStatus |= OS_TASK_STATUS_READY;
+            OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTOREADYSTATE, taskCB);
             OsPriqueueEnqueue(&taskCB->pendList, taskCB->priority);
             needSchedule = TRUE;
         }
@@ -987,6 +993,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S
     }
 
     *taskID = taskCB->taskID;
+    OsHookCall(LOS_HOOK_TYPE_TASK_CREATE, taskCB);
     return retVal;
 
 LOS_ERREND:
@@ -1006,6 +1013,7 @@ VOID OsTaskSchedule(VOID)
 #if (LOSCFG_BASE_CORE_TSK_MONITOR == 1)
     OsTaskSwitchCheck();
 #endif
+    OsHookCall(LOS_HOOK_TYPE_TASK_SWITCHEDIN);
     HalTaskSchedule();
 }
 
@@ -1087,6 +1095,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskResume(UINT32 taskID)
     taskCB->taskStatus &= (~OS_TASK_STATUS_SUSPEND);
     if (!(taskCB->taskStatus & OS_CHECK_TASK_BLOCK)) {
         taskCB->taskStatus |= OS_TASK_STATUS_READY;
+        OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTOREADYSTATE, taskCB);
         OsPriqueueEnqueue(&taskCB->pendList, taskCB->priority);
         if (g_taskScheduled) {
             LOS_IntRestore(intSave);
@@ -1147,6 +1156,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskSuspend(UINT32 taskID)
     }
 
     taskCB->taskStatus |= OS_TASK_STATUS_SUSPEND;
+    OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTOSUSPENDEDLIST, taskCB);
     if (taskID == g_losTask.runTask->taskID) {
         LOS_IntRestore(intSave);
         LOS_Schedule();
@@ -1200,6 +1210,8 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
         PRINT_INFO("In case of task lock, task deletion is not recommended\n");
         g_losTaskLock = 0;
     }
+
+    OsHookCall(LOS_HOOK_TYPE_TASK_DELETE, taskCB);
 
     if ((taskCB->taskStatus) & OS_TASK_STATUS_READY) {
         OsPriqueueDequeue(&taskCB->pendList);
@@ -1262,6 +1274,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_TaskDelay(UINT32 tick)
         return LOS_ERRNO_TSK_DELAY_IN_LOCK;
     }
 
+    OsHookCall(LOS_HOOK_TYPE_TASK_DELAY, tick);
     if (tick == 0) {
         return LOS_TaskYield();
     } else {
@@ -1271,6 +1284,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_TaskDelay(UINT32 tick)
         OsTaskAdd2TimerList((LosTaskCB *)g_losTask.runTask, tick);
         g_losTask.runTask->taskStatus |= OS_TASK_STATUS_DELAY;
         LOS_IntRestore(intSave);
+        OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTODELAYEDLIST, g_losTask.runTask);
         LOS_Schedule();
     }
 
@@ -1338,6 +1352,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskPriSet(UINT32 taskID, UINT16 taskPrio)
         taskCB->taskStatus &= (~OS_TASK_STATUS_READY);
         taskCB->priority = taskPrio;
         taskCB->taskStatus |= OS_TASK_STATUS_READY;
+        OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTOREADYSTATE, taskCB);
         OsPriqueueEnqueue(&taskCB->pendList, taskCB->priority);
     } else {
         taskCB->priority = taskPrio;
@@ -1403,6 +1418,7 @@ VOID OsTaskWake(LosTaskCB *resumedTask, UINT32 taskStatus)
     }
     if (!(resumedTask->taskStatus & OS_TASK_STATUS_SUSPEND)) {
         resumedTask->taskStatus |= OS_TASK_STATUS_READY;
+        OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTOREADYSTATE, resumedTask);
         OsPriqueueEnqueue(&resumedTask->pendList, resumedTask->priority);
     }
 }
@@ -1432,6 +1448,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskYield(VOID)
     if (taskCount > 1) {
         LOS_ListDelete(&(g_losTask.runTask->pendList));
         g_losTask.runTask->taskStatus |= OS_TASK_STATUS_READY;
+        OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTOREADYSTATE, g_losTask.runTask);
         OsPriqueueEnqueue(&(g_losTask.runTask->pendList), g_losTask.runTask->priority);
     } else {
         LOS_IntRestore(intSave);
@@ -1677,6 +1694,7 @@ VOID LOS_Schedule(VOID)
     if (g_losTask.runTask != g_losTask.newTask) {
         if (LOS_CHECK_SCHEDULE) {
             LOS_IntRestore(intSave);
+            OsHookCall(LOS_HOOK_TYPE_ISR_EXITTOSCHEDULER);
             OsTaskSchedule();
             return;
         }

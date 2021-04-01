@@ -28,11 +28,14 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "los_config.h"
+
 #include "los_sem.h"
-#include "los_memory.h"
-#include "los_interrupt.h"
+#include "los_arch.h"
+#include "los_config.h"
 #include "los_debug.h"
+#include "los_hook.h"
+#include "los_interrupt.h"
+#include "los_memory.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -118,6 +121,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsSemCreate(UINT16 count, UINT16 maxCount, UINT32 *
     LOS_ListInit(&semCreated->semList);
     *semHandle = (UINT32)semCreated->semID;
     LOS_IntRestore(intSave);
+    OsHookCall(LOS_HOOK_TYPE_SEM_CREATE, semCreated);
     return LOS_OK;
 
 ERR_HANDLER:
@@ -181,6 +185,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_SemDelete(UINT32 semHandle)
     LOS_ListAdd(&g_unusedSemList, &semDeleted->semList);
     semDeleted->semStat = OS_SEM_UNUSED;
     LOS_IntRestore(intSave);
+    OsHookCall(LOS_HOOK_TYPE_SEM_DELETE, semDeleted);
     return LOS_OK;
 ERR_HANDLER:
     OS_RETURN_ERROR_P2(errLine, errNo);
@@ -235,6 +240,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPend(UINT32 semHandle, UINT32 timeout)
     if (semPended->semCount > 0) {
         semPended->semCount--;
         LOS_IntRestore(intSave);
+        OsHookCall(LOS_HOOK_TYPE_SEM_PEND, semPended, runningTask);
         return LOS_OK;
     }
 
@@ -247,6 +253,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPend(UINT32 semHandle, UINT32 timeout)
     runningTask->taskSem = (VOID *)semPended;
     OsTaskWait(&semPended->semList, OS_TASK_STATUS_PEND, timeout);
     LOS_IntRestore(intSave);
+    OsHookCall(LOS_HOOK_TYPE_SEM_PEND, semPended, runningTask);
     LOS_Schedule();
 
     if (runningTask->taskStatus & OS_TASK_STATUS_TIMEOUT) {
@@ -297,10 +304,12 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPost(UINT32 semHandle)
         OsTaskWake(resumedTask, OS_TASK_STATUS_PEND);
 
         LOS_IntRestore(intSave);
+        OsHookCall(LOS_HOOK_TYPE_SEM_POST, semPosted, resumedTask);
         LOS_Schedule();
     } else {
         semPosted->semCount++;
         LOS_IntRestore(intSave);
+        OsHookCall(LOS_HOOK_TYPE_SEM_POST, semPosted, resumedTask);
     }
 
     return LOS_OK;

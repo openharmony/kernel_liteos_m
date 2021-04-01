@@ -29,8 +29,11 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_task.h"
+#include "los_event.h"
+#include "los_hook.h"
 #include "los_interrupt.h"
+#include "los_task.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -44,6 +47,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventInit(PEVENT_CB_S eventCB)
     }
     eventCB->uwEventID = 0;
     LOS_ListInit(&eventCB->stEventList);
+    OsHookCall(LOS_HOOK_TYPE_EVENT_INIT);
     return LOS_OK;
 }
 
@@ -110,6 +114,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventRead(PEVENT_CB_S eventCB, UINT32 eventMask, UIN
     }
     intSave = LOS_IntLock();
     ret = LOS_EventPoll(&(eventCB->uwEventID), eventMask, mode);
+    OsHookCall(LOS_HOOK_TYPE_EVENT_READ, eventCB, eventMask, mode);
     if (ret == 0) {
         if (timeOut == 0) {
             LOS_IntRestore(intSave);
@@ -159,6 +164,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventWrite(PEVENT_CB_S eventCB, UINT32 events)
     }
     intSave = LOS_IntLock();
     eventCB->uwEventID |= events;
+    OsHookCall(LOS_HOOK_TYPE_EVENT_WRITE, eventCB);
     if (!LOS_ListEmpty(&eventCB->stEventList)) {
         for (resumedTask = LOS_DL_LIST_ENTRY((&eventCB->stEventList)->pstNext, LosTaskCB, pendList);
              &resumedTask->pendList != (&eventCB->stEventList);) {
@@ -200,6 +206,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventDestroy(PEVENT_CB_S eventCB)
     eventCB->stEventList.pstNext = (LOS_DL_LIST *)NULL;
     eventCB->stEventList.pstPrev = (LOS_DL_LIST *)NULL;
     LOS_IntRestore(intSave);
+    OsHookCall(LOS_HOOK_TYPE_EVENT_DESTROY);
     return LOS_OK;
 }
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 events)
@@ -211,6 +218,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 events)
     intSave = LOS_IntLock();
     eventCB->uwEventID &= events;
     LOS_IntRestore(intSave);
+    OsHookCall(LOS_HOOK_TYPE_EVENT_CLEAR, eventCB);
     return LOS_OK;
 }
 
