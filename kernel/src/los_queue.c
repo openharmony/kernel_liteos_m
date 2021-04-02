@@ -28,14 +28,16 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "los_config.h"
+
 #include "los_queue.h"
 #include "securec.h"
-#include "los_membox.h"
-#include "los_task.h"
-#include "los_memory.h"
-#include "los_interrupt.h"
+#include "los_config.h"
 #include "los_debug.h"
+#include "los_hook.h"
+#include "los_interrupt.h"
+#include "los_membox.h"
+#include "los_memory.h"
+#include "los_task.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -151,6 +153,8 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(CHAR *queueName,
     LOS_IntRestore(intSave);
 
     *queueID = queueCB->queueID;
+
+    OsHookCall(LOS_HOOK_TYPE_QUEUE_CREATE, queueCB);
 
     return LOS_OK;
 }
@@ -397,6 +401,9 @@ LITE_OS_SEC_TEXT UINT32 LOS_QueueRead(UINT32 queueID, VOID *bufferAddr, UINT32 b
     }
 
     operateType = OS_QUEUE_OPERATE_TYPE(OS_QUEUE_READ, OS_QUEUE_HEAD, OS_QUEUE_POINT);
+
+    OsHookCall(LOS_HOOK_TYPE_QUEUE_READ, (LosQueueCB *)GET_QUEUE_HANDLE(queueID));
+
     return OsQueueOperate(queueID, operateType, bufferAddr, &bufferSize, timeOut);
 }
 
@@ -413,6 +420,9 @@ LITE_OS_SEC_TEXT UINT32 LOS_QueueWrite(UINT32 queueID, VOID *bufferAddr, UINT32 
     }
 
     operateType = OS_QUEUE_OPERATE_TYPE(OS_QUEUE_WRITE, OS_QUEUE_TAIL, OS_QUEUE_POINT);
+
+    OsHookCall(LOS_HOOK_TYPE_QUEUE_WRITE, (LosQueueCB *)GET_QUEUE_HANDLE(queueID));
+
     return OsQueueOperate(queueID, operateType, &bufferAddr, &size, timeOut);
 }
 
@@ -601,6 +611,8 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueDelete(UINT32 queueID)
     queueCB->queueState = OS_QUEUE_UNUSED;
     LOS_ListAdd(&g_freeQueueList, &queueCB->readWriteList[OS_QUEUE_WRITE]);
     LOS_IntRestore(intSave);
+
+    OsHookCall(LOS_HOOK_TYPE_QUEUE_DELETE, queueCB);
 
     ret = LOS_MemFree(m_aucSysMem0, (VOID *)queue);
     return ret;

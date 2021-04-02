@@ -29,14 +29,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_config.h"
+#include "stdarg.h"
 #include "los_arch.h"
-#include "los_queue.h"
+#include "los_config.h"
+#include "los_debug.h"
 #include "los_memory.h"
 #include "los_mux.h"
+#include "los_queue.h"
 #include "los_sem.h"
-#include "los_debug.h"
-#include "stdarg.h"
 
 #if (LOSCFG_PLATFORM_HWI == 1)
 #include "los_interrupt.h"

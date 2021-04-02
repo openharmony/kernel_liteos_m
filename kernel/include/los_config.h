@@ -559,6 +559,14 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_KERNEL_TRACE                                 0
 #endif
 
+/**
+ * @ingroup los_config
+ * Configuration trace tool
+ */
+#ifndef LOSCFG_DEBUG_HOOK
+#define LOSCFG_DEBUG_HOOK                                   0
+#endif
+
 /* =============================================================================
                                        printf configuration
 ============================================================================= */

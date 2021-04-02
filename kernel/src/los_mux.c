@@ -28,11 +28,13 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "los_config.h"
-#include "los_interrupt.h"
+
 #include "los_mux.h"
-#include "los_memory.h"
+#include "los_config.h"
 #include "los_debug.h"
+#include "los_hook.h"
+#include "los_interrupt.h"
+#include "los_memory.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -112,6 +114,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_MuxCreate(UINT32 *muxHandle)
     LOS_ListInit(&muxCreated->muxList);
     *muxHandle = (UINT32)muxCreated->muxID;
     LOS_IntRestore(intSave);
+    OsHookCall(LOS_HOOK_TYPE_MUX_CREATE, muxCreated);
     return LOS_OK;
 ERR_HANDLER:
     OS_RETURN_ERROR_P2(errLine, errNo);
@@ -152,6 +155,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_MuxDelete(UINT32 muxHandle)
 
     LOS_IntRestore(intSave);
 
+    OsHookCall(LOS_HOOK_TYPE_MUX_DELETE, muxDeleted);
     return LOS_OK;
 ERR_HANDLER:
     OS_RETURN_ERROR_P2(errLine, errNo);
@@ -207,13 +211,13 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPend(UINT32 muxHandle, UINT32 timeout)
         muxPended->owner = runningTask;
         muxPended->priority = runningTask->priority;
         LOS_IntRestore(intSave);
-        return LOS_OK;
+        goto HOOK;
     }
 
     if (muxPended->owner == runningTask) {
         muxPended->muxCount++;
         LOS_IntRestore(intSave);
-        return LOS_OK;
+        goto HOOK;
     }
 
     if (!timeout) {
@@ -230,6 +234,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPend(UINT32 muxHandle, UINT32 timeout)
     OsTaskWait(&muxPended->muxList, OS_TASK_STATUS_PEND, timeout);
 
     LOS_IntRestore(intSave);
+    OsHookCall(LOS_HOOK_TYPE_MUX_PEND, muxPended);
     LOS_Schedule();
 
     if (runningTask->taskStatus & OS_TASK_STATUS_TIMEOUT) {
@@ -239,6 +244,10 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPend(UINT32 muxHandle, UINT32 timeout)
         goto ERROR_MUX_PEND;
     }
 
+    return LOS_OK;
+
+HOOK:
+    OsHookCall(LOS_HOOK_TYPE_MUX_PEND, muxPended);
     return LOS_OK;
 
 ERROR_MUX_PEND:
@@ -276,6 +285,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
 
     if (--(muxPosted->muxCount) != 0) {
         LOS_IntRestore(intSave);
+        OsHookCall(LOS_HOOK_TYPE_MUX_POST, muxPosted);
         return LOS_OK;
     }
 
@@ -294,6 +304,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
         OsTaskWake(resumedTask, OS_TASK_STATUS_PEND);
 
         LOS_IntRestore(intSave);
+        OsHookCall(LOS_HOOK_TYPE_MUX_POST, muxPosted);
         LOS_Schedule();
     } else {
         LOS_IntRestore(intSave);

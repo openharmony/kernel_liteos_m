@@ -37,9 +37,10 @@
 #ifndef _LOS_TASK_H
 #define _LOS_TASK_H
 
-#include "los_tick.h"
+#include "los_config.h"
 #include "los_context.h"
 #include "los_event.h"
+#include "los_tick.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -1551,13 +1552,13 @@ extern UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E mode, UINT32 ta
  * @ingroup los_task
  * @brief the high-order mask of roll num.
  */
-#define OS_TSK_HIGH_BITS_MASK  (OS_TSK_SORTLINK_MASK << OS_TSK_LOW_BITS)
+#define OS_TSK_HIGH_BITS_MASK                       (OS_TSK_SORTLINK_MASK << OS_TSK_LOW_BITS)
 
 /**
  * @ingroup los_task
  * @brief the low-order mask of roll num.
  */
-#define OS_TSK_LOW_BITS_MASK   (~OS_TSK_HIGH_BITS_MASK)
+#define OS_TSK_LOW_BITS_MASK                        (~OS_TSK_HIGH_BITS_MASK)
 
 /**
  * @ingroup los_task
@@ -1580,7 +1581,7 @@ extern UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E mode, UINT32 ta
  * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
-#define OS_TSK_GET_INDEX(taskID)                      (taskID)
+#define OS_TSK_GET_INDEX(taskID)                        (taskID)
 
 /**
  * @ingroup  los_task
@@ -1614,8 +1615,8 @@ extern UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E mode, UINT32 ta
  * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
-#define OS_TCB_FROM_TID(taskID)                       (((LosTaskCB *)g_taskCBArray) + (taskID))
-#define OS_IDLE_TASK_ENTRY                            ((TSK_ENTRY_FUNC)OsIdleTask)
+#define OS_TCB_FROM_TID(taskID)                         (((LosTaskCB *)g_taskCBArray) + (taskID))
+#define OS_IDLE_TASK_ENTRY                              ((TSK_ENTRY_FUNC)OsIdleTask)
 
 
 /**

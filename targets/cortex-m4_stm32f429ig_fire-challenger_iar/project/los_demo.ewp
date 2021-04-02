@@ -2094,6 +2094,9 @@
             <file>
                 <name>$PROJ_DIR$\..\..\..\utils\los_error.c</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\utils\los_hook.c</name>
+            </file>
         </group>
         <file>
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_event.c</name>
