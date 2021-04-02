@@ -97,13 +97,15 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     taskInitParam.pfnTaskEntry = PthreadEntry;
     taskInitParam.uwArg   = (UINT32)(UINTPTR)pthreadData;
 
-    if (LOS_TaskCreate(&taskID, &taskInitParam) != LOS_OK) {
+    if (LOS_TaskCreateOnly(&taskID, &taskInitParam) != LOS_OK) {
         free(pthreadData);
         return EINVAL;
     }
 
     /* set pthread default name */
     (void)sprintf_s(taskInitParam.pcName, PTHREAD_NAMELEN, "pthread%u", taskID);
+
+    (void)LOS_TaskResume(taskID);
 
     *thread = (pthread_t)taskID;
     return 0;
