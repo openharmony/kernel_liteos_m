@@ -1,0 +1,38 @@
+# Copyright (c) Huawei Technologies Co., Ltd. 2020. All rights reserved.
+import("//build/lite/config/component/lite_component.gni")
+
+source_set("test_init") {
+
+    sources = [
+        "src/osTest.c",
+        "src/osTestTask.c",
+        "src/iCunit.c",
+    ]
+
+    include_dirs = [
+        "include",
+        "//kernel/liteos_m/kernel/include",
+        "//kernel/liteos_m/kernel/base/include",
+        "//build/compiler/arm-none-eabi/linux/arm-none-eabi/include",
+        "//build/compiler/arm-none-eabi/linux/lib/gcc/arm-none-eabi/5.4.1/include/",
+        "//build/compiler/arm-none-eabi/linux/lib/gcc/arm-none-eabi/5.4.1/include-fixed/",
+        "//kernel/liteos_m/arch/arm/cortex-m/include",
+        "//kernel/liteos_m/components/cmsis",
+        "//vendor/huawei/watchgt/devkit/hal/include",
+    ]
+}
+
+lite_component("test") {
+    features = [
+        ":test_init",
+        "sample/kernel/event:test_event",
+        "sample/kernel/hwi:test_hwi",
+        "sample/kernel/mem:test_mem",
+        "sample/kernel/mux:test_mux",
+        "sample/kernel/queue:test_queue",
+        "sample/kernel/sem:test_sem",
+        "sample/kernel/swtmr:test_swtmr",
+        "sample/kernel/task:test_task",
+        #"sample/kernel/tickless:test_tickless",
+    ]
+}
