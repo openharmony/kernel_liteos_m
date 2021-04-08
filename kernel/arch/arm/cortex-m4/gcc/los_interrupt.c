@@ -58,7 +58,7 @@ LITE_OS_SEC_VEC
  * @ingroup los_hwi
  * hardware interrupt form mapping handling function array.
  */
-STATIC HWI_PROC_FUNC g_hwiForm[OS_VECTOR_CNT] = {0};
+STATIC HWI_PROC_FUNC __attribute__((aligned(0x100))) g_hwiForm[OS_VECTOR_CNT] = {0};
 
 #if (OS_HWI_WITH_ARG == 1)
 
