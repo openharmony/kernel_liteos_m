@@ -428,6 +428,16 @@ int mq_getsetattr(mqd_t mqd, const struct mq_attr *new, struct mq_attr *old)
     return OsMqSetAttr(mqd, new, old);
 }
 
+int mq_getattr(mqd_t mqd, struct mq_attr *attr)
+{
+    return mq_getsetattr(mqd, 0, attr);
+}
+
+int mq_setattr(mqd_t mqd, const struct mq_attr *new, struct mq_attr *old)
+{
+    return mq_getsetattr(mqd, new, old);
+}
+
 int mq_unlink(const char *mqName)
 {
     INT32 ret = 0;
