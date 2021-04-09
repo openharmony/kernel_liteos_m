@@ -268,6 +268,14 @@ extern "C" {
 #define LOSCFG_BASE_IPC_SEM_LIMIT                           6
 #endif
 
+/**
+ * @ingroup los_config
+ * Maximum number of semaphores.
+ */
+#ifndef OS_SEM_COUNTING_MAX_COUNT
+#define OS_SEM_COUNTING_MAX_COUNT                           0xFFFF
+#endif
+
 /* =============================================================================
                                        Mutex module configuration
 ============================================================================= */

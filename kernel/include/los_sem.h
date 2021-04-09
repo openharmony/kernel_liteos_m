@@ -285,11 +285,6 @@ extern UINT32 LOS_SemPend(UINT32 semHandle, UINT32 timeout);
  */
 extern UINT32 LOS_SemPost(UINT32 semHandle);
 
-enum LosSemMaxCount {
-    OS_SEM_COUNTING_MAX_COUNT = 0xFFFF, /**< Max count of counting semaphores */
-    OS_SEM_BINARY_MAX_COUNT = 1         /**< Max count of binary semaphores */
-};
-
 /**
  * @ingroup los_sem
  * Semaphore control structure.
@@ -303,23 +298,29 @@ typedef struct {
 } LosSemCB;
 
 /**
+ * @ingroup los_config
+ * Max count of binary semaphores.
+ */
+#define OS_SEM_BINARY_MAX_COUNT     1
+
+/**
  * @ingroup los_sem
  * The semaphore is not in use.
- *
  */
-#define OS_SEM_UNUSED 0
+#define OS_SEM_UNUSED               0
+
 /**
  * @ingroup los_sem
  * The semaphore is used.
- *
  */
-#define OS_SEM_USED   1
+#define OS_SEM_USED                 1
+
 /**
  * @ingroup los_sem
  * Obtain the head node in a semaphore doubly linked list.
- *
  */
 #define GET_SEM_LIST(ptr) LOS_DL_LIST_ENTRY(ptr, LosSemCB, semList)
+
 extern LosSemCB *g_allSem;
 /**
  * @ingroup los_sem
