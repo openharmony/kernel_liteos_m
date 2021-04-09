@@ -1,6 +1,8 @@
 #ifndef _LIMITS_H
 #define _LIMITS_H
 
+#include "los_config.h"
+
 #ifdef __ICCARM__ /* for iar */
 #define PATH_MAX 256
 #define MQ_PRIO_MAX 1
@@ -73,9 +75,9 @@
 #define PTHREAD_KEYS_MAX 128
 #define PTHREAD_STACK_MIN LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE
 #define PTHREAD_DESTRUCTOR_ITERATIONS 4
-#define SEM_VALUE_MAX 0x7fffffff
-#define SEM_NSEMS_MAX 256
-#define DELAYTIMER_MAX 0x7fffffff
+#define SEM_VALUE_MAX OS_SEM_COUNTING_MAX_COUNT
+#define SEM_NSEMS_MAX LOSCFG_BASE_IPC_SEM_LIMIT
+#define DELAYTIMER_MAX 32
 #define MQ_PRIO_MAX 1
 #define LOGIN_NAME_MAX 256
 
