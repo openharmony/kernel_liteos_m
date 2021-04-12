@@ -63,7 +63,7 @@
 #define LWIP_DNS_API_DEFINE_FLAGS     0
 #define LWIP_DNS_API_DECLARE_STRUCTS  0
 
-#ifndef __SIZEOF_POINTER__ 4
+#ifndef __SIZEOF_POINTER__
 #define __SIZEOF_POINTER__ 4   // 32位系统
 #endif
 

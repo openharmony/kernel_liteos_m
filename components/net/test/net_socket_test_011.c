@@ -312,7 +312,7 @@ static struct netif *CreateBtNetIf()
 
 static void UdpTestNetifTask(void *p)
 {
-    void(p);
+    (void)p;
     LogPrintln("net_socket_test_011.c enter");
     g_testCase = TEST_CASE;
     int sfd;
@@ -367,7 +367,7 @@ static void UdpTestNetifTask(void *p)
     return;
 }
 
-int UdpTestNetif(void)
+int UdpTestNetif()
 {
     int ret = sys_thread_new("udp_test_netif", UdpTestNetifTask, NULL,
         STACK_TEST_SIZE, TCPIP_THREAD_PRIO);

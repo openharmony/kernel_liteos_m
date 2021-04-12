@@ -42,7 +42,7 @@ extern sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void
 
 void UdpTestTask(void *p)
 {
-	void(p);
+    (void)p;
     LogPrintln("net_socket_test_002.c enter");
     g_testCase = TEST_CASE;
     int sfd;
@@ -119,11 +119,10 @@ void UdpTestTask(void *p)
     return;
 }
 
-int UdpTest(void)
+int UdpTest()
 {
     int ret = sys_thread_new("udp_test", UdpTestTask, NULL,
         STACK_TEST_SIZE, TCPIP_THREAD_PRIO);
     ICUNIT_ASSERT_NOT_EQUAL(ret, -1, 23);
     return ret;
 }
-
