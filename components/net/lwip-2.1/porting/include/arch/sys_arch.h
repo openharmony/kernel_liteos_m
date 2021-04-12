@@ -33,7 +33,6 @@
 #define _LWIP_PORTING_SYS_ARCH_H_
 
 #include <stdint.h>
-#include "los_mux.h"
 
 #ifdef __cplusplus
 extern "C" {
