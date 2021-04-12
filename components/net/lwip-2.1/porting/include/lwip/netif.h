@@ -32,6 +32,9 @@
 #ifndef _LWIP_PORTING_NETIF_H_
 #define _LWIP_PORTING_NETIF_H_
 
+#include <net/if.h> // For IFNAMSIZ/IF_NAMESIZE and `struct ifreq', by `lwip/netif.h' and `api/sockets.c'
+#include <netinet/ip.h> // For IP_OFFMASK, by `core/ipv4/ip4_frag.c'
+
 #define netif_find netifapi_netif_find_by_name
 
 #if LWIP_DHCPS
@@ -39,12 +42,11 @@
                                             LWIP_NETIF_CLIENT_DATA_INDEX_DHCPS
 #endif
 
-#define LWIP_NETIF_FULLNAME 16
 #define linkoutput      linkoutput; \
                         void (*drv_send)(struct netif *netif, struct pbuf *p); \
                         u8_t (*drv_set_hwaddr)(struct netif *netif, u8_t *addr, u8_t len); \
                         void (*drv_config)(struct netif *netif, u32_t config_flags, u8_t setBit); \
-                        char full_name[LWIP_NETIF_FULLNAME]; \
+                        char full_name[IFNAMSIZ]; \
                         u16_t link_layer_type
 #include_next <lwip/netif.h>
 #undef linkoutput
@@ -60,7 +62,7 @@ extern "C" {
 
 // redefine NETIF_NAMESIZE which was defined in netif.h
 #undef NETIF_NAMESIZE
-#define NETIF_NAMESIZE LWIP_NETIF_FULLNAME
+#define NETIF_NAMESIZE IFNAMSIZ
 
 #define LOOPBACK_IF         0 // 772
 #define ETHERNET_DRIVER_IF  1

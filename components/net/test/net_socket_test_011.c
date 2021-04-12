@@ -310,8 +310,9 @@ static struct netif *CreateBtNetIf()
     return btNetif;
 }
 
-int UdpTestNetif(void)
+static void UdpTestNetifTask(void *p)
 {
+    void(p);
     LogPrintln("net_socket_test_011.c enter");
     g_testCase = TEST_CASE;
     int sfd;
@@ -363,7 +364,15 @@ int UdpTestNetif(void)
     /* close socket */
     ret = closesocket(sfd);
     LWIP_ASSERT("socket invalid param.", ret != -1);
-    return LWIP_TEST_RET_OK;
+    return;
+}
+
+int UdpTestNetif(void)
+{
+    int ret = sys_thread_new("udp_test_netif", UdpTestNetifTask, NULL,
+        STACK_TEST_SIZE, TCPIP_THREAD_PRIO);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, 23);
+    return ret;
 }
 
 static void ArpPackageProc(struct netif *netif, struct pbuf *p)
