@@ -64,10 +64,10 @@
 #define LWIP_DNS_API_DECLARE_STRUCTS  0
 
 #ifndef __SIZEOF_POINTER__
-#define __SIZEOF_POINTER__ 4   // 32位系统
+#define __SIZEOF_POINTER__ 4   // 32 bit system
 #endif
 
-#define LOS_TASK_STATUS_DETACHED   0x0100  // 预留字段
+#define LOS_TASK_STATUS_DETACHED   0x0100  // reserved
 
 #if defined(__arm__) && defined(__ARMCC_VERSION)
     /* Keil uVision4 tools */

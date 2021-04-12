@@ -32,8 +32,8 @@
 #ifndef _LWIP_PORTING_NETIF_H_
 #define _LWIP_PORTING_NETIF_H_
 
-#include <net/if.h> // For IFNAMSIZ/IF_NAMESIZE and `struct ifreq', by `lwip/netif.h' and `api/sockets.c'
-#include <netinet/ip.h> // For IP_OFFMASK, by `core/ipv4/ip4_frag.c'
+#include <net/if.h>
+#include <netinet/ip.h>
 
 #define netif_find netifapi_netif_find_by_name
 
@@ -54,7 +54,7 @@
 #undef LWIP_NETIF_CLIENT_DATA_INDEX_DHCP
 #endif
 
-#include <lwip/etharp.h> // For ETHARP_HWADDR_LEN, by `hieth-sf src/interface.c' and `wal/wal_net.c'
+#include <lwip/etharp.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,7 +64,7 @@ extern "C" {
 #undef NETIF_NAMESIZE
 #define NETIF_NAMESIZE IFNAMSIZ
 
-#define LOOPBACK_IF         0 // 772
+#define LOOPBACK_IF         0
 #define ETHERNET_DRIVER_IF  1
 #define WIFI_DRIVER_IF      801
 #define BT_PROXY_IF         802

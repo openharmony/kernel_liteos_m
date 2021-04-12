@@ -33,13 +33,13 @@
 #define _LWIP_PORTING_SOCKETS_H_
 
 #include <sys/socket.h>
-#include <poll.h> // For poll_table
-#include <netinet/tcp.h> // For TCP_NODELAY etc.
+#include <poll.h>
+#include <netinet/tcp.h>
 #include <netinet/in.h>
-#include <sys/ioctl.h> // For FIONREAD etc.
-#include <sys/select.h> // For FD_SET
-#include <limits.h> // For IOV_MAX
-#include <fcntl.h> // For F_SETFL
+#include <sys/ioctl.h>
+#include <sys/select.h>
+#include <limits.h>
+#include <fcntl.h>
 #include_next <lwip/sockets.h>
 #include <fatfs.h>
 
