@@ -69,38 +69,6 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep);
 
 VOID HalDelay(UINT32 ticks);
 
-UINT64 HalGetExpandTick(VOID);
-
-INT32 HalGetRtcTime(UINT64 *usec);
-
-INT32 HalGetRtcTimeZone(INT32 *timeZone);
-
-INT32 HalSetRtcTime(UINT64 utcTime, UINT64 *usec);
-
-INT32 HalSetRtcTimeZone(INT32 timeZone);
-
- /**
- * @ingroup los_timer
- * @brief Configure Tick Interrupt Start.
- *
- * @par Description:
- * This API is used to configure Tick Interrupt Start while macro LOSCFG_BASE_CORE_TICK_HW_TIME is No.
- *
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param: None.
- *
- * @retval #LOS_OK                               0:configure Tick Interrupt success.
- * @retval #LOS_ERRNO_TICK_CFG_INVALID           0x02000400:configure Tick Interrupt failed.
- *
- * @par Dependency:
- * <ul><li>los_config.h: the header file that contains the API declaration.</li></ul>
- * @see
- */
-
 /**
  * @ingroup los_hwi
  * @brief reconfig systick, and clear SysTick_IRQn.
