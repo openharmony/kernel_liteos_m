@@ -242,25 +242,7 @@ int32_t osKernelRestoreLock(int32_t lock)
 
 uint32_t osKernelGetTickCount(void)
 {
-    uint64_t ticks;
-    UINTPTR uvIntSave;
-
-    if (OS_INT_ACTIVE) {
-#ifndef LITEOS_WIFI_IOT_VERSION
-        ticks = g_ullTickCount;
-#else
-        ticks = g_tickCount;
-#endif
-    } else {
-        uvIntSave = LOS_IntLock();
-#ifndef LITEOS_WIFI_IOT_VERSION
-        ticks = g_ullTickCount;
-#else
-        ticks = g_tickCount;
-#endif
-        LOS_IntRestore(uvIntSave);
-    }
-
+    uint64_t ticks = LOS_TickCountGet();
     return (uint32_t)ticks;
 }
 
@@ -316,11 +298,7 @@ osThreadId_t osThreadNew(osThreadFunc_t func, void *argument, const osThreadAttr
 
     (void)memset_s(&stTskInitParam, sizeof(TSK_INIT_PARAM_S), 0, sizeof(TSK_INIT_PARAM_S));
     stTskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)func;
-#ifndef LITEOS_WIFI_IOT_VERSION
     stTskInitParam.uwArg = (UINT32)argument;
-#else
-    stTskInitParam.auwArgs[0] = (UINT32)argument;
-#endif
     stTskInitParam.uwStackSize = attr->stack_size;
     stTskInitParam.pcName = (CHAR *)attr->name;
     stTskInitParam.usTaskPrio = OS_TASK_PRIORITY_LOWEST - ((UINT16)(attr->priority) - LOS_PRIORITY_WIN); /* 0~31 */
@@ -370,11 +348,7 @@ void *osThreadGetArgument(void)
     if (taskCb == NULL) {
         return NULL;
     }
-#ifndef LITEOS_WIFI_IOT_VERSION
     return (void *)(taskCb->arg);
-#else
-    return (void *)(taskCb->args[0]);
-#endif
 }
 
 osThreadState_t osThreadGetState(osThreadId_t thread_id)
@@ -395,7 +369,7 @@ osThreadState_t osThreadGetState(osThreadId_t thread_id)
     } else if (taskStatus & OS_TASK_STATUS_READY) {
         stState = osThreadReady;
     } else if (taskStatus &
-        (OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND | OS_TASK_STATUS_SUSPEND | OS_TASK_STATUS_PEND_QUEUE)) {
+        (OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND | OS_TASK_STATUS_SUSPEND)) {
         stState = osThreadBlocked;
     } else if (taskStatus & OS_TASK_STATUS_UNUSED) {
         stState = osThreadInactive;

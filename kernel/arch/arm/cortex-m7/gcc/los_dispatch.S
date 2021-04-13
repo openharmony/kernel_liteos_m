@@ -56,26 +56,11 @@ HalStartToRun:
     ldr     r5, =OS_NVIC_PENDSV_PRI
     str     r5, [r4]
 
-    ldr     r0, =g_taskScheduled
-    mov     r1, #1
-    str     r1, [r0]
-
     mov     r0, #2
     msr     CONTROL, r0
 
-
-    ldr     r0, =g_losTask
-    ldr     r2, [r0, #4]
-    ldr     r0, =g_losTask
-    str     r2, [r0]
-
-    ldr     r3, =g_losTask
-    ldr     r0, [r3]
-    ldrh    r7, [r0 , #4]
-    mov     r8,  #OS_TASK_STATUS_RUNNING
-    orr     r7,  r7,  r8
-    strh    r7,  [r0 , #4]
-
+    ldr     r1, =g_losTask
+    ldr     r0, [r1, #4]
     ldr     r12, [r0]
 #if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
      (defined(__FPU_USED) && (__FPU_USED == 1U)))
@@ -147,9 +132,6 @@ HalTaskSchedule:
     bx      lr
    .fnend
 
-
-
-
     .type HalPendSV, %function
     .global HalPendSV
 HalPendSV:
@@ -160,7 +142,17 @@ HalPendSV:
     cpsid   I
 
 HalTaskSwitch:
+    push    {r12, lr}
+    blx     OsSchedTaskSwitch
+    pop     {r12, lr}
+    cmp     r0, #0
+    mov     r0, lr
+    bne     TaskContextSwitch
+    msr     PRIMASK, r12
+    bx      lr
 
+TaskContextSwitch:
+    mov     lr, r0
     mrs     r0, psp
 
     stmfd   r0!, {r4-r12}
@@ -173,24 +165,10 @@ HalTaskSwitch:
     ldr     r6, [r5]
     str     r0, [r6]
 
-
-    ldrh    r7, [r6 , #4]
-    mov     r8,#OS_TASK_STATUS_RUNNING
-    bic     r7, r7, r8
-    strh    r7, [r6 , #4]
-
-
-    ldr     r0, =g_losTask
-    ldr     r0, [r0, #4]
+    ldr     r0, [r5, #4]
     str     r0, [r5]
 
-
-    ldrh    r7, [r0 , #4]
-    mov     r8,  #OS_TASK_STATUS_RUNNING
-    orr     r7, r7, r8
-    strh    r7,  [r0 , #4]
-
-    ldr     r1,   [r0]
+    ldr     r1, [r0]
 
 #if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
      (defined(__FPU_USED) && (__FPU_USED == 1U)))
@@ -200,7 +178,6 @@ HalTaskSwitch:
     msr     psp,  r1
 
     msr     PRIMASK, r12
-
 
     bx      lr
     .fnend

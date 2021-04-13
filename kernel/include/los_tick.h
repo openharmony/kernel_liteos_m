@@ -112,6 +112,18 @@ extern UINT32 LOS_SysClockGet(VOID);
  */
 #define OS_SYS_US_PER_SECOND   1000000
 
+#define OS_SYS_NS_PER_SECOND   1000000000
+
+#define OS_SYS_NS_PER_US       1000
+
+#define OS_CYCLE_PER_TICK      (OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND)
+
+#define OS_NS_PER_CYCLE        (OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK)
+
+#define OS_US_PER_TICK         (OS_SYS_US_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
+
+#define OS_NS_PER_TICK         (OS_SYS_NS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
+
 /**
  * @ingroup los_sys
  * System time basic function error code: Null pointer.

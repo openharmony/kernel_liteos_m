@@ -131,6 +131,8 @@ STATIC INLINE UINTPTR GetFp(VOID)
 
 extern VOID HalStartToRun(VOID);
 
+extern VOID HalTaskContextSwitch(UINTPTR intSave);
+
 /**
  * @ingroup los_hw
  * @brief Wait for interrupt.

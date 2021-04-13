@@ -36,6 +36,7 @@
 #include "los_hook.h"
 #include "los_interrupt.h"
 #include "los_memory.h"
+#include "los_sched.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -251,18 +252,19 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPend(UINT32 semHandle, UINT32 timeout)
 
     runningTask = (LosTaskCB *)g_losTask.runTask;
     runningTask->taskSem = (VOID *)semPended;
-    OsTaskWait(&semPended->semList, OS_TASK_STATUS_PEND, timeout);
+    OsSchedTaskWait(&semPended->semList, timeout);
     LOS_IntRestore(intSave);
     OsHookCall(LOS_HOOK_TYPE_SEM_PEND, semPended, runningTask);
     LOS_Schedule();
 
+    intSave = LOS_IntLock();
     if (runningTask->taskStatus & OS_TASK_STATUS_TIMEOUT) {
-        intSave = LOS_IntLock();
         runningTask->taskStatus &= (~OS_TASK_STATUS_TIMEOUT);
         retErr = LOS_ERRNO_SEM_TIMEOUT;
         goto ERROR_SEM_PEND;
     }
 
+    LOS_IntRestore(intSave);
     return LOS_OK;
 
 ERROR_SEM_PEND:
@@ -301,7 +303,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPost(UINT32 semHandle)
     if (!LOS_ListEmpty(&semPosted->semList)) {
         resumedTask = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&(semPosted->semList)));
         resumedTask->taskSem = NULL;
-        OsTaskWake(resumedTask, OS_TASK_STATUS_PEND);
+        OsSchedTaskWake(resumedTask);
 
         LOS_IntRestore(intSave);
         OsHookCall(LOS_HOOK_TYPE_SEM_POST, semPosted, resumedTask);

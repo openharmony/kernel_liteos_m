@@ -48,14 +48,17 @@ extern "C" {
 /*=============================================================================
                                         System clock module configuration
 =============================================================================*/
-#define OS_SYS_CLOCK                                        64000000
+#define OS_SYS_CLOCK                                        SystemCoreClock
 #define LOSCFG_BASE_CORE_TICK_PER_SECOND                    (1000UL)
 #define LOSCFG_BASE_CORE_TICK_HW_TIME                       0
+#define LOSCFG_BASE_CORE_TICK_WTIMER                        0
+#define LOSCFG_BASE_CORE_TICK_RESPONSE_MAX                  SysTick_LOAD_RELOAD_Msk
+
 /*=============================================================================
                                         Hardware interrupt module configuration
 =============================================================================*/
 #define LOSCFG_PLATFORM_HWI                                 1
-#define LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT                 0
+#define LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT                 1
 #define LOSCFG_PLATFORM_HWI_LIMIT                           128
 /*=============================================================================
                                        Task module configuration
@@ -65,7 +68,7 @@ extern "C" {
 #define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE             (0x2D0U)
 #define LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE                 (0x130U)
 #define LOSCFG_BASE_CORE_TIMESLICE                          1
-#define LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT                  10
+#define LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT                  20000
 /*=============================================================================
                                        Semaphore module configuration
 =============================================================================*/
@@ -101,11 +104,12 @@ extern "C" {
 ============================================================================= */
 #define LOSCFG_KERNEL_PRINTF                                1
 
+#define LOSCFG_BASE_CORE_SCHED_SLEEP                        1
+
 #ifdef __cplusplus
 #if __cplusplus
 }
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-
 
 #endif /* _TARGET_CONFIG_H */

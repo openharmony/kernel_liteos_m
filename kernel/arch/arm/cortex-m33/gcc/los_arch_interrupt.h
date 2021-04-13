@@ -449,15 +449,14 @@ extern VOID HalPendSV(VOID);
 #define OS_EXC_EVENT                        0x00000001
 
 /**
- *@ingroup los_exc
+ * @ingroup los_exc
  * the struct of register files
  *
  * description: the register files that saved when exception triggered
  *
  * notes:the following register with prefix 'uw'  correspond to the registers in the cpu  data sheet.
  */
-typedef struct tagExcContext {
-    //handler save
+typedef struct TagExcContext {
 #if ((defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
      (defined (__FPU_USED   ) && (__FPU_USED    == 1U))     )
     UINT32 S16;
@@ -486,7 +485,7 @@ typedef struct tagExcContext {
     UINT32 uwR10;
     UINT32 uwR11;
     UINT32 uwPriMask;
-    //auto save
+    /* auto save */
     UINT32 uwSP;
     UINT32 uwR0;
     UINT32 uwR1;
@@ -532,7 +531,7 @@ VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, UINT32 pid, EXC_CONTEXT
  * @attention:
  * <ul><li>None.</li></ul>
  *
- *@param uwArraySize [IN] Memory size of exception.
+ * @param uwArraySize [IN] Memory size of exception.
  *
  * @retval: None
  * @par Dependency:
@@ -551,155 +550,155 @@ VOID HalHwiInit();
 
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器入栈时发生错误
+ * @ingroup los_exc
+ * Cortex-M exception types: An error occurred while the bus status register was being pushed.
  */
 #define OS_EXC_BF_STKERR           1
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器出栈时发生错误
+ * @ingroup los_exc
+ * Cortex-M exception types: An error occurred while the bus status register was out of the stack.
  */
 #define OS_EXC_BF_UNSTKERR         2
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器不精确的数据访问违例
+ * @ingroup los_exc
+ * Cortex-M exception types: Bus status register imprecise data access violation.
  */
 #define OS_EXC_BF_IMPRECISERR      3
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器精确的数据访问违例
+ * @ingroup los_exc
+ * Cortex-M exception types: Bus status register exact data access violation.
  */
 #define OS_EXC_BF_PRECISERR        4
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:总线状态寄存器取指时的访问违例
+ * @ingroup los_exc
+ * Cortex-M exception types: Bus status register access violation while pointing.
  */
 #define OS_EXC_BF_IBUSERR          5
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器入栈时发生错误
+ * @ingroup los_exc
+ * Cortex-M exception types: An error occurred while the memory management status register was being pushed.
  */
 #define OS_EXC_MF_MSTKERR          6
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器出栈时发生错误
+ * @ingroup los_exc
+ * Cortex-M exception types: An error occurred while the memory management status register was out of the stack.
  */
 #define OS_EXC_MF_MUNSTKERR        7
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器数据访问违例
+ * @ingroup los_exc
+ * Cortex-M exception types: Memory management status register data access violation.
  */
 #define OS_EXC_MF_DACCVIOL         8
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:存储器管理状态寄存器取指访问违例
+ * @ingroup los_exc
+ * Cortex-M exception types: Memory management status register access violation.
  */
 #define OS_EXC_MF_IACCVIOL         9
 
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，表示除法运算时除数为零
+ * @ingroup los_exc
+ * Cortex-M exception types: ncorrect usage indicating that the divisor is zero during the division operation.
  */
 #define OS_EXC_UF_DIVBYZERO        10
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，未对齐访问导致的错误
+ * @ingroup los_exc
+ * Cortex-M exception types: Usage error, error caused by unaligned access.
  */
 #define OS_EXC_UF_UNALIGNED        11
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，试图执行协处理器相关指令
+ * @ingroup los_exc
+ * Cortex-M exception types: Incorrect usage attempting to execute coprocessor related instruction.
  */
 #define OS_EXC_UF_NOCP             12
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，在异常返回时试图非法地加载EXC_RETURN到PC
+ * @ingroup los_exc
+ * Cortex-M exception types: Usage error attempting to load EXC_RETURN to PC illegally on exception return.
  */
 #define OS_EXC_UF_INVPC            13
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，试图切入ARM状态
+ * @ingroup los_exc
+ * Cortex-M exception types: Incorrect usage, attempting to cut to ARM state.
  */
 #define OS_EXC_UF_INVSTATE         14
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:用法错误，执行的指令其编码是未定义的——解码不能
+ * @ingroup los_exc
+ * Cortex-M exception types: Incorrect usage. Executed instruction whose code is undefined.
  */
 #define OS_EXC_UF_UNDEFINSTR       15
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:NMI中断
+ * @ingroup los_exc
+ * Cortex-M exception types: NMI
  */
 
 #define OS_EXC_CAUSE_NMI           16
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:硬fault
+ * @ingroup los_exc
+ * Cortex-M exception types: hard fault
  */
 #define OS_EXC_CAUSE_HARDFAULT     17
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:任务处理函数退出
+ * @ingroup los_exc
+ * Cortex-M exception types: The task handler exits.
  */
 #define OS_EXC_CAUSE_TASK_EXIT     18
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:致命错误
+ * @ingroup los_exc
+ * Cortex-M exception types: A fatal error.
  */
 #define OS_EXC_CAUSE_FATAL_ERR     19
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:调试事件导致的硬fault
+ * @ingroup los_exc
+ * Cortex-M exception types: Hard Fault caused by a debug event.
  */
 #define OS_EXC_CAUSE_DEBUGEVT      20
 
 /**
- *@ingroup los_exc
- *Cortex-M3异常具体类型:取向量时发生的硬fault
+ * @ingroup los_exc
+ * Cortex-M exception types: A hard fault that occurs when a quantity is oriented.
  */
 #define OS_EXC_CAUSE_VECTBL        21
 
 /**
- *@ingroup los_exc
- * 异常信息结构体
+ * @ingroup los_exc
+ * Exception information structure
  *
- * 描述:M4平台下的异常触发时保存的异常信息
+ * Description: Exception information saved when an exception is triggered on the Cortex-M4 platform.
  *
  */
-typedef struct tagExcInfo {
-    /**< 异常发生阶段： 0表示异常发生在初始化中，1表示异常发生在任务中，2表示异常发生在中断中 */
+typedef struct TagExcInfo {
+    /**< Exception occurrence phase: 0 means that an exception occurs in initialization, 1 means that an exception occurs in a task, and 2 means that an exception occurs in an interrupt */
     UINT16 phase;
-    /**< 异常类型,出异常时对照上面列出的1-19号 */
+    /**< Exception type. When exceptions occur, check the numbers 1 - 19 listed above */
     UINT16 type;
-    /**< 若为精确地址访问错误表示异常发生时的错误访问地址 */
+    /**< If the exact address access error indicates the wrong access address when the exception occurred */
     UINT32 faultAddr;
-    /**< 在中断中发生异常，表示中断号。在任务中发生异常，表示任务id，如果发生在初始化中，则为0xffffffff */
+    /**< An exception occurs in an interrupt, indicating the interrupt number. An exception occurs in the task, indicating the task ID, or 0xFFFFFFFF if it occurs during initialization */
     UINT32 thrdPid;
-    /**< 异常嵌套个数，目前仅支持第一次进入异常时执行注册的钩子函数 */
+    /**< Number of nested exceptions. Currently only registered hook functions are supported when an exception is entered for the first time */
     UINT16 nestCnt;
-    /**< 保留 */
+    /**< reserve */
     UINT16 reserved;
-    /**< 自动压栈浮点寄存器的异常发生时刻的硬件上下文 */
-    EXC_CONTEXT_S * context;
+    /**< Hardware context at the time an exception to the automatic stack floating-point register occurs */
+    EXC_CONTEXT_S *context;
 } ExcInfo;
 
 extern UINT32 g_curNestCount;
@@ -716,4 +715,3 @@ extern ExcInfo g_excInfo;
 #endif /* __cpluscplus */
 
 #endif /* _LOS_EXC_H */
-

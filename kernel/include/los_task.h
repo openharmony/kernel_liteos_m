@@ -41,6 +41,7 @@
 #include "los_context.h"
 #include "los_event.h"
 #include "los_tick.h"
+#include "los_sortlink.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -367,6 +368,8 @@ extern "C" {
  * Solution: Check the task ID and do not operate on the software timer task.
  */
 #define LOS_ERRNO_TSK_OPERATE_SWTMR                 LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x22)
+
+#define LOS_ERRNO_TSK_TIMEOUT                       LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x23)
 
 /**
  * @ingroup los_task
@@ -1105,10 +1108,6 @@ extern CHAR* LOS_TaskNameGet(UINT32 taskID);
  */
 extern VOID LOS_Schedule(VOID);
 
-extern UINT32 OsTaskNextSwitchTimeGet(VOID);
-
-
-
 /**
 * @ingroup los_cpup
 * CPU usage error code: The request for memory fails.
@@ -1442,33 +1441,9 @@ extern UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E mode, UINT32 ta
  * @ingroup los_task
  * Flag that indicates the task or task control block status.
  *
- * The task is waiting for an event to occur.
+ * The task is blocked on a time.
  */
-#define OS_TASK_STATUS_EVENT                        0x0400
-
-/**
- * @ingroup los_task
- * Flag that indicates the task or task control block status.
- *
- * The task is reading an event.
- */
-#define OS_TASK_STATUS_EVENT_READ                   0x0800
-
-/**
- * @ingroup los_task
- * Flag that indicates the task or task control block status.
- *
- * A software timer is waiting for an event to occur.
- */
-#define OS_TASK_STATUS_SWTMR_WAIT                   0x1000
-
-/**
- * @ingroup los_task
- * Flag that indicates the task or task control block status.
- *
- * The task is blocked on a queue.
- */
-#define OS_TASK_STATUS_PEND_QUEUE                   0x2000
+#define OS_TASK_STATUS_PEND_TIME                    0x0080
 
 /**
  * @ingroup los_task
@@ -1627,6 +1602,10 @@ typedef struct {
     VOID                        *stackPointer;            /**< Task stack pointer */
     UINT16                      taskStatus;
     UINT16                      priority;
+    INT32                       timeSlice;
+    UINT32                      waitTimes;
+    SortLinkList                sortList;
+    UINT64                      startTime;
     UINT32                      stackSize;                /**< Task stack size */
     UINT32                      topOfStack;               /**< Task stack top */
     UINT32                      taskID;                   /**< Task ID */
@@ -1637,7 +1616,6 @@ typedef struct {
     CHAR                        *taskName;                /**< Task name */
     LOS_DL_LIST                 pendList;
     LOS_DL_LIST                 timerList;
-    UINT32                      idxRollNum;
     EVENT_CB_S                  event;
     UINT32                      eventMask;                /**< Event mask */
     UINT32                      eventMode;                /**< Event mode */
@@ -1700,8 +1678,7 @@ extern UINT16               g_losTaskLock;
  * @ingroup los_hw
  * Check task schedule.
  */
-#define LOS_CHECK_SCHEDULE ((!g_losTaskLock))
-
+#define LOS_CHECK_SCHEDULE (!g_losTaskLock)
 
 /**
  * @ingroup los_task
@@ -1744,50 +1721,6 @@ extern LOS_DL_LIST          g_losFreeTask;
  *
  */
 extern LOS_DL_LIST          g_taskRecyleList;
-
-/**
- * @ingroup  los_task
- * @brief Modify the priority of task.
- *
- * @par Description:
- * This API is used to modify the priority of task.
- *
- * @attention
- * <ul>
- * <li>The taskCB should be a correct pointer to task control block structure.</li>
- * <li>the priority should be in [0, OS_TASK_PRIORITY_LOWEST].</li>
- * </ul>
- *
- * @param  taskCB    [IN] Type #LosTaskCB * pointer to task control block structure.
- * @param  priority  [IN] Type #UINT16 the priority of task.
- *
- * @retval  None.
- * @par Dependency:
- * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
- * @see
- */
-extern VOID OsTaskPriModify(LosTaskCB *taskCB, UINT16 priority);
-
-/**
- * @ingroup  los_task
- * @brief Scan a task.
- *
- * @par Description:
- * This API is used to scan a task.
- *
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  None.
- *
- * @retval  None.
- * @par Dependency:
- * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
- * @see
- */
-extern VOID OsTaskScan(VOID);
 
 /**
  * @ingroup  los_task
@@ -1896,52 +1829,6 @@ extern VOID OsTaskEntry(UINT32 taskID);
 
 /**
  * @ingroup  los_task
- * @brief pend running task to pendlist
- *
- * @par Description:
- * This API is used to pend task to  pendlist and add to sorted delay list.
- *
- * @attention
- * <ul>
- * <li>The pstList should be a vaild pointer to pendlist.</li>
- * </ul>
- *
- * @param  list       [IN] Type #LOS_DL_LIST * pointer to list which running task will be pended.
- * @param  taskStatus [IN] Type #UINT32  Task Status.
- * @param  timeOut    [IN] Type #UINT32  Expiry time. The value range is [0,LOS_WAIT_FOREVER].
- *
- * @retval  LOS_OK       wait success
- * @retval  LOS_NOK      pend out
- * @par Dependency:
- * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
- * @see OsTaskWake
- */
-extern VOID OsTaskWait(LOS_DL_LIST *list, UINT32 taskStatus, UINT32 timeOut);
-
-/**
- * @ingroup  los_task
- * @brief delete task from pendlist.
- *
- * @par Description:
- * This API is used to delete task from pendlist and also add to the priqueue.
- *
- * @attention
- * <ul>
- * <li>The pstList should be a vaild pointer to pend list.</li>
- * </ul>
- *
- * @param  resumedTask [IN] Type #LosTaskCB * pointer to the task which will be add to priqueue.
- * @param  taskStatus  [IN] Type #UINT32  Task Status.
- *
- * @retval  None.
- * @par Dependency:
- * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
- * @see OsTaskWait
- */
-extern VOID OsTaskWake(LosTaskCB *resumedTask, UINT32 taskStatus);
-
-/**
- * @ingroup  los_task
  * @brief Get the task water line.
  *
  * @par Description:
@@ -1984,49 +1871,6 @@ extern UINT8 *OsConvertTskStatus(UINT16 taskStatus);
 
 /**
  * @ingroup  los_task
- * @brief Add task to sorted delay list.
- *
- * @par Description:
- * This API is used to add task to sorted delay list.
- *
- * @attention
- * <ul>
- * <li>The taskCB should be a correct pointer to task control block structure.</li>
- * </ul>
- *
- * @param  taskCB     [IN] Type #LosTaskCB * pointer to task control block structure.
- * @param  timeout    [IN] Type #UINT32 wait time, ticks.
- *
- * @retval  None.
- * @par Dependency:
- * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
- * @see OsTimerListDelete
- */
-extern VOID OsTaskAdd2TimerList(LosTaskCB *taskCB, UINT32 timeout);
-
-/**
- * @ingroup  los_task
- * @brief delete task from sorted delay list.
- *
- * @par Description:
- * This API is used to delete task from sorted delay list.
- *
- * @attention
- * <ul>
- * <li>The taskCB should be a correct pointer to task control block structure.</li>
- * </ul>
- *
- * @param  taskCB [IN] Type #LosTaskCB * pointer to task control block structure.
- *
- * @retval  None.
- * @par Dependency:
- * <ul><li>los_task_pri.h: the header file that contains the API declaration.</li></ul>
- * @see OsTaskAdd2TimerList
- */
-extern VOID OsTimerListDelete(LosTaskCB *taskCB);
-
-/**
- * @ingroup  los_task
  * @brief Get all task information.
  *
  * @par Description:
@@ -2047,51 +1891,6 @@ extern VOID OsTimerListDelete(LosTaskCB *taskCB);
 extern UINT32 OsGetAllTskInfo(VOID);
 
 extern VOID *OsTskUserStackInit(VOID* stackPtr, VOID* userSP, UINT32 userStackSize);
-
-/**
- * @ingroup los_timeslice
- * @brief Initialize time slices.
- *
- * @par Description:
- * <ul>
- * <li>This API is used to initialize time slices that defines the cycle of time slices according to
-   LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT.</li>
- * </ul>
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param None.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_timeslice_pri.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-extern VOID OsTimesliceInit(VOID);
-
-/**
- * @ingroup los_timeslice
- * @brief Check time slices.
- *
- * @par Description:
- * <ul>
- * <li>This API is used to check time slices. If the number of Ticks equals to the time for task switch, tasks are switched. Otherwise, the Tick counting continues.</li>
- * </ul>
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param None.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_timeslice_pri.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-extern VOID OsTimesliceCheck(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

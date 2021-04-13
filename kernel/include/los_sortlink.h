@@ -29,29 +29,48 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_ARCH_TIMER_H
-#define _LOS_ARCH_TIMER_H
+#ifndef _LOS_SORTLINK_H
+#define _LOS_SORTLINK_H
 
-#include "los_config.h"
 #include "los_compiler.h"
-#include "los_context.h"
+#include "los_list.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#define MTIMER_HI_OFFSET 4
-#define OS_COMBINED_64(hi, ho) (((UINT64)(hi) << 32) | (ho))
+typedef enum {
+    OS_SORT_LINK_TASK = 1,
+    OS_SORT_LINK_SWTMR = 2,
+} SortLinkType;
 
-UINT32 HalTickStart(OS_TICK_HANDLER handler);
+typedef struct {
+    LOS_DL_LIST sortLinkNode;
+    UINT64      responseTime;
+} SortLinkList;
+
+typedef struct {
+    LOS_DL_LIST sortLink;
+} SortLinkAttribute;
+
+#define OS_SORT_LINK_INVALID_TIME ((UINT64)-1)
+#define SET_SORTLIST_VALUE(sortList, value) (((SortLinkList *)(sortList))->responseTime = (value))
+
+SortLinkAttribute *OsGetSortLinkAttribute(SortLinkType type);
+UINT64 OsGetNextExpireTime(UINT64 startTime);
+UINT32 OsSortLinkInit(SortLinkAttribute *sortLinkHeader);
+VOID OsDeleteNodeSortLink(SortLinkAttribute *sortLinkHeader, SortLinkList *sortList);
+VOID OsAdd2SortLink(SortLinkList *node, UINT64 startTime, UINT32 waitTicks, SortLinkType type);
+VOID OsDeleteSortLink(SortLinkList *node, SortLinkType type);
+UINT32 OsSortLinkGetTargetExpireTime(UINT64 currTime, const SortLinkList *targetSortList);
+UINT32 OsSortLinkGetNextExpireTime(const SortLinkAttribute *sortLinkHeader);
 
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif /* _LOS_ARCH_TIMER_H */
-
+#endif /* _LOS_SORTLINK_H */

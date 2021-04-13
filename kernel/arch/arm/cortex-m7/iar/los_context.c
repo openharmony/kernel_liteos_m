@@ -28,13 +28,16 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "los_config.h"
-#include "los_task.h"
+
+#include "los_context.h"
 #include "securec.h"
-#include "los_interrupt.h"
 #include "los_arch_context.h"
 #include "los_arch_interrupt.h"
+#include "los_task.h"
+#include "los_sched.h"
+#include "los_interrupt.h"
 #include "los_arch_timer.h"
+#include "los_timer.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -64,7 +67,8 @@ LITE_OS_SEC_TEXT_INIT VOID HalArchInit()
 LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID)
 {
     LOS_IntLock();
-    for(;;);
+    while (1) {
+    }
 }
 
 /* ****************************************************************************
@@ -151,11 +155,12 @@ LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOI
 
 LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
 {
-    UINT32 ret;
-    ret = HalTickStart(handler);
+    (VOID)LOS_IntLock();
+    UINT32 ret = HalTickStart(handler);
     if (ret != LOS_OK) {
         return ret;
     }
+    OsSchedStart();
     HalStartToRun();
     return LOS_OK; /* never return */
 }
@@ -165,5 +170,3 @@ LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
 }
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-
-

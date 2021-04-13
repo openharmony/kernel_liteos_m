@@ -34,26 +34,34 @@
 #include "soc.h"
 
 .macro PUSH_CALLER_REG
-   addi sp, sp, -(32 * REGBYTES)
-   SREG  t6, 2 * REGBYTES(sp)
-   SREG  t5, 3 * REGBYTES(sp)
-   SREG  t4, 4 * REGBYTES(sp)
-   SREG  t3, 5 * REGBYTES(sp)
-   SREG  t2, 6 * REGBYTES(sp)
-   SREG  t1, 7 * REGBYTES(sp)
-   SREG  t0, 8 * REGBYTES(sp)
-   SREG  a7, 18 * REGBYTES(sp)
-   SREG  a6, 19 * REGBYTES(sp)
-   SREG  a5, 20 * REGBYTES(sp)
-   SREG  a4, 21 * REGBYTES(sp)
-   SREG  a3, 22 * REGBYTES(sp)
-   SREG  a2, 23 * REGBYTES(sp)
-   SREG  a1, 24 * REGBYTES(sp)
-   SREG  a0, 25 * REGBYTES(sp)
-   SREG  ra, 31 * REGBYTES(sp)
+    addi sp, sp, -(32 * REGBYTES)
+    SREG  t6, 2 * REGBYTES(sp)
+    SREG  t5, 3 * REGBYTES(sp)
+    SREG  t4, 4 * REGBYTES(sp)
+    SREG  t3, 5 * REGBYTES(sp)
+    SREG  t2, 6 * REGBYTES(sp)
+    SREG  t1, 7 * REGBYTES(sp)
+    SREG  t0, 8 * REGBYTES(sp)
+    SREG  a7, 18 * REGBYTES(sp)
+    SREG  a6, 19 * REGBYTES(sp)
+    SREG  a5, 20 * REGBYTES(sp)
+    SREG  a4, 21 * REGBYTES(sp)
+    SREG  a3, 22 * REGBYTES(sp)
+    SREG  a2, 23 * REGBYTES(sp)
+    SREG  a1, 24 * REGBYTES(sp)
+    SREG  a0, 25 * REGBYTES(sp)
+    SREG  ra, 31 * REGBYTES(sp)
+    csrr  t0, mstatus
+    SREG  t0, 16 * REGBYTES(sp)
+    csrr  t0, mepc
+    SREG  t0, 17 * REGBYTES(sp)
 .endm
 
 .macro POP_CALLER_REG
+    LREG  t0, 16 * REGBYTES(sp)
+    csrw  mstatus, t0
+    LREG  t0, 17 * REGBYTES(sp)
+    csrw  mepc, t0
     LREG  t6, 2 * REGBYTES(sp)
     LREG  t5, 3 * REGBYTES(sp)
     LREG  t4, 4 * REGBYTES(sp)
@@ -127,14 +135,7 @@
 .align 4
 HalTrapEntry:
     PUSH_CALLEE_REG
-    csrr  t0, mstatus
-    sw    t0, 16 * REGBYTES(sp)
-    csrr  t0, mepc
-    sw    t0, 17 * REGBYTES(sp)
-    sw    tp, 1 * REGBYTES(sp)
-    sw    sp, 0 * REGBYTES(sp)
     addi  sp, sp, -(4 * REGBYTES)
-    csrr  a0, mcause
     sw    a0, 0 * REGBYTES(sp)
     csrr  t0, mtval
     sw    t0, 1 * REGBYTES(sp)
@@ -165,6 +166,7 @@ HalTrapEntry:
 
 .section .interrupt.HalTrapVector.text
 .extern HalTrapEntry
+.extern HalIrqEndCheckNeedSched
 .global HalTrapVector
 .equ TRAP_INTERRUPT_MODE_MASK, 0x80000000
 .align 4
@@ -179,6 +181,9 @@ HalTrapVector:
     csrw  mscratch, sp
     la    sp, __start_and_irq_stack_top
     jal   HalHwiInterruptDone
-    j     HalTaskSwitch
+    csrr  sp, mscratch
+    call  HalIrqEndCheckNeedSched
 
+    POP_CALLER_REG
+    mret
 #endif /* _LOS_TRAP_S */

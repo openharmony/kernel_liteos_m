@@ -30,9 +30,10 @@
  */
 
 #include "los_tick.h"
+#include "los_config.h"
 #include "los_task.h"
 #include "los_swtmr.h"
-#include "los_config.h"
+#include "los_sched.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -40,7 +41,6 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-LITE_OS_SEC_BSS UINT64 g_ullTickCount;
 LITE_OS_SEC_BSS UINT32 g_ticksPerSec;
 LITE_OS_SEC_BSS UINT32 g_uwCyclePerSec;
 LITE_OS_SEC_BSS UINT32 g_cyclesPerTick;
@@ -52,21 +52,15 @@ extern VOID platform_tick_handler(VOID);
 
 LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)
 {
+#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
+    OsSchedUpdateTimeBase();
+#endif
+
 #if (LOSCFG_BASE_CORE_TICK_HW_TIME == 1)
     platform_tick_handler();
 #endif
 
-    g_ullTickCount++;
-
-#if (LOSCFG_BASE_CORE_TIMESLICE == 1)
-    OsTimesliceCheck();
-#endif
-
-    OsTaskScan();  // task timeout scan
-
-#if (LOSCFG_BASE_CORE_SWTMR == 1)
-    (VOID)OsSwtmrScan();
-#endif
+    LOS_SchedTickHandler();
 }
 
 UINT32 LOS_SysClockGet(VOID)
@@ -84,7 +78,7 @@ Return      : current tick
 *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT64 LOS_TickCountGet(VOID)
 {
-    return g_ullTickCount;
+    return OsGetCurrTimeCycle() / OS_CYCLE_PER_TICK;
 }
 
 /*****************************************************************************

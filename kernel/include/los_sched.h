@@ -29,29 +29,85 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_ARCH_TIMER_H
-#define _LOS_ARCH_TIMER_H
+#ifndef _LOS_SCHED_H
+#define _LOS_SCHED_H
 
-#include "los_config.h"
-#include "los_compiler.h"
-#include "los_context.h"
+#include "los_task.h"
+#include "los_interrupt.h"
+#include "los_timer.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#define MTIMER_HI_OFFSET 4
-#define OS_COMBINED_64(hi, ho) (((UINT64)(hi) << 32) | (ho))
+extern UINT32 g_taskScheduled;
+typedef BOOL (*SchedScan)(VOID);
 
-UINT32 HalTickStart(OS_TICK_HANDLER handler);
+VOID OsSchedUpdateTimeBase(VOID);
+
+UINT64 OsGetCurrTimeCycle(VOID);
+
+UINT64 OsGetCurrSchedTimeCycle(VOID);
+
+VOID OsSchedSetIdleTaskSchedPartam(LosTaskCB *idleTask);
+
+UINT32 OsSchedSwtmrScanRegister(SchedScan func);
+
+VOID OsSchedUpdateExpireTime(UINT64 startTime);
+
+VOID OsSchedTaskDeQueue(LosTaskCB *taskCB);
+
+VOID OsSchedTaskEnQueue(LosTaskCB *taskCB);
+
+VOID OsSchedTaskWait(LOS_DL_LIST *list, UINT32 timeout);
+
+VOID OsSchedTaskWake(LosTaskCB *resumedTask);
+
+BOOL OsSchedModifyTaskSchedParam(LosTaskCB *taskCB, UINT16 priority);
+
+VOID OsSchedDelay(LosTaskCB *runTask, UINT32 tick);
+
+VOID OsSchedYield(VOID);
+
+VOID OsSchedTaskExit(LosTaskCB *taskCB);
+
+VOID OsSchedTick(VOID);
+
+UINT32 OsSchedInit(VOID);
+
+VOID OsSchedStart(VOID);
+
+BOOL OsSchedTaskSwitch(VOID);
+
+LosTaskCB *OsGetTopTask(VOID);
+
+extern VOID LOS_SchedTickHandler(VOID);
+
+extern VOID LOS_Schedule(VOID);
+
+#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
+VOID OsSchedUpdateSleepTime(VOID);
+
+VOID OsSchedToSleep(VOID);
+
+typedef UINT32 (*SchedSleepInit)(VOID);
+
+typedef VOID (*SchedSleepStart)(UINT64);
+
+typedef VOID (*SchedSleepStop)(VOID);
+
+typedef UINT64 (*SchedSleepGetSleepTimeNs)(VOID);
+
+extern UINT32 LOS_SchedSleepInit(SchedSleepInit init, SchedSleepStart start,
+                                 SchedSleepStop stop, SchedSleepGetSleepTimeNs getTime);
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#endif /* _LOS_ARCH_TIMER_H */
-
+#endif /* _LOS_SCHED_H */

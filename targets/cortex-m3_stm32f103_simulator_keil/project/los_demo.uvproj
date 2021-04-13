@@ -537,6 +537,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\utils\los_debug.c</FilePath>
             </File>
+            <File>
+              <FileName>los_sched.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\kernel\src\los_sched.c</FilePath>
+            </File>
+            <File>
+              <FileName>los_sortlink.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\kernel\src\los_sortlink.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

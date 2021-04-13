@@ -35,6 +35,7 @@
 #include "los_hook.h"
 #include "los_interrupt.h"
 #include "los_memory.h"
+#include "los_sched.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -228,22 +229,23 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPend(UINT32 muxHandle, UINT32 timeout)
     runningTask->taskMux = (VOID *)muxPended;
 
     if (muxPended->owner->priority > runningTask->priority) {
-        OsTaskPriModify(muxPended->owner, runningTask->priority);
+        (VOID)OsSchedModifyTaskSchedParam(muxPended->owner, runningTask->priority);
     }
 
-    OsTaskWait(&muxPended->muxList, OS_TASK_STATUS_PEND, timeout);
+    OsSchedTaskWait(&muxPended->muxList, timeout);
 
     LOS_IntRestore(intSave);
     OsHookCall(LOS_HOOK_TYPE_MUX_PEND, muxPended);
     LOS_Schedule();
 
+    intSave = LOS_IntLock();
     if (runningTask->taskStatus & OS_TASK_STATUS_TIMEOUT) {
-        intSave = LOS_IntLock();
         runningTask->taskStatus &= (~OS_TASK_STATUS_TIMEOUT);
         retErr = LOS_ERRNO_MUX_TIMEOUT;
         goto ERROR_MUX_PEND;
     }
 
+    LOS_IntRestore(intSave);
     return LOS_OK;
 
 HOOK:
@@ -290,7 +292,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
     }
 
     if ((muxPosted->owner->priority) != muxPosted->priority) {
-        OsTaskPriModify(muxPosted->owner, muxPosted->priority);
+        (VOID)OsSchedModifyTaskSchedParam(muxPosted->owner, muxPosted->priority);
     }
 
     if (!LOS_ListEmpty(&muxPosted->muxList)) {
@@ -301,7 +303,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
         muxPosted->priority = resumedTask->priority;
         resumedTask->taskMux = NULL;
 
-        OsTaskWake(resumedTask, OS_TASK_STATUS_PEND);
+        OsSchedTaskWake(resumedTask);
 
         LOS_IntRestore(intSave);
         OsHookCall(LOS_HOOK_TYPE_MUX_POST, muxPosted);
