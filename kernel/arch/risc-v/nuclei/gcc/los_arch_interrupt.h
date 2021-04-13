@@ -196,23 +196,6 @@ extern UINT32 HalUnalignedAccessFix(UINTPTR mcause, UINTPTR mepc, UINTPTR mtval,
 
 extern VOID DisplayTaskInfo(VOID);
 
-extern UINT32 g_intCount;
-
-__attribute__((always_inline)) static inline VOID HalIntEnter(VOID)
-{
-    g_intCount += 1;
-}
-
-__attribute__((always_inline)) static inline VOID HalIntExit(VOID)
-{
-    g_intCount -= 1;
-}
-
-__attribute__((always_inline)) static inline UINT32 HalIsIntAcvive(VOID)
-{
-    return (g_intCount > 0);
-}
-
 #ifdef __cplusplus
 #if __cplusplus
 }

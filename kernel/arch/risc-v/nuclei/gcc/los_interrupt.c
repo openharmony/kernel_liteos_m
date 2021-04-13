@@ -89,7 +89,11 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
     // default to 0
     ECLIC_SetLevelIRQ(hwiNum, 0);
     /* set interrupt priority */
-    ECLIC_SetPriorityIRQ(hwiNum, hwiPrio);
+    // high 16 bit for level
+    ECLIC_SetLevelIRQ(hwiNum, (hwiPrio >> 16));
+    /* set interrupt priority */
+    // low 16 bit for priority
+    ECLIC_SetPriorityIRQ(hwiNum, (hwiPrio & 0xffff));
     if (handler != NULL) {
         /* set interrupt handler entry to vector table */
         ECLIC_SetVector(hwiNum, (rv_csr_t)handler);
@@ -168,6 +172,22 @@ WEAK UINT32 HalUnalignedAccessFix(UINTPTR mcause, UINTPTR mepc, UINTPTR mtval, V
     PRINTK("Unaligned acess fixes are not support by default!\r\n");
     return LOS_NOK;
 }
+
+__attribute__((always_inline)) inline VOID HalIntEnter(VOID)
+{
+    g_intCount += 1;
+}
+
+__attribute__((always_inline)) inline VOID HalIntExit(VOID)
+{
+    g_intCount -= 1;
+}
+
+__attribute__((always_inline)) inline UINT32 HalIsIntAcvive(VOID)
+{
+    return (g_intCount > 0);
+}
+
 #ifdef __cplusplus
 #if __cplusplus
 }
