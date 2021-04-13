@@ -32,7 +32,10 @@
 #ifndef LWIP_TEST_H
 #define LWIP_TEST_H
 
+#include "lwip/arch.h"
+#include "lwip/sockets.h"
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include "log.h"
 #include "securec.h"
 
