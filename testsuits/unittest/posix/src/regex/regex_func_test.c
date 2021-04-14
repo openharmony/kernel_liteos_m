@@ -32,9 +32,9 @@
 #include "ohos_types.h"
 #include "hctest.h"
 #include "los_config.h"
-#include "los_debug.h"
 #include "kernel_test.h"
 #include <regex.h>
+#include "log.h"
 
 #define EQUAL 0
 
@@ -52,9 +52,9 @@ LITE_TEST_SUIT(Posix, PosixRegexTest, PosixRegexFuncTestSuite);
  */
 static BOOL PosixRegexFuncTestSuiteSetUp(void)
 {
-    PRINT_EMG("+-------------------------------------------+\n");
-    PRINT_EMG("+--------PosixRegexFuncTestSuiteSetUp-------+\n");
-    PRINT_EMG("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
+    LOG("+--------PosixRegexFuncTestSuiteSetUp-------+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -64,9 +64,9 @@ static BOOL PosixRegexFuncTestSuiteSetUp(void)
  */
 static BOOL PosixRegexFuncTestSuiteTearDown(void)
 {
-    PRINT_EMG("+-------------------------------------------+\n");
-    PRINT_EMG("+-------PosixRegexFuncTestSuiteTearDown-----+\n");
-    PRINT_EMG("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
+    LOG("+-------PosixRegexFuncTestSuiteTearDown-----+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -81,16 +81,16 @@ void TestRegex(int flag, const char *pattern, const char *buf, const int expecte
     int status = regexec(&reg, buf, nmatch, pmatch, 0);
     TEST_ASSERT_EQUAL_INT(status, expectedStatus);
     if (status == REG_NOMATCH) {
-        PRINT_EMG("no match");
+        LOG("no match");
     } else if (status == 0) {
-        PRINT_EMG("Match:");
+        LOG("Match:");
         for (int i = pmatch[0].rm_so; i < pmatch[0].rm_eo; i++) {
             putchar(buf[i]);
             res[j] = buf[i];
             j++;
         }
         res[j] = 0;
-        PRINT_EMG("\n");
+        LOG("\n");
         TEST_ASSERT_EQUAL_STRING(res, expectedRes);
     }
     regfree(&reg);
@@ -100,7 +100,7 @@ void TestRegcomp(int flag, const char *pattern, const int expectedStatus)
 {
     regex_t reg;
     int status = regcomp(&reg, pattern, flag);
-    PRINT_EMG("pattern : %s ,real status : %d \n", pattern, status);
+    LOG("pattern : %s ,real status : %d \n", pattern, status);
     TEST_ASSERT_EQUAL_INT(status, expectedStatus);
     regfree(&reg);
 }
@@ -180,7 +180,7 @@ RUN_TEST_SUITE(PosixRegexFuncTestSuite);
 
 void PosixRegexFuncTest()
 {
-    PRINT_EMG("begin PosixRegexFuncTest....");
+    LOG("begin PosixRegexFuncTest....");
     RUN_ONE_TESTCASE(testRegexExtended001);
     RUN_ONE_TESTCASE(testRegexIcase001);
     RUN_ONE_TESTCASE(testRegexNewline001);

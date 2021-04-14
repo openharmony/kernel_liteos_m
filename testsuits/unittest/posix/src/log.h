@@ -32,6 +32,9 @@
 #ifndef TEST_LOG
 #define TEST_LOG
 
+// define if need print debug info
+#define DEBUG_LOG_OUT
+
 #include <stdio.h>
 #include <los_debug.h>
 
@@ -39,7 +42,11 @@
 extern "C" {
 #endif
 
-#define LOG(fmt, args...)      PRINT_EMG(fmt, ##args)
+#ifdef DEBUG_LOG_OUT
+    #define LOG printf
+#else
+    #define LOG(...)
+#endif
 
 #ifdef __cplusplus
 }

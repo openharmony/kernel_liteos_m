@@ -36,6 +36,7 @@
 #include "ctype.h"
 #include "stdlib.h"
 #include "string.h"
+#include "limits.h"
 #include "log.h"
 
 /* *
@@ -61,7 +62,7 @@ static BOOL PosixStdlibStrtoulTestSetUp(void)
  */
 static BOOL PosixStdlibStrtoulTestTearDown(void)
 {
-    printf("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -76,9 +77,9 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul001, Function | MediumTe
     char *endPtr = NULL;
     unsigned long ret = strtoul(nPtr, &endPtr, 10);
     if (ret == 12UL) {
-        printf("[DEMO] posix stdlib test case 1:strtoul(base=10) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 1:strtoul(base=10) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 1:strtoul(base=10) ret:%lu,%s fail.\n", ret, nPtr);
+        LOG("[DEMO] posix stdlib test case 1:strtoul(base=10) ret:%lu,%s fail.\n", ret, nPtr);
     }
     TEST_ASSERT_EQUAL_UINT32(12UL, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 0110 0XDEFE 0666 4294967295 4294967296 12.34");
@@ -95,9 +96,9 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul002, Function | MediumTe
     char *endPtr = NULL;
     unsigned long ret = strtoul(nPtr, &endPtr, 2);
     if (ret == 6UL) {
-        printf("[DEMO] posix stdlib test case 2:strtoul(base=2) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 2:strtoul(base=2) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 2:strtoul(base=2) ret:%lu,%s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 2:strtoul(base=2) ret:%lu,%s fail.\n", ret, endPtr);
     }
     TEST_ASSERT_EQUAL_UINT32(6UL, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 0XDEFE 0666 4294967295 4294967296 12.34");
@@ -114,9 +115,9 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul003, Function | MediumTe
     char *endPtr = NULL;
     unsigned long ret = strtoul(nPtr, &endPtr, 16);
     if (ret == 0XDEFEUL) {
-        printf("[DEMO] posix stdlib test case 3:strtoul(base=16) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 3:strtoul(base=16) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 3:strtoul(base=16) ret:%lu,%s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 3:strtoul(base=16) ret:%lu,%s fail.\n", ret, endPtr);
     }
     TEST_ASSERT_EQUAL_UINT32(0XDEFEUL, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 0666 4294967295 4294967296 12.34");
@@ -133,9 +134,9 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul004, Function | MediumTe
     char *endPtr = NULL;
     unsigned long ret = strtoul(nPtr, &endPtr, 8);
     if (ret == 0666UL) {
-        printf("[DEMO] posix stdlib test case 4:strtoul(base=8) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 4:strtoul(base=8) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 4:strtoul(base=8) ret:%lu,%s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 4:strtoul(base=8) ret:%lu,%s fail.\n", ret, endPtr);
     }
     TEST_ASSERT_EQUAL_UINT32(0666UL, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 4294967295 4294967296 12.34");
@@ -152,9 +153,9 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul005, Function | MediumTe
     char *endPtr = NULL;
     unsigned long ret = strtoul(nPtr, &endPtr, 0);
     if (ret == 4294967295UL) {
-        printf("[DEMO] posix stdlib test case 5:strtoul(base=0) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 5:strtoul(base=0) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 5:strtoul(base=0) ret:%lu,%s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 5:strtoul(base=0) ret:%lu,%s fail.\n", ret, endPtr);
     }
     TEST_ASSERT_EQUAL_UINT32(4294967295UL, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 4294967296 12.34");
@@ -171,11 +172,12 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul006, Function | MediumTe
     char *endPtr = NULL;
     unsigned long ret = strtoul(nPtr, &endPtr, 0);
     if (ret == 0UL) {
-        printf("[DEMO] posix stdlib test case 6:strtoul(base=0) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 6:strtoul(base=0) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 6:strtoul(base=0) ret:%lu,%s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 6:strtoul(base=0) ret:%lu,%s fail.\n", ret, endPtr);
     }
-    TEST_ASSERT_EQUAL_UINT32(0UL, ret);
+
+    TEST_ASSERT_EQUAL_UINT32(ULONG_MAX, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 12.34");
 }
 
@@ -190,9 +192,9 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul007, Function | MediumTe
     char *endPtr = NULL;
     unsigned long ret = strtoul(nPtr, &endPtr, 65);
     if (ret == 67UL) {
-        printf("[DEMO] posix stdlib test case 7:strtoul(base=65) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 7:strtoul(base=65) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 7:strtoul(base=65) ret:%lu,%s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 7:strtoul(base=65) ret:%lu,%s fail.\n", ret, endPtr);
     }
     TEST_ASSERT_EQUAL_UINT32(67UL, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, ".34");
@@ -209,9 +211,9 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul008, Function | MediumTe
     char *endPtr = NULL;
     unsigned long ret = strtoul(nPtr, &endPtr, 0);
     if (ret == 0UL) {
-        printf("[DEMO] posix stdlib test case 8:strtoul(base=0) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 8:strtoul(base=0) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 8:strtoul(base=0) ret:%lu,%s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 8:strtoul(base=0) ret:%lu,%s fail.\n", ret, endPtr);
     }
     TEST_ASSERT_EQUAL_UINT32(0UL, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, ".34");
@@ -228,9 +230,9 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul009, Function | MediumTe
     char *endPtr = NULL;
     unsigned long ret = strtoul(nPtr, &endPtr, 0);
     if (ret == 0XDEFE) {
-        printf("[DEMO] posix stdlib test case 9:strtoul(base=0) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 9:strtoul(base=0) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 9:strtoul(base=0) ret:%lu,%s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 9:strtoul(base=0) ret:%lu,%s fail.\n", ret, endPtr);
     }
     TEST_ASSERT_EQUAL_UINT32(0XDEFE, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 0666");
@@ -247,9 +249,9 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul010, Function | MediumTe
     char *endPtr = NULL;
     unsigned long ret = strtoul(nPtr, &endPtr, 0);
     if (ret == 0666) {
-        printf("[DEMO] posix stdlib test case 9:strtoul(base=0) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 9:strtoul(base=0) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 9:strtoul(base=0) ret:%lu,%s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 9:strtoul(base=0) ret:%lu,%s fail.\n", ret, endPtr);
     }
     TEST_ASSERT_EQUAL_UINT32(0666, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, "");

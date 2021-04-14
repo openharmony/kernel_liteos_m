@@ -60,7 +60,7 @@ static BOOL PosixCTypeIsxdigitTestSetUp(void)
  */
 static BOOL PosixCTypeIsxdigitTestTearDown(void)
 {
-    printf("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -74,11 +74,11 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit001, Function | MediumTe
     int a = '0';
     int ret = isxdigit(a);
     if (ret != 0) {
-        printf("[DEMO] posix ctype test case 1:isxdigit(%c) ok.\n", a);
+        LOG("[DEMO] posix ctype test case 1:isxdigit(%c) ok.\n", a);
     } else {
-        printf("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
+        LOG("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(1, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -91,11 +91,11 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit002, Function | MediumTe
     int a = '5';
     int ret = isxdigit(a);
     if (ret != 0) {
-        printf("[DEMO] posix ctype test case 2:isxdigit(%c) ok.\n", a);
+        LOG("[DEMO] posix ctype test case 2:isxdigit(%c) ok.\n", a);
     } else {
-        printf("[DEMO] posix ctype test case 2:isxdigit(%c) fail.\n", a);
+        LOG("[DEMO] posix ctype test case 2:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(1, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -108,11 +108,11 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit003, Function | MediumTe
     int a = '9';
     int ret = isxdigit(a);
     if (ret != 0) {
-        printf("[DEMO] posix ctype test case 3:isxdigit(%c) ok.\n", a);
+        LOG("[DEMO] posix ctype test case 3:isxdigit(%c) ok.\n", a);
     } else {
-        printf("[DEMO] posix ctype test case 3:isxdigit(%c) fail.\n", a);
+        LOG("[DEMO] posix ctype test case 3:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(1, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -125,11 +125,11 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit004, Function | MediumTe
     int a = 'a';
     int ret = isxdigit(a);
     if (ret != 0) {
-        printf("[DEMO] posix ctype test case 1:isxdigit(%c) ok.\n", a);
+        LOG("[DEMO] posix ctype test case 1:isxdigit(%c) ok.\n", a);
     } else {
-        printf("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
+        LOG("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(1, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -142,11 +142,11 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit005, Function | MediumTe
     int a = 'f';
     int ret = isxdigit(a);
     if (ret != 0) {
-        printf("[DEMO] posix ctype test case 1:isxdigit(%c) ok.\n", a);
+        LOG("[DEMO] posix ctype test case 1:isxdigit(%c) ok.\n", a);
     } else {
-        printf("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
+        LOG("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(1, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -159,11 +159,11 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit006, Function | MediumTe
     int a = 'A';
     int ret = isxdigit(a);
     if (ret != 0) {
-        printf("[DEMO] posix ctype test case 1:isxdigit(%c) ok.\n", a);
+        LOG("[DEMO] posix ctype test case 1:isxdigit(%c) ok.\n", a);
     } else {
-        printf("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
+        LOG("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(1, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -176,11 +176,11 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit007, Function | MediumTe
     int a = 'F';
     int ret = isxdigit(a);
     if (ret != 0) {
-        printf("[DEMO] posix ctype test case 1:isxdigit(%c) ok.\n", a);
+        LOG("[DEMO] posix ctype test case 1:isxdigit(%c) ok.\n", a);
     } else {
-        printf("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
+        LOG("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(1, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -193,9 +193,9 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit008, Function | MediumTe
     int a = 'F' + 1;
     int ret = isxdigit(a);
     if (ret == 0) {
-        printf("[DEMO] posix ctype test case 5(except):isxdigit(%c) ok.\n", a);
+        LOG("[DEMO] posix ctype test case 5(except):isxdigit(%c) ok.\n", a);
     } else {
-        printf("[DEMO] posix ctype test case 5(except):isxdigit(%c) fail.\n", a);
+        LOG("[DEMO] posix ctype test case 5(except):isxdigit(%c) fail.\n", a);
     }
     TEST_ASSERT_EQUAL_INT(0, ret);
 }
@@ -210,9 +210,9 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit009, Function | MediumTe
     int a = '0' - 1;
     int ret = isxdigit(a);
     if (ret == 0) {
-        printf("[DEMO] posix ctype test case 4(except):isxdigit(%c) ok.\n", a);
+        LOG("[DEMO] posix ctype test case 4(except):isxdigit(%c) ok.\n", a);
     } else {
-        printf("[DEMO] posix ctype test case 4(except):isxdigit(%c) fail.\n", a);
+        LOG("[DEMO] posix ctype test case 4(except):isxdigit(%c) fail.\n", a);
     }
     TEST_ASSERT_EQUAL_INT(0, ret);
 }
@@ -227,9 +227,9 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit010, Function | MediumTe
     int a = '9' + 1;
     int ret = isxdigit(a);
     if (ret == 0) {
-        printf("[DEMO] posix ctype test case 5(except):isxdigit(%c) ok.\n", a);
+        LOG("[DEMO] posix ctype test case 5(except):isxdigit(%c) ok.\n", a);
     } else {
-        printf("[DEMO] posix ctype test case 5(except):isxdigit(%c) fail.\n", a);
+        LOG("[DEMO] posix ctype test case 5(except):isxdigit(%c) fail.\n", a);
     }
     TEST_ASSERT_EQUAL_INT(0, ret);
 }

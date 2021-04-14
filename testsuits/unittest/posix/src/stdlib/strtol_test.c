@@ -61,7 +61,7 @@ static BOOL PosixStdlibStrtolTestSetUp(void)
  */
 static BOOL PosixStdlibStrtolTestTearDown(void)
 {
-    printf("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -76,9 +76,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol001, Function | MediumTest
     char *endPtr16 = NULL;
     long ret = strtol(nPtr16, &endPtr16, 16);
     if (ret == 16) {
-        printf("[DEMO] posix stdlib test case 1:strtol(base=16) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr16, endPtr16);
+        LOG("[DEMO] posix stdlib test case 1:strtol(base=16) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr16, endPtr16);
     } else {
-        printf("[DEMO] posix stdlib test case 1:strtol(base=16) ret:%ld,%s fail.\n", ret, nPtr16);
+        LOG("[DEMO] posix stdlib test case 1:strtol(base=16) ret:%ld,%s fail.\n", ret, nPtr16);
     }
     TEST_ASSERT_EQUAL_INT32(16, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr16, "");
@@ -95,9 +95,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol002, Function | MediumTest
     char *endPtr16 = NULL;
     long ret = strtol(nPtr16, &endPtr16, 0);
     if (ret == 16) {
-        printf("[DEMO] posix stdlib test case 2:strtol(base=16) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr16, endPtr16);
+        LOG("[DEMO] posix stdlib test case 2:strtol(base=16) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr16, endPtr16);
     } else {
-        printf("[DEMO] posix stdlib test case 2:strtol(base=16) ret:%ld,%s fail.\n", ret, nPtr16);
+        LOG("[DEMO] posix stdlib test case 2:strtol(base=16) ret:%ld,%s fail.\n", ret, nPtr16);
     }
     TEST_ASSERT_EQUAL_INT32(16, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr16, "");
@@ -114,9 +114,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol003, Function | MediumTest
     char *endPtr10 = NULL;
     long ret = strtol(nPtr10, &endPtr10, 10);
     if (ret == 10) {
-        printf("[DEMO] posix stdlib test case 3:strtol(base=10) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr10, endPtr10);
+        LOG("[DEMO] posix stdlib test case 3:strtol(base=10) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr10, endPtr10);
     } else {
-        printf("[DEMO] posix stdlib test case 3:strtol(base=10) ret:%ld,%s fail.\n", ret, nPtr10);
+        LOG("[DEMO] posix stdlib test case 3:strtol(base=10) ret:%ld,%s fail.\n", ret, nPtr10);
     }
     TEST_ASSERT_EQUAL_INT32(10, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr10, "");
@@ -133,9 +133,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol004, Function | MediumTest
     char *endPtr10 = NULL;
     long ret = strtol(nPtr10, &endPtr10, 10);
     if (ret == -10) {
-        printf("[DEMO] posix stdlib test case 4:strtol(base=10) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr10, endPtr10);
+        LOG("[DEMO] posix stdlib test case 4:strtol(base=10) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr10, endPtr10);
     } else {
-        printf("[DEMO] posix stdlib test case 4:strtol(base=10) ret:%ld,%s fail.\n", ret, nPtr10);
+        LOG("[DEMO] posix stdlib test case 4:strtol(base=10) ret:%ld,%s fail.\n", ret, nPtr10);
     }
     TEST_ASSERT_EQUAL_INT32(-10, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr10, "");
@@ -152,9 +152,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol005, Function | MediumTest
     char *endPtr10_3 = NULL;
     long ret = strtol(nPtr10_3, &endPtr10_3, 0);
     if (ret == 10) {
-        printf("[DEMO] posix stdlib test case 5:strtol(base=0) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr10_3, endPtr10_3);
+        LOG("[DEMO] posix stdlib test case 5:strtol(base=0) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr10_3, endPtr10_3);
     } else {
-        printf("[DEMO] posix stdlib test case 5:strtol(base=0) ret:%ld,%s fail.\n", ret, nPtr10_3);
+        LOG("[DEMO] posix stdlib test case 5:strtol(base=0) ret:%ld,%s fail.\n", ret, nPtr10_3);
     }
     TEST_ASSERT_EQUAL_INT32(10, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr10_3, "");
@@ -171,9 +171,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol006, Function | MediumTest
     char *endPtr8 = NULL;
     long ret = strtol(nPtr8, &endPtr8, 8);
     if (ret == 8) {
-        printf("[DEMO] posix stdlib test case 6:strtol(base=8) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr8, endPtr8);
+        LOG("[DEMO] posix stdlib test case 6:strtol(base=8) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr8, endPtr8);
     } else {
-        printf("[DEMO] posix stdlib test case 6:strtol(base=8) ret:%ld,%s fail.\n", ret, nPtr8);
+        LOG("[DEMO] posix stdlib test case 6:strtol(base=8) ret:%ld,%s fail.\n", ret, nPtr8);
     }
     TEST_ASSERT_EQUAL_INT32(8, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr8, "");
@@ -190,9 +190,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol007, Function | MediumTest
     char *endPtr8_2 = NULL;
     long ret = strtol(nPtr8_2, &endPtr8_2, 8);
     if (ret == 8) {
-        printf("[DEMO] posix stdlib test case 7:strtol(base=8) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr8_2, endPtr8_2);
+        LOG("[DEMO] posix stdlib test case 7:strtol(base=8) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr8_2, endPtr8_2);
     } else {
-        printf("[DEMO] posix stdlib test case 7:strtol(base=8) ret:%ld,%s fail.\n", ret, nPtr8_2);
+        LOG("[DEMO] posix stdlib test case 7:strtol(base=8) ret:%ld,%s fail.\n", ret, nPtr8_2);
     }
     TEST_ASSERT_EQUAL_INT32(8, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr8_2, "");
@@ -209,9 +209,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol008, Function | MediumTest
     char *endPtr8_3 = NULL;
     long ret = strtol(nPtr8_3, &endPtr8_3, 0);
     if (ret == 8) {
-        printf("[DEMO] posix stdlib test case 8:strtol(base=8) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr8_3, endPtr8_3);
+        LOG("[DEMO] posix stdlib test case 8:strtol(base=8) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr8_3, endPtr8_3);
     } else {
-        printf("[DEMO] posix stdlib test case 8:strtol(base=8) ret:%ld,%s fail.\n", ret, nPtr8_3);
+        LOG("[DEMO] posix stdlib test case 8:strtol(base=8) ret:%ld,%s fail.\n", ret, nPtr8_3);
     }
     TEST_ASSERT_EQUAL_INT32(8, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr8_3, "");
@@ -228,9 +228,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol009, Function | MediumTest
     char *endPtr2 = NULL;
     long ret = strtol(nPtr2, &endPtr2, 2);
     if (ret == 2) {
-        printf("[DEMO] posix stdlib test case 9:strtol(base=2) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr2, endPtr2);
+        LOG("[DEMO] posix stdlib test case 9:strtol(base=2) ret:%ld,%s, endPtr:%s ok.\n", ret, nPtr2, endPtr2);
     } else {
-        printf("[DEMO] posix stdlib test case 9:strtol(base=2) ret:%ld,%s fail.\n", ret, nPtr2);
+        LOG("[DEMO] posix stdlib test case 9:strtol(base=2) ret:%ld,%s fail.\n", ret, nPtr2);
     }
     TEST_ASSERT_EQUAL_INT32(2, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr2, "");
@@ -247,9 +247,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol010, Function | MediumTest
     char *endPtr = NULL;
     long ret = strtol(nPtr, &endPtr, 10);
     if (ret == 12) {
-        printf("[DEMO] posix stdlib test case 10:strtol(base=10) ret:%ld, %s, endPtr:%s ok.\n", ret, endPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 10:strtol(base=10) ret:%ld, %s, endPtr:%s ok.\n", ret, endPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 10:strtol(base=10) ret:%ld, %s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 10:strtol(base=10) ret:%ld, %s fail.\n", ret, endPtr);
     }
     TEST_ASSERT_EQUAL_INT32(12, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 0110 0XDEFE 0666 -1.6");
@@ -266,9 +266,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol011, Function | MediumTest
     char *endPtr = NULL;
     long ret = strtol(nPtr, &endPtr, 65);
     if (ret == 67) {
-        printf("[DEMO] posix stdlib test case 11:strtol(base=65) ret:%ld, %s, endPtr:%s ok.\n", ret, endPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 11:strtol(base=65) ret:%ld, %s, endPtr:%s ok.\n", ret, endPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 11:strtol(base=65) ret:%ld, %s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 11:strtol(base=65) ret:%ld, %s fail.\n", ret, endPtr);
     }
     TEST_ASSERT_EQUAL_INT32(67, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 1.5");
@@ -280,9 +280,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol012, Function | MediumTest
     char *endPtr = NULL;
     long ret = strtol(nPtr, &endPtr, 10);
     if (ret == 2147483647) {
-        printf("[DEMO] posix stdlib test case 12:strtol(base=10) ret:%ld, %s, endPtr:%s ok.\n", ret, endPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 12:strtol(base=10) ret:%ld, %s, endPtr:%s ok.\n", ret, endPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 12:strtol(base=10) ret:%ld, %s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 12:strtol(base=10) ret:%ld, %s fail.\n", ret, endPtr);
     }
     TEST_ASSERT_EQUAL_INT32(2147483647, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, " -2147483648");
@@ -299,9 +299,9 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol013, Function | MediumTest
     char *endPtr = NULL;
     long ret = strtol(nPtr, &endPtr, 10);
     if (ret == -2147483648) {
-        printf("[DEMO] posix stdlib test case 13:strtol(base=10) ret:%ld, %s, endPtr:%s ok.\n", ret, endPtr, endPtr);
+        LOG("[DEMO] posix stdlib test case 13:strtol(base=10) ret:%ld, %s, endPtr:%s ok.\n", ret, endPtr, endPtr);
     } else {
-        printf("[DEMO] posix stdlib test case 13:strtol(base=10) ret:%ld, %s fail.\n", ret, endPtr);
+        LOG("[DEMO] posix stdlib test case 13:strtol(base=10) ret:%ld, %s fail.\n", ret, endPtr);
     }
     TEST_ASSERT_EQUAL_INT32(-2147483648, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, "");

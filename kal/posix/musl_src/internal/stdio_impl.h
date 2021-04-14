@@ -4,6 +4,7 @@
 #define __NEED_struct__IO_FILE
 
 #include <stdio.h>
+#include <bits/alltypes.h>
 #include "../include/features.h"
 
 #define UNGET 8
