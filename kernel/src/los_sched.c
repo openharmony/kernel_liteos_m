@@ -445,6 +445,7 @@ VOID OsSchedStart(VOID)
     g_losTask.newTask = newTask;
     g_losTask.runTask = g_losTask.newTask;
 
+    g_taskScheduled = 1;
     newTask->startTime = OsGetCurrSchedTimeCycle();
     OsSchedTaskDeQueue(newTask);
 
@@ -453,7 +454,6 @@ VOID OsSchedStart(VOID)
     OsSchedSetNextExpireTime(newTask->startTime, newTask->taskID, newTask->startTime + newTask->timeSlice);
 
     PRINTK("Entering scheduler\n");
-    g_taskScheduled = 1;
 }
 
 BOOL OsSchedTaskSwitch(VOID)
@@ -501,6 +501,8 @@ VOID LOS_SchedTickHandler(VOID)
     UINT64 currTime;
     BOOL needSched = FALSE;
 
+    LOS_ASSERT(g_taskScheduled);
+
     UINT32 intSave = LOS_IntLock();
 
     if (g_schedResponseID == OS_INVALID) {
@@ -512,7 +514,7 @@ VOID LOS_SchedTickHandler(VOID)
     }
 
     g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
-    if (g_taskScheduled && needSched && LOS_CHECK_SCHEDULE) {
+    if (needSched && LOS_CHECK_SCHEDULE) {
         HalTaskSchedule();
     } else {
         currTime = OsGetCurrSchedTimeCycle();
