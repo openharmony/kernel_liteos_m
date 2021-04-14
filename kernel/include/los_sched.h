@@ -45,9 +45,7 @@ extern "C" {
 extern UINT32 g_taskScheduled;
 typedef BOOL (*SchedScan)(VOID);
 
-VOID OsSchedUpdateTimeBase(VOID);
-
-UINT64 OsGetCurrTimeCycle(VOID);
+VOID OsSchedUpdateSchedTimeBase(VOID);
 
 UINT64 OsGetCurrSchedTimeCycle(VOID);
 

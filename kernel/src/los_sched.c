@@ -59,7 +59,6 @@ STATIC UINT32 g_queueBitmap;
 
 STATIC UINT32 g_schedResponseID = 0;
 STATIC UINT64 g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
-STATIC UINT64 g_schedStartTime;
 #if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
 typedef struct {
     SchedSleepInit           init;
@@ -78,7 +77,7 @@ STATIC SchedSleep g_schedSleepCB;
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
 STATIC UINT64 g_schedTimerBase;
 
-VOID OsSchedUpdateTimeBase(VOID)
+VOID OsSchedUpdateSchedTimeBase(VOID)
 {
     UINT32 period = 0;
 
@@ -87,8 +86,12 @@ VOID OsSchedUpdateTimeBase(VOID)
 }
 #endif
 
-UINT64 OsGetCurrTimeCycle(VOID)
+UINT64 OsGetCurrSchedTimeCycle(VOID)
 {
+    if (!g_taskScheduled) {
+        return 0;
+    }
+
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 1)
     return HalGetTickCycle(NULL);
 #else
@@ -109,15 +112,6 @@ UINT64 OsGetCurrTimeCycle(VOID)
     LOS_IntRestore(intSave);
     return schedTime;
 #endif
-}
-
-UINT64 OsGetCurrSchedTimeCycle(VOID)
-{
-    if (!g_taskScheduled) {
-        return 0;
-    }
-
-    return OsGetCurrTimeCycle() - g_schedStartTime;
 }
 
 STATIC INLINE VOID OsTimeSliceUpdate(LosTaskCB *taskCB, UINT64 currTime)
@@ -177,7 +171,7 @@ STATIC INLINE VOID OsSchedSetNextExpireTime(UINT64 startTime, UINT32 responseID,
 
     g_schedResponseTime = nextExpireTime;
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
-    g_schedTimerBase = OsGetCurrTimeCycle();
+    g_schedTimerBase = OsGetCurrSchedTimeCycle();
 #endif
     HalSysTickReload(nextResponseTime);
 }
@@ -459,7 +453,6 @@ VOID OsSchedStart(VOID)
     OsSchedSetNextExpireTime(newTask->startTime, newTask->taskID, newTask->startTime + newTask->timeSlice);
 
     PRINTK("Entering scheduler\n");
-    g_schedStartTime = OsGetCurrTimeCycle();
     g_taskScheduled = 1;
 }
 
@@ -510,25 +503,21 @@ VOID LOS_SchedTickHandler(VOID)
 
     UINT32 intSave = LOS_IntLock();
 
-    if (g_taskScheduled) {
-        if (g_schedResponseID == OS_INVALID) {
-            if (g_swtmrScan != NULL) {
-                needSched = g_swtmrScan();
-            }
-
-            needSched |= OsSchedScanTimerList();
+    if (g_schedResponseID == OS_INVALID) {
+        if (g_swtmrScan != NULL) {
+            needSched = g_swtmrScan();
         }
 
-        g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
-        if (needSched && LOS_CHECK_SCHEDULE) {
-            HalTaskSchedule();
-        } else {
-            currTime = OsGetCurrSchedTimeCycle();
-            OsTimeSliceUpdate(g_losTask.runTask, currTime);
-            OsSchedUpdateExpireTime(currTime);
-        }
+        needSched |= OsSchedScanTimerList();
+    }
+
+    g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
+    if (g_taskScheduled && needSched && LOS_CHECK_SCHEDULE) {
+        HalTaskSchedule();
     } else {
-        OsSchedUpdateExpireTime(OsGetCurrSchedTimeCycle());
+        currTime = OsGetCurrSchedTimeCycle();
+        OsTimeSliceUpdate(g_losTask.runTask, currTime);
+        OsSchedUpdateExpireTime(currTime);
     }
 
     LOS_IntRestore(intSave);

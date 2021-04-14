@@ -53,7 +53,7 @@ extern VOID platform_tick_handler(VOID);
 LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)
 {
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
-    OsSchedUpdateTimeBase();
+    OsSchedUpdateSchedTimeBase();
 #endif
 
 #if (LOSCFG_BASE_CORE_TICK_HW_TIME == 1)
@@ -78,7 +78,7 @@ Return      : current tick
 *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT64 LOS_TickCountGet(VOID)
 {
-    return OsGetCurrTimeCycle() / OS_CYCLE_PER_TICK;
+    return OsGetCurrSchedTimeCycle() / OS_CYCLE_PER_TICK;
 }
 
 /*****************************************************************************
