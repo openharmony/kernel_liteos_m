@@ -41,8 +41,6 @@
 static char g_serverSendBuf[BUF_SIZE + 1] = { 0 };
 static char g_clientRecvBuf[BUF_SIZE + 1] = { 0 };
 
-extern sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, int stackSize, int prio);
-
 static void InitMsgBuf()
 {
     int i;

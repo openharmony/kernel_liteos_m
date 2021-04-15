@@ -35,8 +35,4 @@
 #include <netdb.h>
 #include_next <lwip/netdb.h>
 
-#ifdef h_errno
-#undef h_errno
-#endif
-
 #endif /* _LWIP_PORTING_NETDB_H_ */

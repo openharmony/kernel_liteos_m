@@ -44,7 +44,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "securec.h"
-#include "log.h"
 #include "memory_pool.h"
 
 #ifdef htons
