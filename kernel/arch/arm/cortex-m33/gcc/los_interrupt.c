@@ -34,6 +34,7 @@
 #include "los_context.h"
 #include "los_arch_interrupt.h"
 #include "los_debug.h"
+#include "los_hook.h"
 #include "los_task.h"
 #include "los_memory.h"
 #include "los_membox.h"
@@ -166,6 +167,8 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
 
     hwiIndex = HalIntNumGet();
 
+    OsHookCall(LOS_HOOK_TYPE_ISR_ENTER, hwiIndex);
+
     HalPreInterruptHandler(hwiIndex);
 
 #if (OS_HWI_WITH_ARG == 1)
@@ -179,6 +182,8 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
 #endif
 
     HalAftInterruptHandler(hwiIndex);
+
+    OsHookCall(LOS_HOOK_TYPE_ISR_EXIT, hwiIndex);
 
     intSave = LOS_IntLock();
     g_intCount--;
