@@ -61,6 +61,7 @@
 #define LWIP_DNS_API_DEFINE_ERRORS    0
 #define LWIP_DNS_API_DEFINE_FLAGS     0
 #define LWIP_DNS_API_DECLARE_STRUCTS  0
+#define LWIP_DNS_API_DECLARE_H_ERRNO  0
 
 #ifndef __SIZEOF_POINTER__
 #define __SIZEOF_POINTER__ 4   // 32 bit system
