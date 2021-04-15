@@ -38,7 +38,6 @@
 #define TEST_CASE 120
 
 static char g_buf[BUF_SIZE + 1] = { 0 };
-extern sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, int stackSize, int prio);
 
 void UdpTestTask(void *p)
 {

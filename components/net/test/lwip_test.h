@@ -36,7 +36,6 @@
 #include "lwip/sockets.h"
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include "log.h"
 #include "securec.h"
 
 #ifdef __cplusplus
