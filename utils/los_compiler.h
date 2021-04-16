@@ -70,6 +70,10 @@ extern "C" {
 #define CLZ           __iar_builtin_CLZ
 #endif
 
+#ifndef NORETURN
+#define NORETURN      __attribute__ ((__noreturn__))
+#endif
+
 /* for ARM Compiler */
 #elif defined(__CC_ARM)
 
@@ -95,6 +99,10 @@ extern "C" {
 
 #ifndef CLZ
 #define CLZ           __clz
+#endif
+
+#ifndef NORETURN
+#define NORETURN      __declspec(noreturn)
 #endif
 
 #pragma anon_unions
@@ -124,6 +132,10 @@ extern "C" {
 
 #ifndef CLZ
 #define CLZ           __builtin_clz
+#endif
+
+#ifndef NORETURN
+#define NORETURN      __attribute__ ((__noreturn__))
 #endif
 
 #else
