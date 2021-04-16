@@ -30,14 +30,18 @@
  */
 
 #include "lwip_test.h"
+#include "lwipopts.h"
+#include <arch/sys_arch.h>
+#include <lwip/sys.h>
 
 #define MSG "Hi, I am UDP"
 #define TEST_CASE 120
 
 static char g_buf[BUF_SIZE + 1] = { 0 };
 
-int UdpTest(void)
+void UdpTestTask(void *p)
 {
+    (void)p;
     LogPrintln("net_socket_test_002.c enter");
     g_testCase = TEST_CASE;
     int sfd;
@@ -111,6 +115,13 @@ int UdpTest(void)
     /* close socket */
     ret = closesocket(sfd);
     LWIP_ASSERT("socket invalid param.", ret != -1);
-    return LWIP_TEST_RET_OK;
+    return;
 }
 
+int UdpTest()
+{
+    int ret = sys_thread_new("udp_test", UdpTestTask, NULL,
+        STACK_TEST_SIZE, TCPIP_THREAD_PRIO);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, 23);
+    return ret;
+}

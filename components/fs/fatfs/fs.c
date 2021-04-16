@@ -44,6 +44,7 @@
 
 #ifdef LOSCFG_NET_LWIP_SACK
 #include "lwip/lwipopts.h"
+#include "lwip/sockets.h"
 #define CONFIG_NSOCKET_DESCRIPTORS  LWIP_CONFIG_NUM_SOCKETS
 #else
 #define CONFIG_NSOCKET_DESCRIPTORS  0

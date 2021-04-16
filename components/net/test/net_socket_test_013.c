@@ -38,8 +38,6 @@
 #define STACK_PORT_TCP_LONG 2231
 #define TCP_LONG_BUF_SIZE (2 * 1024)
 
-extern sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, int stackSize, int prio);
-
 static int SampleTcpServer()
 {
     int sfd, lsfd;

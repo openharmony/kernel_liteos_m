@@ -32,19 +32,42 @@
 #ifndef _LWIP_PORTING_CC_H_
 #define _LWIP_PORTING_CC_H_
 
+#ifdef LITTLE_ENDIAN
+#undef LITTLE_ENDIAN
+#endif
+
+#ifdef BIG_ENDIAN
+#undef BIG_ENDIAN
+#endif
+
+#include <endian.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "securec.h"
-#include "log.h"
+#include "memory_pool.h"
 
 #ifdef htons
 #define LWIP_DONT_PROVIDE_BYTEORDER_FUNCTIONS
 #endif
 
-#define LWIP_PROVIDE_ERRNO 1
-#define __SIZEOF_POINTER__ 4   // 32位系统
+#define SOCKLEN_T_DEFINED
+#define SA_FAMILY_T_DEFINED
+#define IN_PORT_T_DEFINED
 
-#define LOS_TASK_STATUS_DETACHED   0x0100  // 预留字段
+#define LWIP_TIMEVAL_PRIVATE    0
+#define LWIP_ERRNO_STDINCLUDE
+#define LWIP_SOCKET_STDINCLUDE
+
+#define LWIP_DNS_API_DEFINE_ERRORS    0
+#define LWIP_DNS_API_DEFINE_FLAGS     0
+#define LWIP_DNS_API_DECLARE_STRUCTS  0
+#define LWIP_DNS_API_DECLARE_H_ERRNO  0
+
+#ifndef __SIZEOF_POINTER__
+#define __SIZEOF_POINTER__ 4   // 32 bit system
+#endif
+
+#define LOS_TASK_STATUS_DETACHED   0x0100  // reserved
 
 #if defined(__arm__) && defined(__ARMCC_VERSION)
     /* Keil uVision4 tools */
@@ -96,7 +119,6 @@ extern void HilogPrintf(const char *fmt, ...);
 #define init_waitqueue_head(...)
 #define poll_check_waiters(...)
 #define IOCTL_CMD_CASE_HANDLER()
-#define DF_NADDR(addr)
 
 #define DNS_SERVER_ADDRESS(ipaddr)        (ip4_addr_set_u32(ipaddr, ipaddr_addr("114.114.114.114")))
 #define DNS_SERVER_ADDRESS_SECONDARY(ipaddr)        (ip4_addr_set_u32(ipaddr, ipaddr_addr("114.114.115.115")))
