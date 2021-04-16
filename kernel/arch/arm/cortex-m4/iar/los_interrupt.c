@@ -199,11 +199,11 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
 
     HalAftInterruptHandler(hwiIndex);
 
+    OsHookCall(LOS_HOOK_TYPE_ISR_EXIT, hwiIndex);
+
     intSave = LOS_IntLock();
     g_intCount--;
     LOS_IntRestore(intSave);
-
-    OsHookCall(LOS_HOOK_TYPE_ISR_EXIT, hwiIndex);
 }
 
 /* ****************************************************************************

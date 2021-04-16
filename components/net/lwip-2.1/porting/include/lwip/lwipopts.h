@@ -134,8 +134,7 @@
 #define LWIP_NETIF_LOOPBACK             1
 #define LWIP_POSIX_SOCKETS_IO_NAMES     0
 #define LWIP_RAW                        1
-#define CONFIG_NFILE_DESCRIPTORS        1
-#define LWIP_SOCKET_OFFSET              CONFIG_NFILE_DESCRIPTORS
+#define LWIP_SOCKET_OFFSET              FAT_MAX_OPEN_FILES
 #define LWIP_SO_RCVBUF                  1
 #define LWIP_SO_RCVTIMEO                1
 #define LWIP_SO_SNDTIMEO                1

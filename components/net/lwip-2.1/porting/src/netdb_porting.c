@@ -29,7 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "netdb.h"
+#include "lwip/netdb.h"
 
 struct hostent *gethostbyname(const char *name)
 {

@@ -119,7 +119,7 @@ static void LwipTestTimeoutCallback(void const *argument)
 
 osTimerId_t g_lwipTestTimerId = NULL;
 
-void LwipTestStartTimer(uint32 timeout)
+void LwipTestStartTimer(uint32_t timeout)
 {
     osStatus_t status;
     if (g_lwipTestTimerId != NULL) {

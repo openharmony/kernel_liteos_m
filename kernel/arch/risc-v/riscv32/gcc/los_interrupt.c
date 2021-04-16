@@ -37,6 +37,7 @@
 #include "los_task.h"
 #include "los_sched.h"
 #include "los_debug.h"
+#include "los_hook.h"
 #include "riscv_hal.h"
 
 #ifdef __cplusplus
@@ -121,11 +122,15 @@ __attribute__((section(".interrupt.text"))) VOID HalHwiInterruptDone(HWI_HANDLE_
 {
     g_intCount++;
 
+    OsHookCall(LOS_HOOK_TYPE_ISR_ENTER, hwiNum);
+
     HWI_HANDLE_FORM_S *hwiForm = &g_hwiForm[hwiNum];
     HwiProcFunc func = (HwiProcFunc)(hwiForm->pfnHook);
     func(hwiForm->uwParam);
 
     ++g_hwiFormCnt[hwiNum];
+
+    OsHookCall(LOS_HOOK_TYPE_ISR_EXIT, hwiNum);
 
     g_intCount--;
 }

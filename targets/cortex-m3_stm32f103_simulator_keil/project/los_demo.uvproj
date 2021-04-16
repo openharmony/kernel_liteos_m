@@ -513,6 +513,11 @@
               <FilePath>..\..\..\utils\los_error.c</FilePath>
             </File>
             <File>
+              <FileName>los_hook.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\utils\los_hook.c</FilePath>
+            </File>
+            <File>
               <FileName>los_context.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\kernel\arch\arm\cortex-m3\keil\los_context.c</FilePath>
