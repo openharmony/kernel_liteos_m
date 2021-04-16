@@ -98,8 +98,6 @@ extern "C" {
  * */
 extern UINT32 LOS_SysClockGet(VOID);
 
-
-
 /**
  * @ingroup los_sys
  * Number of milliseconds in one second.
@@ -119,6 +117,8 @@ extern UINT32 LOS_SysClockGet(VOID);
 #define OS_CYCLE_PER_TICK      (OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
 #define OS_NS_PER_CYCLE        (OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK)
+
+#define OS_MS_PER_TICK         (OS_SYS_MS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
 #define OS_US_PER_TICK         (OS_SYS_US_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 

@@ -56,7 +56,7 @@ STATIC const UINT16 g_daysInMonth[2][13] = {
 STATIC const UINT8 g_montbl[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 static UINT64 g_rtcTimeBase = 0;
-static UINT64 g_systickBase = 0;
+static UINT64 g_systickBase = (UINT64)-1;
 
 /*
  * Time zone information, stored in minutes,
@@ -405,7 +405,7 @@ int clock_nanosleep(clockid_t clk, int flags, const struct timespec *req, struct
 
 clock_t clock(void)
 {
-    return HalGetExpandTick();
+    return LOS_TickCountGet() * OS_MS_PER_TICK;
 }
 
 time_t time(time_t *timer)
@@ -418,11 +418,11 @@ time_t time(time_t *timer)
     if (rtcRet != 0) {
         UINT64 currentTime;
         UINT64 tickDelta;
-        UINT64 currentTick = HalGetExpandTick();
-        if ((g_systickBase != 0) && (currentTick > g_systickBase)) {
+        UINT64 currentTick = LOS_TickCountGet();
+        if (currentTick > g_systickBase) {
             tickDelta = currentTick - g_systickBase;
         }
-        currentTime = g_rtcTimeBase + tickDelta;
+        currentTime = g_rtcTimeBase + tickDelta * OS_MS_PER_TICK;
         sec = currentTime / OS_SYS_MS_PER_SECOND;
     } else {
         sec = usec / OS_SYS_US_PER_SECOND;
@@ -607,11 +607,11 @@ int gettimeofday(struct timeval *tv, void *ptz)
     if (tv != NULL) {
         rtcRet = HalGetRtcTime(&usec);
         if (rtcRet != 0) {
-            currentTick = HalGetExpandTick();
-            if ((g_systickBase != 0) && (currentTick > g_systickBase)) {
+            currentTick = LOS_TickCountGet();
+            if (currentTick > g_systickBase) {
                 tickDelta = currentTick - g_systickBase;
             }
-            currentTime = g_rtcTimeBase + tickDelta;
+            currentTime = g_rtcTimeBase + tickDelta * OS_MS_PER_TICK;
             tv->tv_sec = currentTime / OS_SYS_MS_PER_SECOND;
             tv->tv_usec = (currentTime % OS_SYS_MS_PER_SECOND) * OS_SYS_MS_PER_SECOND;
         } else {
@@ -633,7 +633,7 @@ int settimeofday(const struct timeval *tv, const struct timezone *tz)
         return -1;
     }
     g_rtcTimeBase = tv->tv_sec * OS_SYS_MS_PER_SECOND + tv->tv_usec / OS_SYS_MS_PER_SECOND;
-    g_systickBase = HalGetExpandTick();
+    g_systickBase = LOS_TickCountGet();
     if ((tz->tz_minuteswest > TIME_ZONE_MIN) &&
         (tz->tz_minuteswest < TIME_ZONE_MAX)) {
         g_rtcTimeZone = tz->tz_minuteswest;
