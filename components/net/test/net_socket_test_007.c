@@ -40,7 +40,6 @@ static char g_buf_temp[BUF_SIZE + 1] = { 0 };
 #define SEND_UDP_COUNT 10000  // send count
 #define TEST_CASE 170
 
-extern sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, int stackSize, int prio);
 static void UdpTestMoreTask(void *p)
 {
     (void)p;
