@@ -222,36 +222,6 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep)
 	__ISB();
 }
 
-WEAK VOID HalDelay(UINT32 ticks)
-{
-
-}
-
-WEAK UINT64 HalGetExpandTick(VOID)
-{
-    return LOS_OK;
-}
-
-WEAK INT32 HalGetRtcTime(UINT64 *usec)
-{
-    return LOS_OK;
-}
-
-WEAK INT32 HalGetRtcTimeZone(INT32 *timeZone)
-{
-    return LOS_OK;
-}
-
-WEAK INT32 HalSetRtcTime(UINT64 utcTime, UINT64 *usec)
-{
-    return LOS_OK;
-}
-
-WEAK INT32 HalSetRtcTimeZone(INT32 timeZone)
-{
-    return LOS_OK;
-}
-
 #ifdef __cplusplus
 #if __cplusplus
 }
