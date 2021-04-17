@@ -109,19 +109,6 @@ WEAK VOID HalTickUnlock(VOID)
     SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 }
 
-VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
-{
-    UINT64 cycle;
-    if ((cntHi == NULL) || (cntLo == NULL)) {
-        return;
-    }
-
-    cycle = OsGetCurrSchedTimeCycle();
-    *cntHi = cycle >> SHIFT_32_BIT;
-    *cntLo = cycle & CYCLE_CHECK;
-    return;
-}
-
 VOID HalEnterSleep(LOS_SysSleepEnum sleep)
 {
 #if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)

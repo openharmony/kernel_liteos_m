@@ -44,7 +44,6 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-
 WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
 {
     g_sysClock = OS_SYS_CLOCK;
@@ -80,20 +79,6 @@ WEAK UINT64 HalGetTickCycle(UINT32 *period)
     READ_UINT32(timerL, MTIMER);
     READ_UINT32(timerH, MTIMER + MTIMER_HI_OFFSET);
     return OS_COMBINED_64(timerH, timerL);
-}
-
-WEAK VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
-{
-    UINT64 cycle;
-
-    if ((cntHi == NULL) || (cntLo == NULL)) {
-        return;
-    }
-
-    cycle = OsGetCurrSchedTimeCycle();
-    *cntHi = cycle >> SHIFT_32_BIT;
-    *cntLo = cycle & CYCLE_CHECK;
-    return;
 }
 
 VOID HalEnterSleep(LOS_SysSleepEnum sleep)

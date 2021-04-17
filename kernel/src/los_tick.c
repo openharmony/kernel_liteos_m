@@ -63,11 +63,10 @@ LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)
     LOS_SchedTickHandler();
 }
 
-UINT32 LOS_SysClockGet(VOID)
+UINT64 LOS_SysCycleGet(VOID)
 {
-    return g_sysClock;
+    return OsGetCurrSchedTimeCycle();
 }
-
 
 /*****************************************************************************
 Function    : LOS_TickCountGet

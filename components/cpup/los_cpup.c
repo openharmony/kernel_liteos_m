@@ -33,7 +33,8 @@
 #include "securec.h"
 #include "los_memory.h"
 #include "los_debug.h"
-#include "los_timer.h"
+#include "los_tick.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -60,15 +61,6 @@ LITE_OS_SEC_BSS UINT16    g_cpupInitFlg = 0;
 LITE_OS_SEC_BSS OsCpupCB  *g_cpup = NULL;
 LITE_OS_SEC_BSS UINT64    g_lastRecordTime;
 LITE_OS_SEC_BSS UINT16    g_hisPos; /* <current Sampling point of historyTime */
-
-
-LITE_OS_SEC_TEXT_MINOR STATIC INLINE UINT64 OsGetCurrentCyclesCount(VOID)
-{
-    UINT32 high = 0;
-    UINT32 low = 0;
-    HalGetCpuCycle(&high, &low);
-    return (((UINT64)high << 32) + low); // 32 means bits of word
-}
 
 /*****************************************************************************
 Function   : OsCpupInit
@@ -110,7 +102,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleStart(VOID)
 
     taskID = g_losTask.newTask->taskID;
     g_cpup[taskID].cpupID = taskID;
-    g_cpup[taskID].startTime = OsGetCurrentCyclesCount();
+    g_cpup[taskID].startTime = LOS_SysCycleGet();
 
     return;
 }
@@ -135,7 +127,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleEnd(VOID)
         return;
     }
 
-    cpuCycle = OsGetCurrentCyclesCount();
+    cpuCycle = LOS_SysCycleGet();
 
     if (cpuCycle < g_cpup[taskID].startTime) {
         cpuCycle += g_cyclesPerTick;
@@ -163,7 +155,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleEndStart(VOID)
     }
 
     taskID = g_losTask.runTask->taskID;
-    cpuCycle = OsGetCurrentCyclesCount();
+    cpuCycle = LOS_SysCycleGet();
 
     if (g_cpup[taskID].startTime != 0) {
         if (cpuCycle < g_cpup[taskID].startTime) {

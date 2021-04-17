@@ -38,7 +38,7 @@
 #include <los_sem.h>
 #include <los_mux.h>
 #include "cmsis_os2.h"
-#include <los_timer.h>
+#include <los_tick.h>
 #include <los_config.h>
 
 #ifndef LOSCFG_KERNEL_SMP
@@ -82,8 +82,7 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
 void sys_init(void)
 {
     /* set rand seed to make random sequence diff on every startup */
-    UINT32 seedhsb, seedlsb;
-    HalGetCpuCycle(&seedhsb, &seedlsb);
+    UINT32 seedlsb = (UINT32)LOS_SysCycleGet();
     srand(seedlsb);
 }
 

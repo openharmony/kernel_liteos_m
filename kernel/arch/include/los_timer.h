@@ -113,29 +113,6 @@ UINT64 HalGetTickCycle(UINT32 *period);
  */
 extern VOID HalSysTickReload(UINT64 nextResponseTime);
 
-/* *
- * @ingroup los_hwi
- * @brief Get value from xPSR register.
- *
- * @par Description:
- * <ul>
- * <li>This API is used to Get value from xPSR register.</li>
- * </ul>
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  cntHi  [IN] CpuTick High 4 byte
- * @param  cntLo  [IN] CpuTick Low 4 byte
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_hwi.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_IntRestore
- */
-extern VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo);
-
 #ifdef __cplusplus
 #if __cplusplus
 }

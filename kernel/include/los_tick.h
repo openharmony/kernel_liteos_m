@@ -79,24 +79,24 @@ extern "C" {
 
 /**
  *  @ingroup  los_tick
- *  @brief: System clock get function.
+ *  @brief: System timer cycles get function.
  *
  *  @par Description:
- *  This API is used to get system clock.
+ *  This API is used to get system timer cycles.
  *
  * @attention:
  * <ul><li>None.</li></ul>
  *
  * @param: None.
  *
- * @retval: system clock.
+ * @retval: current system cycles.
  *
  * @par Dependency:
  * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  *
  * */
-extern UINT32 LOS_SysClockGet(VOID);
+extern UINT64 LOS_SysCycleGet(VOID);
 
 /**
  * @ingroup los_sys

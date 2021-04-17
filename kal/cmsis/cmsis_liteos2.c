@@ -264,12 +264,11 @@ uint32_t osKernelGetTickFreq(void)
 
 uint32_t osKernelGetSysTimerCount(void)
 {
-    uint32_t countHigh = 0;
     uint32_t countLow = 0;
     if (OS_INT_ACTIVE) {
         countLow = 0U;
     } else {
-        HalGetCpuCycle((UINT32 *)&countHigh, (UINT32 *)&countLow);
+        countLow = (UINT32)LOS_SysCycleGet();
     }
     return countLow;
 }
