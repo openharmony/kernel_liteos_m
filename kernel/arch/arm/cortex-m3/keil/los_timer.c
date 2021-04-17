@@ -99,7 +99,17 @@ WEAK UINT64 HalGetTickCycle(UINT32 *period)
     return (UINT64)hwCycle;
 }
 
-WEAK VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
+WEAK VOID HalTickLock(VOID)
+{
+    SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+}
+
+WEAK VOID HalTickUnlock(VOID)
+{
+    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
+}
+
+VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
 {
     UINT64 cycle;
     if ((cntHi == NULL) || (cntLo == NULL)) {
@@ -110,16 +120,6 @@ WEAK VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
     *cntHi = cycle >> SHIFT_32_BIT;
     *cntLo = cycle & CYCLE_CHECK;
     return;
-}
-
-WEAK VOID HalTickLock(VOID)
-{
-    SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
-}
-
-WEAK VOID HalTickUnlock(VOID)
-{
-    SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 }
 
 VOID HalEnterSleep(LOS_SysSleepEnum sleep)
