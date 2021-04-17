@@ -69,16 +69,6 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep);
 
 VOID HalDelay(UINT32 ticks);
 
-UINT64 HalGetExpandTick(VOID);
-
-INT32 HalGetRtcTime(UINT64 *usec);
-
-INT32 HalGetRtcTimeZone(INT32 *timeZone);
-
-INT32 HalSetRtcTime(UINT64 utcTime, UINT64 *usec);
-
-INT32 HalSetRtcTimeZone(INT32 timeZone);
-
  /**
  * @ingroup los_timer
  * @brief Get systick cycle.

@@ -134,11 +134,6 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep)
     __ISB();
 }
 
-WEAK VOID HalDelay(UINT32 ticks)
-{
-    return;
-}
-
 #ifdef __cplusplus
 #if __cplusplus
 }

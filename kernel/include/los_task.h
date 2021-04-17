@@ -504,8 +504,8 @@ extern VOID LOS_Msleep(UINT32 mSecs);
  * @see
  */
 extern UINT32 LOS_Start(VOID);
-extern VOID LOS_Reboot(VOID);
-extern VOID LOS_Panic(const CHAR *fmt, ...);
+extern VOID LOS_Reboot(VOID) NORETURN;
+extern VOID LOS_Panic(const CHAR *fmt, ...) NORETURN;
 
 
 /**
