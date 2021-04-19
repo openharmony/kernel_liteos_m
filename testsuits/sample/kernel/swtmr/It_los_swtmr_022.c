@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_swtmr.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 #ifdef LOS_HIMIDEER_RV32
 #define HWI_NUM_INT31 HWI_NUM_TEST
@@ -105,8 +100,3 @@ VOID ItLosSwtmr022() // IT_Layer_ModuleORFeature_No
     TEST_ADD_CASE("ItLosSwtmr022", Testcase, TEST_LOS, TEST_SWTMR, TEST_LEVEL1, TEST_FUNCTION);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

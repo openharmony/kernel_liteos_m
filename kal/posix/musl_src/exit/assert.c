@@ -2,9 +2,6 @@
 #include "los_context.h"
 #include "los_debug.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
 
 void __assert(const char* file, int line, const char* expr) {
   PRINT_ERR("__assert error: %s, %d, %s\n", file, line, expr);
@@ -23,7 +20,3 @@ void __assert_fail(const char* expr, const char* file, int line, const char* fun
   LOS_Panic("__assert error:\n");
   while (1);
 }
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */

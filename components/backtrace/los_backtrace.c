@@ -33,11 +33,6 @@
 #include "los_task.h"
 #include "los_debug.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 #if (LOSCFG_BACKTRACE_TYPE != 0)
 #if (LOSCFG_BACKTRACE_TYPE == 1)
@@ -304,9 +299,4 @@ VOID LOS_BackTraceInit(VOID)
 }
 #endif
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 

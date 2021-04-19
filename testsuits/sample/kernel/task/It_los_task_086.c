@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_task.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 static UINT32 g_taskCountArray[LOSCFG_BASE_CORE_TSK_LIMIT] = {0};
 static VOID TaskF01(VOID)
@@ -114,8 +109,3 @@ VOID ItLosTask086(VOID) // IT_Layer_ModuleORFeature_No
     TEST_ADD_CASE("ItLosTask086", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL2, TEST_PRESSURE);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

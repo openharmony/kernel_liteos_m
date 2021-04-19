@@ -31,11 +31,6 @@
 
 #include "los_cppsupport.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 typedef VOID (*InitFunc)(VOID);
 
@@ -53,8 +48,3 @@ INT32 LOS_CppSystemInit(UINTPTR initArrayStart, UINTPTR initArrayEnd)
 }
 
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

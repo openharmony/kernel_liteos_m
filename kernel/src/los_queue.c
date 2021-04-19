@@ -39,11 +39,6 @@
 #include "los_memory.h"
 #include "los_task.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif
-#endif /* __cplusplus */
 
 #if (LOSCFG_BASE_IPC_QUEUE == 1)
 
@@ -674,8 +669,3 @@ QUEUE_END:
 
 #endif /* (LOSCFG_BASE_IPC_QUEUE == 1) */
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif
-#endif /* __cplusplus */

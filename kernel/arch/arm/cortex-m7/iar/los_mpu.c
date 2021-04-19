@@ -31,11 +31,6 @@
 #include "los_mpu.h"
 #include "los_context.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 #define SIZE_4G_BYTE        0x100000000
 #define MPU_MAX_REGION_NUM  8
@@ -238,8 +233,3 @@ INT32 HalMpuUnusedRegionGet(VOID)
     }
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

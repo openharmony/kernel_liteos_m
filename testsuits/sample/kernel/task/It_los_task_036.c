@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_task.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 static UINT32 TestCase(VOID)
 {
@@ -52,8 +47,3 @@ VOID ItLosTask036(VOID) // IT_Layer_ModuleORFeature_No
     TEST_ADD_CASE("ItLosTask036", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

@@ -36,11 +36,6 @@
 #include "los_debug.h"
 #include "los_compiler.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 #pragma data_alignment=8
 UINT8 g_memStart[LOSCFG_SYS_HEAP_SIZE];
@@ -129,8 +124,3 @@ LITE_OS_SEC_TEXT_INIT int main(void)
     }
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

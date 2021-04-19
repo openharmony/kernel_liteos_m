@@ -46,11 +46,6 @@
 #include "string.h"
 #include "securec.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 #if (CMSIS_OS_VER == 2)
 
 /* Kernel initialization state */
@@ -1652,8 +1647,3 @@ const char *osMemoryPoolGetName(osMemoryPoolId_t mp_id)
 }
 
 #endif // (CMSIS_OS_VER == 2)
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

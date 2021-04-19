@@ -31,11 +31,6 @@
 
 #include "It_los_queue.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 static VOID SwtmrF01(VOID)
 {
@@ -125,8 +120,3 @@ VOID ItLosQueue073(VOID)
     TEST_ADD_CASE("ItLosQueue073", Testcase, TEST_LOS, TEST_QUE, TEST_LEVEL1, TEST_FUNCTION);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_task.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 #define QUEUE_SIZE 3
 #define QUEUE_BUF_SIZE 8
@@ -94,8 +89,3 @@ VOID ItLosTask093(VOID) // IT_Layer_ModuleORFeature_No
     TEST_ADD_CASE("ItLosTask093", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

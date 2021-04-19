@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_swtmr.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
 static VOID Case1(UINT32 arg)
@@ -109,8 +104,3 @@ VOID ItLosSwtmrAlign015() // IT_Layer_ModuleORFeature_No
     TEST_ADD_CASE("ItLosSwtmrAlign015", Testcase, TEST_LOS, TEST_SWTMR, TEST_LEVEL1, TEST_FUNCTION);
 }
 #endif
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
