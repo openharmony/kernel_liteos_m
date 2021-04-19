@@ -37,13 +37,13 @@ LITEOSTOPDIR := ../../../
 # C sources
 C_SOURCES =  \
 $(wildcard ../Src/*.c) \
-$(wildcard ../SoC/hbird/Common/Source/*.c) \
-$(wildcard ../SoC/hbird/Common/Source/Drivers/*.c) \
-$(wildcard ../SoC/hbird/Common/Source/Stubs/*.c) 
+$(wildcard ../SoC/demosoc/Common/Source/*.c) \
+$(wildcard ../SoC/demosoc/Common/Source/Drivers/*.c) \
+$(wildcard ../SoC/demosoc/Common/Source/Stubs/*.c) 
 
 # ASM sources
 ASMS_SOURCES =  \
-$(wildcard ../SoC/hbird/Common/Source/GCC/*.S) 
+$(wildcard ../SoC/demosoc/Common/Source/GCC/*.S) 
 
 
 #######################################
@@ -84,7 +84,7 @@ BIN = $(CP) -O binary -S
 
 ECHO := echo
 
-OPENOCD_CFG := openocd_hbird.cfg
+OPENOCD_CFG := openocd_demosoc.cfg
 
 #######################################
 # CFLAGS
@@ -110,9 +110,9 @@ AS_INCLUDES =
 C_INCLUDES =  \
 -I../OS_CONFIG \
 -I../Src \
--I../SoC/hbird/Board/hbird_eval/Include \
--I../SoC/hbird/Common/Include \
--I../SoC/hbird/Common/Source/Stubs 
+-I../SoC/demosoc/Board/nuclei_fpga_eval/Include \
+-I../SoC/demosoc/Common/Include \
+-I../SoC/demosoc/Common/Source/Stubs 
 
 # compile gcc flags
 ASFLAGS = $(AS_DEFS) $(OPT) $(CORE_ARCH_ABI) $(OTHER_FLAGS) $(AS_INCLUDES) -Wall -fdata-sections -ffunction-sections
@@ -150,7 +150,7 @@ GDB_CMDS += -ex "target extended-remote localhost:$(GDB_PORT)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = gcc_hbird_ilm.ld
+LDSCRIPT = gcc_demosoc_ilm.ld
 
 # libraries
 LIBS = -lm 
