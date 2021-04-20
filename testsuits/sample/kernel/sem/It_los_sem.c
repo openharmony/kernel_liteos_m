@@ -31,11 +31,6 @@
 
 #include "It_los_sem.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 VOID ItSuiteLosSem(void)
 {
@@ -83,8 +78,3 @@ VOID ItSuiteLosSem(void)
     ItLosSem042();
     ItLosSem043();
 }
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

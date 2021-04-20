@@ -35,11 +35,6 @@
 #include "riscv_hal.h"
 #include "los_timer.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 
 WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
@@ -66,8 +61,3 @@ LITE_OS_SEC_TEXT_MINOR VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
     return;
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

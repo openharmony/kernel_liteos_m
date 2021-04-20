@@ -32,11 +32,6 @@
 
 #include "It_los_queue.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 static UINT32 Testcase(VOID)
 {
@@ -72,8 +67,3 @@ VOID ItLosQueueHead025(VOID)
     TEST_ADD_CASE("ItLosQueueHead025", Testcase, TEST_LOS, TEST_QUE, TEST_LEVEL1, TEST_FUNCTION);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

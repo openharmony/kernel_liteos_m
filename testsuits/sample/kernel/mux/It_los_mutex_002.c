@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_mux.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 static UINT32 Testcase(VOID)
 {
@@ -69,8 +64,3 @@ VOID ItLosMux002(void)
     TEST_ADD_CASE("ItLosMux002", Testcase, TEST_LOS, TEST_MUX, TEST_LEVEL0, TEST_FUNCTION);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

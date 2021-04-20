@@ -38,11 +38,6 @@
 #include "los_membox.h"
 #include "los_memory.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 #if (LOSCFG_PLATFORM_EXC == 1)
 #define EXC_MSG_ARRAY_INIT_VALUE   0xff
@@ -300,9 +295,4 @@ VOID OsExcMsgDumpInit(VOID)
 }
 #endif
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 

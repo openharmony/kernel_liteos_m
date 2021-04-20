@@ -37,11 +37,6 @@
 #include "los_timer.h"
 #include "soc.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 LITE_OS_SEC_TEXT_INIT VOID HalArchInit(VOID)
 {
@@ -142,8 +137,3 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep)
     wfi();
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

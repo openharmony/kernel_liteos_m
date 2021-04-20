@@ -36,11 +36,6 @@
 #include "los_debug.h"
 #include "los_task.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 /* The magic length is 32 bits, the lower 8 bits are used to save the owner task ID,
    and the other 24 bits are used to set the magic number for verification. */
@@ -324,8 +319,3 @@ UINT32 OsMemboxExcInfoGet(UINT32 memNumMax, MemInfoCB *memExcInfo)
 }
 #endif
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

@@ -1,11 +1,6 @@
 
 #include "It_los_queue.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 
 static VOID TaskF01(VOID)
@@ -84,8 +79,3 @@ VOID LlTLosQueue001(VOID)
     TEST_ADD_CASE("LlTLosQueue001", Testcase, TEST_LOS, TEST_QUE, TEST_LEVEL0, TEST_FUNCTION);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

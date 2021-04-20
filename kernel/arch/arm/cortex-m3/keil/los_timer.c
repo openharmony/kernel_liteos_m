@@ -34,11 +34,6 @@
 #include "ARMCM3.h"
 #include "los_timer.h"
 #include "los_context.h"
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 
 
@@ -223,8 +218,3 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep)
 	__ISB();
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

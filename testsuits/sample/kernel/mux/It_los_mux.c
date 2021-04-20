@@ -31,11 +31,6 @@
 
 #include "It_los_mux.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 UINT32 g_mutexTest1;
 UINT32 g_mutexTest2;
@@ -78,8 +73,3 @@ VOID ItSuiteLosMux(void)
     ItLosMux034();
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

@@ -37,11 +37,6 @@
 #include "los_interrupt.h"
 #include "los_memory.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif
-#endif /* __cplusplus */
 
 #if (LOSCFG_BASE_IPC_SEM == 1)
 
@@ -317,8 +312,3 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPost(UINT32 semHandle)
 
 #endif /* (LOSCFG_BASE_IPC_SEM == 1) */
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif
-#endif /* __cplusplus */

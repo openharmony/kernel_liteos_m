@@ -37,11 +37,6 @@
 #include "los_compiler.h"
 #include "iar_stm32f429ig_fire-challenger.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 VOID taskSampleEntry2(VOID)
 {
@@ -112,8 +107,3 @@ LITE_OS_SEC_TEXT_INIT int main(void)
     }
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

@@ -34,11 +34,6 @@
 #include "los_memory.h"
 #include "los_debug.h"
 #include "los_timer.h"
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 #if (LOSCFG_BASE_CORE_CPUP == 1)
 
@@ -530,8 +525,3 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E
 #endif /* LOSCFG_BASE_CORE_CPUP */
 
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

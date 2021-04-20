@@ -31,11 +31,6 @@
 
 #include "It_los_swtmr.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 EVENT_CB_S g_eventCB0;
 EVENT_CB_S g_eventCB1;
@@ -160,8 +155,3 @@ VOID ItSuiteLosSwtmr(void)
     ItLosSwtmrDelay005();
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

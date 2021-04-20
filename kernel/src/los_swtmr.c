@@ -37,11 +37,6 @@
 #include "los_queue.h"
 #include "los_debug.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 #if (LOSCFG_BASE_CORE_SWTMR == 1)
 
@@ -860,8 +855,3 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrDelete(UINT32 swtmrId)
 #endif /* (LOSCFG_BASE_CORE_SWTMR == 1) */
 
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif
-#endif

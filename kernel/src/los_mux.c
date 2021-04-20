@@ -36,11 +36,6 @@
 #include "los_interrupt.h"
 #include "los_memory.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif
-#endif /* __cplusplus */
 
 #if (LOSCFG_BASE_IPC_MUX == 1)
 
@@ -314,8 +309,3 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
 }
 #endif /* (LOSCFG_BASE_IPC_MUX == 1) */
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif
-#endif /* __cplusplus */

@@ -33,11 +33,6 @@
 #include "stdarg.h"
 #include "los_context.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 #if (LOSCFG_KERNEL_PRINTF == 1)
 STATIC const CHAR *g_logString[] = {
@@ -109,8 +104,3 @@ WEAK VOID HalConsoleOutput(LogModuleType type, INT32 level, const CHAR *fmt, ...
 }
 #endif
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
