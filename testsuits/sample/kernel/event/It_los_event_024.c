@@ -29,11 +29,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 #include "osTest.h"
 #include "It_los_event.h"
@@ -72,8 +67,3 @@ VOID ItLosEvent024(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosEvent024", Testcase, TEST_LOS, TEST_EVENT, TEST_LEVEL0, TEST_FUNCTION);
 }
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

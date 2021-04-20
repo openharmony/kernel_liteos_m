@@ -37,11 +37,6 @@
 #include "los_sched.h"
 #include "los_debug.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 /* ****************************************************************************
 Function    : HalTickStart
@@ -121,8 +116,3 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep)
     __ISB();
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

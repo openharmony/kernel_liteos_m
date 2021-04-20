@@ -33,11 +33,6 @@
 #include "It_los_mux.h"
 #include "los_config.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 static VOID TaskFuncC(VOID)
 {
@@ -160,8 +155,3 @@ VOID ItLosMux034(void)
     TEST_ADD_CASE("ItLosMux034", Testcase, TEST_LOS, TEST_MUX, TEST_LEVEL1, TEST_FUNCTION);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

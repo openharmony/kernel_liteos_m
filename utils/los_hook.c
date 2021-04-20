@@ -32,11 +32,6 @@
 #include "los_hook.h"
 #include "internal/los_hook_types_parse.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 #if (LOSCFG_DEBUG_HOOK == 1)
 #define LOS_HOOK_TYPE_DEF(type, paramList)                  \
@@ -70,8 +65,3 @@ LOS_HOOK_ALL_TYPES_DEF;
 
 #endif /* LOSCFG_DEBUG_HOOK */
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

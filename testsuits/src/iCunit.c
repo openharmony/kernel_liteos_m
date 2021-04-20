@@ -37,11 +37,6 @@
 
 #include <stdio.h>
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 extern UINT32 g_failResult;
 extern UINT32 g_passResult;
@@ -153,8 +148,3 @@ iUINT32 ICunitRun()
     return (iUINT32)ICUNIT_SUCCESS;
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

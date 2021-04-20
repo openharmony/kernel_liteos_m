@@ -38,11 +38,6 @@
 #include "los_arch_timer.h"
 #include "riscv_hal.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
 {
@@ -92,8 +87,3 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep)
     wfi();
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

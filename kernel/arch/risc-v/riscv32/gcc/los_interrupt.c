@@ -40,11 +40,6 @@
 #include "los_hook.h"
 #include "riscv_hal.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 LosExcInfo g_excInfo;
 #define RISCV_EXC_TYPE_NUM 16
@@ -356,8 +351,3 @@ SYSTEM_DEATH:
     }
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

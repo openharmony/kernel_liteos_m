@@ -38,11 +38,6 @@
 #include "los_sched.h"
 #include "iar_stm32f429ig_fire-challenger.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 STATIC VOID TaskSampleEntry2(VOID)
 {
@@ -197,8 +192,3 @@ EXIT:
     }
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

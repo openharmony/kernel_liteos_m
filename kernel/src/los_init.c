@@ -58,11 +58,6 @@
 #include "los_exc_info.h"
 #endif
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 /*****************************************************************************
  Function    : LOS_Reboot
@@ -203,8 +198,3 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     return LOS_OK;
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_mem.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 #define LOOP_NUM 500
 
@@ -204,8 +199,3 @@ VOID ItLosMem036(void)
     TEST_ADD_CASE("ItLosMem036", TestCase, TEST_LOS, TEST_MEM, TEST_LEVEL3, TEST_PRESSURE);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

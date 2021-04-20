@@ -35,11 +35,6 @@
 #include "los_swtmr.h"
 #include "los_sched.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 LITE_OS_SEC_BSS UINT32 g_ticksPerSec;
 LITE_OS_SEC_BSS UINT32 g_uwCyclePerSec;
@@ -183,8 +178,3 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsCpuTick2US(CpuTick *cpuTick, UINT32 *usHi, UINT32
 }
 
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_sem.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 #define SEM_NAME_NUM 10
 
@@ -98,8 +93,3 @@ VOID ItLosSem035(void)
     TEST_ADD_CASE("ItLosSem035", Testcase, TEST_LOS, TEST_SEM, TEST_LEVEL2, TEST_PRESSURE);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

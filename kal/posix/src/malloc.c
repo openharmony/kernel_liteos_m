@@ -33,11 +33,6 @@
 #include "los_config.h"
 #include "los_memory.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 void *calloc(size_t nitems, size_t size)
 {
@@ -112,8 +107,3 @@ void *realloc(void *ptr, size_t size)
     return LOS_MemRealloc(OS_SYS_MEM_ADDR, ptr, size);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

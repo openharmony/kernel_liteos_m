@@ -31,11 +31,6 @@
 
 #include "los_error.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 LITE_OS_SEC_BSS UserErrFunc      g_userErrFunc;
 
@@ -65,8 +60,3 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_ErrHandle(CHAR  *fileName,
     return LOS_OK;
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

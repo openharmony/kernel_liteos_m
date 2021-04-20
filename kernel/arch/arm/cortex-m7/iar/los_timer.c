@@ -37,12 +37,6 @@
 #include "los_sched.h"
 #include "los_debug.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
-
 /* ****************************************************************************
 Function    : HalTickStart
 Description : Configure Tick Interrupt Start
@@ -120,9 +114,3 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep)
     __WFI();
     __ISB();
 }
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

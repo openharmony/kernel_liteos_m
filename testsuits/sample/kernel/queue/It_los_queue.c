@@ -31,11 +31,6 @@
 
 #include "It_los_queue.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 VOID ItSuiteLosQueue(VOID)
 {
@@ -178,8 +173,3 @@ VOID ItSuiteLosQueue(VOID)
     ItLosQueue095();
     ItLosQueue110();
 }
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

@@ -38,11 +38,6 @@
 #include "los_interrupt.h"
 #include "los_task.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 /* Used to cut non-essential functions. */
 #define OS_MEM_EXPAND_ENABLE    0
@@ -1897,6 +1892,8 @@ UINT32 LOS_MemInfoGet(VOID *pool, LOS_MEM_POOL_STATUS *poolStatus)
         return LOS_NOK;
     }
 
+    (VOID)memset_s(poolStatus, sizeof(LOS_MEM_POOL_STATUS), 0, sizeof(LOS_MEM_POOL_STATUS));
+
     struct OsMemNodeHead *tmpNode = NULL;
     struct OsMemNodeHead *endNode = NULL;
     UINT32 intSave;
@@ -2107,9 +2104,4 @@ UINT32 OsMemExcInfoGet(UINT32 memNumMax, MemInfoCB *memExcInfo)
 }
 #endif
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 

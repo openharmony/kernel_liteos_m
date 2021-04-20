@@ -38,11 +38,6 @@
 #include "los_timer.h"
 #include "soc.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 STATIC UINT32 g_sysNeedSched = FALSE;
 
@@ -161,9 +156,3 @@ LITE_OS_SEC_TEXT VOID dsb(VOID)
 {
     __asm__ __volatile__("fence":::"memory");
 }
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

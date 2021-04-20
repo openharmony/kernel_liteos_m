@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_sem.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 static UINT32 Testcase(VOID)
 {
@@ -59,8 +54,3 @@ VOID ItLosSem007(void)
     TEST_ADD_CASE("ItLosSem007", Testcase, TEST_LOS, TEST_SEM, TEST_LEVEL0, TEST_FUNCTION);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

@@ -80,11 +80,6 @@ UINT32 g_usSemID3[LOSCFG_BASE_IPC_SEM_CONFIG + 1];
 #define TST_RAMADDREND 0x20010000
 
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 
 #if (CMSIS_OS_VER == 2)
@@ -315,8 +310,3 @@ UINT32 g_usSemID2;
 UINT32 g_usSemID3[LOSCFG_BASE_IPC_SEM_LIMIT + 1];
 #endif
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

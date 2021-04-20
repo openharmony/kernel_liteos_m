@@ -33,11 +33,6 @@
 #include "los_interrupt.h"
 #include "los_swtmr.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 osTimerId_t osTimerExtNew(osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr,
@@ -65,8 +60,3 @@ osTimerId_t osTimerExtNew(osTimerFunc_t func, osTimerType_t type, void *argument
 }
 #endif
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_swtmr.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 static VOID HwiF01(VOID)
 {
@@ -105,8 +100,3 @@ VOID ItLosSwtmr065(VOID)
     TEST_ADD_CASE("ItLosSwtmr065", Testcase, TEST_LOS, TEST_SWTMR, TEST_LEVEL2, TEST_FUNCTION);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

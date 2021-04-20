@@ -40,11 +40,6 @@
 #include "los_memory.h"
 #include "los_membox.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 /*lint -save -e40 -e522 -e533*/
 UINT32 g_intCount = 0;
@@ -536,8 +531,3 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit()
     return;
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

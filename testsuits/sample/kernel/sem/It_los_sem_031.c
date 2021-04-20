@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_sem.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 
 #define SEM_READ_UINT32(_register_, _value_) ((_value_) = *((volatile UINT32 *)(_register_)))
@@ -118,8 +113,3 @@ VOID ItLosSem031(void)
     TEST_ADD_CASE("ItLosSem031", Testcase, TEST_LOS, TEST_SEM, TEST_LEVEL1, TEST_FUNCTION);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

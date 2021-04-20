@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_task.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 VOID ItSuiteLosTask()
 {
@@ -153,8 +148,3 @@ VOID ItSuiteLosTask()
     ItLosTask117();
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

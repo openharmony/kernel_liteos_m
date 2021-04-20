@@ -35,11 +35,6 @@
 #include "los_mux.h"
 #include "errno.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 #define OS_SYS_NS_PER_MSECOND 1000000
 #define OS_SYS_NS_PER_SECOND  1000000000
@@ -172,8 +167,3 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex)
     return MapError(ret);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

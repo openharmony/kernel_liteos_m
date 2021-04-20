@@ -32,11 +32,6 @@
 #include "osTest.h"
 #include "It_los_mem.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 static UINT32 TestCase(VOID)
 {
@@ -78,8 +73,3 @@ VOID ItLosMem008(void)
     TEST_ADD_CASE("ItLosMem008", TestCase, TEST_LOS, TEST_MEM, TEST_LEVEL1, TEST_FUNCTION);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */

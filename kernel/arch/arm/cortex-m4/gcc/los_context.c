@@ -39,11 +39,6 @@
 #include "los_arch_timer.h"
 #include "los_timer.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
 
 /* ****************************************************************************
  Function    : HalArchInit
@@ -165,8 +160,3 @@ LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
     return LOS_OK; /* never return */
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

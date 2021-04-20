@@ -33,11 +33,6 @@
 #include "osTest.h"
 #include "it_los_hwi.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
 
 static VOID HwiF02(VOID)
 {
@@ -113,8 +108,3 @@ VOID ItLosHwi017(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosHwi017", Testcase, TEST_LOS, TEST_HWI, TEST_LEVEL2, TEST_FUNCTION);
 }
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
