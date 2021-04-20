@@ -29,7 +29,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "los_interrupt.h"
-#include "ARMCM3.h"
 #include <stdarg.h>
 #include "securec.h"
 #include "los_context.h"

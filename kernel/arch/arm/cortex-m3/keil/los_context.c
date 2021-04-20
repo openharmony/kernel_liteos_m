@@ -35,7 +35,6 @@
 #include "los_arch_context.h"
 #include "los_arch_interrupt.h"
 #include "los_arch_timer.h"
-#include "ARMCM3.h"
 
 /* ****************************************************************************
  Function    : HalArchInit

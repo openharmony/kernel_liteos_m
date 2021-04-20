@@ -27,29 +27,22 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//build/lite/config/component/lite_component.gni")
+
 declare_args() {
   enable_ohos_kernel_liteos_m_cmsis = true
   enable_ohos_kernel_liteos_m_posix = true
 }
 
-static_library("kal") {
-  sources = [ "kal.c" ]
+lite_component("kal") {
 
-  include_dirs = [
-    "../kernel/arch/include",
-    "../kernel/include",
-    "../utils",
-    "../kal/cmsis",
-    "../kal",
-  ]
-
-  deps = []
+  features = []
 
   if (enable_ohos_kernel_liteos_m_cmsis == true) {
-    deps += [ "cmsis/" ]
+    features += [ "cmsis" ]
   }
 
   if (enable_ohos_kernel_liteos_m_posix == true) {
-    deps += [ "posix/" ]
+    features += [ "posix" ]
   }
 }

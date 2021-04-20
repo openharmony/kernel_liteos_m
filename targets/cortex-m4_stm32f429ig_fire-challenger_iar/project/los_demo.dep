@@ -122,7 +122,7 @@
             <file>$PROJ_DIR$\Debug\Obj\iar_stm32f429ig_fire-challenger.o</file>
             <file>$PROJ_DIR$\..\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_dbgmcu.h</file>
             <file>$PROJ_DIR$\Debug\Obj\stm32f4xx_exti.__cstat.et</file>
-            <file>$PROJ_DIR$\..\..\..\components\bounds_checking_function\include\securec.h</file>
+            <file>$PROJ_DIR$\..\..\..\third_party\bounds_checking_function\include\securec.h</file>
             <file>$TOOLKIT_DIR$\inc\c\stddef.h</file>
             <file>$TOOLKIT_DIR$\inc\c\string.h</file>
             <file>$PROJ_DIR$\Debug\Obj\los_demo.pbd</file>
@@ -177,7 +177,7 @@
             <file>$PROJ_DIR$\Debug\Obj\startup_stm32f429_439xx.o</file>
             <file>$PROJ_DIR$\..\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_gpio.h</file>
             <file>$PROJ_DIR$\Debug\Obj\system_stm32f4xx.__cstat.et</file>
-            <file>$PROJ_DIR$\..\..\..\components\bounds_checking_function\include\securectype.h</file>
+            <file>$PROJ_DIR$\..\..\..\third_party\bounds_checking_function\include\securectype.h</file>
             <file>$PROJ_DIR$\Debug\Obj\stm32f4xx_rcc.o</file>
             <file>$PROJ_DIR$\Debug\Obj\stm324x9i_eval.o</file>
             <file>$PROJ_DIR$\Debug\Obj\los_misc.o</file>

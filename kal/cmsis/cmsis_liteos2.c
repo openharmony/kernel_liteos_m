@@ -29,7 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
+#include "kal.h"
 #include "los_event.h"
 #include "los_membox.h"
 #include "los_memory.h"
@@ -40,13 +41,11 @@
 #include "los_swtmr.h"
 #include "los_task.h"
 #include "los_timer.h"
-#include "kal.h"
 #include "los_debug.h"
 
 #include "string.h"
 #include "securec.h"
 
-#if (CMSIS_OS_VER == 2)
 
 /* Kernel initialization state */
 static osKernelState_t g_kernelState;
@@ -653,6 +652,13 @@ uint32_t osThreadGetCount(void)
 }
 
 
+void osThreadExit(void)
+{
+    (void)LOS_TaskDelete(LOS_CurTaskIDGet());
+    UNREACHABLE;
+}
+
+
 osStatus_t osDelay(uint32_t ticks)
 {
     UINT32 uwRet = LOS_OK;
@@ -722,6 +728,34 @@ osTimerId_t osTimerNew(osTimerFunc_t func, osTimerType_t type, void *argument, c
 
     return (osTimerId_t)OS_SWT_FROM_SID(usSwTmrID);
 }
+
+
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
+osTimerId_t osTimerExtNew(osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr,
+    osTimerRouses_t ucRouses, osTimerAlign_t ucSensitive)
+{
+    UNUSED(attr);
+    UINT32 usSwTmrID;
+    UINT8 mode;
+
+    if ((OS_INT_ACTIVE) || (NULL == func) || ((osTimerOnce != type) && (osTimerPeriodic != type))) {
+        return (osTimerId_t)NULL;
+    }
+
+    if (osTimerOnce == type) {
+        mode = LOS_SWTMR_MODE_NO_SELFDELETE;
+    } else {
+        mode = LOS_SWTMR_MODE_PERIOD;
+    }
+    if (LOS_OK != LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func, &usSwTmrID,
+        (UINT32)(UINTPTR)argument, ucRouses, ucSensitive)) {
+        return (osTimerId_t)NULL;
+    }
+
+    return (osTimerId_t)OS_SWT_FROM_SID(usSwTmrID);
+}
+#endif
+
 
 osStatus_t osTimerStart(osTimerId_t timer_id, uint32_t ticks)
 {
@@ -1353,11 +1387,8 @@ osStatus_t osMessageQueueDelete(osMessageQueueId_t mq_id)
         return osErrorResource;
     }
 }
-void osThreadExit(void)
-{
-    return;
-}
 #endif
+
 
 #define MP_ALLOC        1U
 #define MD_ALLOC        2U
@@ -1645,5 +1676,3 @@ const char *osMemoryPoolGetName(osMemoryPoolId_t mp_id)
 
     return p;
 }
-
-#endif // (CMSIS_OS_VER == 2)

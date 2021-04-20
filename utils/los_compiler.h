@@ -74,6 +74,10 @@ extern "C" {
 #define NORETURN      __attribute__ ((__noreturn__))
 #endif
 
+#ifndef UNREACHABLE
+#define UNREACHABLE   while (1)
+#endif
+
 /* for ARM Compiler */
 #elif defined(__CC_ARM)
 
@@ -103,6 +107,10 @@ extern "C" {
 
 #ifndef NORETURN
 #define NORETURN      __declspec(noreturn)
+#endif
+
+#ifndef UNREACHABLE
+#define UNREACHABLE   while (1)
 #endif
 
 #pragma anon_unions
@@ -136,6 +144,10 @@ extern "C" {
 
 #ifndef NORETURN
 #define NORETURN      __attribute__ ((__noreturn__))
+#endif
+
+#ifndef UNREACHABLE
+#define UNREACHABLE   __builtin_unreachable()
 #endif
 
 #else
