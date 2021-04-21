@@ -42,8 +42,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 typedef unsigned short iUINT16;
 typedef unsigned int iUINT32;
@@ -372,7 +372,7 @@ extern iUINT32 iCunitPrintReport(void);
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #endif /* _UNI_ICUNIT_H */
