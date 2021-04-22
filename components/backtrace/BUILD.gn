@@ -34,7 +34,6 @@ static_library("backtrace") {
     "../../kernel/include",
     "../../kernel/arch/include",
     "../../utils",
-    "./",
-    "//third_party/bounds_checking_function/include",
+    "../../third_party/bounds_checking_function/include",
   ]
 }

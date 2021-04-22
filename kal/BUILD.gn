@@ -35,7 +35,6 @@ declare_args() {
 }
 
 lite_component("kal") {
-
   features = []
 
   if (enable_ohos_kernel_liteos_m_cmsis == true) {
