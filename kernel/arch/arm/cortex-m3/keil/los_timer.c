@@ -31,7 +31,6 @@
 #include "los_config.h"
 #include "los_tick.h"
 #include "los_arch_interrupt.h"
-#include "ARMCM3.h"
 #include "los_timer.h"
 #include "los_context.h"
 

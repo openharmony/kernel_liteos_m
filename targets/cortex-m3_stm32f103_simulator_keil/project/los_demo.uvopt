@@ -363,7 +363,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\kernel\arch\arm\cortex-m3\keil\cmsis\ARMCM3.h</PathWithFileName>
+      <PathWithFileName>..\CMSIS\ARMCM3.h</PathWithFileName>
       <FilenameWithoutPath>ARMCM3.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -375,7 +375,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\kernel\arch\arm\cortex-m3\keil\cmsis\core_cm3.h</PathWithFileName>
+      <PathWithFileName>..\CMSIS\core_cm3.h</PathWithFileName>
       <FilenameWithoutPath>core_cm3.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -387,7 +387,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\kernel\arch\arm\cortex-m3\keil\cmsis\core_cmFunc.h</PathWithFileName>
+      <PathWithFileName>..\CMSIS\core_cmFunc.h</PathWithFileName>
       <FilenameWithoutPath>core_cmFunc.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -399,7 +399,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\kernel\arch\arm\cortex-m3\keil\cmsis\core_cmInstr.h</PathWithFileName>
+      <PathWithFileName>..\CMSIS\core_cmInstr.h</PathWithFileName>
       <FilenameWithoutPath>core_cmInstr.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -559,7 +559,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\bounds_checking_function\src\memcpy_s.c</PathWithFileName>
+      <PathWithFileName>..\..\..\third_party\bounds_checking_function\src\memcpy_s.c</PathWithFileName>
       <FilenameWithoutPath>memcpy_s.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -571,7 +571,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\bounds_checking_function\src\memmove_s.c</PathWithFileName>
+      <PathWithFileName>..\..\..\third_party\bounds_checking_function\src\memmove_s.c</PathWithFileName>
       <FilenameWithoutPath>memmove_s.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -583,7 +583,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\bounds_checking_function\src\memset_s.c</PathWithFileName>
+      <PathWithFileName>..\..\..\third_party\bounds_checking_function\src\memset_s.c</PathWithFileName>
       <FilenameWithoutPath>memset_s.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -595,7 +595,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\bounds_checking_function\src\strcpy_s.c</PathWithFileName>
+      <PathWithFileName>..\..\..\third_party\bounds_checking_function\src\strcpy_s.c</PathWithFileName>
       <FilenameWithoutPath>strcpy_s.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -607,7 +607,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\components\bounds_checking_function\src\strncpy_s.c</PathWithFileName>
+      <PathWithFileName>..\..\..\third_party\bounds_checking_function\src\strncpy_s.c</PathWithFileName>
       <FilenameWithoutPath>strncpy_s.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

@@ -352,7 +352,7 @@
                     <state>$PROJ_DIR$\..\..\..\components\cppsupport</state>
                     <state>$PROJ_DIR$\..\Utilities\STM32_EVAL\STM324x9I_EVAL</state>
                     <state>$PROJ_DIR$\..\Utilities\STM32_EVAL\Common</state>
-                    <state>$PROJ_DIR$\..\..\..\components\bounds_checking_function\include</state>
+                    <state>$PROJ_DIR$\..\..\..\third_party\bounds_checking_function\include</state>
                     <state>$PROJ_DIR$\..\..\..\utils</state>
                     <state>$PROJ_DIR$\..\..\..\components\exchook</state>
                 </option>
