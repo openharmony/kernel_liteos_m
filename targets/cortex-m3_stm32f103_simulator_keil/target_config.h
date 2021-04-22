@@ -36,6 +36,8 @@
 #ifndef _TARGET_CONFIG_H
 #define _TARGET_CONFIG_H
 
+#include "ARMCM3.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {

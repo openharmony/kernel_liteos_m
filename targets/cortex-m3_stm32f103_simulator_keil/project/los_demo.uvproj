@@ -378,7 +378,7 @@
               <MiscControls>--gnu</MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\cortex-m3_stm32f103_simulator_keil;..\..\..\kernel\include;..\..\..\kernel\arch\arm\cortex-m3\keil;..\..\..\kernel\arch\arm\cortex-m3\keil\cmsis;..\..\..\kernel\src;..\..\..\components\bounds_checking_function\include;..\..\..\components\cpup;..\..\..\utils;..\..\..\kernel\arch\include;..\..\..\components\exchook</IncludePath>
+              <IncludePath>..;..\CMSIS;..\..\..\kernel\include;..\..\..\kernel\arch\arm\cortex-m3\keil;..\..\..\kernel\src;..\..\..\third_party\bounds_checking_function\include;..\..\..\components\cpup;..\..\..\utils;..\..\..\kernel\arch\include;..\..\..\components\exchook</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -480,22 +480,22 @@
             <File>
               <FileName>ARMCM3.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\..\kernel\arch\arm\cortex-m3\keil\cmsis\ARMCM3.h</FilePath>
+              <FilePath>..\CMSIS\ARMCM3.h</FilePath>
             </File>
             <File>
               <FileName>core_cm3.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\..\kernel\arch\arm\cortex-m3\keil\cmsis\core_cm3.h</FilePath>
+              <FilePath>..\CMSIS\core_cm3.h</FilePath>
             </File>
             <File>
               <FileName>core_cmFunc.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\..\kernel\arch\arm\cortex-m3\keil\cmsis\core_cmFunc.h</FilePath>
+              <FilePath>..\CMSIS\core_cmFunc.h</FilePath>
             </File>
             <File>
               <FileName>core_cmInstr.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\..\kernel\arch\arm\cortex-m3\keil\cmsis\core_cmInstr.h</FilePath>
+              <FilePath>..\CMSIS\core_cmInstr.h</FilePath>
             </File>
             <File>
               <FileName>los_cpup.c</FileName>
@@ -580,27 +580,27 @@
             <File>
               <FileName>memcpy_s.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\bounds_checking_function\src\memcpy_s.c</FilePath>
+              <FilePath>..\..\..\third_party\bounds_checking_function\src\memcpy_s.c</FilePath>
             </File>
             <File>
               <FileName>memmove_s.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\bounds_checking_function\src\memmove_s.c</FilePath>
+              <FilePath>..\..\..\third_party\bounds_checking_function\src\memmove_s.c</FilePath>
             </File>
             <File>
               <FileName>memset_s.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\bounds_checking_function\src\memset_s.c</FilePath>
+              <FilePath>..\..\..\third_party\bounds_checking_function\src\memset_s.c</FilePath>
             </File>
             <File>
               <FileName>strcpy_s.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\bounds_checking_function\src\strcpy_s.c</FilePath>
+              <FilePath>..\..\..\third_party\bounds_checking_function\src\strcpy_s.c</FilePath>
             </File>
             <File>
               <FileName>strncpy_s.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\components\bounds_checking_function\src\strncpy_s.c</FilePath>
+              <FilePath>..\..\..\third_party\bounds_checking_function\src\strncpy_s.c</FilePath>
             </File>
             <File>
               <FileName>los_exc_info.c</FileName>
