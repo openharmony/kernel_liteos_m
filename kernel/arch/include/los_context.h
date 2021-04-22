@@ -82,7 +82,7 @@ extern VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack);
  * <ul><li>los_hw.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
-LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID) NORETURN;
+LITE_OS_SEC_TEXT_MINOR NORETURN VOID HalSysExit(VOID);
 
 /* *
  * @ingroup  los_context
