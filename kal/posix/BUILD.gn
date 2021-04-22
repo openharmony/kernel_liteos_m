@@ -37,6 +37,7 @@ static_library("posix") {
     "src/pthread_mutex.c",
     "src/semaphore.c",
     "src/time.c",
+    "src/pthread_cond.c",
   ]
 
   include_dirs = [
