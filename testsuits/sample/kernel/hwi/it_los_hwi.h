@@ -36,8 +36,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #ifdef LOS_HIMIDEER_RV32
 #define OS_USER_HWI_MAX (26)
@@ -89,7 +89,7 @@ extern VOID LltLosHwi035(VOID);
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 #endif /* IT_LOS_HWI_H */
 

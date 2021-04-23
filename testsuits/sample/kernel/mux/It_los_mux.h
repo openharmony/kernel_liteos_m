@@ -36,8 +36,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 extern UINT32 g_mutexTest1;
 extern UINT32 g_mutexTest2;
@@ -82,7 +82,7 @@ VOID ItSuiteLosMux(void);
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #endif /* _ItLosMuxH */

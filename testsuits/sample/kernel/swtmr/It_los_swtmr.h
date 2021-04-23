@@ -36,8 +36,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #define SELF_DELETED 0
 #define SYS_EXIST_SWTMR 1
@@ -190,7 +190,7 @@ extern VOID ItLosSwtmrDelay005(VOID);
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #endif /* IT_LOS_SWTMR_H */

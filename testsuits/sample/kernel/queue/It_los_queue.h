@@ -35,8 +35,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #define QUEUE_SHORT_BUFFER_LENTH 12
 #define QUEUE_STANDARD_BUFFER_LENTH 50
@@ -188,6 +188,6 @@ extern VOID ItLosQueueHead042(VOID);
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 #endif /* IT_LOS_QUEUE_H */

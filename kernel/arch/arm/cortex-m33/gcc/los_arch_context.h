@@ -38,8 +38,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 typedef struct TagTskContext {
 #if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
@@ -124,8 +124,8 @@ extern VOID HalStartToRun(VOID);
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 #endif /* _LOS_ARCH_CONTEXT_H */
 
