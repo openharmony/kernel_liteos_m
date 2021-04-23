@@ -1296,3 +1296,17 @@ LITE_OS_SEC_TEXT_MINOR VOID LOS_Msleep(UINT32 mSecs)
     (VOID)LOS_TaskDelay(interval);
 }
 
+VOID LOS_SysDelay(UINT32 ticks)
+{
+    UINT64 endTime;
+
+    if (ticks == 0) {
+        return;
+    }
+
+    endTime = LOS_SysCycleGet() + ticks * OS_CYCLE_PER_TICK;
+    while (LOS_SysCycleGet() < endTime) {
+    }
+
+    return;
+}
