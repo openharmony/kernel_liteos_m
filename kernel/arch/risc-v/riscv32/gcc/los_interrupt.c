@@ -145,7 +145,7 @@ LITE_OS_SEC_TEXT HWI_HANDLE_FORM_S *HalGetHwiForm(VOID)
 }
 
 
-inline UINT32 HalIsIntAcvive(VOID)
+inline UINT32 HalIsIntActive(VOID)
 {
     return (g_intCount > 0);
 }
@@ -316,8 +316,8 @@ STATIC VOID ExcInfoDisplay(const LosExcContext *excBufAddr)
 
 WEAK UINT32 HalUnalignedAccessFix(UINTPTR mcause, UINTPTR mepc, UINTPTR mtval, VOID *sp)
 {
-    /* Unaligned acess fixes are not supported by default */
-    PRINTK("Unaligned acess fixes are not support by default!\n\r");
+    /* Unaligned access fixes are not supported by default */
+    PRINTK("Unaligned access fixes are not supported by default!\n\r");
     return LOS_NOK;
 }
 
@@ -327,7 +327,7 @@ VOID HalExcEntry(const LosExcContext *excBufAddr)
     g_excInfo.type = excBufAddr->mcause & 0x1FF;
     g_excInfo.context = (LosExcContext *)excBufAddr;
     if (g_excInfo.nestCnt > 2) { /* 2: Number of layers of exception nesting */
-        PRINTK("hard faule!\n\r");
+        PRINTK("hard fault!\n\r");
         goto SYSTEM_DEATH;
     }
 

@@ -107,7 +107,7 @@ WEAK VOID SysTick_Handler(VOID)
 
 /* ****************************************************************************
  Function    : HalIntNumGet
- Description : Get a interrupt number
+ Description : Get an interrupt number
  Input       : None
  Output      : None
  Return      : Interrupt Indexes number
@@ -117,7 +117,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 HalIntNumGet(VOID)
     return __get_IPSR();
 }
 
-inline UINT32 HalIsIntAcvive(VOID)
+inline UINT32 HalIsIntActive(VOID)
 {
     return (g_intCount > 0);
 }

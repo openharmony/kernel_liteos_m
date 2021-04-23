@@ -344,7 +344,7 @@ extern VOID HalInterrupt(VOID);
 
 /* *
  * @ingroup  los_hwi
- * @brief: Get a interrupt number.
+ * @brief: Get an interrupt number.
  *
  * @par Description:
  * This API is used to get the current interrupt number.
@@ -606,7 +606,7 @@ VOID HalHwiInit();
 
 /**
  * @ingroup los_exc
- * Cortex-M exception types: ncorrect usage indicating that the divisor is zero during the division operation.
+ * Cortex-M exception types: Incorrect usage indicating that the divisor is zero during the division operation.
  */
 #define OS_EXC_UF_DIVBYZERO        10
 
