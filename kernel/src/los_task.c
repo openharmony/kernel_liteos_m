@@ -550,9 +550,9 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
         }
 
         PRINTK("%d    %d    %s    0x%x    0x%x    0x%x    0x%x    0x%x    ",
-                  taskCB->taskID, taskCB->priority, OsConvertTskStatus(taskCB->taskStatus),
-                  taskCB->stackSize, OsGetTaskWaterLine(taskCB->taskID),
-                  (UINT32)(UINTPTR)taskCB->stackPointer, taskCB->topOfStack, taskCB->eventMask);
+               taskCB->taskID, taskCB->priority, OsConvertTskStatus(taskCB->taskStatus),
+               taskCB->stackSize, OsGetTaskWaterLine(taskCB->taskID),
+               (UINT32)(UINTPTR)taskCB->stackPointer, taskCB->topOfStack, taskCB->eventMask);
 
         semID = (taskCB->taskSem == NULL) ? OS_NULL_SHORT : (((LosSemCB *)taskCB->taskSem)->semID);
         PRINTK("0x%x    ", semID);
