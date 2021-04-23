@@ -36,7 +36,6 @@ static_library("exchook") {
     "../../kernel/arch/include",
     "../../kernel/include",
     "../../utils",
-    "./",
-    "//third_party/bounds_checking_function/include",
+    "../../third_party/bounds_checking_function/include",
   ]
 }

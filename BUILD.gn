@@ -38,9 +38,9 @@ declare_args() {
 
 group("kernel") {
   deps = [
-    "components/bounds_checking_function:sec",
     "kernel:kernel",
     "utils:utils",
+    "//third_party/bounds_checking_function:libsec_static",
   ]
   if (enable_ohos_kernel_liteos_m_cppsupport == true) {
     deps += [ "components/cppsupport:cppsupport" ]

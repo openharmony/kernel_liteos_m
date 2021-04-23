@@ -41,7 +41,7 @@
 #include "securec.h"
 #include "los_compiler.h"
 #include "los_debug.h"
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 
 #define FS_SUCCESS            0
 #define FS_FAILURE            (-1)

@@ -34,10 +34,10 @@ static_library("posix") {
     "src/malloc.c",
     "src/pthread.c",
     "src/pthread_attr.c",
+    "src/pthread_cond.c",
     "src/pthread_mutex.c",
     "src/semaphore.c",
     "src/time.c",
-    "src/pthread_cond.c",
   ]
 
   include_dirs = [
@@ -45,6 +45,6 @@ static_library("posix") {
     "../../kernel/arch/include",
     "../../kernel/include",
     "../../utils",
-    "//third_party/bounds_checking_function/include",
+    "../../third_party/bounds_checking_function/include",
   ]
 }

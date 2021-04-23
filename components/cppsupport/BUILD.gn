@@ -30,8 +30,5 @@
 static_library("cppsupport") {
   sources = [ "los_cppsupport.c" ]
 
-  include_dirs = [
-    "../../utils",
-    "./",
-  ]
+  include_dirs = [ "../../utils" ]
 }
