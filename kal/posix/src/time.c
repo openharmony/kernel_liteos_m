@@ -40,7 +40,7 @@
 #include "los_debug.h"
 #include "los_task.h"
 #include "los_swtmr.h"
-#include "los_timer.h"
+#include "los_tick.h"
 #include "los_context.h"
 
 /* accumulative time delta from discontinuous modify */
@@ -244,13 +244,10 @@ int timer_getoverrun(timer_t timerID)
 
 STATIC VOID OsGetHwTime(struct timespec *hwTime)
 {
-    UINT64 nowNsec;
-    UINT32 countHigh = 0;
-    UINT32 countLow = 0;
-    HalGetCpuCycle(&countHigh, &countLow);
-    nowNsec = (((UINT64)countHigh * OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK) << 32) +
-              ((((UINT64)countHigh * OS_SYS_NS_PER_SECOND % OS_SYS_CLOCK) << 32) / OS_SYS_CLOCK) +
-              ((UINT64)countLow * OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK);
+    UINT64 cycle = LOS_SysCycleGet();
+    UINT64 nowNsec = (cycle / OS_SYS_CLOCK) * OS_SYS_NS_PER_SECOND +
+                     (cycle % OS_SYS_CLOCK) * OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK;
+
     hwTime->tv_sec = nowNsec / OS_SYS_NS_PER_SECOND;
     hwTime->tv_nsec = nowNsec % OS_SYS_NS_PER_SECOND;
 }
@@ -618,7 +615,6 @@ int settimeofday(const struct timeval *tv, const struct timezone *tz)
         errno = EFAULT;
         return -1;
     }
-
     if (tz != NULL) {
         if ((tz->tz_minuteswest >= TIME_ZONE_MIN) &&
             (tz->tz_minuteswest <= TIME_ZONE_MAX)) {

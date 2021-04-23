@@ -551,129 +551,129 @@ VOID HalHwiInit();
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: An error occurred while the bus status register was being pushed.
+ * Cortex-M exception types: An error occurred while the bus status register was being pushed.
  */
 #define OS_EXC_BF_STKERR           1
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: An error occurred while the bus status register was out of the stack.
+ * Cortex-M exception types: An error occurred while the bus status register was out of the stack.
  */
 #define OS_EXC_BF_UNSTKERR         2
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: Bus status register imprecise data access violation.
+ * Cortex-M exception types: Bus status register imprecise data access violation.
  */
 #define OS_EXC_BF_IMPRECISERR      3
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: Bus status register exact data access violation.
+ * Cortex-M exception types: Bus status register exact data access violation.
  */
 #define OS_EXC_BF_PRECISERR        4
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: Bus status register access violation while pointing.
+ * Cortex-M exception types: Bus status register access violation while pointing.
  */
 #define OS_EXC_BF_IBUSERR          5
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: An error occurred while the memory management status register was being pushed.
+ * Cortex-M exception types: An error occurred while the memory management status register was being pushed.
  */
 #define OS_EXC_MF_MSTKERR          6
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: An error occurred while the memory management status register was out of the stack.
+ * Cortex-M exception types: An error occurred while the memory management status register was out of the stack.
  */
 #define OS_EXC_MF_MUNSTKERR        7
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: Memory management status register data access violation.
+ * Cortex-M exception types: Memory management status register data access violation.
  */
 #define OS_EXC_MF_DACCVIOL         8
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: Memory management status register access violation.
+ * Cortex-M exception types: Memory management status register access violation.
  */
 #define OS_EXC_MF_IACCVIOL         9
 
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: ncorrect usage indicating that the divisor is zero during the division operation.
+ * Cortex-M exception types: ncorrect usage indicating that the divisor is zero during the division operation.
  */
 #define OS_EXC_UF_DIVBYZERO        10
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: Usage error, error caused by unaligned access.
+ * Cortex-M exception types: Usage error, error caused by unaligned access.
  */
 #define OS_EXC_UF_UNALIGNED        11
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: Incorrect usage attempting to execute coprocessor related instruction.
+ * Cortex-M exception types: Incorrect usage attempting to execute coprocessor related instruction.
  */
 #define OS_EXC_UF_NOCP             12
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: Usage error attempting to load EXC_RETURN to PC illegally on exception return.
+ * Cortex-M exception types: Usage error attempting to load EXC_RETURN to PC illegally on exception return.
  */
 #define OS_EXC_UF_INVPC            13
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: Incorrect usage, attempting to cut to ARM state.
+ * Cortex-M exception types: Incorrect usage, attempting to cut to ARM state.
  */
 #define OS_EXC_UF_INVSTATE         14
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: Incorrect usage. Executed instruction whose code is undefined.
+ * Cortex-M exception types: Incorrect usage. Executed instruction whose code is undefined.
  */
 #define OS_EXC_UF_UNDEFINSTR       15
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: NMI
+ * Cortex-M exception types: NMI
  */
 
 #define OS_EXC_CAUSE_NMI           16
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: hard fault
+ * Cortex-M exception types: hard fault
  */
 #define OS_EXC_CAUSE_HARDFAULT     17
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: The task handler exits.
+ * Cortex-M exception types: The task handler exits.
  */
 #define OS_EXC_CAUSE_TASK_EXIT     18
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: A fatal error.
+ * Cortex-M exception types: A fatal error.
  */
 #define OS_EXC_CAUSE_FATAL_ERR     19
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: Hard Fault caused by a debug event.
+ * Cortex-M exception types: Hard Fault caused by a debug event.
  */
 #define OS_EXC_CAUSE_DEBUGEVT      20
 
 /**
  * @ingroup los_exc
- * Cortex-M4 exception types: A hard fault that occurs when a quantity is oriented.
+ * Cortex-M exception types: A hard fault that occurs when a quantity is oriented.
  */
 #define OS_EXC_CAUSE_VECTBL        21
 
@@ -715,4 +715,3 @@ extern ExcInfo g_excInfo;
 #endif /* __cpluscplus */
 
 #endif /* _LOS_EXC_H */
-

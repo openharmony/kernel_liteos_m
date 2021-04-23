@@ -79,26 +79,24 @@ extern "C" {
 
 /**
  *  @ingroup  los_tick
- *  @brief: System clock get function.
+ *  @brief: System timer cycles get function.
  *
  *  @par Description:
- *  This API is used to get system clock.
+ *  This API is used to get system timer cycles.
  *
  * @attention:
  * <ul><li>None.</li></ul>
  *
  * @param: None.
  *
- * @retval: system clock.
+ * @retval: current system cycles.
  *
  * @par Dependency:
  * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  *
  * */
-extern UINT32 LOS_SysClockGet(VOID);
-
-
+extern UINT64 LOS_SysCycleGet(VOID);
 
 /**
  * @ingroup los_sys
@@ -111,6 +109,20 @@ extern UINT32 LOS_SysClockGet(VOID);
  * Number of microseconds in one second.
  */
 #define OS_SYS_US_PER_SECOND   1000000
+
+#define OS_SYS_NS_PER_SECOND   1000000000
+
+#define OS_SYS_NS_PER_US       1000
+
+#define OS_CYCLE_PER_TICK      (OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND)
+
+#define OS_NS_PER_CYCLE        (OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK)
+
+#define OS_MS_PER_TICK         (OS_SYS_MS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
+
+#define OS_US_PER_TICK         (OS_SYS_US_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
+
+#define OS_NS_PER_TICK         (OS_SYS_NS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
 /**
  * @ingroup los_sys

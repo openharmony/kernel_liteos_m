@@ -33,6 +33,7 @@
 #include "los_hook.h"
 #include "los_interrupt.h"
 #include "los_task.h"
+#include "los_sched.h"
 
 
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventInit(PEVENT_CB_S eventCB)
@@ -123,22 +124,21 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventRead(PEVENT_CB_S eventCB, UINT32 eventMask, UIN
         runTsk = g_losTask.runTask;
         runTsk->eventMask = eventMask;
         runTsk->eventMode = mode;
-        OsTaskWait(&eventCB->stEventList, OS_TASK_STATUS_PEND, timeOut);
+        OsSchedTaskWait(&eventCB->stEventList, timeOut);
         LOS_IntRestore(intSave);
         LOS_Schedule();
 
+        intSave = LOS_IntLock();
         if (runTsk->taskStatus & OS_TASK_STATUS_TIMEOUT) {
-            intSave = LOS_IntLock();
-            runTsk->taskStatus &= (~OS_TASK_STATUS_TIMEOUT);
+            runTsk->taskStatus &= ~OS_TASK_STATUS_TIMEOUT;
             LOS_IntRestore(intSave);
             return LOS_ERRNO_EVENT_READ_TIMEOUT;
         }
-        intSave = LOS_IntLock();
+
         ret = LOS_EventPoll(&eventCB->uwEventID, eventMask, mode);
-        LOS_IntRestore(intSave);
-    } else {
-        LOS_IntRestore(intSave);
     }
+
+    LOS_IntRestore(intSave);
     return ret;
 }
 
@@ -170,7 +170,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventWrite(PEVENT_CB_S eventCB, UINT32 events)
                  ((resumedTask->eventMask & eventCB->uwEventID) == resumedTask->eventMask))) {
                 exitFlag = 1;
 
-                OsTaskWake(resumedTask, OS_TASK_STATUS_PEND);
+                OsSchedTaskWake(resumedTask);
             }
             resumedTask = nextTask;
         }

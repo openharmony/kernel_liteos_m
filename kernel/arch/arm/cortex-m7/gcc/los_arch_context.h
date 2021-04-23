@@ -41,7 +41,7 @@ extern "C" {
 #endif /* __cpluscplus */
 #endif /* __cpluscplus */
 
-typedef struct tagTskContext {
+typedef struct TagTskContext {
 #if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
      (defined(__FPU_USED) && (__FPU_USED == 1U)))
     UINT32 S16;

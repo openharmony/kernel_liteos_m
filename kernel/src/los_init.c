@@ -170,10 +170,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 #endif
 
-#if (LOSCFG_BASE_CORE_TIMESLICE == 1)
-    OsTimesliceInit();
-#endif
-
     ret = OsIdleTaskCreate();
     if (ret != LOS_OK) {
         return ret;

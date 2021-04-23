@@ -103,6 +103,22 @@ extern "C" {
 #define LOSCFG_BASE_CORE_TICK_HW_TIME                       0
 #endif
 
+/**
+ * @ingroup los_config
+ * System timer is a 64/128 bit timer
+ */
+#ifndef LOSCFG_BASE_CORE_TICK_WTIMER
+#define LOSCFG_BASE_CORE_TICK_WTIMER                        0
+#endif
+
+/**
+ * @ingroup los_config
+ * System timer count maximum
+ */
+#ifndef LOSCFG_BASE_CORE_TICK_RESPONSE_MAX
+#define LOSCFG_BASE_CORE_TICK_RESPONSE_MAX                       0
+#endif
+
 /* =============================================================================
                                         Hardware interrupt module configuration
 ============================================================================= */
@@ -190,7 +206,7 @@ extern "C" {
  * Configuration item for task Robin tailoring
  */
 #ifndef LOSCFG_BASE_CORE_TIMESLICE
-#define LOSCFG_BASE_CORE_TIMESLICE                          1
+#define LOSCFG_BASE_CORE_TIMESLICE                         1
 #endif
 
 /**
@@ -198,7 +214,7 @@ extern "C" {
  * Longest execution time of tasks with the same priorities
  */
 #ifndef LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT
-#define LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT                  10
+#define LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT                  20000 /* 20ms */
 #endif
 
 /**
@@ -607,6 +623,14 @@ extern UINT8 *m_aucSysMem0;
  */
 #ifndef LOSCFG_BACKTRACE_DEPTH
 #define LOSCFG_BACKTRACE_DEPTH                               15
+#endif
+
+/**
+ * @ingroup los_config
+ * When the tick timer is a non-64/128-bit timer, it has ultra-low power compensation.
+ */
+#ifndef LOSCFG_BASE_CORE_SCHED_SLEEP
+#define LOSCFG_BASE_CORE_SCHED_SLEEP                         0
 #endif
 
 #ifdef __cplusplus

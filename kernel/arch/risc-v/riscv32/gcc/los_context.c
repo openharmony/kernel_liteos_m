@@ -33,14 +33,45 @@
 #include "los_arch_interrupt.h"
 #include "los_arch_timer.h"
 #include "los_task.h"
+#include "los_sched.h"
 #include "los_memory.h"
 #include "los_timer.h"
 #include "soc.h"
 
 
+STATIC UINT32 g_sysNeedSched = FALSE;
+
 LITE_OS_SEC_TEXT_INIT VOID HalArchInit(VOID)
 {
     HalHwiInit();
+}
+
+VOID HalIrqEndCheckNeedSched(VOID)
+{
+    if (g_sysNeedSched) {
+        LOS_Schedule();
+    }
+}
+
+VOID HalTaskSchedule(VOID)
+{
+    UINT32 intSave;
+
+    if (OS_INT_ACTIVE) {
+        g_sysNeedSched = TRUE;
+        return;
+    }
+
+    intSave = LOS_IntLock();
+    g_sysNeedSched = FALSE;
+    BOOL isSwitch = OsSchedTaskSwitch();
+    if (isSwitch) {
+        HalTaskContextSwitch(intSave);
+        return;
+    }
+
+    LOS_IntRestore(intSave);
+    return;
 }
 
 LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID)
@@ -100,21 +131,15 @@ LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOI
 
 LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
 {
-    UINT32 ret;
-    ret = HalTickStart(handler);
+    (VOID)LOS_IntLock();
+    UINT32 ret = HalTickStart(handler);
     if (ret != LOS_OK) {
         return ret;
     }
+
+    OsSchedStart();
     HalStartToRun();
     return LOS_OK; /* never return */
-}
-
-LITE_OS_SEC_TEXT VOID HalTaskScheduleCheck(VOID)
-{
-#if (LOSCFG_BASE_CORE_TSK_MONITOR == 1)
-    OsTaskSwitchCheck();
-#endif
-    return;
 }
 
 LITE_OS_SEC_TEXT VOID wfi(VOID)
@@ -131,9 +156,3 @@ LITE_OS_SEC_TEXT VOID dsb(VOID)
 {
     __asm__ __volatile__("fence":::"memory");
 }
-
-VOID HalEnterSleep(LOS_SysSleepEnum sleep)
-{
-    wfi();
-}
-

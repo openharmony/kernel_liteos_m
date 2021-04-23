@@ -29,12 +29,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_tick.h"
-#include "los_config.h"
-#include "los_arch_interrupt.h"
-#include "riscv_hal.h"
 #include "los_timer.h"
-
+#include "los_config.h"
+#include "los_tick.h"
+#include "los_reg.h"
+#include "los_arch_interrupt.h"
+#include "los_sched.h"
+#include "los_arch_timer.h"
+#include "riscv_hal.h"
 
 
 WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
@@ -47,17 +49,41 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
 
     return LOS_OK; /* never return */
 }
-/* ****************************************************************************
-Function    : HalGetCpuCycle
-Description : Get System cycle count
-Input       : none
-output      : cntHi  --- CpuTick High 4 byte
-              cntLo  --- CpuTick Low 4 byte
-return      : none
-**************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
+
+WEAK VOID HalSysTickReload(UINT64 nextResponseTime)
 {
-    HalGetSysCpuCycle(cntHi, cntLo);
-    return;
+    UINT64 timer;
+    UINT32 timerL, timerH;
+    READ_UINT32(timerL, MTIMER);
+    READ_UINT32(timerH, MTIMER + MTIMER_HI_OFFSET);
+    timer = OS_COMBINED_64(timerH, timerL);
+    timer += nextResponseTime;
+
+    HalIrqDisable(RISCV_MACH_TIMER_IRQ);
+    WRITE_UINT32(0xffffffff, MTIMERCMP + MTIMER_HI_OFFSET);
+    WRITE_UINT32((UINT32)timer, MTIMERCMP);
+    WRITE_UINT32((UINT32)(timer >> SHIFT_32_BIT), MTIMERCMP + MTIMER_HI_OFFSET);
+    HalIrqEnable(RISCV_MACH_TIMER_IRQ);
+}
+
+WEAK UINT64 HalGetTickCycle(UINT32 *period)
+{
+    (VOID)period;
+    UINT32 timerL, timerH;
+
+    READ_UINT32(timerL, MTIMER);
+    READ_UINT32(timerH, MTIMER + MTIMER_HI_OFFSET);
+    return OS_COMBINED_64(timerH, timerL);
+}
+
+VOID HalEnterSleep(LOS_SysSleepEnum sleep)
+{
+#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
+    if (sleep == OS_SYS_DEEP_SLEEP) {
+        OsSchedToSleep();
+    }
+#endif
+
+    wfi();
 }
 

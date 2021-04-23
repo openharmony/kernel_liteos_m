@@ -29,17 +29,16 @@
 ; ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;
 
-        PRESERVE8
+    PRESERVE8
 
-        EXPORT  HalIntLock
-        EXPORT  HalIntUnLock
-        EXPORT  HalIntRestore
-        EXPORT  HalStartToRun
-        EXPORT  HalTaskSchedule
-        EXPORT  HalPendSV
-
-        IMPORT  g_losTask
-        IMPORT  g_taskScheduled
+    EXPORT  HalIntLock
+    EXPORT  HalIntUnLock
+    EXPORT  HalIntRestore
+    EXPORT  HalStartToRun
+    EXPORT  HalTaskSchedule
+    EXPORT  HalPendSV
+    IMPORT  OsSchedTaskSwitch
+    IMPORT  g_losTask
 
 OS_FPU_CPACR                EQU     0xE000ED88
 OS_FPU_CPACR_ENABLE         EQU     0x00F00000
@@ -58,26 +57,11 @@ HalStartToRun
     LDR     R5, =OS_NVIC_PENDSV_PRI
     STR     R5, [R4]
 
-    LDR     R0, =g_taskScheduled
-    MOV     R1, #1
-    STR     R1, [R0]
-
     MOV     R0, #2
     MSR     CONTROL, R0
 
-
-    LDR     R0, =g_losTask
-    LDR     R2, [R0, #4]
-    LDR     R0, =g_losTask
-    STR     R2, [R0]
-
-    LDR     R3, =g_losTask
-    LDR     R0, [R3]
-    LDRH    R7, [R0 , #4]
-    MOV     R8,  #OS_TASK_STATUS_RUNNING
-    ORR     R7,  R7,  R8
-    STRH    R7,  [R0 , #4]
-
+    LDR     R1, =g_losTask
+    LDR     R0, [R1, #4]
     LDR     R12, [R0]
 
     LDR.W   R1, =OS_FPU_CPACR
@@ -133,6 +117,17 @@ HalPendSV
     CPSID   I
 
 HalTaskSwitch
+    PUSH    {R12, LR}
+    BLX     OsSchedTaskSwitch
+    POP     {R12, LR}
+    CMP     R0, #0
+    MOV     R0, LR
+    BNE     TaskContextSwitch
+    MSR     PRIMASK, R12
+    BX      LR
+
+TaskContextSwitch
+    MOV     LR, R0
     MRS     R0, PSP
 
     STMFD   R0!, {R4-R12}
@@ -148,24 +143,10 @@ __DisabledFPU1
     LDR     R6, [R5]
     STR     R0, [R6]
 
-
-    LDRH    R7, [R6 , #4]
-    MOV     R8,#OS_TASK_STATUS_RUNNING
-    BIC     R7, R7, R8
-    STRH    R7, [R6 , #4]
-
-
-    LDR     R0, =g_losTask
-    LDR     R0, [R0, #4]
+    LDR     R0, [R5, #4]
     STR     R0, [R5]
 
-
-    LDRH    R7, [R0 , #4]
-    MOV     R8,  #OS_TASK_STATUS_RUNNING
-    ORR     R7, R7, R8
-    STRH    R7,  [R0 , #4]
-
-    LDR     R1,   [R0]
+    LDR     R1, [R0]
     AND     R3, R3, #OS_FPU_CPACR_ENABLE
     CMP     R3, #OS_FPU_CPACR_ENABLE
     BNE     __DisabledFPU2

@@ -34,6 +34,8 @@
 #include "los_tick.h"
 #include "los_arch_interrupt.h"
 #include "los_context.h"
+#include "los_sched.h"
+#include "los_debug.h"
 
 
 /* ****************************************************************************
@@ -63,7 +65,6 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER *handler)
 
     g_sysClock = OS_SYS_CLOCK;
     g_cyclesPerTick = OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;
-    g_ullTickCount = 0;
 
     ret = SysTick_Config(g_cyclesPerTick);
     if (ret == 1) {
@@ -73,145 +74,43 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER *handler)
     return LOS_OK;
 }
 
-VOID HalSysTickReload(UINT32 cyclesPerTick)
+WEAK VOID HalSysTickReload(UINT64 nextResponseTime)
 {
     SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
-    NVIC_ClearPendingIRQ(SysTick_IRQn);
-    SysTick->LOAD = (UINT32)(cyclesPerTick - 1UL); /* set reload register */
+    SysTick->LOAD = (UINT32)(nextResponseTime - 1UL); /* set reload register */
     SysTick->VAL = 0UL; /* Load the SysTick Counter Value */
+    NVIC_ClearPendingIRQ(SysTick_IRQn);
     SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 }
 
-/* ****************************************************************************
-Function    : HalSysTickCurrCycleGet
-Description : Get System cycle count
-Input       : none
-output      : none
-return      : hwCycle --- the system cycle count
-**************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR UINT32 HalSysTickCurrCycleGet(VOID)
+WEAK UINT64 HalGetTickCycle(UINT32 *period)
 {
     UINT32 hwCycle;
-    UINTPTR intSave;
-
-    intSave = LOS_IntLock();
-    hwCycle = SysTick->VAL;
-
-    /* tick has come, but may interrupt environment, not counting the Tick interrupt response, to do +1 */
-    if ((SCB->ICSR & TICK_CHECK) != 0) {
-        hwCycle = SysTick->VAL;
-        hwCycle += g_cyclesPerTick;
-    }
-
+    UINTPTR intSave = LOS_IntLock();
+    *period = SysTick->LOAD;
+    hwCycle = *period - SysTick->VAL;
     LOS_IntRestore(intSave);
-
-    return hwCycle;
+    return (UINT64)hwCycle;
 }
 
-/* ****************************************************************************
-Function    : HalGetCpuCycle
-Description : Get System cycle count
-Input       : none
-output      : cntHi  --- CpuTick High 4 byte
-              cntLo  --- CpuTick Low 4 byte
-return      : none
-**************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
-{
-    UINT64 swTick;
-    UINT64 cycle;
-    UINT32 hwCycle;
-    UINTPTR intSave;
-
-    intSave = LOS_IntLock();
-
-    swTick = g_ullTickCount;
-    hwCycle = SysTick->VAL;
-
-    /* tick has come, but may interrupt environment, not counting the Tick interrupt response, to do +1 */
-    if ((SCB->ICSR & TICK_CHECK) != 0) {
-        hwCycle = SysTick->VAL;
-        swTick++;
-    }
-
-    cycle = (((swTick) * g_cyclesPerTick) + (g_cyclesPerTick - hwCycle));
-
-    *cntHi = cycle >> SHIFT_32_BIT;
-    *cntLo = cycle & CYCLE_CHECK;
-
-    LOS_IntRestore(intSave);
-
-    return;
-}
-
-/* ****************************************************************************
-Function    : HalGetSystickCycle
-Description : Get Sys tick cycle count
-Input       : none
-output      : cntHi  --- SysTick count High 4 byte
-              cntLo  --- SysTick count Low 4 byte
-return      : none
-**************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID HalGetSystickCycle(UINT32 *cntHi, UINT32 *cntLo)
-{
-    UINT64 swTick;
-    UINT64 cycle;
-    UINT32 hwCycle;
-    UINTPTR intSave;
-    UINT32 systickLoad;
-    UINT32 systickCur;
-
-    intSave = LOS_IntLock();
-
-    swTick = g_ullTickCount;
-
-    systickLoad = SysTick->LOAD;
-    systickCur = SysTick->VAL;
-    if (systickLoad < systickCur) {
-        LOS_IntRestore(intSave);
-        return;
-    }
-    hwCycle = systickLoad - systickCur;
-
-    /* tick has come, but may interrupt environment, not counting the Tick interrupt response, to do +1 */
-    if ((SCB->ICSR & TICK_CHECK) != 0) {
-        hwCycle = systickLoad - systickCur;
-        swTick++;
-    }
-
-    cycle = hwCycle + swTick * systickLoad;
-    *cntHi = cycle >> SHIFT_32_BIT;
-    *cntLo = cycle & CYCLE_CHECK;
-
-    LOS_IntRestore(intSave);
-
-    return;
-}
-
-static BOOL g_sysSleepFlag = FALSE;
-
-VOID HalTickLock(VOID)
+WEAK VOID HalTickLock(VOID)
 {
     SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
 }
 
-VOID HalTickUnlock(VOID)
+WEAK VOID HalTickUnlock(VOID)
 {
     SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
-}
-
-BOOL HalGetSysSleepFlag(VOID)
-{
-    return g_sysSleepFlag;
-}
-
-VOID HalClearSysSleepFlag(VOID)
-{
-    g_sysSleepFlag = FALSE;
 }
 
 VOID HalEnterSleep(LOS_SysSleepEnum sleep)
 {
+#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
+    if (sleep == OS_SYS_DEEP_SLEEP) {
+        OsSchedToSleep();
+    }
+#endif
+
     __DSB();
     __WFI();
     __ISB();

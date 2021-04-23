@@ -50,6 +50,9 @@ extern "C" {
 #define OS_SYS_CLOCK                                        24000000
 #define LOSCFG_BASE_CORE_TICK_PER_SECOND                    (1000UL)
 #define LOSCFG_BASE_CORE_TICK_HW_TIME                       0
+#define LOSCFG_BASE_CORE_TICK_WTIMER                        0
+#define LOSCFG_BASE_CORE_TICK_RESPONSE_MAX                  0xFFFFFF
+
 /*=============================================================================
                                         Hardware interrupt module configuration
 =============================================================================*/
@@ -63,7 +66,7 @@ extern "C" {
 #define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE             (0x2D0U)
 #define LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE                 (0x130U)
 #define LOSCFG_BASE_CORE_TIMESLICE                          1
-#define LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT                  10
+#define LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT                  20000
 /*=============================================================================
                                        Semaphore module configuration
 =============================================================================*/

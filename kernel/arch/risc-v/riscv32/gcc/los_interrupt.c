@@ -35,6 +35,7 @@
 #include "los_arch_interrupt.h"
 #include "los_arch_context.h"
 #include "los_task.h"
+#include "los_sched.h"
 #include "los_debug.h"
 #include "los_hook.h"
 #include "riscv_hal.h"

@@ -37,6 +37,7 @@
 #ifndef _LOS_SWTMR_H
 #define _LOS_SWTMR_H
 
+#include "los_sortlink.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -279,6 +280,7 @@ typedef struct tagSwTmrCtrl {
     UINT32              uwArg;          /* Parameter passed in when the callback function
                                            that handles software timer timeout is called         */
     SWTMR_PROC_FUNC     pfnHandler;     /* Callback function that handles software timer timeout */
+    SortLinkList        stSortList;
 } SWTMR_CTRL_S;
 
 
@@ -450,29 +452,6 @@ typedef struct {
 extern SWTMR_CTRL_S *g_swtmrCBArray;
 
 #define OS_SWT_FROM_SID(swtmrId)    ((SWTMR_CTRL_S *)g_swtmrCBArray + ((swtmrId) % LOSCFG_BASE_CORE_SWTMR_LIMIT))
-
-/**
- * @ingroup los_swtmr
- * @brief Scan a software timer.
- *
- * @par Description:
- * <ul>
- * <li>This API is used to scan a software timer when a Tick interrupt occurs and determine whether the software timer
-   expires.</li>
- * </ul>
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  None.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_swtmr_pri.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_SwtmrStop
- */
-extern UINT32 OsSwtmrScan(VOID);
 
 /**
  * @ingroup los_swtmr

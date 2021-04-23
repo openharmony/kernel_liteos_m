@@ -128,3 +128,4 @@ extern VOID HalStartToRun(VOID);
 #endif /* __cpluscplus */
 
 #endif /* _LOS_ARCH_CONTEXT_H */
+

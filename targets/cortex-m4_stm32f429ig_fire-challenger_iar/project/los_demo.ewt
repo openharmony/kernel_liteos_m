@@ -2432,7 +2432,13 @@
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_queue.c</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\..\..\..\kernel\src\los_sched.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_sem.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\kernel\src\los_sortlink.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\kernel\src\los_swtmr.c</name>

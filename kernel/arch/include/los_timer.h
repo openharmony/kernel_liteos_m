@@ -69,6 +69,28 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep);
 
 VOID HalDelay(UINT32 ticks);
 
+ /**
+ * @ingroup los_timer
+ * @brief Get systick cycle.
+ *
+ * @par Description:
+ * This API is used to get systick cycle and return current tick period.
+ *
+ * @attention
+ * <ul>
+ * <li>None.</li>
+ * </ul>
+ *
+ * @param: period [OUT] current tick period.
+ *
+ * @retval current tick count.
+ *
+ * @par Dependency:
+ * <ul><li>los_timer.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+UINT64 HalGetTickCycle(UINT32 *period);
+
 /**
  * @ingroup los_hwi
  * @brief reconfig systick, and clear SysTick_IRQn.
@@ -82,103 +104,14 @@ VOID HalDelay(UINT32 ticks);
  * <li>None.</li>
  * </ul>
  *
- * @param  cyclesPerTick  [IN] Cycles Per Tick
+ * @param  nextResponseTime  [IN] tick period
  *
  * @retval None.
  * @par Dependency:
  * <ul><li>los_hwi.h: the header file that contains the API declaration.</li></ul>
  * @see None
  */
-extern VOID HalSysTickReload(UINT32 cyclesPerTick);
-
-/**
- * @ingroup los_hwi
- * @brief Get System cycle count.
- *
- * @par Description:
- * <ul>
- * <li>This API is used to Get System cycle count.</li>
- * </ul>
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  None.
- *
- * @retval: The value of the system cycle count.
- * @par Dependency:
- * <ul><li>los_hwi.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_IntRestore
- */
-extern UINT32 HalSysTickCurrCycleGet(VOID);
-
-
-/* *
- * @ingroup los_hwi
- * @brief Get value from xPSR register.
- *
- * @par Description:
- * <ul>
- * <li>This API is used to Get value from xPSR register.</li>
- * </ul>
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  cntHi  [IN] CpuTick High 4 byte
- * @param  cntLo  [IN] CpuTick Low 4 byte
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_hwi.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_IntRestore
- */
-extern VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo);
-
-
-
-extern VOID HalGetSystickCycle(UINT32 *puwCntHi, UINT32 *puwCntLo);
-
-/**
- * @ingroup  los_tickless
- * @brief enable the tickless mode.
- *
- * @par Description:
- * This API is used to enable the tickless mode. System can change from periodic clock mode to dynamic clock mode.
- *
- * @attention
- * <ul>
- * </ul>
- *
- * @param  None.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_tickless.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_TicklessDisable
- */
-extern VOID HalTicklessEnable(VOID);
-/**
- * @ingroup  los_tickless
- * @brief disable the tickless mode.
- *
- * @par Description:
- * This API is used to diable the tickless mode. System will not change from periodic clock mode to dynamic clock mode.
- *
- * @attention
- * <ul>
- * </ul>
- *
- * @param  None.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_tickless.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_TicklessEnable
- */
-extern VOID HalTicklessDisable(VOID);
+extern VOID HalSysTickReload(UINT64 nextResponseTime);
 
 #ifdef __cplusplus
 #if __cplusplus

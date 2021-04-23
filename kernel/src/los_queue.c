@@ -38,6 +38,7 @@
 #include "los_membox.h"
 #include "los_memory.h"
 #include "los_task.h"
+#include "los_sched.h"
 
 
 #if (LOSCFG_BASE_IPC_QUEUE == 1)
@@ -276,7 +277,6 @@ static INLINE UINT32 OsQueueOperateParamCheck(const LosQueueCB *queueCB, UINT32 
 UINT32 OsQueueOperate(UINT32 queueID, UINT32 operateType, VOID *bufferAddr, UINT32 *bufferSize, UINT32 timeOut)
 {
     LosQueueCB *queueCB = NULL;
-    LosTaskCB *runTsk = NULL;
     LosTaskCB *resumedTask = NULL;
     UINT32 ret;
     UINT32 readWrite = OS_QUEUE_READ_WRITE_GET(operateType);
@@ -301,14 +301,14 @@ UINT32 OsQueueOperate(UINT32 queueID, UINT32 operateType, VOID *bufferAddr, UINT
             goto QUEUE_END;
         }
 
-        runTsk = (LosTaskCB *)g_losTask.runTask;
-        OsTaskWait(&queueCB->readWriteList[readWrite], OS_TASK_STATUS_PEND_QUEUE, timeOut);
+        LosTaskCB *runTsk = (LosTaskCB *)g_losTask.runTask;
+        OsSchedTaskWait(&queueCB->readWriteList[readWrite], timeOut);
         LOS_IntRestore(intSave);
         LOS_Schedule();
 
         intSave = LOS_IntLock();
         if (runTsk->taskStatus & OS_TASK_STATUS_TIMEOUT) {
-            runTsk->taskStatus &= (~OS_TASK_STATUS_TIMEOUT);
+            runTsk->taskStatus &= ~OS_TASK_STATUS_TIMEOUT;
             ret = LOS_ERRNO_QUEUE_TIMEOUT;
             goto QUEUE_END;
         }
@@ -321,7 +321,7 @@ UINT32 OsQueueOperate(UINT32 queueID, UINT32 operateType, VOID *bufferAddr, UINT
 
     if (!LOS_ListEmpty(&queueCB->readWriteList[readWriteTmp])) {
         resumedTask = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&queueCB->readWriteList[readWriteTmp]));
-        OsTaskWake(resumedTask, OS_TASK_STATUS_PEND_QUEUE);
+        OsSchedTaskWake(resumedTask);
         LOS_IntRestore(intSave);
         LOS_Schedule();
         return LOS_OK;
@@ -479,7 +479,7 @@ LITE_OS_SEC_TEXT VOID *OsQueueMailAlloc(UINT32 queueID, VOID *mailPool, UINT32 t
         }
 
         runTsk = (LosTaskCB *)g_losTask.runTask;
-        OsTaskWait(&queueCB->memList, OS_TASK_STATUS_PEND_QUEUE, timeOut);
+        OsSchedTaskWait(&queueCB->memList, timeOut);
         LOS_IntRestore(intSave);
         LOS_Schedule();
 
@@ -540,7 +540,7 @@ LITE_OS_SEC_TEXT UINT32 OsQueueMailFree(UINT32 queueID, VOID *mailPool, VOID *ma
 
     if (!LOS_ListEmpty(&queueCB->memList)) {
         resumedTask = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&queueCB->memList));
-        OsTaskWake(resumedTask, OS_TASK_STATUS_PEND_QUEUE);
+        OsSchedTaskWake(resumedTask);
         mem = LOS_MemboxAlloc(mailPool);
         if (mem == NULL) {
             LOS_IntRestore(intSave);
