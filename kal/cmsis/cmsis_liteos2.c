@@ -639,7 +639,7 @@ osStatus_t osDelay(uint32_t ticks)
         return osOK;
     }
     if (osKernelGetState() != osKernelRunning) {
-        LOS_SysDelay(ticks);
+        LOS_UDelay(ticks * OS_US_PER_TICK);
     } else {
         uwRet = LOS_TaskDelay(ticks);
     }

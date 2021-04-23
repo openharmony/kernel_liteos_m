@@ -1098,14 +1098,14 @@ extern CHAR* LOS_TaskNameGet(UINT32 taskID);
  * @attention:
  * <ul><li>None.</li></ul>
  *
- * @param  ticks   [IN] delay times.
+ * @param  UINT64  [IN] delay times, microseconds.
  *
  * @retval: None.
  * @par Dependency:
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
-extern VOID LOS_SysDelay(UINT32 ticks);
+extern VOID LOS_UDelay(UINT64 microseconds);
 
 /**
 * @ingroup los_cpup

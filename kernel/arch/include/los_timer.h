@@ -67,9 +67,7 @@ VOID HalClearSysSleepFlag(VOID);
 
 VOID HalEnterSleep(LOS_SysSleepEnum sleep);
 
-VOID HalDelay(UINT32 ticks);
-
- /**
+/**
  * @ingroup los_timer
  * @brief Get systick cycle.
  *
