@@ -55,7 +55,7 @@ typedef struct {
 } LittleFsHandleStruct;
 
 struct MountOps {
-	int {*Mount}(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
+	int (*Mount)(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
 		const void *data);
 	int (*Umount)(const char* target);
 };
@@ -71,9 +71,9 @@ struct FileOps {
 	int (*Unlink)(const char *fileName);
 	int (*Rmdir)(const char *dirName);
 	int (*Mkdir)(const char *dirName, mode_t mode);
-	struct direct *(*Readdir)(DIR *dir);
+	struct dirent *(*Readdir)(DIR *dir);
 	DIR *(*Opendir)(const char *dirName);
-	int (*Closedir)(Dir *dir);
+	int (*Closedir)(DIR *dir);
 	int (*Read)(int fd, void *buf, size_t len);
 	int (*Write)(int fd, const void *buf, size_t len);
 	int (*Seek)(int fd, off_t offset, int whence);
@@ -116,7 +116,7 @@ int LfsMkdir(const char *dirName, mode_t mode);
 int LfsRmdir(const char *dirName);
 DIR *LfsOpendir(const char *dirName);
 struct dirent *LfsReaddir(DIR *dir);
-int LfsCloseDir(DIR *dir);
+int LfsClosedir(DIR *dir);
 int LfsOpen(const char *path, int openFlag, int mode);
 int LfsRead(int fd, void *buf, unsigned int len);
 int LfsWrite(int fd, const void *buf, unsigned int len);
