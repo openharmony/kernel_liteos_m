@@ -27,17 +27,19 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-declare_args() {
-  enable_ohos_kernel_liteos_m_fatfs = true
-  enable_ohos_kernel_liteos_m_littlefs = false
-}
+static_library("littlefs") {
+  sources = [
+    "lfs_api.c",
+  ]
 
-group("fs") {
-  deps = []
-  if (enable_ohos_kernel_liteos_m_fatfs == true) {
-    deps += [ "fatfs:fatfs" ]
-  }
-  if (enable_ohos_kernel_liteos_m_littlefs == true) {
-    deps += [ "littlefs:littlefs" ]
-  }
+  include_dirs = [
+    "../../../kernel/arch/include",
+    "../../../kernel/include",
+    "../../../utils",
+    "../../../kal/cmsis",
+    "../../../kal",
+    "../../../kal/posix/include",
+    "./",
+    "//third_party/littlefs/include",
+  ]
 }
