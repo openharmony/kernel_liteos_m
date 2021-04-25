@@ -33,12 +33,12 @@
 #include "iCunit.h"
 
 lfs_t g_lfs;
-FileDirInfo g_lfsDir[LFS_MAX_OPEN_DIRS];
+FileDirInfo g_lfsDir[LFS_MAX_OPEN_DIRS] = {0};
 
 FileOpInfo g_fsOp;
 static LittleFsHandleStruct g_handle[LITTLE_FS_MAX_OPEN_FILES] = {0};
 struct dirent g_nameValue;
-struct fsmap_t g_fsmap[MAX_FILE_SYSTEM_LEN];
+struct fsmap_t g_fsmap[MAX_FILE_SYSTEM_LEN] = {0};
 static pthread_mutex_t g_FslocalMutex = PTHREAD_MUTEX_INITIALIZER;
 
 FileOpInfo GetFsOpInfo(void)
