@@ -183,7 +183,7 @@ __attribute__((always_inline)) inline VOID HalIntExit(VOID)
     g_intCount -= 1;
 }
 
-__attribute__((always_inline)) inline UINT32 HalIsIntAcvive(VOID)
+__attribute__((always_inline)) inline UINT32 HalIsIntActive(VOID)
 {
     return (g_intCount > 0);
 }
