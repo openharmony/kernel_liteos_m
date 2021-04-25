@@ -20,6 +20,7 @@
 #include "nuclei_sdk_hal.h"
 #include "task_sample.h"
 #include "target_config.h"
+
 void user_key_exti_config()
 {
     /* enable the AF clock */
@@ -38,12 +39,11 @@ void user_key_exti_config()
   */
 int main(void)
 {
-  /* USER CODE BEGIN Init */
-  gd_rvstar_key_init(WAKEUP_KEY_GPIO_PORT,KEY_MODE_EXTI);
-  user_key_exti_config();
-  RunTaskSample();
-  while (1)
-  {
-  }
+    /* USER CODE BEGIN Init */
+    gd_rvstar_key_init(WAKEUP_KEY_GPIO_PORT, KEY_MODE_EXTI);
+    user_key_exti_config();
+    RunTaskSample();
+    while (1) {
+    }
 }
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT Nuclei *****END OF FILE****/

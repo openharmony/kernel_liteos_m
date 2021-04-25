@@ -52,23 +52,23 @@ UINT8 __attribute__ ((aligned (8))) g_memStart[OS_SYS_MEM_SIZE];
 VOID TaskSampleEntry2(VOID)
 {
     while (1) {
-        LOS_TaskDelay(10000); /* 10 Seconds */
         printf("TaskSampleEntry2 running...\n");
+        LOS_TaskDelay(10000); /* 10 Seconds */
     }
 }
 
 VOID TaskSampleEntry1(VOID)
 {
     while (1) {
-        LOS_TaskDelay(2000); /* 2 Seconds */
         printf("TaskSampleEntry1 running...\n");
+        LOS_TaskDelay(2000); /* 2 Seconds */
     }
 }
 
 VOID EXTI0_IRQHandler(VOID)
 {
-    if (RESET != exti_interrupt_flag_get(WAKEUP_KEY_PIN)){
-        if(RESET == gd_rvstar_key_state_get(KEY_WAKEUP)){
+    if (RESET != exti_interrupt_flag_get(WAKEUP_KEY_PIN)) {
+        if (RESET == gd_rvstar_key_state_get(KEY_WAKEUP)) {
             HalDisplayTaskInfo();
         }
     }
@@ -101,7 +101,7 @@ VOID TaskSample(VOID)
     }
 
     HalHwiInit();
-    HalHwiCreate(EXTI0_IRQn,9,ECLIC_NON_VECTOR_INTERRUPT,EXTI0_IRQHandler,ECLIC_LEVEL_TRIGGER);
+    HalHwiCreate(EXTI0_IRQn, 9, ECLIC_NON_VECTOR_INTERRUPT, EXTI0_IRQHandler, ECLIC_LEVEL_TRIGGER);
 }
 
 VOID RunTaskSample(VOID)
