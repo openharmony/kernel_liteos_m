@@ -1088,25 +1088,24 @@ extern  UINT32 LOS_NewTaskIDGet(VOID);
   */
 extern CHAR* LOS_TaskNameGet(UINT32 taskID);
 
-
 /* *
- * @ingroup  los_hw
- * @brief: Function to determine whether task scheduling is required.
+ * @ingroup  los_task
+ * @brief: cpu delay.
  *
  * @par Description:
- * This API is used to Judge and entry task scheduling.
+ * This API is used to cpu delay, no task switching.
  *
  * @attention:
  * <ul><li>None.</li></ul>
  *
- * @param  None.
+ * @param  UINT64  [IN] delay times, microseconds.
  *
  * @retval: None.
  * @par Dependency:
- * <ul><li>los_hw.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
-extern VOID LOS_Schedule(VOID);
+extern VOID LOS_UDelay(UINT64 microseconds);
 
 /**
 * @ingroup los_cpup
