@@ -35,7 +35,8 @@ MEMORY
 
 SECTIONS
 {
-  __stack_size = DEFINED(__stack_size) ? __stack_size : 2K;
+  __stack_size = DEFINED(__stack_size) ? __stack_size : 10K;
+  __heap_size = DEFINED(__heap_size) ? __heap_size : 10K;
 
   .init           :
   {
@@ -179,6 +180,10 @@ SECTIONS
     *(.srodata.cst4)
     *(.srodata.cst2)
     *(.srodata .srodata.*)
+      . = ALIGN(4);
+    __osdriv_start = .;
+    KEEP (*(osdriv))
+    __osdriv_end = .;
   } >ram AT>ilm
 
   . = ALIGN(4);
@@ -198,13 +203,20 @@ SECTIONS
   } >ram AT>ram
 
   . = ALIGN(8);
-  PROVIDE( _end = . );
   PROVIDE( end = . );
 
-  .stack ORIGIN(ram) + LENGTH(ram) - __stack_size :
+  .stack : ALIGN(0x10)
   {
-    PROVIDE( _heap_end = . );
     . = __stack_size;
     PROVIDE( _sp = . );
+  } >ram AT>ram
+  PROVIDE( _end = . );
+  .heap : ALIGN(0x10)
+  {
+    . = __heap_size;
+	PROVIDE( _heap_end = . );
+	PROVIDE( __los_heap_addr_start__ = . );
+	. = __heap_size == 0 ? 0 : ORIGIN(ram) + LENGTH(ram);
+	PROVIDE( __los_heap_addr_end__ = . );
   } >ram AT>ram
 }

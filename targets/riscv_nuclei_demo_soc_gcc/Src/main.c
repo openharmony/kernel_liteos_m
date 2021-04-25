@@ -28,8 +28,7 @@ int main(void)
 {
   /* USER CODE BEGIN Init */
   RunTaskSample();
-  while (1)
-  {
+  while (1) {
   }
 }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

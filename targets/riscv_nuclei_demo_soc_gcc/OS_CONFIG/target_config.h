@@ -43,12 +43,16 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#include "nuclei_sdk_soc.h"
+
 /*=============================================================================
                                         System clock module configuration
 =============================================================================*/
-#define OS_SYS_CLOCK                                        (8000000)
+#define OS_SYS_CLOCK                                        SOC_TIMER_FREQ
 #define LOSCFG_BASE_CORE_TICK_PER_SECOND                    (1000UL)
 #define LOSCFG_BASE_CORE_TICK_HW_TIME                       0
+#define LOSCFG_BASE_CORE_TICK_WTIMER                        1
+#define LOSCFG_BASE_CORE_SCHED_SLEEP                        1
 /*=============================================================================
                                         Hardware interrupt module configuration
 =============================================================================*/
@@ -63,7 +67,8 @@ extern "C" {
 #define LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE             (0x2E0U)
 #define LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE                 (0x130U)
 #define LOSCFG_BASE_CORE_TIMESLICE                          1
-#define LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT                  10
+#define LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT                  20000
+#define LOSCFG_BASE_CORE_TICK_RESPONSE_MAX                  0xFFFFFF
 /*=============================================================================
                                        Semaphore module configuration
 =============================================================================*/

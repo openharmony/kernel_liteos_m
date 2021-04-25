@@ -33,7 +33,6 @@
  */
 
 #include "task_sample.h"
-
 #include "los_config.h"
 #include "los_debug.h"
 #include "los_interrupt.h"
@@ -51,16 +50,16 @@ UINT8 __attribute__ ((aligned (8))) g_memStart[OS_SYS_MEM_SIZE];
 VOID TaskSampleEntry2(VOID)
 {
     while (1) {
-        LOS_TaskDelay(10000); /* 10 Seconds */
         printf("TaskSampleEntry2 running...\n");
+        LOS_TaskDelay(10000); /* 10 Seconds */
     }
 }
 
 VOID TaskSampleEntry1(VOID)
 {
     while (1) {
-        LOS_TaskDelay(2000); /* 2 Seconds */
         printf("TaskSampleEntry1 running...\n");
+        LOS_TaskDelay(2000); /* 2 Seconds */
     }
 }
 

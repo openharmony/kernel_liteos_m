@@ -131,6 +131,8 @@ Nuclei DDR200T开发板是一款集成了FPGA和通用MCU的RISC-V评估开发�
 
 ### 编译源码<a name="sectionb2"></a>
 
+使用`git clone`复制代码到任意目录下，打开进入到工程根目录下，输入`git submodule update --init --recursive`下载更新子模块。
+
 编译前请在当前控制台中配置`NUCLEI_TOOL_ROOT`路径，假设`Nuclei`文件夹所在路径为`/home/Nuclei`，输入`export NUCLEI_TOOL_ROOT=/home/Nuclei` 。或者使用时make选项增加`NUCLEI_TOOL_ROOT=/home/Nuclei`。
 
 配置路径后打开至代码根目录下的/target/riscv_nuclei_demo_soc_gcc/GCC位置，输入如下指令开始编译：
