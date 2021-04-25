@@ -30,11 +30,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_tick.h"
-#include "los_config.h"
-#include "los_arch_interrupt.h"
-#include "nuclei_sdk_hal.h"
 #include "los_timer.h"
+#include "los_config.h"
+#include "los_tick.h"
+#include "los_reg.h"
+#include "los_arch_interrupt.h"
+#include "los_sched.h"
+#include "los_arch_timer.h"
+#include "nuclei_sdk_hal.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -62,10 +65,9 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
     ECLIC_SetShvIRQ(SysTimerSW_IRQn, ECLIC_VECTOR_INTERRUPT);
     ECLIC_SetLevelIRQ(SysTimerSW_IRQn, configKERNEL_INTERRUPT_PRIORITY);
     ECLIC_EnableIRQ(SysTimerSW_IRQn);
-    g_sysClock = SystemCoreClock;
+    g_sysClock = OS_SYS_CLOCK;
     g_cyclesPerTick = g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND;
     g_intCount = 0;
-    g_ullTickCount = 0;
 
     systick_handler = handler;
 
@@ -76,69 +78,47 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
 
 void HalTickSysTickHandler( void )
 {
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
-
-    SysTick_Reload(SYSTICK_TICK_CONST);
-    /* Do systick handler. */
+    /* Do systick handler registered in HalTickStart. */
     if ((void *)systick_handler != NULL) {
         systick_handler();
     }
-        
+}
+
+WEAK VOID HalSysTickReload(UINT64 nextResponseTime)
+{
+    SysTick_Reload(nextResponseTime);
+}
+
+WEAK UINT64 HalGetTickCycle(UINT32 *period)
+{
+    UINT64 ticks;
+    UINTPTR intSave = LOS_IntLock();
+    ticks = SysTimer_GetLoadValue();
+    *period = (UINT32)ticks;
     LOS_IntRestore(intSave);
+    return ticks;
 }
-/* ****************************************************************************
-Function    : HalGetCpuCycle
-Description : Get System cycle count
-Input       : none
-output      : cntHi  --- CpuTick High 4 byte
-              cntLo  --- CpuTick Low 4 byte
-return      : none
-**************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
-{
-    volatile uint32_t high0, low, high;
 
-    high0 = __RV_CSR_READ(CSR_MCYCLEH);
-    low = __RV_CSR_READ(CSR_MCYCLE);
-    high = __RV_CSR_READ(CSR_MCYCLEH);
-    if (high0 != high) {
-        low = __RV_CSR_READ(CSR_MCYCLE);
+WEAK VOID HalTickLock(VOID)
+{
+    SysTimer_Stop();
+}
+
+WEAK VOID HalTickUnlock(VOID)
+{
+    SysTimer_Start();
+}
+
+
+VOID HalEnterSleep(LOS_SysSleepEnum sleep)
+{
+#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
+    if (sleep == OS_SYS_DEEP_SLEEP) {
+        OsSchedToSleep();
     }
-    *cntHi = high;
-    *cntLo = low;
-    return;
-}
+#endif
 
-WEAK VOID HalDelay(UINT32 ticks)
-{
-    return;
-}
-
-WEAK UINT64 HalGetExpandTick(VOID)
-{
-    return LOS_OK;
-}
-
-WEAK INT32 HalGetRtcTime(UINT64 *usec)
-{
-    return LOS_OK;
-}
-
-WEAK INT32 HalGetRtcTimeZone(INT32 *timeZone)
-{
-    return LOS_OK;
-}
-
-WEAK INT32 HalSetRtcTime(UINT64 utcTime, UINT64 *usec)
-{
-    return LOS_OK;
-}
-
-WEAK INT32 HalSetRtcTimeZone(INT32 timeZone)
-{
-    return LOS_OK;
+    __WFI();
 }
 
 #ifdef __cplusplus

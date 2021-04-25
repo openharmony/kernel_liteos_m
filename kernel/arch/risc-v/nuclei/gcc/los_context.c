@@ -22,7 +22,11 @@
 #include "los_task.h"
 #include "los_memory.h"
 #include "los_timer.h"
+#include "los_sched.h"
+#include "los_interrupt.h"
 #include "nuclei_sdk_soc.h"
+
+extern VOID HalHwiInit(VOID);
 
 #define INITIAL_MSTATUS                 ( MSTATUS_MPP | MSTATUS_MPIE | MSTATUS_FS_INITIAL)
 
@@ -77,22 +81,23 @@ extern LosTask g_losTask;
 LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
 {
     UINT32 ret;
-    __disable_irq();
+
+    (VOID)LOS_IntLock();
     ret = HalTickStart(handler);
     if (ret != LOS_OK) {
         return ret;
     }
-    g_taskScheduled = TRUE;
-    /* Set newTask to runTask */
-    g_losTask.runTask = g_losTask.newTask;
-    g_losTask.runTask->taskStatus |= OS_TASK_STATUS_RUNNING;
+
+    OsSchedStart();
     HalStartToRun();
     return LOS_OK; /* never return */
 }
 
 VOID HalTaskSchedule(VOID)
 {
-    SysTimer_SetSWIRQ();
+    if (OsSchedTaskSwitch()) {
+        SysTimer_SetSWIRQ();
+    }
 }
 
 VOID HalTaskSwitch(VOID)
@@ -110,11 +115,6 @@ LITE_OS_SEC_TEXT VOID HalTaskScheduleCheck(VOID)
     OsTaskSwitchCheck();
 #endif
     return;
-}
-
-VOID HalEnterSleep(LOS_SysSleepEnum sleep)
-{
-    __WFI();
 }
 
 #ifdef __cplusplus

@@ -112,7 +112,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
 LITE_OS_SEC_TEXT UINT32 HalHwiDelete(HWI_HANDLE_T hwiNum)
 {
     // change func to default func
-    ECLIC_SetVector(hwiNum, HalHwiDefaultHandler);
+    ECLIC_SetVector(hwiNum, (rv_csr_t)HalHwiDefaultHandler);
     // disable interrupt
     ECLIC_DisableIRQ(hwiNum);
     return LOS_OK;
