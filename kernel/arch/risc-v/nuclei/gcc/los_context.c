@@ -105,14 +105,6 @@ VOID HalTaskSwitch(VOID)
     g_losTask.runTask = g_losTask.newTask;
 }
 
-LITE_OS_SEC_TEXT VOID HalTaskScheduleCheck(VOID)
-{
-#if (LOSCFG_BASE_CORE_TSK_MONITOR == 1)
-    OsTaskSwitchCheck();
-#endif
-    return;
-}
-
 #ifdef __cplusplus
 #if __cplusplus
 }
