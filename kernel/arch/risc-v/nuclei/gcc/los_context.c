@@ -94,7 +94,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
 
 VOID HalTaskSchedule(VOID)
 {
-        SysTimer_SetSWIRQ();
+    SysTimer_SetSWIRQ();
 }
 
 VOID HalTaskSwitch(VOID)
