@@ -41,6 +41,6 @@ static_library("arch") {
     "../../../../../kernel/include",
     "../../../../../utils",
     "asm",
-    "../../../../../third_party/bounds_checking_function/include",
+    "//third_party/bounds_checking_function/include",
   ]
 }

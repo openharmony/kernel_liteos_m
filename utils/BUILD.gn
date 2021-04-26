@@ -36,6 +36,7 @@ static_library("utils") {
   include_dirs = [
     "../kernel/include",
     "../kernel/arch/include",
-    "../third_party/bounds_checking_function/include",
+    ".",
+    "//third_party/bounds_checking_function/include",
   ]
 }
