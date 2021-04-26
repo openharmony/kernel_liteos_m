@@ -37,6 +37,8 @@ static_library("kernel") {
     "src/los_swtmr.c",
     "src/los_task.c",
     "src/los_tick.c",
+    "src/los_sched.c",
+    "src/los_sortlink.c",
     "src/mm/los_membox.c",
     "src/mm/los_memory.c",
   ]
