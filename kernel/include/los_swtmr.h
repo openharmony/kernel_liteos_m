@@ -470,7 +470,7 @@ extern SWTMR_CTRL_S *g_swtmrCBArray;
  *
  * @retval None.
  * @par Dependency:
- * <ul><li>los_swtmr_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern UINT32 OsSwtmrInit(VOID);
@@ -492,7 +492,7 @@ extern UINT32 OsSwtmrInit(VOID);
  *
  * @retval None.
  * @par Dependency:
- * <ul><li>los_swtmr_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern UINT32 OsSwtmrGetNextTimeout(VOID);
@@ -514,7 +514,7 @@ extern UINT32 OsSwtmrGetNextTimeout(VOID);
  *
  * @retval UINT32    Sleep time.
  * @par Dependency:
- * <ul><li>los_swtmr_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern VOID OsSwtmrAdjust(UINT32 sleepTime);

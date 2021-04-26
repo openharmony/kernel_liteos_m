@@ -330,7 +330,7 @@ extern LosMuxCB *g_allMux;
  *
  * @retval UINT32     Initialization result.
  * @par Dependency:
- * <ul><li>los_mux_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_mux.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_MuxDelete
  */
 extern UINT32 OsMuxInit(VOID);

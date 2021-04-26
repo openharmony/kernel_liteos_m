@@ -827,7 +827,7 @@ extern LosQueueCB *g_allQueue;
  * @retval   #NULL                    The memory allocation is failed.
  * @retval   #mem                     The address of alloc memory.
  * @par Dependency:
- * <ul><li>los_queue_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
  * @see OsQueueMailFree
  */
 extern VOID *OsQueueMailAlloc(UINT32 queueID, VOID *mailPool, UINT32 timeOut);
@@ -853,7 +853,7 @@ extern VOID *OsQueueMailAlloc(UINT32 queueID, VOID *mailPool, UINT32 timeOut);
  * @retval   #OS_ERRNO_QUEUE_MAIL_PTR_INVALID        0x0200061a: The pointer to the memory to be freed is null.
  * @retval   #OS_ERRNO_QUEUE_MAIL_FREE_ERROR         0x0200061b: The memory for the queue fails to be freed.
  * @par Dependency:
- * <ul><li>los_queue_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
  * @see OsQueueMailAlloc
  */
 extern UINT32 OsQueueMailFree(UINT32 queueID, VOID *mailPool, VOID *mailMem);
@@ -873,7 +873,7 @@ extern UINT32 OsQueueMailFree(UINT32 queueID, VOID *mailPool, VOID *mailMem);
  *
  * @retval   UINT32  Initialization result.
  * @par Dependency:
- * <ul><li>los_queue_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern UINT32 OsQueueInit(VOID);
@@ -897,7 +897,7 @@ extern UINT32 OsQueueInit(VOID);
  *
  * @retval   UINT32  Handle result.
  * @par Dependency:
- * <ul><li>los_queue_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern UINT32 OsQueueOperate(UINT32 queueID, UINT32 operateType, VOID *bufferAddr, UINT32 *bufferSize,

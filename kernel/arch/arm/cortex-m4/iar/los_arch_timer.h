@@ -51,4 +51,3 @@ UINT32 HalTickStart(OS_TICK_HANDLER handler);
 #endif /* __cplusplus */
 
 #endif /* _LOS_ARCH_TIMER_H */
-

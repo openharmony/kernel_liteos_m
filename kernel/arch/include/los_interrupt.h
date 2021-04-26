@@ -41,7 +41,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* *
- * @ingroup los_config
+ * @ingroup los_interrupt
  * Configuration item for interrupt with argument
  */
 #ifndef OS_HWI_WITH_ARG
@@ -66,8 +66,8 @@ UINT32 HalIsIntActive(VOID);
 #define OS_INT_ACTIVE    (HalIsIntActive())
 #define OS_INT_INACTIVE  (!(OS_INT_ACTIVE))
 
-/* *
- * @ingroup  los_hwi
+/**
+ * @ingroup  los_interrupt
  * @brief Delete hardware interrupt.
  *
  * @par Description:
@@ -86,13 +86,13 @@ UINT32 HalIsIntActive(VOID);
  * @retval #OS_ERRNO_HWI_NUM_INVALID              0x02000900: Invalid interrupt number.
  * @retval #LOS_OK                                0         : The interrupt is successfully delete.
  * @par Dependency:
- * <ul><li>los_hwi.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_interrupt.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern UINT32 HalHwiDelete(HWI_HANDLE_T hwiNum);
 
-/* *
- * @ingroup  los_hwi
+/**
+ * @ingroup  los_interrupt
  * @brief Create a hardware interrupt.
  *
  * @par Description:
@@ -118,7 +118,7 @@ extern UINT32 HalHwiDelete(HWI_HANDLE_T hwiNum);
  * @retval #OS_ERRNO_HWI_ALREADY_CREATED              0x02000904: The interrupt handler being created has already been created.
  * @retval #LOS_OK                                    0         : The interrupt is successfully created.
  * @par Dependency:
- * <ul><li>los_hwi.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_interrupt.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern UINT32 HalHwiCreate(HWI_HANDLE_T hwiNum,
@@ -134,4 +134,3 @@ extern UINT32 HalHwiCreate(HWI_HANDLE_T hwiNum,
 #endif /* __cplusplus */
 
 #endif /* _LOS_INTERRUPT_H */
-

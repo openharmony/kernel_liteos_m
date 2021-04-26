@@ -344,7 +344,7 @@ extern LosSemCB *g_allSem;
  *
  * @retval UINT32   Initialization result.
  * @par Dependency:
- * <ul><li>los_sem_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_sem.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern UINT32 OsSemInit(VOID);
@@ -366,7 +366,7 @@ extern UINT32 OsSemInit(VOID);
  *
  * @retval UINT32   Create result.
  * @par Dependency:
- * <ul><li>los_sem_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_sem.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 UINT32 OsSemCreate(UINT16 count, UINT16 maxCount, UINT32 *semHandle);

@@ -28,8 +28,8 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _LOS_HWI_H
-#define _LOS_HWI_H
+#ifndef _LOS_ARCH_INTERRUPT_H
+#define _LOS_ARCH_INTERRUPT_H
 
 #include "los_compiler.h"
 #include "los_config.h"
@@ -43,7 +43,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * @ingroup  los_hwi
+ * @ingroup  los_arch_interrupt
  * Define the type of a hardware interrupt vector table function.
  */
 typedef struct tagHwiHandleForm {
@@ -68,43 +68,43 @@ typedef struct {
 } LosExcInfo;
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Highest priority of a hardware interrupt.
  */
 #define OS_HWI_PRIO_HIGHEST        7
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Lowest priority of a hardware interrupt.
  */
 #define OS_HWI_PRIO_LOWEST         1
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Count of HimiDeer system interrupt vector.
  */
 #define OS_RISCV_SYS_VECTOR_CNT   (RISCV_SYS_MAX_IRQ + 1)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Count of HimiDeer local interrupt vector 0 - 5, enabled by CSR mie 26 -31 bit.
  */
 #define OS_RISCV_MIE_IRQ_VECTOR_CNT  6
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Count of HimiDeer local interrupt vector 6 - 31, enabled by custom CSR locie0 0 - 25 bit.
  */
 #define OS_RISCV_CUSTOM_IRQ_VECTOR_CNT  RISCV_PLIC_VECTOR_CNT
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Count of HimiDeer local IRQ interrupt vector.
  */
 #define OS_RISCV_LOCAL_IRQ_VECTOR_CNT        (OS_RISCV_MIE_IRQ_VECTOR_CNT + OS_RISCV_SYS_VECTOR_CNT)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Count of himideer interrupt vector.
  */
 #define OS_RISCV_VECTOR_CNT                  (OS_RISCV_SYS_VECTOR_CNT + OS_RISCV_CUSTOM_IRQ_VECTOR_CNT)
@@ -146,7 +146,7 @@ extern VOID HalHwiDefaultHandler(VOID *arg);
 extern UINT32 g_intCount;
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Invalid interrupt number.
  *
  * Value: 0x02000900
@@ -157,7 +157,7 @@ extern UINT32 g_intCount;
 #define OS_ERRNO_HWI_NUM_INVALID                 LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x00)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Null hardware interrupt handling function.
  *
  * Value: 0x02000901
@@ -167,7 +167,7 @@ extern UINT32 g_intCount;
 #define OS_ERRNO_HWI_PROC_FUNC_NULL              LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x01)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Insufficient interrupt resources for hardware interrupt creation.
  *
  * Value: 0x02000902
@@ -177,7 +177,7 @@ extern UINT32 g_intCount;
 #define OS_ERRNO_HWI_CB_UNAVAILABLE              LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x02)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Insufficient memory for hardware interrupt initialization.
  *
  * Value: 0x02000903
@@ -187,7 +187,7 @@ extern UINT32 g_intCount;
 #define OS_ERRNO_HWI_NO_MEMORY                   LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x03)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: The interrupt has already been created.
  *
  * Value: 0x02000904
@@ -197,7 +197,7 @@ extern UINT32 g_intCount;
 #define OS_ERRNO_HWI_ALREADY_CREATED             LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x04)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Invalid interrupt priority.
  *
  * Value: 0x02000905
@@ -207,7 +207,7 @@ extern UINT32 g_intCount;
 #define OS_ERRNO_HWI_PRIO_INVALID                LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x05)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Incorrect interrupt creation mode.
  *
  * Value: 0x02000906
@@ -218,7 +218,7 @@ extern UINT32 g_intCount;
 #define OS_ERRNO_HWI_MODE_INVALID                LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x06)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: The interrupt has already been created as a fast interrupt.
  *
  * Value: 0x02000907
@@ -228,7 +228,7 @@ extern UINT32 g_intCount;
 #define OS_ERRNO_HWI_FASTMODE_ALREADY_CREATED    LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x07)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: The API is called during an interrupt, which is forbidden.
  *
  * Value: 0x02000908
@@ -238,7 +238,7 @@ extern UINT32 g_intCount;
 #define OS_ERRNO_HWI_INTERR LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x08)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code:the hwi support SHARED error.
  *
  * Value: 0x02000909
@@ -249,7 +249,7 @@ extern UINT32 g_intCount;
 #define OS_ERRNO_HWI_SHARED_ERROR LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x09)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code:Invalid interrupt Arg when interrupt mode is IRQF_SHARED.
  *
  * Value: 0x0200090a
@@ -259,7 +259,7 @@ extern UINT32 g_intCount;
 #define OS_ERRNO_HWI_ARG_INVALID LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x0a)
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code:The interrupt corresponded to the hwi number or devid  has not been created.
  *
  * Value: 0x0200090b
@@ -276,4 +276,4 @@ extern UINT32 HalUnalignedAccessFix(UINTPTR mcause, UINTPTR mepc, UINTPTR mtval,
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* _LOS_HWI_H */
+#endif /* _LOS_ARCH_INTERRUPT_H */
