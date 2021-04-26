@@ -53,14 +53,14 @@ LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID)
 LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
 {
     UINT32 index;
-    UINT8 *stk;
+    UINT8 *stk = 0;
     TaskContext  *context = NULL;
 
     /* initialize the task stack, write magic num to stack top */
     *((UINT32 *)(topStack)) = OS_TASK_MAGIC_WORD;
 
     stk = ((UINT8 *)topStack) + stackSize + sizeof(STACK_TYPE);
-    stk = (UINT8 *)ALIGN_DOWN((unsigned long)stk, REGBYTES);
+    stk = (UINT8 *)ALIGN_DOWN((uintptr_t)stk, REGBYTES);
     context = (TaskContext *)(stk - sizeof(TaskContext));
 
     for (index = 1; index < sizeof(TaskContext)/ sizeof(STACK_TYPE); index ++) {
@@ -76,7 +76,6 @@ LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOI
     return (VOID *)context;
 }
 
-extern BOOL g_taskScheduled;
 extern LosTask g_losTask;
 LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
 {
@@ -95,18 +94,15 @@ LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
 
 VOID HalTaskSchedule(VOID)
 {
-    if (OsSchedTaskSwitch()) {
         SysTimer_SetSWIRQ();
-    }
 }
 
 VOID HalTaskSwitch(VOID)
 {
     SysTimer_ClearSWIRQ();
-    g_losTask.runTask->taskStatus &= ~OS_TASK_STATUS_RUNNING;
+    OsSchedTaskSwitch();
     /* Set newTask to runTask */
     g_losTask.runTask = g_losTask.newTask;
-    g_losTask.runTask->taskStatus |= OS_TASK_STATUS_RUNNING;
 }
 
 LITE_OS_SEC_TEXT VOID HalTaskScheduleCheck(VOID)

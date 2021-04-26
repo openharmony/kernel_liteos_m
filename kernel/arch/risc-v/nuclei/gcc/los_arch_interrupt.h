@@ -87,7 +87,7 @@ extern VOID HalHwiDefaultHandler(VOID);
  *
  * Solution: Pass in a valid non-null hardware interrupt handling function.
  */
-// #define OS_ERRNO_HWI_PROC_FUNC_NULL              LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x01)
+#define OS_ERRNO_HWI_PROC_FUNC_NULL              LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x01)
 
 /**
  * @ingroup los_hwi
@@ -97,7 +97,7 @@ extern VOID HalHwiDefaultHandler(VOID);
  *
  * Solution: Increase the configured maximum number of supported hardware interrupts.
  */
-// #define OS_ERRNO_HWI_CB_UNAVAILABLE              LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x02)
+#define OS_ERRNO_HWI_CB_UNAVAILABLE              LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x02)
 
 /**
  * @ingroup los_hwi
@@ -107,7 +107,7 @@ extern VOID HalHwiDefaultHandler(VOID);
  *
  * Solution: Expand the configured memory.
  */
-// #define OS_ERRNO_HWI_NO_MEMORY                   LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x03)
+#define OS_ERRNO_HWI_NO_MEMORY                   LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x03)
 
 /**
  * @ingroup los_hwi
@@ -117,7 +117,7 @@ extern VOID HalHwiDefaultHandler(VOID);
  *
  * Solution: Check whether the interrupt specified by the passed-in interrupt number has already been created.
  */
-// #define OS_ERRNO_HWI_ALREADY_CREATED             LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x04)
+#define OS_ERRNO_HWI_ALREADY_CREATED             LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x04)
 
 /**
  * @ingroup los_hwi
@@ -127,7 +127,7 @@ extern VOID HalHwiDefaultHandler(VOID);
  *
  * Solution: Ensure that the interrupt priority is valid.
  */
-// #define OS_ERRNO_HWI_PRIO_INVALID                LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x05)
+#define OS_ERRNO_HWI_PRIO_INVALID                LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x05)
 
 /**
  * @ingroup los_hwi
@@ -148,7 +148,7 @@ extern VOID HalHwiDefaultHandler(VOID);
  *
  * Solution: Check whether the interrupt specified by the passed-in interrupt number has already been created.
  */
-// #define OS_ERRNO_HWI_FASTMODE_ALREADY_CREATED    LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x07)
+#define OS_ERRNO_HWI_FASTMODE_ALREADY_CREATED    LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x07)
 
 /**
  * @ingroup los_hwi
@@ -158,7 +158,7 @@ extern VOID HalHwiDefaultHandler(VOID);
  *
  * * Solution: Do not call the API during an interrupt.
  */
-// #define OS_ERRNO_HWI_INTERR LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x08)
+#define OS_ERRNO_HWI_INTERR LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x08)
 
 /**
  * @ingroup los_hwi
@@ -169,7 +169,7 @@ extern VOID HalHwiDefaultHandler(VOID);
  * * Solution:check the input params hwiMode and irqParam of HalHwiCreate or HalHwiDelete whether adapt the current
  * hwi.
  */
-// #define OS_ERRNO_HWI_SHARED_ERROR LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x09)
+#define OS_ERRNO_HWI_SHARED_ERROR LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x09)
 
 /**
  * @ingroup los_hwi
@@ -190,7 +190,7 @@ extern VOID HalHwiDefaultHandler(VOID);
  *
  * * Solution:check the hwi number or devid, make sure the hwi number or devid need to delete.
  */
-// #define OS_ERRNO_HWI_HWINUM_UNCREATE LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x0b)
+#define OS_ERRNO_HWI_HWINUM_UNCREATE LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x0b)
 
 extern UINT32 HalUnalignedAccessFix(UINTPTR mcause, UINTPTR mepc, UINTPTR mtval, VOID *sp);
 
