@@ -29,10 +29,10 @@
 
 static_library("fatfs") {
   sources = [
-    "../../../third_party/FatFs/source/diskio.c",
-    "../../../third_party/FatFs/source/ff.c",
-    "../../../third_party/FatFs/source/ffsystem.c",
-    "../../../third_party/FatFs/source/ffunicode.c",
+    "//third_party/FatFs/source/diskio.c",
+    "//third_party/FatFs/source/ff.c",
+    "//third_party/FatFs/source/ffsystem.c",
+    "//third_party/FatFs/source/ffunicode.c",
     "fatfs.c",
     "fs.c",
   ]
@@ -43,7 +43,7 @@ static_library("fatfs") {
     "../../../utils",
     "../../../kal/cmsis",
     "../../../kal/posix/include",
-    "../../../third_party/bounds_checking_function/include",
-    "../../../third_party/FatFs/source/",
+    "//third_party/bounds_checking_function/include",
+    "//third_party/FatFs/source/",
   ]
 }
