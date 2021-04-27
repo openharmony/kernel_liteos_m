@@ -120,7 +120,7 @@ STATIC INLINE UINT32 OsStackAddrGet(UINTPTR *stackStart, UINTPTR *stackEnd, UINT
             *stackEnd = (UINTPTR)taskCB->topOfStack + taskCB->stackSize;
             if ((SP < (UINTPTR)taskCB->topOfStack) || (SP >= *stackEnd)) {
                 PRINT_ERR("msp statck [0x%x, 0x%x], cur task stack [0x%x, 0x%x], cur sp(0x%x) is overflow!\n",
-                           CODE_START_ADDR, CSTACK_END_ADDR, (UINTPTR)taskCB->topOfStack, *stackEnd, SP);
+                          CODE_START_ADDR, CSTACK_END_ADDR, (UINTPTR)taskCB->topOfStack, *stackEnd, SP);
                 return LOS_NOK;
             }
         }
@@ -130,7 +130,7 @@ STATIC INLINE UINT32 OsStackAddrGet(UINTPTR *stackStart, UINTPTR *stackEnd, UINT
             *stackEnd = CSTACK_END_ADDR;
             if ((*stackStart < CODE_START_ADDR) || (*stackStart >= CSTACK_END_ADDR)) {
                 PRINT_ERR("msp stack [0x%x, 0x%x], cur sp(0x%x) is overflow!\n",
-                           CODE_START_ADDR, CSTACK_END_ADDR, *stackStart);
+                          CODE_START_ADDR, CSTACK_END_ADDR, *stackStart);
                 return LOS_NOK;
             }
             PRINTK("msp, start = %x, end = %x\n", *stackStart, *stackEnd);
@@ -141,7 +141,7 @@ STATIC INLINE UINT32 OsStackAddrGet(UINTPTR *stackStart, UINTPTR *stackEnd, UINT
             *stackEnd = (UINTPTR)taskCB->topOfStack + taskCB->stackSize;
             if ((*stackStart < (UINTPTR)taskCB->topOfStack) || (*stackStart >= *stackEnd)) {
                 PRINT_ERR("psp stack [0x%x, 0x%x], cur sp(0x%x) is overflow, cur task id is %d!\n",
-                           taskCB->topOfStack, *stackEnd, *stackStart, taskID);
+                          taskCB->topOfStack, *stackEnd, *stackStart, taskID);
                 return LOS_NOK;
             }
             PRINTK("psp, start = %x, end = %x\n", *stackStart, *stackEnd);
