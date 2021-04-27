@@ -40,7 +40,7 @@ group("kernel") {
   deps = [
     "kernel:kernel",
     "utils:utils",
-    "//third_party/bounds_checking_function:libsec_static",
+    "//third_party/bounds_checking_function:libsec_kernel",
   ]
   if (enable_ohos_kernel_liteos_m_cppsupport == true) {
     deps += [ "components/cppsupport:cppsupport" ]
