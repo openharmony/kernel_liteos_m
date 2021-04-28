@@ -1,12 +1,12 @@
 [submodule "third_party/cmsis"]
 	path = third_party/cmsis
-	url = https://gitee.com/openharmony/third_party_cmsis.git
+	url = ../third_party_cmsis.git
 	branch = .
 [submodule "third_party/bounds_checking_function"]
 	path = third_party/bounds_checking_function
-	url = https://gitee.com/openharmony/third_party_bounds_checking_function.git
+	url = ../third_party_bounds_checking_function.git
 	branch = .
 [submodule "third_party/FatFs"]
 	path = third_party/FatFs
-	url = https://gitee.com/openharmony/third_party_FatFs.git
+	url = ../third_party_FatFs.git
 	branch = .
