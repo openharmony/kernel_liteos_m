@@ -30,12 +30,12 @@
  */
 
 /**
- * @defgroup los_hw hardware
+ * @defgroup los_context hardware
  * @ingroup kernel
  */
 
-#ifndef _LOS_HW_H
-#define _LOS_HW_H
+#ifndef _LOS_CONTEXT_H
+#define _LOS_CONTEXT_H
 
 #include "los_compiler.h"
 
@@ -45,8 +45,8 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-/* *
- * @ingroup  los_hw
+/**
+ * @ingroup  los_context
  * @brief: Task stack initialization.
  *
  * @par Description:
@@ -61,12 +61,13 @@ extern "C" {
  *
  * @retval: context Type#TaskContext *.
  * @par Dependency:
- * <ul><li>los_hw.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_context.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack);
+
 /**
- * @ingroup  los_hw
+ * @ingroup  los_context
  * @brief: Function to sys exit.
  *
  * @par Description:
@@ -79,12 +80,12 @@ extern VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack);
  *
  * @retval: None.
  * @par Dependency:
- * <ul><li>los_hw.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_context.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 LITE_OS_SEC_TEXT_MINOR NORETURN VOID HalSysExit(VOID);
 
-/* *
+/**
  * @ingroup  los_context
  * @brief: Task scheduling Function.
  *
@@ -115,13 +116,10 @@ VOID HalIntRestore(UINTPTR intSave);
 UINTPTR HalIntUnLock(VOID);
 #define LOS_IntUnLock HalIntUnLock
 
-
-
 #ifdef __cplusplus
 #if __cplusplus
 }
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* _LOS_HW_H */
-
+#endif /* _LOS_CONTEXT_H */

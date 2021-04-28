@@ -30,7 +30,7 @@
  */
 
 /**
- * @defgroup los_tick Tick
+ * @defgroup los_tick
  * @ingroup kernel
  */
 
@@ -99,13 +99,13 @@ extern "C" {
 extern UINT64 LOS_SysCycleGet(VOID);
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * Number of milliseconds in one second.
  */
 #define OS_SYS_MS_PER_SECOND   1000
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * Number of microseconds in one second.
  */
 #define OS_SYS_US_PER_SECOND   1000000
@@ -125,7 +125,7 @@ extern UINT64 LOS_SysCycleGet(VOID);
 #define OS_NS_PER_TICK         (OS_SYS_NS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * System time basic function error code: Null pointer.
  *
  * Value: 0x02000010
@@ -135,7 +135,7 @@ extern UINT64 LOS_SysCycleGet(VOID);
 #define LOS_ERRNO_SYS_PTR_NULL                 LOS_ERRNO_OS_ERROR(LOS_MOD_SYS, 0x10)
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * System time basic function error code: Invalid system clock configuration.
  *
  * Value: 0x02000011
@@ -145,7 +145,7 @@ extern UINT64 LOS_SysCycleGet(VOID);
 #define LOS_ERRNO_SYS_CLOCK_INVALID            LOS_ERRNO_OS_ERROR(LOS_MOD_SYS, 0x11)
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * System time basic function error code: This error code is not in use temporarily.
  *
  * Value: 0x02000012
@@ -155,7 +155,7 @@ extern UINT64 LOS_SysCycleGet(VOID);
 #define LOS_ERRNO_SYS_MAXNUMOFCORES_IS_INVALID LOS_ERRNO_OS_ERROR(LOS_MOD_SYS, 0x12)
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * System time error code: This error code is not in use temporarily.
  *
  * Value: 0x02000013
@@ -165,7 +165,7 @@ extern UINT64 LOS_SysCycleGet(VOID);
 #define LOS_ERRNO_SYS_PERIERRCOREID_IS_INVALID LOS_ERRNO_OS_ERROR(LOS_MOD_SYS, 0x13)
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * System time error code: This error code is not in use temporarily.
  *
  * Value: 0x02000014
@@ -175,10 +175,10 @@ extern UINT64 LOS_SysCycleGet(VOID);
 #define LOS_ERRNO_SYS_HOOK_IS_FULL             LOS_ERRNO_OS_ERROR(LOS_MOD_SYS, 0x14)
 
 /**
- * @ingroup los_typedef
+ * @ingroup los_tick
  * system time structure.
  */
-typedef struct tagSysTime {
+typedef struct TagSysTime {
     UINT16  uwYear;    /**< value 1970 ~ 2038 or 1970 ~ 2100 */
     UINT8   ucMonth;   /**< value 1 - 12 */
     UINT8   ucDay;     /**< value 1 - 31 */
@@ -189,7 +189,7 @@ typedef struct tagSysTime {
 } SYS_TIME_S;
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * @brief Obtain the number of Ticks.
  *
  * @par Description:
@@ -203,13 +203,13 @@ typedef struct tagSysTime {
  *
  * @retval UINT64 The number of Ticks.
  * @par Dependency:
- * <ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see None
  */
 extern UINT64 LOS_TickCountGet(VOID);
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * @brief Obtain the number of cycles in one second.
  *
  * @par Description:
@@ -223,13 +223,13 @@ extern UINT64 LOS_TickCountGet(VOID);
  *
  * @retval UINT32 Number of cycles obtained in one second.
  * @par Dependency:
- * <ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see None
  */
 extern UINT32 LOS_CyclePerTickGet(VOID);
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * @brief Convert Ticks to milliseconds.
  *
  * @par Description:
@@ -244,13 +244,13 @@ extern UINT32 LOS_CyclePerTickGet(VOID);
  * @retval UINT32 Number of milliseconds obtained through the conversion. Ticks are successfully converted to
  * milliseconds.
  * @par  Dependency:
- * <ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_MS2Tick
  */
 extern UINT32 LOS_Tick2MS(UINT32 ticks);
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * @brief Convert milliseconds to Ticks.
  *
  * @par Description:
@@ -265,16 +265,10 @@ extern UINT32 LOS_Tick2MS(UINT32 ticks);
  *
  * @retval UINT32 Number of Ticks obtained through the conversion.
  * @par Dependency:
- * <ul><li>los_sys.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_Tick2MS
  */
 extern UINT32 LOS_MS2Tick(UINT32 millisec);
-
-/**
- * @ingroup los_tick
- * Count of Ticks
- */
-extern UINT64 g_ullTickCount;
 
 /**
  * @ingroup los_tick
@@ -299,6 +293,7 @@ extern UINT32    g_cyclesPerTick;
  * System Clock
  */
 extern UINT32    g_sysClock;
+
 /**
  * @ingroup  los_tick
  * @brief Handle the system tick timeout.
@@ -315,58 +310,58 @@ extern UINT32    g_sysClock;
  *
  * @retval None.
  * @par Dependency:
- * <ul><li>los_tick_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern VOID OsTickHandler(VOID);
 
 /**
- * @ingroup los_base
+ * @ingroup los_tick
  * Define the CPU Tick structure.
  */
-typedef struct tagCpuTick {
+typedef struct TagCpuTick {
     UINT32 cntHi; /* < Upper 32 bits of the tick value */
     UINT32 cntLo; /* < Lower 32 bits of the tick value */
 } CpuTick;
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * Number of operable bits of a 32-bit operand
  */
 #define OS_SYS_MV_32_BIT       32
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * Number of milliseconds in one second.
  */
 #define OS_SYS_MS_PER_SECOND   1000
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * Number of microseconds in one second.
  */
 #define OS_SYS_US_PER_SECOND   1000000
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * The maximum length of name.
  */
 #define OS_SYS_APPVER_NAME_MAX 64
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * The magic word.
  */
 #define OS_SYS_MAGIC_WORD      0xAAAAAAAA
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * The initialization value of stack space.
  */
 #define OS_SYS_EMPTY_STACK     0xCACACACA
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * @brief Convert cycles to milliseconds.
  *
  * @par Description:
@@ -383,13 +378,13 @@ typedef struct tagCpuTick {
  * @retval #LOS_ERRNO_SYS_PTR_NULL    0x02000011: Invalid parameter.
  * @retval #LOS_OK                   0:  Cycles are successfully converted to microseconds.
  * @par Dependency:
- * <ul><li>los_sys_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern UINT32 OsCpuTick2MS(CpuTick *cpuTick, UINT32 *msHi, UINT32 *msLo);
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * @brief Convert cycles to microseconds.
  *
  * @par Description:
@@ -406,13 +401,13 @@ extern UINT32 OsCpuTick2MS(CpuTick *cpuTick, UINT32 *msHi, UINT32 *msLo);
  * @retval #LOS_ERRNO_SYS_PTR_NULL    0x02000011: Invalid parameter.
  * @retval #LOS_OK                   0: Cycles are successfully converted to microseconds.
  * @par Dependency:
- * <ul><li>los_sys_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern UINT32 OsCpuTick2US(CpuTick *cpuTick, UINT32 *usHi, UINT32 *usLo);
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * @brief Convert cycles to milliseconds.
  *
  * @par Description:
@@ -426,7 +421,7 @@ extern UINT32 OsCpuTick2US(CpuTick *cpuTick, UINT32 *usHi, UINT32 *usLo);
  *
  * @retval Number of milliseconds obtained through the conversion.    Cycles are successfully converted to milliseconds.
  * @par Dependency:
- * <ul><li>los_sys_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 STATIC_INLINE UINT64 OsCycle2MS(UINT64 cycle)
@@ -435,7 +430,7 @@ STATIC_INLINE UINT64 OsCycle2MS(UINT64 cycle)
 }
 
 /**
- * @ingroup los_sys
+ * @ingroup los_tick
  * @brief Convert cycles to microseconds.
  *
  * @par Description:
@@ -449,7 +444,7 @@ STATIC_INLINE UINT64 OsCycle2MS(UINT64 cycle)
  *
  * @retval Number of microseconds obtained through the conversion. Cycles are successfully converted to microseconds.
  * @par Dependency:
- * <ul><li>los_sys_pri.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 STATIC_INLINE UINT64 OsCycle2US(UINT64 cycle)

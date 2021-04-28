@@ -29,8 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LOS_ATOMIC_H
-#define LOS_ATOMIC_H
+#ifndef _LOS_ARCH_ATOMIC_H
+#define _LOS_ARCH_ATOMIC_H
 
 #include "los_compiler.h"
 
@@ -41,7 +41,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * @ingroup  los_atomic
+ * @ingroup  los_arch_atomic
  * @brief Atomic exchange for 32-bit variable.
  *
  * @par Description:
@@ -54,7 +54,7 @@ extern "C" {
  *
  * @retval #INT32       The previous value of the atomic variable
  * @par Dependency:
- * <ul><li>los_atomic.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_arch_atomic.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
 STATIC INLINE INT32 HalAtomicXchg32bits(volatile INT32 *v, INT32 val)
@@ -74,7 +74,7 @@ STATIC INLINE INT32 HalAtomicXchg32bits(volatile INT32 *v, INT32 val)
 }
 
 /**
- * @ingroup  los_atomic
+ * @ingroup  los_arch_atomic
  * @brief Atomic auto-decrement.
  *
  * @par Description:
@@ -89,7 +89,7 @@ STATIC INLINE INT32 HalAtomicXchg32bits(volatile INT32 *v, INT32 val)
  *
  * @retval #INT32  The return value of variable auto-decrement.
  * @par Dependency:
- * <ul><li>los_atomic.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_arch_atomic.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
 STATIC INLINE INT32 HalAtomicDecRet(volatile INT32 *v)
@@ -110,7 +110,7 @@ STATIC INLINE INT32 HalAtomicDecRet(volatile INT32 *v)
 }
 
 /**
- * @ingroup  los_atomic
+ * @ingroup  los_arch_atomic
  * @brief Atomic exchange for 32-bit variable with compare.
  *
  * @par Description:
@@ -125,7 +125,7 @@ STATIC INLINE INT32 HalAtomicDecRet(volatile INT32 *v)
  * @retval TRUE  The previous value of the atomic variable is not equal to oldVal.
  * @retval FALSE The previous value of the atomic variable is equal to oldVal.
  * @par Dependency:
- * <ul><li>los_atomic.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_arch_atomic.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
 STATIC INLINE BOOL HalAtomicCmpXchg32bits(volatile INT32 *v, INT32 val, INT32 oldVal)
@@ -154,5 +154,5 @@ STATIC INLINE BOOL HalAtomicCmpXchg32bits(volatile INT32 *v, INT32 val, INT32 ol
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* LOS_ATOMIC_H */
+#endif /* _LOS_ARCH_ATOMIC_H */
 

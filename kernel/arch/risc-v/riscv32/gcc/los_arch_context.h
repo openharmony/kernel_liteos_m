@@ -42,7 +42,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * @ingroup los_hw
+ * @ingroup los_arch_context
  * The initialization value of stack space.
  */
 #define EMPTY_STACK                 0xCACA
@@ -77,7 +77,7 @@ extern "C" {
 #define T0_INIT_VALUE  0x30303030L
 
 /**
- * @ingroup los_hw
+ * @ingroup los_arch_context
  * Define the type of a task context control block.
  */
 typedef struct {
@@ -134,7 +134,7 @@ extern VOID HalStartToRun(VOID);
 extern VOID HalTaskContextSwitch(UINTPTR intSave);
 
 /**
- * @ingroup los_hw
+ * @ingroup los_arch_context
  * @brief Wait for interrupt.
  *
  * @par Description:
@@ -148,13 +148,13 @@ extern VOID HalTaskContextSwitch(UINTPTR intSave);
  * @retval: None.
  *
  * @par Dependency:
- * los_hw.h: the header file that contains the API declaration.
+ * los_arch_context.h: the header file that contains the API declaration.
  * @see None.
  */
 extern VOID wfi(VOID);
 
 /**
- * @ingroup los_hw
+ * @ingroup los_arch_context
  * @brief: mem fence function.
  *
  * @par Description:
@@ -167,13 +167,13 @@ extern VOID wfi(VOID);
  *
  * @retval:None.
  * @par Dependency:
- * <ul><li>los_hw.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_arch_context.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern VOID mb(VOID);
 
 /**
- * @ingroup los_hw
+ * @ingroup los_arch_context
  * @brief: mem fence function.
  *
  * @par Description:
@@ -186,7 +186,7 @@ extern VOID mb(VOID);
  *
  * @retval:None.
  * @par Dependency:
- * <ul><li>los_hw.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_arch_context.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern VOID dsb(VOID);
@@ -197,4 +197,4 @@ extern VOID dsb(VOID);
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* _LOS_HW_H */
+#endif /* _LOS_ARCH_CONTEXT_H */

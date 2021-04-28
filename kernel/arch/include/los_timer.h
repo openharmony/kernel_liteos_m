@@ -29,8 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LOS_TIMER_H
-#define LOS_TIMER_H
+#ifndef _LOS_TIMER_H
+#define _LOS_TIMER_H
 
 #include "los_compiler.h"
 
@@ -90,7 +90,7 @@ VOID HalEnterSleep(LOS_SysSleepEnum sleep);
 UINT64 HalGetTickCycle(UINT32 *period);
 
 /**
- * @ingroup los_hwi
+ * @ingroup los_timer
  * @brief reconfig systick, and clear SysTick_IRQn.
  *
  * @par Description:
@@ -106,7 +106,7 @@ UINT64 HalGetTickCycle(UINT32 *period);
  *
  * @retval None.
  * @par Dependency:
- * <ul><li>los_hwi.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_timer.h: the header file that contains the API declaration.</li></ul>
  * @see None
  */
 extern VOID HalSysTickReload(UINT64 nextResponseTime);
@@ -117,4 +117,4 @@ extern VOID HalSysTickReload(UINT64 nextResponseTime);
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif
+#endif /* _LOS_TIMER_H */

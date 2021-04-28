@@ -29,8 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LOS_ATOMIC_H
-#define LOS_ATOMIC_H
+#ifndef _LOS_ATOMIC_H
+#define _LOS_ATOMIC_H
 
 #include "los_compiler.h"
 
@@ -47,5 +47,5 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* LOS_ATOMIC_H */
+#endif /* _LOS_ATOMIC_H */
 
