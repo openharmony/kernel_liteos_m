@@ -40,8 +40,6 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-extern UINT64 g_ullTickCount;
-
 VOID ItLosSem001(void);
 VOID ItLosSem002(void);
 VOID ItLosSem003(void);

@@ -33,11 +33,14 @@
 #include "It_los_swtmr.h"
 
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
+static  UINT32 g_swtmrCount1;
+static  UINT32 g_swtmrCount2;
+static  UINT32 g_swtmrCount3;
 static VOID Case1(UINT32 arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
-    g_uwsTick1 = g_ullTickCount;
+    g_swtmrCount1++;
     g_testCount++;
     return;
 }
@@ -45,7 +48,7 @@ static VOID Case1(UINT32 arg)
 static VOID Case2(UINT32 arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
-    g_uwsTick2 = g_ullTickCount;
+    g_swtmrCount2++;
     g_testCount++;
     return;
 }
@@ -53,7 +56,7 @@ static VOID Case2(UINT32 arg)
 static VOID Case3(UINT32 arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
-    g_uwsTick3 = g_ullTickCount;
+    g_swtmrCount3++;
     g_testCount++;
     return;
 }
@@ -66,6 +69,9 @@ static UINT32 Testcase(VOID)
     UINT32 swtmrId3;
 
     g_testCount = 0;
+    g_swtmrCount1 = 0;
+    g_swtmrCount2 = 0;
+    g_swtmrCount3 = 0;
 
     // 20, Timeout interval of a periodic software timer.
     ret = LOS_SwtmrCreate(20, LOS_SWTMR_MODE_PERIOD, Case1, &swtmrId1, 0xffff, OS_SWTMR_ROUSES_ALLOW,
@@ -99,8 +105,8 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_TaskDelay(10); // 10, set delay time.
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    ICUNIT_GOTO_EQUAL(g_uwsTick2 - g_uwsTick1, 0, g_uwsTick2 - g_uwsTick1, EXIT);
-    ICUNIT_GOTO_EQUAL(g_uwsTick3 - g_uwsTick2, 0, g_uwsTick3 - g_uwsTick2, EXIT);
+    ICUNIT_GOTO_EQUAL(g_swtmrCount2 - g_swtmrCount2, 0, g_swtmrCount2 - g_swtmrCount1, EXIT);
+    ICUNIT_GOTO_EQUAL(g_swtmrCount3 - g_swtmrCount2, 0, g_swtmrCount3 - g_swtmrCount2, EXIT);
     // 3, Here, assert that g_testCount is equal to this .
     ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT);
 

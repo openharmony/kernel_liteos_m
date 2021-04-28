@@ -33,11 +33,11 @@
 #include "It_los_swtmr.h"
 
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 static VOID Case1(UINT32 arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
-    g_uwsTick1 = g_ullTickCount;
+    g_uwsTick1 = LOS_TickCountGet();
     g_testCount++;
     return;
 }
@@ -46,7 +46,7 @@ static VOID Case2(UINT32 arg)
 {
     UINT16 align;
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
-    g_uwsTick2 = g_ullTickCount;
+    g_uwsTick2 = LOS_TickCountGet();
     align = g_uwsTick2 - g_uwsTick1;
     ICUNIT_ASSERT_NOT_EQUAL_VOID(align, 0, align);
     g_testCount++;
@@ -57,7 +57,7 @@ static VOID Case3(UINT32 arg)
 {
     UINT16 align;
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
-    g_uwsTick3 = g_ullTickCount;
+    g_uwsTick3 = LOS_TickCountGet();
     align = g_uwsTick3 - g_uwsTick2;
     ICUNIT_ASSERT_NOT_EQUAL_VOID(align, 0, align);
     g_testCount++;
@@ -78,13 +78,13 @@ static UINT32 Testcase(VOID)
         OS_SWTMR_ALIGN_INSENSITIVE);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    // 8, Timeout interval of a periodic software timer.
-    ret = LOS_SwtmrCreate(8, LOS_SWTMR_MODE_PERIOD, Case2, &swtmrId2, 0xffff, OS_SWTMR_ROUSES_ALLOW,
+    // 9, Timeout interval of a periodic software timer.
+    ret = LOS_SwtmrCreate(9, LOS_SWTMR_MODE_PERIOD, Case2, &swtmrId2, 0xffff, OS_SWTMR_ROUSES_ALLOW,
         OS_SWTMR_ALIGN_INSENSITIVE);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    // 9, Timeout interval of a periodic software timer.
-    ret = LOS_SwtmrCreate(9, LOS_SWTMR_MODE_PERIOD, Case3, &swtmrId3, 0xffff, OS_SWTMR_ROUSES_ALLOW,
+    // 11, Timeout interval of a periodic software timer.
+    ret = LOS_SwtmrCreate(11, LOS_SWTMR_MODE_PERIOD, Case3, &swtmrId3, 0xffff, OS_SWTMR_ROUSES_ALLOW,
         OS_SWTMR_ALIGN_INSENSITIVE);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 

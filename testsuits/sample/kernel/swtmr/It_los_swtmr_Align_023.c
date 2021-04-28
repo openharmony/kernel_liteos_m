@@ -33,11 +33,11 @@
 #include "It_los_swtmr.h"
 
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 static VOID Case1(UINT32 arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
-    g_uwsTick1 = g_ullTickCount;
+    g_uwsTick1 = LOS_TickCountGet();
     g_testCount++;
     return;
 }
@@ -46,7 +46,7 @@ static VOID Case2(UINT32 arg)
 {
     UINT16 align;
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
-    g_uwsTick2 = g_ullTickCount;
+    g_uwsTick2 = LOS_TickCountGet();
     align = g_uwsTick2 - g_uwsTick1;
     ICUNIT_ASSERT_NOT_EQUAL_VOID(align, 0, align);
     g_testCount++;
@@ -57,7 +57,7 @@ static VOID Case3(UINT32 arg)
 {
     UINT16 align;
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
-    g_uwsTick3 = g_ullTickCount;
+    g_uwsTick3 = LOS_TickCountGet();
     printf("g_uwsTick3=%d\n", g_uwsTick3);
     align = g_uwsTick3 - g_uwsTick2;
     ICUNIT_ASSERT_NOT_EQUAL_VOID(align, 0, align);

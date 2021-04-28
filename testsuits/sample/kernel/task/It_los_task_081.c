@@ -41,9 +41,9 @@ static VOID TaskF01(VOID)
     ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT);
     g_testCount++;
 
-    tick1 = g_ullTickCount;
+    tick1 = LOS_TickCountGet();
     LOS_TaskDelay(10); // 10, set delay time
-    tick2 = g_ullTickCount;
+    tick2 = LOS_TickCountGet();
 
     ICUNIT_GOTO_EQUAL((tick2 - tick1), 10, (tick2 - tick1), EXIT); // 10, Here, assert that result is equal to 10.
 
@@ -69,9 +69,9 @@ static VOID TaskF02(VOID)
     ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT); // 3, Here, assert that g_testCount is equal to 3.
     g_testCount++;
 
-    tick1 = g_ullTickCount;
+    tick1 = LOS_TickCountGet();
     ret = LOS_SemPend(semHandle, 10); // 10, suspend with wait time.
-    tick2 = g_ullTickCount;
+    tick2 = LOS_TickCountGet();
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SEM_TIMEOUT, ret, EXIT);
 
     ICUNIT_GOTO_EQUAL((tick2 - tick1), 10, (tick2 - tick1), EXIT); // 10, Here, assert that result is equal to 10.

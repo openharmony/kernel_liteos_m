@@ -33,7 +33,7 @@
 #include "It_los_swtmr.h"
 
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 static VOID Case1(UINT32 arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
@@ -44,8 +44,8 @@ static VOID Case1(UINT32 arg)
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
-    UINT16 swtmrId1;
-    UINT16 swtmrId2;
+    UINT32 swtmrId1;
+    UINT32 swtmrId2;
     // 4, Timeout interval of a periodic software timer.
     ret = LOS_SwtmrCreate(4, LOS_SWTMR_MODE_PERIOD, Case1, &swtmrId1, 0xffff, OS_SWTMR_ROUSES_ALLOW, -1);
     ICUNIT_ASSERT_EQUAL(ret, OS_ERRNO_SWTMR_ALIGN_INVALID, ret);

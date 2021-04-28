@@ -42,9 +42,9 @@ static VOID TaskF01(void)
 
     g_testCount++;
 
-    osStartTime = g_ullTickCount;
+    osStartTime = LOS_TickCountGet();
     ret = LOS_SemPend(g_usSemID, 1000); // 1000, Timeout interval of sem.
-    osEndTime = g_ullTickCount;
+    osEndTime = LOS_TickCountGet();
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_ERRNO_SEM_TIMEOUT, ret);
 
     tickNum = (osEndTime - osStartTime);

@@ -94,7 +94,7 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_SwtmrTimeGet(swTmrID, &tick);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    ICUNIT_GOTO_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime, tick, EXIT);
+    ICUNIT_GOTO_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime - 1, tick, EXIT);
 
     ret = LOS_TaskDelay(7); // 7, set delay time.
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);

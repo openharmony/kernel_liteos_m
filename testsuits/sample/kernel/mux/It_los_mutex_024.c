@@ -68,7 +68,7 @@ static UINT32 Testcase(VOID)
 
     ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount); // 1, Here, assert that g_testCount is equal to 1.
 
-    LOS_TaskDelay(100); // 100, set delay time.
+    LOS_TaskDelay(101); // 101, set delay time.
 
     ICUNIT_ASSERT_EQUAL(g_testCount, 2, g_testCount); // 2, Here, assert that g_testCount is equal to 2.
 

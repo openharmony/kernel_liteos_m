@@ -49,7 +49,7 @@ static VOID TaskF01(VOID)
     g_testCount++;
 
     ret = LOS_TaskDelay(0);
-    ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_ERRNO_TSK_YIELD_NOT_ENOUGH_TASK, ret);
+    ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
 
