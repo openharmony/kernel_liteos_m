@@ -106,7 +106,7 @@
 #define GET_QUEUE_LIST(ptr) LOS_DL_LIST_ENTRY(ptr, LosQueueCB, readWriteList[OS_QUEUE_WRITE])
 
 #define STATIC static
-#define INLNIE inline
+#define INLINE inline
 
 typedef union send_receive_t {
     unsigned oth : 3;
