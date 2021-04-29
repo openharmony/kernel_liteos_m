@@ -490,6 +490,16 @@ LITE_OS_SEC_TEXT_INIT VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, U
     HalSysExit();
 }
 
+/* stack protector */
+WEAK UINT32 __stack_chk_guard = 0xd00a0dff;
+
+WEAK VOID __stack_chk_fail(VOID)
+{
+    /* __builtin_return_address is a builtin function, building in gcc */
+    LOS_Panic("stack-protector: Kernel stack is corrupted in: %p\n",
+              __builtin_return_address(0));
+}
+
 /* ****************************************************************************
  Function    : HalHwiInit
  Description : initialization of the hardware interrupt

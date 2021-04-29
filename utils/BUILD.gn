@@ -31,6 +31,7 @@ static_library("utils") {
   sources = [
     "los_debug.c",
     "los_error.c",
+    "los_hook.c",
   ]
 
   include_dirs = [

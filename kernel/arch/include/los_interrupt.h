@@ -62,6 +62,11 @@ typedef VOID (*HWI_PROC_FUNC)(VOID *parm);
 typedef VOID (*HWI_PROC_FUNC)(void);
 #endif
 
+/* stack protector */
+extern UINT32 __stack_chk_guard;
+
+extern VOID __stack_chk_fail(VOID);
+
 UINT32 HalIsIntActive(VOID);
 #define OS_INT_ACTIVE    (HalIsIntActive())
 #define OS_INT_INACTIVE  (!(OS_INT_ACTIVE))

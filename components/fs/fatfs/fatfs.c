@@ -29,12 +29,11 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define _GNU_SOURCE 1
 #include "ff.h"
-#if FF_USE_EXPAND
-#define _GNU_SOURCE
-#endif
 #include "fatfs.h"
 #include "errno.h"
+#include "stdbool.h"
 #include "limits.h"
 #include "pthread.h"
 #include "time.h"
