@@ -50,45 +50,45 @@ typedef unsigned mode_t;
 #endif
 
 typedef struct {
-	uint8_t useFlag;
-	lfs_file_t file;
+    uint8_t useFlag;
+    lfs_file_t file;
 } LittleFsHandleStruct;
 
 struct MountOps {
-	int (*Mount)(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
-		const void *data);
-	int (*Umount)(const char* target);
+    int (*Mount)(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
+        const void *data);
+    int (*Umount)(const char* target);
 };
 
 struct fsmap_t {
-	const char *fileSystemtype;
-	const struct MountOps *fs_mops;
+    const char *fileSystemtype;
+    const struct MountOps *fs_mops;
 };
 
 struct FileOps {
-	int (*Open)(const char *path, int openFlag, int mode);
-	int (*Close)(int fd);
-	int (*Unlink)(const char *fileName);
-	int (*Rmdir)(const char *dirName);
-	int (*Mkdir)(const char *dirName, mode_t mode);
-	struct dirent *(*Readdir)(DIR *dir);
-	DIR *(*Opendir)(const char *dirName);
-	int (*Closedir)(DIR *dir);
-	int (*Read)(int fd, void *buf, size_t len);
-	int (*Write)(int fd, const void *buf, size_t len);
-	int (*Seek)(int fd, off_t offset, int whence);
-	int (*Getattr)(const char *path, struct stat *buf);
-	int (*Rename)(const char *oldName, const char *newName);
-	int (*Fsync)(int fd);
+    int (*Open)(const char *path, int openFlag, int mode);
+    int (*Close)(int fd);
+    int (*Unlink)(const char *fileName);
+    int (*Rmdir)(const char *dirName);
+    int (*Mkdir)(const char *dirName, mode_t mode);
+    struct dirent *(*Readdir)(DIR *dir);
+    DIR *(*Opendir)(const char *dirName);
+    int (*Closedir)(DIR *dir);
+    int (*Read)(int fd, void *buf, size_t len);
+    int (*Write)(int fd, const void *buf, size_t len);
+    int (*Seek)(int fd, off_t offset, int whence);
+    int (*Getattr)(const char *path, struct stat *buf);
+    int (*Rename)(const char *oldName, const char *newName);
+    int (*Fsync)(int fd);
 };
 
 typedef struct {
-	struct FileOps *fsVops;
+    struct FileOps *fsVops;
 } FileOpInfo;
 
 typedef struct {
-	uint8_t useFlag;
-	lfs_dir_t dir;
+    uint8_t useFlag;
+    lfs_dir_t dir;
 } FileDirInfo;
 
 #define LITTLE_FS_MAX_OPEN_FILES 100
@@ -108,7 +108,7 @@ LittleFsHandleStruct *GetFreeFd(int *fd);
 
 int InitMountInfo(const char *fileSystemType, const struct MountOps *fsMops);
 int LfsMount(const char *source, const char *target, const char *fileSystemType, unsigned long mountflags,
-	const void *data);
+    const void *data);
 
 int LfsUmount(const char *target);
 int LfsUnlink(const char *fileName);
@@ -127,6 +127,6 @@ int LfsStat(const char *path, struct stat *buf);
 int LfsFsync(int fd);
 
 FileOpInfo GetFsOpInfo(void);
-const struct fsmap_t *mount_findfs(const char *filesystemtype);
+const struct fsmap_t *MountFindfs(const char *filesystemtype);
 
 

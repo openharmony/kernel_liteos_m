@@ -43,242 +43,250 @@ static pthread_mutex_t g_FslocalMutex = PTHREAD_MUTEX_INITIALIZER;
 
 FileOpInfo GetFsOpInfo(void)
 {
-	return g_fsOp;
+    return g_fsOp;
 }
 
 LittleFsHandleStruct *GetFreeFd(int *fd)
 {
-	for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
-		if (g_handle[i].useFlag == 0) {
-			*fd = i;
-			g_handle[i].useFlag = 1;
-			return &(g_handle[i]);
-		}		
-	}
-
-	*fd = INVALID_FD;
-	return NULL;
+    pthread_mutex_lock(&g_FslocalMutex);
+    for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
+        if (g_handle[i].useFlag == 0) {
+            *fd = i;
+            g_handle[i].useFlag = 1;
+            pthread_mutex_unlock(&g_FslocalMutex);
+            return &(g_handle[i]);
+        }        
+    }
+    pthread_mutex_unlock(&g_FslocalMutex);
+    *fd = INVALID_FD;
+    return NULL;
 }
 
 lfs_dir_t *GetFreeDir()
 {
-	for (int i = 0; i < LFS_MAX_OPEN_DIRS; i++) {
-		if (g_lfsDir[i].useFlag == 0) {
-			g_lfsDir[i].useFlag = 1;
-			return &(g_lfsDir[i].dir);
-		}
-	}
-
-	return NULL;
+    pthread_mutex_lock(&g_FslocalMutex);
+    for (int i = 0; i < LFS_MAX_OPEN_DIRS; i++) {
+        if (g_lfsDir[i].useFlag == 0) {
+            g_lfsDir[i].useFlag = 1;
+            pthread_mutex_unlock(&g_FslocalMutex);
+            return &(g_lfsDir[i].dir);
+        }
+    }
+    pthread_mutex_unlock(&g_FslocalMutex);
+    return NULL;
 }
 
 int InitMountInfo(const char *fileSystemType, const struct MountOps *fsMops)
 {
-	int len = strlen(fileSystemType) + 1;
-	for (int i = 0; i < MAX_FILE_SYSTEM_LEN; i++) {
-		if (g_fsmap[i].fileSystemtype == NULL) {
-			g_fsmap[i].fileSystemtype = (char*)malloc(len);
-			memcpy_s(g_fsmap[i].fileSystemtype, len, fileSystemType, len);
-			g_fsmap[i].fs_mops = fsMops;
-			return VFS_OK;
-		}
-	}
+    int len = strlen(fileSystemType) + 1;
+    for (int i = 0; i < MAX_FILE_SYSTEM_LEN; i++) {
+        if (g_fsmap[i].fileSystemtype == NULL) {
+            g_fsmap[i].fileSystemtype = (char*)malloc(len);
+            memcpy_s(g_fsmap[i].fileSystemtype, len, fileSystemType, len);
+            g_fsmap[i].fs_mops = fsMops;
+            return VFS_OK;
+        }
+    }
 
-	return VFS_ERROR;
+    return VFS_ERROR;
 }
 
-const struct fsmap_t *mount_findfs(const char*fileSystemtype)
+const struct fsmap_t *MountFindfs(const char*fileSystemtype)
 {
-	struct fsmap_t *m = NULL;
+    struct fsmap_t *m = NULL;
 
-	for (int i = 0; i < MAX_FILE_SYSTEM_LEN; i++) {
-		m = &(g_fsmap[i]);
-		if (m->fileSystemtype && strcmp(fileSystemtype, m->fileSystemtype) == 0) {
-			return m;
-		}
-	}
+    for (int i = 0; i < MAX_FILE_SYSTEM_LEN; i++) {
+        m = &(g_fsmap[i]);
+        if (m->fileSystemtype && strcmp(fileSystemtype, m->fileSystemtype) == 0) {
+            return m;
+        }
+    }
 
-	return (const struct fsmap_t *)NULL;
+    return (const struct fsmap_t *)NULL;
 }
 
 const struct MountOps g_fsMnt = {
-	.Mount = LfsMount,
-	.Umount = LfsUmount,
+    .Mount = LfsMount,
+    .Umount = LfsUmount,
 };
 
 const struct FileOps lfs_vops = {
-	.Mkdir = LfsMkdir,
-	.Unlink = LfsUnlink,
-	.Rmdir = LfsRmdir,
-	.Opendir = LfsOpendir,
-	.Readdir = LfsReaddir,
-	.Closedir = LfsClosedir,
-	.Open = LfsOpen,
-	.Close = LfsClose,
-	.Write = LfsWrite,
-	.Read = LfsRead,
-	.Seek = LfsSeek,
-	.Rename = LfsRename,
-	.Getattr = LfsStat,
-	.Fsync = LfsFsync,
+    .Mkdir = LfsMkdir,
+    .Unlink = LfsUnlink,
+    .Rmdir = LfsRmdir,
+    .Opendir = LfsOpendir,
+    .Readdir = LfsReaddir,
+    .Closedir = LfsClosedir,
+    .Open = LfsOpen,
+    .Close = LfsClose,
+    .Write = LfsWrite,
+    .Read = LfsRead,
+    .Seek = LfsSeek,
+    .Rename = LfsRename,
+    .Getattr = LfsStat,
+    .Fsync = LfsFsync,
 };
 
 int LfsMount(const char * source, const char * target, const char * fileSystemType, unsigned long mountflags,
-	const void * data)
+    const void * data)
 {
-	int ret;
+    int ret;
 
-	g_fsOp.fsVops = &lfs_vops;
-	ret = lfs_mount(&g_lfs, (struct lfs_config*)data);
+    g_fsOp.fsVops = &lfs_vops;
+    ret = lfs_mount(&g_lfs, (struct lfs_config*)data);
 
-	return ret;
+    return ret;
 }
 
 int LfsUmount(const char * target)
 {
-	return lfs_unmount(&g_lfs);
+    return lfs_unmount(&g_lfs);
 }
 
 int LfsUnlink(const char * fileName)
 {
-	return lfs_remove(&g_lfs, fileName);
+    return lfs_remove(&g_lfs, fileName);
 }
 
 int LfsMkdir(const char * dirName, mode_t mode)
 {
-	return lfs_mkdir(&g_lfs, dirName);
+    return lfs_mkdir(&g_lfs, dirName);
 }
 
 int LfsRmdir(const char * dirName)
 {
-	return lfs_remove(&g_lfs, dirName);
+    return lfs_remove(&g_lfs, dirName);
 }
 
 DIR *LfsOpendir(const char * dirName)
 {
-	int ret;
+    int ret;
 
-	lfs_dir_t *dir = GetFreeDir();
-	if (dir == NULL) {
-		return NULL;
-	}
+    lfs_dir_t *dir = GetFreeDir();
+    if (dir == NULL) {
+        return NULL;
+    }
 
-	ret = lfs_dir_open(&g_lfs, dir, dirName);
+    ret = lfs_dir_open(&g_lfs, dir, dirName);
 
-	if (ret == 0) {
-		return (DIR *)dir;
-	} else {
-		return NULL;
-	}
+    if (ret == 0) {
+        return (DIR *)dir;
+    } else {
+        return NULL;
+    }
 }
 
 struct dirent *LfsReaddir(DIR * dir)
 {
-	int ret;
-	struct lfs_info lfsInfo;
+    int ret;
+    struct lfs_info lfsInfo;
 
-	ret = lfs_dir_read(&g_lfs, (lfs_dir_t *)dir, &lfsInfo);
-	if (ret == 0) {
-		(void)memcpy_s(g_nameValue.d_name, sizeof(g_nameValue.d_name), lfsInfo.name, strlen(lfsInfo.name) + 1);
-		if (lfsInfo.type == LFS_TYPE_DIR) {
-			g_nameValue.d_type = DT_DIR;
-		} else if (lfsInfo.type == LFS_TYPE_REG) {
-			g_nameValue.d_type = DT_REG;
-		}
+    ret = lfs_dir_read(&g_lfs, (lfs_dir_t *)dir, &lfsInfo);
+    if (ret == 0) {
+        pthread_mutex_lock(&g_FslocalMutex);
+        (void)memcpy_s(g_nameValue.d_name, sizeof(g_nameValue.d_name), lfsInfo.name, strlen(lfsInfo.name) + 1);
+        if (lfsInfo.type == LFS_TYPE_DIR) {
+            g_nameValue.d_type = DT_DIR;
+        } else if (lfsInfo.type == LFS_TYPE_REG) {
+            g_nameValue.d_type = DT_REG;
+        }
 
-		g_nameValue.d_reclen = lfsInfo.size;
+        g_nameValue.d_reclen = lfsInfo.size;
+        pthread_mutex_unlock(&g_FslocalMutex);
 
-		return &g_nameValue;
-	}
+        return &g_nameValue;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 int LfsClosedir(DIR * dir)
 {
-	return lfs_dir_close(&g_lfs, (lfs_dir_t *)dir);
+    return lfs_dir_close(&g_lfs, (lfs_dir_t *)dir);
 }
 
 int LfsOpen(const char * path, int openFlag, int mode)
 {
-	int fd = INVALID_FD;
+    int fd = INVALID_FD;
 
-	LittleFsHandleStruct *fsHandle = GetFreeFd(&fd);
-	if (fd == INVALID_FD) {
-		goto errout;
-	}
+    LittleFsHandleStruct *fsHandle = GetFreeFd(&fd);
+    if (fd == INVALID_FD) {
+        goto errout;
+    }
 
-	int err = lfs_file_open(&g_lfs, &(fsHandle->file), path, openFlag);
-	if (err != 0) {
-		goto errout;
-	}
+    int err = lfs_file_open(&g_lfs, &(fsHandle->file), path, openFlag);
+    if (err != 0) {
+        goto errout;
+    }
 
-	return fd;
+    return fd;
 errout:
-	return INVALID_FD;	
+    return INVALID_FD;    
 }
 
 int LfsRead(int fd, void * buf, unsigned int len)
 {
-	if (fd >= LITTLE_FS_MAX_OPEN_FILES && fd < 0) {
-		return VFS_ERROR;
-	}
+    if (fd >= LITTLE_FS_MAX_OPEN_FILES && fd < 0) {
+        return VFS_ERROR;
+    }
 
-	return lfs_file_read(&g_lfs, &(g_handle[fd].file), buf, len);
+    return lfs_file_read(&g_lfs, &(g_handle[fd].file), buf, len);
 }
 
 int LfsWrite(int fd, const void * buf, unsigned int len)
 {
-	if (fd >= LITTLE_FS_MAX_OPEN_FILES && fd < 0) {
-		return VFS_ERROR;
-	}
+    if (fd >= LITTLE_FS_MAX_OPEN_FILES && fd < 0) {
+        return VFS_ERROR;
+    }
 
-	return lfs_file_write(&g_lfs, &(g_handle[fd].file), buf, len);
+    return lfs_file_write(&g_lfs, &(g_handle[fd].file), buf, len);
 }
 
 int LfsSeek(int fd, off_t offset, int whence)
 {
-	if (fd >= LITTLE_FS_MAX_OPEN_FILES && fd < 0) {
-		return VFS_ERROR;
-	}
+    if (fd >= LITTLE_FS_MAX_OPEN_FILES && fd < 0) {
+        return VFS_ERROR;
+    }
 
-	return lfs_file_seek(&g_lfs, &(g_handle[fd].file), offset, whence);
+    return lfs_file_seek(&g_lfs, &(g_handle[fd].file), offset, whence);
 }
 
 int LfsClose(int fd)
 {
-	int ret = VFS_ERROR;
+    int ret = VFS_ERROR;
 
-	if (fd >= LITTLE_FS_MAX_OPEN_FILES && fd < 0) {
-		return ret;
-	}
+    if (fd >= LITTLE_FS_MAX_OPEN_FILES && fd < 0) {
+        return ret;
+    }
 
-	ret = lfs_file_close(&g_lfs, &(g_handle[fd].file));
-	g_handle[fd].useFlag = 0;
+    ret = lfs_file_close(&g_lfs, &(g_handle[fd].file));
+    pthread_mutex_lock(&g_FslocalMutex);
+    g_handle[fd].useFlag = 0;
+    pthread_mutex_unlock(&g_FslocalMutex);
 
-	return ret;	
+    return ret;    
 }
 
 int LfsRename(const char * oldName, const char * newName)
 {
-	return lfs_rename(&g_lfs, oldName, newName);
+    return lfs_rename(&g_lfs, oldName, newName);
 }
 
 int LfsStat(const char * path, struct stat * buf)
 {
-	int ret;
-	struct lfs_info info;
+    int ret;
+    struct lfs_info info;
 
-	ret = lfs_stat(&g_lfs, path, &info);
-	if (ret == 0) {
-		buf->st_size = info.size;
-	}
+    ret = lfs_stat(&g_lfs, path, &info);
+    if (ret == 0) {
+        buf->st_size = info.size;
+    }
 
-	return ret;	
+    return ret;    
 }
 
 int LfsFsync(int fd)
 {
-	return lfs_file_sync(&g_lfs, &(g_handle[fd].file));
+    return lfs_file_sync(&g_lfs, &(g_handle[fd].file));
 }
 
