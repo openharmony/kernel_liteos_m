@@ -29,6 +29,9 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _LFS_API_H_
+#define _LFS_API_H_
+
 #include "bits/alltypes.h"
 #include "sys/stat.h"
 
@@ -130,4 +133,5 @@ int LfsFsync(int fd);
 FileOpInfo GetFsOpInfo(void);
 const struct FsMap *MountFindfs(const char *filesystemtype);
 
+#endif /* _LFS_API_H_ */
 
