@@ -29,6 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "los_mpu.h"
+#include "los_config.h"
 #include "los_context.h"
 
 
