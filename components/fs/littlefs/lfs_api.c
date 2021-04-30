@@ -91,7 +91,7 @@ int InitMountInfo(const char *fileSystemType, const struct MountOps *fsMops)
     return VFS_ERROR;
 }
 
-const struct fsmap_t *MountFindfs(const char*fileSystemtype)
+const struct fsmap_t *MountFindfs(const char *fileSystemtype)
 {
     struct fsmap_t *m = NULL;
 
@@ -127,8 +127,8 @@ const struct FileOps lfs_vops = {
     .Fsync = LfsFsync,
 };
 
-int LfsMount(const char * source, const char * target, const char * fileSystemType, unsigned long mountflags,
-    const void * data)
+int LfsMount(const char *source, const char *target, const char *fileSystemType, unsigned long mountflags,
+    const void *data)
 {
     int ret;
 
@@ -138,27 +138,27 @@ int LfsMount(const char * source, const char * target, const char * fileSystemTy
     return ret;
 }
 
-int LfsUmount(const char * target)
+int LfsUmount(const char *target)
 {
     return lfs_unmount(&g_lfs);
 }
 
-int LfsUnlink(const char * fileName)
+int LfsUnlink(const char *fileName)
 {
     return lfs_remove(&g_lfs, fileName);
 }
 
-int LfsMkdir(const char * dirName, mode_t mode)
+int LfsMkdir(const char *dirName, mode_t mode)
 {
     return lfs_mkdir(&g_lfs, dirName);
 }
 
-int LfsRmdir(const char * dirName)
+int LfsRmdir(const char *dirName)
 {
     return lfs_remove(&g_lfs, dirName);
 }
 
-DIR *LfsOpendir(const char * dirName)
+DIR *LfsOpendir(const char *dirName)
 {
     int ret;
 
@@ -176,7 +176,7 @@ DIR *LfsOpendir(const char * dirName)
     }
 }
 
-struct dirent *LfsReaddir(DIR * dir)
+struct dirent *LfsReaddir(DIR *dir)
 {
     int ret;
     struct lfs_info lfsInfo;
@@ -200,12 +200,12 @@ struct dirent *LfsReaddir(DIR * dir)
     return NULL;
 }
 
-int LfsClosedir(DIR * dir)
+int LfsClosedir(DIR *dir)
 {
     return lfs_dir_close(&g_lfs, (lfs_dir_t *)dir);
 }
 
-int LfsOpen(const char * path, int openFlag, int mode)
+int LfsOpen(const char *path, int openFlag, int mode)
 {
     int fd = INVALID_FD;
 
@@ -224,7 +224,7 @@ errout:
     return INVALID_FD;    
 }
 
-int LfsRead(int fd, void * buf, unsigned int len)
+int LfsRead(int fd, void *buf, unsigned int len)
 {
     if (fd >= LITTLE_FS_MAX_OPEN_FILES && fd < 0) {
         return VFS_ERROR;
@@ -233,7 +233,7 @@ int LfsRead(int fd, void * buf, unsigned int len)
     return lfs_file_read(&g_lfs, &(g_handle[fd].file), buf, len);
 }
 
-int LfsWrite(int fd, const void * buf, unsigned int len)
+int LfsWrite(int fd, const void *buf, unsigned int len)
 {
     if (fd >= LITTLE_FS_MAX_OPEN_FILES && fd < 0) {
         return VFS_ERROR;
@@ -267,12 +267,12 @@ int LfsClose(int fd)
     return ret;    
 }
 
-int LfsRename(const char * oldName, const char * newName)
+int LfsRename(const char *oldName, const char *newName)
 {
     return lfs_rename(&g_lfs, oldName, newName);
 }
 
-int LfsStat(const char * path, struct stat * buf)
+int LfsStat(const char *path, struct stat *buf)
 {
     int ret;
     struct lfs_info info;
