@@ -47,7 +47,7 @@ typedef struct {
     UINT32 clearEvent;
 } EventCond;
 
-#define INLNIE inline
+#define INLINE inline
 
 #define BROADCAST_EVENT     1
 #define COND_COUNTER_STEP   0x0004U
