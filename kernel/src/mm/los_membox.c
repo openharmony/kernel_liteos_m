@@ -129,7 +129,7 @@ UINT32 LOS_MemboxInit(VOID *pool, UINT32 poolSize, UINT32 blkSize)
     }
 
     MEMBOX_LOCK(intSave);
-    boxInfo->uwBlkSize = LOS_MEMBOX_ALLIGNED(blkSize + OS_MEMBOX_NODE_HEAD_SIZE);
+    boxInfo->uwBlkSize = LOS_MEMBOX_ALIGNED(blkSize + OS_MEMBOX_NODE_HEAD_SIZE);
     if (boxInfo->uwBlkSize == 0) {
         MEMBOX_UNLOCK(intSave);
         return LOS_NOK;

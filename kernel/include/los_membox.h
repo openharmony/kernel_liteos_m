@@ -82,14 +82,14 @@ UINT32 OsMemboxExcInfoGet(UINT32 memNumMax, MemInfoCB *memExcInfo);
  * @ingroup los_membox
  * Memory pool alignment
  */
-#define LOS_MEMBOX_ALLIGNED(memAddr) (((UINTPTR)(memAddr) + sizeof(UINTPTR) - 1) & (~(sizeof(UINTPTR) - 1)))
+#define LOS_MEMBOX_ALIGNED(memAddr) (((UINTPTR)(memAddr) + sizeof(UINTPTR) - 1) & (~(sizeof(UINTPTR) - 1)))
 
 /**
  * @ingroup los_membox
  * Memory pool size
  */
 #define LOS_MEMBOX_SIZE(blkSize, blkNum) \
-    (sizeof(LOS_MEMBOX_INFO) + (LOS_MEMBOX_ALLIGNED((blkSize) + OS_MEMBOX_NODE_HEAD_SIZE) * (blkNum)))
+    (sizeof(LOS_MEMBOX_INFO) + (LOS_MEMBOX_ALIGNED((blkSize) + OS_MEMBOX_NODE_HEAD_SIZE) * (blkNum)))
 
 /**
  * @ingroup los_membox
