@@ -29,11 +29,12 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "lfs.h"
-#include "lfs_util.h"
-#include "dirent.h"
 #include "bits/alltypes.h"
 #include "sys/stat.h"
+
+#include "dirent.h"
+#include "lfs.h"
+#include "lfs_util.h"
 #include "memory.h"
 #include "pthread.h"
 
@@ -60,9 +61,9 @@ struct MountOps {
     int (*Umount)(const char* target);
 };
 
-struct fsmap_t {
+struct FsMap {
     const char *fileSystemtype;
-    const struct MountOps *fs_mops;
+    const struct MountOps *fsMops;
 };
 
 struct FileOps {
@@ -73,7 +74,7 @@ struct FileOps {
     int (*Mkdir)(const char *dirName, mode_t mode);
     struct dirent *(*Readdir)(DIR *dir);
     DIR *(*Opendir)(const char *dirName);
-    int (*Closedir)(DIR *dir);
+    int (*Closedir)(const DIR *dir);
     int (*Read)(int fd, void *buf, size_t len);
     int (*Write)(int fd, const void *buf, size_t len);
     int (*Seek)(int fd, off_t offset, int whence);
@@ -116,7 +117,7 @@ int LfsMkdir(const char *dirName, mode_t mode);
 int LfsRmdir(const char *dirName);
 DIR *LfsOpendir(const char *dirName);
 struct dirent *LfsReaddir(DIR *dir);
-int LfsClosedir(DIR *dir);
+int LfsClosedir(const DIR *dir);
 int LfsOpen(const char *path, int openFlag, int mode);
 int LfsRead(int fd, void *buf, unsigned int len);
 int LfsWrite(int fd, const void *buf, unsigned int len);
@@ -127,6 +128,6 @@ int LfsStat(const char *path, struct stat *buf);
 int LfsFsync(int fd);
 
 FileOpInfo GetFsOpInfo(void);
-const struct fsmap_t *MountFindfs(const char *filesystemtype);
+const struct FsMap *MountFindfs(const char *filesystemtype);
 
 

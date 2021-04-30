@@ -38,7 +38,7 @@ FileDirInfo g_lfsDir[LFS_MAX_OPEN_DIRS] = {0};
 FileOpInfo g_fsOp;
 static LittleFsHandleStruct g_handle[LITTLE_FS_MAX_OPEN_FILES] = {0};
 struct dirent g_nameValue;
-struct fsmap_t g_fsmap[MAX_FILE_SYSTEM_LEN] = {0};
+struct FsMap g_fsmap[MAX_FILE_SYSTEM_LEN] = {0};
 static pthread_mutex_t g_FslocalMutex = PTHREAD_MUTEX_INITIALIZER;
 
 FileOpInfo GetFsOpInfo(void)
@@ -83,7 +83,7 @@ int InitMountInfo(const char *fileSystemType, const struct MountOps *fsMops)
         if (g_fsmap[i].fileSystemtype == NULL) {
             g_fsmap[i].fileSystemtype = (char*)malloc(len);
             memcpy_s(g_fsmap[i].fileSystemtype, len, fileSystemType, len);
-            g_fsmap[i].fs_mops = fsMops;
+            g_fsmap[i].fsMops = fsMops;
             return VFS_OK;
         }
     }
@@ -91,9 +91,9 @@ int InitMountInfo(const char *fileSystemType, const struct MountOps *fsMops)
     return VFS_ERROR;
 }
 
-const struct fsmap_t *MountFindfs(const char *fileSystemtype)
+const struct FsMap *MountFindfs(const char *fileSystemtype)
 {
-    struct fsmap_t *m = NULL;
+    struct FsMap *m = NULL;
 
     for (int i = 0; i < MAX_FILE_SYSTEM_LEN; i++) {
         m = &(g_fsmap[i]);
@@ -102,7 +102,7 @@ const struct fsmap_t *MountFindfs(const char *fileSystemtype)
         }
     }
 
-    return (const struct fsmap_t *)NULL;
+    return (const struct FsMap *)NULL;
 }
 
 const struct MountOps g_fsMnt = {
@@ -110,7 +110,7 @@ const struct MountOps g_fsMnt = {
     .Umount = LfsUmount,
 };
 
-const struct FileOps lfs_vops = {
+const struct FileOps g_lfsVops = {
     .Mkdir = LfsMkdir,
     .Unlink = LfsUnlink,
     .Rmdir = LfsRmdir,
@@ -132,7 +132,7 @@ int LfsMount(const char *source, const char *target, const char *fileSystemType,
 {
     int ret;
 
-    g_fsOp.fsVops = &lfs_vops;
+    g_fsOp.fsVops = &g_lfsVops;
     ret = lfs_mount(&g_lfs, (struct lfs_config*)data);
 
     return ret;
@@ -200,7 +200,7 @@ struct dirent *LfsReaddir(DIR *dir)
     return NULL;
 }
 
-int LfsClosedir(DIR *dir)
+int LfsClosedir(const DIR *dir)
 {
     return lfs_dir_close(&g_lfs, (lfs_dir_t *)dir);
 }
