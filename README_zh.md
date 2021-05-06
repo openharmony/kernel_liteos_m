@@ -41,26 +41,52 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 
 ## 使用说明<a name="section3732185231214"></a>
 
-LiteOS-M内核提供了三种芯片架构的工程位于targets目录。三种架构的工程编译及使用方式如下：
+OpenHarmony LiteOS-M内核的编译构建系统是一个基于gn和ninja的组件化构建系统，支持按组件配置、裁剪和拼装，按需构建出定制化的产品。详细席信息可以参考[官方开源站点编译系统介绍](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/%E7%BC%96%E8%AF%91%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D.md)。GCC+Makefile、IAR、Keil MDK等编译方式可以参考社区爱好者贡献的站点。
 
--   cortex-m3：
+### 搭建系统基础环境
 
-kernel/liteos\_m/targets/cortex-m3\_stm32f103\_simulator\_keil目录是基于STM32F103芯片架构构建的keil工程目录，keil开发工具可通过网络下载并安装。进入cortex-m3\_stm32f103\_simulator\_keil/project目录，双击los\_demo.uvproj文件即可打开相应工程，编译成功后即可通过JLINK或者STM32 ST-LINK Utility烧录至对应单板。
+在搭建各个开发板环境前，需要完成OpenHarmony系统基础环境搭建。系统基础环境主要是指OpenHarmony的编译环境和开发环境。支持Windows开发环境、Linux开发环境、Docker方式、安装包方式等多种方式，详细请参考官方站点[搭建系统基础环境](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/%E6%90%AD%E5%BB%BA%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83.md)。需要根据环境搭建文档，完成的下述软件的安装：Python3.7+、gn、ninja、hb。
 
--   cortex-m4：
+对于LiteOS-M内核，还需要安装Make构建工具和[ARM GCC编译工具链](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)。
 
-kernel/liteos\_m/targets/cortex-m4\_stm32f429ig\_fire-challenger\_iar目录是基于STM32F429IG芯片架构构建的IAR工程目录，IAR开发工具可通过网络下载并安装。进入cortex-m4\_stm32f429ig\_fire-challenger\_iar/project目录，双击los\_demo.eww文件即可打开相应工程，编译成功后即可通过JLINK或者STM32 ST-LINK Utility烧录至对应单板。
+### 获取OpenHarmony源码
 
--   cortex-m7：
+开发者需要在Linux服务器上下载并解压一套源代码，获取OpenHarmony 源码（[下载链接](https://repo.huaweicloud.com/harmonyos/os/1.0.1/code-1.0.1.tar.gz)）。更多源码获取方式，请见[源码获取](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/get-code/%E6%BA%90%E7%A0%81%E8%8E%B7%E5%8F%96.md)。获取OpenHarmony完整仓代码后，假设检出目录为`~/openHarmony`。
 
-kernel/liteos\_m/targets/cortex-m7\_nucleo\_f767zi\_gcc目录是基于STM32F767ZI芯片架构构建的Makefile工程目录。编译方式如下：
+### 获取示例工程源码
+
+以开发板Nucleo-F767Zi开发板为例，演示如何编译运行OpenHarmony LiteOS-M内核工程。在本地目录，执行下述命令检出示例代码。
 
 ```
-cd kernel/liteos_m/targets/cortex-m7_nucleo_f767zi_gcc
-make clean; make
+git clone https://gitee.com/harylee/nucleo_f767zi.git
 ```
 
-编译成功后在cortex-m7\_nucleo\_f767zi\_gcc/build目录下生成NUCLEO-F767.hex可执行文件，通过烧录工具STM32 ST-LINK Utility烧录到对应的单板。
+假设检出目录为`~/nucleo_f767zi`。 执行如下命令把检出工程的device、vendor目录复制到openHarmony工程的相应目录。
+
+```
+cp -r ~/nucleo_f767zi/device/st ~/openHarmony/device/st
+
+cp -r ~/nucleo_f767zi/vendor/st ~/openHarmony/vendor/st
+```
+
+关于检出示例代码的解释，可以参考资料站点[板级目录规范](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/%E7%A7%BB%E6%A4%8D%E6%A6%82%E8%BF%B0-0.md#section6204129143013)。如果需要自行移植开发板，请参考[板级系统移植](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/%E6%9D%BF%E7%BA%A7%E7%B3%BB%E7%BB%9F%E7%A7%BB%E6%A4%8D.md)。
+
+### 编译运行
+
+编译运行前，交叉编译工具链`bin`目录配置到`PATH`环境变量中或者配置`device/st/nucleo_f767zi/liteos_m/config.gni`文件中`board_toolchain_path`宏为交叉编译工具链`bin`目录。
+在`OpenHarmony`根目录，执行`hb set`设置产品路径，选择`nucleo_f767zi`产品，然后执行`hb build`开启编译。如下：
+
+```
+user@dev:~/OpenHarmony$ hb set
+
+[OHOS INFO] Input code path: # 直接按回车，然后选择nucleo_f767zi产品即可
+
+OHOS Which product do you need? nucleo_f767zi@st
+
+user@dev:~/OpenHarmony$ hb build
+```
+
+最终的镜像生成在`~/openHarmony/out/nucleo_f767zi/`目录中，通过`STM32 ST-LINK Utility`软件将镜像文件下载至单板查看运行效果。
 
 ## 修改日志
 
