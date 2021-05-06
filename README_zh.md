@@ -41,27 +41,25 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 
 ## 使用说明<a name="section3732185231214"></a>
 
-OpenHarmony LiteOS-M内核的编译构建系统是一个基于gn和ninja的组件化构建系统，支持按组件配置、裁剪和拼装，按需构建出定制化的产品。详细信息可以参考[官方开源站点编译系统介绍](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/%E7%BC%96%E8%AF%91%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D.md)。本文主要介绍如何基于gn和ninja编译LiteOS-M工程，GCC+Makefile、IAR、Keil MDK等编译方式可以参考社区爱好者贡献的站点。
+OpenHarmony LiteOS-M内核的编译构建系统是一个基于gn和ninja的组件化构建系统，支持按组件配置、裁剪和拼装，按需构建出定制化的产品。编译构建系统的详细信息可以参考[官方开源站点编译系统介绍](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/%E7%BC%96%E8%AF%91%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D.md)。本文主要介绍如何基于gn和ninja编译LiteOS-M工程，GCC+Makefile、IAR、Keil MDK等编译方式可以参考社区爱好者贡献的站点。
 
 ### 搭建系统基础环境
 
-在搭建各个开发板环境前，需要完成OpenHarmony系统基础环境搭建。系统基础环境主要是指OpenHarmony的编译环境和开发环境，详细介绍请参考官方站点[搭建系统基础环境](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/%E6%90%AD%E5%BB%BA%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83.md)。需要根据环境搭建文档，完成下述软件的安装：Python3.7+、gn、ninja、hb。
-
-对于LiteOS-M内核，还需要安装Make构建工具和[ARM GCC编译工具链](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)。
+在搭建各个开发板环境前，需要完成OpenHarmony系统基础环境搭建。系统基础环境主要是指OpenHarmony的编译环境和开发环境，详细介绍请参考官方站点[搭建系统基础环境](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/%E6%90%AD%E5%BB%BA%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83.md)。开发者需要根据环境搭建文档，完成下述软件的安装：Python3.7+、gn、ninja、hb。对于LiteOS-M内核，还需要安装Make构建工具和[ARM GCC编译工具链](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)。
 
 ### 获取OpenHarmony源码
 
-开发者需要在Linux服务器上下载并解压一套源代码，可以直接[下载获取OpenHarmony 源码](https://repo.huaweicloud.com/harmonyos/os/1.0.1/code-1.0.1.tar.gz)。还可以通过Git检出等方式，更多源码获取方式，请见[源码获取](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/get-code/%E6%BA%90%E7%A0%81%E8%8E%B7%E5%8F%96.md)。获取OpenHarmony完整仓代码后，假设检出目录为`~/openHarmony`。
+开发者需要在Linux服务器上下载并解压一套源代码，可以直接[下载获取OpenHarmony 源码](https://repo.huaweicloud.com/harmonyos/os/1.0.1/code-1.0.1.tar.gz)，还可以通过Git克隆等方式，更多源码获取方式，请见[源码获取](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/get-code/%E6%BA%90%E7%A0%81%E8%8E%B7%E5%8F%96.md)。获取OpenHarmony完整仓代码后，假设克隆目录为`~/openHarmony`。
 
 ### 获取示例工程源码
 
-以开发板Nucleo-F767Zi为例，演示如何编译运行`OpenHarmony LiteOS-M`内核工程。在本地目录，执行下述命令检出示例代码。
+以开发板Nucleo-F767Zi为例，演示如何编译运行`OpenHarmony LiteOS-M`内核工程。在本地目录，执行下述命令克隆示例代码。
 
 ```
 git clone https://gitee.com/harylee/nucleo_f767zi.git
 ```
 
-假设检出目录为`~/nucleo_f767zi`。 执行如下命令把检出工程的`device`、`vendor`目录复制到`openHarmony`工程的相应目录。
+假设克隆到的代码目录为`~/nucleo_f767zi`。 执行如下命令把代码目录的`device`、`vendor`目录复制到`openHarmony`工程的相应目录。
 
 ```
 cp -r ~/nucleo_f767zi/device/st ~/openHarmony/device/st
@@ -69,7 +67,7 @@ cp -r ~/nucleo_f767zi/device/st ~/openHarmony/device/st
 cp -r ~/nucleo_f767zi/vendor/st ~/openHarmony/vendor/st
 ```
 
-关于检出示例代码的解释，可以参考资料站点[板级目录规范](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/%E7%A7%BB%E6%A4%8D%E6%A6%82%E8%BF%B0-0.md#section6204129143013)。如果需要自行移植开发板，请参考[板级系统移植](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/%E6%9D%BF%E7%BA%A7%E7%B3%BB%E7%BB%9F%E7%A7%BB%E6%A4%8D.md)。
+关于示例代码目录的说明，可以参考资料站点[板级目录规范](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/%E7%A7%BB%E6%A4%8D%E6%A6%82%E8%BF%B0-0.md#section6204129143013)。如果需要自行移植开发板，请参考[板级系统移植](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/%E6%9D%BF%E7%BA%A7%E7%B3%BB%E7%BB%9F%E7%A7%BB%E6%A4%8D.md)。
 
 ### 编译运行
 
