@@ -158,7 +158,7 @@ VOID OsSwtmrFindAlignPos(UINT64 currTime, SWTMR_CTRL_S *swtmr)
         }
         /* find same interval timer, directly return */
         if (cur->uwInterval == swtmr->uwInterval) {
-            swtmr->uwCount = 0;
+            swtmr->uwCount = OsSortLinkGetTargetExpireTime(currTime, &cur->stSortList);
             return;
         }
 
