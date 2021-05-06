@@ -157,7 +157,6 @@ int sem_timedwait(sem_t *sem, const struct timespec *timeout)
 {
     UINT32 ret;
     long long tickCnt;
-    struct timespec tsNow = { 0 };
 
     if ((sem == NULL) || (sem->s_magic != _SEM_MAGIC)) {
         errno = EINVAL;
