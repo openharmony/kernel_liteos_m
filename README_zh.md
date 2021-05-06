@@ -41,7 +41,7 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 
 ## 使用说明<a name="section3732185231214"></a>
 
-OpenHarmony LiteOS-M内核的编译构建系统是一个基于gn和ninja的组件化构建系统，支持按组件配置、裁剪和拼装，按需构建出定制化的产品。详细席信息可以参考[官方开源站点编译系统介绍](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/%E7%BC%96%E8%AF%91%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D.md)。GCC+Makefile、IAR、Keil MDK等编译方式可以参考社区爱好者贡献的站点。
+OpenHarmony LiteOS-M内核的编译构建系统是一个基于gn和ninja的组件化构建系统，支持按组件配置、裁剪和拼装，按需构建出定制化的产品。详细席信息可以参考[官方开源站点编译系统介绍](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/%E7%BC%96%E8%AF%91%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D.md)。本文主要介绍如何基于gn和ninja编译LiteOS-M工程，GCC+Makefile、IAR、Keil MDK等编译方式可以参考社区爱好者贡献的站点。
 
 ### 搭建系统基础环境
 
