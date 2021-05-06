@@ -168,7 +168,7 @@ typedef struct tagUserErrFunc {
 } UserErrFunc;
 
 
-enum LOS_MOUDLE_ID {
+enum LOS_MODULE_ID {
     LOS_MOD_SYS              = 0x0,
     LOS_MOD_MEM              = 0x1,
     LOS_MOD_TSK              = 0x2,
