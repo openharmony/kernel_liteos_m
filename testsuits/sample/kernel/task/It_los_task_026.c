@@ -38,7 +38,7 @@ static UINT32 TestCase(VOID)
     UINT32 ret;
 
     ret = LOS_TaskDelay(0);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_YIELD_NOT_ENOUGH_TASK, ret);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     return LOS_OK;
 }

@@ -33,11 +33,11 @@
 #include "It_los_swtmr.h"
 
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 static VOID Case1(UINT32 arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
-    g_uwsTick1 = g_ullTickCount;
+    g_uwsTick1 = LOS_TickCountGet();
     g_testCount++;
     return;
 }
@@ -45,7 +45,7 @@ static VOID Case1(UINT32 arg)
 static VOID Case2(UINT32 arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
-    g_uwsTick2 = g_ullTickCount;
+    g_uwsTick2 = LOS_TickCountGet();
     g_testCount++;
 
     return;

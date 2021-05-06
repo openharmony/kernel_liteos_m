@@ -44,7 +44,7 @@ static VOID TaskF02(VOID)
     LOS_TaskLock();
 
     // 2, modify task priority, base on testsuite task`s priority.
-    ret = LOS_CurTaskPriSet(TASK_PRIO_TEST - 2);
+    ret = LOS_CurTaskPriSet(TASK_PRIO_TEST - 1);
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
@@ -77,7 +77,7 @@ static VOID TaskF01(VOID)
     ret = LOS_TaskPriGet(g_testTaskID02);
 
     // 2, Assert this result is consistent with the priority that has been set.
-    ICUNIT_GOTO_EQUAL(ret, TASK_PRIO_TEST - 2, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(ret, TASK_PRIO_TEST - 1, ret, EXIT);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
     g_testCount++;

@@ -33,7 +33,7 @@
 #include "It_los_swtmr.h"
 
 
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 static VOID Case1(UINT32 arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
@@ -56,7 +56,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_SwtmrStart(swTmrID);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_TaskDelay(12); // 12, set delay time.
+    ret = LOS_TaskDelay(13); // 13, set delay time.
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     // 3, assert that g_testCount is equal to this.
     ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT);

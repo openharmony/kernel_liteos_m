@@ -81,7 +81,7 @@ static UINT32 Testcase(VOID)
 #ifdef LOS_HIMIDEER_RV32
     // 4, Timeout interval of a periodic software timer.
     ret = LOS_SwtmrCreate(4, LOS_SWTMR_MODE_NO_SELFDELETE, Case1, &swtmrId2, 0xffff
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
         , OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_INSENSITIVE
 #endif
     );

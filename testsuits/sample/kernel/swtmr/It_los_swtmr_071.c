@@ -77,7 +77,7 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_SwtmrTimeGet(g_swtmrId1, &tick);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    ICUNIT_GOTO_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime, tick, EXIT);
+    ICUNIT_GOTO_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime - 1, tick, EXIT);
 
     ret = LOS_SwtmrStop(g_swtmrId1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);

@@ -65,15 +65,15 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_SwtmrTimeGet(swTmrID, &tick);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    ICUNIT_GOTO_EQUAL(tick, TIMER_LOS_EXPIRATION1, tick, EXIT);
+    ICUNIT_GOTO_EQUAL(tick, TIMER_LOS_EXPIRATION1 - 1, tick, EXIT);
 
     ret = LOS_TaskDelay(10); // 10, set delay time.
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ret = LOS_SwtmrTimeGet(swTmrID, &tick);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    // 2, Here, assert that uwTick is equal to this .
-    ICUNIT_GOTO_EQUAL(tick, 2, tick, EXIT);
+    // 2 - 1, Here, assert that uwTick is equal to this .
+    ICUNIT_GOTO_EQUAL(tick, 2 - 1, tick, EXIT);
 
     // 2, Here, assert that g_testCount is equal to this .
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT);
