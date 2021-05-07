@@ -73,7 +73,7 @@ cp -r ~/nucleo_f767zi/vendor/st ~/openHarmony/vendor/st
 
 ### 编译运行
 
-编译运行前，交叉编译工具链`bin`目录配置到`PATH`环境变量中或者配置`device/st/nucleo_f767zi/liteos_m/config.gni`文件中`board_toolchain_path`宏为交叉编译工具链`bin`目录。
+编译运行前，交叉编译工具链`bin`目录配置到`PATH`环境变量中或者配置`device/st/nucleo_f767zi/liteos_m/config.gni`文件中`board_toolchain_path`配置项为交叉编译工具链`bin`目录。
 在`OpenHarmony`根目录，执行`hb set`设置产品路径，选择`nucleo_f767zi`产品，然后执行`hb build`开启编译。如下：
 
 ```
