@@ -46,16 +46,22 @@ FileOpInfo GetFsOpInfo(void)
     return g_fsOp;
 }
 
-LittleFsHandleStruct *GetFreeFd(int *fd)
+LittleFsHandleStruct *GetFreeFd(const char *fileName, int *fd)
 {
+    int len = strlen() + 1;
+
     pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
         if (g_handle[i].useFlag == 0) {
             *fd = i;
             g_handle[i].useFlag = 1;
+            g_handle[i].pathName = (char *)malloc(len);
+            if (g_handle[i].pathName) {
+                memcpy_s(g_handle[i].pathName, len, fileName, len);
+            }
             pthread_mutex_unlock(&g_FslocalMutex);
             return &(g_handle[i]);
-        }        
+        }
     }
     pthread_mutex_unlock(&g_FslocalMutex);
     *fd = INVALID_FD;
@@ -228,7 +234,7 @@ int LfsOpen(const char *pathName, int openFlag, int mode)
         return fd;
     }
 
-    LittleFsHandleStruct *fsHandle = GetFreeFd(&fd);
+    LittleFsHandleStruct *fsHandle = GetFreeFd(pathName, &fd);
     if (fd == INVALID_FD) {
         goto errout;
     }
