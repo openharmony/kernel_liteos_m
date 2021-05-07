@@ -62,6 +62,21 @@ LittleFsHandleStruct *GetFreeFd(int *fd)
     return NULL;
 }
 
+bool CheckFileIsOpen(const char *fileName, int *fd)
+{
+    for(int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
+        if(g_handle[i].useFlag == 1) {
+            if(strcmp(g_handle[i].pathName, fileName) == 0) {
+                *fd = i;
+                return true;
+            }
+        }
+    }
+
+    *fd = INVALID_FD;
+    return false;
+}
+
 lfs_dir_t *GetFreeDir()
 {
     pthread_mutex_lock(&g_FslocalMutex);
@@ -205,16 +220,20 @@ int LfsClosedir(const DIR *dir)
     return lfs_dir_close(&g_lfs, (lfs_dir_t *)dir);
 }
 
-int LfsOpen(const char *path, int openFlag, int mode)
+int LfsOpen(const char *pathName, int openFlag, int mode)
 {
     int fd = INVALID_FD;
+
+    if (CheckFileIsOpen(pathName, &fd)) {
+        return fd;
+    }
 
     LittleFsHandleStruct *fsHandle = GetFreeFd(&fd);
     if (fd == INVALID_FD) {
         goto errout;
     }
 
-    int err = lfs_file_open(&g_lfs, &(fsHandle->file), path, openFlag);
+    int err = lfs_file_open(&g_lfs, &(fsHandle->file), pathName, openFlag);
     if (err != 0) {
         goto errout;
     }
