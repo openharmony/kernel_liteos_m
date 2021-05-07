@@ -49,7 +49,7 @@ OpenHarmony LiteOS-M内核的编译构建系统是一个基于gn和ninja的组�
 
 ### 获取OpenHarmony源码
 
-开发者需要在Linux服务器上下载并解压一套源代码，可以直接[下载获取OpenHarmony 源码](https://repo.huaweicloud.com/harmonyos/os/1.0.1/code-1.0.1.tar.gz)，还可以通过Git克隆等方式，更多源码获取方式，请见[源码获取](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/get-code/%E6%BA%90%E7%A0%81%E8%8E%B7%E5%8F%96.md)。获取OpenHarmony完整仓代码后，假设克隆目录为`~/openHarmony`。
+开发者需要在Linux服务器上通过Git克隆获取OpenHarmony最新源码，详细的源码获取方式，请见[源码获取](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/get-code/%E6%BA%90%E7%A0%81%E8%8E%B7%E5%8F%96.md)。获取OpenHarmony完整仓代码后，假设克隆目录为`~/openHarmony`。
 
 ### 获取示例工程源码
 
@@ -62,7 +62,9 @@ git clone https://gitee.com/harylee/nucleo_f767zi.git
 假设克隆到的代码目录为`~/nucleo_f767zi`。 执行如下命令把代码目录的`device`、`vendor`目录复制到`openHarmony`工程的相应目录。
 
 ```
-cp -r ~/nucleo_f767zi/device/st ~/openHarmony/device/st
+cp -r ~/nucleo_f767zi/device/st/nucleo_f767zi ~/openHarmony/device/st/nucleo_f767zi
+
+chmod +x ~/openHarmony/device/st/nucleo_f767zi/build.sh
 
 cp -r ~/nucleo_f767zi/vendor/st ~/openHarmony/vendor/st
 ```
