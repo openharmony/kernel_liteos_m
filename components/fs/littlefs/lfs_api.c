@@ -64,9 +64,9 @@ LittleFsHandleStruct *GetFreeFd(int *fd)
 
 bool CheckFileIsOpen(const char *fileName, int *fd)
 {
-    for(int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
-        if(g_handle[i].useFlag == 1) {
-            if(strcmp(g_handle[i].pathName, fileName) == 0) {
+    for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
+        if (g_handle[i].useFlag == 1) {
+            if (strcmp(g_handle[i].pathName, fileName) == 0) {
                 *fd = i;
                 return true;
             }
