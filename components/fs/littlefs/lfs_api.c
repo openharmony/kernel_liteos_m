@@ -48,7 +48,7 @@ FileOpInfo GetFsOpInfo(void)
 
 LittleFsHandleStruct *GetFreeFd(const char *fileName, int *fd)
 {
-    int len = strlen() + 1;
+    int len = strlen(fileName) + 1;
 
     pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
