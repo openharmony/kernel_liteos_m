@@ -48,7 +48,7 @@
 
 /**
  * @ingroup los_task
- * @brief Convinence macro for bitwise operation of task module
+ * @brief Convenience macro for bitwise operation of task module
  */
 #define EVALUATE_L(NUMBER, VALUE)  \
             ((NUMBER) = (((NUMBER) & OS_TSK_HIGH_BITS_MASK) | (VALUE)))
@@ -76,13 +76,13 @@
 
 /**
  * @ingroup los_task
- * @brief check taks id's validation
+ * @brief check task id's validation
  */
 #define OS_TASK_ID_CHECK(taskID)              LOS_ASSERT_COND(OS_TSK_GET_INDEX(taskID) < g_taskMaxNum)
 
 /**
  * @ingroup los_task
- * @brief check taks id's invalidation
+ * @brief check task id's invalidation
  */
 #define OS_CHECK_TSK_PID_NOIDLE(taskID)       (OS_TSK_GET_INDEX(taskID) >= g_taskMaxNum)
 
