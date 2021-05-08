@@ -96,19 +96,19 @@ LiteOS-M内核移植的具体开发板的工程由社区开发者提供，可以
 
     - STM32F103   https://gitee.com/rtos_lover/stm32f103_simulator_keil
 
-        该仓包含鸿蒙轻内核LiteOS-M基于STM32F103芯片架构构建的Keil工程，支持Keil MDK方式进行编译。
+        该仓包含OpenHarmony LiteOS-M内核基于STM32F103芯片架构构建的Keil工程，支持Keil MDK方式进行编译。
 
 -   cortex-m4：
 
     - 野火挑战者STM32F429IGTb   https://gitee.com/harylee/stm32f429ig_firechallenger
 
-        该仓包含鸿蒙轻内核LiteOS-M移植支持`野火挑战者STM32F429IGTb`开发板的工程代码，支持Ninja、GCC、IAR等方式进行编译。
+        该仓包含OpenHarmony LiteOS-M内核移植支持`野火挑战者STM32F429IGTb`开发板的工程代码，支持Ninja、GCC、IAR等方式进行编译。
 
 -   cortex-m7：
 
     - Nucleo-F767ZI   https://gitee.com/harylee/nucleo_f767zi
 
-        该仓包含鸿蒙轻内核LiteOS-M移植支持`Nucleo-F767ZI`开发板的工程代码，支持Ninja、GCC、IAR等方式进行编译。
+        该仓包含OpenHarmony LiteOS-M内核移植支持`Nucleo-F767ZI`开发板的工程代码，支持Ninja、GCC、IAR等方式进行编译。
 
 ## 修改日志
 
