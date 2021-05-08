@@ -289,6 +289,7 @@ int LfsClose(int fd)
     g_handle[fd].useFlag = 0;
     if (g_handle[fd].pathName != NULL) {
         free(g_handle[fd].pathName);
+        g_handle[fd].pathName = NULL;
     }
     pthread_mutex_unlock(&g_FslocalMutex);
 
