@@ -204,14 +204,14 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventDestroy(PEVENT_CB_S eventCB)
     OsHookCall(LOS_HOOK_TYPE_EVENT_DESTROY);
     return LOS_OK;
 }
-LITE_OS_SEC_TEXT_MINOR UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 events)
+LITE_OS_SEC_TEXT_MINOR UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 eventMask)
 {
     UINTPTR intSave;
     if (eventCB == NULL) {
         return LOS_ERRNO_EVENT_PTR_NULL;
     }
     intSave = LOS_IntLock();
-    eventCB->uwEventID &= events;
+    eventCB->uwEventID &= eventMask;
     LOS_IntRestore(intSave);
     OsHookCall(LOS_HOOK_TYPE_EVENT_CLEAR, eventCB);
     return LOS_OK;
