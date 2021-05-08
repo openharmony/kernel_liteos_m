@@ -396,7 +396,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsIdleTaskCreate(VOID)
         return retVal;
     }
 
-    OsSchedSetIdleTaskSchedPartam(OS_TCB_FROM_TID(g_idleTaskID));
+    OsSchedSetIdleTaskSchedParam(OS_TCB_FROM_TID(g_idleTaskID));
     return LOS_OK;
 }
 

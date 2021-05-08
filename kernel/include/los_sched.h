@@ -49,7 +49,7 @@ VOID OsSchedUpdateSchedTimeBase(VOID);
 
 UINT64 OsGetCurrSchedTimeCycle(VOID);
 
-VOID OsSchedSetIdleTaskSchedPartam(LosTaskCB *idleTask);
+VOID OsSchedSetIdleTaskSchedParam(LosTaskCB *idleTask);
 
 UINT32 OsSchedSwtmrScanRegister(SchedScan func);
 
