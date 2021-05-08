@@ -246,7 +246,7 @@ int LfsOpen(const char *pathName, int openFlag, int mode)
 
     return fd;
 errout:
-    return INVALID_FD;    
+    return INVALID_FD;
 }
 
 int LfsRead(int fd, void *buf, unsigned int len)
@@ -287,6 +287,9 @@ int LfsClose(int fd)
     ret = lfs_file_close(&g_lfs, &(g_handle[fd].file));
     pthread_mutex_lock(&g_FslocalMutex);
     g_handle[fd].useFlag = 0;
+    if (g_handle[fd].pathName != NULL) {
+        free(g_handle[fd].pathName);
+    }
     pthread_mutex_unlock(&g_FslocalMutex);
 
     return ret;    
