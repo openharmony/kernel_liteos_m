@@ -46,7 +46,7 @@ FileOpInfo GetFsOpInfo(void)
     return g_fsOp;
 }
 
-LittleFsHandleStruct *GetFreeFd(const char *fileName, int *fd)
+LittleFsHandleStruct *LfsAllocFd(const char *fileName, int *fd)
 {
     int len = strlen(fileName) + 1;
 
@@ -229,11 +229,11 @@ int LfsOpen(const char *pathName, int openFlag, int mode)
     int fd = INVALID_FD;
 
     // if file is already open, return invalid fd
-    if (CheckFileIsOpen(pathName)) {
+    if (pathName == NULL || CheckFileIsOpen(pathName)) {
         goto errout;
     }
 
-    LittleFsHandleStruct *fsHandle = GetFreeFd(pathName, &fd);
+    LittleFsHandleStruct *fsHandle = LfsAllocFd(pathName, &fd);
     if (fd == INVALID_FD) {
         goto errout;
     }
@@ -283,8 +283,8 @@ int LfsClose(int fd)
         return ret;
     }
 
-    ret = lfs_file_close(&g_lfs, &(g_handle[fd].file));
     pthread_mutex_lock(&g_FslocalMutex);
+    ret = lfs_file_close(&g_lfs, &(g_handle[fd].file));
     g_handle[fd].useFlag = 0;
     if (g_handle[fd].pathName != NULL) {
         free(g_handle[fd].pathName);
