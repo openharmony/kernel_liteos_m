@@ -68,18 +68,16 @@ LittleFsHandleStruct *GetFreeFd(const char *fileName, int *fd)
     return NULL;
 }
 
-bool CheckFileIsOpen(const char *fileName, int *fd)
+bool CheckFileIsOpen(const char *fileName)
 {
     for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
         if (g_handle[i].useFlag == 1) {
             if (strcmp(g_handle[i].pathName, fileName) == 0) {
-                *fd = i;
                 return true;
             }
         }
     }
 
-    *fd = INVALID_FD;
     return false;
 }
 
@@ -230,8 +228,9 @@ int LfsOpen(const char *pathName, int openFlag, int mode)
 {
     int fd = INVALID_FD;
 
-    if (CheckFileIsOpen(pathName, &fd)) {
-        return fd;
+    // if file is already open, return invalid fd
+    if (CheckFileIsOpen(pathName)) {
+        goto errout;
     }
 
     LittleFsHandleStruct *fsHandle = GetFreeFd(pathName, &fd);
