@@ -488,7 +488,7 @@ static INT32 ConvertSecs2Utc(time_t t, INT32 offset, struct tm *tp)
     days -= daysInMonth[month];
     tp->tm_mon = month;
     tp->tm_mday = days + 1;
-    tp->__tm_gmtoff = -offset;
+    tp->__tm_gmtoff = offset;
     tp->__tm_zone = NULL;
     tp->tm_isdst = 0;
     return 1;
@@ -560,7 +560,7 @@ static time_t ConvertUtc2Secs(struct tm *tm)
     seconds += (tm->tm_mday - 1) * SECS_PER_DAY;
     seconds += tm->tm_hour * SECS_PER_HOUR + tm->tm_min * SECS_PER_MIN + tm->tm_sec;
 
-    seconds += tm->__tm_gmtoff; // add time zone to get UTC time
+    seconds -= tm->__tm_gmtoff; // sub time zone to get UTC time
     return seconds;
 }
 
@@ -574,8 +574,8 @@ time_t mktime(struct tm *tmptr)
 
     /* tm_isdst is not supported and is ignored */
     if (tmptr->tm_year < (EPOCH_YEAR - TM_YEAR_BASE) ||
-            tmptr->__tm_gmtoff > (TIME_ZONE_MAX * SECS_PER_MIN) ||
-            tmptr->__tm_gmtoff < (TIME_ZONE_MIN * SECS_PER_MIN) ||
+            tmptr->__tm_gmtoff > (-TIME_ZONE_MIN * SECS_PER_MIN) ||
+            tmptr->__tm_gmtoff < (-TIME_ZONE_MAX * SECS_PER_MIN) ||
             tmptr->tm_sec > 60 || tmptr->tm_sec < 0 ||      /* Seconds [0-60] */
             tmptr->tm_min > 59 || tmptr->tm_min < 0 ||      /* Minutes [0-59] */
             tmptr->tm_hour > 23 || tmptr->tm_hour < 0 ||    /* Hours [0-23] */
@@ -586,7 +586,7 @@ time_t mktime(struct tm *tmptr)
     }
     timeInSeconds = ConvertUtc2Secs(tmptr);
     /* normalize tm_wday and tm_yday */
-    ConvertSecs2Utc(timeInSeconds, -tmptr->__tm_gmtoff, tmptr);
+    ConvertSecs2Utc(timeInSeconds, tmptr->__tm_gmtoff, tmptr);
     return timeInSeconds;
 }
 
