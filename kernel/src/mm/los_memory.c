@@ -1803,10 +1803,10 @@ STATIC VOID OsMemIntegrityCheckError(struct OsMemPoolHead *pool,
     MEM_UNLOCK(pool, intSave);
     PRINT_ERR("cur node: 0x%x, pre node: 0x%x, pre node was allocated by task: %d, %s\n",
               tmpNode, preNode, taskCB->taskID, taskCB->taskName);
-    LOS_Panic("Memory interity check error!\n");
+    LOS_Panic("Memory integrity check error!\n");
 #else
     MEM_UNLOCK(pool, intSave);
-    LOS_Panic("Memory interity check error, cur node: 0x%x, pre node: 0x%x\n", tmpNode, preNode);
+    LOS_Panic("Memory integrity check error, cur node: 0x%x, pre node: 0x%x\n", tmpNode, preNode);
 #endif
 }
 
