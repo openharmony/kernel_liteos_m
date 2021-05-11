@@ -30,7 +30,6 @@
  */
 
 #include "lfs_api.h"
-#include "iCunit.h"
 
 lfs_t g_lfs;
 FileDirInfo g_lfsDir[LFS_MAX_OPEN_DIRS] = {0};
@@ -57,7 +56,7 @@ LittleFsHandleStruct *LfsAllocFd(const char *fileName, int *fd)
             g_handle[i].useFlag = 1;
             g_handle[i].pathName = (char *)malloc(len);
             if (g_handle[i].pathName) {
-                memcpy_s(g_handle[i].pathName, len, fileName, len);
+                memcpy_s(g_handle[i].pathName, LITTLE_FS_MAX_NAME_LEN, fileName, len);
             }
             pthread_mutex_unlock(&g_FslocalMutex);
             return &(g_handle[i]);
@@ -68,17 +67,17 @@ LittleFsHandleStruct *LfsAllocFd(const char *fileName, int *fd)
     return NULL;
 }
 
-bool CheckFileIsOpen(const char *fileName)
+BOOL CheckFileIsOpen(const char *fileName)
 {
     for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
         if (g_handle[i].useFlag == 1) {
             if (strcmp(g_handle[i].pathName, fileName) == 0) {
-                return true;
+                return TRUE;
             }
         }
     }
 
-    return false;
+    return FALSE;
 }
 
 lfs_dir_t *GetFreeDir()
@@ -101,7 +100,7 @@ int InitMountInfo(const char *fileSystemType, const struct MountOps *fsMops)
     for (int i = 0; i < MAX_FILE_SYSTEM_LEN; i++) {
         if (g_fsmap[i].fileSystemtype == NULL) {
             g_fsmap[i].fileSystemtype = (char*)malloc(len);
-            memcpy_s(g_fsmap[i].fileSystemtype, len, fileSystemType, len);
+            memcpy_s(g_fsmap[i].fileSystemtype, LITTLE_FS_MAX_NAME_LEN, fileSystemType, len);
             g_fsmap[i].fsMops = fsMops;
             return VFS_OK;
         }
