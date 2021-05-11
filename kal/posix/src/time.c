@@ -644,7 +644,17 @@ int settimeofday(const struct timeval *tv, const struct timezone *tz)
 int usleep(unsigned useconds)
 {
     struct timespec specTime = { 0 };
-    UINT64 nanoseconds = useconds * OS_SYS_NS_PER_US;
+    UINT64 nanoseconds = (UINT64)useconds * OS_SYS_NS_PER_US;
+
+    specTime.tv_sec = (time_t)(nanoseconds / OS_SYS_NS_PER_SECOND);
+    specTime.tv_nsec = (long)(nanoseconds % OS_SYS_NS_PER_SECOND);
+    return nanosleep(&specTime, NULL);
+}
+
+unsigned sleep(unsigned seconds)
+{
+    struct timespec specTime = { 0 };
+    UINT64 nanoseconds = (UINT64)seconds * OS_SYS_NS_PER_SECOND;
 
     specTime.tv_sec = (time_t)(nanoseconds / OS_SYS_NS_PER_SECOND);
     specTime.tv_nsec = (long)(nanoseconds % OS_SYS_NS_PER_SECOND);
