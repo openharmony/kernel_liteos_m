@@ -60,7 +60,7 @@ static BOOL PosixCTypeToupperTestSetUp(void)
  */
 static BOOL PosixCTypeToupperTestTearDown(void)
 {
-    printf("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -74,9 +74,9 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper001, Function | MediumTest
     int a = 'a';
     int ret = toupper(a);
     if (ret == 'A') {
-        printf("[DEMO] posix ctype test case 1:toupper(%c)==%c ok.\n", a, ret);
+        LOG("[DEMO] posix ctype test case 1:toupper(%c)==%c ok.\n", a, ret);
     } else {
-        printf("[DEMO] posix ctype test case 1:toupper(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 1:toupper(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == 'A');
 }
@@ -91,9 +91,9 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper002, Function | MediumTest
     int a = 'A';
     int ret = toupper(a);
     if (ret == 'A') {
-        printf("[DEMO] posix ctype test case 2:toupper(%c)==%c ok.\n", a, ret);
+        LOG("[DEMO] posix ctype test case 2:toupper(%c)==%c ok.\n", a, ret);
     } else {
-        printf("[DEMO] posix ctype test case 2:toupper(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 2:toupper(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == 'A');
 }
@@ -108,9 +108,9 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper003, Function | MediumTest
     int a = 'z';
     int ret = toupper(a);
     if (ret == 'Z') {
-        printf("[DEMO] posix ctype test case 3:toupper(%c)==%c ok.\n", a, ret);
+        LOG("[DEMO] posix ctype test case 3:toupper(%c)==%c ok.\n", a, ret);
     } else {
-        printf("[DEMO] posix ctype test case 3:toupper(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 3:toupper(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == 'Z');
 }
@@ -125,9 +125,9 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper004, Function | MediumTest
     int a = 'Z';
     int ret = toupper(a);
     if (ret == 'Z') {
-        printf("[DEMO] posix ctype test case 4:toupper(%c)==%c ok.\n", a, ret);
+        LOG("[DEMO] posix ctype test case 4:toupper(%c)==%c ok.\n", a, ret);
     } else {
-        printf("[DEMO] posix ctype test case 4:toupper(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 4:toupper(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == 'Z');
 }
@@ -142,9 +142,9 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper005, Function | MediumTest
     int a = '1';
     int ret = toupper(a);
     if (ret == '1') {
-        printf("[DEMO] posix ctype test case 5(except):toupper(%c)==%c ok.\n", a, ret);
+        LOG("[DEMO] posix ctype test case 5(except):toupper(%c)==%c ok.\n", a, ret);
     } else {
-        printf("[DEMO] posix ctype test case 5(except):toupper(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 5(except):toupper(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == '1');
 }

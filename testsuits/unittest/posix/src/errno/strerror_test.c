@@ -37,13 +37,6 @@
 #include "kernel_test.h"
 #include "log.h"
 
-#undef E
-#define E(a, b) b "\0"
-static const char G_ERRMSG[] = {
-#include "__strerror.h"
-}
-;
-
 /* *
  * @tc.desc      : register a test suite, this suite is used to test basic flow and interface dependency
  * @param        : subsystem name is utils
@@ -79,19 +72,18 @@ static BOOL PosixSysFuncTestSuiteTearDown(void)
  */
 LITE_TEST_CASE(PosixSysFuncTestSuite, testOsSysStrerror001, Function | MediumTest | Level1)
 {
-    for (int i = 0; i < sizeof(G_ERRMSG) / sizeof(G_ERRMSG[0]); i++) {
+    for (int i = EPERM; i < EHWPOISON; i++) {
         char *s = strerror(i);
         TEST_ASSERT_NOT_NULL(s);
-        TEST_ASSERT_EQUAL_STRING(G_ERRMSG[i], s);
-
-        if (NULL != s) {
-            printf("Test Result :%s\r\n", s);
-        }
     }
 
+    LOG("strerror(-1) = %s\n", strerror(-1));
     TEST_ASSERT_EQUAL_STRING("No error information", strerror(-1));
+    LOG("strerror(0) = %s\n", strerror(0));
     TEST_ASSERT_EQUAL_STRING("No error information", strerror(0));
+    LOG("strerror(2) = %s\n", strerror(2));
     TEST_ASSERT_EQUAL_STRING("No such file or directory", strerror(2));
+    LOG("strerror(10) = %s\n", strerror(10));
     TEST_ASSERT_EQUAL_STRING("No child process", strerror(10));
 };
 

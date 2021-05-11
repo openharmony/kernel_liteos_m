@@ -61,7 +61,7 @@ static BOOL PosixStdlibAtoiTestSetUp(void)
  */
 static BOOL PosixStdlibAtoiTestTearDown(void)
 {
-    printf("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -74,9 +74,9 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi001, Function | MediumTest | L
 {
     int value = atoi("2147483647");
     if (value == 2147483647) {
-        printf("[DEMO] posix stdlib test case 1:atoi(%d) ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 1:atoi(%d) ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 1:atoi(%d) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 1:atoi(%d) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT(2147483647, value);
 }
@@ -90,9 +90,9 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi002, Function | MediumTest | L
 {
     int value = atoi("-2147483648");
     if (value == -2147483648) {
-        printf("[DEMO] posix stdlib test case 2:atoi(%d) ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 2:atoi(%d) ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 2:atoi(%d) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 2:atoi(%d) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT(-2147483648, value);
 }
@@ -106,9 +106,9 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi003, Function | MediumTest | L
 {
     int value = atoi("100");
     if (value == 100) {
-        printf("[DEMO] posix stdlib test case 3:atoi(%d) ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 3:atoi(%d) ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 3:atoi(%d) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 3:atoi(%d) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT(100, value);
 }
@@ -122,9 +122,9 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi004, Function | MediumTest | L
 {
     int value = atoi("2147483648");
     if (value == -2147483648) {
-        printf("[DEMO] posix stdlib test case 4(except):atoi(%d) != 2147483648 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 4(except):atoi(%d) != 2147483648 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 4(except):atoi(%d) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 4(except):atoi(%d) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT(-2147483648, value);
 }
@@ -138,9 +138,9 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi005, Function | MediumTest | L
 {
     int value = atoi("-2147483649");
     if (value == 2147483647) {
-        printf("[DEMO] posix stdlib test case 5(except):atoi(%d) != -2147483649 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 5(except):atoi(%d) != -2147483649 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 5(except):atoi(%d) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 5(except):atoi(%d) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT(2147483647, value);
 }
@@ -154,9 +154,9 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi006, Function | MediumTest | L
 {
     int value = atoi("+100");
     if (value == 100) {
-        printf("[DEMO] posix stdlib test case 6:atoi(%d) == +100 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 6:atoi(%d) == +100 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 6:atoi(%d) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 6:atoi(%d) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT(100, value);
 }
@@ -170,9 +170,9 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi007, Function | MediumTest | L
 {
     int value = atoi("-100");
     if (value == -100) {
-        printf("[DEMO] posix stdlib test case 7:atoi(%d) == -100 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 7:atoi(%d) == -100 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 7:atoi(%d) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 7:atoi(%d) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT(-100, value);
 }
@@ -186,9 +186,9 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi008, Function | MediumTest | L
 {
     int value = atoi("+-100");
     if (value == 0) {
-        printf("[DEMO] posix stdlib test case 8(except):atoi(%d) ==  +-100 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 8(except):atoi(%d) ==  +-100 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 8(except):atoi(%d) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 8(except):atoi(%d) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT(0, value);
 }
@@ -202,9 +202,9 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi009, Function | MediumTest | L
 {
     int value = atoi("12+-100");
     if (value == 12) {
-        printf("[DEMO] posix stdlib test case 9(except):atoi(%d) ok == 12+-100.\n", value);
+        LOG("[DEMO] posix stdlib test case 9(except):atoi(%d) ok == 12+-100.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 9(except):atoi(%d) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 9(except):atoi(%d) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT(12, value);
 }
@@ -218,9 +218,9 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi010, Function | MediumTest | L
 {
     int value = atoi("21474836470");
     if (value == -10) {
-        printf("[DEMO] posix stdlib test case 10(except):atoi(%d) ok == 21474836470.\n", value);
+        LOG("[DEMO] posix stdlib test case 10(except):atoi(%d) ok == 21474836470.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 10(except):atoi(%d) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 10(except):atoi(%d) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT(-10, value);
 }

@@ -8,8 +8,6 @@
 #include "locale_impl.h"
 #include "time_impl.h"
 
-#define CURRENT_LOCALE NULL
-
 static int is_leap(int y)
 {
 	/* Avoid overflow */
@@ -181,8 +179,12 @@ const char *__strftime_fmt_1(char (*s)[100], size_t *l, int f, const struct tm *
 			tm->__tm_gmtoff/3600*100 + tm->__tm_gmtoff%3600/60);
 		return *s;
 	case 'Z':
-		// unsupport tz
-		return 0;
+		if (tm->tm_isdst < 0) {
+			*l = 0;
+			return "";
+		}
+		fmt = __tm_to_tzname(tm);
+		goto string;
 	case '%':
 		*l = 1;
 		return "%";
@@ -198,14 +200,12 @@ number:
 	}
 	return *s;
 nl_strcat:
-	// unsuport loc
-	return 0;
+	fmt = __nl_langinfo_l(item, loc);
 string:
 	*l = strlen(fmt);
 	return fmt;
 nl_strftime:
-	// unsuport loc
-	return 0;
+	fmt = __nl_langinfo_l(item, loc);
 recu_strftime:
 	*l = __strftime_l(*s, sizeof *s, fmt, tm, loc);
 	if (!*l) return 0;
@@ -275,7 +275,7 @@ size_t __strftime_l(char *restrict s, size_t n, const char *restrict f, const st
 
 size_t strftime(char *restrict s, size_t n, const char *restrict f, const struct tm *restrict tm)
 {
-	return __strftime_l(s, n, f, tm, NULL);
+	return __strftime_l(s, n, f, tm, CURRENT_LOCALE);
 }
 
 weak_alias(__strftime_l, strftime_l);

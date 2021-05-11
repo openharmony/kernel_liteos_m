@@ -74,7 +74,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsalnum001, Function | MediumTe
 {
     int src = 'A';
     int ret = isalnum(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -86,7 +86,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsalnum002, Function | MediumTe
 {
     int src = '1';
     int ret = isalnum(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -98,7 +98,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsalnum003, Function | MediumTe
 {
     int src = '@';
     int ret = isalnum(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 /* *
@@ -110,7 +110,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsalnum004, Function | MediumTe
 {
     int src = ' ';
     int ret = isalnum(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 /* *
@@ -122,7 +122,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsalnum005, Function | MediumTe
 {
     int src = '\f'; // 0x0c 14
     int ret = isalnum(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 
@@ -135,7 +135,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsascii001, Function | MediumTe
 {
     const int src = -1;
     int ret = isascii(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 /* *
@@ -147,7 +147,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsascii002, Function | MediumTe
 {
     const int src = 0;
     int ret = isascii(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -159,7 +159,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsascii003, Function | MediumTe
 {
     const int src = 127;
     int ret = isascii(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -171,7 +171,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsascii004, Function | MediumTe
 {
     const int src = 128;
     int ret = isascii(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 /* *
@@ -183,7 +183,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsascii005, Function | MediumTe
 {
     int src = '\f'; // 0x0c 14
     int ret = isascii(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -195,7 +195,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsprint001, Function | MediumTe
 {
     int src = 'A';
     int ret = isprint(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -207,7 +207,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsprint002, Function | MediumTe
 {
     int src = '1';
     int ret = isprint(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -219,7 +219,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsprint003, Function | MediumTe
 {
     int src = '@';
     int ret = isprint(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -231,7 +231,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsprint004, Function | MediumTe
 {
     int src = ' ';
     int ret = isprint(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -243,7 +243,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsprint005, Function | MediumTe
 {
     int src = '\f'; // 0x0c
     int ret = isprint(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 
@@ -256,7 +256,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsspace001, Function | MediumTe
 {
     int src = 'A';
     int ret = isspace(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 /* *
@@ -268,7 +268,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsspace002, Function | MediumTe
 {
     int src = '1';
     int ret = isspace(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 /* *
@@ -280,7 +280,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsspace003, Function | MediumTe
 {
     int src = '@';
     int ret = isspace(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 /* *
@@ -292,7 +292,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsspace004, Function | MediumTe
 {
     int src = ' ';
     int ret = isspace(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -304,7 +304,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsspace005, Function | MediumTe
 {
     int src = '\t';
     int ret = isspace(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 
@@ -317,7 +317,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsupper001, Function | MediumTe
 {
     int src = 'A';
     int ret = isupper(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -329,7 +329,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsupper002, Function | MediumTe
 {
     int src = 'a';
     int ret = isupper(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 /* *
@@ -341,7 +341,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsupper003, Function | MediumTe
 {
     const int src = 0x45;
     int ret = isupper(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
 }
 
 /* *
@@ -353,7 +353,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsupper004, Function | MediumTe
 {
     int src = ' ';
     int ret = isupper(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 /* *
@@ -365,7 +365,7 @@ LITE_TEST_CASE(PosixCtypeFuncTestSuite, testCtypeIsupper005, Function | MediumTe
 {
     int src = '\t';
     int ret = isupper(src);
-    TEST_ASSERT_EQUAL_INT(RET_TRUE, ret);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 RUN_TEST_SUITE(PosixCtypeFuncTestSuite);

@@ -176,16 +176,16 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrcspn001, Function | MediumTes
     char dest1[]  ={"H"};
 
     retValue = strcspn(source, dest1);
-    TEST_ASSERT_EQUAL_INT(retValue, 19U);
+    TEST_ASSERT_EQUAL_INT(18U, retValue);
 
     const char dest[] = "hello world !";
     const char src[] = "!";
     size_t ret = strcspn(dest, src);
-    TEST_ASSERT_EQUAL_INT(ret, 12U);
+    TEST_ASSERT_EQUAL_INT(12U, ret);
 
     const char srcS[] = "a";
     ret = strcspn(dest, srcS);
-    TEST_ASSERT_EQUAL_INT(ret, 13U);
+    TEST_ASSERT_EQUAL_INT(13U, ret);
 };
 
 /* *
@@ -200,7 +200,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrcspn002, Function | MediumTes
     char dest[]  ={"or"};
 
     retValue = strcspn(source, dest);
-    TEST_ASSERT_LESS_OR_EQUAL(retValue, 0);
+    TEST_ASSERT_EQUAL_INT(1, retValue);
 };
 
 /* *

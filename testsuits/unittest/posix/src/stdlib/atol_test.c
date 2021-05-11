@@ -61,7 +61,7 @@ static BOOL PosixStdlibAtolTestSetUp(void)
  */
 static BOOL PosixStdlibAtolTestTearDown(void)
 {
-    printf("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -74,9 +74,9 @@ LITE_TEST_CASE(PosixStdlibAtolTest, testStdlibAtol001, Function | MediumTest | L
 {
     const long value = atol("2147483647");
     if (value == 2147483647) {
-        printf("[DEMO] posix stdlib test case 1:atol(%ld) ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 1:atol(%ld) ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 1:atol(%ld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 1:atol(%ld) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT32(2147483647, value);
 }
@@ -90,9 +90,9 @@ LITE_TEST_CASE(PosixStdlibAtolTest, testStdlibAtol002, Function | MediumTest | L
 {
     const long value = atol("-2147483648");
     if (value == -2147483648) {
-        printf("[DEMO] posix stdlib test case 2:atol(%ld) ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 2:atol(%ld) ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 2:atol(%ld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 2:atol(%ld) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT32(-2147483648, value);
 }
@@ -106,9 +106,9 @@ LITE_TEST_CASE(PosixStdlibAtolTest, testStdlibAtol003, Function | MediumTest | L
 {
     const long value = atol("100");
     if (value == 100) {
-        printf("[DEMO] posix stdlib test case 3:atol(%ld) ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 3:atol(%ld) ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 3:atol(%ld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 3:atol(%ld) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT32(100, value);
 }
@@ -122,9 +122,9 @@ LITE_TEST_CASE(PosixStdlibAtolTest, testStdlibAtol004, Function | MediumTest | L
 {
     const long value = atol("2147483648");
     if (value != 2147483648) {
-        printf("[DEMO] posix stdlib test case 4(except):atol(%ld) != 2147483648 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 4(except):atol(%ld) != 2147483648 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 4(except):atol(%ld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 4(except):atol(%ld) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT32(-2147483648, value);
 }
@@ -138,9 +138,9 @@ LITE_TEST_CASE(PosixStdlibAtolTest, testStdlibAtol005, Function | MediumTest | L
 {
     const long value = atol("-2147483649");
     if (value == 2147483647) {
-        printf("[DEMO] posix stdlib test case 5(except):atoi(%d) != -2147483649 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 5(except):atoi(%d) != -2147483649 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 5(except):atoi(%d) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 5(except):atoi(%d) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT32(2147483647, value);
 }
@@ -154,9 +154,9 @@ LITE_TEST_CASE(PosixStdlibAtolTest, testStdlibAtol006, Function | MediumTest | L
 {
     const long value = atol("+100");
     if (value == 100) {
-        printf("[DEMO] posix stdlib test case 6:atol(%ld) == +100 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 6:atol(%ld) == +100 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 6:atol(%ld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 6:atol(%ld) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT32(100, value);
 }
@@ -170,9 +170,9 @@ LITE_TEST_CASE(PosixStdlibAtolTest, testStdlibAtol007, Function | MediumTest | L
 {
     const long value = atol("-100");
     if (value == -100) {
-        printf("[DEMO] posix stdlib test case 7:atol(%ld) == -100 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 7:atol(%ld) == -100 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 7:atoi(%ld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 7:atoi(%ld) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT32(-100, value);
 }
@@ -186,9 +186,9 @@ LITE_TEST_CASE(PosixStdlibAtolTest, testStdlibAtol008, Function | MediumTest | L
 {
     long value = atol("+-100");
     if (value == 0) {
-        printf("[DEMO] posix stdlib test case 8(except):atol(%ld) ==  +-100 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 8(except):atol(%ld) ==  +-100 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 8(except):atol(%ld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 8(except):atol(%ld) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT32(0, value);
 }
@@ -202,9 +202,9 @@ LITE_TEST_CASE(PosixStdlibAtolTest, testStdlibAtol009, Function | MediumTest | L
 {
     long value = atol("12+-100");
     if (value == 12) {
-        printf("[DEMO] posix stdlib test case 9(except):atol(%ld) ok == 12+-100.\n", value);
+        LOG("[DEMO] posix stdlib test case 9(except):atol(%ld) ok == 12+-100.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 9(except):atol(%ld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 9(except):atol(%ld) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT32(12, value);
 }

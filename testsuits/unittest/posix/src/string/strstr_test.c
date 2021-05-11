@@ -59,7 +59,7 @@ static BOOL PosixStringStrStrTestSetUp(void)
  */
 static BOOL PosixStringStrStrTestTearDown(void)
 {
-    printf("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -75,9 +75,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr001, Function | MediumTest
 
     char *ret = strstr(destS, srcS);
     if (strcmp(ret, destS) == 0) {
-        printf("[DEMO] posix string test case 1:strstr(%s) %s ok.\n", srcS, destS);
+        LOG("[DEMO] posix string test case 1:strstr(%s) %s ok.\n", srcS, destS);
     } else {
-        printf("[DEMO] posix string test case 1:strstr(%s) %s fail.\n", srcS, destS);
+        LOG("[DEMO] posix string test case 1:strstr(%s) %s fail.\n", srcS, destS);
     }
     TEST_ASSERT_EQUAL_STRING(ret, destS);
 }
@@ -94,9 +94,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr002, Function | MediumTest
 
     char *ret = strstr(destS, srcS);
     if (strcmp(ret, "this is string") == 0) {
-        printf("[DEMO] posix string test case 2:strstr(%s) %s ok.\n", srcS, destS);
+        LOG("[DEMO] posix string test case 2:strstr(%s) %s ok.\n", srcS, destS);
     } else {
-        printf("[DEMO] posix string test case 2:strstr(%s) %s fail.\n", srcS, destS);
+        LOG("[DEMO] posix string test case 2:strstr(%s) %s fail.\n", srcS, destS);
     }
     TEST_ASSERT_EQUAL_STRING(ret, "this is string");
 }
@@ -113,9 +113,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr003, Function | MediumTest
 
     char *ret = strstr(dest, srcT);
     if (strcmp(ret, dest) == 0) {
-        printf("[DEMO] posix string test case 3:strstr(%s) %s ok.\n", srcT, dest);
+        LOG("[DEMO] posix string test case 3:strstr(%s) %s ok.\n", srcT, dest);
     } else {
-        printf("[DEMO] posix string test case 3:strstr(%s) %s fail.\n", srcT, dest);
+        LOG("[DEMO] posix string test case 3:strstr(%s) %s fail.\n", srcT, dest);
     }
     TEST_ASSERT_EQUAL_STRING(ret, dest);
 }
@@ -132,9 +132,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr004, Function | MediumTest
 
     char *ret = strstr(dest, src);
     if (ret == NULL) {
-        printf("[DEMO] posix string test case 4(except):strstr(%s) %s ok.\n", src, dest);
+        LOG("[DEMO] posix string test case 4(except):strstr(%s) %s ok.\n", src, dest);
     } else {
-        printf("[DEMO] posix string test case 4(except):strstr(%s) %s fail.\n", src, dest);
+        LOG("[DEMO] posix string test case 4(except):strstr(%s) %s fail.\n", src, dest);
     }
     TEST_ASSERT_NULL(ret);
 }
@@ -151,9 +151,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr005, Function | MediumTest
 
     char *ret = strstr(dest, src);
     if (ret == NULL) {
-        printf("[DEMO] posix string test case 5(except):strstr(%s) %s ok.\n", src, dest);
+        LOG("[DEMO] posix string test case 5(except):strstr(%s) %s ok.\n", src, dest);
     } else {
-        printf("[DEMO] posix string test case 5(except):strstr(%s) %s fail.\n", src, dest);
+        LOG("[DEMO] posix string test case 5(except):strstr(%s) %s fail.\n", src, dest);
     }
     TEST_ASSERT_NULL(ret);
 }
@@ -170,9 +170,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr006, Function | MediumTest
 
     char *ret = strstr(destS, srcOne);
     if (strcmp(ret, "tring this is string") == 0) {
-        printf("[DEMO] posix string test case 6:strstr(%s) %s ok.\n", srcOne, destS);
+        LOG("[DEMO] posix string test case 6:strstr(%s) %s ok.\n", srcOne, destS);
     } else {
-        printf("[DEMO] posix string test case 6:strstr(%s) %s fail.\n", srcOne, destS);
+        LOG("[DEMO] posix string test case 6:strstr(%s) %s fail.\n", srcOne, destS);
     }
     TEST_ASSERT_EQUAL_STRING(ret, "tring this is string");
 }
@@ -189,9 +189,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr007, Function | MediumTest
 
     char *ret = strstr(destS, srcOne);
     if (ret == NULL) {
-        printf("[DEMO] posix string test case 7(except):strstr(%s) %s ok.\n", srcOne, destS);
+        LOG("[DEMO] posix string test case 7(except):strstr(%s) %s ok.\n", srcOne, destS);
     } else {
-        printf("[DEMO] posix string test case 7(except):strstr(%s) %s fail.\n", srcOne, destS);
+        LOG("[DEMO] posix string test case 7(except):strstr(%s) %s fail.\n", srcOne, destS);
     }
     TEST_ASSERT_NULL(ret);
 }
@@ -208,9 +208,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr008, Function | MediumTest
 
     char *ret = strstr(destS, srcTwo);
     if (strcmp(ret, "this is string") == 0) {
-        printf("[DEMO] posix string test case 8:strstr(%s) %s ok.\n", srcTwo, destS);
+        LOG("[DEMO] posix string test case 8:strstr(%s) %s ok.\n", srcTwo, destS);
     } else {
-        printf("[DEMO] posix string test case 8:strstr(%s) %s fail.\n", srcTwo, destS);
+        LOG("[DEMO] posix string test case 8:strstr(%s) %s fail.\n", srcTwo, destS);
     }
     TEST_ASSERT_EQUAL_STRING(ret, "this is string");
 }
@@ -227,9 +227,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr009, Function | MediumTest
 
     char *ret = strstr(destS, srcTwo2);
     if (ret == NULL) {
-        printf("[DEMO] posix string test case 9(except):strstr(%s) %s ok.\n", srcTwo2, destS);
+        LOG("[DEMO] posix string test case 9(except):strstr(%s) %s ok.\n", srcTwo2, destS);
     } else {
-        printf("[DEMO] posix string test case 9(except):strstr(%s) %s fail.\n", srcTwo2, destS);
+        LOG("[DEMO] posix string test case 9(except):strstr(%s) %s fail.\n", srcTwo2, destS);
     }
     TEST_ASSERT_NULL(ret);
 }
@@ -246,9 +246,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr010, Function | MediumTest
 
     char *ret = strstr(destS, srcThree);
     if (strcmp(ret, "this is string") == 0) {
-        printf("[DEMO] posix string test case 10:strstr(%s) %s ok.\n", srcThree, destS);
+        LOG("[DEMO] posix string test case 10:strstr(%s) %s ok.\n", srcThree, destS);
     } else {
-        printf("[DEMO] posix string test case 10:strstr(%s) %s fail.\n", srcThree, destS);
+        LOG("[DEMO] posix string test case 10:strstr(%s) %s fail.\n", srcThree, destS);
     }
     TEST_ASSERT_EQUAL_STRING(ret, "this is string");
 }
@@ -265,9 +265,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr011, Function | MediumTest
 
     char *ret = strstr(destS, srcThree);
     if (ret == NULL) {
-        printf("[DEMO] posix string test case 11(except):strstr(%s) %s ok.\n", srcThree, destS);
+        LOG("[DEMO] posix string test case 11(except):strstr(%s) %s ok.\n", srcThree, destS);
     } else {
-        printf("[DEMO] posix string test case 11(except):strstr(%s) %s fail.\n", srcThree, destS);
+        LOG("[DEMO] posix string test case 11(except):strstr(%s) %s fail.\n", srcThree, destS);
     }
     TEST_ASSERT_NULL(ret);
 }
@@ -284,9 +284,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr012, Function | MediumTest
 
     char *ret = strstr(destS, srcFour);
     if (strcmp(ret, "this is string") == 0) {
-        printf("[DEMO] posix string test case 12:strstr(%s) %s ok.\n", srcFour, destS);
+        LOG("[DEMO] posix string test case 12:strstr(%s) %s ok.\n", srcFour, destS);
     } else {
-        printf("[DEMO] posix string test case 12:strstr(%s) %s fail.\n", srcFour, destS);
+        LOG("[DEMO] posix string test case 12:strstr(%s) %s fail.\n", srcFour, destS);
     }
     TEST_ASSERT_EQUAL_STRING(ret, "this is string");
 }
@@ -303,9 +303,9 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr013, Function | MediumTest
 
     char *ret = strstr(destS, srcFour);
     if (ret == NULL) {
-        printf("[DEMO] posix string test case 13(except):strstr(%s) %s ok.\n", srcFour, destS);
+        LOG("[DEMO] posix string test case 13(except):strstr(%s) %s ok.\n", srcFour, destS);
     } else {
-        printf("[DEMO] posix string test case 13(except):strstr(%s) %s fail.\n", srcFour, destS);
+        LOG("[DEMO] posix string test case 13(except):strstr(%s) %s fail.\n", srcFour, destS);
     }
     TEST_ASSERT_NULL(ret);
 }

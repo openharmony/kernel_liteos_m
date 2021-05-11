@@ -32,8 +32,8 @@
 #include "ohos_types.h"
 #include "hctest.h"
 #include "los_config.h"
-#include "los_debug.h"
 #include "kernel_test.h"
+#include "log.h"
 
 
 #define EQUAL 0
@@ -52,9 +52,9 @@ LITE_TEST_SUIT(Posix, PosixStrings, PosixStringsFuncTestSuite);
  */
 static BOOL PosixStringsFuncTestSuiteSetUp(void)
 {
-    PRINT_EMG("+-------------------------------------------+\n");
-    PRINT_EMG("+------PosixStringsFuncTestSuiteSetUp-------+\n");
-    PRINT_EMG("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
+    LOG("+------PosixStringsFuncTestSuiteSetUp-------+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -64,9 +64,9 @@ static BOOL PosixStringsFuncTestSuiteSetUp(void)
  */
 static BOOL PosixStringsFuncTestSuiteTearDown(void)
 {
-    PRINT_EMG("+-------------------------------------------+\n");
-    PRINT_EMG("+-----PosixStringsFuncTestSuiteTearDown-----+\n");
-    PRINT_EMG("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
+    LOG("+-----PosixStringsFuncTestSuiteTearDown-----+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -97,7 +97,7 @@ RUN_TEST_SUITE(PosixStringsFuncTestSuite);
 
 void PosixStringStrcasecmpFuncTest()
 {
-    PRINT_EMG("begin PosixStringStrcasecmpFuncTest....");
+    LOG("begin PosixStringStrcasecmpFuncTest....");
     RUN_ONE_TESTCASE(testStrCaseCmp001);
 
     return;

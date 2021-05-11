@@ -60,7 +60,7 @@ static BOOL PosixCTypeTolowerTestSetUp(void)
  */
 static BOOL PosixCTypeTolowerTestTearDown(void)
 {
-    printf("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -74,9 +74,9 @@ LITE_TEST_CASE(PosixCTypeTolowerTest, testCTypeTolower001, Function | MediumTest
     int a = 'a';
     int ret = tolower(a);
     if (ret == 'a') {
-        printf("[DEMO] posix ctype test case 1:tolower(%c)==%c ok.\n", a, ret);
+        LOG("[DEMO] posix ctype test case 1:tolower(%c)==%c ok.\n", a, ret);
     } else {
-        printf("[DEMO] posix ctype test case 1:tolower(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 1:tolower(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == 'a');
 }
@@ -91,9 +91,9 @@ LITE_TEST_CASE(PosixCTypeTolowerTest, testCTypeTolower002, Function | MediumTest
     int a = 'A';
     int ret = tolower(a);
     if (ret == 'a') {
-        printf("[DEMO] posix ctype test case 2:tolower(%c)==%c ok.\n", a, ret);
+        LOG("[DEMO] posix ctype test case 2:tolower(%c)==%c ok.\n", a, ret);
     } else {
-        printf("[DEMO] posix ctype test case 2:tolower(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 2:tolower(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == 'a');
 }
@@ -108,9 +108,9 @@ LITE_TEST_CASE(PosixCTypeTolowerTest, testCTypeTolower003, Function | MediumTest
     int a = 'z';
     int ret = tolower(a);
     if (ret == 'z') {
-        printf("[DEMO] posix ctype test case 3:tolower(%c)==%c ok.\n", a, ret);
+        LOG("[DEMO] posix ctype test case 3:tolower(%c)==%c ok.\n", a, ret);
     } else {
-        printf("[DEMO] posix ctype test case 3:tolower(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 3:tolower(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == 'z');
 }
@@ -125,9 +125,9 @@ LITE_TEST_CASE(PosixCTypeTolowerTest, testCTypeTolower004, Function | MediumTest
     int a = 'Z';
     int ret = tolower(a);
     if (ret == 'z') {
-        printf("[DEMO] posix ctype test case 4:tolower(%c)==%c ok.\n", a, ret);
+        LOG("[DEMO] posix ctype test case 4:tolower(%c)==%c ok.\n", a, ret);
     } else {
-        printf("[DEMO] posix ctype test case 4:tolower(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 4:tolower(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == 'z');
 }
@@ -142,9 +142,9 @@ LITE_TEST_CASE(PosixCTypeTolowerTest, testCTypeTolower005, Function | MediumTest
     int a = '1';
     int ret = tolower(a);
     if (ret == '1') {
-        printf("[DEMO] posix ctype test case 5(except):tolower(%c)==%c ok.\n", a, ret);
+        LOG("[DEMO] posix ctype test case 5(except):tolower(%c)==%c ok.\n", a, ret);
     } else {
-        printf("[DEMO] posix ctype test case 5(except):tolower(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 5(except):tolower(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == '1');
 }

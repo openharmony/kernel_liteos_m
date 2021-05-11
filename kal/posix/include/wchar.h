@@ -17,6 +17,7 @@ extern "C" {
 #define __NEED_wchar_t
 #define __NEED_wint_t
 #define __NEED_mbstate_t
+#define __NEED_off_t
 
 #if __STDC_VERSION__ < 201112L
 #define __NEED_off_t

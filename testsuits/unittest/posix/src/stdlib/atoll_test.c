@@ -34,6 +34,7 @@
 #include "los_config.h"
 #include "kernel_test.h"
 #include "ctype.h"
+#include "limits.h"
 #include "stdlib.h"
 #include "string.h"
 #include "log.h"
@@ -61,7 +62,7 @@ static BOOL PosixStdlibAtollTestSetUp(void)
  */
 static BOOL PosixStdlibAtollTestTearDown(void)
 {
-    printf("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -74,9 +75,9 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll001, Function | MediumTest |
 {
     long long value = atoll("9223372036854775807");
     if (value == 9223372036854775807LL) {
-        printf("[DEMO] posix stdlib test case 1:atoll(%lld) ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 1:atoll(%lld) ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 1:atoll(%lld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 1:atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == 9223372036854775807LL);
 }
@@ -90,9 +91,9 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll002, Function | MediumTest |
 {
     long long value = atoll("-9223372036854775808");
     if (value == -9223372036854775808LL) {
-        printf("[DEMO] posix stdlib test case 2:atoll(%lld) ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 2:atoll(%lld) ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 2:atoll(%lld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 2:atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == -9223372036854775808LL);
 }
@@ -106,9 +107,9 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll003, Function | MediumTest |
 {
     long long value = atoll("100");
     if (value == 100LL) {
-        printf("[DEMO] posix stdlib test case 3:atoll(%lld) ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 3:atoll(%lld) ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 3:atoll(%lld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 3:atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == 100LL);
 }
@@ -122,11 +123,11 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll004, Function | MediumTest |
 {
     long long value = atoll("9223372036854775808");
     if (value == -9223372036854775808LL) {
-        printf("[DEMO] posix stdlib test case 4(except):atoll(%lld) != 9223372036854775808 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 4(except):atoll(%lld) != 9223372036854775808 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 4(except):atoll(%lld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 4(except):atoll(%lld) fail.\n", value);
     }
-    TEST_ASSERT_TRUE(value == -9223372036854775808LL);
+    TEST_ASSERT_EQUAL_INT64(LLONG_MIN, value);
 }
 
 /* *
@@ -138,11 +139,12 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll005, Function | MediumTest |
 {
     long long value = atoll("-9223372036854775809");
     if (value == 9223372036854775807LL) {
-        printf("[DEMO] posix stdlib test case 5(except):atoll(%lld) != -9223372036854775809 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 5(except):atoll(%lld) != -9223372036854775809 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 5(except):atoll(%lld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 5(except):atoll(%lld) fail.\n", value);
     }
-    TEST_ASSERT_TRUE(value == 9223372036854775807LL);
+
+    TEST_ASSERT_EQUAL_INT64(LLONG_MAX, value);
 }
 
 /* *
@@ -154,9 +156,9 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll006, Function | MediumTest |
 {
     long long value = atoll("+100");
     if (value == 100LL) {
-        printf("[DEMO] posix stdlib test case 6:atoll(%lld) == +100 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 6:atoll(%lld) == +100 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 6:atoll(%lld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 6:atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == 100LL);
 }
@@ -170,9 +172,9 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll007, Function | MediumTest |
 {
     long long value = atoll("-100");
     if (value == -100LL) {
-        printf("[DEMO] posix stdlib test case 7:atoll(%lld) == -100 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 7:atoll(%lld) == -100 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 7:atoll(%lld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 7:atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == -100LL);
 }
@@ -186,9 +188,9 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll008, Function | MediumTest |
 {
     long long value = atoll("+-100");
     if (value == 0LL) {
-        printf("[DEMO] posix stdlib test case 8(except):atoll(%lld) ==  +-100 ok.\n", value);
+        LOG("[DEMO] posix stdlib test case 8(except):atoll(%lld) ==  +-100 ok.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 8(except):atoll(%lld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 8(except):atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == 0LL);
 }
@@ -202,9 +204,9 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll009, Function | MediumTest |
 {
     long long value = atoll("12+-100");
     if (value == 12LL) {
-        printf("[DEMO] posix stdlib test case 9(except):atoll(%lld) ok == 12+-100.\n", value);
+        LOG("[DEMO] posix stdlib test case 9(except):atoll(%lld) ok == 12+-100.\n", value);
     } else {
-        printf("[DEMO] posix stdlib test case 9(except):atoll(%lld) fail.\n", value);
+        LOG("[DEMO] posix stdlib test case 9(except):atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == 12LL);
 }

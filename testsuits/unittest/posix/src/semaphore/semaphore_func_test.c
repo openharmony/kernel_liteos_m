@@ -71,12 +71,14 @@ static BOOL PosixSemaphoreFuncTestSuiteTearDown(void)
 // get cur-time plus ms
 struct timespec GetDelayedTime(unsigned int ms)
 {
+    LOG("GetDelayedTime ms = %lu", ms);
     struct timespec ts = { 0 };
     const unsigned int nsecPerSec = 1000000000;
     const unsigned int nsecPerMs = 1000000;
-    unsigned int setTimeNs = ms * nsecPerMs;
+    unsigned long long setTimeNs = ms * nsecPerMs;
     struct timespec tsNow = { 0 };
     clock_gettime(CLOCK_REALTIME, &tsNow);
+    LOG("Cur time tv_sec: %lld, tv_nsec: %ld", tsNow.tv_sec, tsNow.tv_nsec);
     ts.tv_sec = tsNow.tv_sec + (tsNow.tv_nsec + setTimeNs) / nsecPerSec;
     ts.tv_nsec = (tsNow.tv_nsec + setTimeNs) % nsecPerSec;
     return ts;
@@ -85,10 +87,11 @@ struct timespec GetDelayedTime(unsigned int ms)
 // calculate time difference, in ms
 int GetTimeDiff(struct timespec ts1, struct timespec ts2)
 {
-    const unsigned int nsecPerSec = 1000000000;
-    const unsigned int nsecPerMs = 1000000;
+    const int nsecPerSec = 1000000000;
+    const int nsecPerMs = 1000000;
     int ms = (ts1.tv_sec - ts2.tv_sec) * nsecPerSec + (ts1.tv_nsec - ts2.tv_nsec);
     ms = ms / nsecPerMs;
+    LOG("different result: %ld (ms)", ms);
     return ms;
 }
 
@@ -107,7 +110,7 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait001, Function | 
     TEST_ASSERT_EQUAL_INT(0, sem_init((sem_t *)&sem, 0, 0));
 
     ts = GetDelayedTime(100);
-    LOG("\n ts %d, %d", ts.tv_sec, ts.tv_nsec);
+    LOG("predicted time:%lld, %d", ts.tv_sec, ts.tv_nsec);
     if (sem_timedwait((sem_t *)&sem, &ts) == -1) {
         TEST_ASSERT_EQUAL_INT(ETIMEDOUT, errno);
     } else {
@@ -115,11 +118,10 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait001, Function | 
     }
 
     clock_gettime(CLOCK_REALTIME, &tsNow);
-    LOG("\n tsNow %d, %d", tsNow.tv_sec, tsNow.tv_nsec);
+    LOG("tsNow %lld, %d", tsNow.tv_sec, tsNow.tv_nsec);
     int timeDiff = GetTimeDiff(tsNow, ts); // calculate time different
-    LOG("\n timeDiff %d", timeDiff);
-    TEST_ASSERT_GREATER_THAN_INT(0, timeDiff);
-    TEST_ASSERT_LESS_THAN_INT(20, timeDiff);
+    LOG("timeDiff %d", timeDiff);
+    TEST_ASSERT_LESS_THAN_INT(20, abs(timeDiff));
 
     TEST_ASSERT_EQUAL_INT(0, sem_destroy((sem_t *)&sem));
 }
@@ -140,7 +142,7 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait002, Function | 
     TEST_ASSERT_EQUAL_INT(0, sem_init((sem_t *)&sem, 0, 1));
 
     ts = GetDelayedTime(100);
-    LOG("\n ts %d, %d", ts.tv_sec, ts.tv_nsec);
+    LOG("\n ts %lld, %d", ts.tv_sec, ts.tv_nsec);
     clock_gettime(CLOCK_REALTIME, &tsBegin);
     int ret = sem_timedwait((sem_t *)&sem, &ts);
     clock_gettime(CLOCK_REALTIME, &tsNow);

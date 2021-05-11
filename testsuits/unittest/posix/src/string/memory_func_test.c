@@ -141,7 +141,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcpy002, Function | MediumTest 
             break;
         }
     }
-    TEST_ASSERT_EQUAL_INT(failure, 0);
+    TEST_ASSERT_EQUAL_INT(0, failure);
 };
 
 
@@ -179,10 +179,8 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp001, Function | MediumTest 
     char   dest[]={"memory refers to the computer hardware devices used to store information for "
         "immediate use in a computer\r\n"};
 
-    TEST_ASSERT_EQUAL_STRING(source, dest);
-
     retValue = memcmp(source, dest, sizeof(source) / sizeof(source[0]));
-    TEST_ASSERT_EQUAL_INT(retValue, 0);
+    TEST_ASSERT_EQUAL_INT(0, retValue);
 
 
     char orign[8] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88};
@@ -194,16 +192,16 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp001, Function | MediumTest 
     int len = sizeof(orign);
 
     ret = memcmp(orign, lt, len);
-    TEST_ASSERT_LESS_THAN(ret, 0);
+    TEST_ASSERT_GREATER_THAN(0, ret);
 
     ret = memcmp(eq, orign, len);
-    TEST_ASSERT_EQUAL_INT(ret, 0);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 
     ret = memcmp(orign, gt, len);
-    TEST_ASSERT_GREATER_THAN(ret, 0);
+    TEST_ASSERT_LESS_THAN(0, ret);
 
     ret = memcmp(gt, orign, 0);
-    TEST_ASSERT_EQUAL_INT(ret, 0);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 };
 
 
@@ -219,16 +217,16 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp002, Function | MediumTest 
         "immediate use in a computer\r\n"};
     char dest[]={"Hello, Richard, how are you?\r\n"};
     retValue = memcmp(source, dest, sizeof(dest) / sizeof(dest[0]));
-    TEST_ASSERT_EQUAL_INT(retValue, 1);
+    TEST_ASSERT_GREATER_THAN(0, retValue);
 
     int ret = memcmp(L"CBCDEFG", L"BBCDEFG", 7);
-    TEST_ASSERT_LESS_THAN(ret, 0);
+    TEST_ASSERT_GREATER_THAN(0, ret);
 
     ret = memcmp(L"ABCDEFG", L"abcdefg", 2);
-    TEST_ASSERT_GREATER_THAN(ret, 0);
+    TEST_ASSERT_LESS_THAN(0, ret);
 
     ret = memcmp(L"ABCDEFG", L"ABCDEFG", 6);
-    TEST_ASSERT_EQUAL_INT(ret, 0);
+    TEST_ASSERT_EQUAL_INT(0, ret);
 };
 
 
@@ -244,7 +242,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp003, Function | MediumTest 
     char   dest[]={"memory refers to the computer hardware devices used to store information for "
         "immediate use in a computer\r\n"};
     retValue = memcmp(source, dest, sizeof(source) / sizeof(source[0]));
-    TEST_ASSERT_EQUAL_INT(retValue, -1);
+    TEST_ASSERT_LESS_THAN(0, retValue);
 };
 
 

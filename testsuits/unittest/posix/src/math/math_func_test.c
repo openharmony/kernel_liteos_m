@@ -35,7 +35,7 @@
 #include "hctest.h"
 #include "los_config.h"
 #include "kernel_test.h"
-#include "los_debug.h"
+#include "log.h"
 
 #define RET_OK 0
 #define TEST_VALUE_X 0
@@ -89,7 +89,7 @@ static BOOL PosixMathFuncTestSuiteSetUp(void)
  */
 static BOOL PosixMathFuncTestSuiteTearDown(void)
 {
-    PRINT_EMG("+-------------------------------------------+\n");
+    LOG("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -106,7 +106,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathAbs001, Function | MediumTest | L
     int ret;
     for (int i = 0; i < testCount; ++i) {
         ret = abs(testValues[i]);
-        PRINT_EMG("\n [POSIXTEST][abs]abs(%d) = %d, expected is %d", testValues[i], ret, expected[i]);
+        LOG("\n [POSIXTEST][abs]abs(%d) = %d, expected is %d", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_INT(expected[i], ret);
     }
 };
@@ -124,7 +124,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathAbs002, Function | MediumTest | L
     int ret;
     for (int i = 0; i < testCount; ++i) {
         ret = abs(testValues[i]);
-        PRINT_EMG("\n [POSIXTEST][abs]abs(%d) = %d, expected is %d", testValues[i], ret, expected[i]);
+        LOG("\n [POSIXTEST][abs]abs(%d) = %d, expected is %d", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_INT(expected[i], ret);
     }
 };
@@ -140,9 +140,11 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathLog001, Function | MediumTest | L
     double testValues[] = { 0.5, 5.5, 1};
     double expected[] = { -0.69314718055994528623, 1.70474809223842527217, 0.00000000000000000000};
     double ret;
+    PRINT_EMG("GZHTESTLOG PRINT_EMG: %f, %f, %f", testValues[0], testValues[1], testValues[2]);
+    LOG("GZHTESTLOG LOG: %f, %f, %f", testValues[0], testValues[1], testValues[2]);
     for (int i = 0; i < testCount; ++i) {
         ret = log(testValues[i]);
-        PRINT_EMG("\n [POSIXTEST][log]log(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
+        LOG("\n [POSIXTEST][log]log(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
         TEST_ASSERT_TRUE(DoubleEquals(expected[i], ret));
     }
@@ -160,12 +162,12 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathLog002, Function | MediumTest | L
     double expected[] = { -INFINITY, NAN, NAN, NAN};
     double ret;
 
-    PRINT_EMG("\n (math_errhandling & MATH_ERRNO) = %d", (math_errhandling & MATH_ERRNO));
-    PRINT_EMG("\n (math_errhandling & MATH_ERREXCEPT) = %d", (math_errhandling & MATH_ERREXCEPT));
+    LOG("\n (math_errhandling & MATH_ERRNO) = %d", (math_errhandling & MATH_ERRNO));
+    LOG("\n (math_errhandling & MATH_ERREXCEPT) = %d", (math_errhandling & MATH_ERREXCEPT));
 
     for (int i = 0; i < testCount; ++i) {
         ret = log(testValues[i]);
-        PRINT_EMG("\n [POSIXTEST][log]log(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
+        LOG("\n [POSIXTEST][log]log(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
     }
 };
@@ -183,7 +185,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathSqrt001, Function | MediumTest | 
     double ret;
     for (int i = 0; i < testCount; ++i) {
         ret = sqrt(testValues[i]);
-        PRINT_EMG("\n [POSIXTEST][sqrt]sqrt(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
+        LOG("\n [POSIXTEST][sqrt]sqrt(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
         TEST_ASSERT_TRUE(DoubleEquals(expected[i], ret));
     }
@@ -202,7 +204,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathSqrt002, Function | MediumTest | 
     double ret;
     for (int i = 0; i < testCount; ++i) {
         ret = sqrt(testValues[i]);
-        PRINT_EMG("\n [POSIXTEST][sqrt]sqrt(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
+        LOG("\n [POSIXTEST][sqrt]sqrt(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
     }
 };
@@ -225,7 +227,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow001, Function | MediumTest | L
     double ret;
     for (int i = 0; i < testCount; ++i) {
         ret = pow(testValues[i][TEST_VALUE_X], testValues[i][TEST_VALUE_Y]);
-        PRINT_EMG("\n [POSIXTEST][pow]pow1(%f,%f) = %f, expected is %f", testValues[i][TEST_VALUE_X],
+        LOG("\n [POSIXTEST][pow]pow1(%f,%f) = %f, expected is %f", testValues[i][TEST_VALUE_X],
             testValues[i][TEST_VALUE_Y], ret, testValues[i][TEST_EXPECTED]);
         TEST_ASSERT_EQUAL_FLOAT(testValues[i][TEST_EXPECTED], ret);
         TEST_ASSERT_TRUE(DoubleEquals(testValues[i][TEST_EXPECTED], ret));
@@ -261,7 +263,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow002, Function | MediumTest | L
         ret = pow(testValues[i][TEST_VALUE_X], testValues[i][TEST_VALUE_Y]);
         TEST_ASSERT_EQUAL_FLOAT(testValues[i][TEST_EXPECTED], ret);
         TEST_ASSERT_TRUE(DoubleEquals(testValues[i][TEST_EXPECTED], ret));
-        PRINT_EMG("\n [POSIXTEST][pow]pow1(%f,%f) = %f, expected is %f", testValues[i][TEST_VALUE_X],
+        LOG("\n [POSIXTEST][pow]pow1(%f,%f) = %f, expected is %f", testValues[i][TEST_VALUE_X],
             testValues[i][TEST_VALUE_Y], ret, testValues[i][TEST_EXPECTED]);
     }
 };
@@ -274,8 +276,8 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow002, Function | MediumTest | L
 LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow003, Function | MediumTest | Level1)
 {
     double testValues[][TEST_EXPECTED + 1] = {
-        {0.0, -7, HUGE_VAL},
-        {-0.0, -6.22, HUGE_VAL},
+        {0.0, -7, -HUGE_VAL},
+        {-0.0, -6.22, -HUGE_VAL},
         {-7.23, 3.57, NAN},
         {121223, 5674343, HUGE_VAL}
     };
@@ -285,7 +287,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow003, Function | MediumTest | L
     for (int i = 0; i < testCount; ++i) {
         ret = pow(testValues[i][TEST_VALUE_X], testValues[i][TEST_VALUE_Y]);
         TEST_ASSERT_EQUAL_FLOAT(testValues[i][TEST_EXPECTED], ret);
-        PRINT_EMG("\n [POSIXTEST][pow]pow1(%f,%f) = %f, expected is %f", testValues[i][TEST_VALUE_X],
+        LOG("\n [POSIXTEST][pow]pow1(%f,%f) = %f, expected is %f", testValues[i][TEST_VALUE_X],
             testValues[i][TEST_VALUE_Y], ret, testValues[i][TEST_EXPECTED]);
         TEST_ASSERT_TRUE(DoubleEquals(testValues[i][TEST_EXPECTED], ret));
     }
@@ -305,7 +307,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathRound001, Function | MediumTest |
     double ret;
     for (int i = 0; i < testCount; ++i) {
         ret = round(testValues[i]);
-        PRINT_EMG("\n [POSIXTEST][round]round1(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
+        LOG("\n [POSIXTEST][round]round1(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
         TEST_ASSERT_TRUE(DoubleEquals(expected[i], ret));
     }
@@ -324,28 +326,9 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathRound002, Function | MediumTest |
     double ret;
     for (int i = 0; i < testCount; ++i) {
         ret = round(testValues[i]);
-        PRINT_EMG("\n [POSIXTEST][round]round1(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
+        LOG("\n [POSIXTEST][round]round1(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
         TEST_ASSERT_TRUE(DoubleEquals(expected[i], ret));
-    }
-};
-
-/* *
- * @tc.number     SUB_KERNEL_MATH_ROUND_002
- * @tc.name       round basic function test
- * @tc.desc       [C- SOFTWARE -0100]
- */
-LITE_TEST_CASE(PosixMathFuncTestSuite, testMathRound003, Function | MediumTest | Level1)
-{
-    double testValues[] = { NAN, -INFINITY, INFINITY, 0};
-    double expected[] = { NAN, -INFINITY, INFINITY, 0.00000000000000000000};
-    const int testCount = sizeof(testValues) / sizeof(double);
-    double ret;
-    for (int i = 0; i < testCount; ++i) {
-        ret = round(testValues[i]);
-        PRINT_EMG("\n [POSIXTEST][round]round1_fortest(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
-        TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
-        TEST_ASSERT_FALSE(DoubleEquals(expected[i], ret));
     }
 };
 
@@ -353,7 +336,7 @@ RUN_TEST_SUITE(PosixMathFuncTestSuite);
 
 void PosixMathFuncTest()
 {
-    PRINT_EMG("begin PosixMathFuncTest....");
+    LOG("begin PosixMathFuncTest....");
     RUN_ONE_TESTCASE(testMathAbs001);
     RUN_ONE_TESTCASE(testMathAbs002);
     RUN_ONE_TESTCASE(testMathLog001);
@@ -365,7 +348,6 @@ void PosixMathFuncTest()
     RUN_ONE_TESTCASE(testMathPow003);
     RUN_ONE_TESTCASE(testMathRound001);
     RUN_ONE_TESTCASE(testMathRound002);
-    RUN_ONE_TESTCASE(testMathRound003);
 
     return;
 }
