@@ -55,6 +55,7 @@ typedef unsigned mode_t;
 
 typedef struct {
     uint8_t useFlag;
+    const char *pathName;
     lfs_file_t file;
 } LittleFsHandleStruct;
 
@@ -97,6 +98,7 @@ typedef struct {
 
 #define LITTLE_FS_MAX_OPEN_FILES 100
 #define LITTLE_FS_STANDARD_NAME_LENGTH 50
+#define LITTLE_FS_MAX_NAME_LEN 255
 
 #define MAX_DEF_BUF_NUM 21
 #define MAX_BUFFER_LEN 100
@@ -121,7 +123,7 @@ int LfsRmdir(const char *dirName);
 DIR *LfsOpendir(const char *dirName);
 struct dirent *LfsReaddir(DIR *dir);
 int LfsClosedir(const DIR *dir);
-int LfsOpen(const char *path, int openFlag, int mode);
+int LfsOpen(const char *pathName, int openFlag, int mode);
 int LfsRead(int fd, void *buf, unsigned int len);
 int LfsWrite(int fd, const void *buf, unsigned int len);
 int LfsSeek(int fd, off_t offset, int whence);

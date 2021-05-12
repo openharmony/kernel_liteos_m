@@ -30,7 +30,6 @@
  */
 
 #include "lfs_api.h"
-#include "iCunit.h"
 
 lfs_t g_lfs;
 FileDirInfo g_lfsDir[LFS_MAX_OPEN_DIRS] = {0};
@@ -46,20 +45,39 @@ FileOpInfo GetFsOpInfo(void)
     return g_fsOp;
 }
 
-LittleFsHandleStruct *GetFreeFd(int *fd)
+LittleFsHandleStruct *LfsAllocFd(const char *fileName, int *fd)
 {
+    int len = strlen(fileName) + 1;
+
     pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
         if (g_handle[i].useFlag == 0) {
             *fd = i;
             g_handle[i].useFlag = 1;
+            g_handle[i].pathName = (char *)malloc(len);
+            if (g_handle[i].pathName) {
+                memcpy_s(g_handle[i].pathName, LITTLE_FS_MAX_NAME_LEN, fileName, len);
+            }
             pthread_mutex_unlock(&g_FslocalMutex);
             return &(g_handle[i]);
-        }        
+        }
     }
     pthread_mutex_unlock(&g_FslocalMutex);
     *fd = INVALID_FD;
     return NULL;
+}
+
+BOOL CheckFileIsOpen(const char *fileName)
+{
+    for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
+        if (g_handle[i].useFlag == 1) {
+            if (strcmp(g_handle[i].pathName, fileName) == 0) {
+                return TRUE;
+            }
+        }
+    }
+
+    return FALSE;
 }
 
 lfs_dir_t *GetFreeDir()
@@ -82,7 +100,7 @@ int InitMountInfo(const char *fileSystemType, const struct MountOps *fsMops)
     for (int i = 0; i < MAX_FILE_SYSTEM_LEN; i++) {
         if (g_fsmap[i].fileSystemtype == NULL) {
             g_fsmap[i].fileSystemtype = (char*)malloc(len);
-            memcpy_s(g_fsmap[i].fileSystemtype, len, fileSystemType, len);
+            memcpy_s(g_fsmap[i].fileSystemtype, LITTLE_FS_MAX_NAME_LEN, fileSystemType, len);
             g_fsmap[i].fsMops = fsMops;
             return VFS_OK;
         }
@@ -205,23 +223,28 @@ int LfsClosedir(const DIR *dir)
     return lfs_dir_close(&g_lfs, (lfs_dir_t *)dir);
 }
 
-int LfsOpen(const char *path, int openFlag, int mode)
+int LfsOpen(const char *pathName, int openFlag, int mode)
 {
     int fd = INVALID_FD;
 
-    LittleFsHandleStruct *fsHandle = GetFreeFd(&fd);
+    // if file is already open, return invalid fd
+    if (pathName == NULL || CheckFileIsOpen(pathName)) {
+        goto errout;
+    }
+
+    LittleFsHandleStruct *fsHandle = LfsAllocFd(pathName, &fd);
     if (fd == INVALID_FD) {
         goto errout;
     }
 
-    int err = lfs_file_open(&g_lfs, &(fsHandle->file), path, openFlag);
+    int err = lfs_file_open(&g_lfs, &(fsHandle->file), pathName, openFlag);
     if (err != 0) {
         goto errout;
     }
 
     return fd;
 errout:
-    return INVALID_FD;    
+    return INVALID_FD;
 }
 
 int LfsRead(int fd, void *buf, unsigned int len)
@@ -259,9 +282,13 @@ int LfsClose(int fd)
         return ret;
     }
 
-    ret = lfs_file_close(&g_lfs, &(g_handle[fd].file));
     pthread_mutex_lock(&g_FslocalMutex);
+    ret = lfs_file_close(&g_lfs, &(g_handle[fd].file));
     g_handle[fd].useFlag = 0;
+    if (g_handle[fd].pathName != NULL) {
+        free(g_handle[fd].pathName);
+        g_handle[fd].pathName = NULL;
+    }
     pthread_mutex_unlock(&g_FslocalMutex);
 
     return ret;    
