@@ -145,7 +145,7 @@ int timer_settime(timer_t timerID, int flags,
                   const struct itimerspec *restrict value,
                   struct itimerspec *restrict oldValue)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT32 swtmrID = (UINT32)(UINTPTR)timerID;
     SWTMR_CTRL_S *swtmr = NULL;
     UINT32 interval, expiry, ret;
@@ -254,7 +254,7 @@ STATIC VOID OsGetHwTime(struct timespec *hwTime)
 
 STATIC VOID OsGetRealTime(struct timespec *realTime)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     struct timespec hwTime = {0};
     OsGetHwTime(&hwTime);
     intSave = LOS_IntLock();
@@ -266,7 +266,7 @@ STATIC VOID OsGetRealTime(struct timespec *realTime)
 
 STATIC VOID OsSetRealTime(const struct timespec *realTime)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     struct timespec hwTime = {0};
     OsGetHwTime(&hwTime);
     intSave = LOS_IntLock();

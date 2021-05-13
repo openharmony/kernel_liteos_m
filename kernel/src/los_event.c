@@ -50,7 +50,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventInit(PEVENT_CB_S eventCB)
 LITE_OS_SEC_TEXT UINT32 LOS_EventPoll(UINT32 *eventID, UINT32 eventMask, UINT32 mode)
 {
     UINT32 ret = 0;
-    UINTPTR intSave;
+    UINT32 intSave;
 
     if (eventID == NULL) {
         return LOS_ERRNO_EVENT_PTR_NULL;
@@ -97,7 +97,7 @@ LITE_OS_SEC_TEXT STATIC_INLINE UINT32 OsEventReadParamCheck(PEVENT_CB_S eventCB,
 LITE_OS_SEC_TEXT UINT32 LOS_EventRead(PEVENT_CB_S eventCB, UINT32 eventMask, UINT32 mode, UINT32 timeOut)
 {
     UINT32 ret;
-    UINTPTR intSave;
+    UINT32 intSave;
     LosTaskCB *runTsk = NULL;
 
     ret = OsEventReadParamCheck(eventCB, eventMask, mode);
@@ -146,7 +146,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventWrite(PEVENT_CB_S eventCB, UINT32 events)
 {
     LosTaskCB *resumedTask = NULL;
     LosTaskCB *nextTask = (LosTaskCB *)NULL;
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT8 exitFlag = 0;
     if (eventCB == NULL) {
         return LOS_ERRNO_EVENT_PTR_NULL;
@@ -188,7 +188,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventWrite(PEVENT_CB_S eventCB, UINT32 events)
 
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventDestroy(PEVENT_CB_S eventCB)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     if (eventCB == NULL) {
         return LOS_ERRNO_EVENT_PTR_NULL;
     }
@@ -206,7 +206,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventDestroy(PEVENT_CB_S eventCB)
 }
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 eventMask)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     if (eventCB == NULL) {
         return LOS_ERRNO_EVENT_PTR_NULL;
     }

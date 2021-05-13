@@ -314,7 +314,7 @@ Return      : Count of the Timer list
 *****************************************************************************/
 LITE_OS_SEC_TEXT UINT32 OsSwtmrGetNextTimeout(VOID)
 {
-    UINTPTR intSave = LOS_IntLock();
+    UINT32 intSave = LOS_IntLock();
     UINT32 ticks = OsSortLinkGetNextExpireTime(g_swtmrSortLinkList);
     LOS_IntRestore(intSave);
     return ticks;
@@ -423,7 +423,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_SwtmrCreate(UINT32 interval,
 #endif
 {
     SWTMR_CTRL_S  *swtmr = NULL;
-    UINTPTR  intSave;
+    UINT32 intSave;
 
     if (interval == 0) {
         return LOS_ERRNO_SWTMR_INTERVAL_NOT_SUITED;
@@ -488,7 +488,7 @@ Return      : LOS_OK on success or error code on failure
 *****************************************************************************/
 LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStart(UINT32 swtmrId)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT32 ret = LOS_OK;
 
     if (swtmrId >= OS_SWTMR_MAX_TIMERID) {
@@ -542,7 +542,7 @@ Return      : LOS_OK on success or error code on failure
 LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStop(UINT32 swtmrId)
 {
     SWTMR_CTRL_S *swtmr = NULL;
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT16 swtmrCbId;
     UINT32 ret = LOS_OK;
 
@@ -579,7 +579,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStop(UINT32 swtmrId)
 LITE_OS_SEC_TEXT UINT32 LOS_SwtmrTimeGet(UINT32 swtmrId, UINT32 *tick)
 {
     SWTMR_CTRL_S *swtmr = NULL;
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT32 ret = LOS_OK;
     UINT16 swtmrCbId;
 
@@ -627,7 +627,7 @@ Return      : LOS_OK on success or error code on failure
 LITE_OS_SEC_TEXT UINT32 LOS_SwtmrDelete(UINT32 swtmrId)
 {
     SWTMR_CTRL_S *swtmr = NULL;
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT32 ret = LOS_OK;
     UINT16 swtmrCbId;
 

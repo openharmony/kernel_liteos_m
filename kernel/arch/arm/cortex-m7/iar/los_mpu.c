@@ -50,7 +50,7 @@ typedef enum {
 
 VOID HalMpuEnable(UINT32 defaultRegionEnable)
 {
-    UINTPTR intSave = HalIntLock();
+    UINT32 intSave = HalIntLock();
     MPU->CTRL = (MPU_CTRL_ENABLE_Msk | ((defaultRegionEnable << MPU_CTRL_PRIVDEFENA_Pos) & MPU_CTRL_PRIVDEFENA_Msk));
     SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
     __DSB();
@@ -59,7 +59,7 @@ VOID HalMpuEnable(UINT32 defaultRegionEnable)
 }
 VOID HalMpuDisable(VOID)
 {
-    UINTPTR intSave = HalIntLock();
+    UINT32 intSave = HalIntLock();
     MPU->CTRL = 0;
     __DSB();
     __ISB();
@@ -152,7 +152,7 @@ UINT32 HalMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para)
     UINT32 RBAR;
     UINT32 RNR;
     UINT32 encodeSize;
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT64 size;
 
     if ((regionId >= MPU_MAX_REGION_NUM) || (para == NULL)) {
@@ -192,7 +192,7 @@ UINT32 HalMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para)
 UINT32 HalMpuDisableRegion(UINT32 regionId)
 {
     volatile UINT32 type;
-    UINTPTR intSave;
+    UINT32 intSave;
 
     if (regionId >= MPU_MAX_REGION_NUM) {
         return LOS_NOK;
@@ -219,7 +219,7 @@ UINT32 HalMpuDisableRegion(UINT32 regionId)
 INT32 HalMpuUnusedRegionGet(VOID)
 {
     INT32 id;
-    UINTPTR intSave = HalIntLock();
+    UINT32 intSave = HalIntLock();
     for (id = 0; id < MPU_MAX_REGION_NUM; id++) {
         if (!g_regionNumBeUsed[id]) {
             break;

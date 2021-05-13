@@ -63,7 +63,7 @@ static UINT32 Testcase(VOID)
     HWI_PRIOR_T hwiPrio = 1;
     HWI_MODE_T mode = 0;
     HWI_ARG_T arg = 0;
-    UINTPTR uvIntSave;
+    UINT32 intSave;
 
     g_testCount = 0;
 
@@ -76,13 +76,13 @@ static UINT32 Testcase(VOID)
     ret = LOS_HwiCreate(HWI_NUM_TEST1, hwiPrio, mode, (HWI_PROC_FUNC)HwiF03, arg);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT2);
 
-    uvIntSave = LOS_IntLock();
+    intSave = LOS_IntLock();
 
     TestHwiTrigger(HWI_NUM_TEST1);
     TestHwiTrigger(HWI_NUM_TEST3);
     TestHwiTrigger(HWI_NUM_TEST);
 
-    LOS_IntRestore(uvIntSave);
+    LOS_IntRestore(intSave);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT3); // Compare wiht the expected value 3.
 

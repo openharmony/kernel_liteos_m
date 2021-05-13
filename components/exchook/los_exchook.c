@@ -54,7 +54,7 @@ STATIC VOID DoExcHookInRegOrder(EXC_TYPE excType, struct Node *node)
 
 STATIC VOID DoExcHook(EXC_TYPE excType)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     if (excType >= EXC_TYPE_END) {
         return;
     }
@@ -88,7 +88,7 @@ STATIC struct Node *GetFreeNode(VOID)
 
 UINT32 LOS_RegExcHook(EXC_TYPE excType, ExcHookFn excHookFn)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     struct Node *node = NULL;
     if (excType >= EXC_TYPE_END || excHookFn == NULL) {
         return LOS_ERRNO_SYS_PTR_NULL;
@@ -110,7 +110,7 @@ UINT32 LOS_RegExcHook(EXC_TYPE excType, ExcHookFn excHookFn)
 
 UINT32 LOS_UnRegExcHook(EXC_TYPE excType, ExcHookFn excHookFn)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     struct Node *node = NULL;
     struct Node *preNode = NULL;
     if (excType >= EXC_TYPE_END || excHookFn == NULL) {

@@ -205,7 +205,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 HalHwiCreate(HWI_HANDLE_T hwiNum,
                                           HWI_PROC_FUNC handler,
                                           HWI_ARG_T arg)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
 
     if (handler == NULL) {
         return OS_ERRNO_HWI_PROC_FUNC_NULL;

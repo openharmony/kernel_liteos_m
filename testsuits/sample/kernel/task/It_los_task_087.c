@@ -44,7 +44,7 @@ static UINT32 OsShellCmdTaskCntGet(VOID)
 {
     UINT32 loop;
     UINT32 taskCnt = 0;
-    UINTPTR intSave;
+    UINT32 intSave;
     LosTaskCB *taskCB = (LosTaskCB *)NULL;
 
     intSave = LOS_IntLock();

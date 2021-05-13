@@ -67,7 +67,7 @@ VOID OsBackTraceHookCall(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR S
 
 VOID OsExcHookRegister(ExcHookFn excHookFn)
 {
-    UINTPTR intSave = LOS_IntLock();
+    UINT32 intSave = LOS_IntLock();
     if (!g_excHook) {
         g_excHook = excHookFn;
     }
@@ -76,7 +76,7 @@ VOID OsExcHookRegister(ExcHookFn excHookFn)
 
 VOID OsDoExcHook(EXC_TYPE excType)
 {
-    UINTPTR intSave = LOS_IntLock();
+    UINT32 intSave = LOS_IntLock();
     if (g_excHook) {
         g_excHook(excType);
     }
