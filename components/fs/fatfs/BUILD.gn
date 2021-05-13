@@ -34,10 +34,10 @@ static_library("fatfs") {
     "//third_party/FatFs/source/ffsystem.c",
     "//third_party/FatFs/source/ffunicode.c",
     "fatfs.c",
-    "fs.c",
   ]
 
   include_dirs = [
+    "../",
     "../../../kernel/arch/include",
     "../../../kernel/include",
     "../../../utils",
