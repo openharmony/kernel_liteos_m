@@ -45,25 +45,25 @@ static UINT32 Testcase(VOID)
     HWI_PRIOR_T hwiPrio = 1;
     HWI_MODE_T mode = 0;
     HWI_ARG_T arg = 0;
-    UINTPTR uvIntSave1;
-    UINTPTR uvIntSave2;
+    UINT32 intSave1;
+    UINT32 intSave2;
 
     g_testCount = 0;
 
     ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    uvIntSave1 = LOS_IntLock();
-    uvIntSave2 = LOS_IntLock();
+    intSave1 = LOS_IntLock();
+    intSave2 = LOS_IntLock();
 
     TestHwiTrigger(HWI_NUM_TEST);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT);
 
-    LOS_IntRestore(uvIntSave2);
+    LOS_IntRestore(intSave2);
     ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT);
 
-    LOS_IntRestore(uvIntSave1);
+    LOS_IntRestore(intSave1);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
 

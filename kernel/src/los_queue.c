@@ -97,7 +97,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(CHAR *queueName,
                                              UINT16 maxMsgSize)
 {
     LosQueueCB *queueCB = NULL;
-    UINTPTR intSave;
+    UINT32 intSave;
     LOS_DL_LIST *unusedQueue = NULL;
     UINT8 *queue = NULL;
     UINT16 msgSize;
@@ -282,7 +282,7 @@ UINT32 OsQueueOperate(UINT32 queueID, UINT32 operateType, VOID *bufferAddr, UINT
     UINT32 readWrite = OS_QUEUE_READ_WRITE_GET(operateType);
     UINT32 readWriteTmp = !readWrite;
 
-    UINTPTR intSave = LOS_IntLock();
+    UINT32 intSave = LOS_IntLock();
 
     queueCB = (LosQueueCB *)GET_QUEUE_HANDLE(queueID);
     ret = OsQueueOperateParamCheck(queueCB, operateType, bufferSize);
@@ -448,7 +448,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_QueueWriteHead(UINT32 queueID,
 LITE_OS_SEC_TEXT VOID *OsQueueMailAlloc(UINT32 queueID, VOID *mailPool, UINT32 timeOut)
 {
     VOID *mem = (VOID *)NULL;
-    UINTPTR intSave;
+    UINT32 intSave;
     LosQueueCB *queueCB = (LosQueueCB *)NULL;
     LosTaskCB *runTsk = (LosTaskCB *)NULL;
 
@@ -513,7 +513,7 @@ END:
 LITE_OS_SEC_TEXT UINT32 OsQueueMailFree(UINT32 queueID, VOID *mailPool, VOID *mailMem)
 {
     VOID *mem = (VOID *)NULL;
-    UINTPTR intSave;
+    UINT32 intSave;
     LosQueueCB *queueCB = (LosQueueCB *)NULL;
     LosTaskCB *resumedTask = (LosTaskCB *)NULL;
 
@@ -566,7 +566,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueDelete(UINT32 queueID)
 {
     LosQueueCB *queueCB = NULL;
     UINT8 *queue = NULL;
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT32 ret;
 
     if (queueID >= LOSCFG_BASE_IPC_QUEUE_LIMIT) {
@@ -619,7 +619,7 @@ QUEUE_END:
 
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_QueueInfoGet(UINT32 queueID, QUEUE_INFO_S *queueInfo)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT32 ret = LOS_OK;
     LosQueueCB *queueCB = NULL;
     LosTaskCB *tskCB = NULL;

@@ -58,9 +58,9 @@ static UINT32 Testcase(VOID)
     HWI_PRIOR_T hwiPrio = 7;
     HWI_MODE_T mode = 0;
     HWI_ARG_T arg = 0;
-    UINTPTR uvIntSave1;
-    UINTPTR uvIntSave2;
-    UINTPTR uvIntSave3;
+    UINT32 intSave1;
+    UINT32 intSave2;
+    UINT32 intSave3;
 
     for (loop = 0; loop < HWI_LOOP_NUM; loop++) {
         g_testCount = 0;
@@ -73,22 +73,22 @@ static UINT32 Testcase(VOID)
         ret = LOS_HwiCreate(HWI_NUM_TEST1, hwiPrio, mode, (HWI_PROC_FUNC)HwiF03, arg);
         ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT2);
 
-        uvIntSave1 = LOS_IntLock();
-        uvIntSave2 = LOS_IntLock();
-        uvIntSave3 = LOS_IntLock();
+        intSave1 = LOS_IntLock();
+        intSave2 = LOS_IntLock();
+        intSave3 = LOS_IntLock();
 
-        LOS_IntRestore(uvIntSave3);
+        LOS_IntRestore(intSave3);
         ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT3);
 
-        uvIntSave3 = LOS_IntLock();
+        intSave3 = LOS_IntLock();
 
-        LOS_IntRestore(uvIntSave3);
+        LOS_IntRestore(intSave3);
         ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT3);
 
-        LOS_IntRestore(uvIntSave2);
+        LOS_IntRestore(intSave2);
         ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT3);
 
-        LOS_IntRestore(uvIntSave1);
+        LOS_IntRestore(intSave1);
         ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT3);
 
         TestHwiTrigger(HWI_NUM_TEST);

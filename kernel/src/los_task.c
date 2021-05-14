@@ -126,7 +126,7 @@ STATIC_INLINE UINT32 OsCheckTaskIDValid(UINT32 taskID)
 STATIC VOID OsRecyleFinishedTask(VOID)
 {
     LosTaskCB *taskCB = NULL;
-    UINTPTR intSave;
+    UINT32 intSave;
     UINTPTR stackPtr;
 
     intSave = LOS_IntLock();
@@ -424,7 +424,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_CurTaskIDGet(VOID)
  *****************************************************************************/
 LITE_OS_SEC_TEXT UINT32 LOS_NextTaskIDGet(VOID)
 {
-    UINTPTR intSave = LOS_IntLock();
+    UINT32 intSave = LOS_IntLock();
     UINT32 taskID = OsGetTopTask()->taskID;
     LOS_IntRestore(intSave);
 
@@ -529,7 +529,7 @@ LITE_OS_SEC_TEXT STATIC VOID OsTaskStackProtect(VOID)
 #if (LOSCFG_BASE_CORE_TSK_MONITOR == 1)
 LITE_OS_SEC_TEXT VOID OsTaskSwitchCheck(VOID)
 {
-    UINTPTR intSave = LOS_IntLock();
+    UINT32 intSave = LOS_IntLock();
 #if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 0)
     UINT32 endOfStack = g_losTask.newTask->topOfStack + g_losTask.newTask->stackSize;
 
@@ -675,7 +675,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S *taskInitParam)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     VOID  *topOfStack = NULL;
     LosTaskCB *taskCB = NULL;
     UINT32 retVal;
@@ -741,7 +741,7 @@ LOS_ERREND:
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreate(UINT32 *taskID, TSK_INIT_PARAM_S *taskInitParam)
 {
     UINT32 retVal;
-    UINTPTR intSave;
+    UINT32 intSave;
     LosTaskCB *taskCB = NULL;
 
     retVal = LOS_TaskCreateOnly(taskID, taskInitParam);
@@ -775,7 +775,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreate(UINT32 *taskID, TSK_INIT_PARAM_S *ta
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskResume(UINT32 taskID)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     LosTaskCB *taskCB = NULL;
     UINT16 tempStatus;
     UINT32 retErr = OS_ERROR;
@@ -823,7 +823,7 @@ LOS_ERREND:
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskSuspend(UINT32 taskID)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     LosTaskCB *taskCB = NULL;
     UINT16 tempStatus;
     UINT32 retErr;
@@ -889,7 +889,7 @@ LITE_OS_SEC_TEXT_INIT STATIC_INLINE VOID OsRunningTaskDelete(UINT32 taskID, LosT
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
     UINTPTR stackPtr;
 
@@ -951,7 +951,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
  *****************************************************************************/
 LITE_OS_SEC_TEXT UINT32 LOS_TaskDelay(UINT32 tick)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
 
     if (OS_INT_ACTIVE) {
         return LOS_ERRNO_TSK_DELAY_IN_INT;
@@ -977,7 +977,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_TaskDelay(UINT32 tick)
 
 LITE_OS_SEC_TEXT_MINOR UINT16 LOS_TaskPriGet(UINT32 taskID)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     LosTaskCB *taskCB = NULL;
     UINT16 priority;
 
@@ -1002,7 +1002,7 @@ LITE_OS_SEC_TEXT_MINOR UINT16 LOS_TaskPriGet(UINT32 taskID)
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskPriSet(UINT32 taskID, UINT16 taskPrio)
 {
     BOOL isReady = FALSE;
-    UINTPTR intSave;
+    UINT32 intSave;
     LosTaskCB *taskCB = NULL;
     UINT16 tempStatus;
 
@@ -1054,7 +1054,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_CurTaskPriSet(UINT16 taskPrio)
  *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskYield(VOID)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
 
     intSave = LOS_IntLock();
     OsSchedYield();
@@ -1072,7 +1072,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskYield(VOID)
  *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR VOID LOS_TaskLock(VOID)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
 
     intSave = LOS_IntLock();
     g_losTaskLock++;
@@ -1088,7 +1088,7 @@ LITE_OS_SEC_TEXT_MINOR VOID LOS_TaskLock(VOID)
  *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR VOID LOS_TaskUnlock(VOID)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
 
     intSave = LOS_IntLock();
     if (g_losTaskLock > 0) {
@@ -1183,7 +1183,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskStatusGet(UINT32 taskID, UINT32 *taskStatu
 #if (LOSCFG_BASE_CORE_EXC_TSK_SWITCH == 1)
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskSwitchInfoGet(UINT32 index, UINT32 *taskSwitchInfo)
 {
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT32 curIndex;
 
     curIndex = index;

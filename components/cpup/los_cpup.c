@@ -215,7 +215,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_SysCpuUsage(VOID)
     UINT64  cpuCycleAll = 0;
     UINT32  cpupRet = 0;
     UINT16  loopNum;
-    UINTPTR intSave;
+    UINT32 intSave;
 
     if (g_cpupInitFlg == 0) {
         return LOS_ERRNO_CPUP_NO_INIT;
@@ -254,7 +254,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_HistorySysCpuUsage(UINT16 mode)
     UINT16  loopNum;
     UINT16  curPos;
     UINT16  prePos = 0;
-    UINTPTR intSave;
+    UINT32 intSave;
 
     if (g_cpupInitFlg == 0) {
         return LOS_ERRNO_CPUP_NO_INIT;
@@ -301,7 +301,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskCpuUsage(UINT32 taskID)
 {
     UINT64  cpuCycleAll = 0;
     UINT16  loopNum;
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT32  cpupRet = 0;
 
     if (g_cpupInitFlg == 0) {
@@ -350,7 +350,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_HistoryTaskCpuUsage(UINT32 taskID, UINT16 mode
     UINT64  cpuCycleCurTsk = 0;
     UINT16  loopNum, curPos;
     UINT16  prePos = 0;
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT32  cpupRet = 0;
 
     if (g_cpupInitFlg == 0) {
@@ -403,7 +403,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_AllTaskCpuUsage(CPUP_INFO_S *cpupInfo, UINT16 
     UINT16  loopNum;
     UINT16  curPos;
     UINT16  prePos = 0;
-    UINTPTR intSave;
+    UINT32 intSave;
     UINT64  cpuCycleAll = 0;
     UINT64  cpuCycleCurTsk = 0;
 

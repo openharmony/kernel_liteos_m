@@ -396,18 +396,18 @@ uint32_t osTaskStackWaterMarkGet(UINT32 taskID)
 {
     UINT32 uwCount = 0;
     UINT32 *ptopOfStack;
-    UINTPTR uvIntSave;
+    UINT32 intSave;
     LosTaskCB *pstTaskCB = NULL;
 
     if (taskID > LOSCFG_BASE_CORE_TSK_LIMIT) {
         return 0;
     }
 
-    uvIntSave = LOS_IntLock();
+    intSave = LOS_IntLock();
 
     pstTaskCB = OS_TCB_FROM_TID(taskID);
     if (OS_TASK_STATUS_UNUSED & (pstTaskCB->taskStatus)) {
-        LOS_IntRestore(uvIntSave);
+        LOS_IntRestore(intSave);
         return 0;
     }
 
@@ -421,7 +421,7 @@ uint32_t osTaskStackWaterMarkGet(UINT32 taskID)
 
     uwCount *= sizeof(UINT32);
 
-    LOS_IntRestore(uvIntSave);
+    LOS_IntRestore(intSave);
     return uwCount;
 }
 
@@ -739,7 +739,7 @@ osStatus_t osTimerStart(osTimerId_t timer_id, uint32_t ticks)
         return osErrorParameter;
     }
 
-    UINTPTR intSave = LOS_IntLock();
+    UINT32 intSave = LOS_IntLock();
     pstSwtmr = (SWTMR_CTRL_S *)timer_id;
     pstSwtmr->uwInterval = ticks;
     uwRet = LOS_SwtmrStart(pstSwtmr->usTimerID);
@@ -869,7 +869,7 @@ uint32_t osEventFlagsSet(osEventFlagsId_t ef_id, uint32_t flags)
 uint32_t osEventFlagsClear(osEventFlagsId_t ef_id, uint32_t flags)
 {
     PEVENT_CB_S pstEventCB = (PEVENT_CB_S)ef_id;
-    UINTPTR uwIntSave;
+    UINT32 intSave;
     uint32_t rflags;
     UINT32 uwRet;
 
@@ -877,11 +877,11 @@ uint32_t osEventFlagsClear(osEventFlagsId_t ef_id, uint32_t flags)
         return (uint32_t)osFlagsErrorParameter;
     }
 
-    uwIntSave = LOS_IntLock();
+    intSave = LOS_IntLock();
     rflags = pstEventCB->uwEventID;
 
     uwRet = LOS_EventClear(pstEventCB, ~flags);
-    LOS_IntRestore(uwIntSave);
+    LOS_IntRestore(intSave);
     if (uwRet != LOS_OK) {
         return (uint32_t)osFlagsErrorParameter;
     } else {
@@ -893,16 +893,16 @@ uint32_t osEventFlagsClear(osEventFlagsId_t ef_id, uint32_t flags)
 uint32_t osEventFlagsGet(osEventFlagsId_t ef_id)
 {
     PEVENT_CB_S pstEventCB = (PEVENT_CB_S)ef_id;
-    UINTPTR uwIntSave;
+    UINT32 intSave;
     uint32_t rflags;
 
     if (pstEventCB == NULL) {
         return 0;
     }
 
-    uwIntSave = LOS_IntLock();
+    intSave = LOS_IntLock();
     rflags = pstEventCB->uwEventID;
-    LOS_IntRestore(uwIntSave);
+    LOS_IntRestore(intSave);
 
     return rflags;
 }
@@ -954,16 +954,16 @@ uint32_t osEventFlagsWait(osEventFlagsId_t ef_id, uint32_t flags, uint32_t optio
 osStatus_t osEventFlagsDelete(osEventFlagsId_t ef_id)
 {
     PEVENT_CB_S pstEventCB = (PEVENT_CB_S)ef_id;
-    UINTPTR uwIntSave;
+    UINT32 intSave;
     osStatus_t uwRet;
 
-    uwIntSave = LOS_IntLock();
+    intSave = LOS_IntLock();
     if (LOS_EventDestroy(pstEventCB) == LOS_OK) {
         uwRet = osOK;
     } else {
         uwRet = osErrorParameter;
     }
-    LOS_IntRestore(uwIntSave);
+    LOS_IntRestore(intSave);
 
     if (LOS_MemFree(m_aucSysMem0, (void *)pstEventCB) == LOS_OK) {
         uwRet = osOK;
@@ -1040,7 +1040,7 @@ osStatus_t osMutexRelease(osMutexId_t mutex_id)
 
 osThreadId_t osMutexGetOwner(osMutexId_t mutex_id)
 {
-    UINT32 uwIntSave;
+    UINT32 intSave;
     LosTaskCB *pstTaskCB;
 
     if (OS_INT_ACTIVE) {
@@ -1051,9 +1051,9 @@ osThreadId_t osMutexGetOwner(osMutexId_t mutex_id)
         return NULL;
     }
 
-    uwIntSave = LOS_IntLock();
+    intSave = LOS_IntLock();
     pstTaskCB = ((LosMuxCB *)mutex_id)->owner;
-    LOS_IntRestore(uwIntSave);
+    LOS_IntRestore(intSave);
 
     return (osThreadId_t)pstTaskCB;
 }
@@ -1158,7 +1158,7 @@ osStatus_t osSemaphoreRelease(osSemaphoreId_t semaphore_id)
 
 uint32_t osSemaphoreGetCount(osSemaphoreId_t semaphore_id)
 {
-    UINT32 uwIntSave;
+    UINT32 intSave;
     UINT32 uwCount;
 
     if (OS_INT_ACTIVE) {
@@ -1169,9 +1169,9 @@ uint32_t osSemaphoreGetCount(osSemaphoreId_t semaphore_id)
         return 0;
     }
 
-    uwIntSave = LOS_IntLock();
+    intSave = LOS_IntLock();
     uwCount = ((LosSemCB *)semaphore_id)->semCount;
-    LOS_IntRestore(uwIntSave);
+    LOS_IntRestore(intSave);
 
     return uwCount;
 }
@@ -1308,15 +1308,15 @@ uint32_t osMessageQueueGetMsgSize(osMessageQueueId_t mq_id)
 uint32_t osMessageQueueGetCount(osMessageQueueId_t mq_id)
 {
     uint32_t count;
-    UINTPTR uwIntSave;
+    UINT32 intSave;
     LosQueueCB *pstQueue = (LosQueueCB *)mq_id;
 
     if (pstQueue == NULL) {
         count = 0U;
     } else {
-        uwIntSave = LOS_IntLock();
+        intSave = LOS_IntLock();
         count = (uint32_t)(pstQueue->readWriteableCnt[OS_QUEUE_READ]);
-        LOS_IntRestore(uwIntSave);
+        LOS_IntRestore(intSave);
     }
     return count;
 }
@@ -1325,15 +1325,15 @@ uint32_t osMessageQueueGetCount(osMessageQueueId_t mq_id)
 uint32_t osMessageQueueGetSpace(osMessageQueueId_t mq_id)
 {
     uint32_t space;
-    UINTPTR uwIntSave;
+    UINT32 intSave;
     LosQueueCB *pstQueue = (LosQueueCB *)mq_id;
 
     if (pstQueue == NULL) {
         space = 0U;
     } else {
-        uwIntSave = LOS_IntLock();
+        intSave = LOS_IntLock();
         space = (uint32_t)pstQueue->readWriteableCnt[OS_QUEUE_WRITE];
-        LOS_IntRestore(uwIntSave);
+        LOS_IntRestore(intSave);
     }
     return space;
 }
@@ -1452,7 +1452,7 @@ void *osMemoryPoolAlloc(osMemoryPoolId_t mp_id, uint32_t timeout)
 {
     MemPoolCB *mp = (MemPoolCB *)mp_id;
     LOS_MEMBOX_NODE *node = NULL;
-    UINTPTR intSave;
+    UINT32 intSave;
 
     UNUSED(timeout);
 
@@ -1479,7 +1479,7 @@ osStatus_t osMemoryPoolFree(osMemoryPoolId_t mp_id, void *block)
     MemPoolCB *mp = (MemPoolCB *)mp_id;
     LOS_MEMBOX_NODE *node = NULL;
     LOS_MEMBOX_NODE *nodeTmp = NULL;
-    UINTPTR intSave;
+    UINT32 intSave;
 
     if ((mp_id == NULL) || (block == NULL)) {
         return osErrorParameter;
@@ -1510,7 +1510,7 @@ osStatus_t osMemoryPoolFree(osMemoryPoolId_t mp_id, void *block)
 osStatus_t osMemoryPoolDelete(osMemoryPoolId_t mp_id)
 {
     MemPoolCB *mp = (MemPoolCB *)mp_id;
-    UINTPTR intSave;
+    UINT32 intSave;
 
     if (OS_INT_ACTIVE) {
         return osErrorISR;
@@ -1545,7 +1545,7 @@ osStatus_t osMemoryPoolDelete(osMemoryPoolId_t mp_id)
 uint32_t osMemoryPoolGetCapacity(osMemoryPoolId_t mp_id)
 {
     MemPoolCB *mp = (MemPoolCB *)mp_id;
-    UINTPTR intSave;
+    UINT32 intSave;
     uint32_t num;
 
     if (mp_id == NULL) {
@@ -1566,7 +1566,7 @@ uint32_t osMemoryPoolGetCapacity(osMemoryPoolId_t mp_id)
 uint32_t osMemoryPoolGetBlockSize(osMemoryPoolId_t mp_id)
 {
     MemPoolCB *mp = (MemPoolCB *)mp_id;
-    UINTPTR intSave;
+    UINT32 intSave;
     uint32_t size;
 
     if (mp_id == NULL) {
@@ -1587,7 +1587,7 @@ uint32_t osMemoryPoolGetBlockSize(osMemoryPoolId_t mp_id)
 uint32_t osMemoryPoolGetCount(osMemoryPoolId_t mp_id)
 {
     MemPoolCB *mp = (MemPoolCB *)mp_id;
-    UINTPTR intSave;
+    UINT32 intSave;
     uint32_t count;
 
     if (mp_id == NULL) {
@@ -1608,7 +1608,7 @@ uint32_t osMemoryPoolGetCount(osMemoryPoolId_t mp_id)
 uint32_t osMemoryPoolGetSpace(osMemoryPoolId_t mp_id)
 {
     MemPoolCB *mp = (MemPoolCB *)mp_id;
-    UINTPTR intSave;
+    UINT32 intSave;
     uint32_t space;
 
     if (mp_id == NULL) {
@@ -1631,7 +1631,7 @@ const char *osMemoryPoolGetName(osMemoryPoolId_t mp_id)
 {
     MemPoolCB *mp = (MemPoolCB *)mp_id;
     const char *p = NULL;
-    UINTPTR intSave;
+    UINT32 intSave;
 
     if (mp_id == NULL) {
         return NULL;

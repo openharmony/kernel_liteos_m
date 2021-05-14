@@ -45,19 +45,19 @@ static UINT32 Testcase(VOID)
     HWI_PRIOR_T hwiPrio = 3;
     HWI_MODE_T mode = 0;
     HWI_ARG_T arg = 0;
-    UINTPTR uvIntSave;
+    UINT32 intSave;
 
     g_testCount = 0;
 
     ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    uvIntSave = LOS_IntLock();
+    intSave = LOS_IntLock();
 
     TestHwiTrigger(HWI_NUM_TEST);
     ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT);
 
-    LOS_IntRestore(uvIntSave);
+    LOS_IntRestore(intSave);
     LOS_TaskDelay(5); // 5, set delay time.
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
 

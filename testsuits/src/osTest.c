@@ -88,7 +88,7 @@ UINT32 SwtmrCountGetTest(VOID)
 {
     UINT32 loop;
     UINT32 swTmrCnt = 0;
-    UINTPTR intSave;
+    UINT32 intSave;
     SWTMR_CTRL_S *swTmrCB = (SWTMR_CTRL_S *)NULL;
 
     intSave = LOS_IntLock();

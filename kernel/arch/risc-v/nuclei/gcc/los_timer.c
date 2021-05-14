@@ -92,7 +92,7 @@ WEAK VOID HalSysTickReload(UINT64 nextResponseTime)
 WEAK UINT64 HalGetTickCycle(UINT32 *period)
 {
     UINT64 ticks;
-    UINTPTR intSave = LOS_IntLock();
+    UINT32 intSave = LOS_IntLock();
     ticks = SysTimer_GetLoadValue();
     *period = (UINT32)ticks;
     LOS_IntRestore(intSave);
