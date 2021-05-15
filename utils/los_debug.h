@@ -185,7 +185,7 @@ extern VOID OsBackTraceHookCall(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UI
  *
  * Value: 0x02001401
  *
- * Solution: Use valid type to regeister the new trace.
+ * Solution: Use valid type to register the new trace.
  */
 #define  LOS_ERRNO_TRACE_TYPE_INVALID           LOS_ERRNO_OS_ERROR(LOS_MOD_TRACE, 0x01)
 
@@ -196,7 +196,7 @@ extern VOID OsBackTraceHookCall(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UI
  *
  * Value: 0x02001402
  *
- * Solution: Use valid callback function to regeister the new trace.
+ * Solution: Use valid callback function to register the new trace.
  */
 #define  LOS_ERRNO_TRACE_FUNCTION_NULL          LOS_ERRNO_OS_ERROR(LOS_MOD_TRACE, 0x02)
 
@@ -206,7 +206,7 @@ extern VOID OsBackTraceHookCall(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UI
  *
  * Value: 0x02001403
  *
- * Solution: Use valid filled size to regeister the new trace.
+ * Solution: Use valid filled size to register the new trace.
  */
 #define  LOS_ERRNO_TRACE_MAX_SIZE_INVALID       LOS_ERRNO_OS_ERROR(LOS_MOD_TRACE, 0x03)
 
@@ -218,7 +218,7 @@ extern VOID OsBackTraceHookCall(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UI
 
 /**
  * @ingroup los_trace
- * It's the legth of tag, filled by los_trace system
+ * It's the length of tag, filled by los_trace system
  */
 #define LOS_TRACE_TAG_LENGTH  sizeof(UINT32)
 
@@ -228,7 +228,7 @@ extern VOID OsBackTraceHookCall(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UI
  */
 typedef enum enTraceType {
     LOS_TRACE_SWITCH = 0,         /**< trace for task switch, 0 is reserved for taskswitch   */
-    LOS_TRACE_INTERRUPT = 1,      /**< trace for Interrrupt, 1 is reserved for interrupt      */
+    LOS_TRACE_INTERRUPT = 1,      /**< trace for Interrupt, 1 is reserved for interrupt      */
     LOS_TRACE_TYPE_NUM =  10,     /**< num for the register type, user can use 2~ LOS_TRACE_TYPE_NUM-1 */
 } TRACE_TYPE_E;
 
@@ -238,8 +238,8 @@ typedef enum enTraceType {
  * struct to store the task switch infomation
  */
 typedef struct tagTraceTaskSwitch {
-    UINT8  ucSrcTaskId;           /**< source taskid    */
-    UINT8  ucDestTaskId;          /**< destination taskid    */
+    UINT8  ucSrcTaskId;           /**< source taskId    */
+    UINT8  ucDestTaskId;          /**< destination taskId    */
     UINT32 uwSwitchTick;          /**< Time at which the task switch happens    */
 } TRACE_TASKSWITCH_S;
 
@@ -261,13 +261,13 @@ typedef struct tagTraceInterrupt {
 typedef struct tagTrace {
     union {
         TRACE_TASKSWITCH_S  stTraceTask;       /**< It used for trace the task    */
-        TRACE_INTERRUPT_S   stTraceInterrupt;  /**< It used for trace the interrrupt    */
+        TRACE_INTERRUPT_S   stTraceInterrupt;  /**< It used for trace the interrupt    */
     };
 } TRACE_S;
 
 /**
  * @ingroup los_trace
- * Main struct to store the interrupt and task swithc infomation
+ * Main struct to store the interrupt and task switch infomation
  */
 typedef struct tagTraceBuffer {
     UINT16            usTracePos;
@@ -278,7 +278,7 @@ typedef struct tagTraceBuffer {
 
 /**
  * @ingroup los_trace
- * Struct to store the trace infomaion for each trace type
+ * Struct to store the trace information for each trace type
  */
 typedef struct tagTraceInfo {
     TRACE_TYPE_E  eType;                             /**< trace type, selected from TRACE_TYPE_E */
@@ -289,10 +289,10 @@ typedef struct tagTraceInfo {
 
 /**
  * @ingroup los_trace
- * @brief  Intialize the trace when the system startup.
+ * @brief  Initialize the trace when the system startup.
  *
  * @par Description:
- * This API is used to intilize the trace for system level.
+ * This API is used to initialize the trace for system level.
  * @attention
  * <ul>
  * <li>This API can be called only after the memory is initialized. Otherwise, the CPU usage fails to be obtained.</li>
@@ -300,8 +300,8 @@ typedef struct tagTraceInfo {
  *
  * @param None.
  *
- * @retval #LOS_ERRNO_TRACE_NO_MEMORY         0x02001400: The memory is not enough for initilize.
- * @retval #LOS_OK                            0x00000000: The intialization is successful.
+ * @retval #LOS_ERRNO_TRACE_NO_MEMORY         0x02001400: The memory is not enough for initialization.
+ * @retval #LOS_OK                            0x00000000: The initialization is successful.
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TraceInit
@@ -349,12 +349,12 @@ extern VOID LOS_Trace(TRACE_TYPE_E traceType, VOID *traceInfo);
  *                            information
  * @param  size          [IN] UINT16. The maximum size the trace will use for the specific trace type.
  *
- * @retval #LOS_ERRNO_TRACE_NO_MEMORY          0x02001400: The memory is not enough for initilize.
+ * @retval #LOS_ERRNO_TRACE_NO_MEMORY          0x02001400: The memory is not enough for initialization.
  * @retval #LOS_ERRNO_TRACE_TYPE_INVALID       0x02001401: The trace type is invalid. Valid type is from
  *                                                         LOS_TRACE_TYPE_NUM-1
  * @retval #LOS_ERRNO_TRACE_FUNCTION_NULL      0x02001402: The input callback function is NULL
  * @retval #LOS_ERRNO_TRACE_MAX_SIZE_INVALID   0x02001403: The information maxmum size is 0 to store.
- * @retval #LOS_OK                             0x00000000: The registeration is successful.
+ * @retval #LOS_OK                             0x00000000: The register is successful.
  *
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>

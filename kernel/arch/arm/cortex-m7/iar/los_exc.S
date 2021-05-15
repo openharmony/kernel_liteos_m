@@ -56,8 +56,8 @@ FLAG_ADDR_VALID             EQU   0x10000
 FLAG_HWI_ACTIVE             EQU   0x20000
 FLAG_NO_FLOAT               EQU   0x10000000
 
-OS_NVIC_FSR                 EQU   0xE000ED28      ;include BusFault/MemFault/UsageFault State Regeister
-OS_NVIC_HFSR                EQU   0xE000ED2C      ;HardFault State Regeister
+OS_NVIC_FSR                 EQU   0xE000ED28      ;include BusFault/MemFault/UsageFault State Register
+OS_NVIC_HFSR                EQU   0xE000ED2C      ;HardFault State Register
 OS_NVIC_BFAR                EQU   0xE000ED38
 OS_NVIC_MMAR                EQU   0xE000ED34
 OS_NVIC_ACT_BASE            EQU   0xE000E300

@@ -58,8 +58,8 @@
 .equ FLAG_HWI_ACTIVE,   0x20000
 .equ FLAG_NO_FLOAT,   0x10000000
 
-.equ OS_NVIC_FSR                 ,   0xE000ED28      //include BusFault/MemFault/UsageFault State Regeister
-.equ OS_NVIC_HFSR                ,   0xE000ED2C      //HardFault State Regeister
+.equ OS_NVIC_FSR                 ,   0xE000ED28      //include BusFault/MemFault/UsageFault State Register
+.equ OS_NVIC_HFSR                ,   0xE000ED2C      //HardFault State Register
 .equ OS_NVIC_BFAR                ,   0xE000ED38
 .equ OS_NVIC_MMAR                ,   0xE000ED34
 .equ OS_NVIC_ACT_BASE            ,   0xE000E300

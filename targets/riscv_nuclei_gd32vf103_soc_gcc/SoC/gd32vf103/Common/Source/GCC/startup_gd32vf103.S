@@ -255,7 +255,7 @@ _start0800:
     csrs CSR_MMISC_CTL, t0
 
     /*
-     * Intialize ECLIC vector interrupt
+     * Initialize ECLIC vector interrupt
      * base address mtvt to vector_base
      */
     la t0, vector_base
@@ -264,7 +264,7 @@ _start0800:
     /*
      * Set ECLIC non-vector entry to be controlled
      * by mtvt2 CSR register.
-     * Intialize ECLIC non-vector interrupt
+     * Initialize ECLIC non-vector interrupt
      * base address mtvt2 to irq_entry.
      */
     la t0, irq_entry
