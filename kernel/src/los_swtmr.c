@@ -43,7 +43,7 @@
 
 LITE_OS_SEC_BSS UINT32            g_swtmrHandlerQueue;           /* Software Timer timeout queue ID */
 LITE_OS_SEC_BSS SWTMR_CTRL_S      *g_swtmrCBArray = NULL;        /* first address in Timer memory space */
-LITE_OS_SEC_BSS SWTMR_CTRL_S      *g_swtmrFreeList = NULL;       /* Free list of Softwaer Timer */
+LITE_OS_SEC_BSS SWTMR_CTRL_S      *g_swtmrFreeList = NULL;       /* Free list of Software Timer */
 LITE_OS_SEC_BSS SortLinkAttribute *g_swtmrSortLinkList = NULL;       /* The software timer count list */
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
@@ -70,14 +70,14 @@ Return      : None
 LITE_OS_SEC_TEXT VOID OsSwtmrTask(VOID)
 {
     SwtmrHandlerItem swtmrHandle;
-    UINT32 readSzie;
+    UINT32 readSize;
     UINT32 ret;
     UINT64 tick;
-    readSzie = sizeof(SwtmrHandlerItem);
+    readSize = sizeof(SwtmrHandlerItem);
 
     for (;;) {
-        ret = LOS_QueueReadCopy(g_swtmrHandlerQueue, &swtmrHandle, &readSzie, LOS_WAIT_FOREVER);
-        if ((ret == LOS_OK) && (readSzie == sizeof(SwtmrHandlerItem))) {
+        ret = LOS_QueueReadCopy(g_swtmrHandlerQueue, &swtmrHandle, &readSize, LOS_WAIT_FOREVER);
+        if ((ret == LOS_OK) && (readSize == sizeof(SwtmrHandlerItem))) {
             if (swtmrHandle.handler == NULL) {
                 continue;
             }
@@ -134,10 +134,10 @@ STATIC_INLINE UINT32 OsSwtmrCalcAlignCount(UINT64 currTime, UINT32 interval, UIN
 VOID OsSwtmrFindAlignPos(UINT64 currTime, SWTMR_CTRL_S *swtmr)
 {
     SWTMR_CTRL_S *minInLarge = (SWTMR_CTRL_S *)NULL;
-    SWTMR_CTRL_S *maxInLitte = (SWTMR_CTRL_S *)NULL;
+    SWTMR_CTRL_S *maxInLittle = (SWTMR_CTRL_S *)NULL;
     UINT32 currSwtmrTimes, swtmrTimes;
     UINT32 minInLargeVal = OS_NULL_INT;
-    UINT32 maxInLitteval = OS_NULL_INT;
+    UINT32 maxInLittleVal = OS_NULL_INT;
 
     LOS_DL_LIST *listHead = &g_swtmrSortLinkList->sortLink;
     if (LOS_ListEmpty(listHead)) {
@@ -175,9 +175,9 @@ VOID OsSwtmrFindAlignPos(UINT64 currTime, SWTMR_CTRL_S *swtmr)
                 minInLarge = cur;
             }
         } else if ((swtmrTimes < currSwtmrTimes) && ((currSwtmrTimes % swtmrTimes) == 0)) {
-            if (maxInLitteval > (currSwtmrTimes / swtmrTimes)) {
-                maxInLitteval = currSwtmrTimes / swtmrTimes;
-                maxInLitte = cur;
+            if (maxInLittleVal > (currSwtmrTimes / swtmrTimes)) {
+                maxInLittleVal = currSwtmrTimes / swtmrTimes;
+                maxInLittle = cur;
             }
         }
 CONTINUE_NEXT_NODE:
@@ -186,8 +186,8 @@ CONTINUE_NEXT_NODE:
 
     if (minInLarge != NULL) {
         swtmr->uwCount = OsSwtmrCalcAlignCount(currTime, swtmr->uwInterval, minInLarge->usTimerID);
-    } else if (maxInLitte != NULL) {
-        swtmr->uwCount = OsSortLinkGetTargetExpireTime(currTime, &maxInLitte->stSortList);
+    } else if (maxInLittle != NULL) {
+        swtmr->uwCount = OsSortLinkGetTargetExpireTime(currTime, &maxInLittle->stSortList);
     }
 
     return;

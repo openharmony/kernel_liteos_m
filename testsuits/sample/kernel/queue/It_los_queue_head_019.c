@@ -47,7 +47,7 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_QueueRead(g_testQueueID01, &buff2, QUEUE_BASE_MSGSIZE, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    for (index = 0; index < 7; index++) { // 7, buffer szie
+    for (index = 0; index < 7; index++) { // 7, buffer size
         ICUNIT_GOTO_EQUAL(*((char *)(intptr_t)buff2 + index), buff1[index],
             *((char *)(intptr_t)buff2 + index), EXIT);
     }
