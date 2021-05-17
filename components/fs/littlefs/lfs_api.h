@@ -59,34 +59,6 @@ typedef struct {
     lfs_file_t file;
 } LittleFsHandleStruct;
 
-struct MountOps {
-    int (*Mount)(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
-        const void *data);
-    int (*Umount)(const char* target);
-};
-
-struct FsMap {
-    const char *fileSystemtype;
-    const struct MountOps *fsMops;
-};
-
-struct FileOps {
-    int (*Open)(const char *path, int openFlag, int mode);
-    int (*Close)(int fd);
-    int (*Unlink)(const char *fileName);
-    int (*Rmdir)(const char *dirName);
-    int (*Mkdir)(const char *dirName, mode_t mode);
-    struct dirent *(*Readdir)(DIR *dir);
-    DIR *(*Opendir)(const char *dirName);
-    int (*Closedir)(const DIR *dir);
-    int (*Read)(int fd, void *buf, size_t len);
-    int (*Write)(int fd, const void *buf, size_t len);
-    int (*Seek)(int fd, off_t offset, int whence);
-    int (*Getattr)(const char *path, struct stat *buf);
-    int (*Rename)(const char *oldName, const char *newName);
-    int (*Fsync)(int fd);
-};
-
 typedef struct {
     struct FileOps *fsVops;
 } FileOpInfo;
@@ -104,7 +76,6 @@ typedef struct {
 #define MAX_BUFFER_LEN 100
 #define MAX_WRITE_FILE_LEN 500
 #define MAX_READ_FILE_LEN 500
-#define MAX_FILE_SYSTEM_LEN 2
 
 #ifndef LFS_MAX_OPEN_DIRS
 #define LFS_MAX_OPEN_DIRS 10

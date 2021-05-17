@@ -37,7 +37,6 @@ FileDirInfo g_lfsDir[LFS_MAX_OPEN_DIRS] = {0};
 FileOpInfo g_fsOp;
 static LittleFsHandleStruct g_handle[LITTLE_FS_MAX_OPEN_FILES] = {0};
 struct dirent g_nameValue;
-struct FsMap g_fsmap[MAX_FILE_SYSTEM_LEN] = {0};
 static pthread_mutex_t g_FslocalMutex = PTHREAD_MUTEX_INITIALIZER;
 
 FileOpInfo GetFsOpInfo(void)
@@ -94,41 +93,12 @@ lfs_dir_t *GetFreeDir()
     return NULL;
 }
 
-int InitMountInfo(const char *fileSystemType, const struct MountOps *fsMops)
-{
-    int len = strlen(fileSystemType) + 1;
-    for (int i = 0; i < MAX_FILE_SYSTEM_LEN; i++) {
-        if (g_fsmap[i].fileSystemtype == NULL) {
-            g_fsmap[i].fileSystemtype = (char*)malloc(len);
-            memcpy_s(g_fsmap[i].fileSystemtype, LITTLE_FS_MAX_NAME_LEN, fileSystemType, len);
-            g_fsmap[i].fsMops = fsMops;
-            return VFS_OK;
-        }
-    }
-
-    return VFS_ERROR;
-}
-
-const struct FsMap *MountFindfs(const char *fileSystemtype)
-{
-    struct FsMap *m = NULL;
-
-    for (int i = 0; i < MAX_FILE_SYSTEM_LEN; i++) {
-        m = &(g_fsmap[i]);
-        if (m->fileSystemtype && strcmp(fileSystemtype, m->fileSystemtype) == 0) {
-            return m;
-        }
-    }
-
-    return (const struct FsMap *)NULL;
-}
-
-const struct MountOps g_fsMnt = {
+const struct MountOps g_lfsMnt = {
     .Mount = LfsMount,
     .Umount = LfsUmount,
 };
 
-const struct FileOps g_lfsVops = {
+const struct FileOps g_lfsFops = {
     .Mkdir = LfsMkdir,
     .Unlink = LfsUnlink,
     .Rmdir = LfsRmdir,
@@ -285,7 +255,8 @@ int LfsClose(int fd)
     pthread_mutex_lock(&g_FslocalMutex);
     ret = lfs_file_close(&g_lfs, &(g_handle[fd].file));
     g_handle[fd].useFlag = 0;
-    if (g_handle[fd].pathName != NULL) {
+    if (g_handle[fd].pathName != NULL) {
+
         free(g_handle[fd].pathName);
         g_handle[fd].pathName = NULL;
     }

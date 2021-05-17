@@ -28,7 +28,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+#include "fs_operations.h"
 #include "fatfs.h"
 #include "dirent.h"
 #include "errno.h"
@@ -41,6 +41,9 @@
 #include "sys/statfs.h"
 #include "sys/stat.h"
 #include "unistd.h"
+
+struct FsMap g_fsmap[MAX_FILESYSTEM_LEN] = {0};
+struct FsMap *g_fs = NULL;
 
 #ifdef LOSCFG_NET_LWIP_SACK
 #include "lwip/lwipopts.h"
@@ -92,12 +95,12 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
     size_t tmpLen = strlen(cwd) + strlen(path) + offset;
     char *tmpBuf = (char *)malloc(tmpLen);
     if (tmpBuf == NULL) {
-        return 0;
+        return FS_SUCCESS;
     }
 
     if (-1 == sprintf_s(tmpBuf, tmpLen, "/%s/%s/", cwd, path)) {
         free(tmpBuf);
-        return 0;
+        return FS_SUCCESS;
     }
 
     char *p;
@@ -106,7 +109,7 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
     while ((p = strstr(tmpBuf, "/./")) != NULL) {
         if (EOK != memmove_s(p, tmpLen - (p - tmpBuf), p + offset, tmpLen - (p - tmpBuf) - offset)) {
             free(tmpBuf);
-            return 0;
+            return FS_SUCCESS;
         }
     }
 
@@ -114,7 +117,7 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
     while ((p = strstr(tmpBuf, "//")) != NULL) {
         if (EOK != memmove_s(p, tmpLen - (p - tmpBuf), p + 1, tmpLen - (p - tmpBuf) - 1)) {
             free(tmpBuf);
-            return 0;
+            return FS_SUCCESS;
         }
     }
 
@@ -127,7 +130,7 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
         }
         if (EOK != memmove_s(start, tmpLen - (start - tmpBuf), p + offset, tmpLen - (p - tmpBuf) - offset)) {
             free(tmpBuf);
-            return 0;
+            return FS_SUCCESS;
         }
     }
 
@@ -144,7 +147,7 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
 
     if (EOK != memcpy_s(buf, bufSize, tmpBuf, (((totalLen + 1) > bufSize) ? bufSize : (totalLen + 1)))) {
         free(tmpBuf);
-        return 0;
+        return FS_SUCCESS;
     }
 
     buf[bufSize - 1] = 0;
@@ -153,21 +156,83 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
 }
 #endif
 
+static void InitMountInfo(void)
+{
+    extern struct MountOps g_fatfsMnt;
+    extern struct FileOps g_fatfsFops;
+    g_fsmap[0].fileSystemtype = strdup("fat");
+    g_fsmap[0].fsMops = &g_fatfsMnt;
+    g_fsmap[0].fsFops = &g_fatfsFops;
+    extern struct MountOps g_lfsMnt;
+    extern struct FileOps g_lfsFops;
+    g_fsmap[1].fileSystemtype = strdup("littlefs");
+    g_fsmap[1].fsMops = &g_lfsMnt;
+    g_fsmap[1].fsFops = &g_lfsFops;
+}
+
+static struct FsMap *MountFindfs(const char *fileSystemtype)
+{
+    struct FsMap *m = NULL;
+
+    for (int i = 0; i < MAX_FILESYSTEM_LEN; i++) {
+        m = &(g_fsmap[i]);
+        if (m->fileSystemtype && strcmp(fileSystemtype, m->fileSystemtype) == 0) {
+            return m;
+        }
+    }
+
+    return NULL;
+}
+
 int mount(const char *source, const char *target,
           const char *filesystemtype, unsigned long mountflags,
           const void *data)
 {
-    return fatfs_mount(source, target, filesystemtype, mountflags, data);
+    static int initFlag = 0;
+
+    if (initFlag == 0) {
+        InitMountInfo();
+        initFlag = 1;
+    }
+
+    g_fs = MountFindfs(filesystemtype);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+
+    if (g_fs->fsMops == NULL || g_fs->fsMops->Mount == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+
+    return g_fs->fsMops->Mount(source, target, filesystemtype, mountflags, data);
 }
 
 int umount(const char *target)
 {
-    return fatfs_umount(target);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsMops == NULL || g_fs->fsMops->Umount == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsMops->Umount(target);
 }
 
 int umount2(const char *target, int flag)
 {
-    return fatfs_umount2(target, flag);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsMops == NULL || g_fs->fsMops->Umount2 == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsMops->Umount2(target, flag);
 }
 
 int open(const char *path, int oflag, ...)
@@ -176,30 +241,30 @@ int open(const char *path, int oflag, ...)
     unsigned flags = O_RDONLY | O_WRONLY | O_RDWR | O_APPEND | O_CREAT | O_LARGEFILE | O_TRUNC | O_EXCL | O_DIRECTORY;
     if ((unsigned)oflag & ~flags) {
         errno = EINVAL;
-        return -1;
+        return FS_FAILURE;
     }
 
     size_t pathLen = strlen(path) + 1;
     char *canonicalPath = (char *)malloc(pathLen);
     if (!canonicalPath) {
         errno = ENOMEM;
-        return -1;
+        return FS_FAILURE;
     }
     if (GetCanonicalPath(NULL, path, canonicalPath, pathLen) == 0) {
         FREE_AND_SET_NULL(canonicalPath);
         errno = ENOMEM;
-        return -1;
+        return FS_FAILURE;
     }
 
     if (strcmp(canonicalPath, RANDOM_DEV_PATH) == 0) {
         FREE_AND_SET_NULL(canonicalPath);
         if ((O_ACCMODE & (unsigned)oflag) != O_RDONLY) {
             errno = EPERM;
-            return -1;
+            return FS_FAILURE;
         }
         if ((unsigned)oflag & O_DIRECTORY) {
             errno = ENOTDIR;
-            return -1;
+            return FS_FAILURE;
         }
         return RANDOM_DEV_FD;
     }
@@ -207,21 +272,29 @@ int open(const char *path, int oflag, ...)
         FREE_AND_SET_NULL(canonicalPath);
         if ((unsigned)oflag & O_DIRECTORY) {
             errno = EPERM;
-            return -1;
+            return FS_FAILURE;
         }
         errno = EISDIR;
-        return -1;
+        return FS_FAILURE;
     }
     FREE_AND_SET_NULL(canonicalPath);
 #endif
-    return fatfs_open(path, oflag);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Open == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Open(path, oflag);
 }
 
 int close(int fd)
 {
 #ifdef LOSCFG_RANDOM_DEV
     if (fd == RANDOM_DEV_FD) {
-        return 0;
+        return FS_SUCCESS;
     }
 #endif
 #ifdef LOSCFG_NET_LWIP_SACK
@@ -229,7 +302,15 @@ int close(int fd)
         return closesocket(fd);
     }
 #endif
-    return fatfs_close(fd);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Close == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Close(fd);
 }
 
 ssize_t read(int fd, void *buf, size_t nbyte)
@@ -237,11 +318,11 @@ ssize_t read(int fd, void *buf, size_t nbyte)
 #ifdef LOSCFG_RANDOM_DEV
     if (fd == RANDOM_DEV_FD) {
         if (nbyte == 0) {
-            return 0;
+            return FS_SUCCESS;
         }
         if (buf == NULL) {
             errno = EINVAL;
-            return -1;
+            return FS_FAILURE;
         }
         if (nbyte > 1024) {
             nbyte = 1024; /* hks_generate_random: random_size must <= 1024 */
@@ -249,7 +330,7 @@ ssize_t read(int fd, void *buf, size_t nbyte)
         struct hks_blob key = {HKS_BLOB_TYPE_RAW, (uint8_t *)buf, nbyte};
         if (hks_generate_random(&key) != 0) {
             errno = EIO;
-            return -1;
+            return FS_FAILURE;
         }
         return (ssize_t)nbyte;
     }
@@ -259,7 +340,15 @@ ssize_t read(int fd, void *buf, size_t nbyte)
         return recv(fd, buf, nbyte, 0);
     }
 #endif
-    return fatfs_read(fd, buf, nbyte);
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Read == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Read(fd, buf, nbyte);
 }
 
 ssize_t write(int fd, const void *buf, size_t nbyte)
@@ -267,7 +356,7 @@ ssize_t write(int fd, const void *buf, size_t nbyte)
 #ifdef LOSCFG_RANDOM_DEV
     if (fd == RANDOM_DEV_FD) {
         errno = EBADF; /* "/dev/random" is readonly */
-        return -1;
+        return FS_FAILURE;
     }
 #endif
 #ifdef LOSCFG_NET_LWIP_SACK
@@ -275,70 +364,182 @@ ssize_t write(int fd, const void *buf, size_t nbyte)
         return send(fd, buf, nbyte, 0);
     }
 #endif
-    return fatfs_write(fd, buf, nbyte);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Write == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Write(fd, buf, nbyte);
 }
 
 off_t lseek(int fd, off_t offset, int whence)
 {
-    return fatfs_lseek(fd, offset, whence);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Seek == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Seek(fd, offset, whence);
 }
 
 int unlink(const char *path)
 {
-    return fatfs_unlink(path);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Unlink == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Unlink(path);
 }
 
 int fstat(int fd, struct stat *buf)
 {
-    return fatfs_fstat(fd, buf);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Fstat == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Fstat(fd, buf);
 }
 
 int stat(const char *path, struct stat *buf)
 {
-    return fatfs_stat(path, buf);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Stat == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Stat(path, buf);
 }
 
 int fsync(int fd)
 {
-    return fatfs_fsync(fd);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Fsync == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Fsync(fd);
 }
 
 int mkdir(const char *path, mode_t mode)
 {
-    return fatfs_mkdir(path, mode);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Mkdir == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Mkdir(path, mode);
 }
 
 DIR *opendir(const char *dirName)
 {
-    return fatfs_opendir(dirName);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return NULL;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Opendir == NULL) {
+        errno = ENOSYS;
+        return NULL;
+    }
+    return g_fs->fsFops->Opendir(dirName);
 }
 
 struct dirent *readdir(DIR *dir)
 {
-    return fatfs_readdir(dir);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return NULL;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Readdir == NULL) {
+        errno = ENOSYS;
+        return NULL;
+    }
+    return g_fs->fsFops->Readdir(dir);
 }
 
 int closedir(DIR *dir)
 {
-    return fatfs_closedir(dir);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Closedir == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Closedir(dir);
 }
 
 int rmdir(const char *path)
 {
-    return fatfs_rmdir(path);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Rmdir == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Rmdir(path);
 }
 
 int rename(const char *oldName, const char *newName)
 {
-    return fatfs_rename(oldName, newName);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Rename == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Rename(oldName, newName);
 }
 
 int statfs(const char *path, struct statfs *buf)
 {
-    return fatfs_statfs(path, buf);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsMops == NULL || g_fs->fsMops->Statfs == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsMops->Statfs(path, buf);
 }
 
 int ftruncate(int fd, off_t length)
 {
-    return fatfs_ftruncate(fd, length);
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Ftruncate == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Ftruncate(fd, length);
 }

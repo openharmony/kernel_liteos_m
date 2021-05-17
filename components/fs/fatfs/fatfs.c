@@ -41,9 +41,8 @@
 #include "los_compiler.h"
 #include "los_debug.h"
 #include "cmsis_os2.h"
+#include "fs_operations.h"
 
-#define FS_SUCCESS            0
-#define FS_FAILURE            (-1)
 /* the max name length of different parts should not bigger than 32 */
 #define FS_DRIVE_NAME_MAX_LEN 32
 
@@ -1258,8 +1257,8 @@ OUT:
 
 static int do_truncate(int fd, off_t length, UINT count)
 {
-    FRESULT res;
-    INT32 ret = FR_OK;
+    FRESULT res = FR_OK;
+    INT32 ret = FS_SUCCESS;
     DWORD csz;
 
     csz = (DWORD)(g_handle[fd].fil.obj.fs)->csize * SS(g_handle[fd].fil.obj.fs); /* Cluster size */
@@ -1420,3 +1419,27 @@ OUT:
     FsUnlock();
     return ret;
 }
+
+struct MountOps g_fatfsMnt = {
+    .Mount = fatfs_mount,
+    .Umount = fatfs_umount,
+    .Umount2 = fatfs_umount2,
+    .Statfs = fatfs_statfs,
+};
+
+struct FileOps g_fatfsFops = {
+    .Mkdir = fatfs_mkdir,
+    .Unlink = fatfs_unlink,
+    .Rmdir = fatfs_rmdir,
+    .Opendir = fatfs_opendir,
+    .Readdir = fatfs_readdir,
+    .Closedir = fatfs_closedir,
+    .Open = fatfs_open,
+    .Close = fatfs_close,
+    .Write = fatfs_write,
+    .Read = fatfs_read,
+    .Seek = fatfs_lseek,
+    .Rename = fatfs_rename,
+    .Getattr = fatfs_stat,
+    .Fsync = fatfs_fsync,
+};
