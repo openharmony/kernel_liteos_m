@@ -633,6 +633,23 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_BASE_CORE_SCHED_SLEEP                         0
 #endif
 
+/**
+ * @ingroup los_config
+ * Configuration trustzone secure heap size.
+ */
+#ifndef LOSCFG_SECURE_HEAP_SIZE
+#define LOSCFG_SECURE_HEAP_SIZE                              2048
+#endif
+
+/**
+ * @ingroup los_config
+ * Configuration trustzone secure stack default size.
+ * The secure stack must be allocated before the task calls non-secure callble functions.
+ */
+#ifndef LOSCFG_SECURE_STACK_DEFAULT_SIZE
+#define LOSCFG_SECURE_STACK_DEFAULT_SIZE                     512
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }
