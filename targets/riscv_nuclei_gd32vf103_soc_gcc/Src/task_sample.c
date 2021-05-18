@@ -44,8 +44,8 @@
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
 UINT8 __attribute__ ((aligned (8))) g_memStart[OS_SYS_MEM_SIZE];
 
@@ -117,5 +117,5 @@ VOID RunTaskSample(VOID)
 #ifdef __cplusplus
 #if __cplusplus
 }
-#endif /* __cpluscplus */
-#endif /* __cpluscplus */
+#endif /* __cplusplus */
+#endif /* __cplusplus */
