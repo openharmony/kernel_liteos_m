@@ -196,7 +196,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventDestroy(PEVENT_CB_S eventCB)
 
     if (!LOS_ListEmpty(&eventCB->stEventList)) {
         LOS_IntRestore(intSave);
-        return LOS_ERRNO_EVENT_SHOULD_NOT_DESTORY;
+        return LOS_ERRNO_EVENT_SHOULD_NOT_DESTROYED;
     }
     eventCB->stEventList.pstNext = (LOS_DL_LIST *)NULL;
     eventCB->stEventList.pstPrev = (LOS_DL_LIST *)NULL;
