@@ -46,7 +46,7 @@ LITE_OS_SEC_BSS LosSemCB *g_allSem = NULL;
 
 /*****************************************************************************
  Function     : OsSemInit
- Description  : Initialize the  Semaphore doubly linked list
+ Description  : Initialize the Semaphore doubly linked list
  Input        : None
  Output       : None
  Return       : LOS_OK on success, or error code on failure
@@ -67,7 +67,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsSemInit(VOID)
         return LOS_ERRNO_SEM_NO_MEMORY;
     }
 
-    /* Connect all the ECBs in a doubly linked list. */
+    /* Connect all the semaphore CBs in a doubly linked list. */
     for (index = 0; index < LOSCFG_BASE_IPC_SEM_LIMIT; index++) {
         semNode = ((LosSemCB *)g_allSem) + index;
         semNode->semID = index;
@@ -79,7 +79,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsSemInit(VOID)
 
 /*****************************************************************************
  Function     : OsSemCreate
- Description  : create the  Semaphore
+ Description  : create the Semaphore
  Input        : count      --- Semaphore count
               : maxCount   --- Max semaphore count for check
  Output       : semHandle  --- Index of semaphore
@@ -313,4 +313,3 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPost(UINT32 semHandle)
 }
 
 #endif /* (LOSCFG_BASE_IPC_SEM == 1) */
-
