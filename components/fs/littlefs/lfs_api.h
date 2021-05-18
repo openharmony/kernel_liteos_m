@@ -56,15 +56,21 @@ typedef unsigned mode_t;
 typedef struct {
     uint8_t useFlag;
     const char *pathName;
+    lfs_t *lfsHandle;
     lfs_file_t file;
 } LittleFsHandleStruct;
 
-typedef struct {
+struct FileOpInfo {
+    uint8_t useFlag;
     struct FileOps *fsVops;
-} FileOpInfo;
+    char *dirName;
+    lfs_t lfsInfo;
+};
 
 typedef struct {
     uint8_t useFlag;
+    char *dirName;
+    lfs_t *lfsHandle;
     lfs_dir_t dir;
 } FileDirInfo;
 
@@ -76,10 +82,16 @@ typedef struct {
 #define MAX_BUFFER_LEN 100
 #define MAX_WRITE_FILE_LEN 500
 #define MAX_READ_FILE_LEN 500
+#define LITTLEFS_MAX_LFN_LEN 255
 
 #ifndef LFS_MAX_OPEN_DIRS
 #define LFS_MAX_OPEN_DIRS 10
 #endif
+
+#ifndef LFS_MAX_MOUNT_SIZE
+#define LFS_MAX_MOUNT_SIZE 3
+#endif
+
 
 LittleFsHandleStruct *GetFreeFd(int *fd);
 
