@@ -84,7 +84,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsQueueInit(VOID)
  Function    : LOS_QueueCreate
  Description : Create a queue
  Input       : queueName  --- Queue name, less than 4 characters
-             : len        --- Queue lenth
+             : len        --- Queue length
              : flags      --- Queue type, FIFO or PRIO
              : maxMsgSize --- Maximum message size in byte
  Output      : queueID    --- Queue ID

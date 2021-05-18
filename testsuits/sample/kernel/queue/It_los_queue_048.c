@@ -35,7 +35,7 @@
 static VOID TaskF01(VOID)
 {
     UINT32 ret;
-    CHAR buff2[QUEUE_SHORT_BUFFER_LENTH] = "";
+    CHAR buff2[QUEUE_SHORT_BUFFER_LENGTH] = "";
 
     g_testCount++;
 
@@ -52,7 +52,7 @@ EXIT:
 static VOID HwiF01(VOID)
 {
     UINT32 ret;
-    CHAR buff1[QUEUE_SHORT_BUFFER_LENTH] = "UniDSP";
+    CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
 
     TestHwiClear(HWI_NUM_TEST);
 

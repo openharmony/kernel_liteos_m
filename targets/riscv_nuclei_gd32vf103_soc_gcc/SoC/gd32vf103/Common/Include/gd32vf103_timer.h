@@ -619,7 +619,7 @@ void timer_dma_disable(uint32_t timer_periph, uint16_t dma);
 /* channel DMA request source selection */
 void timer_channel_dma_request_source_select(uint32_t timer_periph, uint32_t dma_request);
 /* configure the TIMER DMA transfer */
-void timer_dma_transfer_config(uint32_t timer_periph, uint32_t dma_baseaddr, uint32_t dma_lenth);
+void timer_dma_transfer_config(uint32_t timer_periph, uint32_t dma_baseaddr, uint32_t dma_length);
 /* software generate events */
 void timer_event_software_generate(uint32_t timer_periph, uint16_t event);
 

@@ -72,7 +72,7 @@ typedef struct _usb_control {
     usb_req    req;                                                     /*!< USB standard device request */
 
     uint8_t    ctl_state;                                               /*!< USB control transfer state */
-    uint8_t    ctl_zlp;                                                 /*!< zero lenth package */
+    uint8_t    ctl_zlp;                                                 /*!< zero length package */
 } usb_control;
 
 typedef struct
@@ -87,14 +87,14 @@ typedef struct
     uint8_t        ep_stall;                                            /*!< USB endpoint stall status */
 
     uint8_t        frame_num;                                           /*!< number of frame */
-    uint16_t       max_len;                                             /*!< Maximum packet lenth */
+    uint16_t       max_len;                                             /*!< Maximum packet length */
 
     /* transaction level variables */
     uint8_t       *xfer_buf;                                            /*!< transmit buffer */
     uint32_t       xfer_len;                                            /*!< transmit buffer length */
     uint32_t       xfer_count;                                          /*!< transmit buffer count */
 
-    uint32_t       remain_len;                                          /*!< remain packet lenth */
+    uint32_t       remain_len;                                          /*!< remain packet length */
 
     uint32_t       dma_addr;                                            /*!< DMA address */
 } usb_transc;

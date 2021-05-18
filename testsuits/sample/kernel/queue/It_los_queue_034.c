@@ -37,7 +37,7 @@ static UINT32 Testcase(VOID)
     UINT32 ret;
     UINT32 index;
     UINT32 queueID[LOSCFG_BASE_IPC_QUEUE_LIMIT + 1];
-    CHAR buff1[QUEUE_SHORT_BUFFER_LENTH] = "UniDSP";
+    CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
 
     for (index = 0; index < LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM; index++) {
         ret = LOS_QueueCreate(NULL, QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
