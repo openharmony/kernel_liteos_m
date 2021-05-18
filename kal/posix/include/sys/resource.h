@@ -27,7 +27,7 @@ struct rlimit {
 struct rusage {
 	struct timeval ru_utime;
 	struct timeval ru_stime;
-	/* linux extentions, but useful */
+	/* linux extensions, but useful */
 	long	ru_maxrss;
 	long	ru_ixrss;
 	long	ru_idrss;
