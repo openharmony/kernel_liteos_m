@@ -379,7 +379,7 @@ BOOL OsSchedModifyTaskSchedParam(LosTaskCB *taskCB, UINT16 priority)
     return FALSE;
 }
 
-VOID OsSchedSetIdleTaskSchedPartam(LosTaskCB *idleTask)
+VOID OsSchedSetIdleTaskSchedParam(LosTaskCB *idleTask)
 {
     OsSchedTaskEnQueue(idleTask);
 }
