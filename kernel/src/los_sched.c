@@ -248,7 +248,7 @@ STATIC INLINE BOOL OsSchedScanTimerList(VOID)
      * (per cpu) and ipc(mutex,sem and etc.)'s block at the same time, it can be waken
      * up by either timeout or corresponding ipc it's waiting.
      *
-     * Now synchronize sortlink preocedure is used, therefore the whole task scan needs
+     * Now synchronize sortlink procedure is used, therefore the whole task scan needs
      * to be protected, preventing another core from doing sortlink deletion at same time.
      */
 

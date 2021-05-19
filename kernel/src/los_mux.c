@@ -44,11 +44,11 @@ LITE_OS_SEC_BSS       LosMuxCB*   g_allMux = NULL;
 LITE_OS_SEC_DATA_INIT LOS_DL_LIST g_unusedMuxList;
 
 /*****************************************************************************
- Funtion      : OsMuxInit
+ Function      : OsMuxInit
  Description  : Initializes the mutex
  Input        : None
  Output       : None
- Return       : LOS_OK on success ,or error code on failure
+ Return       : LOS_OK on success, or error code on failure
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 OsMuxInit(VOID)
 {
@@ -80,7 +80,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsMuxInit(VOID)
  Description  : Create a mutex
  Input        : None
  Output       : muxHandle ------ Mutex operation handle
- Return       : LOS_OK on success ,or error code on failure
+ Return       : LOS_OK on success, or error code on failure
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_MuxCreate(UINT32 *muxHandle)
 {
@@ -121,7 +121,7 @@ ERR_HANDLER:
  Description  : Delete a mutex
  Input        : muxHandle ------Mutex operation handle
  Output       : None
- Return       : LOS_OK on success ,or error code on failure
+ Return       : LOS_OK on success, or error code on failure
  *****************************************************************************/
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_MuxDelete(UINT32 muxHandle)
 {
@@ -181,7 +181,7 @@ STATIC_INLINE UINT32 OsMuxValidCheck(LosMuxCB *muxPended)
  Input        : muxHandle ------ Mutex operation handleone
               : timeOut   ------- waiting time
  Output       : None
- Return       : LOS_OK on success ,or error code on failure
+ Return       : LOS_OK on success, or error code on failure
  *****************************************************************************/
 LITE_OS_SEC_TEXT UINT32 LOS_MuxPend(UINT32 muxHandle, UINT32 timeout)
 {
@@ -257,7 +257,7 @@ ERROR_MUX_PEND:
  Description  : Specify the mutex V operation,
  Input        : muxHandle ------ Mutex operation handle
  Output       : None
- Return       : LOS_OK on success ,or error code on failure
+ Return       : LOS_OK on success, or error code on failure
  *****************************************************************************/
 LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
 {
