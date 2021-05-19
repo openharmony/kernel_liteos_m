@@ -38,24 +38,24 @@ static UINT32 Testcase(VOID)
 {
     UINT32 ret;
     UINT32 swTmrID;
-    CHAR buff1[QUEUE_SHORT_BUFFER_LENTH] = "UniDSP";
-    CHAR buff2[QUEUE_SHORT_BUFFER_LENTH];
+    CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
+    CHAR buff2[QUEUE_SHORT_BUFFER_LENGTH];
 
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &swTmrID, 0, QUEUE_SHORT_BUFFER_LENTH);
+    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &swTmrID, 0, QUEUE_SHORT_BUFFER_LENGTH);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_QueueWriteCopy(swTmrID, NULL, QUEUE_SHORT_BUFFER_LENTH, 0);
+    ret = LOS_QueueWriteCopy(swTmrID, NULL, QUEUE_SHORT_BUFFER_LENGTH, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_WRITE_PTR_NULL, ret, EXIT);
 
-    (void)memset_s(buff2, QUEUE_SHORT_BUFFER_LENTH, 0, QUEUE_SHORT_BUFFER_LENTH);
-    ret = LOS_QueueRead(swTmrID, &buff2, QUEUE_SHORT_BUFFER_LENTH, 0);
+    (void)memset_s(buff2, QUEUE_SHORT_BUFFER_LENGTH, 0, QUEUE_SHORT_BUFFER_LENGTH);
+    ret = LOS_QueueRead(swTmrID, &buff2, QUEUE_SHORT_BUFFER_LENGTH, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_ISEMPTY, ret, EXIT);
 
-    ret = LOS_QueueWriteCopy(swTmrID, &buff1, QUEUE_SHORT_BUFFER_LENTH, 0);
+    ret = LOS_QueueWriteCopy(swTmrID, &buff1, QUEUE_SHORT_BUFFER_LENGTH, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    (void)memset_s(buff2, QUEUE_SHORT_BUFFER_LENTH, 0, QUEUE_SHORT_BUFFER_LENTH);
-    ret = LOS_QueueRead(swTmrID, &buff2, QUEUE_SHORT_BUFFER_LENTH, 0);
+    (void)memset_s(buff2, QUEUE_SHORT_BUFFER_LENGTH, 0, QUEUE_SHORT_BUFFER_LENGTH);
+    ret = LOS_QueueRead(swTmrID, &buff2, QUEUE_SHORT_BUFFER_LENGTH, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ret = LOS_QueueDelete(swTmrID);

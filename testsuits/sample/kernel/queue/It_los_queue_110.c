@@ -56,15 +56,15 @@ static UINT32 Testcase(VOID)
 {
     UINT32 ret;
     UINT32 swTmrID;
-    CHAR buff1[QUEUE_SHORT_BUFFER_LENTH] = "UniDSP";
+    CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
     QUEUE_INFO_S queueInfo;
 
     g_testCount = 0;
 
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &g_testQueueID01, 0, QUEUE_SHORT_BUFFER_LENTH);
+    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &g_testQueueID01, 0, QUEUE_SHORT_BUFFER_LENGTH);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_QueueWrite(g_testQueueID01, &buff1, QUEUE_SHORT_BUFFER_LENTH, 0);
+    ret = LOS_QueueWrite(g_testQueueID01, &buff1, QUEUE_SHORT_BUFFER_LENGTH, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     // 4, Timeout interval of a periodic software timer.
