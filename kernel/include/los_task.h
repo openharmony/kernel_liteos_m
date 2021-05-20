@@ -1052,7 +1052,7 @@ extern BOOL LOS_TaskIsRunning(VOID);
  * @brief Obtain current new task ID.
  *
  * @par Description:
- * This API is used to obtain the ID of new  task.
+ * This API is used to obtain the ID of new task.
  *
  * @attention None.
  *
@@ -1066,10 +1066,10 @@ extern BOOL LOS_TaskIsRunning(VOID);
 extern  UINT32 LOS_NewTaskIDGet(VOID);
  /**
   * @ingroup  los_task
-  * @brief Obtain current new task name.
+  * @brief Obtain the task name.
   *
   * @par Description:
-  * This API is used to obtain the name of new  task.
+  * This API is used to obtain the task name.
   *
   * @attention None.
   *
