@@ -5,17 +5,18 @@ LITEOSTOPDIR := $(realpath $(LITEOSTOPDIR))
 C_SOURCES     += $(wildcard $(LITEOSTOPDIR)/kernel/src/*.c) \
                  $(wildcard $(LITEOSTOPDIR)/kernel/src/mm/*.c) \
                  $(wildcard $(LITEOSTOPDIR)/components/cpup/*.c) \
-                 $(wildcard $(LITEOSTOPDIR)/third_party/bounds_checking_function/src/*.c) \
+                 $(wildcard $(LITEOSTOPDIR)/../../third_party/bounds_checking_function/src/*.c) \
                  $(wildcard $(LITEOSTOPDIR)/utils/*.c) \
+                 $(wildcard $(LITEOSTOPDIR)/kal/cmsis/*.c) \
                  $(wildcard $(LITEOSTOPDIR)/kal/posix/src/*.c) \
                  Core/Src/task_sample.c
 
 C_INCLUDES    += -I$(LITEOSTOPDIR)/utils \
+                 -I$(LITEOSTOPDIR)/kal/cmsis \
                  -I$(LITEOSTOPDIR)/kal/posix/include \
                  -I$(LITEOSTOPDIR)/kernel/include \
                  -I$(LITEOSTOPDIR)/components/cpup \
-                 -I$(LITEOSTOPDIR)/third_party/cmsis/CMSIS/RTOS2/Include \
-                 -I$(LITEOSTOPDIR)/third_party/bounds_checking_function/include
+                 -I$(LITEOSTOPDIR)/../../third_party/bounds_checking_function/include
 
 # Related to arch
 ASM_SOURCES   += $(wildcard $(LITEOSTOPDIR)/kernel/arch/arm/cortex-m7/gcc/*.s)
