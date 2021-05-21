@@ -15,11 +15,17 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 
 ## 目录<a name="section161941989596"></a>
 
+目录结构如下，详细目录请参考[arch_spec_zh.md](https://gitee.com/openharmony/kernel_liteos_m/blob/master/arch_spec_zh.md)。
+
 ```
 /kernel/liteos_m
 ├── components           # 可选组件
+│   ├── backtrace        # 回溯栈支持
 │   ├── cppsupport       # C++支持
-│   └── cpup             # CPUP功能
+│   ├── cpup             # CPUP功能
+│   ├── exchook          # 异常钩子
+│   ├── fs               # 文件系统
+│   └── net              # Network功能
 ├── kal                  # 内核抽象层
 │   ├── cmsis            # cmsis标准接口支持
 │   └── posix            # posix标准接口支持

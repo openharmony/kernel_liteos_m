@@ -15,11 +15,17 @@ The OpenHarmony LiteOS Cortex-M is the kernel designed for the lightweight opera
 
 ## Directory Structure<a name="section161941989596"></a>
 
+The directory structure is listed as below, for the detailed directories, please refer to [arch_spec.md](https://gitee.com/openharmony/kernel_liteos_m/blob/master/arch_spec.md).
+
 ```
 /kernel/liteos_m
 ├── components           # Optional components
+│   ├── backtrace        # backtrace support
 │   ├── cppsupport       # C++ support
-│   └── cpup             # CPU possession (CPUP)
+│   ├── cpup             # CPU possession (CPUP)
+│   ├── exchook          # Exception hook
+│   ├── fs               # File system
+│   └── net              # Network support
 ├── kal                  # Kernel abstraction layer
 │   ├── cmsis            # CMSIS-compliant API support
 │   └── posix            # POSIX API support
