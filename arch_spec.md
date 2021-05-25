@@ -30,7 +30,7 @@
 │   │   │   └── riscv32                                         --- Riscv32 architecture
 │   │   │   │   └── gcc                                         --- Implementation of the GCC toolchain
 │   │   └── include
-│   │       ├── los_arch.h                                      --- Initialization
+│   │       ├── los_arch.h                                      --- Arch initialization
 │   │       ├── los_atomic.h                                    --- Atomic operations
 │   │       ├── los_context.h                                   --- Context switch
 │   │       ├── los_interrupt.h                                 --- Interrupts
