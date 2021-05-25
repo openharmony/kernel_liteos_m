@@ -9,25 +9,25 @@
 │   └── net                                                     --- Network
 ├── kal                                                         --- Kernel Abstraction Layer, APIs exposed externally, including CMSIS APIs and part of POSIX APIs
 │   ├── cmsis                                                   --- CMSIS
-│   └── posix                                                   --- posix
+│   └── posix                                                   --- POSIX
 ├── kernel                                                      --- Code for defining the minimum kernel function set
 │   ├── arch                                                    --- Code of the kernel instruction architecture layer
 │   │   ├── arm                                                 --- ARM32 architecture
-│   │   │   ├── cortex-m3                                       --- cortex-m3 architecture
+│   │   │   ├── cortex-m3                                       --- Cortex-m3 architecture
 │   │   │   │   └── keil                                        --- Implementation of the Keil toolchain
-│   │   │   ├── cortex-m33                                      --- cortex-m33 architecture
+│   │   │   ├── cortex-m33                                      --- Cortex-m33 architecture
 │   │   │   │   │── gcc                                         --- Implementation of the GCC toolchain
 │   │   │   │   └── iar                                         --- Implementation of the IAR toolchain
-│   │   │   └── cortex-m4                                       --- cortex-m4 architecture
+│   │   │   └── cortex-m4                                       --- Cortex-m4 architecture
 │   │   │   │   │── gcc                                         --- Implementation of the GCC toolchain
 │   │   │   │   └── iar                                         --- Implementation of the IAR toolchain
-│   │   │   └── cortex-m7                                       --- cortex-m7 architecture
+│   │   │   └── cortex-m7                                       --- Cortex-m7 architecture
 │   │   │   │   │── gcc                                         --- Implementation of the GCC toolchain
 │   │   │   │   └── iar                                         --- Implementation of the IAR toolchain
-│   │   ├── risc-v                                              --- risc-v architecture
-│   │   │   ├── nuclei                                          --- nuclei architecture
+│   │   ├── risc-v                                              --- Risc-v architecture
+│   │   │   ├── nuclei                                          --- Nuclei architecture
 │   │   │   │   └── gcc                                         --- Implementation of the GCC toolchain
-│   │   │   └── riscv32                                         --- riscv32 architecture
+│   │   │   └── riscv32                                         --- Riscv32 architecture
 │   │   │   │   └── gcc                                         --- Implementation of the GCC toolchain
 │   │   └── include
 │   │       ├── los_arch.h                                      --- Initialization
@@ -53,15 +53,15 @@
 ├── targets
 │   └── targets
 │       └── riscv_nuclei_demo_soc_gcc
-│       │   ├── GCC                                            --- compilation config
-│       │   ├── OS_CONFIG                                      --- board config
+│       │   ├── GCC                                            --- Compilation config
+│       │   ├── OS_CONFIG                                      --- Board config
 │       │   ├── SoC                                            --- SOC codes
-│       │   └── Src                                            --- application codes
+│       │   └── Src                                            --- Application codes
 │       └── riscv_nuclei_gd32vf103_soc_gcc
 │       └── riscv_sifive_fe310_gcc
 └── utils
     ├── internal
-    ├── BUILD.gn                                               --- gn build config file
+    ├── BUILD.gn                                               --- Gn build config file
     ├── los_compiler.h                                         --- Compiler configuration
     ├── los_debug.c                                            --- Debugging facilities
     ├── los_debug.h

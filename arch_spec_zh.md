@@ -12,22 +12,22 @@
 │   └── posix                                                   --- POSIX标准支持
 ├── kernel                                                      --- 内核最小功能集代码
 │   ├── arch                                                    --- 内核指令架构层代码
-│   │   ├── arm                                                 --- arm32架构
-│   │   │   ├── cortex-m3                                       --- cortex-m3架构
+│   │   ├── arm                                                 --- ARM32架构
+│   │   │   ├── cortex-m3                                       --- Cortex-m3架构
 │   │   │   │   └── keil                                        --- Keil编译工具链实现
-│   │   │   ├── cortex-m33                                      --- cortex-m33架构
+│   │   │   ├── cortex-m33                                      --- Cortex-m33架构
 │   │   │   │   │── gcc                                         --- GCC编译工具链实现
 │   │   │   │   └── iar                                         --- IAR编译工具链实现
-│   │   │   └── cortex-m4                                       --- cortex-m4架构
+│   │   │   └── cortex-m4                                       --- Cortex-m4架构
 │   │   │   │   │── gcc                                         --- GCC编译工具链实现
 │   │   │   │   └── iar                                         --- IAR编译工具链实现
-│   │   │   └── cortex-m7                                       --- cortex-m7架构
+│   │   │   └── cortex-m7                                       --- Cortex-m7架构
 │   │   │   │   │── gcc                                         --- GCC编译工具链实现
 │   │   │   │   └── iar                                         --- IAR编译工具链实现
-│   │   ├── risc-v                                              --- risc-v架构
-│   │   │   ├── nuclei                                          --- nuclei架构
+│   │   ├── risc-v                                              --- Risc-v架构
+│   │   │   ├── nuclei                                          --- Nuclei架构
 │   │   │   │   └── gcc                                         --- GCC编译工具链实现
-│   │   │   └── riscv32                                         --- riscv32架构
+│   │   │   └── riscv32                                         --- Riscv32架构
 │   │   │   │   └── gcc                                         --- GCC编译工具链实现
 │   │   └── include
 │   │       ├── los_arch.h                                      --- 定义arch初始化
@@ -56,14 +56,14 @@
 │       │   ├── GCC                                             --- 编译相关
 │       │   ├── OS_CONFIG                                       --- 开发板配置功能开关和配置参数
 │       │   ├── SoC                                             --- SOC相关代码
-│       │   └── Src                                             ---application相关代码
+│       │   └── Src                                             --- Application相关代码
 │       └── riscv_nuclei_gd32vf103_soc_gcc
 │       └── riscv_sifive_fe310_gcc
 └── utils
     ├── internal
-    ├── BUILD.gn                                                --- gn构建文件
+    ├── BUILD.gn                                                --- Gn构建文件
     ├── los_compiler.h                                          --- 编译工具配置，类型定义
-    ├── los_debug.c                                             --- debug，printf相关
+    ├── los_debug.c                                             --- Debug，printf相关
     ├── los_debug.h
     ├── los_error.c                                             --- 错误处理
     ├── los_error.h

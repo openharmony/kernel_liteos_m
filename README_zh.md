@@ -15,7 +15,7 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 
 ## 目录<a name="section161941989596"></a>
 
-目录结构如下，详细目录请参考[arch_spec_zh.md](https://gitee.com/openharmony/kernel_liteos_m/blob/master/arch_spec_zh.md)。
+目录结构如下，详细目录请参考[arch_spec_zh.md](arch_spec_zh.md)。
 
 ```
 /kernel/liteos_m
