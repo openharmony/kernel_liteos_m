@@ -115,18 +115,26 @@ extern CHAR *CSTACK_SECTION_END;
 #else
 #error Unknown compiler.
 #endif
-#elif (LOSCFG_BACKTRACE_TYPE == 2)
+#elif (LOSCFG_BACKTRACE_TYPE == 2) || (LOSCFG_BACKTRACE_TYPE == 3)
 #if defined(__GNUC__)
 /* The defalut code section start address */
 #define CODE_SECTION_START      __text_start
 /* The defalut code section end address */
 #define CODE_SECTION_END        __text_end
+/* The default C stack section start address */
+#define CSTACK_SECTION_START    __except_stack_top
+/* The default C stack section end address */
+#define CSTACK_SECTION_END      __start_and_irq_stack_top
 
 extern CHAR *CODE_SECTION_START;
 extern CHAR *CODE_SECTION_END;
+extern CHAR *CSTACK_SECTION_START;
+extern CHAR *CSTACK_SECTION_END;
 
-#define CODE_START_ADDR         ((UINTPTR)&CODE_SECTION_START)
-#define CODE_END_ADDR           ((UINTPTR)&CODE_SECTION_END)
+#define CODE_START_ADDR     ((UINTPTR)&CODE_SECTION_START)
+#define CODE_END_ADDR       ((UINTPTR)&CODE_SECTION_END)
+#define CSTACK_START_ADDR   ((UINTPTR)&CSTACK_SECTION_START)
+#define CSTACK_END_ADDR     ((UINTPTR)&CSTACK_SECTION_END)
 #else
 #error Unknown compiler.
 #endif
