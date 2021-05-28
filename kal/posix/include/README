@@ -1,3 +1,0 @@
- ** DO NOT EDIT FILES HERE **
-These header files are copied from musl ("//third_party/musl") except `libc.h',
-you can see the license information of MUSL in COPYRIGHT file.

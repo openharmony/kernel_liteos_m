@@ -31,6 +31,8 @@ static_library("fs_operations") {
   sources = [
     "./fs.c",
   ]
+
+  deps = [ "//kernel/liteos_m/kal/posix" ]
 }
 
 declare_args() {
