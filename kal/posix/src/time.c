@@ -188,7 +188,12 @@ int timer_settime(timer_t timerID, int flags,
     intSave = LOS_IntLock();
     swtmr = OS_SWT_FROM_SID(swtmrID);
     swtmr->ucMode = (interval ? LOS_SWTMR_MODE_PERIOD : LOS_SWTMR_MODE_NO_SELFDELETE);
-    swtmr->uwInterval = interval;
+    if (interval) {
+        swtmr->uwInterval = interval;
+    } else {
+        swtmr->uwInterval = expiry;
+    }
+    
     LOS_IntRestore(intSave);
 
     if ((value->it_value.tv_sec == 0) && (value->it_value.tv_nsec == 0)) {
