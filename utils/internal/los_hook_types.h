@@ -57,11 +57,11 @@ extern "C" {
     LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_REALLOC, (VOID *pool, VOID *ptr, UINT32 size))                      \
     LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_ALLOCALIGN, (VOID *pool, UINT32 size, UINT32 boundary))             \
     /* Hook types supported by event modules */                                                             \
-    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_EVENT_INIT, (VOID))                                                     \
+    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_EVENT_INIT, (PEVENT_CB_S eventCB))                                                     \
     LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_EVENT_READ, (PEVENT_CB_S eventCB, UINT32 eventMask, UINT32 mode))       \
     LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_EVENT_WRITE, (PEVENT_CB_S eventCB))                                     \
     LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_EVENT_CLEAR, (PEVENT_CB_S eventCB))                                     \
-    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_EVENT_DESTROY, (VOID))                                                  \
+    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_EVENT_DESTROY, (PEVENT_CB_S eventCB))                                                  \
     /* Hook types supported by queue modules */                                                             \
     LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_QUEUE_CREATE, (const LosQueueCB *queueCB))                              \
     LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_QUEUE_READ, (const LosQueueCB *queueCB))                                \
