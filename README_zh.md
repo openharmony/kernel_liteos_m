@@ -41,11 +41,11 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 
 ## 使用说明<a name="section3732185231214"></a>
 
-OpenHarmony LiteOS-M内核的编译构建系统是一个基于gn和ninja的组件化构建系统，支持按组件配置、裁剪和拼装，按需构建出定制化的产品。编译构建系统的详细信息可以参考[官方开源站点编译系统介绍](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/%E7%BC%96%E8%AF%91%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D.md)。本文主要介绍如何基于gn和ninja编译LiteOS-M工程，GCC+Makefile、IAR、Keil MDK等编译方式可以参考社区爱好者贡献的站点。
+OpenHarmony LiteOS-M内核的编译构建系统是一个基于gn和ninja的组件化构建系统，支持按组件配置、裁剪和拼装，按需构建出定制化的产品。编译构建系统的详细信息可以参考[轻量和小型系统编译构建指导](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/subsystems/%E8%BD%BB%E9%87%8F%E5%92%8C%E5%B0%8F%E5%9E%8B%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E6%8C%87%E5%AF%BC.md)。本文主要介绍如何基于gn和ninja编译LiteOS-M工程，GCC+Makefile、IAR、Keil MDK等编译方式可以参考社区爱好者贡献的站点。
 
 ### 搭建系统基础环境
 
-在搭建各个开发板环境前，需要完成OpenHarmony系统基础环境搭建。系统基础环境主要是指OpenHarmony的编译环境和开发环境，详细介绍请参考官方站点[搭建系统基础环境](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/%E6%90%AD%E5%BB%BA%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83.md)。开发者需要根据环境搭建文档，完成下述软件的安装：Python3.7+、gn、ninja、hb。对于LiteOS-M内核，还需要安装Make构建工具和[ARM GCC编译工具链](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)。
+在搭建各个开发板环境前，需要完成OpenHarmony系统基础环境搭建。系统基础环境主要是指OpenHarmony的编译环境和开发环境，详细介绍请参考官方站点[Ubuntu编译环境准备](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/Ubuntu%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87.md)。开发者需要根据环境搭建文档，完成下述软件的安装：Python3.7+、gn、ninja、hb。对于LiteOS-M内核，还需要安装Make构建工具和[ARM GCC编译工具链](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)。
 
 ### 获取OpenHarmony源码
 
@@ -62,6 +62,8 @@ git clone https://gitee.com/harylee/nucleo_f767zi.git
 假设克隆到的代码目录为`~/nucleo_f767zi`。 执行如下命令把代码目录的`device`、`vendor`目录复制到`openHarmony`工程的相应目录。
 
 ```
+mkdir ~/openHarmony/device/st
+
 cp -r ~/nucleo_f767zi/device/st/nucleo_f767zi ~/openHarmony/device/st/nucleo_f767zi
 
 chmod +x ~/openHarmony/device/st/nucleo_f767zi/build.sh
