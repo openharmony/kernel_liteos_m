@@ -46,7 +46,7 @@ extern "C" {
 #if (LOSCFG_BACKTRACE_TYPE != 0)
 #if (LOSCFG_BACKTRACE_TYPE == 1)
 /* The default name of the code section and CSTACK section are given below,
-   and the user can be adjust it according to the linker script file. */
+   and the user can adjust it according to the linker script file. */
 #if defined(__ICCARM__)
 /* The default code section name is .text */
 #define CODE_SECTION_NAME    ".text"
@@ -91,9 +91,9 @@ extern CHAR *CODE_SECTION_END(CODE_SECTION_NAME);
 #define CSTACK_START_ADDR   ((UINTPTR)&CSTACK_SECTION_START(CSTACK_SECTION_NAME))
 #define CSTACK_END_ADDR     ((UINTPTR)&CSTACK_SECTION_END(CSTACK_SECTION_NAME))
 #elif defined(__GNUC__)
-/* The defalut code section start address */
+/* The default code section start address */
 #define CODE_SECTION_START      _stext
-/* The defalut code section end address */
+/* The default code section end address */
 #define CODE_SECTION_END        _etext
 /* The default C stack section start address */
 #define CSTACK_SECTION_START    _sstack
@@ -117,9 +117,9 @@ extern CHAR *CSTACK_SECTION_END;
 #endif
 #elif (LOSCFG_BACKTRACE_TYPE == 2)
 #if defined(__GNUC__)
-/* The defalut code section start address */
+/* The default code section start address */
 #define CODE_SECTION_START      __text_start
-/* The defalut code section end address */
+/* The default code section end address */
 #define CODE_SECTION_END        __text_end
 
 extern CHAR *CODE_SECTION_START;
