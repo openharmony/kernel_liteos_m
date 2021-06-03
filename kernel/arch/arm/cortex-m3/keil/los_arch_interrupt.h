@@ -687,7 +687,7 @@ VOID HalHwiInit();
 typedef struct TagExcInfo {
     /**< Exception occurrence phase: 0 means that an exception occurs in initialization, 1 means that an exception occurs in a task, and 2 means that an exception occurs in an interrupt */
     UINT16 phase;
-    /**< Exception type. When exceptions occur, check the numbers 1 - 19 listed above */
+    /**< Exception type. When exceptions occur, check the numbers 1 - 21 listed above */
     UINT16 type;
     /**< If the exact address access error indicates the wrong access address when the exception occurred */
     UINT32 faultAddr;
