@@ -222,7 +222,7 @@ typedef enum {
  * @param None.
  *
  * @retval #OS_ERRNO_CPUP_NO_INIT           0x02001e02: The CPU usage is not initialized.
- * @retval #cpup                            [0,100], current CPU usage, of which the precision is adjustable.
+ * @retval #cpup                            [0,1000], current CPU usage, of which the precision is adjustable.
  * @par Dependency:
  * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_SysCpuUsage
@@ -245,7 +245,7 @@ extern UINT32 LOS_SysCpuUsage(VOID);
  * indicate that the CPU usage in the period that is less than 1s will be obtained.
  *
  * @retval #OS_ERRNO_CPUP_NO_INIT           0x02001e02: The CPU usage is not initialized.
- * @retval #cpup                            [0,100], historical CPU usage, of which the precision is adjustable.
+ * @retval #cpup                            [0,1000], historical CPU usage, of which the precision is adjustable.
  * @par Dependency:
  * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_HistoryTaskCpuUsage
@@ -270,7 +270,7 @@ extern UINT32 LOS_HistorySysCpuUsage(UINT16 mode);
  * @retval #OS_ERRNO_CPUP_NO_INIT             0x02001e02: The CPU usage is not initialized.
  * @retval #OS_ERRNO_CPUP_TSK_ID_INVALID      0x02001e05: The target task ID is invalid.
  * @retval #OS_ERRNO_CPUP_THREAD_NO_CREATED   0x02001e04: The target thread is not created.
- * @retval #cpup                              [0,100], CPU usage of the specified task.
+ * @retval #cpup                              [0,1000], CPU usage of the specified task.
  * @par Dependency:
  * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_HistoryTaskCpuUsage
@@ -299,7 +299,7 @@ extern UINT32 LOS_TaskCpuUsage(UINT32 taskID);
  * @retval #OS_ERRNO_CPUP_NO_INIT             0x02001e02: The CPU usage is not initialized.
  * @retval #OS_ERRNO_CPUP_TSK_ID_INVALID      0x02001e05: The target task ID is invalid.
  * @retval #OS_ERRNO_CPUP_THREAD_NO_CREATED   0x02001e04: The target thread is not created.
- * @retval #cpup                              [0,100], CPU usage of the specified task.
+ * @retval #cpup                              [0,1000], CPU usage of the specified task.
  * @par Dependency:
  * <ul><li>los_cpup.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_HistorySysCpuUsage
@@ -346,7 +346,7 @@ extern UINT32 LOS_AllTaskCpuUsage(CPUP_INFO_S *cpupInfo, UINT16 mode);
  *
  * @param type        [IN] cpup type, SYS_CPU_USAGE and TASK_CPU_USAGE
  * @param mode        [IN] mode,CPUP_IN_10S = usage in 10s,CPUP_IN_1S = usage in last 1s,
- * CPUP_LESS_THAN_1S = less than 1s, if the inpuit mode is none of them, it will be as CPUP_LESS_THAN_1S.
+ * CPUP_LESS_THAN_1S = less than 1s, if the input mode is none of them, it will be as CPUP_LESS_THAN_1S.
  * @param taskID      [IN] task ID, Only in SYS_CPU_USAGE type, taskID is invalid
  *
  * @retval #OS_ERROR           -1:CPU usage info obtain failed.
