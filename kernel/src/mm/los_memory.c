@@ -1286,6 +1286,8 @@ UINT32 LOS_MemFree(VOID *pool, VOID *ptr)
         return LOS_NOK;
     }
 
+    OsHookCall(LOS_HOOK_TYPE_MEM_FREE, pool, ptr);
+
     UINT32 ret = LOS_NOK;
     struct OsMemPoolHead *poolHead = (struct OsMemPoolHead *)pool;
     struct OsMemNodeHead *node = NULL;
@@ -1307,8 +1309,6 @@ UINT32 LOS_MemFree(VOID *pool, VOID *ptr)
     UINT32 timeUsed = MEM_TRACE_CYCLE_TO_US(end - start);
     LOS_Trace(LOS_TRACE_MEM_TIME, (UINTPTR)pool & MEM_POOL_ADDR_MASK, MEM_TRACE_FREE, timeUsed);
 #endif
-
-    OsHookCall(LOS_HOOK_TYPE_MEM_FREE, pool, ptr);
 
     return ret;
 }
