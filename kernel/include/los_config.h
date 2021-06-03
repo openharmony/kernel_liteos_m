@@ -541,8 +541,8 @@ extern UINT8 *m_aucSysMem0;
  * @ingroup los_config
  * Configuration of hardware stack protection
  */
-#ifndef LOSCFG_EXC_HRADWARE_STACK_PROTECTION
-#define LOSCFG_EXC_HRADWARE_STACK_PROTECTION                0
+#ifndef LOSCFG_EXC_HARDWARE_STACK_PROTECTION
+#define LOSCFG_EXC_HARDWARE_STACK_PROTECTION                0
 #endif
 
 /* =============================================================================
