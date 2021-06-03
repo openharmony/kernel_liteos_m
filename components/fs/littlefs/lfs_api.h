@@ -33,6 +33,7 @@
 #define _LFS_API_H_
 
 #include "bits/alltypes.h"
+#include "fcntl.h"
 #include "sys/stat.h"
 
 #include "dirent.h"

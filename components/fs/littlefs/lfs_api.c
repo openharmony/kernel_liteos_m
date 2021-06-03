@@ -92,12 +92,28 @@ FileDirInfo *GetFreeDir(const char *dirName)
     return NULL;
 }
 
+void FreeDirInfo(const char *dirName) 
+{
+    pthread_mutex_lock(&g_FslocalMutex);
+    for (int i = 0; i < LFS_MAX_OPEN_DIRS; i++) {
+        if (g_lfsDir[i].useFlag == 1 && strcmp(g_lfsDir[i].dirName, dirName) == 0) {
+            g_lfsDir[i].useFlag = 0;
+            if (g_lfsDir[i].dirName) {
+                free(g_lfsDir[i].dirName);
+                g_lfsDir[i].dirName = NULL;
+            }
+            pthread_mutex_unlock(&g_FslocalMutex);
+        }
+    }
+    pthread_mutex_unlock(&g_FslocalMutex);
+}
+
 BOOL CheckDirIsOpen(const char *dirName)
 {
     pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LFS_MAX_OPEN_DIRS; i++) {
         if (g_lfsDir[i].useFlag == 1) {
-            if(strcmp(g_lfsDir[i].dirName, dirName) == 0) {
+            if (strcmp(g_lfsDir[i].dirName, dirName) == 0) {
                 pthread_mutex_unlock(&g_FslocalMutex);
                 return TRUE;
             }
@@ -110,14 +126,14 @@ BOOL CheckDirIsOpen(const char *dirName)
 BOOL CheckPathIsMounted(const char *pathName, struct FileOpInfo **fileOpInfo)
 {
     char tmpName[LITTLEFS_MAX_LFN_LEN] = {0};
-    int mountPathNameLen = 0;
+    int mountPathNameLen;
     int len = strlen(pathName) + 1;
 
     pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 1) {
             mountPathNameLen = strlen(g_fsOp[i].dirName);
-            if(len < mountPathNameLen + 1) {
+            if (len < mountPathNameLen + 1) {
                 pthread_mutex_unlock(&g_FslocalMutex);
                 return FALSE;
             }
@@ -125,7 +141,7 @@ BOOL CheckPathIsMounted(const char *pathName, struct FileOpInfo **fileOpInfo)
             (void)strncpy_s(tmpName, LITTLEFS_MAX_LFN_LEN, pathName, mountPathNameLen);
             tmpName[mountPathNameLen] = '\0';
 
-            if(strcmp(tmpName, g_fsOp[i].dirName) == 0) {
+            if (strcmp(tmpName, g_fsOp[i].dirName) == 0) {
                 *fileOpInfo = &(g_fsOp[i]);
                 pthread_mutex_unlock(&g_FslocalMutex);
                 return TRUE;
@@ -153,7 +169,7 @@ struct FileOpInfo *AllocMountRes(const char* target, struct FileOps *fileOps)
     return NULL;
 }
 
-struct FileOpInfo *GetMountRes(const char*target, int *mountIndex)
+struct FileOpInfo *GetMountRes(const char *target, int *mountIndex)
 {
     pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LFS_MAX_MOUNT_SIZE; i++) {
@@ -206,6 +222,41 @@ int FreeMountRes(const char *target)
     return VFS_ERROR;
 }
 
+int ConvertFlagToLfsOpenFlag (int oflags)
+{
+    int lfsOpenFlag = 0;
+
+    if (oflags & O_CREAT) {
+        lfsOpenFlag |= LFS_O_CREAT;
+    }
+
+    if (oflags & O_EXCL) {
+        lfsOpenFlag |= LFS_O_EXCL;
+    }
+
+    if (oflags & O_TRUNC) {
+        lfsOpenFlag |= LFS_O_TRUNC;
+    }
+
+    if (oflags & O_APPEND) {
+        lfsOpenFlag |= LFS_O_APPEND;
+    }
+
+    if (oflags & O_RDWR) {
+        lfsOpenFlag |= LFS_O_RDWR;
+    }
+
+    if (oflags & O_WRONLY) {
+        lfsOpenFlag |= LFS_O_WRONLY;
+    }
+
+    if (oflags & O_RDONLY) {
+        lfsOpenFlag |= LFS_O_RDONLY;
+    }
+
+    return lfsOpenFlag;
+}
+
 const struct MountOps g_lfsMnt = {
     .Mount = LfsMount,
     .Umount = LfsUmount,
@@ -256,14 +307,23 @@ int LfsMount(const char *source, const char *target, const char *fileSystemType,
         goto errout;
     }
     
-    return lfs_mount(&(fileOpInfo->lfsInfo), (struct lfs_config*)data);
+    ret = lfs_mount(&(fileOpInfo->lfsInfo), (struct lfs_config*)data);
+    if (ret != 0) {
+        ret = lfs_format(&(fileOpInfo->lfsInfo), (struct lfs_config*)data);
+        if (ret == 0) {
+            ret = lfs_mount(&(fileOpInfo->lfsInfo), (struct lfs_config*)data);
+        }
+    }
+
+    return ret;
 errout:
     return ret;
 }
 
 int LfsUmount(const char *target)
 {
-    int ret, mountIndex = -1;
+    int ret;
+    int mountIndex = -1;
     struct FileOpInfo *fileOpInfo = NULL;
 
     if (target == NULL) {
@@ -376,7 +436,7 @@ struct dirent *LfsReaddir(DIR *dir)
     ret = lfs_dir_read(dirInfo->lfsHandle, (lfs_dir_t *)(&(dirInfo->dir)), &lfsInfo);
     if (ret == 0) {
         pthread_mutex_lock(&g_FslocalMutex);
-        g_nameValue.d_name = strdup(lfsInfo.name);
+        (void)strncpy_s(g_nameValue.d_name, sizeof(g_nameValue.d_name), lfsInfo.name, strlen(lfsInfo.name) + 1);
         if (lfsInfo.type == LFS_TYPE_DIR) {
             g_nameValue.d_type = DT_DIR;
         } else if (lfsInfo.type == LFS_TYPE_REG) {
@@ -394,18 +454,25 @@ struct dirent *LfsReaddir(DIR *dir)
 
 int LfsClosedir(const DIR *dir)
 {
+    int ret;
     FileDirInfo *dirInfo = (FileDirInfo *)dir;
 
     if (dirInfo == NULL || dirInfo->lfsHandle == NULL) {
         return VFS_ERROR;
     }
 
-    return lfs_dir_close(dirInfo->lfsHandle, (lfs_dir_t *)(&(dirInfo->dir)));
+    ret = lfs_dir_close(dirInfo->lfsHandle, (lfs_dir_t *)(&(dirInfo->dir)));
+
+    FreeDirInfo(dirInfo->dirName);
+
+    return ret;
 }
 
 int LfsOpen(const char *pathName, int openFlag, int mode)
 {
     int fd = INVALID_FD;
+    int err = INVALID_FD;
+
     struct FileOpInfo *fileOpInfo = NULL;
 
     if (pathName == NULL) {
@@ -425,7 +492,8 @@ int LfsOpen(const char *pathName, int openFlag, int mode)
         goto errout;
     }
 
-    int err = lfs_file_open(&(fileOpInfo->lfsInfo), &(fsHandle->file), pathName, openFlag);
+    int lfsOpenFlag = ConvertFlagToLfsOpenFlag(openFlag);
+    err = lfs_file_open(&(fileOpInfo->lfsInfo), &(fsHandle->file), pathName, lfsOpenFlag);
     if (err != 0) {
         goto errout;
     }
@@ -433,7 +501,7 @@ int LfsOpen(const char *pathName, int openFlag, int mode)
     g_handle[fd].lfsHandle = &(fileOpInfo->lfsInfo);
     return fd;
 errout:
-    return INVALID_FD;
+    return err;
 }
 
 int LfsRead(int fd, void *buf, unsigned int len)
