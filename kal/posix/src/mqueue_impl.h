@@ -137,9 +137,5 @@ struct mqpersonal {
     UINT32 mq_status;
     UINT32 mq_refcount;
 };
-#ifdef LOSCFG_BASE_IPC_QUEUE_LIMIT
-#undef LOSCFG_BASE_IPC_QUEUE_LIMIT
-#define LOSCFG_BASE_IPC_QUEUE_LIMIT 20
-#endif
 
 #endif
