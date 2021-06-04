@@ -622,14 +622,21 @@ int fatfs_close(int fd)
     FRESULT res;
     INT32 ret;
 
+    ret = FsLock();
+    if (ret != 0) {
+        errno = ret;
+        return FS_FAILURE;
+    }
+
     if (!IsValidFd(fd)) {
+        FsUnlock();
         errno = EBADF;
         return FS_FAILURE;
     }
 
-    ret = FsLock();
-    if (ret != 0) {
-        errno = ret;
+    if (g_handle[fd].fil.obj.fs == NULL) {
+        FsUnlock();
+        errno = ENOENT;
         return FS_FAILURE;
     }
 
@@ -668,14 +675,22 @@ ssize_t fatfs_read(int fd, void *buf, size_t nbyte)
         errno = EFAULT;
         return FS_FAILURE;
     }
-    if (!IsValidFd(fd)) {
-        errno = EBADF;
-        return FS_FAILURE;
-    }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
+        return FS_FAILURE;
+    }
+
+    if (!IsValidFd(fd)) {
+        FsUnlock();
+        errno = EBADF;
+        return FS_FAILURE;
+    }
+
+    if (g_handle[fd].fil.obj.fs == NULL) {
+        FsUnlock();
+        errno = ENOENT;
         return FS_FAILURE;
     }
 
@@ -701,10 +716,6 @@ ssize_t fatfs_write(int fd, const void *buf, size_t nbyte)
         errno = EFAULT;
         return FS_FAILURE;
     }
-    if (!IsValidFd(fd)) {
-        errno = EBADF;
-        return FS_FAILURE;
-    }
 
     ret = FsLock();
     if (ret != 0) {
@@ -712,15 +723,27 @@ ssize_t fatfs_write(int fd, const void *buf, size_t nbyte)
         return FS_FAILURE;
     }
 
+    if (!IsValidFd(fd)) {
+        errno = EBADF;
+        goto ERROUT;
+    }
+
+    if (g_handle[fd].fil.obj.fs == NULL) {
+        errno = ENOENT;
+        goto ERROUT;
+    }
+
     if (!FsCheckByID(g_handle[fd].fil.obj.fs->id)) {
         errno = EACCES;
         goto ERROUT;
     }
+
     res = f_write(&g_handle[fd].fil, buf, nbyte, &lenWrite);
     if ((res == FR_OK) && (lenWrite == 0) && (nbyte != 0) && (overFlow == FALSE)) {
         overFlow = TRUE;
         PRINTK("FAT write err 0x%x!\r\n", fd);
     }
+
     if ((res != FR_OK) || (nbyte != lenWrite)) {
         errno = FatfsErrno(res);
         goto ERROUT;
@@ -740,15 +763,20 @@ off_t fatfs_lseek(int fd, off_t offset, int whence)
     INT32 ret;
     off_t pos;
 
-    if (!IsValidFd(fd)) {
-        errno = EBADF;
-        return FS_FAILURE;
-    }
-
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
         return FS_FAILURE;
+    }
+
+    if (!IsValidFd(fd)) {
+        errno = EBADF;
+        goto ERROUT;
+    }
+
+    if (g_handle[fd].fil.obj.fs == NULL) {
+        errno = ENOENT;
+        goto ERROUT;
     }
 
     if (whence == SEEK_SET) {
@@ -832,14 +860,22 @@ int fatfs_fstat(int fd, struct stat *buf)
         errno = EFAULT;
         return FS_FAILURE;
     }
-    if (!IsValidFd(fd)) {
-        errno = EBADF;
-        return FS_FAILURE;
-    }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
+        return FS_FAILURE;
+    }
+
+    if (!IsValidFd(fd)) {
+        FsUnlock();
+        errno = EBADF;
+        return FS_FAILURE;
+    }
+
+    if (g_handle[fd].fil.obj.fs == NULL) {
+        FsUnlock();
+        errno = ENOENT;
         return FS_FAILURE;
     }
 
@@ -879,6 +915,7 @@ int fatfs_stat(const char *path, struct stat *buf)
         ret = FS_FAILURE;
         goto OUT;
     }
+
     res = f_stat(path, &fileInfo);
     if (res != FR_OK) {
         PRINTK("FAT stat err 0x%x!\r\n", res);
@@ -914,15 +951,22 @@ int fatfs_fsync(int fd)
     FRESULT res;
     INT32 ret;
 
-    if (!IsValidFd(fd)) {
-        errno = EBADF;
-        return FS_FAILURE;
-    }
-
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
         return FS_FAILURE;
+    }
+
+    if (!IsValidFd(fd)) {
+        errno = EBADF;
+        ret = FS_FAILURE;
+        goto OUT;
+    }
+
+    if (g_handle[fd].fil.obj.fs == NULL) {
+        errno = ENOENT;
+        ret = FS_FAILURE;
+        goto OUT;
     }
 
     if (!FsCheckByID(g_handle[fd].fil.obj.fs->id)) {
@@ -930,6 +974,7 @@ int fatfs_fsync(int fd)
         ret = FS_FAILURE;
         goto OUT;
     }
+
     res = f_sync(&g_handle[fd].fil);
     if (res != FR_OK) {
         errno = FatfsErrno(res);
@@ -1293,11 +1338,6 @@ int fatfs_ftruncate(int fd, off_t length)
     UINT count;
     DWORD fclust;
 
-    if (!IsValidFd(fd)) {
-        errno = EBADF;
-        return FS_FAILURE;
-    }
-
     if ((length < 0) || (length > UINT_MAX)) {
         errno = EINVAL;
         return FS_FAILURE;
@@ -1307,6 +1347,18 @@ int fatfs_ftruncate(int fd, off_t length)
     if (ret != 0) {
         errno = ret;
         return FS_FAILURE;
+    }
+
+    if (!IsValidFd(fd)) {
+        errno = EBADF;
+        ret = FS_FAILURE;
+        goto OUT;
+    }
+
+    if (g_handle[fd].fil.obj.fs == NULL) {
+        errno = ENOENT;
+        ret = FS_FAILURE;
+        goto OUT;
     }
 
     if (!FsCheckByID(g_handle[fd].fil.obj.fs->id)) {
@@ -1442,4 +1494,5 @@ struct FileOps g_fatfsFops = {
     .Rename = fatfs_rename,
     .Getattr = fatfs_stat,
     .Fsync = fatfs_fsync,
+    .Fstat = fatfs_fstat,
 };
