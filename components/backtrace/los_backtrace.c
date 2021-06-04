@@ -119,7 +119,7 @@ STATIC INLINE UINT32 OsStackAddrGet(UINTPTR *stackStart, UINTPTR *stackEnd, UINT
             LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
             *stackEnd = (UINTPTR)taskCB->topOfStack + taskCB->stackSize;
             if ((SP < (UINTPTR)taskCB->topOfStack) || (SP >= *stackEnd)) {
-                PRINT_ERR("msp statck [0x%x, 0x%x], cur task stack [0x%x, 0x%x], cur sp(0x%x) is overflow!\n",
+                PRINT_ERR("msp stack [0x%x, 0x%x], cur task stack [0x%x, 0x%x], cur sp(0x%x) is overflow!\n",
                           CODE_START_ADDR, CSTACK_END_ADDR, (UINTPTR)taskCB->topOfStack, *stackEnd, SP);
                 return LOS_NOK;
             }
