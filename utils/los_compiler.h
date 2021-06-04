@@ -335,7 +335,7 @@ typedef signed int             INTPTR;
 #ifdef __cplusplus
 #define NULL          0L
 #else
-#define NULL          ((VOID *)0)
+#define NULL          ((void*)0)
 #endif
 #endif
 
@@ -411,10 +411,7 @@ static inline UINT32 LOS_Align(UINT32 addr, UINT32 boundary)
         } while (0)
 
 #ifndef UNUSED
-#define UNUSED(var)    \
-        do {           \
-            (void)var; \
-        } while (0)
+#define UNUSED(X) (void)X
 #endif
 
 #ifdef __cplusplus
