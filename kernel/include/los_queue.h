@@ -402,7 +402,7 @@ extern UINT32 LOS_QueueCreate(CHAR *queueName,
  * [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
  * @param bufferAddr     [OUT]    Starting address that stores the obtained data. The starting address must not be
  * null.
- * @param bufferSize     [IN/OUT] Where to maintain the buffer wantted-size before read, and the real-size after read.
+ * @param bufferSize     [IN/OUT] Where to maintain the buffer expected-size before read, and the real-size after read.
  * @param timeOut        [IN]     Expiry time. The value range is [0,LOS_WAIT_FOREVER](unit: Tick).
  *
  * @retval   #LOS_OK                              The queue is successfully read.
