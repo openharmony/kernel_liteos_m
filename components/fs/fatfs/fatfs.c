@@ -50,9 +50,9 @@
 #define FAT_MAX_OPEN_DIRS     8
 #endif /* FAT_MAX_OPEN_DIRS */
 
-#ifndef FS_LOCK_TIMEMOUT_SEC
-#define FS_LOCK_TIMEMOUT_SEC  15
-#endif /* FS_LOCK_TIMEMOUT_SEC */
+#ifndef FS_LOCK_TIMEOUT_SEC
+#define FS_LOCK_TIMEOUT_SEC  15
+#endif /* FS_LOCK_TIMEOUT_SEC */
 
 #define PART_NAME   0x0
 #define VOLUME_NAME 0x1
@@ -88,7 +88,7 @@ static int FsLock(void)
         PRINTK("clock gettime err 0x%x!\r\n", errno);
         return errno;
     }
-    absTimeout.tv_sec += FS_LOCK_TIMEMOUT_SEC;
+    absTimeout.tv_sec += FS_LOCK_TIMEOUT_SEC;
     ret = pthread_mutex_timedlock(&g_fsMutex, &absTimeout);
     return ret;
 }
