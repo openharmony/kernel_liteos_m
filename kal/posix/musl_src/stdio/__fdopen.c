@@ -6,6 +6,11 @@
 #include <string.h>
 #include <pthread.h>
 
+int ioctl(int fd, int req, ...)
+{
+	return 0;
+}
+
 FILE *__fdopen(int fd, const char *mode)
 {
 	FILE *f;
