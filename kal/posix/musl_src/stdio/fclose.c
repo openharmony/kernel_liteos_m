@@ -4,10 +4,10 @@
 static void dummy(FILE *f) { }
 weak_alias(dummy, __unlist_locked_file);
 
-int fclose(FILE *f)
+int __fclose(FILE *f)
 {
 	int r;
-	
+
 	FLOCK(f);
 	r = fflush(f);
 	r |= f->close(f);
@@ -34,3 +34,4 @@ int fclose(FILE *f)
 
 	return r;
 }
+weak_alias(__fclose, fclose);

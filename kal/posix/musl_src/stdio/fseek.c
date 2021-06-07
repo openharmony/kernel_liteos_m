@@ -15,12 +15,12 @@ int __fseeko_unlocked(FILE *f, off_t off, int whence)
 	f->wpos = f->wbase = f->wend = 0;
 
 	/* Perform the underlying seek. */
-	if (lseek(f->fd, (unsigned int)off, whence) < 0) return -1;
+	if (lseek(f->fd, off, whence) < 0) return -1;
 
 	/* If seek succeeded, file is seekable and we discard read buffer. */
 	f->rpos = f->rend = 0;
 	f->flags &= ~F_EOF;
-	
+
 	return 0;
 }
 
