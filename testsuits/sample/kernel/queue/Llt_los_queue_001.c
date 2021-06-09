@@ -6,8 +6,8 @@
 static VOID TaskF01(VOID)
 {
     UINT32 ret;
-    CHAR   buff1[QUEUE_SHORT_BUFFER_LENTH] = "UniDSP";
-    CHAR   buff2[QUEUE_SHORT_BUFFER_LENTH] = " ";
+    CHAR   buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
+    CHAR   buff2[QUEUE_SHORT_BUFFER_LENGTH] = " ";
 
     ret = LOS_QueueRead(g_testQueueID01, &buff2, QUEUE_BASE_MSGSIZE, LOS_WAIT_FOREVER);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
@@ -34,8 +34,8 @@ static UINT32 Testcase(VOID)
     QUEUE_INFO_S queueInfo;
     UINT32 i;
     UINT32 queueID[LOSCFG_BASE_IPC_QUEUE_LIMIT + 1];
-    CHAR   buff1[QUEUE_SHORT_BUFFER_LENTH] = "UniDSP";
-    CHAR   buff2[QUEUE_SHORT_BUFFER_LENTH] = " ";
+    CHAR   buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
+    CHAR   buff2[QUEUE_SHORT_BUFFER_LENGTH] = " ";
 
     TSK_INIT_PARAM_S task1 = {0};
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;

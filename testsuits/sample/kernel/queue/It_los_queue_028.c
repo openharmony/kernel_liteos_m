@@ -35,8 +35,8 @@
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
-    CHAR buff1[QUEUE_SHORT_BUFFER_LENTH] = "UniDSP";
-    CHAR buff2[QUEUE_SHORT_BUFFER_LENTH] = "";
+    CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
+    CHAR buff2[QUEUE_SHORT_BUFFER_LENGTH] = "";
 
     // 2, is a Invalid queueID for test erro code LOS_ERRNO_QUEUE_NOT_CREATE
     ret = LOS_QueueWrite(2, &buff1, QUEUE_BASE_MSGSIZE, 0);

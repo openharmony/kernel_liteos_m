@@ -469,16 +469,16 @@ void timer_channel_dma_request_source_select(uint32_t timer_periph, uint32_t dma
        \arg        TIMER_DMACFG_DMATA_CH3CV: DMA transfer address is TIMER_CH3CV, TIMERx(x=0..4)
        \arg        TIMER_DMACFG_DMATA_CCHP: DMA transfer address is TIMER_CCHP, TIMERx(x=0)
        \arg        TIMER_DMACFG_DMATA_DMACFG: DMA transfer address is TIMER_DMACFG, TIMERx(x=0..4)
-    \param[in]  dma_lenth:
+    \param[in]  dma_length:
                 only one parameter can be selected which is shown as below:
        \arg        TIMER_DMACFG_DMATC_xTRANSFER(x=1..6): DMA transfer x time
     \param[out] none
     \retval     none
 */
-void timer_dma_transfer_config(uint32_t timer_periph, uint32_t dma_baseaddr, uint32_t dma_lenth)
+void timer_dma_transfer_config(uint32_t timer_periph, uint32_t dma_baseaddr, uint32_t dma_length)
 {
     TIMER_DMACFG(timer_periph) &= (~(uint32_t)(TIMER_DMACFG_DMATA | TIMER_DMACFG_DMATC));
-    TIMER_DMACFG(timer_periph) |= (uint32_t)(dma_baseaddr | dma_lenth);
+    TIMER_DMACFG(timer_periph) |= (uint32_t)(dma_baseaddr | dma_length);
 }
 
 /*!

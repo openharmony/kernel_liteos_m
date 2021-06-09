@@ -134,7 +134,7 @@ STATIC VOID OsRecyleFinishedTask(VOID)
         taskCB = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&g_taskRecyleList));
         LOS_ListDelete(LOS_DL_LIST_FIRST(&g_taskRecyleList));
         LOS_ListAdd(&g_losFreeTask, &taskCB->pendList);
-#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 1)
+#if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1)
         stackPtr = taskCB->topOfStack - OS_TASK_STACK_PROTECT_SIZE;
 #else
         stackPtr = taskCB->topOfStack;
@@ -396,7 +396,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsIdleTaskCreate(VOID)
         return retVal;
     }
 
-    OsSchedSetIdleTaskSchedPartam(OS_TCB_FROM_TID(g_idleTaskID));
+    OsSchedSetIdleTaskSchedParam(OS_TCB_FROM_TID(g_idleTaskID));
     return LOS_OK;
 }
 
@@ -450,7 +450,7 @@ LITE_OS_SEC_TEXT CHAR *LOS_CurTaskNameGet(VOID)
 }
 
 #if (LOSCFG_BASE_CORE_TSK_MONITOR == 1)
-#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 0)
+#if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 0)
 /*****************************************************************************
  Function    : OsHandleRunTaskStackOverflow
  Description : handle stack overflow exception of the run task.
@@ -530,7 +530,7 @@ LITE_OS_SEC_TEXT STATIC VOID OsTaskStackProtect(VOID)
 LITE_OS_SEC_TEXT VOID OsTaskSwitchCheck(VOID)
 {
     UINT32 intSave = LOS_IntLock();
-#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 0)
+#if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 0)
     UINT32 endOfStack = g_losTask.newTask->topOfStack + g_losTask.newTask->stackSize;
 
     if ((*(UINT32 *)(UINTPTR)(g_losTask.runTask->topOfStack)) != OS_TASK_MAGIC_WORD) {
@@ -702,7 +702,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S
 
     LOS_IntRestore(intSave);
 
-#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 1)
+#if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1)
     UINTPTR stackPtr = (UINTPTR)LOS_MemAllocAlign(OS_TASK_STACK_ADDR, taskInitParam->uwStackSize +
         OS_TASK_STACK_PROTECT_SIZE, OS_TASK_STACK_PROTECT_SIZE);
     topOfStack = (VOID *)(stackPtr + OS_TASK_STACK_PROTECT_SIZE);
@@ -929,7 +929,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
     } else {
         taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
         LOS_ListAdd(&g_losFreeTask, &taskCB->pendList);
-#if (LOSCFG_EXC_HRADWARE_STACK_PROTECTION == 1)
+#if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1)
         stackPtr = taskCB->topOfStack - OS_TASK_STACK_PROTECT_SIZE;
 #else
         stackPtr = taskCB->topOfStack;

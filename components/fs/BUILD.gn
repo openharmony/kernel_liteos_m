@@ -1,5 +1,5 @@
-# Copyright (c) 2013-2019, Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2021, Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -27,6 +27,12 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+static_library("fs_operations") {
+  sources = [
+    "./fs.c",
+  ]
+}
+
 declare_args() {
   enable_ohos_kernel_liteos_m_fatfs = true
   enable_ohos_kernel_liteos_m_littlefs = false
@@ -34,6 +40,7 @@ declare_args() {
 
 group("fs") {
   deps = []
+  deps += [ ".:fs_operations" ]
   if (enable_ohos_kernel_liteos_m_fatfs == true) {
     deps += [ "fatfs:fatfs" ]
   }

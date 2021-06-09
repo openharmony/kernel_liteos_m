@@ -33,9 +33,11 @@
 #define _LFS_API_H_
 
 #include "bits/alltypes.h"
+#include "fcntl.h"
 #include "sys/stat.h"
 
 #include "dirent.h"
+#include "errno.h"
 #include "lfs.h"
 #include "lfs_util.h"
 #include "memory.h"
@@ -56,43 +58,21 @@ typedef unsigned mode_t;
 typedef struct {
     uint8_t useFlag;
     const char *pathName;
+    lfs_t *lfsHandle;
     lfs_file_t file;
 } LittleFsHandleStruct;
 
-struct MountOps {
-    int (*Mount)(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
-        const void *data);
-    int (*Umount)(const char* target);
-};
-
-struct FsMap {
-    const char *fileSystemtype;
-    const struct MountOps *fsMops;
-};
-
-struct FileOps {
-    int (*Open)(const char *path, int openFlag, int mode);
-    int (*Close)(int fd);
-    int (*Unlink)(const char *fileName);
-    int (*Rmdir)(const char *dirName);
-    int (*Mkdir)(const char *dirName, mode_t mode);
-    struct dirent *(*Readdir)(DIR *dir);
-    DIR *(*Opendir)(const char *dirName);
-    int (*Closedir)(const DIR *dir);
-    int (*Read)(int fd, void *buf, size_t len);
-    int (*Write)(int fd, const void *buf, size_t len);
-    int (*Seek)(int fd, off_t offset, int whence);
-    int (*Getattr)(const char *path, struct stat *buf);
-    int (*Rename)(const char *oldName, const char *newName);
-    int (*Fsync)(int fd);
-};
-
-typedef struct {
+struct FileOpInfo {
+    uint8_t useFlag;
     struct FileOps *fsVops;
-} FileOpInfo;
+    char *dirName;
+    lfs_t lfsInfo;
+};
 
 typedef struct {
     uint8_t useFlag;
+    char *dirName;
+    lfs_t *lfsHandle;
     lfs_dir_t dir;
 } FileDirInfo;
 
@@ -104,11 +84,16 @@ typedef struct {
 #define MAX_BUFFER_LEN 100
 #define MAX_WRITE_FILE_LEN 500
 #define MAX_READ_FILE_LEN 500
-#define MAX_FILE_SYSTEM_LEN 2
+#define LITTLEFS_MAX_LFN_LEN 255
 
 #ifndef LFS_MAX_OPEN_DIRS
 #define LFS_MAX_OPEN_DIRS 10
 #endif
+
+#ifndef LFS_MAX_MOUNT_SIZE
+#define LFS_MAX_MOUNT_SIZE 3
+#endif
+
 
 LittleFsHandleStruct *GetFreeFd(int *fd);
 

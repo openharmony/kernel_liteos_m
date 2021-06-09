@@ -84,7 +84,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsQueueInit(VOID)
  Function    : LOS_QueueCreate
  Description : Create a queue
  Input       : queueName  --- Queue name, less than 4 characters
-             : len        --- Queue lenth
+             : len        --- Queue length
              : flags      --- Queue type, FIFO or PRIO
              : maxMsgSize --- Maximum message size in byte
  Output      : queueID    --- Queue ID
@@ -205,23 +205,23 @@ static INLINE VOID OsQueueBufferOperate(LosQueueCB *queueCB, UINT32 operateType,
 {
     UINT8 *queueNode = NULL;
     UINT32 msgDataSize;
-    UINT16 queuePosion;
+    UINT16 queuePosition;
     errno_t rc;
 
     /* get the queue position */
     switch (OS_QUEUE_OPERATE_GET(operateType)) {
         case OS_QUEUE_READ_HEAD:
-            queuePosion = queueCB->queueHead;
+            queuePosition = queueCB->queueHead;
             ((queueCB->queueHead + 1) == queueCB->queueLen) ? (queueCB->queueHead = 0) : (queueCB->queueHead++);
             break;
 
         case OS_QUEUE_WRITE_HEAD:
             (queueCB->queueHead == 0) ? (queueCB->queueHead = (queueCB->queueLen - 1)) : (--queueCB->queueHead);
-            queuePosion = queueCB->queueHead;
+            queuePosition = queueCB->queueHead;
             break;
 
         case OS_QUEUE_WRITE_TAIL:
-            queuePosion = queueCB->queueTail;
+            queuePosition = queueCB->queueTail;
             ((queueCB->queueTail + 1) == queueCB->queueLen) ? (queueCB->queueTail = 0) : (queueCB->queueTail++);
             break;
 
@@ -230,7 +230,7 @@ static INLINE VOID OsQueueBufferOperate(LosQueueCB *queueCB, UINT32 operateType,
             return;
     }
 
-    queueNode = &(queueCB->queue[(queuePosion * (queueCB->queueSize))]);
+    queueNode = &(queueCB->queue[(queuePosition * (queueCB->queueSize))]);
 
     if (OS_QUEUE_IS_POINT(operateType)) {
         if (OS_QUEUE_IS_READ(operateType)) {

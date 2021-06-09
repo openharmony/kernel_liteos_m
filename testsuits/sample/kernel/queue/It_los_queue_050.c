@@ -35,7 +35,7 @@
 static VOID HwiF01(VOID)
 {
     UINT32 ret;
-    CHAR buff2[QUEUE_SHORT_BUFFER_LENTH];
+    CHAR buff2[QUEUE_SHORT_BUFFER_LENGTH];
 
     TestHwiClear(HWI_NUM_TEST);
 

@@ -4,7 +4,7 @@
 #define _Int64 long long
 #define _Reg int
 
-#if __ARMEB__
+#ifdef __ARMEB__
 #define __BYTE_ORDER 4321
 #else
 #define __BYTE_ORDER 1234

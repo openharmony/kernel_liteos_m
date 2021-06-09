@@ -37,8 +37,8 @@ static UINT32 Testcase(VOID)
     UINT32 ret;
     UINT32 index;
 
-    CHAR buff1[QUEUE_SHORT_BUFFER_LENTH] = "UniDSP";
-    CHAR buff2[QUEUE_SHORT_BUFFER_LENTH] = "DOPRA";
+    CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
+    CHAR buff2[QUEUE_SHORT_BUFFER_LENGTH] = "DOPRA";
     CHAR buff3[8] = "TEST";
     INT32 buff4;
     INT32 buff5;

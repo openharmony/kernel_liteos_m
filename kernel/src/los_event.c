@@ -43,7 +43,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventInit(PEVENT_CB_S eventCB)
     }
     eventCB->uwEventID = 0;
     LOS_ListInit(&eventCB->stEventList);
-    OsHookCall(LOS_HOOK_TYPE_EVENT_INIT);
+    OsHookCall(LOS_HOOK_TYPE_EVENT_INIT, eventCB);
     return LOS_OK;
 }
 
@@ -196,12 +196,12 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventDestroy(PEVENT_CB_S eventCB)
 
     if (!LOS_ListEmpty(&eventCB->stEventList)) {
         LOS_IntRestore(intSave);
-        return LOS_ERRNO_EVENT_SHOULD_NOT_DESTORY;
+        return LOS_ERRNO_EVENT_SHOULD_NOT_DESTROYED;
     }
     eventCB->stEventList.pstNext = (LOS_DL_LIST *)NULL;
     eventCB->stEventList.pstPrev = (LOS_DL_LIST *)NULL;
     LOS_IntRestore(intSave);
-    OsHookCall(LOS_HOOK_TYPE_EVENT_DESTROY);
+    OsHookCall(LOS_HOOK_TYPE_EVENT_DESTROY, eventCB);
     return LOS_OK;
 }
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 eventMask)

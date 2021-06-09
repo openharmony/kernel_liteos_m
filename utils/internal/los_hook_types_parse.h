@@ -61,8 +61,10 @@
 #define PARAM_TO_ARGS6(a, b, c, d, e, f) ARG(a), PARAM_TO_ARGS5(b, c, d, e, f)
 #define PARAM_TO_ARGS7(a, b, c, d, e, f, g) ARG(a), PARAM_TO_ARGS6(b, c, d, e, f, g)
 
-#define __NARGS(a, b, c, d, e, f, g, h, n, ...) n
-#define _NARGS(...) __NARGS(x, ##__VA_ARGS__, 7, 6, 5, 4, 3, 2, 1, 0, )
+#define _ZERO_ARGS  7, 6, 5, 4, 3, 2, 1, 0
+#define ___NARGS(a, b, c, d, e, f, g, h, n, ...)    n
+#define __NARGS(...) ___NARGS(__VA_ARGS__)
+#define _NARGS(...) __NARGS(x, __VA_ARGS__##_ZERO_ARGS, 7, 6, 5, 4, 3, 2, 1, 0)
 #define __CONCAT(a, b) a##b
 #define _CONCAT(a, b) __CONCAT(a, b)
 

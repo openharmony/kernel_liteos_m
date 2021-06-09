@@ -38,7 +38,7 @@ static UINT32 Testcase(VOID)
 {
     UINT32 ret;
     UINT32 swTmrID;
-    CHAR buff1[QUEUE_SHORT_BUFFER_LENTH] = "UniDSP";
+    CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
     QUEUE_INFO_S queueInfo;
 
     ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &swTmrID, 0, QUEUE_BASE_MSGSIZE);

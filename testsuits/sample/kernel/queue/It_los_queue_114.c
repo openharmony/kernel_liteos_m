@@ -38,21 +38,21 @@ static UINT32 Testcase(VOID)
 {
     UINT32 ret, i;
     UINT32 swTmrID;
-    CHAR buff1[QUEUE_SHORT_BUFFER_LENTH] = "UniDSP";
+    CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
     QUEUE_INFO_S queueInfo;
 
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &swTmrID, 0, QUEUE_SHORT_BUFFER_LENTH);
+    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &swTmrID, 0, QUEUE_SHORT_BUFFER_LENGTH);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     for (i = 0; i < QUEUE_BASE_NUM; i++) {
-        ret = LOS_QueueWriteCopy(swTmrID, &buff1, QUEUE_SHORT_BUFFER_LENTH, 0);
+        ret = LOS_QueueWriteCopy(swTmrID, &buff1, QUEUE_SHORT_BUFFER_LENGTH, 0);
         ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     }
 
-    ret = LOS_QueueWrite(swTmrID, &buff1, QUEUE_SHORT_BUFFER_LENTH, 0);
+    ret = LOS_QueueWrite(swTmrID, &buff1, QUEUE_SHORT_BUFFER_LENGTH, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_ISFULL, ret, EXIT);
 
-    ret = LOS_QueueWriteCopy(swTmrID, &buff1, QUEUE_SHORT_BUFFER_LENTH, 0);
+    ret = LOS_QueueWriteCopy(swTmrID, &buff1, QUEUE_SHORT_BUFFER_LENGTH, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_ISFULL, ret, EXIT);
 
     ret = LOS_QueueInfoGet(swTmrID, &queueInfo);
