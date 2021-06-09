@@ -609,8 +609,9 @@ extern UINT8 *m_aucSysMem0;
  * @ingroup los_config
  * Configuration backtrace type
  * 0: Close stack analysis module.
- * 1: Call stack analysis for cortex-m series.
- * 2: Call stack analysis for risc-v.
+ * 1: Call stack analysis for cortex-m series by scanning the stack.
+ * 2: Call stack analysis for risc-v by using frame pointer.
+ * 3: Call stack analysis for risc-v by scanning the stack.
  * others: Not currently supported.
  */
 #ifndef LOSCFG_BACKTRACE_TYPE

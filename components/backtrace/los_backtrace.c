@@ -112,15 +112,15 @@ STATIC INLINE UINT32 OsStackAddrGet(UINTPTR *stackStart, UINTPTR *stackEnd, UINT
 {
     if (SP != 0) {
         *stackStart = SP;
-        if ((SP >= CODE_START_ADDR) && (SP < CSTACK_END_ADDR)) {
+        if ((SP >= CSTACK_START_ADDR) && (SP < CSTACK_END_ADDR)) {
             *stackEnd = CSTACK_END_ADDR;
         } else {
             UINT32 taskID = LOS_CurTaskIDGet();
             LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
             *stackEnd = (UINTPTR)taskCB->topOfStack + taskCB->stackSize;
             if ((SP < (UINTPTR)taskCB->topOfStack) || (SP >= *stackEnd)) {
-                PRINT_ERR("msp stack [0x%x, 0x%x], cur task stack [0x%x, 0x%x], cur sp(0x%x) is overflow!\n",
-                          CODE_START_ADDR, CSTACK_END_ADDR, (UINTPTR)taskCB->topOfStack, *stackEnd, SP);
+                PRINT_ERR("msp statck [0x%x, 0x%x], cur task stack [0x%x, 0x%x], cur sp(0x%x) is overflow!\n",
+                          CSTACK_START_ADDR, CSTACK_END_ADDR, (UINTPTR)taskCB->topOfStack, *stackEnd, SP);
                 return LOS_NOK;
             }
         }
@@ -128,9 +128,9 @@ STATIC INLINE UINT32 OsStackAddrGet(UINTPTR *stackStart, UINTPTR *stackEnd, UINT
         if (HalSpGet() != HalPspGet()) {
             *stackStart = HalMspGet();
             *stackEnd = CSTACK_END_ADDR;
-            if ((*stackStart < CODE_START_ADDR) || (*stackStart >= CSTACK_END_ADDR)) {
+            if ((*stackStart < CSTACK_START_ADDR) || (*stackStart >= CSTACK_END_ADDR)) {
                 PRINT_ERR("msp stack [0x%x, 0x%x], cur sp(0x%x) is overflow!\n",
-                          CODE_START_ADDR, CSTACK_END_ADDR, *stackStart);
+                          CSTACK_START_ADDR, CSTACK_END_ADDR, *stackStart);
                 return LOS_NOK;
             }
             PRINTK("msp, start = %x, end = %x\n", *stackStart, *stackEnd);
@@ -178,45 +178,6 @@ STATIC INLINE UINTPTR OsAddrIsValid(UINTPTR sp)
     }
 
     return pc;
-}
-
-VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
-{
-    if (LR == NULL) {
-        return;
-    }
-
-    UINTPTR stackStart;
-    UINTPTR stackEnd;
-    UINT32 count = 0;
-    UINT32 index = 0;
-    UINTPTR sp;
-    UINTPTR pc;
-    UINT32 ret;
-
-    ret = OsStackAddrGet(&stackStart, &stackEnd, SP);
-    if (ret != LOS_OK) {
-        return;
-    }
-
-    /* Traverse the stack space and find the LR address. */
-    for (sp = stackStart; sp < stackEnd; sp += sizeof(UINTPTR)) {
-        pc = OsAddrIsValid(sp);
-        if ((pc != 0) && (count < LRSize)) {
-            if (index++ < jumpCount) {
-                continue;
-            }
-            LR[count] = pc;
-            count++;
-            if (count == LRSize) {
-                break;
-            }
-        }
-    }
-
-    if (count < LRSize) {
-        LR[count] = 0;
-    }
 }
 #elif (LOSCFG_BACKTRACE_TYPE == 2)
 STATIC INLINE BOOL OsBackTraceFpCheck(UINT32 value);
@@ -267,8 +228,161 @@ VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
         LR[count] = 0;
     }
 }
+#elif (LOSCFG_BACKTRACE_TYPE == 3)
+#define OS_BACKTRACE_START  1
+#define OS_JALX_INS_MASK    0x7F
+#define OS_JAL_INS_LOW      0x6F
+#define OS_JAL_16_INS_MASK  0x2001
+#define OS_JALR_INS_LOW     0x67
+#define OS_JALR_16_INS_MASK 0x9002
+#define OS_JR_16_INS_MASK   0x8002
+#define OS_J_16_INS_MASK    0xA001
+
+STATIC INLINE BOOL OsInsIsJump(UINTPTR addr)
+{
+    UINT16 ins1 = *((UINT16 *)addr);
+    UINT16 ins2 = *((UINT16 *)(addr + 2));
+
+    /* Jal ins */
+    if (((ins1 & OS_JALX_INS_MASK) == OS_JAL_INS_LOW) ||
+        ((ins1 & OS_JAL_16_INS_MASK) == OS_JAL_16_INS_MASK) ||
+        ((ins2 & OS_JAL_16_INS_MASK) == OS_JAL_16_INS_MASK)) {
+        return TRUE;
+    }
+
+    /* Jalr ins */
+    if (((ins1 & OS_JALX_INS_MASK) == OS_JALR_INS_LOW) ||
+        ((ins1 & OS_JALR_16_INS_MASK) == OS_JALR_16_INS_MASK) ||
+        ((ins2 & OS_JALR_16_INS_MASK) == OS_JALR_16_INS_MASK)) {
+        return TRUE;
+    }
+
+    /* Jr ins */
+    if (((ins1 & OS_JR_16_INS_MASK) == OS_JR_16_INS_MASK) ||
+        ((ins2 & OS_JR_16_INS_MASK) == OS_JR_16_INS_MASK)) {
+        return TRUE;
+    }
+
+    /* J ins */
+    if (((ins1 & OS_J_16_INS_MASK) == OS_J_16_INS_MASK) ||
+        ((ins2 & OS_J_16_INS_MASK) == OS_J_16_INS_MASK)) {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+STATIC INLINE UINTPTR OsSpGet(VOID)
+{
+    UINTPTR sp = 0;
+    __asm volatile("mv %0, sp" : "=r"(sp));
+    dsb();
+    return sp;
+}
+
+STATIC INLINE UINT32 OsStackAddrGet(UINTPTR *stackStart, UINTPTR *stackEnd, UINTPTR SP)
+{
+    if (SP != 0) {
+        *stackStart = SP;
+        if ((SP >= CSTACK_START_ADDR) && (SP < CSTACK_END_ADDR)) {
+            *stackEnd = CSTACK_END_ADDR;
+        } else {
+            UINT32 taskID = LOS_CurTaskIDGet();
+            LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
+            *stackEnd = (UINTPTR)taskCB->topOfStack + taskCB->stackSize;
+            if ((SP < (UINTPTR)taskCB->topOfStack) || (SP >= *stackEnd)) {
+                PRINT_ERR("msp statck [0x%x, 0x%x], cur task stack [0x%x, 0x%x], cur sp(0x%x) is overflow!\n",
+                          CSTACK_START_ADDR, CSTACK_END_ADDR, (UINTPTR)taskCB->topOfStack, *stackEnd, SP);
+                return LOS_NOK;
+            }
+        }
+    } else {
+        if (!LOS_TaskIsRunning()) {
+            *stackStart = OsSpGet();
+            *stackEnd = CSTACK_END_ADDR;
+            if ((*stackStart < CSTACK_START_ADDR) || (*stackStart >= CSTACK_END_ADDR)) {
+                PRINT_ERR("msp stack [0x%x, 0x%x], cur sp(0x%x) is overflow!\n",
+                          CSTACK_START_ADDR, CSTACK_END_ADDR, *stackStart);
+                return LOS_NOK;
+            }
+        } else {
+            *stackStart = OsSpGet();
+            UINT32 taskID = LOS_CurTaskIDGet();
+            LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
+            *stackEnd = (UINTPTR)taskCB->topOfStack + taskCB->stackSize;
+            if ((*stackStart < (UINTPTR)taskCB->topOfStack) || (*stackStart >= *stackEnd)) {
+                PRINT_ERR("psp stack [0x%x, 0x%x], cur sp(0x%x) is overflow, cur task id is %d!\n",
+                          taskCB->topOfStack, *stackEnd, *stackStart, taskID);
+                return LOS_NOK;
+            }
+        }
+    }
+
+    return LOS_OK;
+}
+
+STATIC INLINE UINTPTR OsAddrIsValid(UINTPTR sp)
+{
+    UINTPTR pc;
+    BOOL ret;
+
+    pc = *((UINTPTR *)sp);
+
+    ret = OsStackDataIsCodeAddr(pc);
+    if (ret == FALSE) {
+        return 0;
+    }
+
+    ret = OsInsIsJump(pc - sizeof(UINTPTR));
+    if (ret == FALSE) {
+        return 0;
+    }
+
+    return pc;
+}
 #else
 #error Unknown backtrace type.
+#endif
+
+#if (LOSCFG_BACKTRACE_TYPE == 1) || (LOSCFG_BACKTRACE_TYPE == 3)
+VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
+{
+    if (LR == NULL) {
+        return;
+    }
+
+    UINTPTR stackStart;
+    UINTPTR stackEnd;
+    UINT32 count = 0;
+    UINT32 index = 0;
+    UINTPTR sp;
+    UINTPTR pc;
+    UINT32 ret;
+
+    ret = OsStackAddrGet(&stackStart, &stackEnd, SP);
+    if (ret != LOS_OK) {
+        return;
+    }
+
+    /* Traverse the stack space and find the LR address. */
+    for (sp = stackStart; sp < stackEnd; sp += sizeof(UINTPTR)) {
+        pc = OsAddrIsValid(sp);
+        if ((pc != 0) && (count < LRSize)) {
+            if (index++ < jumpCount) {
+                continue;
+            }
+            LR[count] = pc;
+            count++;
+            if (count == LRSize) {
+                break;
+            }
+        }
+    }
+
+    if (count < LRSize) {
+        LR[count] = 0;
+    }
+}
 #endif
 
 VOID LOS_BackTrace(VOID)
