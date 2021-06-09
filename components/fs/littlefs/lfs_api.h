@@ -37,6 +37,7 @@
 #include "sys/stat.h"
 
 #include "dirent.h"
+#include "errno.h"
 #include "lfs.h"
 #include "lfs_util.h"
 #include "memory.h"
