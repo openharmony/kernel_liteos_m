@@ -29,6 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define _GNU_SOURCE 1
 #include "lfs_api.h"
 
 lfs_t g_lfs;
@@ -39,11 +40,6 @@ static LittleFsHandleStruct g_handle[LITTLE_FS_MAX_OPEN_FILES] = {0};
 struct dirent g_nameValue;
 static pthread_mutex_t g_FslocalMutex = PTHREAD_MUTEX_INITIALIZER;
 static const char *const g_littlefsMntName[LFS_MAX_MOUNT_SIZE] = {"/a","/b","/c"};
-
-FileOpInfo GetFsOpInfo(void)
-{
-    return g_fsOp;
-}
 
 LittleFsHandleStruct *LfsAllocFd(const char *fileName, int *fd)
 {
