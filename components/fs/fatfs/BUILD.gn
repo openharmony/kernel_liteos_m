@@ -46,4 +46,6 @@ static_library("fatfs") {
     "//third_party/bounds_checking_function/include",
     "//third_party/FatFs/source/",
   ]
+
+  deps = [ "//kernel/liteos_m/kal/posix" ]
 }

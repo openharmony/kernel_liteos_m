@@ -43,4 +43,6 @@ static_library("littlefs") {
     "../",
     "//third_party/littlefs",
   ]
+
+  deps = [ "//kernel/liteos_m/kal/posix" ]
 }
