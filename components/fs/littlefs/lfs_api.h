@@ -38,6 +38,7 @@
 
 #include "dirent.h"
 #include "errno.h"
+#include "fs_operations.h"
 #include "lfs.h"
 #include "lfs_util.h"
 #include "memory.h"
@@ -117,7 +118,6 @@ int LfsRename(const char *oldName, const char *newName);
 int LfsStat(const char *path, struct stat *buf);
 int LfsFsync(int fd);
 
-FileOpInfo GetFsOpInfo(void);
 const struct FsMap *MountFindfs(const char *filesystemtype);
 
 #endif /* _LFS_API_H_ */

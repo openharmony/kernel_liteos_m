@@ -35,7 +35,7 @@ static_library("fs_operations") {
 
 declare_args() {
   enable_ohos_kernel_liteos_m_fatfs = true
-  enable_ohos_kernel_liteos_m_littlefs = false
+  enable_ohos_kernel_liteos_m_littlefs = true
 }
 
 group("fs") {
