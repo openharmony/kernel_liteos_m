@@ -310,7 +310,7 @@ STATIC VOID OsExcNvicDump(VOID)
     for (i = 0; i < OS_NR_NVIC_EXC_DUMP_TYPES; i++) {
         base = (UINT32 *)rgNvicBases[i];
         len = rgNvicLens[i];
-        PRINTK("interrupt %s register, base address: 0x%x, size: 0x%x\n", strRgs[i], base, len);
+        PRINTK("interrupt %s register, base address: %p, size: 0x%x\n", strRgs[i], base, len);
         len = (len >> 2); /* 2: Gets the next register offset */
         for (j = 0; j < len; j++) {
             PRINTK("0x%x ", *(base + j));
@@ -339,7 +339,7 @@ STATIC VOID OsExcCurTaskInfo(const ExcInfo *excInfo)
         LosTaskCB *taskCB = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
         PRINTK("Task name = %s\n", taskCB->taskName);
         PRINTK("Task ID   = %d\n", taskCB->taskID);
-        PRINTK("Task SP   = 0x%x\n", taskCB->stackPointer);
+        PRINTK("Task SP   = %p\n", taskCB->stackPointer);
         PRINTK("Task ST   = 0x%x\n", taskCB->topOfStack);
         PRINTK("Task SS   = 0x%x\n", taskCB->stackSize);
     } else if (excInfo->phase == OS_EXC_IN_HWI) {

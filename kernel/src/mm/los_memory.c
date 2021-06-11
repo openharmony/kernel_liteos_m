@@ -1556,13 +1556,13 @@ STATIC UINT32 OsMemAddrValidCheckPrint(const VOID *pool, struct OsMemFreeNodeHea
 {
     if (((*tmpNode)->prev != NULL) && !OsMemAddrValidCheck(pool, (*tmpNode)->prev)) {
         PRINT_ERR("[%s], %d, memory check error!\n"
-                  " freeNode.prev: 0x%x is out of legal mem range\n",
+                  " freeNode.prev: %p is out of legal mem range\n",
                   __FUNCTION__, __LINE__, (*tmpNode)->prev);
         return LOS_NOK;
     }
     if (((*tmpNode)->next != NULL) && !OsMemAddrValidCheck(pool, (*tmpNode)->next)) {
         PRINT_ERR("[%s], %d, memory check error!\n"
-                  " freeNode.next: 0x%x is out of legal mem range\n",
+                  " freeNode.next: %p is out of legal mem range\n",
                   __FUNCTION__, __LINE__, (*tmpNode)->next);
         return LOS_NOK;
     }
@@ -1579,7 +1579,7 @@ STATIC UINT32 OsMemIntegrityCheckSub(struct OsMemNodeHead **tmpNode, const VOID 
 
     if (!OsMemAddrValidCheck(pool, (*tmpNode)->ptr.prev)) {
         PRINT_ERR("[%s], %d, memory check error!\n"
-                  " node prev: 0x%x is out of legal mem range\n",
+                  " node prev: %p is out of legal mem range\n",
                   __FUNCTION__, __LINE__, (*tmpNode)->ptr.next);
         return LOS_NOK;
     }
@@ -1620,7 +1620,7 @@ STATIC VOID OsMemPoolHeadCheck(const struct OsMemPoolHead *pool)
     UINT32 flag = 0;
 
     if ((pool->info.pool != pool) || !OS_MEM_IS_ALIGNED(pool, sizeof(VOID *))) {
-        PRINT_ERR("wrong mem pool addr: 0x%x, func: %s, line: %d\n", pool, __FUNCTION__, __LINE__);
+        PRINT_ERR("wrong mem pool addr: %p, func: %s, line: %d\n", pool, __FUNCTION__, __LINE__);
         return;
     }
 
@@ -1628,14 +1628,14 @@ STATIC VOID OsMemPoolHeadCheck(const struct OsMemPoolHead *pool)
         for (tmpNode = pool->freeList[index]; tmpNode != NULL; tmpNode = tmpNode->next) {
             if (OsMemFreeListNodeCheck(pool, tmpNode)) {
                 flag = 1;
-                PRINT_ERR("FreeListIndex: %u, node: 0x%x, bNode: 0x%x, prev: 0x%x, next: 0x%x\n",
+                PRINT_ERR("FreeListIndex: %u, node: %p, bNode: %p, prev:%p, next: %p\n",
                           index, tmpNode, tmpNode->header.ptr.prev, tmpNode->prev, tmpNode->next);
             }
         }
     }
 
     if (flag) {
-        PRINTK("mem pool info: poolAddr: 0x%x, poolSize: 0x%x\n", pool, pool->info.totalSize);
+        PRINTK("mem pool info: poolAddr: %p, poolSize: 0x%x\n", pool, pool->info.totalSize);
 #if (LOSCFG_MEM_WATERLINE == 1)
         PRINTK("mem pool info: poolWaterLine: 0x%x, poolCurUsedSize: 0x%x\n", pool->info.waterLine,
                pool->info.curUsedSize);
@@ -1695,7 +1695,7 @@ STATIC VOID OsMemNodeInfo(const struct OsMemNodeHead *tmpNode,
 
     if (OS_MEM_NODE_GET_USED_FLAG(tmpNode->sizeAndFlag)) {
         usedNode = (struct OsMemUsedNodeHead *)tmpNode;
-        PRINTK("\n broken node head: 0x%x  "
+        PRINTK("\n broken node head: %p  "
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
                "0x%x  "
 #endif
@@ -1707,7 +1707,7 @@ STATIC VOID OsMemNodeInfo(const struct OsMemNodeHead *tmpNode,
                usedNode->header.sizeAndFlag);
     } else {
         freeNode = (struct OsMemFreeNodeHead *)tmpNode;
-        PRINTK("\n broken node head: 0x%x  0x%x  0x%x  "
+        PRINTK("\n broken node head: %p  %p  %p  "
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
                "0x%x  "
 #endif
@@ -1721,7 +1721,7 @@ STATIC VOID OsMemNodeInfo(const struct OsMemNodeHead *tmpNode,
 
     if (OS_MEM_NODE_GET_USED_FLAG(preNode->sizeAndFlag)) {
         usedNode = (struct OsMemUsedNodeHead *)preNode;
-        PRINTK("prev node head: 0x%x  "
+        PRINTK("prev node head: %p  "
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
                "0x%x  "
 #endif
@@ -1733,7 +1733,7 @@ STATIC VOID OsMemNodeInfo(const struct OsMemNodeHead *tmpNode,
                usedNode->header.sizeAndFlag);
     } else {
         freeNode = (struct OsMemFreeNodeHead *)preNode;
-        PRINTK("prev node head: 0x%x  0x%x  0x%x  "
+        PRINTK("prev node head: %p  %p  %p  "
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
                "0x%x  "
 #endif
@@ -1942,7 +1942,7 @@ STATIC VOID OsMemInfoPrint(VOID *pool)
            "max free node size   used node num     free node num      UsageWaterLine\n");
     PRINTK("---------------    --------     -------       --------     "
            "--------------       -------------      ------------      ------------\n");
-    PRINTK("0x%-16x   0x%-8x   0x%-8x    0x%-8x   0x%-16x   0x%-13x    0x%-13x    0x%-13x\n",
+    PRINTK("%-16p   0x%-8x   0x%-8x    0x%-8x   0x%-16x   0x%-13x    0x%-13x    0x%-13x\n",
            poolInfo->info.pool, LOS_MemPoolSizeGet(pool), status.totalUsedSize,
            status.totalFreeSize, status.maxFreeNodeSize, status.usedNodeNum,
            status.freeNodeNum, status.usageWaterLine);
@@ -1951,7 +1951,7 @@ STATIC VOID OsMemInfoPrint(VOID *pool)
            "max free node size   used node num     free node num\n");
     PRINTK("---------------    --------     -------       --------     "
            "--------------       -------------      ------------\n");
-    PRINTK("0x%-16x   0x%-8x   0x%-8x    0x%-8x   0x%-16x   0x%-13x    0x%-13x\n",
+    PRINTK("%-16p  0x%-8x   0x%-8x    0x%-8x   0x%-16x   0x%-13x    0x%-13x\n",
            (UINTPTR)poolInfo->info.pool, LOS_MemPoolSizeGet(pool), status.totalUsedSize,
            status.totalFreeSize, status.maxFreeNodeSize, status.usedNodeNum,
            status.freeNodeNum);
@@ -2025,7 +2025,7 @@ UINT32 OsMemSystemInit(VOID)
 #endif
 
     ret = LOS_MemInit(m_aucSysMem0, LOSCFG_SYS_HEAP_SIZE);
-    PRINT_INFO("LiteOS heap memory address:0x%x,size:0x%x\n", m_aucSysMem0, LOSCFG_SYS_HEAP_SIZE);
+    PRINT_INFO("LiteOS heap memory address:%p, size:0x%lx\n", m_aucSysMem0, LOSCFG_SYS_HEAP_SIZE);
     return ret;
 }
 

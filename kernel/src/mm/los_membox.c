@@ -231,18 +231,18 @@ VOID LOS_ShowBox(VOID *pool)
         return;
     }
     MEMBOX_LOCK(intSave);
-    PRINT_INFO("membox(0x%x,0x%x,0x%x):\r\n", pool, boxInfo->uwBlkSize, boxInfo->uwBlkNum);
+    PRINT_INFO("membox(%p, 0x%x, 0x%x):\r\n", pool, boxInfo->uwBlkSize, boxInfo->uwBlkNum);
     PRINT_INFO("free node list:\r\n");
 
     for (node = boxInfo->stFreeList.pstNext, index = 0; node != NULL;
-         node = node->pstNext, ++index) {
-        PRINT_INFO("(%u,0x%x)\r\n", index, node);
+        node = node->pstNext, ++index) {
+        PRINT_INFO("(%u, %p)\r\n", index, node);
     }
 
     PRINT_INFO("all node list:\r\n");
     node = (LOS_MEMBOX_NODE *)(boxInfo + 1);
     for (index = 0; index < boxInfo->uwBlkNum; ++index, node = OS_MEMBOX_NEXT(node, boxInfo->uwBlkSize)) {
-        PRINT_INFO("(%u,0x%x,0x%x)\r\n", index, node, node->pstNext);
+        PRINT_INFO("(%u, %p, %p)\r\n", index, node, node->pstNext);
     }
     MEMBOX_UNLOCK(intSave);
 }
