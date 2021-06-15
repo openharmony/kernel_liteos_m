@@ -3,7 +3,6 @@
 static_library("test_mem") {
 
     sources = [
-        "It_los_list_001.c",
         "It_los_mem_001.c",
         "It_los_mem_002.c",
         "It_los_mem_003.c",
@@ -32,19 +31,13 @@ static_library("test_mem") {
         "It_los_mem_045.c",
         "it_los_mem.c",
         "It_los_tick_001.c",
-        "LLT_los_tick_001.c",
     ]
 
-    include_dirs = [
-        "It_los_mem.h",
-        "../../../include/",
-        "//kernel/liteos_m/kernel/include",
-        "//kernel/liteos_m/kernel/base/include",
-        "//build/compiler/arm-none-eabi/linux/arm-none-eabi/include",
-        "//build/compiler/arm-none-eabi/linux/lib/gcc/arm-none-eabi/5.4.1/include/",
-        "//build/compiler/arm-none-eabi/linux/lib/gcc/arm-none-eabi/5.4.1/include-fixed/",
-        "//kernel/liteos_m/arch/arm/cortex-m/include",
-        "//kernel/liteos_m/components/cmsis",
-        "//vendor/huawei/watchgt/devkit/hal/include",
+    configs += [ "//kernel/liteos_m/testsuits:include" ]
+
+    defines = [
+        "LOS_RECORD_LR_CNT=3",
+        "LOS_DLNK_NODE_HEAD_SIZE=0",
+        "MIN_DLNK_POOL_SIZE=0"
     ]
 }

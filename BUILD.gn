@@ -34,6 +34,7 @@ declare_args() {
   enable_ohos_kernel_liteos_m_kal = true
   enable_ohos_kernel_liteos_m_fs = true
   enable_ohos_kernel_liteos_m_backtrace = true
+  enable_ohos_kernel_liteos_m_test = false
 }
 
 group("kernel") {
@@ -59,5 +60,8 @@ group("kernel") {
   }
   if (enable_ohos_kernel_liteos_m_kal == true) {
     deps += [ "kal:kal" ]
+  }
+  if (enable_ohos_kernel_liteos_m_test == true) {
+    deps += [ "testsuits:test" ]
   }
 }

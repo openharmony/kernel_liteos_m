@@ -65,9 +65,7 @@ hctest_suite("PosixTest") {
     "//test/xts/tools/hctest/include",
     "//third_party/unity/src",
     "src",
-    "//kernel/liteos_m/kal",
-    "//kernel/liteos_m/kal/posix/include",
-    "//kernel/liteos_m/kal/posix/musl_src/errno",
   ]
   cflags = [ "-Wno-error" ]
+  deps = [ "//kernel/liteos_m/kal/posix" ]
 }
