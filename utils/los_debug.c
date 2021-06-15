@@ -61,7 +61,7 @@ VOID OsBackTraceHookCall(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR S
         g_backTraceHook(LR, LRSize, jumpCount, SP);
     } else {
         PRINT_ERR("Record LR failed, because of g_backTraceHook is not registered, "
-                  "should call LOS_BackTraceInit firstly\n");
+                  "should call OSBackTraceInit firstly\n");
     }
 }
 

@@ -48,6 +48,7 @@ static_library("kernel") {
     "arch/include",
     "../components/cpup",
     "../components/exchook",
+    "../components/backtrace",
     "../utils",
     "//third_party/bounds_checking_function/include",
   ]
