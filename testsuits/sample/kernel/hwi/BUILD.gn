@@ -38,19 +38,8 @@ static_library("test_hwi") {
         "it_los_hwi_033.c",
         "it_los_hwi_034.c",
         "It_los_hwi.c",
-        "LLT_los_hwi_035.c",
+        "llt_los_hwi_035.c",
     ]
 
-    include_dirs = [
-        "It_los_hwi.h",
-        "../../../include/",
-        "//kernel/liteos_m/kernel/include",
-        "//kernel/liteos_m/kernel/base/include",
-        "//build/compiler/arm-none-eabi/linux/arm-none-eabi/include",
-        "//build/compiler/arm-none-eabi/linux/lib/gcc/arm-none-eabi/5.4.1/include/",
-        "//build/compiler/arm-none-eabi/linux/lib/gcc/arm-none-eabi/5.4.1/include-fixed/",
-        "//kernel/liteos_m/arch/arm/cortex-m/include",
-        "//kernel/liteos_m/components/cmsis",
-        "//vendor/huawei/watchgt/devkit/hal/include",
-    ]
+    configs += [ "//kernel/liteos_m/testsuits:include" ]
 }

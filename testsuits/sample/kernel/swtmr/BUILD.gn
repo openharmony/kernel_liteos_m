@@ -30,7 +30,6 @@ static_library("test_swtmr") {
         "It_los_swtmr_025.c",
         "It_los_swtmr_026.c",
         "It_los_swtmr_027.c",
-        "It_los_swtmr_028.c",
         "It_los_swtmr_029.c",
         "It_los_swtmr_030.c",
         "It_los_swtmr_031.c",
@@ -115,26 +114,10 @@ static_library("test_swtmr") {
         "It_los_swtmr_Align_031.c",
         "It_los_swtmr.c",
         "It_los_swtmr_Delay_001.c",
-        "It_los_swtmr_Delay_002.c",
         "It_los_swtmr_Delay_003.c",
         "It_los_swtmr_Delay_004.c",
         "It_los_swtmr_Delay_005.c",
-        "Llt_los_swtmr_001.c",
-        "Llt_los_swtmr_002.c",
-        "Llt_los_swtmr_003.c",
-        "Llt_los_swtmr_004.c",
     ]
 
-    include_dirs = [
-        "It_los_swtmr.h",
-        "../../../include/",
-        "//kernel/liteos_m/kernel/include",
-        "//kernel/liteos_m/kernel/base/include",
-        "//build/compiler/arm-none-eabi/linux/arm-none-eabi/include",
-        "//build/compiler/arm-none-eabi/linux/lib/gcc/arm-none-eabi/5.4.1/include/",
-        "//build/compiler/arm-none-eabi/linux/lib/gcc/arm-none-eabi/5.4.1/include-fixed/",
-        "//kernel/liteos_m/arch/arm/cortex-m/include",
-        "//kernel/liteos_m/components/cmsis",
-        "//vendor/huawei/watchgt/devkit/hal/include",
-    ]
+    configs += [ "//kernel/liteos_m/testsuits:include" ]
 }

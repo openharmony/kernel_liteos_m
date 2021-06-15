@@ -48,16 +48,5 @@ static_library("test_event") {
         "It_los_event.c",
     ]
 
-    include_dirs = [
-        "It_los_event.h",
-        "../../../include/",
-        "//kernel/liteos_m/kernel/include",
-        "//kernel/liteos_m/kernel/base/include",
-        "//build/compiler/arm-none-eabi/linux/arm-none-eabi/include",
-        "//build/compiler/arm-none-eabi/linux/lib/gcc/arm-none-eabi/5.4.1/include/",
-        "//build/compiler/arm-none-eabi/linux/lib/gcc/arm-none-eabi/5.4.1/include-fixed/",
-        "//kernel/liteos_m/arch/arm/cortex-m/include",
-        "//vendor/huawei/watchgt/devkit/hal/include",
-        "//kernel/liteos_m/components/cmsis",
-    ]
+    configs += [ "//kernel/liteos_m/testsuits:include" ]
 }

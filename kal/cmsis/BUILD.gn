@@ -32,9 +32,17 @@ static_library("cmsis") {
 
   include_dirs = [
     "//third_party/bounds_checking_function/include",
-    "//third_party/cmsis/CMSIS/RTOS2/Include",
     "../../kernel/include",
     "../../kernel/arch/include",
     "../../utils",
+  ]
+
+  public_configs = [ ":include" ]
+}
+
+config("include") {
+  include_dirs = [
+    ".",
+    "//third_party/cmsis/CMSIS/RTOS2/Include",
   ]
 }

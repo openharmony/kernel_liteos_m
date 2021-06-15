@@ -47,19 +47,7 @@ static_library("test_sem") {
         "it_los_sem_042.c",
         "it_los_sem_043.c",
         "It_los_sem.c",
-        "Llt_los_sem_001.c",
     ]
 
-    include_dirs = [
-        "It_los_sem.h",
-        "../../../include/",
-        "//kernel/liteos_m/kernel/include",
-        "//kernel/liteos_m/kernel/base/include",
-        "//build/compiler/arm-none-eabi/linux/arm-none-eabi/include",
-        "//build/compiler/arm-none-eabi/linux/lib/gcc/arm-none-eabi/5.4.1/include/",
-        "//build/compiler/arm-none-eabi/linux/lib/gcc/arm-none-eabi/5.4.1/include-fixed/",
-        "//kernel/liteos_m/arch/arm/cortex-m/include",
-        "//kernel/liteos_m/components/cmsis",
-        "//vendor/huawei/watchgt/devkit/hal/include",
-    ]
+    configs += [ "//kernel/liteos_m/testsuits:include" ]
 }
