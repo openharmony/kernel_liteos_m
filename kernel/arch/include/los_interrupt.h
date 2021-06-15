@@ -70,6 +70,8 @@ extern VOID __stack_chk_fail(VOID);
 UINT32 HalIsIntActive(VOID);
 #define OS_INT_ACTIVE    (HalIsIntActive())
 #define OS_INT_INACTIVE  (!(OS_INT_ACTIVE))
+#define LOS_HwiCreate HalHwiCreate
+#define LOS_HwiDelete HalHwiDelete
 
 /**
  * @ingroup  los_interrupt
