@@ -583,6 +583,9 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_KERNEL_TRACE                                 0
 #endif
 
+#ifndef LOSCFG_SUPPORT_LITTLEFS
+#define LOSCFG_SUPPORT_LITTLEFS                             1
+#endif
 /**
  * @ingroup los_config
  * Configuration trace tool

@@ -29,7 +29,9 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "fs_operations.h"
+#ifdef LOSCFG_SUPPORT_FATFS
 #include "fatfs.h"
+#endif
 #include "dirent.h"
 #include "errno.h"
 #include "fcntl.h"
@@ -158,16 +160,20 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
 
 static void InitMountInfo(void)
 {
+#if (LOSCFG_SUPPORT_FATFS == 1)
     extern struct MountOps g_fatfsMnt;
     extern struct FileOps g_fatfsFops;
     g_fsmap[0].fileSystemtype = strdup("fat");
     g_fsmap[0].fsMops = &g_fatfsMnt;
     g_fsmap[0].fsFops = &g_fatfsFops;
+#endif
+#if (LOSCFG_SUPPORT_LITTLEFS == 1)
     extern struct MountOps g_lfsMnt;
     extern struct FileOps g_lfsFops;
     g_fsmap[1].fileSystemtype = strdup("littlefs");
     g_fsmap[1].fsMops = &g_lfsMnt;
     g_fsmap[1].fsFops = &g_lfsFops;
+#endif
 }
 
 static struct FsMap *MountFindfs(const char *fileSystemtype)
