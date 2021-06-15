@@ -61,8 +61,8 @@
 #define DAYS_PER_NORMAL_YEAR 365
 #define DAYS_PER_LEAP_YEAR   366
 #define BEGIN_WEEKDAY        4
-#define TIME_ZONE_MAX        720 /* 12 * 60 */
-#define TIME_ZONE_MIN        (-840) /* -14 * 60 */
+#define TIME_ZONE_MAX        720 /* UTC-12:00 , the last time zone */
+#define TIME_ZONE_MIN        (-840) /* UTC+14:00 , the first time zone */
 
 /*
  * Nonzero if YEAR is a leap year (every 4 years,
@@ -71,14 +71,6 @@
 #ifndef IS_LEAP_YEAR
 #define IS_LEAP_YEAR(year) \
     (((year) % 4 == 0) && (((year) % 100 != 0) || ((year) % 400 == 0)))
-#endif
-/* The lowest two bytes indicate minutes of the time zone */
-#ifndef OFFSET_TO_MINUTE
-#define OFFSET_TO_MINUTE(time) (((time) < 0) ? (-(time)) : (time))
-#endif
-/* The highest 31 bytes, 1 indicates eastern time zoneï¼? indicates western time zone */
-#ifndef TIME_ZONE_SIGN
-#define TIME_ZONE_SIGN(time) ((time) >> 31)
 #endif
 
 #define DIV(a, b) (((a) / (b)) - ((a) % (b) < 0))

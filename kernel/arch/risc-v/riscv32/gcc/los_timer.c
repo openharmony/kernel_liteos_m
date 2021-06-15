@@ -41,7 +41,6 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#define NS_PER_SECOND  1000000000.0
 
 WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
 {
@@ -65,36 +64,6 @@ LITE_OS_SEC_TEXT_MINOR VOID HalGetCpuCycle(UINT32 *cntHi, UINT32 *cntLo)
 {
     HalGetSysCpuCycle(cntHi, cntLo);
     return;
-}
-
-WEAK VOID HalDelay(UINT32 ticks)
-{
-
-}
-
-WEAK UINT64 HalGetExpandTick(VOID)
-{
-    return LOS_OK;
-}
-
-WEAK INT32 HalGetRtcTime(UINT64 *usec)
-{
-    return LOS_OK;
-}
-
-WEAK INT32 HalGetRtcTimeZone(INT32 *timeZone)
-{
-    return LOS_OK;
-}
-
-WEAK INT32 HalSetRtcTime(UINT64 utcTime, UINT64 *usec)
-{
-    return LOS_OK;
-}
-
-WEAK INT32 HalSetRtcTimeZone(INT32 timeZone)
-{
-    return LOS_OK;
 }
 
 #ifdef __cplusplus
