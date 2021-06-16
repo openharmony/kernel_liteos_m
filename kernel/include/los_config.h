@@ -463,9 +463,10 @@ extern UINT8 *m_aucSysMem0;
  */
 #ifndef LOSCFG_MEM_LEAKCHECK
 #define LOSCFG_MEM_LEAKCHECK                                0
-#if (LOSCFG_BACKTRACE_TYPE == 0)
-    #error "Backtrace module should be enabled by setting LOSCFG_BACKTRACE_TYPE to not 0 in target_config.h"
 #endif
+
+#if (LOSCFG_MEM_LEAKCHECK == 1) && (LOSCFG_BACKTRACE_TYPE == 0)
+    #error "if LOSCFG_MEM_LEAKCHECK is set to 1, then LOSCFG_BACKTRACE_TYPE must be set to 1, 2 or 3."
 #endif
 
 /**
