@@ -39,7 +39,7 @@ struct FileOpInfo g_fsOp[LFS_MAX_MOUNT_SIZE] = {0};
 static LittleFsHandleStruct g_handle[LITTLE_FS_MAX_OPEN_FILES] = {0};
 struct dirent g_nameValue;
 static pthread_mutex_t g_FslocalMutex = PTHREAD_MUTEX_INITIALIZER;
-static const char *const g_littlefsMntName[LFS_MAX_MOUNT_SIZE] = {"/a","/b","/c"};
+static const char *g_littlefsMntName[LFS_MAX_MOUNT_SIZE] = {"/a","/b","/c"};
 
 LittleFsHandleStruct *LfsAllocFd(const char *fileName, int *fd)
 {
@@ -163,6 +163,18 @@ struct FileOpInfo *AllocMountRes(const char* target, struct FileOps *fileOps)
 
     pthread_mutex_unlock(&g_FslocalMutex);
     return NULL;
+}
+
+int SetDefaultMountPath(int pathNameIndex, const char* target)
+{
+    if (pathNameIndex >= LFS_MAX_MOUNT_SIZE) {
+        return VFS_ERROR;
+    }
+    
+    pthread_mutex_lock(&g_FslocalMutex);    
+    g_littlefsMntName[pathNameIndex] = strdup(target);
+    pthread_mutex_unlock(&g_FslocalMutex);
+    return VFS_OK;
 }
 
 struct FileOpInfo *GetMountRes(const char *target, int *mountIndex)

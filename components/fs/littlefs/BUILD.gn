@@ -30,6 +30,8 @@
 static_library("littlefs") {
   sources = [
     "lfs_api.c",
+    "//third_party/littlefs/lfs.c",
+    "//third_party/littlefs/lfs_util.c",
   ]
 
   include_dirs = [
