@@ -58,6 +58,10 @@
 #include "los_exc_info.h"
 #endif
 
+#if (LOSCFG_BACKTRACE_TYPE != 0)
+#include "los_backtrace.h"
+#endif
+
 
 /*****************************************************************************
  Function    : LOS_Reboot
@@ -112,6 +116,10 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
 {
     UINT32 ret;
     PRINTK("entering kernel init...\n");
+
+#if (LOSCFG_BACKTRACE_TYPE != 0)
+    OSBackTraceInit();
+#endif
 
     OsRegister();
     ret = OsMemSystemInit();

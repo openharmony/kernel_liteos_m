@@ -407,7 +407,7 @@ VOID LOS_BackTrace(VOID)
     PRINTK("----- traceback end -----\r\n");
 }
 
-VOID LOS_BackTraceInit(VOID)
+VOID OSBackTraceInit(VOID)
 {
     OsBackTraceHookSet(LOS_RecordLR);
 }

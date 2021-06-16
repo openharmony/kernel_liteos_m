@@ -153,7 +153,7 @@ STATIC INLINE BOOL OsStackDataIsCodeAddr(UINTPTR value)
 
 /* This function is currently used to register the memory leak check hook,
    other uses do not need to be called temporarily. */
-VOID LOS_BackTraceInit(VOID);
+VOID OSBackTraceInit(VOID);
 
 /* This function is used to print the function call stack. */
 VOID LOS_BackTrace(VOID);
