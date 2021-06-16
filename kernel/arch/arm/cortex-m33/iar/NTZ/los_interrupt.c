@@ -41,7 +41,6 @@
 #include "los_memory.h"
 #include "los_membox.h"
 
-
 /*lint -save -e40 -e522 -e533*/
 UINT32 g_intCount = 0;
 
@@ -167,10 +166,6 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
     g_intCount++;
 
     LOS_IntRestore(intSave);
-
-#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
-    OsSchedUpdateSleepTime();
-#endif
 
     hwiIndex = HalIntNumGet();
 

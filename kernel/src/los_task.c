@@ -45,7 +45,6 @@
 #include "los_cpup.h"
 #endif
 
-
 /**
  * @ingroup los_task
  * @brief Convenience macro for bitwise operation of task module
@@ -102,6 +101,8 @@ LITE_OS_SEC_DATA_INIT LOS_DL_LIST                    g_losFreeTask;
 LITE_OS_SEC_DATA_INIT LOS_DL_LIST                    g_taskRecyleList;
 LITE_OS_SEC_BSS  BOOL                                g_taskScheduled = FALSE;
 
+STATIC VOID (*PmEnter)(BOOL isIdle) = NULL;
+
 #if (LOSCFG_BASE_CORE_TSK_MONITOR == 1)
 TSKSWITCHHOOK g_pfnUsrTskSwitchHook = NULL;
 #endif /* LOSCFG_BASE_CORE_TSK_MONITOR == 1 */
@@ -145,6 +146,16 @@ STATIC VOID OsRecyleFinishedTask(VOID)
     LOS_IntRestore(intSave);
 }
 
+UINT32 OsPmEnterHandlerSet(VOID (*func)(BOOL))
+{
+    if (func == NULL) {
+        return LOS_NOK;
+    }
+
+    PmEnter = func;
+    return LOS_OK;
+}
+
 /*****************************************************************************
  Function    : OsIdleTask
  Description : Idle task.
@@ -152,11 +163,16 @@ STATIC VOID OsRecyleFinishedTask(VOID)
  Output      : None
  Return      : None
  *****************************************************************************/
-LITE_OS_SEC_TEXT WEAK VOID OsIdleTask(VOID)
+LITE_OS_SEC_TEXT VOID OsIdleTask(VOID)
 {
     while (1) {
         OsRecyleFinishedTask();
-        HalEnterSleep(OS_SYS_DEEP_SLEEP);
+
+        if (PmEnter != NULL) {
+            PmEnter(TRUE);
+        } else {
+            (VOID)HalEnterSleep();
+        }
     }
 }
 

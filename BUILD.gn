@@ -35,6 +35,7 @@ declare_args() {
   enable_ohos_kernel_liteos_m_fs = true
   enable_ohos_kernel_liteos_m_backtrace = true
   enable_ohos_kernel_liteos_m_test = false
+  enable_ohos_kernel_liteos_m_pm = true
 }
 
 group("kernel") {
@@ -57,6 +58,9 @@ group("kernel") {
   }
   if (enable_ohos_kernel_liteos_m_fs == true) {
     deps += [ "components/fs:fs" ]
+  }
+  if (enable_ohos_kernel_liteos_m_pm == true) {
+    deps += [ "components/power:pm" ]
   }
   if (enable_ohos_kernel_liteos_m_kal == true) {
     deps += [ "kal:kal" ]

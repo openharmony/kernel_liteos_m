@@ -103,15 +103,11 @@ WEAK VOID HalTickUnlock(VOID)
     SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 }
 
-VOID HalEnterSleep(LOS_SysSleepEnum sleep)
+UINT32 HalEnterSleep(VOID)
 {
-#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
-    if (sleep == OS_SYS_DEEP_SLEEP) {
-        OsSchedToSleep();
-    }
-#endif
-
     __DSB();
     __WFI();
     __ISB();
+
+    return LOS_OK;
 }

@@ -76,14 +76,10 @@ WEAK UINT64 HalGetTickCycle(UINT32 *period)
     return OS_COMBINED_64(timerH, timerL);
 }
 
-VOID HalEnterSleep(LOS_SysSleepEnum sleep)
+UINT32 HalEnterSleep(VOID)
 {
-#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
-    if (sleep == OS_SYS_DEEP_SLEEP) {
-        OsSchedToSleep();
-    }
-#endif
-
     wfi();
+
+    return LOS_OK;
 }
 
