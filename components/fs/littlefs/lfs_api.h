@@ -91,11 +91,6 @@ typedef struct {
 #define LFS_MAX_OPEN_DIRS 10
 #endif
 
-#ifndef LFS_MAX_MOUNT_SIZE
-#define LFS_MAX_MOUNT_SIZE 3
-#endif
-
-
 LittleFsHandleStruct *GetFreeFd(int *fd);
 
 int InitMountInfo(const char *fileSystemType, const struct MountOps *fsMops);

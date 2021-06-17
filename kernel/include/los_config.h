@@ -590,6 +590,12 @@ extern UINT8 *m_aucSysMem0;
 #ifndef LOSCFG_SUPPORT_LITTLEFS
 #define LOSCFG_SUPPORT_LITTLEFS                             1
 #endif
+
+#ifndef LOSCFG_LFS_MAX_MOUNT_SIZE
+#define LOSCFG_LFS_MAX_MOUNT_SIZE                           3
+#endif
+
+
 /**
  * @ingroup los_config
  * Configuration trace tool

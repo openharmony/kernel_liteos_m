@@ -39,7 +39,6 @@ static_library("littlefs") {
     "../../../kernel/include",
     "../../../utils",
     "../../../kal/cmsis",
-    "../../../kal",
     "../../../kal/posix/include",
     "./",
     "../",

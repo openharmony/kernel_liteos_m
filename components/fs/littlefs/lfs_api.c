@@ -31,15 +31,16 @@
 
 #define _GNU_SOURCE 1
 #include "lfs_api.h"
+#include "los_config.h"
 
 lfs_t g_lfs;
 FileDirInfo g_lfsDir[LFS_MAX_OPEN_DIRS] = {0};
 
-struct FileOpInfo g_fsOp[LFS_MAX_MOUNT_SIZE] = {0};
+struct FileOpInfo g_fsOp[LOSCFG_LFS_MAX_MOUNT_SIZE] = {0};
 static LittleFsHandleStruct g_handle[LITTLE_FS_MAX_OPEN_FILES] = {0};
 struct dirent g_nameValue;
 static pthread_mutex_t g_FslocalMutex = PTHREAD_MUTEX_INITIALIZER;
-static const char *g_littlefsMntName[LFS_MAX_MOUNT_SIZE] = {"/a","/b","/c"};
+static const char *g_littlefsMntName[LOSCFG_LFS_MAX_MOUNT_SIZE] = {"/a","/b","/c"};
 
 LittleFsHandleStruct *LfsAllocFd(const char *fileName, int *fd)
 {
@@ -126,7 +127,7 @@ BOOL CheckPathIsMounted(const char *pathName, struct FileOpInfo **fileOpInfo)
     int len = strlen(pathName) + 1;
 
     pthread_mutex_lock(&g_FslocalMutex);
-    for (int i = 0; i < LFS_MAX_MOUNT_SIZE; i++) {
+    for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 1) {
             mountPathNameLen = strlen(g_fsOp[i].dirName);
             if (len < mountPathNameLen + 1) {
@@ -151,7 +152,7 @@ BOOL CheckPathIsMounted(const char *pathName, struct FileOpInfo **fileOpInfo)
 struct FileOpInfo *AllocMountRes(const char* target, struct FileOps *fileOps)
 {
     pthread_mutex_lock(&g_FslocalMutex);
-    for (int i = 0; i < LFS_MAX_MOUNT_SIZE; i++) {
+    for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 0 && strcmp(target, g_littlefsMntName[i]) == 0) {
             g_fsOp[i].useFlag = 1;
             g_fsOp[i].fsVops = fileOps;
@@ -167,7 +168,7 @@ struct FileOpInfo *AllocMountRes(const char* target, struct FileOps *fileOps)
 
 int SetDefaultMountPath(int pathNameIndex, const char* target)
 {
-    if (pathNameIndex >= LFS_MAX_MOUNT_SIZE) {
+    if (pathNameIndex >= LOSCFG_LFS_MAX_MOUNT_SIZE) {
         return VFS_ERROR;
     }
     
@@ -180,7 +181,7 @@ int SetDefaultMountPath(int pathNameIndex, const char* target)
 struct FileOpInfo *GetMountRes(const char *target, int *mountIndex)
 {
     pthread_mutex_lock(&g_FslocalMutex);
-    for (int i = 0; i < LFS_MAX_MOUNT_SIZE; i++) {
+    for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 1) {
             if (g_fsOp[i].dirName && strcmp(target, g_fsOp[i].dirName) == 0) {
                 *mountIndex = i;
@@ -196,7 +197,7 @@ struct FileOpInfo *GetMountRes(const char *target, int *mountIndex)
 
 int FreeMountResByIndex(int mountIndex)
 {
-    if (mountIndex < 0 || mountIndex >= LFS_MAX_MOUNT_SIZE) {
+    if (mountIndex < 0 || mountIndex >= LOSCFG_LFS_MAX_MOUNT_SIZE) {
         return VFS_ERROR;
     }
 
@@ -214,7 +215,7 @@ int FreeMountResByIndex(int mountIndex)
 int FreeMountRes(const char *target)
 {
     pthread_mutex_lock(&g_FslocalMutex);
-    for (int i = 0; i < LFS_MAX_MOUNT_SIZE; i++) {
+    for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 1) {
             if (g_fsOp[i].dirName && strcmp(target, g_fsOp[i].dirName) == 0) {
                 g_fsOp[i].useFlag = 0;
