@@ -32,6 +32,14 @@ static_library("fs_operations") {
     "./fs.c",
   ]
 
+  include_dirs = [
+    "../../../kernel/arch/include",
+    "../../../kernel/include",
+    "../../../utils",
+    "../../../kal/posix/include",
+    "./",
+  ]
+
   deps = [ "//kernel/liteos_m/kal/posix" ]
 }
 

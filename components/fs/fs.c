@@ -29,6 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "fs_operations.h"
+#include "los_config.h"
 #ifdef LOSCFG_SUPPORT_FATFS
 #include "fatfs.h"
 #endif
@@ -426,11 +427,11 @@ int stat(const char *path, struct stat *buf)
         errno = ENODEV;
         return FS_FAILURE;
     }
-    if (g_fs->fsFops == NULL || g_fs->fsFops->Stat == NULL) {
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Getattr == NULL) {
         errno = ENOSYS;
         return FS_FAILURE;
     }
-    return g_fs->fsFops->Stat(path, buf);
+    return g_fs->fsFops->Getattr(path, buf);
 }
 
 int fsync(int fd)
