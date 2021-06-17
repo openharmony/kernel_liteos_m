@@ -6,20 +6,20 @@ C_SOURCES     += $(wildcard $(LITEOSTOPDIR)/kernel/src/*.c) \
                  $(wildcard $(LITEOSTOPDIR)/kernel/src/mm/*.c) \
                  $(wildcard $(LITEOSTOPDIR)/components/cpup/*.c) \
                  $(wildcard $(LITEOSTOPDIR)/components/los_backtrace/*.c) \
-                 $(wildcard $(LITEOSTOPDIR)/components/bounds_checking_function/src/*.c) \
+                 $(wildcard $(LITEOSTOPDIR)/../../third_party/bounds_checking_function/src/*.c) \
                  $(wildcard $(LITEOSTOPDIR)/utils/*.c) 
 
 C_INCLUDES    += -I$(LITEOSTOPDIR)/utils \
                  -I$(LITEOSTOPDIR)/kernel/include \
                  -I$(LITEOSTOPDIR)/components/cpup \
                  -I$(LITEOSTOPDIR)/components/los_backtrace \
-                 -I$(LITEOSTOPDIR)/components/bounds_checking_function/include
+                 -I$(LITEOSTOPDIR)/../../third_party/bounds_checking_function/include
 
 #third party related
-C_INCLUDES    += -I$(LITEOSTOPDIR)/third_party/bounds_checking_function/include \
-                 -I$(LITEOSTOPDIR)/third_party/bounds_checking_function/src
+C_INCLUDES    += -I$(LITEOSTOPDIR)/../../third_party/bounds_checking_function/include \
+                 -I$(LITEOSTOPDIR)/../../third_party/bounds_checking_function/src
 
-C_SOURCES     += $(wildcard $(LITEOSTOPDIR)/third_party/bounds_checking_function/src/*.c)
+C_SOURCES     += $(wildcard $(LITEOSTOPDIR)/../../third_party/bounds_checking_function/src/*.c)
 
 # NMSIS related
 C_INCLUDES    += -I$(LITEOSTOPDIR)/kernel/arch/risc-v/nuclei/gcc/nmsis/Core/Include \
