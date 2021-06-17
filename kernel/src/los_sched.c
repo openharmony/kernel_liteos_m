@@ -41,12 +41,10 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#define OS_64BIT_MAX               0xFFFFFFFFFFFFFFFFULL
 #define OS_PRIORITY_QUEUE_NUM      32
 #define PRIQUEUE_PRIOR0_BIT        0x80000000U
 #define OS_SCHED_TIME_SLICES       ((LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT * OS_SYS_NS_PER_US) / OS_NS_PER_CYCLE)
 #define OS_TIME_SLICE_MIN          (INT32)((50 * OS_SYS_NS_PER_US) / OS_NS_PER_CYCLE) /* 50us */
-#define OS_SCHED_MAX_RESPONSE_TIME (UINT64)(OS_64BIT_MAX - 1U)
 #define OS_TICK_RESPONSE_TIME_MAX  LOSCFG_BASE_CORE_TICK_RESPONSE_MAX
 #if (LOSCFG_BASE_CORE_TICK_RESPONSE_MAX == 0)
 #error "Must specify the maximum value that tick timer counter supports!"
@@ -184,7 +182,7 @@ VOID OsSchedUpdateExpireTime(UINT64 startTime)
         INT32 timeSlice = (runTask->timeSlice <= OS_TIME_SLICE_MIN) ? OS_SCHED_TIME_SLICES : runTask->timeSlice;
         endTime = startTime + timeSlice;
     } else {
-        endTime = OS_SCHED_MAX_RESPONSE_TIME;
+        endTime = OS_SCHED_MAX_RESPONSE_TIME - OS_CYCLE_PER_TICK;
     }
     OsSchedSetNextExpireTime(startTime, runTask->taskID, endTime);
 }
@@ -488,7 +486,7 @@ BOOL OsSchedTaskSwitch(VOID)
     if (newTask->taskID != g_idleTaskID) {
         endTime = newTask->startTime + newTask->timeSlice;
     } else {
-        endTime = OS_SCHED_MAX_RESPONSE_TIME;
+        endTime = OS_SCHED_MAX_RESPONSE_TIME - OS_CYCLE_PER_TICK;
     }
     OsSchedSetNextExpireTime(newTask->startTime, newTask->taskID, endTime);
 

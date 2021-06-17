@@ -42,6 +42,8 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#define OS_SCHED_MAX_RESPONSE_TIME (UINT64)(((UINT64)-1) - 1U)
+
 extern UINT32 g_taskScheduled;
 typedef BOOL (*SchedScan)(VOID);
 
