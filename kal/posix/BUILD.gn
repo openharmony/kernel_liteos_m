@@ -38,6 +38,7 @@ static_library("posix") {
     "src/pthread_mutex.c",
     "src/semaphore.c",
     "src/time.c",
+    "//third_party/musl/src/string/strdup.c",
   ]
 
   include_dirs = [
