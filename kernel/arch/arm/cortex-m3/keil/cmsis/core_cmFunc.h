@@ -52,9 +52,6 @@
   #error "Please use ARM Compiler Toolchain V4.0.677 or later!"
 #endif
 
-/* intrinsic void __enable_irq();     */
-/* intrinsic void __disable_irq();    */
-
 /** \brief  Get Control Register
 
     This function returns the content of the Control Register.
