@@ -92,7 +92,7 @@ STATIC INLINE UINT64 OsGetSortLinkNextExpireTime(SortLinkAttribute *sortHeader, 
     LOS_DL_LIST *list = head->pstNext;
 
     if (LOS_ListEmpty(head)) {
-        return (UINT64)-1;
+        return OS_SCHED_MAX_RESPONSE_TIME - OS_CYCLE_PER_TICK;
     }
 
     do {
