@@ -153,6 +153,30 @@ LITE_OS_SEC_ALW_INLINE STATIC_INLINE VOID LOS_ListTailInsert(LOS_DL_LIST *list, 
 
 /**
  * @ingroup los_list
+ * @brief Insert a node to the head of a doubly linked list.
+ *
+ * @par Description:
+ * This API is used to insert a new node to the head of a doubly linked list.
+ * @attention
+ * <ul>
+ * <li>The parameters passed in should be ensured to be legal pointers.</li>
+ * </ul>
+ *
+ * @param list     [IN] Doubly linked list where the new node is inserted.
+ * @param node     [IN] New node to be inserted.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_ListAdd | LOS_ListTailInsert
+ */
+LITE_OS_SEC_ALW_INLINE STATIC_INLINE VOID LOS_ListHeadInsert(LOS_DL_LIST *list, LOS_DL_LIST *node)
+{
+    LOS_ListAdd(list, node);
+}
+
+/**
+ * @ingroup los_list
  * @brief Delete a specified node from a doubly linked list.
  *
  * @par Description:
