@@ -285,6 +285,8 @@ extern UINT32 LOS_SemPend(UINT32 semHandle, UINT32 timeout);
  */
 extern UINT32 LOS_SemPost(UINT32 semHandle);
 
+extern UINT32 LOS_SemGetValue(UINT32 semHandle, INT32 *currVal);
+
 /**
  * @ingroup los_sem
  * Semaphore control structure.

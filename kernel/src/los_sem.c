@@ -312,4 +312,16 @@ LITE_OS_SEC_TEXT UINT32 LOS_SemPost(UINT32 semHandle)
     return LOS_OK;
 }
 
+LITE_OS_SEC_TEXT UINT32 LOS_SemGetValue(UINT32 semHandle, INT32 *currVal)
+{
+    LosSemCB *sem = GET_SEM(semHandle);
+
+    if (semHandle >= (UINT32)LOSCFG_BASE_IPC_SEM_LIMIT) {
+        OS_RETURN_ERROR(LOS_ERRNO_SEM_INVALID);
+    }
+
+    *currVal = sem->semCount;
+    return 0;
+}
+
 #endif /* (LOSCFG_BASE_IPC_SEM == 1) */
