@@ -120,24 +120,28 @@ BOOL CheckDirIsOpen(const char *dirName)
     return FALSE;
 }
 
+int GetFirstLevelPathLen(const char *pathName)
+{
+    int len = 1;
+    for (int i = 1; i < strlen(pathName) + 1; i++) {
+        if (pathName[i] == '/') {
+            break;
+        }
+        len++;
+    }
+
+    return len;
+}
+
 BOOL CheckPathIsMounted(const char *pathName, struct FileOpInfo **fileOpInfo)
 {
     char tmpName[LITTLEFS_MAX_LFN_LEN] = {0};
-    int mountPathNameLen;
-    int len = strlen(pathName) + 1;
+    int len = GetFirstLevelPathLen(pathName);
 
     pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 1) {
-            mountPathNameLen = strlen(g_fsOp[i].dirName);
-            if (len < mountPathNameLen + 1) {
-                pthread_mutex_unlock(&g_FslocalMutex);
-                return FALSE;
-            }
-
-            (void)strncpy_s(tmpName, LITTLEFS_MAX_LFN_LEN, pathName, mountPathNameLen);
-            tmpName[mountPathNameLen] = '\0';
-
+            (void)strncpy_s(tmpName, LITTLEFS_MAX_LFN_LEN, pathName, len);
             if (strcmp(tmpName, g_fsOp[i].dirName) == 0) {
                 *fileOpInfo = &(g_fsOp[i]);
                 pthread_mutex_unlock(&g_FslocalMutex);
@@ -156,7 +160,7 @@ struct FileOpInfo *AllocMountRes(const char* target, struct FileOps *fileOps)
         if (g_fsOp[i].useFlag == 0 && strcmp(target, g_littlefsMntName[i]) == 0) {
             g_fsOp[i].useFlag = 1;
             g_fsOp[i].fsVops = fileOps;
-            g_fsOp[i].dirName == strdup(target);
+            g_fsOp[i].dirName = strdup(target);
             pthread_mutex_unlock(&g_FslocalMutex);
             return &(g_fsOp[i]);
         }
@@ -530,7 +534,7 @@ struct dirent *LfsReaddir(DIR *dir)
     }
 
     ret = lfs_dir_read(dirInfo->lfsHandle, (lfs_dir_t *)(&(dirInfo->dir)), &lfsInfo);
-    if (ret == 0) {
+    if (ret == TRUE) {
         pthread_mutex_lock(&g_FslocalMutex);
         (void)strncpy_s(g_nameValue.d_name, sizeof(g_nameValue.d_name), lfsInfo.name, strlen(lfsInfo.name) + 1);
         if (lfsInfo.type == LFS_TYPE_DIR) {
