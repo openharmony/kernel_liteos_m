@@ -55,7 +55,7 @@ VOID OsSchedSetIdleTaskSchedParam(LosTaskCB *idleTask);
 
 UINT32 OsSchedSwtmrScanRegister(SchedScan func);
 
-VOID OsSchedUpdateExpireTime(UINT64 startTime);
+VOID OsSchedUpdateExpireTime(UINT64 startTime, BOOL timeUpdate);
 
 VOID OsSchedTaskDeQueue(LosTaskCB *taskCB);
 
@@ -83,26 +83,63 @@ BOOL OsSchedTaskSwitch(VOID);
 
 LosTaskCB *OsGetTopTask(VOID);
 
+UINT32 OsSchedRealSleepTimeSet(VOID (*func)(UINT64));
+
+VOID OsSchedTimerBaseReset(UINT64 currTime);
+
+/**
+ * @ingroup los_sched
+ * @brief Get the time, in nanoseconds, remaining before the next tick interrupt response.
+ *
+ * @par Description:
+ * This API is used to get the time, in nanoseconds, remaining before the next tick interrupt response.
+ *
+ * @attention None.
+ *
+ * @param  None.
+ *
+ * @retval #time, in nanoseconds.
+ * @par Dependency:
+ * <ul><li>los_sched.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+extern UINT64 LOS_SchedTickTimeoutNsGet(VOID);
+
+/**
+ * @ingroup los_sched
+ * @brief The system-provided tick interrupt handler.
+ *
+ * @par Description:
+ * This API is used to wake up a task that is blocked by time.
+ *
+ * @attention None.
+ *
+ * @param  None.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_sched.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
 extern VOID LOS_SchedTickHandler(VOID);
 
+/**
+ * @ingroup los_sched
+ * @brief Trigger a system dispatch.
+ *
+ * @par Description:
+ * This API is used to trigger a system dispatch.
+ *
+ * @attention None.
+ *
+ * @param  None.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_sched.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
 extern VOID LOS_Schedule(VOID);
-
-#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
-VOID OsSchedUpdateSleepTime(VOID);
-
-VOID OsSchedToSleep(VOID);
-
-typedef UINT32 (*SchedSleepInit)(VOID);
-
-typedef VOID (*SchedSleepStart)(UINT64);
-
-typedef VOID (*SchedSleepStop)(VOID);
-
-typedef UINT64 (*SchedSleepGetSleepTimeNs)(VOID);
-
-extern UINT32 LOS_SchedSleepInit(SchedSleepInit init, SchedSleepStart start,
-                                 SchedSleepStop stop, SchedSleepGetSleepTimeNs getTime);
-#endif
 
 #ifdef __cplusplus
 #if __cplusplus

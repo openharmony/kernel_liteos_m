@@ -52,7 +52,6 @@ extern "C" {
 #define LOSCFG_BASE_CORE_TICK_PER_SECOND                    (1000UL)
 #define LOSCFG_BASE_CORE_TICK_HW_TIME                       0
 #define LOSCFG_BASE_CORE_TICK_WTIMER                        1
-#define LOSCFG_BASE_CORE_SCHED_SLEEP                        1
 /*=============================================================================
                                         Hardware interrupt module configuration
 =============================================================================*/
