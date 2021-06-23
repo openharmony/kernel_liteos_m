@@ -39,6 +39,9 @@ static_library("posix") {
     "src/semaphore.c",
     "src/time.c",
     "//third_party/musl/src/string/strdup.c",
+    "//third_party/musl/porting/liteos_m/kernel/src/regex/regcomp.c",
+    "//third_party/musl/porting/liteos_m/kernel/src/regex/regexec.c",
+    "//third_party/musl/porting/liteos_m/kernel/src/regex/tre-mem.c",
   ]
 
   include_dirs = [
