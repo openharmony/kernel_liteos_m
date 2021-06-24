@@ -362,7 +362,8 @@ VOID OsSchedTaskWake(LosTaskCB *resumedTask)
         resumedTask->taskStatus &= ~OS_TASK_STATUS_PEND_TIME;
     }
 
-    if (!(resumedTask->taskStatus & OS_TASK_STATUS_SUSPEND)) {
+    if (!(resumedTask->taskStatus & OS_TASK_STATUS_SUSPEND) &&
+        !(resumedTask->taskStatus & OS_TASK_STATUS_RUNNING)) {
         OsSchedTaskEnQueue(resumedTask);
     }
 }
