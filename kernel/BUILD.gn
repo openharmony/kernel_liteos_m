@@ -49,6 +49,7 @@ static_library("kernel") {
     "../components/cpup",
     "../components/exchook",
     "../components/backtrace",
+    "../components/power",
     "../utils",
     "//third_party/bounds_checking_function/include",
   ]

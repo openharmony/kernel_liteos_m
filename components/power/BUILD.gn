@@ -27,37 +27,13 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-static_library("posix") {
-  sources = [
-    "src/errno.c",
-    "src/libc.c",
-    "src/malloc.c",
-    "src/pthread.c",
-    "src/pthread_attr.c",
-    "src/pthread_cond.c",
-    "src/pthread_mutex.c",
-    "src/semaphore.c",
-    "src/time.c",
-    "//third_party/musl/porting/liteos_m/kernel/src/string/strdup.c",
-    "//third_party/musl/porting/liteos_m/kernel/src/regex/regcomp.c",
-    "//third_party/musl/porting/liteos_m/kernel/src/regex/regexec.c",
-    "//third_party/musl/porting/liteos_m/kernel/src/regex/tre-mem.c",
-  ]
+static_library("pm") {
+  sources = [ "los_pm.c" ]
 
   include_dirs = [
-    "include",
-    "../../kernel/arch/include",
     "../../kernel/include",
+    "../../kernel/arch/include",
     "../../utils",
-  ]
-
-  public_configs = [ ":include" ]
-}
-
-config("include") {
-  include_dirs = [
-    "include",
-    "//third_party/musl/porting/liteos_m/kernel/include",
     "//third_party/bounds_checking_function/include",
   ]
 }

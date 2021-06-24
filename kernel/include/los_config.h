@@ -641,10 +641,34 @@ extern UINT8 *m_aucSysMem0;
 
 /**
  * @ingroup los_config
- * When the tick timer is a non-64/128-bit timer, it has ultra-low power compensation.
+ * Configuration item for low power frame tailoring
  */
-#ifndef LOSCFG_BASE_CORE_SCHED_SLEEP
-#define LOSCFG_BASE_CORE_SCHED_SLEEP                         0
+#ifndef LOSCFG_KERNEL_PM
+#define LOSCFG_KERNEL_PM                                     1
+#endif
+
+/**
+ * @ingroup los_config
+ * Configuration item for priority of low-power task.
+ */
+#ifndef LOSCFG_KERNEL_PM_TASK_PTIORITY
+#define LOSCFG_KERNEL_PM_TASK_PTIORITY                       1
+#endif
+
+/**
+ * @ingroup los_config
+ * Configuration item for stack size of low-power task.
+ */
+#ifndef LOSCFG_KERNEL_PM_TASK_STACKSIZE
+#define LOSCFG_KERNEL_PM_TASK_STACKSIZE                      0x800
+#endif
+
+/**
+ * @ingroup los_config
+ * Configuration item for low power frame debug tailoring
+ */
+#ifndef LOSCFG_KERNEL_PM_DEBUG
+#define LOSCFG_KERNEL_PM_DEBUG                               0
 #endif
 
 /**

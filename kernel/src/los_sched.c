@@ -41,12 +41,10 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#define OS_64BIT_MAX               0xFFFFFFFFFFFFFFFFULL
 #define OS_PRIORITY_QUEUE_NUM      32
 #define PRIQUEUE_PRIOR0_BIT        0x80000000U
 #define OS_SCHED_TIME_SLICES       ((LOSCFG_BASE_CORE_TIMESLICE_TIMEOUT * OS_SYS_NS_PER_US) / OS_NS_PER_CYCLE)
 #define OS_TIME_SLICE_MIN          (INT32)((50 * OS_SYS_NS_PER_US) / OS_NS_PER_CYCLE) /* 50us */
-#define OS_SCHED_MAX_RESPONSE_TIME (UINT64)(OS_64BIT_MAX - 1U)
 #define OS_TICK_RESPONSE_TIME_MAX  LOSCFG_BASE_CORE_TICK_RESPONSE_MAX
 #if (LOSCFG_BASE_CORE_TICK_RESPONSE_MAX == 0)
 #error "Must specify the maximum value that tick timer counter supports!"
@@ -59,19 +57,17 @@ STATIC UINT32 g_queueBitmap;
 
 STATIC UINT32 g_schedResponseID = 0;
 STATIC UINT64 g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
-#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
-typedef struct {
-    SchedSleepInit           init;
-    SchedSleepStart          start;
-    SchedSleepStop           stop;
-    SchedSleepGetSleepTimeNs getTimeNs;
-} SchedSleep;
+STATIC VOID (*SchedRealSleepTimeSet)(UINT64) = NULL;
 
-STATIC BOOL       g_schedSleepFlags = FALSE;
-STATIC UINT64     g_schedSleepTime;
-STATIC UINT64     g_schedEntrySleepTime;
-STATIC SchedSleep g_schedSleepCB;
-#endif
+UINT32 OsSchedRealSleepTimeSet(VOID (*func)(UINT64))
+{
+    if (func == NULL) {
+        return LOS_NOK;
+    }
+
+    SchedRealSleepTimeSet = func;
+    return LOS_OK;
+}
 
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
 STATIC UINT64 g_schedTimerBase;
@@ -82,6 +78,14 @@ VOID OsSchedUpdateSchedTimeBase(VOID)
 
     (VOID)HalGetTickCycle(&period);
     g_schedTimerBase += period;
+}
+
+VOID OsSchedTimerBaseReset(UINT64 currTime)
+{
+    LOS_ASSERT(currTime > g_schedTimerBase);
+
+    g_schedTimerBase = currTime;
+    g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
 }
 #endif
 
@@ -124,7 +128,7 @@ STATIC INLINE VOID OsTimeSliceUpdate(LosTaskCB *taskCB, UINT64 currTime)
     taskCB->startTime = currTime;
 }
 
-STATIC INLINE VOID OsSchedSetNextExpireTime(UINT64 startTime, UINT32 responseID, UINT64 taskEndTime)
+STATIC INLINE VOID OsSchedSetNextExpireTime(UINT64 startTime, UINT32 responseID, UINT64 taskEndTime, BOOL timeUpdate)
 {
     UINT64 nextExpireTime = OsGetNextExpireTime(startTime);
     UINT64 nextResponseTime;
@@ -141,15 +145,15 @@ STATIC INLINE VOID OsSchedSetNextExpireTime(UINT64 startTime, UINT32 responseID,
     if ((g_schedResponseTime > nextExpireTime) && ((g_schedResponseTime - nextExpireTime) >= OS_CYCLE_PER_TICK)) {
         nextResponseTime = nextExpireTime - startTime;
         if (nextResponseTime > OS_TICK_RESPONSE_TIME_MAX) {
-#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
-            g_schedSleepTime = nextResponseTime - OS_CYCLE_PER_TICK;
-#endif
+            if (SchedRealSleepTimeSet != NULL) {
+                SchedRealSleepTimeSet(nextResponseTime);
+            }
             nextResponseTime = OS_TICK_RESPONSE_TIME_MAX;
             nextExpireTime = startTime + nextResponseTime;
         } else if (nextResponseTime < OS_CYCLE_PER_TICK) {
-#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
-            g_schedSleepTime = 0;
-#endif
+            if (SchedRealSleepTimeSet != NULL) {
+                SchedRealSleepTimeSet(0);
+            }
             nextResponseTime = OS_CYCLE_PER_TICK;
             nextExpireTime = startTime + nextResponseTime;
             if (nextExpireTime >= g_schedResponseTime) {
@@ -170,12 +174,14 @@ STATIC INLINE VOID OsSchedSetNextExpireTime(UINT64 startTime, UINT32 responseID,
 
     g_schedResponseTime = nextExpireTime;
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
-    g_schedTimerBase = OsGetCurrSchedTimeCycle();
+    if (timeUpdate) {
+        g_schedTimerBase = OsGetCurrSchedTimeCycle();
+    }
 #endif
     HalSysTickReload(nextResponseTime);
 }
 
-VOID OsSchedUpdateExpireTime(UINT64 startTime)
+VOID OsSchedUpdateExpireTime(UINT64 startTime, BOOL timeUpdate)
 {
     UINT64 endTime;
     LosTaskCB *runTask = g_losTask.runTask;
@@ -184,9 +190,9 @@ VOID OsSchedUpdateExpireTime(UINT64 startTime)
         INT32 timeSlice = (runTask->timeSlice <= OS_TIME_SLICE_MIN) ? OS_SCHED_TIME_SLICES : runTask->timeSlice;
         endTime = startTime + timeSlice;
     } else {
-        endTime = OS_SCHED_MAX_RESPONSE_TIME;
+        endTime = OS_SCHED_MAX_RESPONSE_TIME - OS_CYCLE_PER_TICK;
     }
-    OsSchedSetNextExpireTime(startTime, runTask->taskID, endTime);
+    OsSchedSetNextExpireTime(startTime, runTask->taskID, endTime, timeUpdate);
 }
 
 STATIC INLINE VOID OsSchedPriQueueEnHead(LOS_DL_LIST *priqueueItem, UINT32 priority)
@@ -450,7 +456,7 @@ VOID OsSchedStart(VOID)
 
     g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
     g_schedResponseID = OS_INVALID;
-    OsSchedSetNextExpireTime(newTask->startTime, newTask->taskID, newTask->startTime + newTask->timeSlice);
+    OsSchedSetNextExpireTime(newTask->startTime, newTask->taskID, newTask->startTime + newTask->timeSlice, TRUE);
 
     PRINTK("Entering scheduler\n");
 }
@@ -488,11 +494,31 @@ BOOL OsSchedTaskSwitch(VOID)
     if (newTask->taskID != g_idleTaskID) {
         endTime = newTask->startTime + newTask->timeSlice;
     } else {
-        endTime = OS_SCHED_MAX_RESPONSE_TIME;
+        endTime = OS_SCHED_MAX_RESPONSE_TIME - OS_CYCLE_PER_TICK;
     }
-    OsSchedSetNextExpireTime(newTask->startTime, newTask->taskID, endTime);
+    OsSchedSetNextExpireTime(newTask->startTime, newTask->taskID, endTime, TRUE);
 
     return isTaskSwitch;
+}
+
+UINT64 LOS_SchedTickTimeoutNsGet(VOID)
+{
+    UINT32 intSave;
+    UINT64 responseTime;
+    UINT64 currTime;
+
+    intSave = LOS_IntLock();
+    responseTime = g_schedResponseTime;
+    currTime = OsGetCurrSchedTimeCycle();
+    LOS_IntRestore(intSave);
+
+    if (responseTime > currTime) {
+        responseTime = responseTime - currTime;
+    } else {
+        responseTime = 0; /* Tick interrupt already timeout */
+    }
+
+    return OS_SYS_CYCLE_TO_NS(responseTime, OS_SYS_CLOCK);
 }
 
 VOID LOS_SchedTickHandler(VOID)
@@ -518,7 +544,7 @@ VOID LOS_SchedTickHandler(VOID)
     } else {
         currTime = OsGetCurrSchedTimeCycle();
         OsTimeSliceUpdate(g_losTask.runTask, currTime);
-        OsSchedUpdateExpireTime(currTime);
+        OsSchedUpdateExpireTime(currTime, TRUE);
     }
 
     LOS_IntRestore(intSave);
@@ -530,103 +556,6 @@ VOID LOS_Schedule(VOID)
         HalTaskSchedule();
     }
 }
-
-#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
-VOID OsSchedUpdateSleepTime(VOID)
-{
-    UINT64 nextResponseTime;
-    UINT64 currTime, realSleepTime;
-    UINT32 intSave;
-
-    if ((g_schedSleepFlags == FALSE) || (g_schedSleepCB.stop == NULL)) {
-        return;
-    }
-
-    intSave = LOS_IntLock();
-    if (g_schedSleepCB.getTimeNs != NULL) {
-        realSleepTime = g_schedSleepCB.getTimeNs();
-        realSleepTime = (realSleepTime / OS_SYS_NS_PER_SECOND) * OS_SYS_CLOCK +
-                        (realSleepTime % OS_SYS_NS_PER_SECOND) * OS_SYS_CLOCK / OS_SYS_NS_PER_SECOND;
-        if (realSleepTime < g_schedSleepTime) {
-            nextResponseTime = g_schedSleepTime - realSleepTime;
-        } else {
-            nextResponseTime = 0;
-        }
-
-#if (LOSCFG_BASE_CORE_TICK_WTIMER == 1)
-        currTime = HalGetTickCycle(NULL);
-#else
-        g_schedTimerBase = g_schedEntrySleepTime + realSleepTime;
-        currTime = g_schedTimerBase;
-#endif
-        if (nextResponseTime > OS_TICK_RESPONSE_TIME_MAX) {
-            nextResponseTime = OS_TICK_RESPONSE_TIME_MAX;
-        } else if (nextResponseTime < OS_CYCLE_PER_TICK) {
-            nextResponseTime = OS_CYCLE_PER_TICK;
-        }
-
-        g_schedResponseID = OS_INVALID;
-        g_schedResponseTime = currTime + nextResponseTime;
-        HalSysTickReload(nextResponseTime);
-        g_schedSleepTime = 0;
-    }
-    g_schedSleepFlags = FALSE;
-    g_schedSleepCB.stop();
-    LOS_IntRestore(intSave);
-}
-
-VOID OsSchedToSleep(VOID)
-{
-    UINT32 intSave;
-    UINT64 sleepTime;
-
-    if (g_schedSleepCB.start == NULL) {
-        return;
-    }
-
-    if (g_schedSleepCB.getTimeNs != NULL) {
-        sleepTime = (g_schedSleepTime / OS_SYS_CLOCK) * OS_SYS_NS_PER_SECOND +
-                    (g_schedSleepTime % OS_SYS_CLOCK) * OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK;
-        if (sleepTime == 0) {
-            return;
-        }
-
-        intSave = LOS_IntLock();
-        HalTickLock();
-        g_schedEntrySleepTime = OsGetCurrSchedTimeCycle();
-    } else {
-        intSave = LOS_IntLock();
-    }
-
-    g_schedSleepCB.start(sleepTime);
-    g_schedSleepFlags = TRUE;
-    LOS_IntRestore(intSave);
-}
-
-UINT32 LOS_SchedSleepInit(SchedSleepInit init, SchedSleepStart start,
-                          SchedSleepStop stop, SchedSleepGetSleepTimeNs getTime)
-{
-    UINT32 ret;
-
-    if ((init == NULL) && (start == NULL) && (stop == NULL)) {
-        return LOS_NOK;
-    }
-
-    g_schedSleepCB.init = init;
-    g_schedSleepCB.start = start;
-    g_schedSleepCB.stop = stop;
-    g_schedSleepCB.getTimeNs = getTime;
-
-    if (g_schedSleepCB.init != NULL) {
-        ret = g_schedSleepCB.init();
-        if (ret != LOS_OK) {
-            return ret;
-        }
-    }
-
-    return LOS_OK;
-}
-#endif
 
 #ifdef __cplusplus
 #if __cplusplus

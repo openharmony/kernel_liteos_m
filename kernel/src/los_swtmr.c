@@ -217,7 +217,7 @@ LITE_OS_SEC_TEXT VOID OsSwtmrStart(SWTMR_CTRL_S *swtmr)
 #endif
     OsAdd2SortLink(&swtmr->stSortList, currTime, swtmr->uwCount, OS_SORT_LINK_SWTMR);
     if (LOS_TaskIsRunning()) {
-        OsSchedUpdateExpireTime(currTime);
+        OsSchedUpdateExpireTime(currTime, TRUE);
     }
 }
 
@@ -248,7 +248,7 @@ LITE_OS_SEC_TEXT VOID OsSwtmrStop(SWTMR_CTRL_S *swtmr)
     swtmr->ucState = OS_SWTMR_STATUS_CREATED;
 
     if (LOS_TaskIsRunning()) {
-        OsSchedUpdateExpireTime(OsGetCurrSchedTimeCycle());
+        OsSchedUpdateExpireTime(OsGetCurrSchedTimeCycle(), TRUE);
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
         g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT].isAligned = 0;
 #endif

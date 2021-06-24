@@ -124,6 +124,12 @@ extern UINT64 LOS_SysCycleGet(VOID);
 
 #define OS_NS_PER_TICK         (OS_SYS_NS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
+#define OS_SYS_CYCLE_TO_NS(cycle, freq)  (((cycle) / (freq)) * OS_SYS_NS_PER_SECOND + \
+    ((cycle) % OS_SYS_CLOCK) * OS_SYS_NS_PER_SECOND / (freq))
+
+#define OS_SYS_NS_TO_CYCLE(time, freq) (((time) / OS_SYS_NS_PER_SECOND) * (freq) +     \
+    (time % OS_SYS_NS_PER_SECOND) * (freq) / OS_SYS_NS_PER_SECOND)
+
 /**
  * @ingroup los_tick
  * System time basic function error code: Null pointer.
