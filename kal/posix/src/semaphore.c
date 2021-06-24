@@ -186,3 +186,21 @@ int sem_timedwait(sem_t *sem, const struct timespec *timeout)
 
     return 0;
 }
+
+int sem_getvalue(sem_t *sem, int *currVal)
+{
+    UINT32 ret;
+
+    if ((sem == NULL) || (currVal == NULL)) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    ret = LOS_SemGetValue(sem->s_handle, currVal);
+    if (ret) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    return LOS_OK;
+}
