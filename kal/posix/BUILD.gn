@@ -38,7 +38,7 @@ static_library("posix") {
     "src/pthread_mutex.c",
     "src/semaphore.c",
     "src/time.c",
-    "//third_party/musl/src/string/strdup.c",
+    "//third_party/musl/porting/liteos_m/kernel/src/string/strdup.c",
     "//third_party/musl/porting/liteos_m/kernel/src/regex/regcomp.c",
     "//third_party/musl/porting/liteos_m/kernel/src/regex/regexec.c",
     "//third_party/musl/porting/liteos_m/kernel/src/regex/tre-mem.c",
