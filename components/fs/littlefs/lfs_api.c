@@ -59,6 +59,21 @@ LittleFsHandleStruct *LfsAllocFd(const char *fileName, int *fd)
     return NULL;
 }
 
+static void LfsFreeFd(int fd)
+{
+    pthread_mutex_lock(&g_FslocalMutex);
+    g_handle[fd].useFlag = 0;
+    if (g_handle[fd].pathName != NULL) {
+        free(g_handle[fd].pathName);
+        g_handle[fd].pathName = NULL;
+    }
+
+    if (g_handle[fd].lfsHandle != NULL) {
+        g_handle[fd].lfsHandle = NULL;
+    }
+    pthread_mutex_unlock(&g_FslocalMutex);
+}
+
 BOOL CheckFileIsOpen(const char *fileName)
 {
     pthread_mutex_lock(&g_FslocalMutex);
@@ -285,7 +300,7 @@ static int LittlefsErrno(int result)
             status = ENOTDIR;
             break;
         case LFS_ERR_NOENT:
-            status = ENFILE;
+            status = ENOENT;
             break;
         case LFS_ERR_EXIST:
             status = EEXIST;
@@ -608,6 +623,7 @@ int LfsOpen(const char *pathName, int openFlag, int mode)
     int lfsOpenFlag = ConvertFlagToLfsOpenFlag(openFlag);
     err = lfs_file_open(&(fileOpInfo->lfsInfo), &(fsHandle->file), pathName, lfsOpenFlag);
     if (err != 0) {
+        LfsFreeFd(fd);
         errno = LittlefsErrno(err);
         goto errout;
     }
@@ -695,16 +711,9 @@ int LfsClose(int fd)
 
     pthread_mutex_lock(&g_FslocalMutex);
     ret = lfs_file_close(g_handle[fd].lfsHandle, &(g_handle[fd].file));
-    g_handle[fd].useFlag = 0;
-    if (g_handle[fd].pathName != NULL) {
-        free(g_handle[fd].pathName);
-        g_handle[fd].pathName = NULL;
-    }
-
-    if (g_handle[fd].lfsHandle != NULL) {
-        g_handle[fd].lfsHandle = NULL;
-    }
     pthread_mutex_unlock(&g_FslocalMutex);
+
+    LfsFreeFd(fd);
 
     if (ret != 0) {
         errno = LittlefsErrno(ret);
