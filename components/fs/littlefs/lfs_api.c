@@ -32,6 +32,7 @@
 #define _GNU_SOURCE 1
 #include "lfs_api.h"
 #include "los_config.h"
+#include "securec.h"
 
 lfs_t g_lfs;
 FileDirInfo g_lfsDir[LFS_MAX_OPEN_DIRS] = {0};
@@ -64,7 +65,7 @@ static void LfsFreeFd(int fd)
     pthread_mutex_lock(&g_FslocalMutex);
     g_handle[fd].useFlag = 0;
     if (g_handle[fd].pathName != NULL) {
-        free(g_handle[fd].pathName);
+        free((void *)g_handle[fd].pathName);
         g_handle[fd].pathName = NULL;
     }
 
@@ -104,7 +105,7 @@ FileDirInfo *GetFreeDir(const char *dirName)
     return NULL;
 }
 
-void FreeDirInfo(const char *dirName) 
+void FreeDirInfo(const char *dirName)
 {
     pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LFS_MAX_OPEN_DIRS; i++) {
@@ -168,7 +169,7 @@ BOOL CheckPathIsMounted(const char *pathName, struct FileOpInfo **fileOpInfo)
     return FALSE;
 }
 
-struct FileOpInfo *AllocMountRes(const char* target, struct FileOps *fileOps)
+struct FileOpInfo *AllocMountRes(const char* target, const struct FileOps *fileOps)
 {
     pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
@@ -190,8 +191,8 @@ int SetDefaultMountPath(int pathNameIndex, const char* target)
     if (pathNameIndex >= LOSCFG_LFS_MAX_MOUNT_SIZE) {
         return VFS_ERROR;
     }
-    
-    pthread_mutex_lock(&g_FslocalMutex);    
+
+    pthread_mutex_lock(&g_FslocalMutex);
     g_littlefsMntName[pathNameIndex] = strdup(target);
     pthread_mutex_unlock(&g_FslocalMutex);
     return VFS_OK;
@@ -381,7 +382,7 @@ int LfsMount(const char *source, const char *target, const char *fileSystemType,
         ret = VFS_ERROR;
         goto errout;
     }
-    
+
     ret = lfs_mount(&(fileOpInfo->lfsInfo), (struct lfs_config*)data);
     if (ret != 0) {
         ret = lfs_format(&(fileOpInfo->lfsInfo), (struct lfs_config*)data);
@@ -572,7 +573,7 @@ struct dirent *LfsReaddir(DIR *dir)
     return NULL;
 }
 
-int LfsClosedir(const DIR *dir)
+int LfsClosedir(DIR *dir)
 {
     int ret;
     FileDirInfo *dirInfo = (FileDirInfo *)dir;
@@ -675,9 +676,9 @@ int LfsWrite(int fd, const void *buf, unsigned int len)
     return ret;
 }
 
-int LfsSeek(int fd, off_t offset, int whence)
+off_t LfsSeek(int fd, off_t offset, int whence)
 {
-    int ret;
+    off_t ret;
     if (fd >= LITTLE_FS_MAX_OPEN_FILES || fd < 0) {
         errno = EFAULT;
         return VFS_ERROR;
@@ -688,7 +689,7 @@ int LfsSeek(int fd, off_t offset, int whence)
         return VFS_ERROR;
     }
 
-    ret = lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), offset, whence);
+    ret = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), offset, whence);
     if (ret != 0) {
         errno = LittlefsErrno(ret);
     }
@@ -720,7 +721,7 @@ int LfsClose(int fd)
         errno = LittlefsErrno(ret);
     }
 
-    return ret;    
+    return ret;
 }
 
 int LfsRename(const char *oldName, const char *newName)
@@ -769,7 +770,7 @@ int LfsStat(const char *path, struct stat *buf)
         errno = LittlefsErrno(ret);
     }
 
-    return ret;    
+    return ret;
 }
 
 int LfsFsync(int fd)
