@@ -65,7 +65,7 @@ typedef struct {
 
 struct FileOpInfo {
     uint8_t useFlag;
-    struct FileOps *fsVops;
+    const struct FileOps *fsVops;
     char *dirName;
     lfs_t lfsInfo;
 };
@@ -103,11 +103,11 @@ int LfsMkdir(const char *dirName, mode_t mode);
 int LfsRmdir(const char *dirName);
 DIR *LfsOpendir(const char *dirName);
 struct dirent *LfsReaddir(DIR *dir);
-int LfsClosedir(const DIR *dir);
+int LfsClosedir(DIR *dir);
 int LfsOpen(const char *pathName, int openFlag, int mode);
 int LfsRead(int fd, void *buf, unsigned int len);
 int LfsWrite(int fd, const void *buf, unsigned int len);
-int LfsSeek(int fd, off_t offset, int whence);
+off_t LfsSeek(int fd, off_t offset, int whence);
 int LfsClose(int fd);
 int LfsRename(const char *oldName, const char *newName);
 int LfsStat(const char *path, struct stat *buf);
