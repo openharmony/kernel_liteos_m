@@ -524,6 +524,7 @@ DIR *LfsOpendir(const char *dirName)
     ret = lfs_dir_open(&(fileOpInfo->lfsInfo), (lfs_dir_t *)(&(dirInfo->dir)), dirName);
 
     if (ret != 0) {
+        FreeDirInfo(dirName);
         errno = LittlefsErrno(ret);
         goto errout;
     }
