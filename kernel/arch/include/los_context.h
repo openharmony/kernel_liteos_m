@@ -107,15 +107,6 @@ extern VOID HalTaskSchedule(VOID);
 typedef VOID (*OS_TICK_HANDLER)(VOID);
 UINT32 HalStartSchedule(OS_TICK_HANDLER handler);
 
-UINT32 HalIntLock(VOID);
-#define LOS_IntLock HalIntLock
-
-VOID HalIntRestore(UINT32 intSave);
-#define LOS_IntRestore HalIntRestore
-
-UINT32 HalIntUnLock(VOID);
-#define LOS_IntUnLock HalIntUnLock
-
 #ifdef __cplusplus
 #if __cplusplus
 }
