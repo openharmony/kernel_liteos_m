@@ -33,6 +33,7 @@
 #include <lwip/sockets.h>
 
 #if !LWIP_COMPAT_SOCKETS
+#if LWIP_SOCKET
 
 #define CHECK_NULL_PTR(ptr) do { if ((ptr) == NULL) { set_errno(EFAULT); return -1; } } while (0)
 
@@ -178,4 +179,10 @@ int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 }
 #endif
 
+unsigned int if_nametoindex(const char *ifname)
+{
+    return lwip_if_nametoindex(ifname);
+}
+
+#endif
 #endif /* !LWIP_COMPAT_SOCKETS */

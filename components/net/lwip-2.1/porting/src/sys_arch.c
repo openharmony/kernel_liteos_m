@@ -180,7 +180,10 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg)
     return ERR_ARG;
 }
 
-err_t sys_mbox_trypost_fromisr(sys_mbox_t *mbox, void *msg);
+err_t sys_mbox_trypost_fromisr(sys_mbox_t *mbox, void *msg)
+{
+    return ERR_ARG;
+}
 
 u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeoutMs)
 {
