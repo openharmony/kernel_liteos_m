@@ -39,7 +39,7 @@ static VOID TaskF01(VOID)
     return;
 }
 
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
 static UINT32 OsShellCmdTaskCntGet(VOID)
 {
     UINT32 loop;
@@ -69,7 +69,7 @@ static UINT32 TestCase(VOID)
     UINT8 pro;
     CHAR acName[TASK_NAME_NUM];
     UINT32 auwTestTaskID[LOSCFG_BASE_CORE_TSK_LIMIT];
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
     UINT32 taskCnt;
     taskCnt = OsShellCmdTaskCntGet();
 #endif
@@ -77,7 +77,7 @@ static UINT32 TestCase(VOID)
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
     task1.uwStackSize = LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE;
 
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
     g_leavingTaskNum = LOSCFG_BASE_CORE_TSK_LIMIT - taskCnt;
 #else
     g_leavingTaskNum = LOSCFG_BASE_CORE_TSK_LIMIT - TASK_EXISTED_NUM;

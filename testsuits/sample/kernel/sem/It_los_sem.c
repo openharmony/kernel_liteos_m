@@ -54,19 +54,25 @@ VOID ItSuiteLosSem(void)
     ItLosSem020();
     ItLosSem021();
     ItLosSem022();
+#if (LOS_KERNEL_HWI_TEST == 1)
     ItLosSem023();
+#endif
     ItLosSem024();
     ItLosSem025();
     ItLosSem026();
     ItLosSem027();
     ItLosSem028();
     ItLosSem029();
+#if (LOS_KERNEL_HWI_TEST == 1)
     ItLosSem030();
+#endif
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
     ItLosSem031();
 #endif
     ItLosSem032();
+#if (LOS_KERNEL_HWI_TEST == 1)
     ItLosSem033();
+#endif
     ItLosSem034();
     ItLosSem035();
     ItLosSem036();

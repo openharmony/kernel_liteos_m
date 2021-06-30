@@ -44,7 +44,9 @@ static UINT32 TestCase(VOID)
     tickcnt2 = LOS_TickCountGet();
     temp = tickcnt2 - tickcnt1;
 
-    ICUNIT_ASSERT_EQUAL(temp, 30, temp); // 30, assert temp is equal to 30.
+    if ((temp != 30) && (temp != 31)) { // assert temp is equal to 30 or 31
+        ICUNIT_ASSERT_EQUAL(temp, 0, temp); // 0, assert temp is equal to 0
+    }
     return LOS_OK;
 }
 

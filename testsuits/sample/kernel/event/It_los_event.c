@@ -59,8 +59,10 @@ VOID ItSuiteLosEvent()
     ItLosEvent020();
     ItLosEvent021();
     ItLosEvent022();
+#if (LOS_KERNEL_HWI_TEST == 1)
     ItLosEvent023();
     ItLosEvent024();
+#endif
     ItLosEvent026();
     ItLosEvent027();
     ItLosEvent028();
@@ -69,11 +71,15 @@ VOID ItSuiteLosEvent()
     ItLosEvent031();
     ItLosEvent032();
     ItLosEvent033();
+#if (LOS_KERNEL_TEST_NOT_SMOKE == 1)
     ItLosEvent034();
+#endif
     ItLosEvent035();
     ItLosEvent036();
     ItLosEvent037();
+#if (LOS_KERNEL_HWI_TEST == 1)
     ItLosEvent038();
+#endif
     ItLosEvent039();
     ItLosEvent040();
     ItLosEvent041();

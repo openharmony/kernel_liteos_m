@@ -68,7 +68,7 @@ static VOID TaskF01(VOID)
     ret = LOS_TaskCreate(&g_testTaskID02, &task1);
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
     ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, HwiF01, 0);
 #else
     ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, HwiF01, 1);

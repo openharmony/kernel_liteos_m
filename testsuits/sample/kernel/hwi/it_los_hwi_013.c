@@ -60,7 +60,7 @@ static VOID HwiF01(VOID)
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
     HWI_PRIOR_T hwiPrio = 3;
 #else
     HWI_PRIOR_T hwiPrio = 1;
@@ -78,7 +78,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_HwiCreate(HWI_NUM_TEST2, hwiPrio, mode, (HWI_PROC_FUNC)HwiF02, arg);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT1);
 
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
     hwiPrio = 1;
 #else
     hwiPrio = 3; // set new hwi priority is 3

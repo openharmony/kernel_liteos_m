@@ -79,9 +79,6 @@ UINT32 g_usSemID3[LOSCFG_BASE_IPC_SEM_CONFIG + 1];
 #define TST_RAMADDRSTART 0x20000000
 #define TST_RAMADDREND 0x20010000
 
-
-
-
 #if (CMSIS_OS_VER == 2)
 extern SWTMR_CTRL_S *g_swtmrCBArray;
 UINT32 SwtmrCountGetTest(VOID)
@@ -206,7 +203,7 @@ UINT32 LosAppInit()
     return LOS_OK;
 }
 
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
 #ifdef LOS_HIMIDEERV100
 #define HWI_TRIG_BASE 0x20c20
 #define HWI_CLEAN_TRI 0x20c20
@@ -220,43 +217,17 @@ UINT32 LosAppInit()
 
 VOID TestHwiTrigger(UINT32 hwiNum)
 {
-    LOS_InterruptUnmask(hwiNum);
-    volatile UINT32 val;
-#ifdef LOS_HIMIDEERV100
-    val = *(volatile UINT32 *)HWI_TRIG_BASE;
-    val |= (1 << (hwiNum - OS_RISCV_SYS_VECTOR_CNT));
-#elif defined(LOS_HIFONEV320_RV32)
-    val = hwiNum - HIW_SYS_COUNT;
-#endif
-    *(volatile UINT32 *)HWI_TRIG_BASE = val;
-    mb();
+    HalIrqEnable(hwiNum);
 }
 
 UINT32 TestHwiDelete(UINT32 hwiNum)
 {
-    volatile UINT32 val;
-#ifdef LOS_HIMIDEERV100
-    val = *(volatile UINT32 *)0x20c20;
-    val &= ~(1 << (hwiNum - OS_RISCV_SYS_VECTOR_CNT));
-#elif defined(LOS_HIFONEV320_RV32)
-    val = hwiNum - HIW_SYS_COUNT;
-#endif
-    *(volatile UINT32 *)HWI_CLEAN_TRI = val;
-    LOS_HwiDelete(hwiNum, NULL);
-    return LOS_OK;
+    return;
 }
 
 VOID TestHwiClear(UINT32 hwiNum)
 {
-    volatile UINT32 val;
-#ifdef LOS_HIMIDEERV100
-    val = *(volatile UINT32 *)HWI_CLEAN_TRI;
-    val &= ~(1 << (hwiNum - OS_RISCV_SYS_VECTOR_CNT));
-#elif defined(LOS_HIFONEV320_RV32)
-    val = hwiNum - HIW_SYS_COUNT;
-#endif
-    *(volatile UINT32 *)HWI_CLEAN_TRI = val;
-    mb();
+    return;
 }
 
 #define HIGH_SHIFT 32
@@ -279,6 +250,7 @@ VOID TestHwiTrigger(UINT32 hwiNum)
 {
     *(volatile UINT32 *)(OS_NVIC_SETPEND + ((hwiNum >> HWI_SHIFT_NUM) << HWI_BIT)) = 1 << (hwiNum & 0x1F);
 }
+
 VOID TestHwiUnTrigger(UINT32 hwiNum)
 {
     *(volatile UINT32 *)(OS_NVIC_CLRPEND + ((hwiNum >> HWI_SHIFT_NUM) << HWI_BIT)) = 1 << (hwiNum & 0x1F);

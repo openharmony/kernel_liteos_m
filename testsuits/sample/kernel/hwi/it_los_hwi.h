@@ -39,7 +39,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
 #define OS_USER_HWI_MAX (26)
 #define OS_HWI_MAX_USED_NUM (26)
 #define OS_USER_HWI_MIN OS_RISCV_SYS_VECTOR_CNT
