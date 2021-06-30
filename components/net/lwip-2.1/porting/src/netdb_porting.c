@@ -31,6 +31,8 @@
 
 #include "lwip/netdb.h"
 
+#if LWIP_DNS && LWIP_SOCKET
+
 struct hostent *gethostbyname(const char *name)
 {
     if (name == NULL) {
@@ -38,3 +40,22 @@ struct hostent *gethostbyname(const char *name)
     }
     return lwip_gethostbyname(name);
 }
+
+int gethostbyname_r(const char *name, struct hostent *ret, char *buf, size_t buflen, struct hostent **result,
+    int *h_errnop)
+{
+    return lwip_gethostbyname_r(name, ret, buf, buflen, result, h_errnop);
+}
+
+void freeaddrinfo(struct addrinfo *res)
+{
+    lwip_freeaddrinfo(res);
+}
+
+int getaddrinfo(const char *restrict nodename, const char *restrict servname, const struct addrinfo *restrict hints,
+    struct addrinfo **restrict res)
+{
+    return lwip_getaddrinfo(nodename, servname, hints, res);
+}
+
+#endif
