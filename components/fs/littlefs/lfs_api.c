@@ -90,6 +90,17 @@ BOOL CheckFileIsOpen(const char *fileName)
     return FALSE;
 }
 
+static BOOL LfsFdIsValid(int fd)
+{
+    if (fd >= LITTLE_FS_MAX_OPEN_FILES || fd < 0) {
+        return FALSE;
+    }
+    if (g_handle[fd].lfsHandle == NULL) {
+        return FALSE;
+    }
+    return TRUE;
+}
+
 FileDirInfo *GetFreeDir(const char *dirName)
 {
     pthread_mutex_lock(&g_FslocalMutex);
@@ -288,45 +299,7 @@ static int ConvertFlagToLfsOpenFlag (int oflags)
 
 static int LittlefsErrno(int result)
 {
-    int status = 0;
-
-    if (result < 0) {
-        return result;
-    }
-
-    switch (result) {
-        case LFS_ERR_OK:
-            break;
-        case LFS_ERR_NOTDIR:
-            status = ENOTDIR;
-            break;
-        case LFS_ERR_NOENT:
-            status = ENOENT;
-            break;
-        case LFS_ERR_EXIST:
-            status = EEXIST;
-            break;
-        case LFS_ERR_ISDIR:
-            status = EISDIR;
-            break;
-        case LFS_ERR_NOTEMPTY:
-            status = ENOTEMPTY;
-            break;
-        case LFS_ERR_INVAL:
-            status = EINVAL;
-            break;
-        case LFS_ERR_NOSPC:
-            status = ENOSPC;
-            break;
-        case LFS_ERR_IO:
-            status = EIO;
-            break;
-        default:
-            status = result;
-            break;
-    }
-
-    return status;
+    return (result < 0) ? -result : result;
 }
 
 const struct MountOps g_lfsMnt = {
@@ -371,7 +344,7 @@ int LfsMount(const char *source, const char *target, const char *fileSystemType,
 
     if (CheckPathIsMounted(target, &fileOpInfo)) {
         errno = EBUSY;
-        ret = VFS_OK;
+        ret = VFS_ERROR;
         goto errout;
     }
 
@@ -393,9 +366,9 @@ int LfsMount(const char *source, const char *target, const char *fileSystemType,
 
     if (ret != 0) {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
 
-    return ret;
 errout:
     return ret;
 }
@@ -420,6 +393,7 @@ int LfsUmount(const char *target)
     ret = lfs_unmount(&(fileOpInfo->lfsInfo));
     if (ret != 0) {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
 
     (void)FreeMountResByIndex(mountIndex);
@@ -437,13 +411,14 @@ int LfsUnlink(const char *fileName)
     }
 
     if (CheckPathIsMounted(fileName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
-        errno = EACCES;
+        errno = ENOENT;
         return VFS_ERROR;
     }
 
     ret = lfs_remove(&(fileOpInfo->lfsInfo), fileName);
     if (ret != 0) {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
 
     return ret;
@@ -460,13 +435,14 @@ int LfsMkdir(const char *dirName, mode_t mode)
     }
 
     if (CheckPathIsMounted(dirName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
-        errno = EACCES;
+        errno = ENOENT;
         return VFS_ERROR;
     }
 
     ret = lfs_mkdir(&(fileOpInfo->lfsInfo), dirName);
     if (ret != 0) {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
 
     return ret;
@@ -484,13 +460,14 @@ int LfsRmdir(const char *dirName)
     }
 
     if (CheckPathIsMounted(dirName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
-        errno = EACCES;
+        errno = ENOENT;
         return VFS_ERROR;
     }
 
     ret = lfs_remove(&(fileOpInfo->lfsInfo), dirName);
     if (ret != 0) {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
 
     return ret;
@@ -507,7 +484,7 @@ DIR *LfsOpendir(const char *dirName)
     }
 
     if (CheckPathIsMounted(dirName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
-        errno = EACCES;
+        errno = ENOENT;
         goto errout;
     }
 
@@ -546,7 +523,7 @@ struct dirent *LfsReaddir(DIR *dir)
     FileDirInfo *dirInfo = (FileDirInfo *)dir;
 
     if (dirInfo == NULL || dirInfo->lfsHandle == NULL) {
-        errno = EFAULT;
+        errno = EBADF;
         return NULL;
     }
 
@@ -579,7 +556,7 @@ int LfsClosedir(DIR *dir)
     FileDirInfo *dirInfo = (FileDirInfo *)dir;
 
     if (dirInfo == NULL || dirInfo->lfsHandle == NULL) {
-        errno = EFAULT;
+        errno = EBADF;
         return VFS_ERROR;
     }
 
@@ -589,6 +566,7 @@ int LfsClosedir(DIR *dir)
 
     if (ret != 0) {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
 
     return ret;
@@ -607,7 +585,7 @@ int LfsOpen(const char *pathName, int openFlag, int mode)
     }
 
     if (CheckPathIsMounted(pathName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
-        errno = EACCES;
+        errno = ENOENT;
         goto errout;
     }
     // if file is already open, return invalid fd
@@ -632,26 +610,29 @@ int LfsOpen(const char *pathName, int openFlag, int mode)
 
     g_handle[fd].lfsHandle = &(fileOpInfo->lfsInfo);
     return fd;
+
 errout:
-    return err;
+    return INVALID_FD;
 }
 
 int LfsRead(int fd, void *buf, unsigned int len)
 {
     int ret;
-    if (fd >= LITTLE_FS_MAX_OPEN_FILES || fd < 0 || buf == NULL) {
+
+    if (buf == NULL) {
         errno = EFAULT;
         return VFS_ERROR;
     }
 
-    if (g_handle[fd].lfsHandle == NULL) {
+    if (LfsFdIsValid(fd) == FALSE) {
         errno = EBADF;
         return VFS_ERROR;
     }
 
     ret = lfs_file_read(g_handle[fd].lfsHandle, &(g_handle[fd].file), buf, len);
-    if (ret != 0) {
+    if (ret < 0) {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
     return ret;
 }
@@ -659,19 +640,21 @@ int LfsRead(int fd, void *buf, unsigned int len)
 int LfsWrite(int fd, const void *buf, unsigned int len)
 {
     int ret;
-    if (fd >= LITTLE_FS_MAX_OPEN_FILES || fd < 0 || buf == NULL) {
+
+    if (buf == NULL) {
         errno = EFAULT;
         return VFS_ERROR;
     }
 
-    if (g_handle[fd].lfsHandle == NULL) {
+    if (LfsFdIsValid(fd) == FALSE) {
         errno = EBADF;
         return VFS_ERROR;
     }
 
     ret = lfs_file_write(g_handle[fd].lfsHandle, &(g_handle[fd].file), buf, len);
-    if (ret != 0) {
+    if (ret < 0) {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
     return ret;
 }
@@ -679,19 +662,16 @@ int LfsWrite(int fd, const void *buf, unsigned int len)
 off_t LfsSeek(int fd, off_t offset, int whence)
 {
     off_t ret;
-    if (fd >= LITTLE_FS_MAX_OPEN_FILES || fd < 0) {
-        errno = EFAULT;
-        return VFS_ERROR;
-    }
 
-    if (g_handle[fd].lfsHandle == NULL) {
+    if (LfsFdIsValid(fd) == FALSE) {
         errno = EBADF;
         return VFS_ERROR;
     }
 
     ret = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), offset, whence);
-    if (ret != 0) {
+    if (ret < 0) {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
 
     return ret;
@@ -699,14 +679,9 @@ off_t LfsSeek(int fd, off_t offset, int whence)
 
 int LfsClose(int fd)
 {
-    int ret = VFS_ERROR;
+    int ret;
 
-    if (fd >= LITTLE_FS_MAX_OPEN_FILES || fd < 0) {
-        errno = EFAULT;
-        return ret;
-    }
-
-    if (g_handle[fd].lfsHandle == NULL) {
+    if (LfsFdIsValid(fd) == FALSE) {
         errno = EBADF;
         return VFS_ERROR;
     }
@@ -719,6 +694,7 @@ int LfsClose(int fd)
 
     if (ret != 0) {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
 
     return ret;
@@ -735,13 +711,14 @@ int LfsRename(const char *oldName, const char *newName)
     }
 
     if (CheckPathIsMounted(oldName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
-        errno = EACCES;
+        errno = ENOENT;
         return VFS_ERROR;
     }
 
     ret = lfs_rename(&(fileOpInfo->lfsInfo), oldName, newName);
     if (ret != 0) {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
 
     return ret;
@@ -759,7 +736,7 @@ int LfsStat(const char *path, struct stat *buf)
     }
 
     if (CheckPathIsMounted(path, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
-        errno = EACCES;
+        errno = ENOENT;
         return VFS_ERROR;
     }
 
@@ -768,6 +745,7 @@ int LfsStat(const char *path, struct stat *buf)
         buf->st_size = info.size;
     } else {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
 
     return ret;
@@ -777,20 +755,15 @@ int LfsFsync(int fd)
 {
     int ret;
 
-    if (fd >= LITTLE_FS_MAX_OPEN_FILES || fd < 0) {
-        errno = EFAULT;
-        return VFS_ERROR;
-    }
-
-    if (g_handle[fd].lfsHandle == NULL) {
-        errno = EACCES;
+    if (LfsFdIsValid(fd) == FALSE) {
+        errno = EBADF;
         return VFS_ERROR;
     }
 
     ret = lfs_file_sync(g_handle[fd].lfsHandle, &(g_handle[fd].file));
     if (ret != 0) {
         errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
     }
     return ret;
 }
-
