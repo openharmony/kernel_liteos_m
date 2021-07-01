@@ -33,7 +33,7 @@
 #include "it_los_hwi.h"
 
 
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
 #define HWI_NUM_INT0 HWI_NUM_TEST2
 #define HWI_NUM_INT1 HWI_NUM_TEST3
 #endif

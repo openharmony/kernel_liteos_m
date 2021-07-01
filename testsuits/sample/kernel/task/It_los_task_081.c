@@ -44,8 +44,11 @@ static VOID TaskF01(VOID)
     tick1 = LOS_TickCountGet();
     LOS_TaskDelay(10); // 10, set delay time
     tick2 = LOS_TickCountGet();
+    tick2 = tick2 - tick1;
 
-    ICUNIT_GOTO_EQUAL((tick2 - tick1), 10, (tick2 - tick1), EXIT); // 10, Here, assert that result is equal to 10.
+    if ((tick2 != 10) && (tick2 != 11)) { // 10, 11 delay time
+        ICUNIT_GOTO_EQUAL(tick2, 0, tick2, EXIT); // 0, Here, assert that result is equal to 0.
+    }
 
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
     g_testCount++;
@@ -74,8 +77,10 @@ static VOID TaskF02(VOID)
     tick2 = LOS_TickCountGet();
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SEM_TIMEOUT, ret, EXIT);
 
-    ICUNIT_GOTO_EQUAL((tick2 - tick1), 10, (tick2 - tick1), EXIT); // 10, Here, assert that result is equal to 10.
-
+    tick2 = tick2 - tick1;
+    if ((tick2 != 10) && (tick2 != 11)) { // 10, 11 delay time
+        ICUNIT_GOTO_EQUAL(tick2, 0, tick2, EXIT); // 0, Here, assert that result is equal to 0.
+    }
     ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT); // 5, Here, assert that g_testCount is equal to 5.
     g_testCount++;
 
@@ -83,6 +88,7 @@ static VOID TaskF02(VOID)
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
 EXIT:
+    LOS_SemDelete(semHandle);
     LOS_TaskDelete(g_testTaskID01);
     return;
 }

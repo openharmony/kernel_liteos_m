@@ -61,7 +61,8 @@ static UINT32 Testcase(VOID)
     ret = LOS_SwtmrTimeGet((LOSCFG_BASE_CORE_SWTMR_LIMIT + 1), &tick);
     ICUNIT_GOTO_NOT_EQUAL(ret, LOS_OK, ret, EXIT);
 
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
+#define OS_SWTMR_MAX_TIMERID    ((0xFFFFFFFF / LOSCFG_BASE_CORE_SWTMR_LIMIT) * LOSCFG_BASE_CORE_SWTMR_LIMIT)
     ret = LOS_SwtmrTimeGet((OS_SWTMR_MAX_TIMERID + 1), &tick);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_ID_INVALID, ret, EXIT);
 #endif

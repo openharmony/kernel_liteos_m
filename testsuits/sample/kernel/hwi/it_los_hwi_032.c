@@ -34,7 +34,7 @@
 
 
 static int g_uwIndex;
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
 #define HWI_NUM_INT0 HWI_NUM_TEST
 #ifdef LOS_HIFONEV320_RV32
 #define TEST_MAX_NUMBER_HWI 5

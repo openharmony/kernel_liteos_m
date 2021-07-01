@@ -47,7 +47,7 @@ static UINT32 Testcase(VOID)
 {
     UINT32 ret;
     UINT32 swTmrID;
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
     UINT16 swtmrId2;
     UINT32 tick;
 #endif
@@ -78,7 +78,7 @@ static UINT32 Testcase(VOID)
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 #endif
 
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
     // 4, Timeout interval of a periodic software timer.
     ret = LOS_SwtmrCreate(4, LOS_SWTMR_MODE_NO_SELFDELETE, Case1, &swtmrId2, 0xffff
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
@@ -103,35 +103,10 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_SwtmrTimeGet(swtmrId2, &tick);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_NOT_STARTED, ret, EXIT);
-
-    ret = LOS_SwtmrStart(swtmrId2);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-
-#ifdef LOS_HIMIDEER_RV32
-    OsSwtmrAdjust(ret);
-#endif
-
-    ret = LOS_SwtmrStop(swtmrId2);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-
-    ret = LOS_TaskDelay(3); // 3, set delay time.
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    // 2, Here, assert that g_testCount is equal to this .
-    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT);
-
-    OsSwtmrAdjust(ret);
-    // 2, Here, assert that g_testCount is equal to this .
-    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT);
-
-    ret = LOS_SwtmrStop(swtmrId2);
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_NOT_STARTED, ret, EXIT);
-
-    ret = LOS_SwtmrStop(swtmrId2 + LOSCFG_BASE_CORE_SWTMR_LIMIT);
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_ID_INVALID, ret, EXIT);
 #endif
 
 EXIT:
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
     ret = LOS_SwtmrDelete(swtmrId2);
 #endif
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);

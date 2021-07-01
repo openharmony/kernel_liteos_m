@@ -49,14 +49,20 @@ VOID ItSuiteLosMux(void)
     ItLosMux010();
     ItLosMux011();
     ItLosMux012();
+#if (LOS_KERNEL_HWI_TEST == 1)
     ItLosMux013();
+#endif
     ItLosMux014();
     ItLosMux015();
+#if (LOS_KERNEL_HWI_TEST == 1)
     ItLosMux016();
     ItLosMux017();
+#endif
     ItLosMux018();
+#if (LOS_KERNEL_HWI_TEST == 1)
     ItLosMux019();
-#ifndef LOS_HIMIDEER_RV32
+#endif
+#ifndef __RISC_V__
     ItLosMux020();
 #endif
     ItLosMux021();

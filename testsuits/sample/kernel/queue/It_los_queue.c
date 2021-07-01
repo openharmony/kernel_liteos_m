@@ -75,12 +75,14 @@ VOID ItSuiteLosQueue(VOID)
     ItLosQueue041();
     ItLosQueue042();
     ItLosQueue043();
+#if (LOS_KERNEL_HWI_TEST == 1)
     ItLosQueue044();
     ItLosQueue045();
     ItLosQueue046();
     ItLosQueue047();
     ItLosQueue048();
     ItLosQueue050();
+#endif
     ItLosQueue051();
     ItLosQueue052();
     ItLosQueue053();
@@ -121,7 +123,9 @@ VOID ItSuiteLosQueue(VOID)
     ItLosQueue104();
     ItLosQueue106();
     ItLosQueue107();
+#if (LOS_KERNEL_HWI_TEST == 1)
     ItLosQueue108();
+#endif
     ItLosQueue109();
     ItLosQueue114();
     ItLosQueueHead001();

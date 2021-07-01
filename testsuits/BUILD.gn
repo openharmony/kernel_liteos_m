@@ -10,7 +10,7 @@ config("include") {
     ]
 }
 
-source_set("test_init") {
+static_library("test_init") {
 
     sources = [
         "src/osTest.c",

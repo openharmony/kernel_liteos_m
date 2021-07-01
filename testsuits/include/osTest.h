@@ -67,13 +67,19 @@ extern "C" {
     } while (0)
 
 #define LITEOS_BASE_TEST 1
+
+#ifndef LOS_KERNEL_TEST_NOT_SMOKE
+#define LOS_KERNEL_TEST_NOT_SMOKE 1
+#endif
 #define LOS_KERNEL_CORE_TASK_TEST 1
 #define LOS_KERNEL_IPC_MUX_TEST 1
 #define LOS_KERNEL_IPC_SEM_TEST 1
 #define LOS_KERNEL_IPC_EVENT_TEST 1
 #define LOS_KERNEL_IPC_QUEUE_TEST 1
 #define LOS_KERNEL_CORE_SWTMR_TEST 1
+#ifndef LOS_KERNEL_HWI_TEST
 #define LOS_KERNEL_HWI_TEST 1
+#endif
 #define LOS_KERNEL_FS_TEST 0
 #define LOS_KERNEL_MEM_TEST 1
 #define LOS_KERNEL_TICKLESS_TEST 0
@@ -213,7 +219,7 @@ extern EVENT_CB_S g_exampleEvent;
 
 #define LOS_MS_PER_TICK (LOS_SYS_MS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
 #define OS_TSK_TEST_STACK_SIZE 0x9000
 #else
 #define OS_TSK_TEST_STACK_SIZE 0x1000
@@ -276,7 +282,7 @@ extern EVENT_CB_S g_exampleEvent;
 #define HWI_NUM_INT72 72
 #define HWI_NUM_INT73 73
 
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
 #define HWI_NUM_TEST 32
 #define HWI_NUM_TEST0 33
 #define HWI_NUM_TEST1 34
@@ -308,7 +314,7 @@ extern UINT32 TestHwiDelete(UINT32 hwiNum);
 extern VOID TEST_HwiDeleteAll(VOID);
 extern VOID TestHwiTrigger(UINT32 hwiNum);
 extern VOID TestHwiClear(UINT32 hwiNum);
-#ifdef LOS_HIMIDEER_RV32
+#ifdef __RISC_V__
 extern UINT64 LosCpuCycleGet(VOID);
 #else
 typedef struct tagHwiHandleForm {
@@ -317,7 +323,6 @@ typedef struct tagHwiHandleForm {
 } HWI_HANDLE_FORM_S;
 #endif
 #define TEST_HwiCreate(ID, prio, mode, Func, arg) HalHwiCreate(ID, prio, mode, Func, arg)
-#define LOS_HwiCreate(ID, prio, mode, Func, arg) HalHwiCreate(ID, prio, mode, Func, arg)
 #define uart_printf_func printf
 
 extern VOID ItSuiteLosTask(void);
@@ -362,7 +367,6 @@ extern UINT32 g_taskMaxNum;
 
 extern LITE_OS_SEC_BSS_INIT LOS_DL_LIST g_stUnusedSemList;
 
-extern VOID HalHwiDefaultHandler(VOID);
 extern LosTask g_losTask;
 extern VOID LOS_Schedule(VOID);
 extern LosTaskCB *g_taskCBArray;
