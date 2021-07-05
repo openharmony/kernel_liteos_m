@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static_library("arch") {
+  asmflags = board_asmflags
   sources = [
     "los_context.c",
     "los_dispatch.S",
