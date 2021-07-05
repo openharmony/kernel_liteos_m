@@ -233,11 +233,9 @@ VOID TestHwiClear(UINT32 hwiNum)
 #define HIGH_SHIFT 32
 UINT64 LosCpuCycleGet(VOID)
 {
-    UINT32 timeHi, timeLo;
     UINT64 timeCycle;
 
-    LOS_GetCpuCycle(&timeHi, &timeLo);
-    timeCycle = ((UINT64)timeHi << HIGH_SHIFT) + timeLo;
+    timeCycle = LOS_SysCycleGet();
     return timeCycle;
 }
 #else
