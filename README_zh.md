@@ -118,15 +118,6 @@ LiteOS-M内核移植的具体开发板的工程由社区开发者提供，可以
 
         该仓包含OpenHarmony LiteOS-M内核移植支持`Nucleo-F767ZI`开发板的工程代码，支持Ninja、GCC、IAR等方式进行编译。
 
-## 修改日志
-
-v1.0.1
-1. 删除以下KAL接口: `KalThreadGetInfo`,`KalDelayUs`,`KalTimerCreate`,`KalTimerStart`,`KalTimerChange`,`KalTimerStop`,`KalTimerDelete`,`KalTimerIsRunning`,`KalTickToMs`,`KalMsToTick`,`KalGetMemInfo`
-2. 添加部分POSIX接口
-
-v1.0
-1. 首次发布
-
 ## 相关仓<a name="section1371113476307"></a>
 
 [内核子系统](https://gitee.com/openharmony/docs/blob/master/zh-cn/readme/%E5%86%85%E6%A0%B8%E5%AD%90%E7%B3%BB%E7%BB%9F.md)
