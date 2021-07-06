@@ -743,6 +743,11 @@ int LfsStat(const char *path, struct stat *buf)
     ret = lfs_stat(&(fileOpInfo->lfsInfo), path, &info);
     if (ret == 0) {
         buf->st_size = info.size;
+        if (info.type == LFS_TYPE_REG) {
+            buf->st_mode = S_IFREG;
+        } else {
+            buf->st_mode = S_IFDIR;
+        }
     } else {
         errno = LittlefsErrno(ret);
         ret = VFS_ERROR;
