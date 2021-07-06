@@ -30,7 +30,6 @@
  */
 
 #include "los_sem.h"
-#include "los_arch.h"
 #include "los_config.h"
 #include "los_debug.h"
 #include "los_hook.h"
