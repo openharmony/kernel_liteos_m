@@ -241,7 +241,7 @@ VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
 STATIC INLINE BOOL OsInsIsJump(UINTPTR addr)
 {
     UINT16 ins1 = *((UINT16 *)addr);
-    UINT16 ins2 = *((UINT16 *)(addr + 2));
+    UINT16 ins2 = *((UINT16 *)(addr + 2)); // 2, for the mask
 
     /* Jal ins */
     if (((ins1 & OS_JALX_INS_MASK) == OS_JAL_INS_LOW) ||

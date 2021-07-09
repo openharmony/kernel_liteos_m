@@ -258,7 +258,7 @@ uint32_t osKernelGetTickFreq(void)
 
 uint32_t osKernelGetSysTimerCount(void)
 {
-    uint32_t countLow = 0;
+    uint32_t countLow;
     if (OS_INT_ACTIVE) {
         countLow = 0U;
     } else {
