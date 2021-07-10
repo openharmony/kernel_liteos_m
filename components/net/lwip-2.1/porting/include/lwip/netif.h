@@ -72,6 +72,8 @@ extern "C" {
 err_t driverif_init(struct netif *netif);
 void driverif_input(struct netif *netif, struct pbuf *p);
 
+#define netif_get_name(netif) ((netif)->full_name)
+
 #ifdef __cplusplus
 }
 #endif
