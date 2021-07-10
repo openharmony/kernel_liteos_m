@@ -581,10 +581,6 @@ LITE_OS_SEC_TEXT VOID OsTaskSwitchCheck(VOID)
         g_pfnUsrTskSwitchHook();
     }
 
-#if (LOSCFG_KERNEL_TRACE == 1)
-    LOS_Trace(LOS_TRACE_SWITCH, 0);
-#endif
-
 #if (LOSCFG_BASE_CORE_CPUP == 1)
     OsTskCycleEndStart();
 #endif /* LOSCFG_BASE_CORE_CPUP */
@@ -936,7 +932,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
     // Ignore the return code when matching CSEC rule 6.6(4).
     (VOID)memset_s((VOID *)&g_cpup[taskCB->taskID], sizeof(OsCpupCB), 0, sizeof(OsCpupCB));
 #endif
-    if (taskCB->taskStatus & OS_TASK_STATUS_RUNNING) { 
+    if (taskCB->taskStatus & OS_TASK_STATUS_RUNNING) {
         taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
         OsRunningTaskDelete(taskID, taskCB);
         LOS_IntRestore(intSave);
