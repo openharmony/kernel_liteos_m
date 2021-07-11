@@ -27,42 +27,29 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("config.gni")
+static_library("shell") {
+  sources = [
+    "src/base/shcmd.c",
+    "src/base/shcmdparse.c",
+    "src/base/shmsg.c",
+    "src/base/show.c",
+    "src/cmds/date_shell.c",
+    "src/cmds/shell_shellcmd.c",
+    "src/cmds/task_shellcmd.c",
+    "src/cmds/vfs_shellcmd.c",
+    "src/cmds/mempt_shellcmd.c",
+    "src/cmds/fullpath.c",
+  ]
 
-group("kernel") {
+  include_dirs = [
+    "../../kernel/arch/include",
+    "../../kernel/include",
+    "../../utils",
+    "./include",
+  ]
+
   deps = [
-    "kernel:kernel",
-    "utils:utils",
+    "//kernel/liteos_m/kal/posix",
     "//third_party/bounds_checking_function:libsec_static",
   ]
-  if (enable_ohos_kernel_liteos_m_cppsupport == true) {
-    deps += [ "components/cppsupport:cppsupport" ]
-  }
-  if (enable_ohos_kernel_liteos_m_cpup == true) {
-    deps += [ "components/cpup:cpup" ]
-  }
-  if (enable_ohos_kernel_liteos_m_exchook == true) {
-    deps += [ "components/exchook:exchook" ]
-  }
-  if (enable_ohos_kernel_liteos_m_backtrace == true) {
-    deps += [ "components/backtrace:backtrace" ]
-  }
-  if (enable_ohos_kernel_liteos_m_fs == true) {
-    deps += [ "components/fs:fs" ]
-  }
-  if (enable_ohos_kernel_liteos_m_pm == true) {
-    deps += [ "components/power:pm" ]
-  }
-  if (enable_ohos_kernel_liteos_m_kal == true) {
-    deps += [ "kal:kal" ]
-  }
-  if (enable_ohos_kernel_liteos_m_shell== true) {
-    deps += [ "components/shell:shell" ]
-  }
-  if (enable_ohos_kernel_liteos_m_test == true) {
-    deps += [ "testsuits:test" ]
-  }
-  if (enable_ohos_kernel_liteos_m_lwip == true) {
-    deps += [ ohos_kernel_liteos_m_lwip_path ]
-  }
 }
