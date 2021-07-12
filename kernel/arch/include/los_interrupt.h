@@ -73,6 +73,15 @@ UINT32 HalIsIntActive(VOID);
 #define LOS_HwiCreate HalHwiCreate
 #define LOS_HwiDelete HalHwiDelete
 
+UINT32 HalIntLock(VOID);
+#define LOS_IntLock HalIntLock
+
+VOID HalIntRestore(UINT32 intSave);
+#define LOS_IntRestore HalIntRestore
+
+UINT32 HalIntUnLock(VOID);
+#define LOS_IntUnLock HalIntUnLock
+
 /**
  * @ingroup  los_interrupt
  * @brief Delete hardware interrupt.

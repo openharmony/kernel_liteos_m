@@ -31,7 +31,7 @@
 
 #include "los_debug.h"
 #include "stdarg.h"
-#include "los_context.h"
+#include "los_interrupt.h"
 
 
 #if (LOSCFG_KERNEL_PRINTF == 1)

@@ -663,7 +663,6 @@ LITE_OS_SEC_TEXT_INIT STATIC_INLINE UINT32 OsTaskInitParamCheck(TSK_INIT_PARAM_S
 
 LITE_OS_SEC_TEXT_INIT UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *taskInitParam, VOID *topOfStack)
 {
-    taskCB->stackPointer    = HalTskStackInit(taskCB->taskID, taskInitParam->uwStackSize, topOfStack);
     taskCB->arg             = taskInitParam->uwArg;
     taskCB->topOfStack      = (UINT32)(UINTPTR)topOfStack;
     taskCB->stackSize       = taskInitParam->uwStackSize;
@@ -678,6 +677,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *
     taskCB->eventMask       = 0;
     taskCB->taskName        = taskInitParam->pcName;
     taskCB->msg             = NULL;
+    taskCB->stackPointer    = HalTskStackInit(taskCB->taskID, taskInitParam->uwStackSize, topOfStack);
     SET_SORTLIST_VALUE(&taskCB->sortList, OS_SORT_LINK_INVALID_TIME);
     return LOS_OK;
 }
@@ -936,7 +936,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
     // Ignore the return code when matching CSEC rule 6.6(4).
     (VOID)memset_s((VOID *)&g_cpup[taskCB->taskID], sizeof(OsCpupCB), 0, sizeof(OsCpupCB));
 #endif
-    if (taskCB->taskStatus & OS_TASK_STATUS_RUNNING) { 
+    if (taskCB->taskStatus & OS_TASK_STATUS_RUNNING) {
         taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
         OsRunningTaskDelete(taskID, taskCB);
         LOS_IntRestore(intSave);
