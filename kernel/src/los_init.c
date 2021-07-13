@@ -42,10 +42,6 @@
 #include "los_interrupt.h"
 #endif
 
-#if (LOSCFG_KERNEL_TRACE == 1)
-#include "los_debug.h"
-#endif
-
 #if (LOSCFG_BASE_CORE_SWTMR == 1)
 #include "los_swtmr.h"
 #endif
@@ -186,14 +182,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
         return ret;
     }
 
-#if (LOSCFG_KERNEL_TRACE == 1)
-    ret = LOS_TraceInit();
-    if (ret != LOS_OK) {
-        PRINT_ERR("LOS_TraceInit error\n");
-        return ret;
-    }
-#endif
-
 #if (LOSCFG_KERNEL_PM == 1)
     ret = OsPmInit();
     if (ret != LOS_OK) {
@@ -202,7 +190,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 #endif
 
-#ifdef LOSCFG_TEST
+#if (LOSCFG_TEST == 1)
     //ret = los_TestInit();
     //if (ret != LOS_OK) {
     //    PRINT_ERR("los_TestInit error\n");

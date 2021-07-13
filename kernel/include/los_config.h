@@ -550,7 +550,7 @@ extern UINT8 *m_aucSysMem0;
 #endif
 
 /* =============================================================================
-                                        CPUP configuration
+                                        CPUP module configuration
 ============================================================================= */
 /**
  * @ingroup los_config
@@ -567,6 +567,9 @@ extern UINT8 *m_aucSysMem0;
  * @ingroup los_config
  * Configuration test case to open
  */
+#ifndef LOSCFG_TEST
+#define LOSCFG_TEST                                         0
+#endif
 
 /**
  * @ingroup los_config
@@ -577,14 +580,10 @@ extern UINT8 *m_aucSysMem0;
 #endif
 
 /* =============================================================================
-                                       trace configuration
+                                       Fs module configuration
 ============================================================================= */
-/**
- * @ingroup los_config
- * Configuration liteos trace
- */
-#ifndef LOSCFG_KERNEL_TRACE
-#define LOSCFG_KERNEL_TRACE                                 0
+#ifndef LOSCFG_SUPPORT_FATFS
+#define LOSCFG_SUPPORT_FATFS                                0
 #endif
 
 #ifndef LOSCFG_SUPPORT_LITTLEFS
@@ -595,13 +594,50 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_LFS_MAX_MOUNT_SIZE                           3
 #endif
 
-
+/* =============================================================================
+                                       Trace module configuration
+============================================================================= */
 /**
  * @ingroup los_config
  * Configuration trace tool
  */
 #ifndef LOSCFG_DEBUG_HOOK
 #define LOSCFG_DEBUG_HOOK                                   0
+#endif
+
+/* =============================================================================
+                                       PM module configuration
+============================================================================= */
+/**
+ * @ingroup los_config
+ * Configuration item for low power frame tailoring
+ */
+#ifndef LOSCFG_KERNEL_PM
+#define LOSCFG_KERNEL_PM                                     1
+#endif
+
+/**
+ * @ingroup los_config
+ * Configuration item for priority of low-power task.
+ */
+#ifndef LOSCFG_KERNEL_PM_TASK_PTIORITY
+#define LOSCFG_KERNEL_PM_TASK_PTIORITY                       1
+#endif
+
+/**
+ * @ingroup los_config
+ * Configuration item for stack size of low-power task.
+ */
+#ifndef LOSCFG_KERNEL_PM_TASK_STACKSIZE
+#define LOSCFG_KERNEL_PM_TASK_STACKSIZE                      0x800
+#endif
+
+/**
+ * @ingroup los_config
+ * Configuration item for low power frame debug tailoring
+ */
+#ifndef LOSCFG_KERNEL_PM_DEBUG
+#define LOSCFG_KERNEL_PM_DEBUG                               0
 #endif
 
 /* =============================================================================
@@ -639,38 +675,9 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_BACKTRACE_DEPTH                               15
 #endif
 
-/**
- * @ingroup los_config
- * Configuration item for low power frame tailoring
- */
-#ifndef LOSCFG_KERNEL_PM
-#define LOSCFG_KERNEL_PM                                     1
-#endif
-
-/**
- * @ingroup los_config
- * Configuration item for priority of low-power task.
- */
-#ifndef LOSCFG_KERNEL_PM_TASK_PTIORITY
-#define LOSCFG_KERNEL_PM_TASK_PTIORITY                       1
-#endif
-
-/**
- * @ingroup los_config
- * Configuration item for stack size of low-power task.
- */
-#ifndef LOSCFG_KERNEL_PM_TASK_STACKSIZE
-#define LOSCFG_KERNEL_PM_TASK_STACKSIZE                      0x800
-#endif
-
-/**
- * @ingroup los_config
- * Configuration item for low power frame debug tailoring
- */
-#ifndef LOSCFG_KERNEL_PM_DEBUG
-#define LOSCFG_KERNEL_PM_DEBUG                               0
-#endif
-
+/* =============================================================================
+                                       trustzone configuration
+============================================================================= */
 /**
  * @ingroup los_config
  * Configuration trustzone secure heap size.
