@@ -70,6 +70,7 @@ typedef struct TagTskContext {
     UINT32 r10;
     UINT32 r11;
     UINT32 r12;
+    UINT32 sp;
     UINT32 lr;
     UINT32 pc;
 } TaskContext;

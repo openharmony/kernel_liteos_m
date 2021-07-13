@@ -39,8 +39,6 @@
 #include "los_arch_timer.h"
 #include "los_debug.h"
 
-UINT32 g_sysNeedSched = 0;
-
 /* ****************************************************************************
  Function    : HalArchInit
  Description : arch init function
@@ -104,14 +102,15 @@ LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOI
     context->r10 = 0x10101010L;
     context->r11 = 0x11111111L;
     context->r12 = 0x12121212L;
+    context->sp = (UINTPTR)topStack + stackSize;
     context->lr = (UINTPTR)HalSysExit;
 
     if ((UINTPTR)taskCB->taskEntry & 0x01) {
         context->pc = (UINTPTR)OsTaskEntryThumb;
-        context->spsr = PSR_MODE_SVC_THUMB; /* thumb mode */
+        context->spsr = PSR_MODE_SYS_THUMB; /* thumb mode */
     } else {
         context->pc = (UINTPTR)OsTaskEntryArm;
-        context->spsr = PSR_MODE_SVC_ARM;   /* arm mode */
+        context->spsr = PSR_MODE_SYS_ARM;   /* arm mode */
     }
 
     return (VOID *)context;
@@ -129,6 +128,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
     HalStartToRun();
 
     return LOS_OK; /* never return */
+}
+
+LITE_OS_SEC_TEXT_INIT VOID HalTaskSchedule(VOID)
+{
+    __asm__ __volatile__("swi 0");
 }
 
 LITE_OS_SEC_TEXT_INIT VOID dmb(VOID)
