@@ -79,7 +79,6 @@ _vector_start:
     B     HalExceptIrqHdl
     B     HalExceptFiqHdl
 
-
     .globl  HalResetVector
     .section ".boot", "ax"
 
@@ -133,17 +132,18 @@ __abt_stack:
 __abt_stack_top:
 
 __irq_stack:
-    .space  64
+    .space  1024
 __irq_stack_top:
 
 __fiq_stack:
-    .space  64
+    .space  1024
 __fiq_stack_top:
 
 __svc_stack:
-    .space  4096
+    .space  1024
 __svc_stack_top:
 
 __exc_stack:
     .space  512
 __exc_stack_top:
+

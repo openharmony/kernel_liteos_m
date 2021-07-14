@@ -50,23 +50,13 @@
     .equ OS_EXCEPT_ADDR_ABORT,      0x06
     .equ OS_EXCEPT_IRQ,             0x07
 
-
-    .global HalExceptFiqHdl
     .global HalExceptAddrAbortHdl
     .global HalExceptDataAbortHdl
     .global HalExceptPrefetchAbortHdl
-    .global HalExceptSwiHdl
     .global HalExceptUndefInstrHdl
-    .global HalExceptIrqHdl
 
-    .extern g_sysNeedSched
-    .extern g_losTaskLock
     .extern HalExcHandleEntry
-    .extern HalInterrupt
-    .extern OsSchedTaskSwitch
-    .extern __svc_stack_top
     .extern __exc_stack_top
-    .extern __irq_stack_top
 
     .code 32
     .text
@@ -75,19 +65,6 @@ HalExceptUndefInstrHdl:
     STMFD   SP!, {R0-R5}
     MOV     R0, #OS_EXCEPT_UNDEF_INSTR
     B       _osExceptDispatch
-
-HalExceptSwiHdl:
-    STMFD   SP!, {LR}
-    STMFD   SP!, {LR}
-    STMFD   SP!, {SP}
-    STMFD   SP!, {R0-R12}
-
-    MRS     R1, SPSR
-    STMFD   SP!, {R1}
-
-    MOV     R0, #OS_EXCEPT_SWI
-
-    B       _osExceptionSwi
 
 HalExceptPrefetchAbortHdl:
     SUB     LR, LR, #4
@@ -113,72 +90,6 @@ HalExceptAddrAbortHdl:
 
     B       _osExceptDispatch
 
-HalExceptFiqHdl:
-    SUB     LR, LR, #4
-    STMFD   SP!, {R0-R5}
-
-    MOV     R0, #OS_EXCEPT_FIQ
-
-    B       _osExceptDispatch
-
-HalExceptIrqHdl:
-    SUB     LR, LR, #4
-    STMFD   SP!, {R0-R2}
-
-    MOV     R0, SP
-    MRS     R1, SPSR
-    MOV     R2, LR
-
-    MSR     CPSR_c, #(OS_PSR_INT_DIS | OS_PSR_FIQ_DIS | OS_PSR_MODE_SVC)
-    STMFD   SP!, {R2}
-    STMFD   SP!, {LR}
-    STMFD   SP!, {R3-R12}
-    LDMFD   R0!, {R5-R7}
-    STMFD   SP!, {R5-R7}
-    STMFD   SP!, {R1}
-
-    LDR     R2, =g_losTask
-    LDR     R3, [R2]
-    STR     SP, [R3]
-
-    LDR     SP, =__svc_stack_top
-
-    BLX     HalInterrupt
-
-    LDR     R0, =g_losTaskLock
-    LDR     R0, [R0]
-    CMP     R0, #0
-    BNE     NoTaskContextSwitch
-
-    LDR     R0, =g_sysNeedSched
-    LDR     R0, [R0]
-    CMP     R0, #0
-    BNE     NeedTaskSwitch
-    B       NoTaskContextSwitch
-
-NeedTaskSwitch:
-    LDR     R0, =g_sysNeedSched
-    MOV     R1, #0
-    STR     R1, [R0]
-    BLX     OsSchedTaskSwitch
-    CMP     R0, #0
-    BEQ     NoTaskContextSwitch
-    LDR     R0, =g_losTask
-    LDR     R1, [R0, #4]
-    STR     R1, [R0]
-    LDR     SP, [R1]
-    B       TaskContextLoad
-
-NoTaskContextSwitch:
-    LDR     R1, =g_losTask
-    LDR     R1, [R1]
-    LDR     SP, [R1]
-
-TaskContextLoad:
-    LDMFD   SP!, {R0}
-    MSR     SPSR_cxsf, R0
-    LDMFD   SP!, {R0-R12, LR, PC}^
-
 _osExceptDispatch:
     MRS     R1, SPSR
     MOV     R2, LR
@@ -196,8 +107,6 @@ _osExceptDispatch:
     LDMFD   R4!, {R6-R12}
     STMFD   SP!, {R6-R11}
     STMFD   SP!, {R1}
-
-_osExceptionSwi:
     MOV     R3, SP
 
 _osExceptionGetSP:
