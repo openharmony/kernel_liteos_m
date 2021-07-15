@@ -373,20 +373,6 @@ extern "C" {
 
 /**
  * @ingroup los_task
- * Define the type of the task switching hook function.
- *
- */
-typedef VOID (*TSKSWITCHHOOK)(VOID);
-
-/**
- * @ingroup los_task
- * User task switching hook function.
- *
- */
-extern TSKSWITCHHOOK g_pfnUsrTskSwitchHook;
-
-/**
- * @ingroup los_task
  * Define the type of the task entry function.
  *
  */
