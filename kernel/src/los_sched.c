@@ -91,10 +91,6 @@ VOID OsSchedTimerBaseReset(UINT64 currTime)
 
 UINT64 OsGetCurrSchedTimeCycle(VOID)
 {
-    if (!g_taskScheduled) {
-        return 0;
-    }
-
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 1)
     return HalGetTickCycle(NULL);
 #else
@@ -527,7 +523,9 @@ VOID LOS_SchedTickHandler(VOID)
     UINT64 currTime;
     BOOL needSched = FALSE;
 
-    LOS_ASSERT(g_taskScheduled);
+    if (!g_taskScheduled) {
+        return;
+    }
 
     UINT32 intSave = LOS_IntLock();
 

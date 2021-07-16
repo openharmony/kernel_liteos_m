@@ -46,9 +46,15 @@
  Output      : None
  Return      : None
  **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT VOID HalArchInit()
+LITE_OS_SEC_TEXT_INIT VOID HalArchInit(VOID)
 {
+    UINT32 ret;
     HalHwiInit();
+
+    ret = HalTickStart(OsTickHandler);
+    if (ret != LOS_OK) {
+        PRINT_ERR("Tick start failed!\n");
+    }
 }
 
 /* ****************************************************************************
@@ -116,14 +122,9 @@ LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOI
     return (VOID *)context;
 }
 
-LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(OS_TICK_HANDLER handler)
+LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(VOID)
 {
     (VOID)LOS_IntLock();
-    UINT32 ret = HalTickStart(handler);
-    if (ret != LOS_OK) {
-        return ret;
-    }
-
     OsSchedStart();
     HalStartToRun();
 

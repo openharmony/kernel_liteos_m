@@ -45,7 +45,7 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
     g_cyclesPerTick = g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND;
     g_intCount = 0;
 
-    HalClockInit(handler, g_cyclesPerTick);
+    HalClockInit(handler, LOSCFG_BASE_CORE_TICK_RESPONSE_MAX);
 
     return LOS_OK; /* never return */
 }
