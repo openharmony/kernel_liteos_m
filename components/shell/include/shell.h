@@ -34,6 +34,7 @@
 
 #include "pthread.h"
 #include "limits.h"
+#include "los_compiler.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -90,7 +91,6 @@ typedef struct {
     VOID     *cmdMaskKeyLink;
     UINT32   shellBufOffset;
     UINT32   shellKeyType;
-    EVENT_CB_S shellEvent;
     pthread_mutex_t keyMutex;
     pthread_mutex_t historyMutex;
     CHAR     shellBuf[SHOW_MAX_LEN];

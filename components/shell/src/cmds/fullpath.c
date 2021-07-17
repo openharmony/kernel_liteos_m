@@ -85,7 +85,6 @@ static char *StrNormalizePath(char *fullpath)
     char *src = fullpath;
 
     /* 2: The position of the path character: / and the end character /0 */
-
     while (*src != '\0') {
         if (*src == '.') {
             if (*(src + 1) == '/') {
@@ -267,6 +266,6 @@ int VfsNormalizePath(const char *directory, const char *filename, char **pathnam
     }
 
     *pathname = fullpath;
-    return ENOERR;
+    return 0;
 }
 

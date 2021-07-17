@@ -38,7 +38,6 @@
 #include "securec.h"
 #include "los_mux.h"
 #include "los_memory.h"
-#include "los_typedef.h"
 
 #define SHELL_INIT_MAGIC_FLAG 0xABABABAB
 
@@ -325,7 +324,6 @@ OUT:
 }
 
 ShellCB *OsGetShellCb(VOID)
-
 {
     return g_shellCB;
 }

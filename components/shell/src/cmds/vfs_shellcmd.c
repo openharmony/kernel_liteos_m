@@ -30,16 +30,13 @@
  */
 
 #include "los_config.h"
-#include "sys/mount.h"
 
 #include "los_task.h"
-#include "los_typedef.h"
 #include "shell.h"
 #include "sys/stat.h"
 #include "stdlib.h"
 #include "unistd.h"
 #include "fcntl.h"
-#include "sys/statfs.h"
 #include "stdio.h"
 #include "pthread.h"
 
