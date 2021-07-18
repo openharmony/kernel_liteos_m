@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import("//build/lite/config/component/lite_component.gni")
+import("//kernel/liteos_m/config.gni")
 
 declare_args() {
   enable_ohos_kernel_liteos_m_test_full = false
@@ -70,4 +71,7 @@ lite_component("test") {
 
     #"sample/kernel/tickless:test_tickless",
   ]
+  if (enable_ohos_kernel_liteos_m_dynlink == true) {
+    features += [ "sample/kernel/dynlink:test_dynlink" ]
+  }
 }

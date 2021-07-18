@@ -62,6 +62,10 @@
 #include "los_pm.h"
 #endif
 
+#if (LOSCFG_DYNLINK == 1)
+#include "los_dynlink.h"
+#endif
+
 /*****************************************************************************
  Function    : LOS_Reboot
  Description : system exception, die in here, wait for watchdog.
@@ -208,6 +212,13 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
 
 #if (LOSCFG_PLATFORM_EXC == 1)
     OsExcMsgDumpInit();
+#endif
+
+#if (LOSCFG_DYNLINK == 1)
+    ret = LOS_DynlinkInit();
+    if (ret != LOS_OK) {
+        return ret;
+    }
 #endif
 
     return LOS_OK;

@@ -33,12 +33,12 @@ static_library("kernel") {
     "src/los_init.c",
     "src/los_mux.c",
     "src/los_queue.c",
+    "src/los_sched.c",
     "src/los_sem.c",
+    "src/los_sortlink.c",
     "src/los_swtmr.c",
     "src/los_task.c",
     "src/los_tick.c",
-    "src/los_sched.c",
-    "src/los_sortlink.c",
     "src/mm/los_membox.c",
     "src/mm/los_memory.c",
   ]
@@ -50,6 +50,7 @@ static_library("kernel") {
     "../components/exchook",
     "../components/backtrace",
     "../components/power",
+    "../components/dynlink",
     "../utils",
     "//third_party/bounds_checking_function/include",
   ]

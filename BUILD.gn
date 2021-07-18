@@ -59,7 +59,7 @@ group("kernel") {
   if (enable_ohos_kernel_liteos_m_kal == true) {
     deps += [ "kal:kal" ]
   }
-  if (enable_ohos_kernel_liteos_m_shell== true) {
+  if (enable_ohos_kernel_liteos_m_shell == true) {
     deps += [ "components/shell:shell" ]
   }
   if (enable_ohos_kernel_liteos_m_test == true) {
@@ -67,5 +67,8 @@ group("kernel") {
   }
   if (enable_ohos_kernel_liteos_m_lwip == true) {
     deps += [ ohos_kernel_liteos_m_lwip_path ]
+  }
+  if (enable_ohos_kernel_liteos_m_dynlink == true) {
+    deps += [ "components/dynlink:dynlink" ]
   }
 }

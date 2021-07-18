@@ -34,11 +34,11 @@ static_library("shell") {
     "src/base/shmsg.c",
     "src/base/show.c",
     "src/cmds/date_shell.c",
+    "src/cmds/fullpath.c",
+    "src/cmds/mempt_shellcmd.c",
     "src/cmds/shell_shellcmd.c",
     "src/cmds/task_shellcmd.c",
     "src/cmds/vfs_shellcmd.c",
-    "src/cmds/mempt_shellcmd.c",
-    "src/cmds/fullpath.c",
   ]
 
   include_dirs = [

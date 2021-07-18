@@ -1,5 +1,4 @@
-# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2021-2021 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -27,32 +26,26 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-static_library("fs_operations") {
-  sources = [ "./fs.c" ]
-
+config("dynlink_config") {
   include_dirs = [
-    "../../../kernel/arch/include",
-    "../../../kernel/include",
-    "../../../utils",
-    "../../../kal/posix/include",
-    "./",
+    "../../kernel/include",
+    "../../kernel/arch/include",
+    "../../utils",
+    ".",
+    "//third_party/bounds_checking_function/include",
   ]
 
+  if (arch == "arm") {
+    include_dirs += [ "../../kernel/arch/arm/include" ]
+  } else {
+    assert(false,
+           "Dynlink module does not support for other archs except for arm!")
+  }
+}
+
+static_library("dynlink") {
+  sources = [ "los_dynlink.c" ]
+
+  public_configs = [ ":dynlink_config" ]
   deps = [ "//kernel/liteos_m/kal/posix" ]
-}
-
-declare_args() {
-  enable_ohos_kernel_liteos_m_fatfs = true
-  enable_ohos_kernel_liteos_m_littlefs = true
-}
-
-group("fs") {
-  deps = []
-  deps += [ ".:fs_operations" ]
-  if (enable_ohos_kernel_liteos_m_fatfs == true) {
-    deps += [ "fatfs:fatfs" ]
-  }
-  if (enable_ohos_kernel_liteos_m_littlefs == true) {
-    deps += [ "littlefs:littlefs" ]
-  }
 }
