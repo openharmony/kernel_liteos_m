@@ -726,7 +726,12 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S
     if (retVal != LOS_OK) {
         return retVal;
     }
-
+#if (LOSCFG_BASE_CORE_CPUP == 1)
+    intSave = LOS_IntLock();
+    g_cpup[taskCB->taskID].cpupID = taskCB->taskID;
+    g_cpup[taskCB->taskID].status = taskCB->taskStatus;
+    LOS_IntRestore(intSave);
+#endif
     *taskID = taskCB->taskID;
     OsHookCall(LOS_HOOK_TYPE_TASK_CREATE, taskCB);
     return retVal;
@@ -756,10 +761,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreate(UINT32 *taskID, TSK_INIT_PARAM_S *ta
     taskCB = OS_TCB_FROM_TID(*taskID);
 
     intSave = LOS_IntLock();
-#if (LOSCFG_BASE_CORE_CPUP == 1)
-    g_cpup[taskCB->taskID].cpupID = taskCB->taskID;
-    g_cpup[taskCB->taskID].status = taskCB->taskStatus;
-#endif
 
     OsSchedTaskEnQueue(taskCB);
     LOS_IntRestore(intSave);
