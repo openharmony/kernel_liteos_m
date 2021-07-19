@@ -33,7 +33,6 @@
 #include "shell.h"
 #include "stdlib.h"
 #include "sys/time.h"
-#include "los_typedef.h"
 #include "sys/stat.h"
 #include "securec.h"
 

@@ -31,13 +31,13 @@
 
 #include "stdlib.h"
 #include "los_config.h"
-#include "los_exc.h"
 #include "los_task.h"
 #include "los_sem.h"
 #include "shcmd.h"
 #include "shell.h"
 
 #define OS_INVALID_SEM_ID  0xFFFFFFFF
+#define OS_ALL_TASK_MASK   0xFFFFFFFF
 
 LITE_OS_SEC_TEXT_MINOR UINT8 *OsShellCmdConvertTskStatus(UINT16 taskStatus)
 {
@@ -48,8 +48,8 @@ LITE_OS_SEC_TEXT_MINOR UINT8 *OsShellCmdConvertTskStatus(UINT16 taskStatus)
     } else {
         if (taskStatus & OS_TASK_STATUS_DELAY) {
             return (UINT8 *)"Delay";
-        } else if (taskStatus & OS_TASK_STATUS_PEND_QUEUE) {
-            return (UINT8 *)"Pend";
+        } else if (taskStatus & OS_TASK_STATUS_PEND_TIME) {
+            return (UINT8 *)"PendTime";
         } else if (taskStatus & OS_TASK_STATUS_PEND) {
             return (UINT8 *)"Pend";
         } else if (taskStatus & OS_TASK_STATUS_SUSPEND) {
