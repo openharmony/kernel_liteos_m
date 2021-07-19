@@ -103,10 +103,6 @@ LITE_OS_SEC_BSS  BOOL                                g_taskScheduled = FALSE;
 
 STATIC VOID (*PmEnter)(BOOL isIdle) = NULL;
 
-#if (LOSCFG_BASE_CORE_TSK_MONITOR == 1)
-TSKSWITCHHOOK g_pfnUsrTskSwitchHook = NULL;
-#endif /* LOSCFG_BASE_CORE_TSK_MONITOR == 1 */
-
 #if (LOSCFG_BASE_CORE_EXC_TSK_SWITCH == 1)
 TaskSwitchInfo g_taskSwitchInfo;
 #endif
@@ -577,9 +573,7 @@ LITE_OS_SEC_TEXT VOID OsTaskSwitchCheck(VOID)
     }
 #endif
 
-    if (g_pfnUsrTskSwitchHook != NULL) {
-        g_pfnUsrTskSwitchHook();
-    }
+    LOSCFG_BASE_CORE_TSK_SWITCH_HOOK();
 
 #if (LOSCFG_BASE_CORE_CPUP == 1)
     OsTskCycleEndStart();
@@ -594,7 +588,6 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTaskMonInit(VOID)
     (VOID)memset_s(&g_taskSwitchInfo, sizeof(TaskSwitchInfo), 0, sizeof(TaskSwitchInfo));
     g_taskSwitchInfo.cntInfo.maxCnt = OS_TASK_SWITCH_INFO_COUNT;
 #endif
-    g_pfnUsrTskSwitchHook = NULL;
     return;
 }
 #endif
