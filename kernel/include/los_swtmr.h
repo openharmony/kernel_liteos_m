@@ -37,6 +37,7 @@
 #ifndef _LOS_SWTMR_H
 #define _LOS_SWTMR_H
 
+#include "los_config.h"
 #include "los_sortlink.h"
 
 #ifdef __cplusplus
