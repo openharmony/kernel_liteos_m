@@ -28,10 +28,10 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "los_config.h"
+
+#include "los_swtmr.h"
 #include "securec.h"
 #include "los_interrupt.h"
-#include "los_swtmr.h"
 #include "los_task.h"
 #include "los_memory.h"
 #include "los_queue.h"
