@@ -47,11 +47,9 @@
 #include "lwip/icmp.h"
 #include "los_config.h"
 #include <string.h>
-#include "lwip/api_shell.h"
 
 #include "shcmd.h"
 #include "shell.h"
-#include "los_timer_pri.h"
 #include "los_debug.h"
 #include "los_task.h"
 
@@ -317,8 +315,7 @@ static int ping_kill = 0;
 
 static void lwip_ping_usage(void)
 {
-    PRINTK("Usage:"\
-         "\n  ping [ip]\n"
+    PRINTK("Usage:\n  ping [ip]\n");
 }
 
 LWIP_STATIC int OsPingFunc(u32_t *parg)
