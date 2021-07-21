@@ -6,14 +6,14 @@ C_SOURCES     += $(wildcard $(LITEOSTOPDIR)/kernel/src/*.c) \
                  $(wildcard $(LITEOSTOPDIR)/kernel/src/mm/*.c) \
                  $(wildcard $(LITEOSTOPDIR)/components/cpup/*.c) \
                  $(wildcard $(LITEOSTOPDIR)/components/backtrace/*.c) \
-                 $(wildcard $(LITEOSTOPDIR)/../../third_party/bounds_checking_function/src/*.c) \
+                 $(wildcard $(LITEOSTOPDIR)/components/power/*.c) \
                  $(wildcard $(LITEOSTOPDIR)/utils/*.c) 
 
 C_INCLUDES    += -I$(LITEOSTOPDIR)/utils \
                  -I$(LITEOSTOPDIR)/kernel/include \
                  -I$(LITEOSTOPDIR)/components/cpup \
                  -I$(LITEOSTOPDIR)/components/backtrace \
-                 -I$(LITEOSTOPDIR)/../../third_party/bounds_checking_function/include
+                 -I$(LITEOSTOPDIR)/components/power
 
 #third party related
 C_INCLUDES    += -I$(LITEOSTOPDIR)/../../third_party/bounds_checking_function/include \
