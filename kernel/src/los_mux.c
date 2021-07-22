@@ -230,7 +230,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPend(UINT32 muxHandle, UINT32 timeout)
     OsSchedTaskWait(&muxPended->muxList, timeout);
 
     LOS_IntRestore(intSave);
-    OsHookCall(LOS_HOOK_TYPE_MUX_PEND, muxPended);
+    OsHookCall(LOS_HOOK_TYPE_MUX_PEND, muxPended, timeout);
     LOS_Schedule();
 
     intSave = LOS_IntLock();
@@ -244,7 +244,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPend(UINT32 muxHandle, UINT32 timeout)
     return LOS_OK;
 
 HOOK:
-    OsHookCall(LOS_HOOK_TYPE_MUX_PEND, muxPended);
+    OsHookCall(LOS_HOOK_TYPE_MUX_PEND, muxPended, timeout);
     return LOS_OK;
 
 ERROR_MUX_PEND:

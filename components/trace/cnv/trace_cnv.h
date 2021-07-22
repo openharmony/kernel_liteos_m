@@ -29,47 +29,24 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_HOOK_TYPES_PARSE_H
-#define _LOS_HOOK_TYPES_PARSE_H
+#ifndef _TRACE_CNV_H
+#define _TRACE_CNV_H
 
-#define ADDR(a) (&(a))
-#define ARGS(a) (a)
-#define ADDRn(...) _CONCAT(ADDR, _NARGS(__VA_ARGS__))(__VA_ARGS__)
-#define ARGSn(...) _CONCAT(ARGS, _NARGS(__VA_ARGS__))(__VA_ARGS__)
-#define ARGS0()
-#define ADDR0()
-#define ARGS1(a) ARGS(a)
-#define ADDR1(a) ADDR(a)
+#include "stdarg.h"
+#include "los_compiler.h"
 
-#define ARG_const _ARG_const(
-#define _ARG_const(a) ARG_CP_##a)
-#define ARG_CP_LosSemCB ADDR(
-#define ARG_CP_LosTaskCB ADDR(
-#define ARG_CP_UINT32 ADDR(
-#define ARG_CP_LosMuxCB ADDR(
-#define ARG_CP_LosQueueCB ADDR(
-#define ARG_CP_SWTMR_CTRL_S ADDR(
-#define ARG_UINT32 ARGS(
-#define ARG_PEVENT_CB_S ARGS(
-#define ARG_void ADDRn(
-#define ARG(a) ARG_##a)
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#define PARAM_TO_ARGS1(a) ARG(a)
-#define PARAM_TO_ARGS2(a, b) ARG(a), PARAM_TO_ARGS1(b)
-#define PARAM_TO_ARGS3(a, b, c) ARG(a), PARAM_TO_ARGS2(b, c)
-#define PARAM_TO_ARGS4(a, b, c, d) ARG(a), PARAM_TO_ARGS3(b, c, d)
-#define PARAM_TO_ARGS5(a, b, c, d, e) ARG(a), PARAM_TO_ARGS4(b, c, d, e)
-#define PARAM_TO_ARGS6(a, b, c, d, e, f) ARG(a), PARAM_TO_ARGS5(b, c, d, e, f)
-#define PARAM_TO_ARGS7(a, b, c, d, e, f, g) ARG(a), PARAM_TO_ARGS6(b, c, d, e, f, g)
+extern VOID OsTraceCnvInit(VOID);
 
-#define _ZERO_ARGS  7, 6, 5, 4, 3, 2, 1, 0
-#define ___NARGS(a, b, c, d, e, f, g, h, n, ...)    n
-#define __NARGS(...) ___NARGS(__VA_ARGS__)
-#define _NARGS(...) __NARGS(x, __VA_ARGS__##_ZERO_ARGS, 7, 6, 5, 4, 3, 2, 1, 0)
-#define __CONCAT(a, b) a##b
-#define _CONCAT(a, b) __CONCAT(a, b)
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#define PARAM_TO_ARGS(...) _CONCAT(PARAM_TO_ARGS, _NARGS(__VA_ARGS__))(__VA_ARGS__)
-#define OS_HOOK_PARAM_TO_ARGS(paramList) (PARAM_TO_ARGS paramList)
-
-#endif /* _LOS_HOOK_TYPES_PARSE_H */
+#endif /* _TRACE_CNV_H */

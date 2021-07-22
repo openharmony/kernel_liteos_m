@@ -613,6 +613,52 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_DEBUG_HOOK                                   0
 #endif
 
+#if (LOSCFG_DEBUG_HOOK == 1)
+#ifndef LOSCFG_KERNEL_TRACE
+#define LOSCFG_KERNEL_TRACE                                 0
+#endif
+#endif
+
+#if (LOSCFG_KERNEL_TRACE == 1)
+
+#ifndef LOSCFG_TRACE_FRAME_MAX_PARAMS
+#define LOSCFG_TRACE_FRAME_MAX_PARAMS                       3
+#endif
+
+#ifndef LOSCFG_TRACE_FRAME_EVENT_COUNT
+#define LOSCFG_TRACE_FRAME_EVENT_COUNT                      0
+#endif
+
+#ifndef LOSCFG_RECORDER_MODE_OFFLINE
+#define LOSCFG_RECORDER_MODE_OFFLINE                        1
+#endif
+
+#ifndef LOSCFG_RECORDER_MODE_ONLINE
+#define LOSCFG_RECORDER_MODE_ONLINE                         0
+#endif
+
+#if (!(LOSCFG_RECORDER_MODE_OFFLINE ^ LOSCFG_RECORDER_MODE_ONLINE))
+#error One of LOSCFG_RECORDER_MODE_OFFLINE and LOSCFG_RECORDER_MODE_ONLINE should be set to 1 and only.
+#endif
+
+#ifndef LOSCFG_TRACE_CLIENT_INTERACT
+#define LOSCFG_TRACE_CLIENT_INTERACT                        1
+#endif
+
+#ifndef LOSCFG_TRACE_BUFFER_SIZE
+#define LOSCFG_TRACE_BUFFER_SIZE                            2048
+#endif
+
+#ifndef NUM_HAL_INTERRUPT_UART
+#define NUM_HAL_INTERRUPT_UART                              0xff
+#endif
+
+#ifndef OS_TICK_INT_NUM
+#define OS_TICK_INT_NUM                                     0xff
+#endif
+
+#endif
+
 /* =============================================================================
                                        PM module configuration
 ============================================================================= */

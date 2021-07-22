@@ -110,7 +110,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventRead(PEVENT_CB_S eventCB, UINT32 eventMask, UIN
     }
     intSave = LOS_IntLock();
     ret = LOS_EventPoll(&(eventCB->uwEventID), eventMask, mode);
-    OsHookCall(LOS_HOOK_TYPE_EVENT_READ, eventCB, eventMask, mode);
+    OsHookCall(LOS_HOOK_TYPE_EVENT_READ, eventCB, eventMask, mode, timeOut);
     if (ret == 0) {
         if (timeOut == 0) {
             LOS_IntRestore(intSave);
@@ -158,8 +158,8 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventWrite(PEVENT_CB_S eventCB, UINT32 events)
         return LOS_ERRNO_EVENT_SETBIT_INVALID;
     }
     intSave = LOS_IntLock();
+    OsHookCall(LOS_HOOK_TYPE_EVENT_WRITE, eventCB, events);
     eventCB->uwEventID |= events;
-    OsHookCall(LOS_HOOK_TYPE_EVENT_WRITE, eventCB);
     if (!LOS_ListEmpty(&eventCB->stEventList)) {
         for (resumedTask = LOS_DL_LIST_ENTRY((&eventCB->stEventList)->pstNext, LosTaskCB, pendList);
              &resumedTask->pendList != (&eventCB->stEventList);) {
@@ -210,10 +210,10 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 eventMa
     if (eventCB == NULL) {
         return LOS_ERRNO_EVENT_PTR_NULL;
     }
+    OsHookCall(LOS_HOOK_TYPE_EVENT_CLEAR, eventCB, eventMask);
     intSave = LOS_IntLock();
     eventCB->uwEventID &= eventMask;
     LOS_IntRestore(intSave);
-    OsHookCall(LOS_HOOK_TYPE_EVENT_CLEAR, eventCB);
     return LOS_OK;
 }
 

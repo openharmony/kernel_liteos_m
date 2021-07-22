@@ -29,47 +29,70 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_HOOK_TYPES_PARSE_H
-#define _LOS_HOOK_TYPES_PARSE_H
+#ifndef _TRACE_TLV_H
+#define _TRACE_TLV_H
 
-#define ADDR(a) (&(a))
-#define ARGS(a) (a)
-#define ADDRn(...) _CONCAT(ADDR, _NARGS(__VA_ARGS__))(__VA_ARGS__)
-#define ARGSn(...) _CONCAT(ARGS, _NARGS(__VA_ARGS__))(__VA_ARGS__)
-#define ARGS0()
-#define ADDR0()
-#define ARGS1(a) ARGS(a)
-#define ADDR1(a) ADDR(a)
+#include "los_compiler.h"
 
-#define ARG_const _ARG_const(
-#define _ARG_const(a) ARG_CP_##a)
-#define ARG_CP_LosSemCB ADDR(
-#define ARG_CP_LosTaskCB ADDR(
-#define ARG_CP_UINT32 ADDR(
-#define ARG_CP_LosMuxCB ADDR(
-#define ARG_CP_LosQueueCB ADDR(
-#define ARG_CP_SWTMR_CTRL_S ADDR(
-#define ARG_UINT32 ARGS(
-#define ARG_PEVENT_CB_S ARGS(
-#define ARG_void ADDRn(
-#define ARG(a) ARG_##a)
+#ifdef __cplusplus
+#if __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#endif /* __cplusplus */
 
-#define PARAM_TO_ARGS1(a) ARG(a)
-#define PARAM_TO_ARGS2(a, b) ARG(a), PARAM_TO_ARGS1(b)
-#define PARAM_TO_ARGS3(a, b, c) ARG(a), PARAM_TO_ARGS2(b, c)
-#define PARAM_TO_ARGS4(a, b, c, d) ARG(a), PARAM_TO_ARGS3(b, c, d)
-#define PARAM_TO_ARGS5(a, b, c, d, e) ARG(a), PARAM_TO_ARGS4(b, c, d, e)
-#define PARAM_TO_ARGS6(a, b, c, d, e, f) ARG(a), PARAM_TO_ARGS5(b, c, d, e, f)
-#define PARAM_TO_ARGS7(a, b, c, d, e, f, g) ARG(a), PARAM_TO_ARGS6(b, c, d, e, f, g)
+#define TRACE_TLV_MSG_HEAD  0xFF
+#define TRACE_TLV_TYPE_NULL 0xFF
 
-#define _ZERO_ARGS  7, 6, 5, 4, 3, 2, 1, 0
-#define ___NARGS(a, b, c, d, e, f, g, h, n, ...)    n
-#define __NARGS(...) ___NARGS(__VA_ARGS__)
-#define _NARGS(...) __NARGS(x, __VA_ARGS__##_ZERO_ARGS, 7, 6, 5, 4, 3, 2, 1, 0)
-#define __CONCAT(a, b) a##b
-#define _CONCAT(a, b) __CONCAT(a, b)
+typedef struct {
+    UINT8 magicNum;
+    UINT8 msgType;
+    UINT16 len;
+    UINT16 crc;
+} TraceMsgTlvHead;
 
-#define PARAM_TO_ARGS(...) _CONCAT(PARAM_TO_ARGS, _NARGS(__VA_ARGS__))(__VA_ARGS__)
-#define OS_HOOK_PARAM_TO_ARGS(paramList) (PARAM_TO_ARGS paramList)
+typedef struct {
+    UINT8 type;
+    UINT8 len;
+    UINT8 value[];
+} TraceMsgTlvBody;
 
-#endif /* _LOS_HOOK_TYPES_PARSE_H */
+typedef struct {
+    UINT8 tag;
+    UINT8 elemOffset;
+    UINT8 elemSize;
+} TlvTable;
+
+/**
+ * @ingroup los_trace
+ * @brief Encode trace raw data.
+ *
+ * @par Description:
+ * This API is used to encode trace raw data to tlv data.
+ * @attention
+ * <ul>
+ * <li>Encade trace data</li>
+ * </ul>
+ *
+ * @param  type     [IN] Type #UINT8. The type stands for different struct of src data.
+ * @param  src      [IN] Type #UINT8 *. The raw trace data.
+ * @param  table    [IN] Type #const TlvTable *. The tlv table descript elemOffset and elemSize.
+ * @param  dest     [OUT] Type #UINT8 *. The tlv data.
+ * @param  destLen  [IN] Type #UINT8 *. The tlv buf max len.
+
+ * @retval #0                                  convert failed.
+ * @retval #UINT32                             convert success bytes.
+ *
+ * @par Dependency:
+ * <ul><li>trace_tlv.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_TraceDataEncode
+ * @since Huawei LiteOS V200R005C00
+ */
+extern UINT32 OsTraceDataEncode(UINT8 type, const TlvTable *table, UINT8 *src, UINT8 *dest, INT32 destLen);
+
+#ifdef __cplusplus
+#if __cplusplus
+}
+#endif /* __cplusplus */
+#endif /* __cplusplus */
+
+#endif /* _TRACE_TLV_H */
