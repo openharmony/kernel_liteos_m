@@ -38,6 +38,7 @@
 #define _LOS_QUEUE_H
 
 #include "los_list.h"
+#include "los_config.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -332,6 +333,18 @@ extern "C" {
 
 /**
  * @ingroup los_queue
+ * In struct QUEUE_INFO_S, the length of each waitReadTask/waitWriteTask/waitMemTask array depends on the value
+ * LOSCFG_BASE_CORE_TSK_LIMIT. The type of each array element is UINT32, which means that each element could mark 32(=2^5) tasks.
+ * OS_WAIT_TASK_ARRAY_LEN is used to calculate the array length.
+ * OS_WAIT_TASK_ID_TO_ARRAY_IDX is used to transfer task ID to array index.
+ * OS_WAIT_TASK_ARRAY_ELEMENT_MASK is the mask for each element.
+ */
+#define OS_WAIT_TASK_ARRAY_LEN                   ((LOSCFG_BASE_CORE_TSK_LIMIT >> 5) + 1)
+#define OS_WAIT_TASK_ID_TO_ARRAY_IDX(taskID)     (taskID >> 5)
+#define OS_WAIT_TASK_ARRAY_ELEMENT_MASK          ((1 << OS_WAIT_TASK_ARRAY_LEN) - 1)
+
+/**
+ * @ingroup los_queue
  * Structure of the block for queue information query
  */
 typedef struct tagQueueInfo {
@@ -342,9 +355,9 @@ typedef struct tagQueueInfo {
     UINT16 queueTail; /**< Node tail */
     UINT16 writableCnt; /**< Count of writable resources */
     UINT16 readableCnt; /**< Count of readable resources */
-    UINT32 waitReadTask; /**< Resource reading task */
-    UINT32 waitWriteTask; /**< Resource writing task */
-    UINT32 waitMemTask; /**< Memory task */
+    UINT32 waitReadTask[OS_WAIT_TASK_ARRAY_LEN]; /**< Resource reading task*/
+    UINT32 waitWriteTask[OS_WAIT_TASK_ARRAY_LEN]; /**< Resource writing task */
+    UINT32 waitMemTask[OS_WAIT_TASK_ARRAY_LEN]; /**< Memory task */
 } QUEUE_INFO_S;
 
 /**
