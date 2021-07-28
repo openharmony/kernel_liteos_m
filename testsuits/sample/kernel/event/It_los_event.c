@@ -38,8 +38,6 @@ EVENT_CB_S g_pevent;
 VOID ItSuiteLosEvent()
 {
     ItLosEvent001();
-    ItLosEvent002();
-    ItLosEvent003();
     ItLosEvent004();
     ItLosEvent005();
     ItLosEvent006();
@@ -47,42 +45,42 @@ VOID ItSuiteLosEvent()
     ItLosEvent008();
     ItLosEvent009();
     ItLosEvent010();
-    ItLosEvent011();
-    ItLosEvent012();
     ItLosEvent013();
     ItLosEvent014();
-    ItLosEvent015();
     ItLosEvent016();
     ItLosEvent017();
     ItLosEvent018();
-    ItLosEvent019();
-    ItLosEvent020();
     ItLosEvent021();
     ItLosEvent022();
-#if (LOS_KERNEL_HWI_TEST == 1)
-    ItLosEvent023();
-    ItLosEvent024();
-#endif
     ItLosEvent026();
-    ItLosEvent027();
-    ItLosEvent028();
     ItLosEvent029();
-    ItLosEvent030();
     ItLosEvent031();
-    ItLosEvent032();
-    ItLosEvent033();
-#if (LOS_KERNEL_TEST_NOT_SMOKE == 1)
-    ItLosEvent034();
-#endif
     ItLosEvent035();
     ItLosEvent036();
     ItLosEvent037();
-#if (LOS_KERNEL_HWI_TEST == 1)
-    ItLosEvent038();
-#endif
-    ItLosEvent039();
     ItLosEvent040();
     ItLosEvent041();
     ItLosEvent042();
     ItLosEvent043();
+#if (LOS_KERNEL_TEST_FULL == 1)
+    ItLosEvent002();
+    ItLosEvent003();
+    ItLosEvent011();
+    ItLosEvent012();
+    ItLosEvent015();
+    ItLosEvent019();
+    ItLosEvent020();
+    ItLosEvent027();
+    ItLosEvent028();
+    ItLosEvent030();
+    ItLosEvent032();
+    ItLosEvent033();
+    ItLosEvent034();
+    ItLosEvent039();
+#if (LOS_KERNEL_HWI_TEST == 1)
+    ItLosEvent023();
+    ItLosEvent024();
+    ItLosEvent038();
+#endif
+#endif
 }

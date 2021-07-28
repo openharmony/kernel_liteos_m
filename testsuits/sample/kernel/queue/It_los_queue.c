@@ -75,14 +75,6 @@ VOID ItSuiteLosQueue(VOID)
     ItLosQueue041();
     ItLosQueue042();
     ItLosQueue043();
-#if (LOS_KERNEL_HWI_TEST == 1)
-    ItLosQueue044();
-    ItLosQueue045();
-    ItLosQueue046();
-    ItLosQueue047();
-    ItLosQueue048();
-    ItLosQueue050();
-#endif
     ItLosQueue051();
     ItLosQueue052();
     ItLosQueue053();
@@ -123,10 +115,6 @@ VOID ItSuiteLosQueue(VOID)
     ItLosQueue104();
     ItLosQueue106();
     ItLosQueue107();
-#if (LOS_KERNEL_HWI_TEST == 1)
-    ItLosQueue108();
-#endif
-    ItLosQueue109();
     ItLosQueue114();
     ItLosQueueHead001();
     ItLosQueueHead002();
@@ -164,11 +152,22 @@ VOID ItSuiteLosQueue(VOID)
     ItLosQueueHead041();
     ItLosQueueHead042();
 
+#if (LOS_KERNEL_TEST_FULL == 1)
+#if (LOS_KERNEL_HWI_TEST == 1)
+    ItLosQueue044();
+    ItLosQueue045();
+    ItLosQueue046();
+    ItLosQueue047();
+    ItLosQueue048();
+    ItLosQueue050();
+    ItLosQueue108();
+#endif
+    ItLosQueue073();
+    ItLosQueue109();
 #if (LOSCFG_TEST_LLT == 1)
     LlTLosQueue001();
     LltLosQueue003();
 #endif
-
     ItLosQueue073();
     ItLosQueue091();
     ItLosQueue092();
@@ -176,4 +175,5 @@ VOID ItSuiteLosQueue(VOID)
     ItLosQueue094();
     ItLosQueue095();
     ItLosQueue110();
+#endif
 }

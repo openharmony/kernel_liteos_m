@@ -60,37 +60,27 @@ VOID ItSuiteLosSwtmr(void)
     ItLosSwtmr019();
     ItLosSwtmr020();
     ItLosSwtmr021();
-#if (LOS_KERNEL_HWI_TEST == 1)
-    ItLosSwtmr022();
-    ItLosSwtmr023();
-#endif
     ItLosSwtmr024();
-    ItLosSwtmr025();
-#if (LOS_KERNEL_TEST_NOT_SMOKE == 1)
-    ItLosSwtmr026();
-#endif
     ItLosSwtmr027();
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
+    ItLosSwtmrAlign001();
+    ItLosSwtmrAlign002();
+    ItLosSwtmrAlign003();
+    ItLosSwtmrAlign004();
+#endif
+
+#if (LOS_KERNEL_TEST_FULL == 1)
+    ItLosSwtmr025();
+    ItLosSwtmr026();
     ItLosSwtmr029();
     ItLosSwtmr030();
     ItLosSwtmr031();
     ItLosSwtmr032();
-#if (LOS_KERNEL_HWI_TEST == 1)
-    ItLosSwtmr033();
-    ItLosSwtmr034();
-#endif
     ItLosSwtmr035();
     ItLosSwtmr036();
     ItLosSwtmr037();
     ItLosSwtmr038();
-#if (LOS_KERNEL_HWI_TEST == 1)
-    ItLosSwtmr039();
-    ItLosSwtmr040();
-    ItLosSwtmr041();
-#endif
     ItLosSwtmr042();
-#if (LOS_KERNEL_HWI_TEST == 1)
-    ItLosSwtmr043();
-#endif
     ItLosSwtmr044();
     ItLosSwtmr045();
     ItLosSwtmr046();
@@ -111,34 +101,20 @@ VOID ItSuiteLosSwtmr(void)
     ItLosSwtmr061();
     ItLosSwtmr062();
     ItLosSwtmr063();
-#if (LOS_KERNEL_HWI_TEST == 1)
-    ItLosSwtmr064();
-    ItLosSwtmr065();
-#endif
     ItLosSwtmr066();
     ItLosSwtmr067();
-#if (LOS_KERNEL_TEST_NOT_SMOKE == 1)
     ItLosSwtmr068();
     ItLosSwtmr069();
-#endif
     ItLosSwtmr071();
     ItLosSwtmr072();
     ItLosSwtmr073();
-#if (LOS_KERNEL_TEST_NOT_SMOKE == 1)
     ItLosSwtmr074();
-#endif
     ItLosSwtmr075();
     ItLosSwtmr076();
     ItLosSwtmr077();
     ItLosSwtmr078();
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
-    ItLosSwtmrAlign001();
-    ItLosSwtmrAlign002();
-    ItLosSwtmrAlign003();
-    ItLosSwtmrAlign004();
-#if (LOS_KERNEL_TEST_NOT_SMOKE == 1)
     ItLosSwtmrAlign005();
-#endif
     ItLosSwtmrAlign006();
     ItLosSwtmrAlign007();
     ItLosSwtmrAlign008();
@@ -170,5 +146,19 @@ VOID ItSuiteLosSwtmr(void)
     ItLosSwtmrDelay003();
     ItLosSwtmrDelay004();
     ItLosSwtmrDelay005();
+
+#if (LOS_KERNEL_HWI_TEST == 1)
+    ItLosSwtmr022();
+    ItLosSwtmr023();
+    ItLosSwtmr033();
+    ItLosSwtmr034();
+    ItLosSwtmr039();
+    ItLosSwtmr040();
+    ItLosSwtmr041();
+    ItLosSwtmr043();
+    ItLosSwtmr064();
+    ItLosSwtmr065();
+#endif
+#endif
 }
 

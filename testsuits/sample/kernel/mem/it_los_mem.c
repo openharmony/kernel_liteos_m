@@ -104,7 +104,9 @@ VOID ItSuiteLosMem(void)
 #endif
     ItLosMem040();
     ItLosMem045();
-    ItLosTick001();
 
+#if (LOS_KERNEL_TEST_FULL == 1)
+    ItLosTick001();
+#endif
     MemEnd();
 }
