@@ -107,14 +107,25 @@
 
 HalTaskContextSwitch:
     PUSH_ALL_REG
+
+    // clear mpie
+    li   a2, RISCV_MSTATUS_MPIE
+    not  a2, a2
+    and  a0, a0, a2
+
+    // get mie
     andi a1, a0, RISCV_MSTATUS_MIE
 
     // must be in machine mode
     ori  a1, a1, 0x180
     slli a1, a1, 0x4
     or   a0, a0, a1
-    li   a1, ~RISCV_MSTATUS_MIE
-    and  a0, a0, a1
+
+    // clear mie
+    li   a2, RISCV_MSTATUS_MIE
+    not  a2, a2
+    and  a0, a0, a2
+
     SREG a0, 16 * REGBYTES(sp)
     SREG ra, 17 * REGBYTES(sp)
 
