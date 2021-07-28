@@ -41,7 +41,7 @@
     .global  HalExcMemFault
     .global  HalExcBusFault
     .global  HalExcUsageFault
-    .global  HalExcSvcCall
+    .global  HalSVCHandler
 
     .extern HalExcHandleEntry
     .extern g_uwExcTbl
@@ -148,9 +148,9 @@ osHFExcCommonBMU:
     B    osExcDispatch
     .fnend
 
-    .type HalExcSvcCall, %function
-    .global HalExcSvcCall
-HalExcSvcCall:
+    .type HalSVCHandler, %function
+    .global HalSVCHandler
+HalSVCHandler:
     .fnstart
     .cantunwind
     TST   LR, #0x4
