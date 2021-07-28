@@ -94,7 +94,7 @@ HalSecureContextSaveAsm:
     MOV     R0, #0
     MSR     PSPLIM, R0                  /* No PSPLIM for the current task. */
     MSR     PSP, R0                     /* No secure stack for the current task. */
+    .fnend
 
 __ThreadMode:
     BX      LR
-    .fnend

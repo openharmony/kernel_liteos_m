@@ -497,7 +497,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit()
     g_hwiForm[MemoryManagement_IRQn + OS_SYS_VECTOR_CNT] = HalExcMemFault;
     g_hwiForm[BusFault_IRQn + OS_SYS_VECTOR_CNT]         = HalExcBusFault;
     g_hwiForm[UsageFault_IRQn + OS_SYS_VECTOR_CNT]       = HalExcUsageFault;
-    g_hwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT]           = HalExcSvcCall;
+    g_hwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT]           = HalSVCHandler;
     g_hwiForm[PendSV_IRQn + OS_SYS_VECTOR_CNT]           = HalPendSV;
     g_hwiForm[SysTick_IRQn + OS_SYS_VECTOR_CNT]          = OsTickHandler;
 

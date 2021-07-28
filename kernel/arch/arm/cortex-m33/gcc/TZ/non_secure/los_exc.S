@@ -41,7 +41,6 @@
     .global  HalExcMemFault
     .global  HalExcBusFault
     .global  HalExcUsageFault
-    .global  HalExcSvcCall
 
     .extern HalExcHandleEntry
     .extern g_uwExcTbl
@@ -146,21 +145,6 @@ osHFExcCommonBMU:
     ORR  R0, R0, R2, LSL #0x8
     ORR  R0, R0 ,R12
     B    osExcDispatch
-    .fnend
-
-    .type HalExcSvcCall, %function
-    .global HalExcSvcCall
-HalExcSvcCall:
-    .fnstart
-    .cantunwind
-    TST   LR, #0x4
-    ITE   EQ
-    MRSEQ R0, MSP
-    MRSNE R0, PSP
-    LDR   R1, [R0,#24]
-    LDRB  R0, [R1,#-2]
-    MOV   R1, #0
-    B     osExcDispatch
     .fnend
 
     .type HalExcBusFault, %function
