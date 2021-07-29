@@ -64,7 +64,7 @@ char *GetCmdName(const char *cmdline, unsigned int len)
 {
     unsigned int loop;
     const char *tmpStr = NULL;
-    bool quotes = FALSE;
+    BOOL quotes = FALSE;
     char *cmdName = NULL;
     if (cmdline == NULL) {
         return NULL;
