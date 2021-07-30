@@ -331,7 +331,7 @@ ssize_t read(int fd, void *buf, size_t nbyte)
             errno = EINVAL;
             return FS_FAILURE;
         }
-        if (nbyte > 1024) {
+        if (nbyte > 1024) { /* 1024, max random_size */
             nbyte = 1024; /* hks_generate_random: random_size must <= 1024 */
         }
         struct hks_blob key = {HKS_BLOB_TYPE_RAW, (uint8_t *)buf, nbyte};
