@@ -88,11 +88,11 @@ static char *StrNormalizePath(char *fullpath)
     while (*src != '\0') {
         if (*src == '.') {
             if (*(src + 1) == '/') {
-                src += 2;
+                src += 2; /* 2, sizeof "./" */
                 continue;
             } else if (*(src + 1) == '.') {
-                if ((*(src + 2) == '/') || (*(src + 2) == '\0')) {
-                    src += 2;
+                if ((*(src + 2) == '/') || (*(src + 2) == '\0')) { /* 2, 2, offset to check */
+                    src += 2; /* 2, sizeof offset */
                 } else {
                     while ((*src != '\0') && (*src != '/')) {
                         *dest++ = *src++;
@@ -174,7 +174,7 @@ static char *VfsNotAbsolutePath(const char *directory, const char *filename, cha
     /* 2: The position of the path character: / and the end character /0 */
 
     if ((namelen > 1) && (filename[0] == '.') && (filename[1] == '/')) {
-        filename += 2;
+        filename += 2; /* 2, sizeof "./" */
     }
 
     fullpath = (char *)malloc(strlen(directory) + namelen + 2);
@@ -184,8 +184,7 @@ static char *VfsNotAbsolutePath(const char *directory, const char *filename, cha
         return (char *)NULL;
     }
 
-    /* join path and file name */
-
+    /* 2, sizeof "./", join path and file name */
     ret = snprintf_s(fullpath, strlen(directory) + namelen + 2, strlen(directory) + namelen + 1,
                      "%s/%s", directory, filename);
     if (ret < 0) {
@@ -213,7 +212,6 @@ static char *VfsNormalizeFullpath(const char *directory, const char *filename, c
         /* it's a absolute path, use it directly */
 
         fullpath = strdup(filename); /* copy string */
-
         if (fullpath == NULL) {
             *pathname = NULL;
             SetErrno(ENOMEM);
@@ -246,8 +244,7 @@ int VfsNormalizePath(const char *directory, const char *filename, char **pathnam
         return -EINVAL;
     }
 
-    /* 2: The position of the path character: / and the end character /0 */
-
+    /* 2, The position of the path character: / and the end character /0 */
     if ((filename[0] != '/') && (strlen(directory) + namelen + 2 > TEMP_PATH_MAX)) {
         return -ENAMETOOLONG;
     }

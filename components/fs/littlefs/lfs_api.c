@@ -41,7 +41,7 @@ struct FileOpInfo g_fsOp[LOSCFG_LFS_MAX_MOUNT_SIZE] = {0};
 static LittleFsHandleStruct g_handle[LITTLE_FS_MAX_OPEN_FILES] = {0};
 struct dirent g_nameValue;
 static pthread_mutex_t g_FslocalMutex = PTHREAD_MUTEX_INITIALIZER;
-static const char *g_littlefsMntName[LOSCFG_LFS_MAX_MOUNT_SIZE] = {"/a","/b","/c"};
+static const char *g_littlefsMntName[LOSCFG_LFS_MAX_MOUNT_SIZE] = {"/a", "/b", "/c"};
 
 LittleFsHandleStruct *LfsAllocFd(const char *fileName, int *fd)
 {

@@ -242,7 +242,7 @@ static void getifaddrs_internal(struct getifaddrs_arg *arg)
             if_storage = new_ifaddrs_storage();
             if (if_storage == NULL) {
                 lwip_freeifaddrs(
-                *(arg->ifap)); /* ifap is assigned to NULL in getifaddrs, so garbage value will not be there */
+                    *(arg->ifap)); /* ifap is assigned to NULL in getifaddrs, so garbage value will not be there */
                 arg->ret = ENOMEM;
                 goto RETURN;
             }
