@@ -43,12 +43,6 @@ static UINT32 Testcase(VOID)
     LOS_TaskLock();
 
     ret = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
-
-    ret = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
-
-    ret = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SEM_PEND_IN_LOCK, ret, EXIT);
 
     LOS_TaskUnlock();

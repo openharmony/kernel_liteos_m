@@ -43,7 +43,7 @@ VOID ItSuiteLosSem(void)
     ItLosSem007();
     ItLosSem008();
     ItLosSem009();
-    ItLosSem012();
+    ItLosSem011();
     ItLosSem013();
     ItLosSem014();
     ItLosSem015();
@@ -54,33 +54,34 @@ VOID ItSuiteLosSem(void)
     ItLosSem020();
     ItLosSem021();
     ItLosSem022();
-#if (LOS_KERNEL_HWI_TEST == 1)
-    ItLosSem023();
-#endif
     ItLosSem024();
     ItLosSem025();
     ItLosSem026();
-    ItLosSem027();
     ItLosSem028();
     ItLosSem029();
-#if (LOS_KERNEL_HWI_TEST == 1)
-    ItLosSem030();
-#endif
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
     ItLosSem031();
 #endif
     ItLosSem032();
-#if (LOS_KERNEL_HWI_TEST == 1)
-    ItLosSem033();
-#endif
-    ItLosSem034();
-    ItLosSem035();
-    ItLosSem036();
-    ItLosSem037();
     ItLosSem038();
-    ItLosSem039();
     ItLosSem040();
     ItLosSem041();
     ItLosSem042();
     ItLosSem043();
+
+#if (LOS_KERNEL_TEST_FULL == 1)
+    ItLosSem012();
+#if (LOS_KERNEL_HWI_TEST == 1)
+    ItLosSem010();
+    ItLosSem023();
+    ItLosSem030();
+    ItLosSem033();
+#endif
+    ItLosSem027();
+    ItLosSem034();
+    ItLosSem035();
+    ItLosSem036();
+    ItLosSem037();
+    ItLosSem039();
+#endif
 }
