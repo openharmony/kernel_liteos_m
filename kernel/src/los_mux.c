@@ -304,6 +304,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
         OsHookCall(LOS_HOOK_TYPE_MUX_POST, muxPosted);
         LOS_Schedule();
     } else {
+        muxPosted->owner = NULL;
         LOS_IntRestore(intSave);
     }
 
