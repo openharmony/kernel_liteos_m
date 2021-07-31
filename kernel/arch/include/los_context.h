@@ -105,7 +105,7 @@ LITE_OS_SEC_TEXT_MINOR NORETURN VOID HalSysExit(VOID);
 extern VOID HalTaskSchedule(VOID);
 
 typedef VOID (*OS_TICK_HANDLER)(VOID);
-UINT32 HalStartSchedule(OS_TICK_HANDLER handler);
+UINT32 HalStartSchedule(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

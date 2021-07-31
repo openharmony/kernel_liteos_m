@@ -65,7 +65,7 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER *handler)
     g_sysClock = OS_SYS_CLOCK;
     g_cyclesPerTick = OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;
 
-    ret = SysTick_Config(g_cyclesPerTick);
+    ret = SysTick_Config(LOSCFG_BASE_CORE_TICK_RESPONSE_MAX);
     if (ret == 1) {
         return LOS_ERRNO_TICK_PER_SEC_TOO_SMALL;
     }

@@ -33,7 +33,7 @@
 #define _LOS_ARCH_H
 
 #include "los_config.h"
-#include "los_compiler.h"
+#include "los_timer.h"
 
 #ifdef __cplusplus
 #if __cplusplus
