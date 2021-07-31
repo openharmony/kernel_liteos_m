@@ -190,7 +190,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsCmdAscendingInsert(CmdItemNode *cmd)
     }
 
     for (cmdItem = LOS_DL_LIST_ENTRY((&cmdInfo.cmdList.list)->pstPrev, CmdItemNode, list);
-        &cmdItem->list != &(cmdInfo.cmdList.list);) {
+        &cmdItem->list != &(cmdInfo.cmdList.list); ) {
         cmdNext = LOS_DL_LIST_ENTRY(cmdItem->list.pstPrev, CmdItemNode, list);
         if (&cmdNext->list != &(cmdInfo.cmdList.list)) {
             if ((strncmp(cmdItem->cmd->cmdKey, cmd->cmd->cmdKey, strlen(cmd->cmd->cmdKey)) >= 0) &&

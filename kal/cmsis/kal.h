@@ -50,10 +50,10 @@ extern "C" {
 * @version 1.0
 */
 typedef enum  {
-  /** The timer is not allowed to wake up the RTOS. */
-  osTimerRousesIgnore       =     0,
-  /** The timer is allowed to wake up the RTOS. */
-  osTimerRousesAllow        =     1
+    /** The timer is not allowed to wake up the RTOS. */
+    osTimerRousesIgnore       =     0,
+    /** The timer is allowed to wake up the RTOS. */
+    osTimerRousesAllow        =     1
 } osTimerRouses_t;
 
 /**
@@ -61,10 +61,10 @@ typedef enum  {
 *
 */
 typedef enum  {
-  /** The timer ignores alignment. */
-  osTimerAlignIgnore        =     0,
-  /** The timer allows alignment. */
-  osTimerAlignAllow         =     1
+    /** The timer ignores alignment. */
+    osTimerAlignIgnore        =     0,
+    /** The timer allows alignment. */
+    osTimerAlignAllow         =     1
 } osTimerAlign_t;
 
 osTimerId_t osTimerExtNew (osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr,
