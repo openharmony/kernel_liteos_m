@@ -1649,3 +1649,120 @@ const char *osMemoryPoolGetName(osMemoryPoolId_t mp_id)
 
     return p;
 }
+
+//  ==== Thread Flags Functions ====
+uint32_t osThreadFlagsSet(osThreadId_t thread_id, uint32_t flags)
+{
+    UINT32 ret;
+    LosTaskCB *taskCB = (LosTaskCB *)thread_id;
+    EVENT_CB_S *eventCB = NULL;
+    UINT32 curFlags;
+
+    if (taskCB == NULL) {
+        return (uint32_t)osFlagsErrorParameter;
+    }
+
+    eventCB = &(taskCB->event);
+    curFlags = eventCB->uwEventID | flags;
+
+    ret = LOS_EventWrite(eventCB, (UINT32)flags);
+    if (ret == LOS_ERRNO_EVENT_SETBIT_INVALID) {
+        return (uint32_t)osFlagsErrorParameter;
+    }
+
+    if (ret != LOS_OK) {
+        return (uint32_t)osFlagsErrorResource;
+    }
+
+    if (curFlags & taskCB->eventMask) {
+        return curFlags & (~taskCB->eventMask);
+    }
+
+    return curFlags;
+}
+
+uint32_t osThreadFlagsClear(uint32_t flags)
+{
+    UINT32 ret;
+    UINT32 saveFlags;
+    LosTaskCB *runTask = NULL;
+    EVENT_CB_S *eventCB = NULL;
+
+    if (OS_INT_ACTIVE) {
+        return (uint32_t)osFlagsErrorUnknown;
+    }
+
+    runTask = g_losTask.runTask;
+    eventCB = &(runTask->event);
+    saveFlags = eventCB->uwEventID;
+
+    ret = LOS_EventClear(eventCB, ~(UINT32)flags);
+    if (ret == LOS_OK) {
+        return (uint32_t)saveFlags;
+    }
+
+    return (uint32_t)osFlagsErrorResource;
+}
+
+uint32_t osThreadFlagsGet(void)
+{
+    LosTaskCB *runTask = NULL;
+    EVENT_CB_S *eventCB = NULL;
+
+    if (OS_INT_ACTIVE) {
+        return (uint32_t)osFlagsErrorUnknown;
+    }
+
+    runTask = g_losTask.runTask;
+    eventCB = &(runTask->event);
+
+    return (uint32_t)(eventCB->uwEventID);
+}
+
+uint32_t osThreadFlagsWait(uint32_t flags, uint32_t options, uint32_t timeout)
+{
+    UINT32 ret;
+    UINT32 mode = 0;
+    LosTaskCB *runTask = NULL;
+    EVENT_CB_S *eventCB = NULL;
+
+    if (OS_INT_ACTIVE) {
+        return (uint32_t)osFlagsErrorUnknown;
+    }
+
+    if (options > (osFlagsWaitAny | osFlagsWaitAll | osFlagsNoClear)) {
+        return (uint32_t)osFlagsErrorParameter;
+    }
+
+    if ((options & osFlagsWaitAll) == osFlagsWaitAll) {
+        mode |= LOS_WAITMODE_AND;
+    } else {
+        mode |= LOS_WAITMODE_OR;
+    }
+
+    if ((options & osFlagsNoClear) == osFlagsNoClear) {
+        mode &= ~LOS_WAITMODE_CLR;
+    } else {
+        mode |= LOS_WAITMODE_CLR;
+    }
+
+    runTask = g_losTask.runTask;
+    eventCB = &(runTask->event);
+
+    ret = LOS_EventRead(eventCB, (UINT32)flags, mode, (UINT32)timeout);
+    if (!(ret & LOS_ERRTYPE_ERROR)) {
+        return (uint32_t)eventCB->uwEventID | ret;
+    }
+
+    switch (ret) {
+        case LOS_ERRNO_EVENT_PTR_NULL:
+        case LOS_ERRNO_EVENT_SETBIT_INVALID:
+        case LOS_ERRNO_EVENT_EVENTMASK_INVALID:
+        case LOS_ERRNO_EVENT_FLAGS_INVALID:
+            return (uint32_t)osFlagsErrorParameter;
+        case LOS_ERRNO_EVENT_READ_TIMEOUT:
+            return (uint32_t)osFlagsErrorTimeout;
+        default:
+            return (uint32_t)osFlagsErrorResource;
+    }
+}
