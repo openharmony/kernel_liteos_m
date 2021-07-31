@@ -53,6 +53,9 @@ group("kernel") {
   if (enable_ohos_kernel_liteos_m_pm == true) {
     deps += [ "components/power:pm" ]
   }
+  if (enable_ohos_kernel_liteos_m_trace == true) {
+    deps += [ "components/trace:trace" ]
+  }
   if (enable_ohos_kernel_liteos_m_kal == true) {
     deps += [ "kal:kal" ]
   }

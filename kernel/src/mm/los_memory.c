@@ -1013,7 +1013,7 @@ VOID *LOS_MemAlloc(VOID *pool, UINT32 size)
     } while (0);
     MEM_UNLOCK(poolHead, intSave);
 
-    OsHookCall(LOS_HOOK_TYPE_MEM_ALLOC, pool, size);
+    OsHookCall(LOS_HOOK_TYPE_MEM_ALLOC, pool, ptr, size);
 
     return ptr;
 }
@@ -1068,7 +1068,7 @@ VOID *LOS_MemAllocAlign(VOID *pool, UINT32 size, UINT32 boundary)
     } while (0);
     MEM_UNLOCK(poolHead, intSave);
 
-    OsHookCall(LOS_HOOK_TYPE_MEM_ALLOCALIGN, pool, size, boundary);
+    OsHookCall(LOS_HOOK_TYPE_MEM_ALLOCALIGN, pool, ptr, size, boundary);
 
     return ptr;
 }

@@ -36,6 +36,7 @@
 #include "los_memory.h"
 #include "los_queue.h"
 #include "los_debug.h"
+#include "los_hook.h"
 #include "los_sched.h"
 
 
@@ -292,6 +293,7 @@ STATIC BOOL OsSwtmrScan(VOID)
         OsDeleteNodeSortLink(g_swtmrSortLinkList, sortList);
 
         SWTMR_CTRL_S *swtmr = LOS_DL_LIST_ENTRY(sortList, SWTMR_CTRL_S, stSortList);
+        OsHookCall(LOS_HOOK_TYPE_SWTMR_EXPIRED, swtmr);
         OsSwtmrTimeoutHandle(swtmr);
 
         needSchedule = TRUE;
@@ -475,7 +477,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_SwtmrCreate(UINT32 interval,
     swtmr->ucState       = OS_SWTMR_STATUS_CREATED;
     *swtmrId = swtmr->usTimerID;
     SET_SORTLIST_VALUE(&swtmr->stSortList, OS_SORT_LINK_INVALID_TIME);
-
+    OsHookCall(LOS_HOOK_TYPE_SWTMR_CREATE, swtmr);
     return LOS_OK;
 }
 
@@ -529,6 +531,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStart(UINT32 swtmrId)
     }
 
     LOS_IntRestore(intSave);
+    OsHookCall(LOS_HOOK_TYPE_SWTMR_START, swtmr);
     return ret;
 }
 
@@ -573,6 +576,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStop(UINT32 swtmrId)
     }
 
     LOS_IntRestore(intSave);
+    OsHookCall(LOS_HOOK_TYPE_SWTMR_STOP, swtmr);
     return ret;
 }
 
@@ -658,6 +662,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrDelete(UINT32 swtmrId)
     }
 
     LOS_IntRestore(intSave);
+    OsHookCall(LOS_HOOK_TYPE_SWTMR_DELETE, swtmr);
     return ret;
 }
 
