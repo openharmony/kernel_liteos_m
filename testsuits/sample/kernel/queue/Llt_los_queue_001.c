@@ -55,14 +55,14 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_QueueInfoGet(g_testQueueID01, &queueInfo);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT2);
-    ICUNIT_GOTO_EQUAL(queueInfo.waitReadTask, (1 << g_testTaskID01), queueInfo.waitReadTask, EXIT2);
+    ICUNIT_GOTO_EQUAL(queueInfo.waitReadTask[OS_WAIT_TASK_ID_TO_ARRAY_IDX(g_testTaskID01)], 1 << (g_testTaskID01 & OS_WAIT_TASK_ARRAY_ELEMENT_MASK), queueInfo.waitReadTask, EXIT2);
 
     ret = LOS_QueueWrite(g_testQueueID01, &buff1, QUEUE_BASE_MSGSIZE, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT2);
 
     ret = LOS_QueueInfoGet(g_testQueueID01, &queueInfo);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT2);
-    ICUNIT_GOTO_EQUAL(queueInfo.waitWriteTask, (1 << g_testTaskID01), queueInfo.waitWriteTask, EXIT2);
+    ICUNIT_GOTO_EQUAL(queueInfo.waitWriteTask[OS_WAIT_TASK_ID_TO_ARRAY_IDX(g_testTaskID01)], 1 << (g_testTaskID01 & OS_WAIT_TASK_ARRAY_ELEMENT_MASK), queueInfo.waitWriteTask, EXIT2);
 
 EXIT2:
     ret = LOS_TaskDelete(g_testTaskID01);

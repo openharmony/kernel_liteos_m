@@ -69,7 +69,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_QueueCreate("Q122", 1, &g_uwQueueID122, 0, QUEUE_BASE_MSGSIZE);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_MemboxInit((VOID *)g_aucMailBoxPool, sizeof(g_aucMailBoxPool) * 1, sizeof(g_aucMailBoxPool));
+    ret = LOS_MemboxInit((VOID *)g_aucMailBoxPool, sizeof(g_aucMailBoxPool) * 2, sizeof(g_aucMailBoxPool));
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     memBox = OsQueueMailAlloc(g_uwQueueID122, (VOID *)g_aucMailBoxPool, LOS_NO_WAIT);

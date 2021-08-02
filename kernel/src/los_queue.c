@@ -651,15 +651,15 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_QueueInfoGet(UINT32 queueID, QUEUE_INFO_S *que
     queueInfo->writableCnt = queueCB->readWriteableCnt[OS_QUEUE_WRITE];
 
     LOS_DL_LIST_FOR_EACH_ENTRY(tskCB, &queueCB->readWriteList[OS_QUEUE_READ], LosTaskCB, pendList) {
-        queueInfo->waitReadTask |= (1 << tskCB->taskID);
+        queueInfo->waitReadTask[OS_WAIT_TASK_ID_TO_ARRAY_IDX(tskCB->taskID)] |= (1 << (tskCB->taskID & OS_WAIT_TASK_ARRAY_ELEMENT_MASK));
     }
 
     LOS_DL_LIST_FOR_EACH_ENTRY(tskCB, &queueCB->readWriteList[OS_QUEUE_WRITE], LosTaskCB, pendList) {
-        queueInfo->waitWriteTask |= (1 << tskCB->taskID);
+        queueInfo->waitWriteTask[OS_WAIT_TASK_ID_TO_ARRAY_IDX(tskCB->taskID)] |= (1 << (tskCB->taskID & OS_WAIT_TASK_ARRAY_ELEMENT_MASK));
     }
 
     LOS_DL_LIST_FOR_EACH_ENTRY(tskCB, &queueCB->memList, LosTaskCB, pendList) {
-        queueInfo->waitMemTask |= (1 << tskCB->taskID);
+        queueInfo->waitMemTask[OS_WAIT_TASK_ID_TO_ARRAY_IDX(tskCB->taskID)] |= (1 << (tskCB->taskID & OS_WAIT_TASK_ARRAY_ELEMENT_MASK));
     }
 
 QUEUE_END:
