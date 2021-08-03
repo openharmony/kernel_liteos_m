@@ -56,7 +56,7 @@ extern "C" {
 #pragma section=CSTACK_SECTION_NAME
 
 /* Default only one code section. In fact, there may be more than one.
-   You can define more than one and modify the OsStackDataIsCodeAddr function
+   You can define more than one and redefine the OsStackDataIsCodeAddr function
    to support searching in multiple code sections */
 #define CODE_START_ADDR     ((UINTPTR)__section_begin(CODE_SECTION_NAME))
 #define CODE_END_ADDR       ((UINTPTR)__section_end(CODE_SECTION_NAME))
@@ -84,7 +84,7 @@ extern CHAR *CODE_SECTION_START(CODE_SECTION_NAME);
 extern CHAR *CODE_SECTION_END(CODE_SECTION_NAME);
 
 /* Default only one code section. In fact, there may be more than one.
-   You can define more than one and modify the OsStackDataIsCodeAddr function
+   You can define more than one and redefine the OsStackDataIsCodeAddr function
    to support searching in multiple code sections */
 #define CODE_START_ADDR     ((UINTPTR)&CODE_SECTION_START(CODE_SECTION_NAME))
 #define CODE_END_ADDR       ((UINTPTR)&CODE_SECTION_END(CODE_SECTION_NAME))
@@ -106,7 +106,7 @@ extern CHAR *CSTACK_SECTION_START;
 extern CHAR *CSTACK_SECTION_END;
 
 /* Default only one code section. In fact, there may be more than one.
-   You can define more than one and modify the OsStackDataIsCodeAddr function
+   You can define more than one and redefine the OsStackDataIsCodeAddr function
    to support searching in multiple code sections */
 #define CODE_START_ADDR     ((UINTPTR)&CODE_SECTION_START)
 #define CODE_END_ADDR       ((UINTPTR)&CODE_SECTION_END)
@@ -139,17 +139,6 @@ extern CHAR *CSTACK_SECTION_END;
 #error Unknown compiler.
 #endif
 #endif
-
-/* This function is used to judge whether the data in the stack is a code section address.
-   The default code section is only one, but there may be more than one. Modify the
-   judgment condition to support multiple code sections. */
-STATIC INLINE BOOL OsStackDataIsCodeAddr(UINTPTR value)
-{
-    if ((value >= CODE_START_ADDR) && (value < CODE_END_ADDR)) {
-        return TRUE;
-    }
-    return FALSE;
-}
 
 /* This function is currently used to register the memory leak check hook,
    other uses do not need to be called temporarily. */

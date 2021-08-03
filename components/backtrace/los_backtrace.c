@@ -33,8 +33,19 @@
 #include "los_task.h"
 #include "los_debug.h"
 
-
 #if (LOSCFG_BACKTRACE_TYPE != 0)
+/* This function is used to judge whether the data in the stack is a code section address.
+   The default code section is only one, but there may be more than one. Modify the
+   judgment condition to support multiple code sections. */
+WEAK BOOL OsStackDataIsCodeAddr(UINTPTR value)
+{
+    if ((value >= CODE_START_ADDR) && (value < CODE_END_ADDR)) {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
 #if (LOSCFG_BACKTRACE_TYPE == 1)
 #define OS_BACKTRACE_START     2
 /* Thumb instruction, so the pc must be an odd number */
