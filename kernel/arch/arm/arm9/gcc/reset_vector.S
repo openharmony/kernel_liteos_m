@@ -29,15 +29,15 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-    .equ CPSR_IRQ_DISABLE,  0x80U
-    .equ CPSR_FIQ_DISABLE,  0x40U
-    .equ CPSR_THUMB_ENABLE, 0x20U
-    .equ CPSR_USER_MODE,    0x10U
-    .equ CPSR_FIQ_MODE,     0x11U
-    .equ CPSR_IRQ_MODE,     0x12U
-    .equ CPSR_SVC_MODE,     0x13U
-    .equ CPSR_ABT_MODE,     0x17U
-    .equ CPSR_UNDEF_MODE,   0x1BU
+    .equ CPSR_IRQ_DISABLE,  0x80
+    .equ CPSR_FIQ_DISABLE,  0x40
+    .equ CPSR_THUMB_ENABLE, 0x20
+    .equ CPSR_USER_MODE,    0x10
+    .equ CPSR_FIQ_MODE,     0x11
+    .equ CPSR_IRQ_MODE,     0x12
+    .equ CPSR_SVC_MODE,     0x13
+    .equ CPSR_ABT_MODE,     0x17
+    .equ CPSR_UNDEF_MODE,   0x1B
 
     .global __exc_stack_top
     .global __irq_stack_top

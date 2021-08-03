@@ -29,18 +29,18 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-    .equ    OS_PSR_THUMB,       0x20U
-    .equ    OS_PSR_INT_DIS,     0xC0U
-    .equ    OS_PSR_FIQ_DIS,     0x40U
-    .equ    OS_PSR_IRQ_DIS,     0x80U
-    .equ    OS_PSR_MODE_MASK,   0x1FU
-    .equ    OS_PSR_MODE_USR,    0x10U
-    .equ    OS_PSR_MODE_FIQ,    0x11U
-    .equ    OS_PSR_MODE_IRQ,    0x12U
-    .equ    OS_PSR_MODE_SVC,    0x13U
-    .equ    OS_PSR_MODE_ABT,    0x17U
-    .equ    OS_PSR_MODE_UND,    0x1BU
-    .equ    OS_PSR_MODE_SYS,    0x1FU
+    .equ    OS_PSR_THUMB,       0x20
+    .equ    OS_PSR_INT_DIS,     0xC0
+    .equ    OS_PSR_FIQ_DIS,     0x40
+    .equ    OS_PSR_IRQ_DIS,     0x80
+    .equ    OS_PSR_MODE_MASK,   0x1F
+    .equ    OS_PSR_MODE_USR,    0x10
+    .equ    OS_PSR_MODE_FIQ,    0x11
+    .equ    OS_PSR_MODE_IRQ,    0x12
+    .equ    OS_PSR_MODE_SVC,    0x13
+    .equ    OS_PSR_MODE_ABT,    0x17
+    .equ    OS_PSR_MODE_UND,    0x1B
+    .equ    OS_PSR_MODE_SYS,    0x1F
 
     .global HalStartToRun
     .global OsTaskEntryArm

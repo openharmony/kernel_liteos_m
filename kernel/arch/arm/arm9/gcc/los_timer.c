@@ -140,15 +140,11 @@ WEAK VOID HalTickUnlock(VOID)
     WRITE_UINT32(value, OS_TIMER_CTL_REG_ADDR);
 }
 
-VOID HalEnterSleep(LOS_SysSleepEnum sleep)
+UINT32 HalEnterSleep(VOID)
 {
-#if (LOSCFG_BASE_CORE_SCHED_SLEEP == 1)
-    if (sleep == OS_SYS_DEEP_SLEEP) {
-        OsSchedToSleep();
-    }
-#endif
-
     dsb();
     wfi();
     isb();
+
+    return LOS_OK;
 }
