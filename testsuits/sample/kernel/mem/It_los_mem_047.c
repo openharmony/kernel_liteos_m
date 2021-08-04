@@ -29,88 +29,62 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "osTest.h"
 #include "It_los_mem.h"
 
-void *g_memPool = NULL;
-void *g_testPool = NULL;
-
-void MemStart(void)
-{
-    g_memPool = LOS_MemAlloc(LOSCFG_SYS_HEAP_ADDR, TEST_MEM_SIZE);
-    g_testPool = LOS_MemAlloc(LOSCFG_SYS_HEAP_ADDR, TEST_POOL_SIZE);
-
-    if ((g_memPool == NULL) || (g_testPool == NULL)) {
-        PRINT_ERR("alloc failed , mem TestCase would be failed!!!!%x !!! %x", g_memPool, g_testPool);
-    }
-}
-
-void MemEnd(void)
-{
-    LOS_MemFree(LOSCFG_SYS_HEAP_ADDR, g_memPool);
-    LOS_MemFree(LOSCFG_SYS_HEAP_ADDR, g_testPool);
-}
-
-void MemInit(void)
-{
-    (void)LOS_MemInit(g_memPool, TEST_MEM_SIZE);
-}
-
-void MemFree(void)
-{
-    (void)memset_s(g_memPool, TEST_MEM_SIZE, 0, TEST_MEM_SIZE);
-    (void)LOS_MemDeInit(g_memPool);
-}
-
-UINT32 MemGetFreeSize(void *pool)
-{
-    return LOS_MemPoolSizeGet(pool) - LOS_MemTotalUsedGet(pool);
-}
-
-UINT32 CalPow(UINT32 exp)
-{
-    UINT32 pw = 1;
-    pw <<= exp;
-    return pw;
-}
-
-VOID ItSuiteLosMem(void)
-{
-    MemStart();
-
-    ItLosMem001();
-    ItLosMem002();
-    ItLosMem003();
-    ItLosMem004();
-    ItLosMem006();
-    ItLosMem007();
-    ItLosMem008();
-    ItLosMem009();
-    ItLosMem010();
-    ItLosMem011();
-    ItLosMem012();
-    ItLosMem013();
-    ItLosMem014();
-    ItLosMem015();
-    ItLosMem016();
-    ItLosMem017();
-    ItLosMem018();
-    ItLosMem019();
-    ItLosMem020();
-#if (LOSCFG_TEST_MUCH_LOG == 1) // when open this， Too many logs will printed
-    ItLosMem035();
-    ItLosMem036();
-    ItLosMem037();
-    ItLosMem038();
-#endif
-    ItLosMem040();
-    ItLosMem045();
 #if (LOSCFG_MEM_MUL_REGIONS == 1)
-    ItLosMem046();
-    ItLosMem047();
+
+// simulate two non-continuous memory regions
+STATIC UINT8 g_memGap_TC47_Gap1[0x10];
+STATIC UINT8 g_memPool_TC47_01[0x1000];
+STATIC UINT8 g_memGap_TC47_Gap2[0x10];
+STATIC UINT8 g_memPool_TC47_02[0x400];
+
+static UINT32 TestCase(VOID)
+{
+    UINT32 ret;
+    UINT32 size;
+    void *p = NULL;
+    LosMemRegion memRegions[] =
+        {
+            {g_memPool_TC47_01, 0x1000},
+            {g_memPool_TC47_02, 0x400}
+        };
+
+    // Initialize the LOS_MemRegionsAdd
+    ret = LOS_MemRegionsAdd(NULL, memRegions, sizeof(memRegions) / sizeof(memRegions[0]));
+    if (ret != LOS_OK) {
+        return ret;
+    }
+
+    // p points to the start address of the gap node between g_memPool_TC47_01 and g_memPool_TC47_02
+    p = g_memPool_TC47_01 + 0x1000;
+    ret = LOS_MemFree((void *)&g_memPool_TC47_01, p);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_NOK, ret);
+
+    size = 0x100;
+    p = LOS_MemAlloc((void *)&g_memPool_TC47_01, size);
+    ICUNIT_ASSERT_NOT_EQUAL(p, NULL, 0);
+
+    (void)memset_s(p, size, 1, size);
+    (void)memset_s(g_memGap_TC47_Gap1, 0x10, 1, 0x10);
+    (void)memset_s(g_memGap_TC47_Gap2, 0x10, 1, 0x10);
+
+    ret = LOS_MemFree((void *)&g_memPool_TC47_01, p);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, 0);
+    return LOS_OK;
+}
+#else
+static UINT32 TestCase(VOID)
+{
+    return LOS_OK;
+}
 #endif
 
-#if (LOS_KERNEL_TEST_FULL == 1)
-    ItLosTick001();
-#endif
-    MemEnd();
+VOID ItLosMem047(void)
+{
+    TEST_ADD_CASE("ItLosMem047", TestCase, TEST_LOS, TEST_MEM, TEST_LEVEL1, TEST_FUNCTION);
 }
+
+
+

@@ -120,6 +120,47 @@ extern UINT32 LOS_MemDeInit(VOID *pool);
 extern UINT32 LOS_MemPoolList(VOID);
 #endif
 
+#if (LOSCFG_MEM_MUL_REGIONS == 1)
+typedef struct {
+    VOID *startAddress;
+    UINT32 length;
+} LosMemRegion;
+
+/**
+ * @ingroup los_memory
+ * @brief Initialize multiple non-continuous memory regions.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to initialize multiple non-continuous memory regions. If the starting address of a pool is specified,
+ *  the memory regions will be linked to the pool as free nodes. Otherwise, the first memory region will be initialized as a 
+ *  new pool, and the rest regions will be linked as free nodes to the new pool.</li>
+ * </ul>
+ * 
+ * @attention
+ * <ul>
+ * <li>If the starting address of a memory pool is specified, the start address of the non-continuous memory regions should be
+ *  greater than the end address of the memory pool.</li>
+ * <li>The multiple non-continuous memory regions shouldn't conflict with each other.</li>
+ * </ul>
+ *
+ * @param pool           [IN] The memory pool address. If NULL is specified, the start address of first memory region will be 
+ *                            initialized as the memory pool address. If not NULL, it should be a valid address of a memory pool.
+ * @param memRegions     [IN] The LosMemRegion array that contains multiple non-continuous memory regions. The start address
+ *                           of the memory regions are placed in ascending order.
+ * @param memRegionCount [IN] The count of non-continuous memory regions, and it should be the length of the LosMemRegion array.
+ * 
+ * @retval #LOS_NOK    The multiple non-continuous memory regions fails to be initialized.
+ * @retval #LOS_OK     The multiple non-continuous memory regions is initialized successfully.
+ * @par Dependency:
+ * <ul>
+ * <li>los_memory.h: the header file that contains the API declaration.</li>
+ * </ul>
+ * @see None.
+ */
+extern UINT32 LOS_MemRegionsAdd(VOID *pool, const LosMemRegion * const memRegions, UINT32 memRegionCount);
+#endif
+
 /**
  * @ingroup los_memory
  * Memory pool extern information structure

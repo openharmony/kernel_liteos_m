@@ -55,6 +55,8 @@ static_library("test_mem") {
     "It_los_mem_038.c",
     "It_los_mem_040.c",
     "It_los_mem_045.c",
+    "It_los_mem_046.c",
+    "It_los_mem_047.c",
     "It_los_tick_001.c",
     "it_los_mem.c",
   ]
