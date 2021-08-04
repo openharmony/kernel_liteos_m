@@ -48,8 +48,6 @@
     .type HalStartFirstTask, %function
     .global HalStartFirstTask
 HalStartFirstTask:
-    .fnstart
-    .cantunwind
     MOV     R0, #2
     MSR     CONTROL, R0
 
@@ -77,7 +75,6 @@ __DisabledFPU1:
     MSR     PSP, R12
     CPSIE   I
     BX      R3
-    .fnend
 
     .type HalIntLock, %function
     .global HalIntLock

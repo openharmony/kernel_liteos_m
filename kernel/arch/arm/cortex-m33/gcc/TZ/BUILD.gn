@@ -41,6 +41,8 @@ static_library("arch") {
   ]
 
   include_dirs = [
+    "./non_secure",
+    "./secure",
     "../../../../../../kernel/arch/include",
     "../../../../../../kernel/arch/include",
     "../../../../../../kernel/include",

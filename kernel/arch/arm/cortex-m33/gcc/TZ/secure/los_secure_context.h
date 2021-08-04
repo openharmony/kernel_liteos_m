@@ -63,5 +63,3 @@ extern VOID HalSecureContextSaveAsm(OsSecureContext *secureContext);
 #endif /* __cplusplus */
 
 #endif
-
-

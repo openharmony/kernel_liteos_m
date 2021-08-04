@@ -42,6 +42,7 @@
 #include "los_swtmr.h"
 #include "los_tick.h"
 #include "los_context.h"
+#include "los_interrupt.h"
 
 /* accumulative time delta from discontinuous modify */
 STATIC struct timespec g_accDeltaFromSet;

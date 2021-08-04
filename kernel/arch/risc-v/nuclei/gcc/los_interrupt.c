@@ -71,13 +71,13 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
                                      HWI_PROC_FUNC handler,
                                      HWI_ARG_T arg)
 {
-    if (hwiNum > SOC_INT_MAX){
+    if (hwiNum > SOC_INT_MAX) {
         return OS_ERRNO_HWI_NUM_INVALID;
     }
-    if (mode > ECLIC_VECTOR_INTERRUPT){
+    if (mode > ECLIC_VECTOR_INTERRUPT) {
         return OS_ERRNO_HWI_MODE_INVALID;
     }
-    if (arg > ECLIC_NEGTIVE_EDGE_TRIGGER){
+    if (arg > ECLIC_NEGTIVE_EDGE_TRIGGER) {
         return OS_ERRNO_HWI_ARG_INVALID;
     }
 

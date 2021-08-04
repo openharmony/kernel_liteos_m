@@ -231,3 +231,23 @@ int pthread_attr_getstacksize(const pthread_attr_t *attr, size_t *stackSize)
 
     return 0;
 }
+
+int sched_get_priority_min(int policy)
+{
+    if (policy != SCHED_RR) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    return LOS_TASK_PRIORITY_LOWEST;
+}
+
+int sched_get_priority_max(int policy)
+{
+    if (policy != SCHED_RR) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    return LOS_TASK_PRIORITY_HIGHEST;
+}

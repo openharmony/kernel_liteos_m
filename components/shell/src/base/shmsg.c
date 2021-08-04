@@ -64,7 +64,7 @@ char *GetCmdName(const char *cmdline, unsigned int len)
 {
     unsigned int loop;
     const char *tmpStr = NULL;
-    bool quotes = FALSE;
+    BOOL quotes = FALSE;
     char *cmdName = NULL;
     if (cmdline == NULL) {
         return NULL;
@@ -78,7 +78,7 @@ char *GetCmdName(const char *cmdline, unsigned int len)
 
     /* Scan the 'cmdline' string for command */
     /* Notice: Command string must not have any special name */
-    for (tmpStr = cmdline, loop = 0; (*tmpStr != '\0') && (loop < len);) {
+    for (tmpStr = cmdline, loop = 0; (*tmpStr != '\0') && (loop < len); ) {
         /* If reach a double quotes, switch the quotes matching status */
         if (*tmpStr == '\"') {
             SWITCH_QUOTES_STATUS(quotes);
@@ -114,12 +114,10 @@ int ShellCmdExec(const char *msgName, const char *cmdString)
     }
 
     uintRet = ShellMsgTypeGet(&cmdParsed, msgName);
-
     if (uintRet != LOS_OK) {
         PRINTK("%s:command not found\n", msgName);
         return -EFAULT;
     } else {
-
         (void)OsCmdExec(&cmdParsed, (char *)cmdString);
     }
     return 0;

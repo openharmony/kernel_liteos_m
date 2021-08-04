@@ -47,11 +47,9 @@
 #include "lwip/icmp.h"
 #include "los_config.h"
 #include <string.h>
-#include "lwip/api_shell.h"
 
 #include "shcmd.h"
 #include "shell.h"
-#include "los_timer_pri.h"
 #include "los_debug.h"
 #include "los_task.h"
 
@@ -104,10 +102,10 @@ int print_netif(struct netif *netif, char *print_buf, unsigned int buf_len)
     if (buf_len < 1) {
         goto out;
     }
-    if(netif->link_layer_type == LOOPBACK_IF){
-      ret = snprintf_s(tmp, buf_len, (buf_len-1), "%s\t", netif->name);
+    if (netif->link_layer_type == LOOPBACK_IF) {
+        ret = snprintf_s(tmp, buf_len, (buf_len - 1), "%s\t", netif->name);
     } else {
-      ret = snprintf_s(tmp, buf_len, (buf_len-1), "%s%u\t", netif->name, netif->num);
+        ret = snprintf_s(tmp, buf_len, (buf_len - 1), "%s%u\t", netif->name, netif->num);
     }
 
     if ((ret <= 0) || ((unsigned int)ret >= buf_len))
@@ -317,8 +315,7 @@ static int ping_kill = 0;
 
 static void lwip_ping_usage(void)
 {
-    PRINTK("Usage:"\
-         "\n  ping [ip]\n"
+    PRINTK("Usage:\n  ping [ip]\n");
 }
 
 LWIP_STATIC int OsPingFunc(u32_t *parg)
@@ -332,11 +329,11 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
     u32_t iecho_len;
     s16_t ip_hlen;
     u32_t forever;
-    u32_t i = 0;
+    u32_t i;
     u32_t succ_cnt = 0;
     u32_t failed_cnt = 0;
     struct timespec start, end;
-    long timout_ms = 0;
+    long timout_ms;
     struct pollfd pfd;
     long rtt;
     int ret = 0;

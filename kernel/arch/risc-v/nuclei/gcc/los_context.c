@@ -29,7 +29,6 @@
 extern VOID HalHwiInit(VOID);
 
 #define INITIAL_MSTATUS                 ( MSTATUS_MPP | MSTATUS_MPIE | MSTATUS_FS_INITIAL)
-
 #define ALIGN_DOWN(size, align)         ((size) & ~((align) - 1))
 
 #ifdef __cplusplus
