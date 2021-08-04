@@ -276,12 +276,12 @@ typedef struct tagSwTmrCtrl {
     UINT8               ucSensitive;    /* align enable                                          */
 #endif
     UINT32              usTimerID;      /* Software timer ID                                     */
-    UINT32              uwCount;        /* Times that a software timer works                     */
     UINT32              uwInterval;     /* Timeout interval of a periodic software timer         */
     UINT32              uwArg;          /* Parameter passed in when the callback function
                                            that handles software timer timeout is called         */
     SWTMR_PROC_FUNC     pfnHandler;     /* Callback function that handles software timer timeout */
     SortLinkList        stSortList;
+    UINT64              startTime;
 } SWTMR_CTRL_S;
 
 

@@ -64,11 +64,11 @@ static UINT32 Testcase(VOID)
 
     // 4, Timeout interval of a periodic software timer.
     ret = LOS_SwtmrCreate(4, LOS_SWTMR_MODE_PERIOD, Case1, &swtmrId1, 0xffff, OS_SWTMR_ROUSES_ALLOW,
-        OS_SWTMR_ALIGN_SENSITIVE);
+        OS_SWTMR_ALIGN_INSENSITIVE);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
     // 4, Timeout interval of a periodic software timer.
     ret = LOS_SwtmrCreate(4, LOS_SWTMR_MODE_PERIOD, Case2, &swtmrId2, 0xffff, OS_SWTMR_ROUSES_ALLOW,
-        OS_SWTMR_ALIGN_SENSITIVE);
+        OS_SWTMR_ALIGN_INSENSITIVE);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ret = LOS_SwtmrStart(swtmrId1);

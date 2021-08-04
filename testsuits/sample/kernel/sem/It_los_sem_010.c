@@ -45,9 +45,6 @@ static VOID HwiF01(void)
     TestHwiClear(HWI_NUM_TEST);
 
     ret = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
-    ICUNIT_TRACK_EQUAL(ret, LOS_OK, ret);
-
-    ret = LOS_SemPend(g_usSemID, LOS_WAIT_FOREVER);
     ICUNIT_TRACK_EQUAL(ret, LOS_ERRNO_SEM_PEND_INTERR, ret);
 
     ret = LOS_SemPend(g_usSemID, 1);

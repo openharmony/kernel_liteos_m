@@ -74,8 +74,10 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_TaskDelay(20); // 20, set delay time.
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    // 2, Here, assert that g_testCount is equal to this .
-    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT); // 1, Here, assert that g_testCount is equal to this .
+
+    ret = LOS_TaskDelay(20); // 20, set delay time.
+    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT); // 3, Here, assert that g_testCount is equal to this .
 
     ret = LOS_SwtmrDelete(swtmrId1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
@@ -85,8 +87,7 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_TaskDelay(20); // 20, set delay time.
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
-    // 2, Here, assert that g_testCount is equal to this .
-    ICUNIT_ASSERT_EQUAL(g_testCount, 2, g_testCount);
+    ICUNIT_ASSERT_EQUAL(g_testCount, 3, g_testCount); // 3, Here, assert that g_testCount is equal to this .
 
     return LOS_OK;
 

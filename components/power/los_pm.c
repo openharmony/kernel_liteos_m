@@ -107,7 +107,7 @@ STATIC VOID OsPmTickTimerStop(LosPmCB *pm)
     sleepCycle = OS_SYS_NS_TO_CYCLE(sleepCycle, tickTimer->freq);
 
     /* The main CPU reduces the frequency */
-    pm->enterSleepTime = OsGetCurrSchedTimeCycle();
+    pm->enterSleepTime = OsGetCurrSysTimeCycle();
     tickTimer->tickLock();
     tickTimer->timerStart(sleepCycle);
     return;

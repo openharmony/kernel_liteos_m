@@ -46,7 +46,7 @@ static VOID TaskF01(VOID)
     tick2 = LOS_TickCountGet();
     tick2 = tick2 - tick1;
 
-    if ((tick2 != 10) && (tick2 != 11)) { // 10, 11 delay time
+    if (tick2 < 10) { // 10, delay time
         ICUNIT_GOTO_EQUAL(tick2, 0, tick2, EXIT); // 0, Here, assert that result is equal to 0.
     }
 

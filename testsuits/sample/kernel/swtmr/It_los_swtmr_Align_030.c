@@ -99,10 +99,17 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_TaskDelay(20); // 20, set delay time.
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    ICUNIT_GOTO_EQUAL(g_swtmrCount2 - g_swtmrCount1, 0, g_swtmrCount2 - g_swtmrCount1, EXIT);
-    ICUNIT_GOTO_EQUAL(g_swtmrCount3 - g_swtmrCount2, 0, g_swtmrCount3 - g_swtmrCount2, EXIT);
-    // 3, Here, assert that g_testCount is equal to this .
-    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT);
+
+    ICUNIT_GOTO_EQUAL(g_swtmrCount1, 1, g_swtmrCount1, EXIT); // 1, Here, assert that g_testCount is equal to this .
+    ICUNIT_GOTO_EQUAL(g_swtmrCount2, 0, g_swtmrCount2, EXIT); // 0, Here, assert that g_testCount is equal to this .
+    ICUNIT_GOTO_EQUAL(g_swtmrCount3, 0, g_swtmrCount3, EXIT); // 0, Here, assert that g_testCount is equal to this .
+
+    ret = LOS_TaskDelay(60); // 60, set delay time.
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+
+    ICUNIT_GOTO_EQUAL(g_swtmrCount1, 4, g_swtmrCount1, EXIT); // 4, Here, assert that g_testCount is equal to this .
+    ICUNIT_GOTO_EQUAL(g_swtmrCount2, 2, g_swtmrCount2, EXIT); // 2, Here, assert that g_testCount is equal to this .
+    ICUNIT_GOTO_EQUAL(g_swtmrCount3, 1, g_swtmrCount3, EXIT); // 1, Here, assert that g_testCount is equal to this .
 
     ret = LOS_SwtmrDelete(swtmrId1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
@@ -112,11 +119,6 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_SwtmrDelete(swtmrId3);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
-
-    ret = LOS_TaskDelay(20); // 20, set delay time.
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
-    // 3, Here, assert that g_testCount is equal to this .
-    ICUNIT_ASSERT_EQUAL(g_testCount, 3, g_testCount);
 
     return LOS_OK;
 
