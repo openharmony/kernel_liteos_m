@@ -668,6 +668,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *
     taskCB->msg             = NULL;
     taskCB->stackPointer    = HalTskStackInit(taskCB->taskID, taskInitParam->uwStackSize, topOfStack);
     SET_SORTLIST_VALUE(&taskCB->sortList, OS_SORT_LINK_INVALID_TIME);
+    LOS_EventInit(&(taskCB->event));
     return LOS_OK;
 }
 
@@ -920,6 +921,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
     OsHookCall(LOS_HOOK_TYPE_TASK_DELETE, taskCB);
     OsSchedTaskExit(taskCB);
 
+    LOS_EventDestroy(&(taskCB->event));
     taskCB->event.uwEventID = OS_NULL_INT;
     taskCB->eventMask = 0;
 #if (LOSCFG_BASE_CORE_CPUP == 1)
