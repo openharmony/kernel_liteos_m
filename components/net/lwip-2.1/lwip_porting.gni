@@ -36,9 +36,10 @@ LWIP_PORTING_FILES = [
   "$LWIP_PORTING_DIR/porting/src/netdb_porting.c",
   "$LWIP_PORTING_DIR/porting/src/sockets_porting.c",
   "$LWIP_PORTING_DIR/porting/src/sys_arch.c",
-  if (enable_ohos_kernel_liteos_m_shell== true) {
-    "$LWIP_PORTING_DIR/porting/src/api_shell.c",
-  }
   "$LWIP_PORTING_DIR/enhancement/src/fixme.c",
   "$LWIP_PORTING_DIR/enhancement/src/lwip_ifaddrs.c",
 ]
+
+if (enable_ohos_kernel_liteos_m_shell == true) {
+  LWIP_PORTING_FILES += [ "$LWIP_PORTING_DIR/porting/src/api_shell.c" ]
+}
