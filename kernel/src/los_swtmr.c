@@ -120,106 +120,107 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsSwtmrTaskCreate(VOID)
 }
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
-STATIC_INLINE UINT32 OsSwtmrCalcAlignCount(UINT64 currTime, UINT32 interval, UINT32 timerId)
+STATIC UINT64 OsSwtmrCalcStartTime(UINT64 currTime, SWTMR_CTRL_S *swtmr, const SWTMR_CTRL_S *alignSwtmr)
 {
-    UINT32 count;
-
-    if (interval == 0) {
-        return interval;
+    UINT64 usedTime, startTime;
+    UINT64 alignEnd = (UINT64)alignSwtmr->uwInterval * OS_CYCLE_PER_TICK;
+    UINT64 swtmrTime = (UINT64)swtmr->uwInterval * OS_CYCLE_PER_TICK;
+    UINT64 remainTime = OsSortLinkGetRemainTime(currTime, &alignSwtmr->stSortList);
+    if (remainTime == 0) {
+        startTime = GET_SORTLIST_VALUE(&alignSwtmr->stSortList);
+    } else {
+        usedTime = alignEnd - remainTime;
+        startTime = alignSwtmr->startTime + (usedTime / swtmrTime) * swtmrTime;
     }
-    SWTMR_CTRL_S *cur = g_swtmrCBArray + timerId % LOSCFG_BASE_CORE_SWTMR_LIMIT;
-    count = OsSortLinkGetTargetExpireTime(currTime, &cur->stSortList);
-    return (interval - (cur->uwInterval - count) % interval);
+
+    return startTime;
 }
 
-VOID OsSwtmrFindAlignPos(UINT64 currTime, SWTMR_CTRL_S *swtmr)
+UINT64 OsSwtmrFindAlignPos(UINT64 currTime, SWTMR_CTRL_S *swtmr)
 {
     SWTMR_CTRL_S *minInLarge = (SWTMR_CTRL_S *)NULL;
     SWTMR_CTRL_S *maxInLittle = (SWTMR_CTRL_S *)NULL;
-    UINT32 currSwtmrTimes, swtmrTimes;
     UINT32 minInLargeVal = OS_NULL_INT;
     UINT32 maxInLittleVal = OS_NULL_INT;
-
     LOS_DL_LIST *listHead = &g_swtmrSortLinkList->sortLink;
-    if (LOS_ListEmpty(listHead)) {
-        return;
-    }
-
-    SwtmrAlignData currSwtmrAlgInfo = g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT];
-    currSwtmrTimes = currSwtmrAlgInfo.times;
+    SwtmrAlignData swtmrAlgInfo = g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT];
     LOS_DL_LIST *listObject = listHead->pstNext;
+
+    if (LOS_ListEmpty(listHead)) {
+        goto RETURN_PERIOD;
+    }
 
     do {
         SortLinkList *sortList = LOS_DL_LIST_ENTRY(listObject, SortLinkList, sortLinkNode);
-        SWTMR_CTRL_S *cur = LOS_DL_LIST_ENTRY(sortList, SWTMR_CTRL_S, stSortList);
-        SwtmrAlignData swtmrAlgInfo = g_swtmrAlignID[cur->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT];
+        SWTMR_CTRL_S *swtmrListNode = LOS_DL_LIST_ENTRY(sortList, SWTMR_CTRL_S, stSortList);
+        SwtmrAlignData alignListNode = g_swtmrAlignID[swtmrListNode->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT];
+
         /* swtmr not start */
-        if ((swtmrAlgInfo.isAligned == 0) || (swtmrAlgInfo.canAlign == 0)) {
+        if ((alignListNode.isAligned == 0) || (alignListNode.canAlign == 0)) {
             goto CONTINUE_NEXT_NODE;
-        }
-        /* find same interval timer, directly return */
-        if (cur->uwInterval == swtmr->uwInterval) {
-            swtmr->uwCount = OsSortLinkGetTargetExpireTime(currTime, &cur->stSortList);
-            return;
         }
 
-        if ((currSwtmrAlgInfo.canMultiple != 1) || (swtmrAlgInfo.times == 0)) {
+        /* find same interval timer, directly return */
+        if (swtmrListNode->uwInterval == swtmr->uwInterval) {
+            return OsSwtmrCalcStartTime(currTime, swtmr, swtmrListNode);
+        }
+
+        if ((swtmrAlgInfo.canMultiple != 1) || (alignListNode.times == 0)) {
             goto CONTINUE_NEXT_NODE;
         }
-        swtmrTimes = swtmrAlgInfo.times;
-        if (currSwtmrTimes == 0) {
-            return;
+
+        if (swtmrAlgInfo.times == 0) {
+            goto RETURN_PERIOD;
         }
-        if ((swtmrTimes >= currSwtmrTimes) && ((swtmrTimes % currSwtmrTimes) == 0)) {
-            if (minInLargeVal > (swtmrTimes / currSwtmrTimes)) {
-                minInLargeVal = swtmrTimes / currSwtmrTimes;
-                minInLarge = cur;
+
+        if ((alignListNode.times >= swtmrAlgInfo.times) && ((alignListNode.times % swtmrAlgInfo.times) == 0)) {
+            if (minInLargeVal > (alignListNode.times / swtmrAlgInfo.times)) {
+                minInLargeVal = alignListNode.times / swtmrAlgInfo.times;
+                minInLarge = swtmrListNode;
             }
-        } else if ((swtmrTimes < currSwtmrTimes) && ((currSwtmrTimes % swtmrTimes) == 0)) {
-            if (maxInLittleVal > (currSwtmrTimes / swtmrTimes)) {
-                maxInLittleVal = currSwtmrTimes / swtmrTimes;
-                maxInLittle = cur;
+        } else if ((alignListNode.times < swtmrAlgInfo.times) && ((swtmrAlgInfo.times % alignListNode.times) == 0)) {
+            if (maxInLittleVal > (swtmrAlgInfo.times / alignListNode.times)) {
+                maxInLittleVal = swtmrAlgInfo.times / alignListNode.times;
+                maxInLittle = swtmrListNode;
             }
         }
+
 CONTINUE_NEXT_NODE:
         listObject = listObject->pstNext;
     } while (listObject != listHead);
 
     if (minInLarge != NULL) {
-        swtmr->uwCount = OsSwtmrCalcAlignCount(currTime, swtmr->uwInterval, minInLarge->usTimerID);
+        return OsSwtmrCalcStartTime(currTime, swtmr, minInLarge);
     } else if (maxInLittle != NULL) {
-        swtmr->uwCount = OsSortLinkGetTargetExpireTime(currTime, &maxInLittle->stSortList);
+        return OsSwtmrCalcStartTime(currTime, swtmr, maxInLittle);
     }
 
-    return;
+RETURN_PERIOD:
+    return currTime;
 }
 #endif
 
 /*****************************************************************************
 Function    : OsSwtmrStart
 Description : Start Software Timer
+Input       : currTime ------- Current system time
 Input       : swtmr ---------- Need to start Software Timer
 Output      : None
 Return      : None
 *****************************************************************************/
-LITE_OS_SEC_TEXT VOID OsSwtmrStart(SWTMR_CTRL_S *swtmr)
+LITE_OS_SEC_TEXT VOID OsSwtmrStart(UINT64 currTime, SWTMR_CTRL_S *swtmr)
 {
-    UINT64 currTime = OsGetCurrSchedTimeCycle();
-
-    swtmr->uwCount = swtmr->uwInterval;
     swtmr->ucState = OS_SWTMR_STATUS_TICKING;
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     if ((g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT].canAlign == 1) &&
         (g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT].isAligned == 0)) {
         g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT].isAligned = 1;
-        OsSwtmrFindAlignPos(currTime, swtmr);
+        swtmr->startTime = OsSwtmrFindAlignPos(currTime, swtmr);
     }
 #endif
-    OsAdd2SortLink(&swtmr->stSortList, currTime, swtmr->uwCount, OS_SORT_LINK_SWTMR);
-    if (LOS_TaskIsRunning()) {
-        OsSchedUpdateExpireTime(currTime, TRUE);
-    }
+    OsAdd2SortLink(&swtmr->stSortList, swtmr->startTime, swtmr->uwInterval, OS_SORT_LINK_SWTMR);
+    OsSchedUpdateExpireTime(currTime, TRUE);
 }
 
 /*****************************************************************************
@@ -248,15 +249,13 @@ LITE_OS_SEC_TEXT VOID OsSwtmrStop(SWTMR_CTRL_S *swtmr)
     OsDeleteSortLink(&swtmr->stSortList, OS_SORT_LINK_SWTMR);
     swtmr->ucState = OS_SWTMR_STATUS_CREATED;
 
-    if (LOS_TaskIsRunning()) {
-        OsSchedUpdateExpireTime(OsGetCurrSchedTimeCycle(), TRUE);
+    OsSchedUpdateExpireTime(OsGetCurrSchedTimeCycle(), TRUE);
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
-        g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT].isAligned = 0;
+    g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT].isAligned = 0;
 #endif
-    }
 }
 
-STATIC VOID OsSwtmrTimeoutHandle(SWTMR_CTRL_S *swtmr)
+STATIC VOID OsSwtmrTimeoutHandle(UINT64 currTime, SWTMR_CTRL_S *swtmr)
 {
     SwtmrHandlerItem swtmrHandler;
 
@@ -272,7 +271,7 @@ STATIC VOID OsSwtmrTimeoutHandle(SWTMR_CTRL_S *swtmr)
             swtmr->usTimerID %= LOSCFG_BASE_CORE_SWTMR_LIMIT;
         }
     } else if (swtmr->ucMode == LOS_SWTMR_MODE_PERIOD) {
-        OsSwtmrStart(swtmr);
+        OsSwtmrStart(currTime, swtmr);
     } else if (swtmr->ucMode == LOS_SWTMR_MODE_NO_SELFDELETE) {
         swtmr->ucState = OS_SWTMR_STATUS_CREATED;
     }
@@ -290,11 +289,12 @@ STATIC BOOL OsSwtmrScan(VOID)
     SortLinkList *sortList = LOS_DL_LIST_ENTRY(listObject->pstNext, SortLinkList, sortLinkNode);
     UINT64 currTime = OsGetCurrSchedTimeCycle();
     while (sortList->responseTime <= currTime) {
-        OsDeleteNodeSortLink(g_swtmrSortLinkList, sortList);
-
         SWTMR_CTRL_S *swtmr = LOS_DL_LIST_ENTRY(sortList, SWTMR_CTRL_S, stSortList);
+        swtmr->startTime = GET_SORTLIST_VALUE(sortList);
+
+        OsDeleteNodeSortLink(g_swtmrSortLinkList, sortList);
         OsHookCall(LOS_HOOK_TYPE_SWTMR_EXPIRED, swtmr);
-        OsSwtmrTimeoutHandle(swtmr);
+        OsSwtmrTimeoutHandle(currTime, swtmr);
 
         needSchedule = TRUE;
         if (LOS_ListEmpty(listObject)) {
@@ -468,7 +468,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_SwtmrCreate(UINT32 interval,
     swtmr->ucMode        = mode;
     swtmr->uwInterval    = interval;
     swtmr->pstNext       = (SWTMR_CTRL_S *)NULL;
-    swtmr->uwCount       = 0;
     swtmr->uwArg         = arg;
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     swtmr->ucRouses      = rouses;
@@ -523,7 +522,8 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStart(UINT32 swtmrId)
             OsSwtmrStop(swtmr);
             /* fall through */
         case OS_SWTMR_STATUS_CREATED:
-            OsSwtmrStart(swtmr);
+            swtmr->startTime = OsGetCurrSchedTimeCycle();
+            OsSwtmrStart(swtmr->startTime, swtmr);
             break;
         default:
             ret = LOS_ERRNO_SWTMR_STATUS_INVALID;

@@ -60,7 +60,7 @@ LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)
 
 UINT64 LOS_SysCycleGet(VOID)
 {
-    return OsGetCurrSchedTimeCycle();
+    return OsGetCurrSysTimeCycle();
 }
 
 /*****************************************************************************
