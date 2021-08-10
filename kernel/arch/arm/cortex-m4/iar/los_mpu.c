@@ -32,6 +32,7 @@
 #include "los_config.h"
 #include "los_context.h"
 
+#if (LOSCFG_MPU_ENABLE == 1)
 
 #define SIZE_4G_BYTE        0x100000000
 #define MPU_MAX_REGION_NUM  8
@@ -233,4 +234,4 @@ INT32 HalMpuUnusedRegionGet(VOID)
         return id;
     }
 }
-
+#endif
