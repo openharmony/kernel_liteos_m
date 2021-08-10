@@ -765,6 +765,14 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_SECURE_STACK_DEFAULT_SIZE                     512
 #endif
 
+/**
+ * @ingroup los_config
+ * Configuration item for mpu.
+ */
+#ifndef LOSCFG_MPU_ENABLE
+#define LOSCFG_MPU_ENABLE                                    0
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }
