@@ -30,7 +30,7 @@
  */
 #include "fs_operations.h"
 #include "los_config.h"
-#ifdef LOSCFG_SUPPORT_FATFS
+#if (LOSCFG_SUPPORT_FATFS == 1)
 #include "fatfs.h"
 #endif
 #include "dirent.h"
