@@ -161,6 +161,7 @@ typedef enum {
     TEST_TINYXML,
 #endif
     TEST_DRIVERBASE,
+    TEST_DYNLINK,
 } LiteOS_test_module;
 
 typedef enum {

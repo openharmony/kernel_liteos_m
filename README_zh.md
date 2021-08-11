@@ -23,6 +23,7 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 │   ├── backtrace        # 回溯栈支持
 │   ├── cppsupport       # C++支持
 │   ├── cpup             # CPUP功能
+│   ├── dynlink          # 动态加载与链接
 │   ├── exchook          # 异常钩子
 │   ├── fs               # 文件系统
 │   └── net              # Network功能

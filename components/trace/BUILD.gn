@@ -28,21 +28,21 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static_library("trace") {
-  sources = [ 
-    "los_trace.c",
-    "trace_offline.c",
-    "trace_online.c",
+  sources = [
     "cnv/trace_cnv.c",
+    "los_trace.c",
+    "pipeline/serial/trace_pipeline_serial.c",
     "pipeline/trace_pipeline.c",
     "pipeline/trace_tlv.c",
-    "pipeline/serial/trace_pipeline_serial.c"
+    "trace_offline.c",
+    "trace_online.c",
   ]
 
   include_dirs = [
     "../../kernel/include",
     "../../kernel/arch/include",
     "../../utils",
-    "./", 
+    "./",
     "cnv",
     "pipeline",
     "pipeline/serial",

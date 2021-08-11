@@ -4,6 +4,7 @@
 │   ├── backtrace                                               --- 回溯栈支持
 │   ├── cppsupport                                              --- C++支持
 │   ├── cpup                                                    --- CPUP功能
+│   ├── dynlink                                                 --- 动态加载与链接
 │   ├── exchook                                                 --- 异常钩子
 │   ├── fs                                                      --- 文件系统
 │   └── net                                                     --- 网络功能

@@ -54,7 +54,7 @@ static_library("posix") {
   public_configs = [ ":include" ]
 
   public_deps = [
-    "//third_party/musl/porting/liteos_m/kernel",
     "//third_party/bounds_checking_function:libsec_static",
+    "//third_party/musl/porting/liteos_m/kernel",
   ]
 }

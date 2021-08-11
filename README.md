@@ -23,6 +23,7 @@ The directory structure is listed as below, for the detailed directories, please
 │   ├── backtrace        # Backtrace support
 │   ├── cppsupport       # C++ support
 │   ├── cpup             # CPU possession (CPUP)
+│   ├── dynlink          # Dynamic loader & linker
 │   ├── exchook          # Exception hook
 │   ├── fs               # File system
 │   └── net              # Network support

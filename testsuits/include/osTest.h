@@ -82,6 +82,7 @@ extern "C" {
 #endif
 #define LOS_KERNEL_FS_TEST 0
 #define LOS_KERNEL_MEM_TEST 1
+#define LOS_KERNEL_DYNLINK_TEST 0
 #define LOS_KERNEL_TICKLESS_TEST 0
 
 #define LITEOS_CMSIS_TEST 0
@@ -333,6 +334,7 @@ extern VOID ItSuiteLosSem(void);
 extern VOID ItSuiteLosSwtmr(void);
 extern VOID ItSuiteLosHwi(void);
 extern VOID ItSuiteLosMem(void);
+extern VOID ItSuiteLosDynlink(void);
 extern VOID ItSuite_Los_FatFs(void);
 
 extern VOID ItSuite_Cmsis_Lostask(void);
