@@ -27,6 +27,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//kernel/liteos_m/config.gni")
+
 static_library("shell") {
   sources = [
     "src/base/shcmd.c",
@@ -48,6 +50,9 @@ static_library("shell") {
     "./include",
   ]
 
+  if (enable_ohos_kernel_liteos_m_lwip == true) {
+    defines = [ "LWIP_SHELLCMD_ENABLE" ]
+  }
   deps = [
     "//kernel/liteos_m/kal/posix",
     "//third_party/bounds_checking_function:libsec_static",
