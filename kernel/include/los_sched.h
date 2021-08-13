@@ -51,6 +51,8 @@ typedef BOOL (*SchedScan)(VOID);
 
 extern UINT64 g_sysSchedStartTime;
 
+VOID OsSchedResetSchedResponseTime(UINT64 responseTime);
+
 VOID OsSchedUpdateSchedTimeBase(VOID);
 
 UINT64 OsGetCurrSysTimeCycle(VOID);
