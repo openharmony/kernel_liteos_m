@@ -354,6 +354,7 @@ typedef signed int             INTPTR;
 #define OS_FAIL       1
 #define OS_ERROR      (UINT32)(-1)
 #define OS_INVALID    (UINT32)(-1)
+#define OS_64BIT_MAX  (0xFFFFFFFFFFFFFFFFULL)
 
 #define asm           __asm
 #ifdef typeof
