@@ -60,13 +60,11 @@ STATIC UINT16 g_tickIntLock = 0;
 STATIC UINT64 g_tickStartTime = 0;
 STATIC UINT64 g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
 STATIC VOID (*SchedRealSleepTimeSet)(UINT64) = NULL;
-UINT64 g_sysSchedStartTime = 0;
+UINT64 g_sysSchedStartTime = OS_64BIT_MAX;
 
 STATIC VOID OsSchedSetStartTime(UINT64 currCycle)
 {
-    if (g_sysSchedStartTime == 0) {
-        g_sysSchedStartTime = currCycle;
-    }
+    g_sysSchedStartTime = currCycle;
 }
 
 UINT32 OsSchedRealSleepTimeSet(VOID (*func)(UINT64))
@@ -483,8 +481,10 @@ VOID OsSchedStart(VOID)
     g_losTask.newTask = newTask;
     g_losTask.runTask = g_losTask.newTask;
 
-    g_taskScheduled = 1;
+    /* Initialize the schedule timeline and enable scheduling */
+    g_taskScheduled = TRUE;
     OsSchedSetStartTime(OsGetCurrSysTimeCycle());
+
     newTask->startTime = OsGetCurrSchedTimeCycle();
     OsSchedTaskDeQueue(newTask);
 

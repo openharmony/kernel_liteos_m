@@ -93,11 +93,11 @@ VOID OsSchedTimerBaseReset(UINT64 currTime);
 
 STATIC INLINE UINT64 OsGetCurrSchedTimeCycle(VOID)
 {
-    if (g_sysSchedStartTime == 0) {
-        return g_sysSchedStartTime;
+    if (g_sysSchedStartTime != OS_64BIT_MAX) {
+        return (OsGetCurrSysTimeCycle() - g_sysSchedStartTime);
     }
 
-    return (OsGetCurrSysTimeCycle() - g_sysSchedStartTime);
+    return 0;
 }
 
 /**
