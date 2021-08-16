@@ -34,6 +34,7 @@
 #include "los_secure_context.h"
 #include "los_debug.h"
 #include "los_arch_context.h"
+#include "los_interrupt.h"
 
 OsSecureContext *g_secureContext = NULL;
 
@@ -69,6 +70,7 @@ VOID LOS_SecureContextAlloc(UINT32 secureStackSize)
         return;
     }
 
+    LOS_ASSERT((__get_IPSR() == 0) && (__get_PRIMASK() == 0));
     secureStackSize = LOS_Align(secureStackSize, sizeof(UINTPTR));
     HalSVCSecureContextAlloc(secureStackSize);
 }
