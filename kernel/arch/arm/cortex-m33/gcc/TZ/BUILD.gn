@@ -35,9 +35,6 @@ static_library("arch") {
     "non_secure/los_interrupt.c",
     "non_secure/los_timer.c",
     "non_secure/los_trustzone.c",
-    "secure/los_secure_context.c",
-    "secure/los_secure_context_asm.S",
-    "secure/los_secure_heap.c",
   ]
 
   include_dirs = [
