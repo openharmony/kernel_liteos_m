@@ -554,6 +554,14 @@ extern UINT8 *m_aucSysMem0;
 #define OS_SYS_NOCACHEMEM_ADDR                              (&g_sysNoCacheMem0[0])
 #endif
 
+/**
+ * @ingroup los_config
+ * Configuration of multiple non-continuous memory regions as one memory pool
+ */
+#ifndef LOSCFG_MEM_MUL_REGIONS
+#define LOSCFG_MEM_MUL_REGIONS                              0
+#endif
+
 /* =============================================================================
                                         Exception module configuration
 ============================================================================= */
