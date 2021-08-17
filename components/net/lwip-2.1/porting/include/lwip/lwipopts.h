@@ -216,7 +216,7 @@
 #define LWIP_ENABLE_NET_CAPABILITY      1
 #define LWIP_ENABLE_CAP_NET_BROADCAST   0
 
-// Options for GT
+// Options for liteos_m
 #undef LWIP_NETIF_PROMISC
 #define LWIP_NETIF_PROMISC              0
 
@@ -224,7 +224,7 @@
 #define LWIP_ICMP                       0
 
 #undef LWIP_DHCP
-#define LWIP_DHCP                       0
+#define LWIP_DHCP                       1
 
 #undef LWIP_IGMP
 #define LWIP_IGMP                       0
@@ -251,7 +251,7 @@
 #define MEMP_NUM_ARP_QUEUE              4
 
 #undef MEMP_NUM_NETBUF
-#define MEMP_NUM_NETBUF                 12
+#define MEMP_NUM_NETBUF                 32
 
 #undef MEMP_NUM_NETCONN
 #define MEMP_NUM_NETCONN                32

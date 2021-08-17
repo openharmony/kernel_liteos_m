@@ -44,7 +44,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "securec.h"
-#include "memory_pool.h"
 
 #ifdef htons
 #define LWIP_DONT_PROVIDE_BYTEORDER_FUNCTIONS
@@ -112,15 +111,8 @@ extern void HilogPrintf(const char *fmt, ...);
                                     "Assertion \"%s\" errno %d line %d in %s\n", \
                                     x, errno, __LINE__, __FILE__);} while (0)
 
-#define mem_clib_malloc LWIP_MEM_ALLOC
-#define mem_clib_free LWIP_MEM_FREE
-#define mem_clib_calloc LWIP_MEM_CALLOC
-
 #define init_waitqueue_head(...)
 #define poll_check_waiters(...)
 #define IOCTL_CMD_CASE_HANDLER()
-
-#define DNS_SERVER_ADDRESS(ipaddr)        (ip4_addr_set_u32(ipaddr, ipaddr_addr("114.114.114.114")))
-#define DNS_SERVER_ADDRESS_SECONDARY(ipaddr)        (ip4_addr_set_u32(ipaddr, ipaddr_addr("114.114.115.115")))
 
 #endif /* _LWIP_PORTING_CC_H_ */
