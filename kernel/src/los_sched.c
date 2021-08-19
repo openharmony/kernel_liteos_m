@@ -77,6 +77,13 @@ UINT32 OsSchedRealSleepTimeSet(VOID (*func)(UINT64))
     return LOS_OK;
 }
 
+VOID OsSchedResetSchedResponseTime(UINT64 responseTime)
+{
+    if (responseTime <= g_schedResponseTime) {
+        g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
+    }
+}
+
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
 STATIC UINT64 g_schedTimerBase;
 
@@ -529,6 +536,10 @@ BOOL OsSchedTaskSwitch(VOID)
         endTime = newTask->startTime + newTask->timeSlice;
     } else {
         endTime = OS_SCHED_MAX_RESPONSE_TIME - OS_TICK_RESPONSE_PRECISION;
+    }
+
+    if (g_schedResponseID == runTask->taskID) {
+        g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
     }
     OsSchedSetNextExpireTime(newTask->startTime, newTask->taskID, endTime, TRUE);
 

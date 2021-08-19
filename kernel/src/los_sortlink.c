@@ -135,6 +135,7 @@ VOID OsDeleteSortLink(SortLinkList *node, SortLinkType type)
 
     intSave = LOS_IntLock();
     if (node->responseTime != OS_SORT_LINK_INVALID_TIME) {
+        OsSchedResetSchedResponseTime(node->responseTime);
         OsDeleteNodeSortLink(sortLinkHeader, node);
     }
     LOS_IntRestore(intSave);
