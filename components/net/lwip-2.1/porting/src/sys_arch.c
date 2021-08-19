@@ -324,7 +324,7 @@ void sys_mutex_set_invalid(sys_mutex_t *mutex)
     *mutex = LOSCFG_BASE_IPC_MUX_LIMIT;
 }
 
-void HilogPrintf(const char *fmt, ...)
+void LwipLogPrintf(const char *fmt, ...)
 {
     if ((fmt == NULL) || (strlen(fmt) == 0)) {
         return;
@@ -337,8 +337,8 @@ void HilogPrintf(const char *fmt, ...)
     len = vsprintf_s(buf, sizeof(buf) - 1, fmt, ap);
     va_end(ap);
     if (len < 0) {
-        HILOG_INFO(HILOG_MODULE_APP, "log param invalid or buf is not enough.");
+        LWIP_LOGGER("log param invalid or buf is not enough.");
         return;
     }
-    HILOG_INFO(HILOG_MODULE_APP, buf);
+    LWIP_LOGGER(buf);
 }

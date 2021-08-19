@@ -93,23 +93,15 @@
 
 #define LWIP_RAND rand
 
-extern void HilogPrintf(const char *fmt, ...);
-
-#ifndef HILOG_INFO
-#define HILOG_INFO(...)
-#ifndef HILOG_MODULE_APP
-#define HILOG_MODULE_APP 0
-#endif
+#ifndef LWIP_LOGGER
+#define LWIP_LOGGER(msg)
 #endif
 
-#ifndef HILOG_ERROR
-#define HILOG_ERROR(...)
-#endif
-
-#define LWIP_PLATFORM_DIAG(vars) HilogPrintf vars
-#define LWIP_PLATFORM_ASSERT(x) do {HILOG_ERROR(HILOG_MODULE_APP, \
-                                    "Assertion \"%s\" errno %d line %d in %s\n", \
-                                    x, errno, __LINE__, __FILE__);} while (0)
+extern void LwipLogPrintf(const char *fmt, ...);
+#define LWIP_PLATFORM_DIAG(vars) LwipLogPrintf vars
+#define LWIP_PLATFORM_ASSERT(x) do { \
+        LWIP_PLATFORM_DIAG(("Assertion \"%s\" failed at line %d in %s\n", x, __LINE__, __FILE__)); \
+    } while (0)
 
 #define init_waitqueue_head(...)
 #define poll_check_waiters(...)
