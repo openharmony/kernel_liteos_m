@@ -38,6 +38,7 @@
 #define _LOS_CONTEXT_H
 
 #include "los_compiler.h"
+#include "los_interrupt.h"
 
 #ifdef __cplusplus
 #if __cplusplus
