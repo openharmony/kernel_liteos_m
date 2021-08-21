@@ -62,7 +62,7 @@ LITE_OS_SEC_TEXT_MINOR UINT8 *OsShellCmdConvertTskStatus(UINT16 taskStatus)
 
 LITE_OS_SEC_TEXT_MINOR STATIC VOID OsShellCmdTskInfoTitle(VOID)
 {
-    PRINTK("\r\nName                   TaskEntryAddr       TID    ");
+    PRINTK("Name                   TaskEntryAddr       TID    ");
 
     PRINTK("Priority   Status       "
            "StackSize       StackPoint   TopOfStack");
