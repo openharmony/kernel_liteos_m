@@ -548,7 +548,7 @@ VOID LOS_MemUsedNodeShow(VOID *pool)
     struct OsMemPoolHead *poolInfo = (struct OsMemPoolHead *)pool;
     struct OsMemNodeHead *tmpNode = NULL;
     struct OsMemNodeHead *endNode = NULL;
-    UINT32 intSave = 0;
+    UINT32 intSave;
     UINT32 count;
 
     PRINTK("\n\rnode          size    ");
@@ -1019,7 +1019,7 @@ VOID *LOS_MemAlloc(VOID *pool, UINT32 size)
 
     struct OsMemPoolHead *poolHead = (struct OsMemPoolHead *)pool;
     VOID *ptr = NULL;
-    UINT32 intSave = 0;
+    UINT32 intSave;
 
     MEM_LOCK(poolHead, intSave);
     do {
@@ -1063,7 +1063,7 @@ VOID *LOS_MemAllocAlign(VOID *pool, UINT32 size, UINT32 boundary)
     }
 
     struct OsMemPoolHead *poolHead = (struct OsMemPoolHead *)pool;
-    UINT32 intSave = 0;
+    UINT32 intSave;
     VOID *ptr = NULL;
     VOID *alignedPtr = NULL;
 
@@ -1270,7 +1270,7 @@ UINT32 LOS_MemFree(VOID *pool, VOID *ptr)
     UINT32 ret = LOS_NOK;
     struct OsMemPoolHead *poolHead = (struct OsMemPoolHead *)pool;
     struct OsMemNodeHead *node = NULL;
-    UINT32 intSave = 0;
+    UINT32 intSave;
 
     MEM_LOCK(poolHead, intSave);
     do {
@@ -1377,7 +1377,7 @@ VOID *LOS_MemRealloc(VOID *pool, VOID *ptr, UINT32 size)
     struct OsMemPoolHead *poolHead = (struct OsMemPoolHead *)pool;
     struct OsMemNodeHead *node = NULL;
     VOID *newPtr = NULL;
-    UINT32 intSave = 0;
+    UINT32 intSave;
 
     MEM_LOCK(poolHead, intSave);
     do {
@@ -1413,7 +1413,7 @@ UINT32 LOS_MemFreeByTaskID(VOID *pool, UINT32 taskID)
     struct OsMemNodeHead *tmpNode = NULL;
     struct OsMemUsedNodeHead *node = NULL;
     struct OsMemNodeHead *endNode = NULL;
-    UINT32 intSave = 0;
+    UINT32 intSave;
 
     MEM_LOCK(poolHead, intSave);
     endNode = OS_MEM_END_NODE(pool, poolHead->info.totalSize);
@@ -1468,7 +1468,7 @@ UINT32 LOS_MemTotalUsedGet(VOID *pool)
     struct OsMemPoolHead *poolInfo = (struct OsMemPoolHead *)pool;
     struct OsMemNodeHead *endNode = NULL;
     UINT32 memUsed = 0;
-    UINT32 intSave = 0;
+    UINT32 intSave;
 
     if (pool == NULL) {
         return LOS_NOK;
@@ -1800,7 +1800,7 @@ UINT32 LOS_MemIntegrityCheck(const VOID *pool)
     struct OsMemPoolHead *poolHead = (struct OsMemPoolHead *)pool;
     struct OsMemNodeHead *tmpNode = NULL;
     struct OsMemNodeHead *preNode = NULL;
-    UINT32 intSave = 0;
+    UINT32 intSave;
 
     MEM_LOCK(poolHead, intSave);
     if (OsMemIntegrityCheck(poolHead, &tmpNode, &preNode)) {
@@ -1867,7 +1867,7 @@ UINT32 LOS_MemInfoGet(VOID *pool, LOS_MEM_POOL_STATUS *poolStatus)
 
     struct OsMemNodeHead *tmpNode = NULL;
     struct OsMemNodeHead *endNode = NULL;
-    UINT32 intSave = 0;
+    UINT32 intSave;
 
     MEM_LOCK(poolInfo, intSave);
     endNode = OS_MEM_END_NODE(pool, poolInfo->info.totalSize);
@@ -1947,7 +1947,7 @@ UINT32 LOS_MemFreeNodeShow(VOID *pool)
     struct OsMemFreeNodeHead *node = NULL;
     UINT32 countNum[OS_MEM_FREE_LIST_COUNT] = {0};
     UINT32 index;
-    UINT32 intSave = 0;
+    UINT32 intSave;
 
     MEM_LOCK(poolInfo, intSave);
     for (index = 0; index < OS_MEM_FREE_LIST_COUNT; index++) {
@@ -2152,7 +2152,7 @@ STATIC VOID OsMemExcInfoGetSub(struct OsMemPoolHead *pool, MemInfoCB *memExcInfo
 {
     struct OsMemNodeHead *tmpNode = NULL;
     UINT32 taskID = OS_TASK_ERRORID;
-    UINT32 intSave = 0;
+    UINT32 intSave;
 
     (VOID)memset_s(memExcInfo, sizeof(MemInfoCB), 0, sizeof(MemInfoCB));
 
