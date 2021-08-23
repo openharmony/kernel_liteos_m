@@ -39,6 +39,27 @@
 #define NETIFAPI_VAR_ALLOC(name)    API_VAR_ALLOC(struct netifapi_msg, MEMP_NETIFAPI_MSG, name, ERR_MEM)
 #define NETIFAPI_VAR_FREE(name)     API_VAR_FREE(MEMP_NETIFAPI_MSG, name)
 
+#if LWIP_DHCP
+#include <lwip/dhcp.h>
+#include <lwip/prot/dhcp.h>
+
+err_t dhcp_is_bound(struct netif *netif)
+{
+    struct dhcp *dhcp = NULL;
+
+    LWIP_ERROR("netif != NULL", (netif != NULL), return ERR_ARG);
+
+    dhcp = netif_dhcp_data(netif);
+    LWIP_ERROR("netif->dhcp != NULL", (dhcp != NULL), return ERR_ARG);
+
+    if (dhcp->state == DHCP_STATE_BOUND) {
+        return ERR_OK;
+    } else {
+        return ERR_INPROGRESS;
+    }
+}
+#endif /* LWIP_DHCP */
+
 static struct netif *netif_find_by_name(const char *name)
 {
     struct netif *netif = NULL;
