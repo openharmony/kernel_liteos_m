@@ -61,7 +61,11 @@ static_library("kernel") {
   } else if ("$board_cpu" == "cortex-m7") {
     deps = [ "arch/arm/cortex-m7/gcc/:arch" ]
   } else if ("$board_cpu" == "cortex-m33") {
-    deps = [ "arch/arm/cortex-m33/gcc/TZ:arch" ]
+    if (enable_ohos_kernel_liteos_m_tz == true) {
+      deps = [ "arch/arm/cortex-m33/gcc/TZ:arch" ]
+    } else {
+      deps = [ "arch/arm/cortex-m33/gcc/NTZ:arch" ]
+    }
   } else if ("$board_cpu" == "") {
     if ("$board_arch" == "rv32imac" || "$board_arch" == "rv32imafdc") {
       deps = [ "arch/risc-v/riscv32/gcc:arch" ]

@@ -34,6 +34,7 @@
 #include "los_config.h"
 #include "los_list.h"
 
+#pragma data_alignment=0x4
 STATIC UINT8 g_secureHeap[LOSCFG_SECURE_HEAP_SIZE] = {0};
 STATIC LOS_DL_LIST g_secureHeapFreeList = {NULL, NULL};
 
