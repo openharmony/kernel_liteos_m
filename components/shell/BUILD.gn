@@ -50,7 +50,7 @@ static_library("shell") {
     "./include",
   ]
 
-  if (enable_ohos_kernel_liteos_m_lwip == true) {
+  if (enable_ohos_kernel_liteos_m_lwip) {
     defines = [ "LWIP_SHELLCMD_ENABLE" ]
   }
   deps = [
