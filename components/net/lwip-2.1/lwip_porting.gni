@@ -40,6 +40,6 @@ LWIP_PORTING_FILES = [
   "$LWIP_PORTING_DIR/enhancement/src/lwip_ifaddrs.c",
 ]
 
-if (enable_ohos_kernel_liteos_m_shell == true) {
+if (enable_ohos_kernel_liteos_m_shell) {
   LWIP_PORTING_FILES += [ "$LWIP_PORTING_DIR/porting/src/api_shell.c" ]
 }

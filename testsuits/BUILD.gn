@@ -43,7 +43,7 @@ config("include") {
     "//kernel/liteos_m/components/cpup",
   ]
 
-  if (enable_ohos_kernel_liteos_m_test_full == true) {
+  if (enable_ohos_kernel_liteos_m_test_full) {
     defines += [ "LOS_KERNEL_TEST_FULL=1" ]
   }
 }
@@ -71,7 +71,7 @@ lite_component("test") {
 
     #"sample/kernel/tickless:test_tickless",
   ]
-  if (enable_ohos_kernel_liteos_m_dynlink == true) {
+  if (enable_ohos_kernel_liteos_m_dynlink) {
     features += [ "sample/kernel/dynlink:test_dynlink" ]
   }
 }

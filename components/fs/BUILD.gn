@@ -49,10 +49,10 @@ declare_args() {
 group("fs") {
   deps = []
   deps += [ ".:fs_operations" ]
-  if (enable_ohos_kernel_liteos_m_fatfs == true) {
+  if (enable_ohos_kernel_liteos_m_fatfs) {
     deps += [ "fatfs:fatfs" ]
   }
-  if (enable_ohos_kernel_liteos_m_littlefs == true) {
+  if (enable_ohos_kernel_liteos_m_littlefs) {
     deps += [ "littlefs:littlefs" ]
   }
 }
