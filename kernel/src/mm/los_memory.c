@@ -111,6 +111,9 @@ STATIC INLINE UINT32 OsMemSlGet(UINT32 size, UINT32 fl)
 }
 
 /* The following is the memory algorithm related macro definition and interface implementation. */
+#if (LOSCFG_TASK_MEM_USED != 1 && LOSCFG_MEM_FREE_BY_TASKID == 1 && (LOSCFG_BASE_CORE_TSK_LIMIT + 1) > 64)
+#error "When enter here, LOSCFG_BASE_CORE_TSK_LIMIT larger than 63 is not support"
+#endif
 
 struct OsMemNodeHead {
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
@@ -123,7 +126,10 @@ struct OsMemNodeHead {
         struct OsMemNodeHead *prev; /* The prev is used for current node points to the previous node */
         struct OsMemNodeHead *next; /* The next is used for sentinel node points to the expand node */
     } ptr;
-#if (LOSCFG_MEM_FREE_BY_TASKID == 1)
+#if (LOSCFG_TASK_MEM_USED == 1)
+    UINT32 taskID;
+    UINT32 sizeAndFlag;
+#elif (LOSCFG_MEM_FREE_BY_TASKID == 1)
     UINT32 taskID : 6;
     UINT32 sizeAndFlag : 26;
 #else
@@ -180,7 +186,7 @@ struct OsMemPoolHead {
 } while (0);
 
 #define OS_MEM_NODE_MAGIC          0xABCDDCBA
-#if (LOSCFG_MEM_FREE_BY_TASKID == 1)
+#if (LOSCFG_TASK_MEM_USED != 1 && LOSCFG_MEM_FREE_BY_TASKID == 1)
 #define OS_MEM_NODE_USED_FLAG      (1U << 25)
 #define OS_MEM_NODE_ALIGNED_FLAG   (1U << 24)
 #if (LOSCFG_MEM_LEAKCHECK == 1)
@@ -290,10 +296,61 @@ STATIC INLINE VOID OsMemFreeNodeAdd(VOID *pool, struct OsMemFreeNodeHead *node);
 STATIC INLINE UINT32 OsMemFree(struct OsMemPoolHead *pool, struct OsMemNodeHead *node);
 STATIC VOID OsMemInfoPrint(VOID *pool);
 
-#if (LOSCFG_MEM_FREE_BY_TASKID == 1)
+#if (LOSCFG_MEM_FREE_BY_TASKID == 1 || LOSCFG_TASK_MEM_USED == 1)
 STATIC INLINE VOID OsMemNodeSetTaskID(struct OsMemUsedNodeHead *node)
 {
     node->header.taskID = LOS_CurTaskIDGet();
+}
+#endif
+
+#if (LOSCFG_TASK_MEM_USED == 1)
+VOID OsTaskMemUsed(VOID *pool, UINT32 *outArray, UINT32 arraySize)
+{
+    struct OsMemPoolHead *poolInfo = (struct OsMemPoolHead *)pool;
+    struct OsMemNodeHead *tmpNode = NULL;
+    struct OsMemNodeHead *endNode = NULL;
+    UINT32 intSave;
+
+    if (pool == NULL) {
+        PRINTK("input param is NULL\n");
+        return;
+    }
+    if (LOS_MemIntegrityCheck(pool)) {
+        PRINTK("LOS_MemIntegrityCheck error\n");
+        return;
+    }
+
+    MEM_LOCK(poolInfo, intSave);
+    endNode = OS_MEM_END_NODE(pool, poolInfo->info.totalSize);
+#if OS_MEM_EXPAND_ENABLE
+    UINT32 size;
+    for (tmpNode = OS_MEM_FIRST_NODE(pool); tmpNode <= endNode;
+         tmpNode = OS_MEM_NEXT_NODE(tmpNode)) {
+        if (tmpNode == endNode) {
+            if (OsMemIsLastSentinelNode(endNode) == FALSE) {
+                size = OS_MEM_NODE_GET_SIZE(endNode->sizeAndFlag);
+                tmpNode = OsMemSentinelNodeGet(endNode);
+                endNode = OS_MEM_END_NODE(tmpNode, size);
+                continue;
+            } else {
+                break;
+            }
+        }
+#else
+    for (tmpNode = OS_MEM_FIRST_NODE(pool); tmpNode < endNode;
+         tmpNode = OS_MEM_NEXT_NODE(tmpNode)) {
+#endif
+#ifndef LOSCFG_MEM_MUL_REGIONS
+        if (OS_MEM_NODE_GET_USED_FLAG(tmpNode->sizeAndFlag)) {
+#else
+        if (OS_MEM_NODE_GET_USED_FLAG(tmpNode->sizeAndFlag) && !OS_MEM_IS_GAP_NODE(tmpNode)) {
+#endif
+            if (tmpNode->taskID < arraySize) {
+                outArray[tmpNode->taskID] += OS_MEM_NODE_GET_SIZE(tmpNode->sizeAndFlag);
+            }
+        }
+    }
+    MEM_UNLOCK(poolInfo, intSave);
 }
 #endif
 
@@ -791,7 +848,7 @@ STATIC INLINE VOID *OsMemCreateUsedNode(VOID *addr)
 {
     struct OsMemUsedNodeHead *node = (struct OsMemUsedNodeHead *)addr;
 
-#if (LOSCFG_MEM_FREE_BY_TASKID == 1)
+#if (LOSCFG_MEM_FREE_BY_TASKID == 1 || LOSCFG_TASK_MEM_USED == 1)
     OsMemNodeSetTaskID(node);
 #endif
 
@@ -1747,7 +1804,7 @@ STATIC VOID OsMemIntegrityCheckError(struct OsMemPoolHead *pool,
     OsMemNodeInfo(tmpNode, preNode);
 #endif
     OsMemCheckInfoRecord(tmpNode, preNode);
-#if (LOSCFG_MEM_FREE_BY_TASKID == 1)
+#if (LOSCFG_MEM_FREE_BY_TASKID == 1 || LOSCFG_TASK_MEM_USED == 1)
     LosTaskCB *taskCB = NULL;
     if (OS_MEM_NODE_GET_USED_FLAG(preNode->sizeAndFlag)) {
         struct OsMemUsedNodeHead *usedNode = (struct OsMemUsedNodeHead *)preNode;
@@ -2170,7 +2227,7 @@ STATIC VOID OsMemExcInfoGetSub(struct OsMemPoolHead *pool, MemInfoCB *memExcInfo
         if (OS_MEM_NODE_GET_USED_FLAG(tmpNode->sizeAndFlag)) {
             if (!OS_MEM_MAGIC_VALID(tmpNode) ||
                 !OsMemAddrValidCheck(pool, tmpNode->ptr.prev)) {
-#if (LOSCFG_MEM_FREE_BY_TASKID == 1)
+#if (LOSCFG_MEM_FREE_BY_TASKID == 1 || LOSCFG_TASK_MEM_USED == 1)
                 taskID = ((struct OsMemUsedNodeHead *)tmpNode)->header.taskID;
 #endif
                 goto ERROUT;
