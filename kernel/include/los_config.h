@@ -781,6 +781,25 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_MPU_ENABLE                                    0
 #endif
 
+/*=============================================================================
+                                       shell module configuration
+=============================================================================*/
+/**
+ * @ingroup los_config
+ * Configuration item for shell.
+ */
+#ifndef LOSCFG_USE_SHELL
+#define LOSCFG_USE_SHELL                                     0
+#endif
+
+/**
+ * @ingroup los_config
+ * Configuration shell task priority.
+ */
+#ifndef LOSCFG_SHELL_PRIO
+#define LOSCFG_SHELL_PRIO                                    3
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }

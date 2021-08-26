@@ -29,11 +29,18 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #include "shmsg.h"
+#include "securec.h"
 #include "shcmd.h"
 #include "show.h"
-#include "securec.h"
+#if (LOSCFG_USE_SHELL == 1)
+#include "uart.h"
+#endif
+#include "los_event.h"
+#include "los_task.h"
+
+EVENT_CB_S g_shellInputEvent;
+#define SHELL_CMD_MAX_SIZE 64
 
 UINT32 ShellMsgTypeGet(CmdParsed *cmdParsed, const CHAR *cmdType)
 {
@@ -60,17 +67,17 @@ UINT32 ShellMsgTypeGet(CmdParsed *cmdParsed, const CHAR *cmdType)
     return OS_INVALID;
 }
 
-char *GetCmdName(const char *cmdline, unsigned int len)
+CHAR *GetCmdName(const CHAR *cmdline, UINT32 len)
 {
-    unsigned int loop;
-    const char *tmpStr = NULL;
+    UINT32 loop;
+    const CHAR *tmpStr = NULL;
     BOOL quotes = FALSE;
-    char *cmdName = NULL;
+    CHAR *cmdName = NULL;
     if (cmdline == NULL) {
         return NULL;
     }
 
-    cmdName = (char *)malloc(len + 1);
+    cmdName = (CHAR *)malloc(len + 1);
     if (cmdName == NULL) {
         PRINTK("malloc failure in %s[%d]\n", __FUNCTION__, __LINE__);
         return NULL;
@@ -99,9 +106,9 @@ char *GetCmdName(const char *cmdline, unsigned int len)
     return cmdName;
 }
 
-int ShellCmdExec(const char *msgName, const char *cmdString)
+INT32 ShellCmdExec(const CHAR *msgName, const CHAR *cmdString)
 {
-    unsigned int uintRet;
+    UINT32 uintRet;
     errno_t err;
     CmdParsed cmdParsed;
 
@@ -118,24 +125,24 @@ int ShellCmdExec(const char *msgName, const char *cmdString)
         PRINTK("%s:command not found\n", msgName);
         return -EFAULT;
     } else {
-        (void)OsCmdExec(&cmdParsed, (char *)cmdString);
+        (VOID)OsCmdExec(&cmdParsed, (CHAR *)cmdString);
     }
     return 0;
 }
 
-unsigned int PreHandleCmdline(const char *input, char **output, unsigned int *outputlen)
+UINT32 PreHandleCmdline(const CHAR *input, CHAR **output, UINT32 *outputlen)
 {
-    unsigned int shiftLen;
-    unsigned int ret;
-    const char *cmdBuf = input;
-    unsigned int cmdBufLen = strlen(cmdBuf);
-    char *shiftStr = (char *)malloc(cmdBufLen + 1);
+    UINT32 shiftLen;
+    UINT32 ret;
+    const CHAR *cmdBuf = input;
+    UINT32 cmdBufLen = strlen(cmdBuf);
+    CHAR *shiftStr = (CHAR *)malloc(cmdBufLen + 1);
 
     if (shiftStr == NULL) {
         PRINTK("malloc failure in %s[%d]\n", __FUNCTION__, __LINE__);
         return SH_NOK;
     }
-    (void)memset_s(shiftStr, cmdBufLen + 1, 0, cmdBufLen + 1);
+    (VOID)memset_s(shiftStr, cmdBufLen + 1, 0, cmdBufLen + 1);
 
     /* Call function 'OsCmdKeyShift' to squeeze and clear useless or overmuch space if string buffer */
     ret = OsCmdKeyShift(cmdBuf, shiftStr, cmdBufLen + 1);
@@ -156,12 +163,12 @@ END:
     return ret;
 }
 
-static void ParseAndExecCmdline(CmdParsed *cmdParsed, const char *cmdline, unsigned int len)
+static VOID ParseAndExecCmdline(CmdParsed *cmdParsed, const CHAR *cmdline, UINT32 len)
 {
-    int i;
-    unsigned int ret;
-    char *cmdlineOrigin = NULL;
-    char *cmdName = NULL;
+    INT32 i;
+    UINT32 ret;
+    CHAR *cmdlineOrigin = NULL;
+    CHAR *cmdName = NULL;
 
     cmdlineOrigin = strdup(cmdline);
     if (cmdlineOrigin == NULL) {
@@ -176,13 +183,13 @@ static void ParseAndExecCmdline(CmdParsed *cmdParsed, const char *cmdline, unsig
         return;
     }
 
-    ret = OsCmdParse((char *)cmdline, cmdParsed);
+    ret = OsCmdParse((CHAR *)cmdline, cmdParsed);
     if (ret != SH_OK) {
         PRINTK("cmd parse failure in %s[%d]\n", __FUNCTION__, __LINE__);
         goto OUT;
     }
 
-    (void)ShellCmdExec(cmdName, cmdlineOrigin);
+    (VOID)ShellCmdExec(cmdName, cmdlineOrigin);
 
 OUT:
     for (i = 0; i < cmdParsed->paramCnt; i++) {
@@ -195,11 +202,11 @@ OUT:
     free(cmdlineOrigin);
 }
 
-LITE_OS_SEC_TEXT_MINOR void ExecCmdline(const char *cmdline)
+LITE_OS_SEC_TEXT_MINOR VOID ExecCmdline(const CHAR *cmdline)
 {
-    unsigned int ret;
-    char *output = NULL;
-    unsigned int outputlen;
+    UINT32 ret;
+    CHAR *output = NULL;
+    UINT32 outputlen;
     CmdParsed cmdParsed;
 
     if (cmdline == NULL) {
@@ -214,8 +221,63 @@ LITE_OS_SEC_TEXT_MINOR void ExecCmdline(const char *cmdline)
         return;
     }
 
-    (void)memset_s(&cmdParsed, sizeof(CmdParsed), 0, sizeof(CmdParsed));
+    (VOID)memset_s(&cmdParsed, sizeof(CmdParsed), 0, sizeof(CmdParsed));
     ParseAndExecCmdline(&cmdParsed, output, outputlen);
     free(output);
 }
 
+#if (LOSCFG_USE_SHELL == 1)
+VOID ShellTaskEntry(VOID)
+{
+    CHAR buf[SHELL_CMD_MAX_SIZE] = {0};
+    CHAR *ptr = buf;
+    PRINTK("OHOS # ");
+    while(1) {
+        (VOID)LOS_EventRead(&g_shellInputEvent, 0x1, LOS_WAITMODE_AND | LOS_WAITMODE_CLR, LOS_WAIT_FOREVER);
+        while((*ptr = (UINT8)UartGetc()) != 0 && *ptr != 13) {
+            PRINTK("%c", *ptr);
+            if ((ptr - buf) == (sizeof(buf) - 1)) {
+                break;
+            }
+            ptr++;
+        }
+        if (ptr != buf) {
+            if (*ptr == 13 || ((ptr - buf) == (sizeof(buf) - 1))) {
+                PRINTK("%c", *ptr);
+                *ptr = '\0';
+                ptr = buf;
+                PRINTK("\n\r", buf);
+                ExecCmdline(buf);
+                PRINTK("OHOS # ");
+            }
+        } else {
+            PRINTK("\n\rOHOS # ");
+        }
+    }
+}
+
+LITE_OS_SEC_TEXT_MINOR UINT32 LosShellInit(VOID)
+{
+    UINT32 ret;
+    UINT32 taskID1, taskID2;
+    TSK_INIT_PARAM_S task1 = { 0 };
+
+    ret = LOS_EventInit(&g_shellInputEvent);
+    if (ret != LOS_OK) {
+        PRINTK("Init shellInputEvent failed! ERROR: 0x%x\n", ret);
+        return ret;
+    }
+
+    task1.pfnTaskEntry = (TSK_ENTRY_FUNC)ShellTaskEntry;
+    task1.uwStackSize  = 0x1000;
+    task1.pcName       = "ShellTaskEntry";
+    task1.usTaskPrio   = LOSCFG_SHELL_PRIO;
+    ret = LOS_TaskCreate(&taskID1, &task1);
+    if (ret != LOS_OK) {
+        PRINTK("Create Shell Task failed! ERROR: 0x%x\n", ret);
+        return ret;
+    }
+
+    return ret;
+}
+#endif
