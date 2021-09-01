@@ -351,6 +351,242 @@ STATIC INLINE UINTPTR OsAddrIsValid(UINTPTR sp)
 
     return pc;
 }
+
+#elif (LOSCFG_BACKTRACE_TYPE == 4)
+#define OS_BACKTRACE_START     0
+#define ALIGN_MASK             (4 - 1)
+#define OS_REG_LR_OFFSET       136
+
+UINT32 IsFpAligned(UINT32 value)
+{
+    return (value & (UINT32)(ALIGN_MASK)) == 0;
+}
+
+STATIC INLINE UINTPTR HalGetLr(VOID)
+{
+    UINTPTR regLr;
+
+    __asm__ __volatile__("mov %0, a0" : "=r"(regLr));
+
+    return regLr;
+}
+
+/* This function is used to check fp address. */
+BOOL IsValidFP(UINTPTR regFP, UINTPTR start, UINTPTR end)
+{
+    return (regFP > start) && (regFP <= end) && IsFpAligned(regFP);
+}
+
+/* This function is used to check return address. */
+BOOL IsValidRa(UINTPTR regRA)
+{
+    regRA &= ~VIR_TEXT_ADDR_MASK;
+    regRA |= TEXT_ADDR_MASK;
+
+    return OsStackDataIsCodeAddr(regRA);
+}
+
+BOOL FindSuitableStack(UINTPTR regSP, UINTPTR *start, UINTPTR *end)
+{
+    UINT32 index;
+    UINT32 stackStart;
+    UINT32 stackEnd;
+    BOOL found = FALSE;
+    LosTaskCB *taskCB = NULL;
+
+    /* Search in the task stacks */
+    for (index = 0; index < g_taskMaxNum; index++) {
+        taskCB = OS_TCB_FROM_TID(index);
+        if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
+            continue;
+        }
+
+        stackStart = taskCB->topOfStack;
+        stackEnd = taskCB->topOfStack + taskCB->stackSize;
+        if (IsValidFP(regSP, stackStart, stackEnd)) {
+            found = TRUE;
+            goto FOUND;
+        }
+    }
+
+    if (IsValidFP(regSP, CSTACK_START_ADDR, CSTACK_END_ADDR)) {
+        stackStart = CSTACK_START_ADDR;
+        stackEnd = CSTACK_END_ADDR;
+        found = TRUE;
+        goto FOUND;
+    }
+
+FOUND:
+    if (found == TRUE) {
+        *start = stackStart;
+        *end = stackEnd;
+    }
+
+    return found;
+}
+
+UINT32 HalBackTraceGet(UINTPTR sp, UINT32 retAddr, UINTPTR *callChain, UINT32 maxDepth, UINT32 jumpCount)
+{
+    UINTPTR tmpSp;
+    UINT32 tmpRa;
+    UINTPTR backRa = retAddr;
+    UINTPTR backSp = sp;
+    UINTPTR stackStart;
+    UINT32 stackEnd;
+    UINT32 count = 0;
+    UINT32 index = 0;
+
+    if (FindSuitableStack(sp, &stackStart, &stackEnd) == FALSE) {
+        PRINTK("sp:0x%x error, backtrace failed!\n", sp);
+        return 0;
+    }
+
+    while (IsValidFP(backSp, stackStart, stackEnd)) {
+        if (callChain == NULL) {
+            PRINTK("trace%u  ra:0x%x  sp:0x%x\n", count, (backRa << WINDOW_INCREMENT_SHIFT) >>
+                    WINDOW_INCREMENT_SHIFT, backSp);
+        } else {
+            if (index++ < jumpCount) {
+                continue;
+            }
+            backRa &= ~VIR_TEXT_ADDR_MASK;
+            backRa |= TEXT_ADDR_MASK;
+            callChain[count++] = backRa;
+        }
+
+        tmpRa = backRa;
+        tmpSp = backSp;
+        backRa = *((UINT32 *)(UINTPTR)(tmpSp - RA_OFFSET));
+        backSp = *((UINT32 *)(UINTPTR)(tmpSp - SP_OFFSET));
+
+        if ((tmpRa == backRa) || (backSp == tmpSp) || (count == maxDepth) || !IsValidRa(backRa)) {
+            break;
+        }
+    }
+
+    return count;
+}
+
+VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
+{
+    UINTPTR reglr;
+    if (LR == NULL) {
+        return;
+    }
+
+    if (SP == 0) {
+        __asm__ __volatile__("mov %0, sp" : "=a"(SP) : :);
+        __asm__ __volatile__("mov %0, a0" : "=a"(reglr) : :);
+    } else {
+        reglr = *(UINT32 *)(SP - OS_REG_LR_OFFSET);
+    }
+    HakSpillWindow();
+    HalBackTraceGet(SP, reglr, LR, LRSize, jumpCount);
+}
+#elif (LOSCFG_BACKTRACE_TYPE == 5)
+#define OS_BACKTRACE_START     0
+
+UINT32 IsAligned(UINT32 val, UINT32 align)
+{
+    return ((val & (align - 1)) == 0);
+}
+
+STATIC INLINE UINTPTR OsSpGet(VOID)
+{
+    UINTPTR regSp;
+
+    __asm__ __volatile__("mov %0, sp" : "=r"(regSp));
+
+    return regSp;
+}
+
+/* This function is used to check sp. */
+BOOL IsValidSP(UINTPTR regSP, UINTPTR start, UINTPTR end)
+{
+    return (regSP > start) && (regSP < end);
+}
+
+STATIC INLINE BOOL FindSuitableStack(UINTPTR *regSP, UINTPTR *start, UINTPTR *end)
+{
+    UINT32 index;
+    UINT32 topOfStack;
+    UINT32 stackBottom;
+    BOOL found = FALSE;
+    LosTaskCB *taskCB = NULL;
+
+    /* Search in the task stacks */
+    for (index = 0; index < g_taskMaxNum; index++) {
+        taskCB = &g_taskCBArray[index];
+        if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
+            continue;
+        }
+        topOfStack = taskCB->topOfStack;
+        stackBottom = taskCB->topOfStack + taskCB->stackSize;
+
+        if (IsValidSP(*regSP, topOfStack, stackBottom)) {
+            found = TRUE;
+            goto FOUND;
+        }
+    }
+
+FOUND:
+    if (found == TRUE) {
+        *start = topOfStack;
+        *end = stackBottom;
+    } else if (*regSP < CSTACK_END_ADDR) {
+        *start = *regSP;
+        *end = CSTACK_END_ADDR;
+        found = TRUE;
+    }
+
+    return found;
+}
+
+VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
+{
+    UINTPTR stackPointer = SP;
+    UINTPTR topOfStack;
+    UINTPTR tmpStack = 0;
+    UINTPTR stackBottom;
+    UINTPTR checkBL;
+    UINT32 count = 0;
+    UINT32 index = 0;
+
+    if (LR == NULL) {
+        return;
+    }
+
+    if (SP == 0) {
+        SP = OsSpGet();
+    }
+
+    if (FindSuitableStack(&stackPointer, &topOfStack, &stackBottom) == FALSE) {
+        return;
+    }
+
+    while ((stackPointer < stackBottom) && (count < LRSize)) {
+        if (IsValidSP(*(UINT32 *)stackPointer, topOfStack, stackBottom)
+            && OsStackDataIsCodeAddr(*(UINT32 *)(stackPointer + STACK_OFFSET))
+            && IsAligned(*(UINT32 *)stackPointer, ALGIN_CODE)) {
+            if (tmpStack == *(UINT32 *)stackPointer) {
+                break;
+            }
+            tmpStack = *(UINT32 *)stackPointer;
+            checkBL = *(UINT32 *)(stackPointer + STACK_OFFSET);
+            if (count++ < jumpCount) {
+                continue;
+            }
+            stackPointer = tmpStack;
+            LR[index++] =  checkBL;
+            continue;
+        }
+        stackPointer += STACK_OFFSET;
+    }
+
+    if (index < LRSize) {
+        LR[index] = 0;
+    }
+}
 #else
 #error Unknown backtrace type.
 #endif
@@ -423,5 +659,4 @@ VOID OSBackTraceInit(VOID)
     OsBackTraceHookSet(LOS_RecordLR);
 }
 #endif
-
 

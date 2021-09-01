@@ -138,6 +138,51 @@ extern CHAR *CSTACK_SECTION_END;
 #else
 #error Unknown compiler.
 #endif
+#elif (LOSCFG_BACKTRACE_TYPE == 4)
+/* The default code section start address */
+#define CODE_SECTION_START      __text_start
+/* The default code section end address */
+#define CODE_SECTION_END        __text_end
+/* The default C stack section start address */
+#define CSTACK_SECTION_START    __init_stack_s
+/* The default C stack section end address */
+#define CSTACK_SECTION_END      __init_stack_e
+
+extern CHAR *CODE_SECTION_START;
+extern CHAR *CODE_SECTION_END;
+extern CHAR *CSTACK_SECTION_START;
+extern CHAR *CSTACK_SECTION_END;
+
+#define CODE_START_ADDR     ((UINTPTR)&CODE_SECTION_START)
+#define CODE_END_ADDR       ((UINTPTR)&CODE_SECTION_END)
+#define CSTACK_START_ADDR   ((UINTPTR)&CSTACK_SECTION_START)
+#define CSTACK_END_ADDR     ((UINTPTR)&CSTACK_SECTION_END)
+
+#define VIR_TEXT_ADDR_MASK  0x80000000
+#define TEXT_ADDR_MASK      0x40000000
+#define RA_OFFSET           16
+#define SP_OFFSET           12
+#define WINDOW_INCREMENT_SHIFT 2
+
+UINT32 HalBackTraceGet(UINTPTR sp, UINT32 retAddr, UINTPTR *callChain, UINT32 maxDepth, UINT32 jumpCount);
+#elif (LOSCFG_BACKTRACE_TYPE == 5)
+/* The default code section start address */
+#define CODE_SECTION_START      __text_start
+/* The default code section end address */
+#define CODE_SECTION_END        __text_end
+/* The default C stack section end address */
+#define CSTACK_SECTION_END      __ram_end
+
+extern CHAR *CODE_SECTION_START;
+extern CHAR *CODE_SECTION_END;
+extern CHAR *CSTACK_SECTION_END;
+
+#define CODE_START_ADDR     ((UINTPTR)&CODE_SECTION_START)
+#define CODE_END_ADDR       ((UINTPTR)&CODE_SECTION_END)
+#define CSTACK_END_ADDR     ((UINTPTR)&CSTACK_SECTION_END)
+
+#define ALGIN_CODE                      2
+#define STACK_OFFSET                    4
 #endif
 
 /* This function is currently used to register the memory leak check hook,
