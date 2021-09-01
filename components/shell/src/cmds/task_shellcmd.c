@@ -65,11 +65,17 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID OsShellCmdTskInfoTitle(VOID)
     PRINTK("Name                   TaskEntryAddr       TID    ");
 
     PRINTK("Priority   Status       "
+#if (LOSCFG_TASK_MEM_USED == 1)
+           "AllocSize       "
+#endif
            "StackSize       StackPoint   TopOfStack");
 
     PRINTK("\n");
     PRINTK("----                   -------------       ---    ");
     PRINTK("--------   --------     "
+#if (LOSCFG_TASK_MEM_USED == 1)
+           "---------       "
+#endif
            "---------       ----------   ----------");
     PRINTK("\n");
 }
@@ -91,6 +97,17 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID OsShellCmdTskInfoData(const LosTaskCB *allTas
     UINT32 loop;
     UINT32 semId;
 
+#if (LOSCFG_TASK_MEM_USED == 1)
+    UINT32 arraySize = sizeof(UINT32) * (LOSCFG_BASE_CORE_TSK_LIMIT + 1);
+    UINT32 *getUsedSizeArray = (UINT32 *)LOS_MemAlloc(m_aucSysMem0, arraySize);
+    if (getUsedSizeArray == NULL) {
+        PRINTK("Memory is not enough to save task info!\n");
+        return;
+    }
+    (VOID)memset_s(getUsedSizeArray, arraySize, 0, arraySize);
+    OsTaskMemUsed(m_aucSysMem0, getUsedSizeArray, arraySize);
+#endif
+
     for (loop = 0; loop < g_taskMaxNum; ++loop) {
         taskCB = allTaskArray + loop;
         if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
@@ -100,11 +117,20 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID OsShellCmdTskInfoData(const LosTaskCB *allTas
         semId = OsGetSemID(taskCB);
 
         PRINTK("%-23s%-20p0x%-5x", taskCB->taskName, taskCB->taskEntry, taskCB->taskID);
+#if (LOSCFG_TASK_MEM_USED == 1)
+        PRINTK("%-11u%-13s0x%-11x   0x%-11x   0x%-8x   0x%-10x   ", taskCB->priority,
+               OsShellCmdConvertTskStatus(taskCB->taskStatus), getUsedSizeArray[loop], taskCB->stackSize,
+               taskCB->stackPointer, taskCB->topOfStack, semId);
+#else
         PRINTK("%-11u%-13s0x%-11x   0x%-8x   0x%-10x   ", taskCB->priority,
                OsShellCmdConvertTskStatus(taskCB->taskStatus), taskCB->stackSize,
                taskCB->stackPointer, taskCB->topOfStack, semId);
+#endif
         PRINTK("\n");
     }
+#if (LOSCFG_TASK_MEM_USED == 1)
+    (VOID)LOS_MemFree(m_aucSysMem0, getUsedSizeArray);
+#endif
 }
 
 LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdTskInfoGet(UINT32 taskId)

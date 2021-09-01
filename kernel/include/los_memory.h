@@ -469,6 +469,7 @@ extern UINT32 LOS_MemIntegrityCheck(const VOID *pool);
 extern VOID LOS_MemUnlockEnable(VOID *pool);
 
 extern UINT32 OsMemSystemInit(VOID);
+extern VOID OsTaskMemUsed(VOID *pool, UINT32 *outArray, UINT32 arraySize);
 
 #ifdef __cplusplus
 #if __cplusplus

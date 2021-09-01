@@ -800,6 +800,14 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_SHELL_PRIO                                    3
 #endif
 
+/**
+ * @ingroup los_config
+ * Configuration item to get task used memory.
+ */
+#ifndef LOSCFG_TASK_MEM_USED
+#define LOSCFG_TASK_MEM_USED                                 0
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }
