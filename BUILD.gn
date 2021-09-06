@@ -29,6 +29,17 @@
 
 import("config.gni")
 
+config("los_config") {
+  cflags = [ "-Werror" ]
+
+  include_dirs = [
+    "//kernel/liteos_m/kernel/include",
+    "//kernel/liteos_m/kernel/arch/include",
+    "//kernel/liteos_m/utils",
+    "//third_party/bounds_checking_function/include",
+  ]
+}
+
 group("kernel") {
   deps = [
     "kernel:kernel",

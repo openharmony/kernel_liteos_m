@@ -27,7 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("../config.gni")
+import("//kernel/liteos_m/config.gni")
 
 static_library("kernel") {
   sources = [
@@ -46,16 +46,14 @@ static_library("kernel") {
   ]
 
   include_dirs = [
-    "include",
-    "arch/include",
     "../components/cpup",
     "../components/exchook",
     "../components/backtrace",
     "../components/power",
     "../components/dynlink",
-    "../utils",
-    "//third_party/bounds_checking_function/include",
   ]
+
+  configs += [ "$LITEOSTOPDIR:los_config" ]
 
   if ("$board_cpu" == "cortex-m3") {
     deps = [ "arch/arm/cortex-m3/gcc/:arch" ]

@@ -26,15 +26,10 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-config("dynlink_config") {
-  include_dirs = [
-    "../../kernel/include",
-    "../../kernel/arch/include",
-    "../../utils",
-    ".",
-    "//third_party/bounds_checking_function/include",
-  ]
+import("//kernel/liteos_m/config.gni")
 
+config("dynlink_config") {
+  include_dirs = [ "./" ]
   if (arch == "arm") {
     include_dirs += [ "../../kernel/arch/arm/include" ]
   } else {
@@ -47,5 +42,7 @@ static_library("dynlink") {
   sources = [ "los_dynlink.c" ]
 
   public_configs = [ ":dynlink_config" ]
+  configs += [ "$LITEOSTOPDIR:los_config" ]
+
   deps = [ "//kernel/liteos_m/kal/posix" ]
 }
