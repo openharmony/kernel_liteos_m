@@ -69,63 +69,67 @@ STATIC LosPmCB g_pmCB;
 STATIC LosPmSysctrl *g_sysctrl = NULL;
 STATIC UINT64 g_pmSleepTime;
 
-#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
 STATIC VOID OsPmTickTimerStart(LosPmCB *pm)
 {
-    UINT32 intSave;
+#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
     UINT64 currTime, sleepTime, realSleepTime;
+#endif
     LosPmTickTimer *tickTimer = pm->tickTimer;
 
-    intSave = LOS_IntLock();
-    /* Restore the main CPU frequency */
-    sleepTime = tickTimer->timerCycleGet();
-    tickTimer->timerStop();
+    if ((tickTimer == NULL) || (tickTimer->tickUnlock == NULL)) {
+        return;
+    }
 
-    realSleepTime = OS_SYS_CYCLE_TO_NS(sleepTime, tickTimer->freq);
-    realSleepTime = OS_SYS_NS_TO_CYCLE(realSleepTime, OS_SYS_CLOCK);
-    currTime = pm->enterSleepTime + realSleepTime;
-    pm->enterSleepTime = 0;
+#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
+    if (tickTimer->timerStop != NULL) {
+        /* Restore the main CPU frequency */
+        sleepTime = tickTimer->timerCycleGet();
+        tickTimer->timerStop();
 
-    OsSchedTimerBaseReset(currTime);
-    OsSchedUpdateExpireTime(currTime, FALSE);
+        realSleepTime = OS_SYS_CYCLE_TO_NS(sleepTime, tickTimer->freq);
+        realSleepTime = OS_SYS_NS_TO_CYCLE(realSleepTime, OS_SYS_CLOCK);
+        currTime = pm->enterSleepTime + realSleepTime;
+        pm->enterSleepTime = 0;
+
+        OsSchedTimerBaseReset(currTime);
+    }
+#endif
+
     tickTimer->tickUnlock();
-    LOS_IntRestore(intSave);
     return;
 }
 
 STATIC VOID OsPmTickTimerStop(LosPmCB *pm)
 {
+#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
     UINT64 sleepCycle;
     UINT64 realSleepTime = g_pmSleepTime;
+#endif
     LosPmTickTimer *tickTimer = pm->tickTimer;
 
-    if (realSleepTime == 0) {
+    if ((tickTimer == NULL) || (tickTimer->tickLock == NULL)) {
         return;
     }
 
-    sleepCycle = OS_SYS_CYCLE_TO_NS(realSleepTime, OS_SYS_CLOCK);
-    sleepCycle = OS_SYS_NS_TO_CYCLE(sleepCycle, tickTimer->freq);
-
-    /* The main CPU reduces the frequency */
-    pm->enterSleepTime = OsGetCurrSysTimeCycle();
-    tickTimer->tickLock();
-    tickTimer->timerStart(sleepCycle);
-    return;
-}
-#endif
-
-STATIC VOID OsPmTickTimerResume(LosPmCB *pm)
-{
-    if ((pm->sysMode == LOS_SYS_DEEP_SLEEP) && (pm->tickTimer->tickUnlock != NULL)) {
-        pm->tickTimer->tickUnlock();
-    } else {
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
-        /* Sys tick timer is restored from low power mode */
-        if (pm->enterSleepTime != 0) {
-            OsPmTickTimerStart(pm);
+    if (tickTimer->timerStart != NULL) {
+        if (realSleepTime == 0) {
+            return;
         }
-#endif
+
+        sleepCycle = OS_SYS_CYCLE_TO_NS(realSleepTime, OS_SYS_CLOCK);
+        sleepCycle = OS_SYS_NS_TO_CYCLE(sleepCycle, tickTimer->freq);
+
+        /* The main CPU reduces the frequency */
+        pm->enterSleepTime = OsGetCurrSysTimeCycle();
+        tickTimer->tickLock();
+        tickTimer->timerStart(sleepCycle);
+        return;
     }
+#endif
+
+    tickTimer->tickLock();
+    return;
 }
 
 STATIC VOID OsPmCpuResume(LosPmCB *pm)
@@ -161,104 +165,94 @@ STATIC Suspend OsPmCpuSuspend(LosPmCB *pm)
     return sysSuspend;
 }
 
-STATIC VOID OsPmTickTimerSuspend(LosPmCB *pm)
-{
-    if (((pm->sysMode == LOS_SYS_DEEP_SLEEP) || (pm->sysMode == LOS_SYS_SHUTDOWN)) &&
-        (pm->tickTimer->tickLock != NULL)) {
-        pm->tickTimer->tickLock();
-    } else {
-#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
-        /* Sys tick timer enter low power mode */
-        if (pm->tickTimer == NULL) {
-            return;
-        }
-
-        if ((pm->tickTimer->timerStart != NULL) &&
-            (pm->tickTimer->timerStop != NULL) &&
-            (pm->tickTimer->timerCycleGet == NULL) &&
-            (pm->tickTimer->freq != 0)) {
-            OsPmTickTimerStop(pm);
-        }
-#endif
-    }
-}
-
-STATIC VOID OsPmEnter(BOOL isIdle)
+STATIC UINT32 OsPmSuspendSleep(LosPmCB *pm)
 {
     UINT32 ret;
     UINT32 intSave;
+    LOS_SysSleepEnum mode;
     Suspend sysSuspend = NULL;
-    LosPmCB *pm = &g_pmCB;
-    BOOL isTaskLock = FALSE;
 
     intSave = LOS_IntLock();
     pm->sysMode = pm->pmMode;
-    if (isIdle) {
-        if ((pm->sysMode != LOS_SYS_NORMAL_SLEEP) && (pm->sysMode != LOS_SYS_LIGHT_SLEEP)) {
-            pm->sysMode = LOS_SYS_NORMAL_SLEEP;
-        }
-    } else {
-        if ((pm->sysMode != LOS_SYS_DEEP_SLEEP) && (pm->sysMode != LOS_SYS_SHUTDOWN)) {
-            LOS_IntRestore(intSave);
-            return;
-        }
+    if ((pm->pmMode != LOS_SYS_NORMAL_SLEEP) && (pm->lock > 0)) {
+        pm->sysMode = LOS_SYS_NORMAL_SLEEP;
     }
 
-    if ((pm->sysMode == LOS_SYS_NORMAL_SLEEP) || (pm->sysMode == LOS_SYS_LIGHT_SLEEP)) {
-        if (pm->lock > 0) {
-            pm->sysMode = LOS_SYS_NORMAL_SLEEP;
-        }
-    } else if (pm->lock > 0) {
+    if (pm->sysMode == LOS_SYS_NORMAL_SLEEP) {
         LOS_IntRestore(intSave);
-        return;
+        return LOS_NOK;
     }
 
-    if (pm->sysMode != LOS_SYS_NORMAL_SLEEP) {
-        pm->isWake = FALSE;
-        LOS_TaskLock();
-        isTaskLock = TRUE;
+    pm->isWake = FALSE;
+    LOS_TaskLock();
 
-        ret = pm->device->suspend((UINT32)pm->sysMode);
+    mode = pm->sysMode;
+    if (pm->device->suspend != NULL) {
+        ret = pm->device->suspend(mode);
         if (ret != LOS_OK) {
-            goto EXIT;
+            goto DEVICE_EXIT;
         }
     }
 
-    OsPmTickTimerSuspend(pm);
+    OsPmTickTimerStop(pm);
 
     sysSuspend = OsPmCpuSuspend(pm);
     LOS_IntRestore(intSave);
 
-    if (!isTaskLock || (isTaskLock && !pm->isWake)) {
-        (VOID)sysSuspend();
+    if (!pm->isWake) {
+        ret = sysSuspend();
     }
 
     intSave = LOS_IntLock();
 
     OsPmCpuResume(pm);
 
-    OsPmTickTimerResume(pm);
+    OsPmTickTimerStart(pm);
 
-    if (pm->sysMode != LOS_SYS_NORMAL_SLEEP) {
-        pm->device->resume((UINT32)pm->sysMode);
+    if (pm->device->resume != NULL) {
+        pm->device->resume(mode);
     }
 
-    if (pm->pmMode == LOS_SYS_DEEP_SLEEP) {
-        pm->pmMode = LOS_SYS_NORMAL_SLEEP;
-    }
-
-EXIT:
+DEVICE_EXIT:
+    pm->sysMode = LOS_SYS_NORMAL_SLEEP;
     LOS_IntRestore(intSave);
 
-    if (isTaskLock) {
-        LOS_TaskUnlock();
+    LOS_TaskUnlock();
+    return ret;
+}
+
+STATIC VOID OsPmNormalSleep(LosPmCB *pm)
+{
+    UINT32 intSave;
+    Suspend sysSuspend = NULL;
+
+    intSave = LOS_IntLock();
+    sysSuspend = OsPmCpuSuspend(pm);
+    LOS_IntRestore(intSave);
+
+    (VOID)sysSuspend();
+
+    intSave = LOS_IntLock();
+    OsPmCpuResume(pm);
+    LOS_IntRestore(intSave);
+}
+
+STATIC VOID OsPmEnter(VOID)
+{
+    UINT32 ret;
+    LosPmCB *pm = &g_pmCB;
+
+    ret = OsPmSuspendSleep(pm);
+    if (ret != LOS_OK) {
+        OsPmNormalSleep(pm);
     }
+
     return;
 }
 
 STATIC VOID OsPmTask(VOID)
 {
-    OsPmEnter(FALSE);
+    OsPmEnter();
 }
 
 STATIC UINT32 OsPmDeviceRegister(LosPmCB *pm, LosPmDevice *device)
@@ -280,13 +274,24 @@ STATIC UINT32 OsPmTickTimerRegister(LosPmCB *pm, LosPmTickTimer *tickTimer)
 {
     UINT32 intSave;
 
-    intSave = LOS_IntLock();
+    if ((tickTimer->tickLock == NULL) || (tickTimer->tickUnlock == NULL)) {
+        return LOS_ERRNO_PM_INVALID_PARAM;
+    }
+
+    if (((tickTimer->timerStart == NULL) && (tickTimer->timerStop == NULL) &&
+         (tickTimer->timerCycleGet == NULL) && (tickTimer->freq == 0)) ||
+        ((tickTimer->timerStart != NULL) && (tickTimer->timerStop != NULL) &&
+         (tickTimer->timerCycleGet != NULL) && (tickTimer->freq != 0))) {
+        intSave = LOS_IntLock();
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
-    pm->enterSleepTime = 0;
+        pm->enterSleepTime = 0;
 #endif
-    pm->tickTimer = tickTimer;
-    LOS_IntRestore(intSave);
-    return LOS_OK;
+        pm->tickTimer = tickTimer;
+        LOS_IntRestore(intSave);
+        return LOS_OK;
+    }
+
+    return LOS_ERRNO_PM_INVALID_PARAM;
 }
 
 STATIC UINT32 OsPmSysctrlRegister(LosPmCB *pm, LosPmSysctrl *sysctrl)
@@ -462,15 +467,6 @@ UINT32 LOS_PmModeSet(LOS_SysSleepEnum mode)
     if ((mode == LOS_SYS_SHUTDOWN) && (pm->sysctrl->shutdownSuspend == NULL)) {
         LOS_IntRestore(intSave);
         return LOS_ERRNO_PM_HANDLER_NULL;
-    }
-
-    if ((mode == LOS_SYS_DEEP_SLEEP) || (mode == LOS_SYS_SHUTDOWN)) {
-        if ((pm->tickTimer == NULL) ||
-            (pm->tickTimer->tickLock == NULL) ||
-            (pm->tickTimer->tickUnlock == NULL)) {
-            LOS_IntRestore(intSave);
-            return LOS_ERRNO_PM_TICK_TIMER_NULL;
-        }
     }
 
     pm->pmMode = mode;
