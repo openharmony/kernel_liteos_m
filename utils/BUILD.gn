@@ -27,6 +27,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//kernel/liteos_m/config.gni")
+
 static_library("utils") {
   sources = [
     "los_debug.c",
@@ -34,10 +36,5 @@ static_library("utils") {
     "los_hook.c",
   ]
 
-  include_dirs = [
-    "../kernel/include",
-    "../kernel/arch/include",
-    ".",
-    "//third_party/bounds_checking_function/include",
-  ]
+  configs += [ "$LITEOSTOPDIR:los_config" ]
 }

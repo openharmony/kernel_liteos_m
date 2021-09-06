@@ -279,7 +279,7 @@ STATIC INLINE UINT32 OsMemAllocCheck(struct OsMemPoolHead *pool, UINT32 intSave)
 #endif
 
 #if (LOSCFG_MEM_MUL_REGIONS == 1)
-/** 
+/**
  *  When LOSCFG_MEM_MUL_REGIONS is enabled to support multiple non-continuous memory regions,
  *  the gap between two memory regions is marked as a used OsMemNodeHead node. The gap node
  *  couldn't be freed, and would also be skipped in some DFX functions. The 'ptr.prev' pointer
@@ -310,7 +310,7 @@ STATIC VOID OsAllMemNodeDoHandle(VOID *pool, VOID (*handle)(struct OsMemNodeHead
     struct OsMemPoolHead *poolInfo = (struct OsMemPoolHead *)pool;
     struct OsMemNodeHead *tmpNode = NULL;
     struct OsMemNodeHead *endNode = NULL;
-    UINT32 intSave;
+    UINT32 intSave = 0;
 
     if (pool == NULL) {
         PRINTK("input param is NULL\n");
@@ -1065,7 +1065,7 @@ VOID *LOS_MemAlloc(VOID *pool, UINT32 size)
 
     struct OsMemPoolHead *poolHead = (struct OsMemPoolHead *)pool;
     VOID *ptr = NULL;
-    UINT32 intSave;
+    UINT32 intSave = 0;
 
     MEM_LOCK(poolHead, intSave);
     do {
@@ -1109,7 +1109,7 @@ VOID *LOS_MemAllocAlign(VOID *pool, UINT32 size, UINT32 boundary)
     }
 
     struct OsMemPoolHead *poolHead = (struct OsMemPoolHead *)pool;
-    UINT32 intSave;
+    UINT32 intSave = 0;
     VOID *ptr = NULL;
     VOID *alignedPtr = NULL;
 
@@ -1316,7 +1316,7 @@ UINT32 LOS_MemFree(VOID *pool, VOID *ptr)
     UINT32 ret = LOS_NOK;
     struct OsMemPoolHead *poolHead = (struct OsMemPoolHead *)pool;
     struct OsMemNodeHead *node = NULL;
-    UINT32 intSave;
+    UINT32 intSave = 0;
 
     MEM_LOCK(poolHead, intSave);
     do {
@@ -1423,7 +1423,7 @@ VOID *LOS_MemRealloc(VOID *pool, VOID *ptr, UINT32 size)
     struct OsMemPoolHead *poolHead = (struct OsMemPoolHead *)pool;
     struct OsMemNodeHead *node = NULL;
     VOID *newPtr = NULL;
-    UINT32 intSave;
+    UINT32 intSave = 0;
 
     MEM_LOCK(poolHead, intSave);
     do {
@@ -1464,7 +1464,7 @@ STATIC VOID MemNodeFreeByTaskIDHandle(struct OsMemNodeHead *curNode, VOID *arg)
 
 UINT32 LOS_MemFreeByTaskID(VOID *pool, UINT32 taskID)
 {
-    UINT32 args[2] = {taskID, (UINT32)(UINTPTR)pool}; 
+    UINT32 args[2] = { taskID, (UINT32)(UINTPTR)pool };
     if (pool == NULL) {
         return OS_ERROR;
     }
@@ -1521,7 +1521,6 @@ STATIC VOID MemUsedGetHandle(struct OsMemNodeHead *curNode, VOID *arg)
 UINT32 LOS_MemTotalUsedGet(VOID *pool)
 {
     UINT32 memUsed = 0;
-    UINT32 intSave;
 
     if (pool == NULL) {
         return LOS_NOK;
@@ -1689,52 +1688,52 @@ STATIC VOID OsMemNodeInfo(const struct OsMemNodeHead *tmpNode,
         usedNode = (struct OsMemUsedNodeHead *)tmpNode;
         PRINTK("\n broken node head: %p  "
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
-               "0x%x  "
+            "0x%x  "
 #endif
-               "0x%x, ",
-               usedNode->header.ptr.prev,
+            "0x%x, ",
+            usedNode->header.ptr.prev,
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
-               usedNode->header.magic,
+            usedNode->header.magic,
 #endif
-               usedNode->header.sizeAndFlag);
+            usedNode->header.sizeAndFlag);
     } else {
         freeNode = (struct OsMemFreeNodeHead *)tmpNode;
         PRINTK("\n broken node head: %p  %p  %p  "
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
-               "0x%x  "
+            "0x%x  "
 #endif
-               "0x%x, ",
-               freeNode->header.ptr.prev, freeNode->next, freeNode->prev,
+            "0x%x, ",
+            freeNode->header.ptr.prev, freeNode->next, freeNode->prev,
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
-               freeNode->header.magic,
+            freeNode->header.magic,
 #endif
-               freeNode->header.sizeAndFlag);
+            freeNode->header.sizeAndFlag);
     }
 
     if (OS_MEM_NODE_GET_USED_FLAG(preNode->sizeAndFlag)) {
         usedNode = (struct OsMemUsedNodeHead *)preNode;
         PRINTK("prev node head: %p  "
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
-               "0x%x  "
+            "0x%x  "
 #endif
-               "0x%x\n",
-               usedNode->header.ptr.prev,
+            "0x%x\n",
+            usedNode->header.ptr.prev,
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
-               usedNode->header.magic,
+            usedNode->header.magic,
 #endif
-               usedNode->header.sizeAndFlag);
+            usedNode->header.sizeAndFlag);
     } else {
         freeNode = (struct OsMemFreeNodeHead *)preNode;
         PRINTK("prev node head: %p  %p  %p  "
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
-               "0x%x  "
+            "0x%x  "
 #endif
-               "0x%x, ",
-               freeNode->header.ptr.prev, freeNode->next, freeNode->prev,
+            "0x%x, ",
+            freeNode->header.ptr.prev, freeNode->next, freeNode->prev,
 #if (LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK == 1)
-               freeNode->header.magic,
+            freeNode->header.magic,
 #endif
-               freeNode->header.sizeAndFlag);
+            freeNode->header.sizeAndFlag);
     }
 
 #if (LOSCFG_MEM_LEAKCHECK == 1)
@@ -1821,7 +1820,7 @@ UINT32 LOS_MemIntegrityCheck(const VOID *pool)
     struct OsMemPoolHead *poolHead = (struct OsMemPoolHead *)pool;
     struct OsMemNodeHead *tmpNode = NULL;
     struct OsMemNodeHead *preNode = NULL;
-    UINT32 intSave;
+    UINT32 intSave = 0;
 
     MEM_LOCK(poolHead, intSave);
     if (OsMemIntegrityCheck(poolHead, &tmpNode, &preNode)) {
@@ -1857,7 +1856,7 @@ STATIC INLINE VOID OsMemInfoGet(struct OsMemNodeHead *node,
             size = OS_MEM_NODE_HEAD_SIZE;
         } else {
             size = OS_MEM_NODE_GET_SIZE(node->sizeAndFlag);
-        }        
+        }
         ++usedNodeNum;
         totalUsedSize += size;
     }
@@ -1880,7 +1879,7 @@ STATIC VOID OsMemNodeInfoGetHandle(struct OsMemNodeHead *curNode, VOID *arg)
 UINT32 LOS_MemInfoGet(VOID *pool, LOS_MEM_POOL_STATUS *poolStatus)
 {
     struct OsMemPoolHead *poolInfo = pool;
-    UINT32 intSave;
+    UINT32 intSave = 0;
 
     if (poolStatus == NULL) {
         PRINT_ERR("can't use NULL addr to save info\n");
@@ -1950,7 +1949,7 @@ UINT32 LOS_MemFreeNodeShow(VOID *pool)
     struct OsMemFreeNodeHead *node = NULL;
     UINT32 countNum[OS_MEM_FREE_LIST_COUNT] = {0};
     UINT32 index;
-    UINT32 intSave;
+    UINT32 intSave = 0;
 
     MEM_LOCK(poolInfo, intSave);
     for (index = 0; index < OS_MEM_FREE_LIST_COUNT; index++) {
@@ -2162,7 +2161,7 @@ STATIC VOID OsMemExcInfoGetSub(struct OsMemPoolHead *pool, MemInfoCB *memExcInfo
 {
     struct OsMemNodeHead *tmpNode = NULL;
     UINT32 taskID = OS_TASK_ERRORID;
-    UINT32 intSave;
+    UINT32 intSave = 0;
 
     (VOID)memset_s(memExcInfo, sizeof(MemInfoCB), 0, sizeof(MemInfoCB));
 
@@ -2227,5 +2226,3 @@ UINT32 OsMemExcInfoGet(UINT32 memNumMax, MemInfoCB *memExcInfo)
     return count;
 }
 #endif
-
-

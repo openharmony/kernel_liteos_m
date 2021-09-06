@@ -43,3 +43,5 @@ declare_args() {
   enable_ohos_kernel_liteos_m_tz = false
   ohos_kernel_liteos_m_lwip_path = "components/net/lwip-2.1:lwip"
 }
+
+LITEOSTOPDIR = "//kernel/liteos_m"
