@@ -739,6 +739,8 @@ extern UINT8 *m_aucSysMem0;
  * 1: Call stack analysis for cortex-m series by scanning the stack.
  * 2: Call stack analysis for risc-v by using frame pointer.
  * 3: Call stack analysis for risc-v by scanning the stack.
+ * 4: Call stack analysis for xtensa by scanning the stack.
+ * 5: Call stack analysis for c-sky by scanning the stack.
  * others: Not currently supported.
  */
 #ifndef LOSCFG_BACKTRACE_TYPE
