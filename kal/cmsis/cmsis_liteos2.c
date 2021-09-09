@@ -895,7 +895,7 @@ uint32_t osEventFlagsGet(osEventFlagsId_t ef_id)
     uint32_t rflags;
 
     if (pstEventCB == NULL) {
-        return (uint32_t)osFlagsErrorParameter;
+        return 0;
     }
 
     uwIntSave = LOS_IntLock();
