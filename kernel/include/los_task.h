@@ -1622,7 +1622,7 @@ extern UINT32 OsGetAllTskInfo(VOID);
 
 extern VOID *OsTskUserStackInit(VOID* stackPtr, VOID* userSP, UINT32 userStackSize);
 
-extern UINT32 OsPmEnterHandlerSet(VOID (*func)(BOOL));
+extern UINT32 OsPmEnterHandlerSet(VOID (*func)(VOID));
 
 #ifdef __cplusplus
 #if __cplusplus

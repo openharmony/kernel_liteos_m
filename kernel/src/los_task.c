@@ -101,7 +101,7 @@ LITE_OS_SEC_DATA_INIT LOS_DL_LIST                    g_losFreeTask;
 LITE_OS_SEC_DATA_INIT LOS_DL_LIST                    g_taskRecyleList;
 LITE_OS_SEC_BSS  BOOL                                g_taskScheduled = FALSE;
 
-STATIC VOID (*PmEnter)(BOOL isIdle) = NULL;
+STATIC VOID (*PmEnter)(VOID) = NULL;
 
 #if (LOSCFG_BASE_CORE_EXC_TSK_SWITCH == 1)
 TaskSwitchInfo g_taskSwitchInfo;
@@ -142,7 +142,7 @@ STATIC VOID OsRecyleFinishedTask(VOID)
     LOS_IntRestore(intSave);
 }
 
-UINT32 OsPmEnterHandlerSet(VOID (*func)(BOOL))
+UINT32 OsPmEnterHandlerSet(VOID (*func)(VOID))
 {
     if (func == NULL) {
         return LOS_NOK;
@@ -165,7 +165,7 @@ LITE_OS_SEC_TEXT VOID OsIdleTask(VOID)
         OsRecyleFinishedTask();
 
         if (PmEnter != NULL) {
-            PmEnter(TRUE);
+            PmEnter();
         } else {
             (VOID)HalEnterSleep();
         }
