@@ -58,7 +58,12 @@ static osKernelState_t g_kernelState;
 
 extern BOOL g_taskScheduled;
 
-#define LOS_PRIORITY_WIN 8
+/* LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO <---> osPriorityNormal */
+#define LOS_PRIORITY(cmsisPriority) (LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO - ((cmsisPriority) - osPriorityNormal))
+#define CMSIS_PRIORITY(losPriority) (osPriorityNormal + (LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO - (losPriority)))
+
+/* OS_TASK_PRIORITY_HIGHEST and OS_TASK_PRIORITY_LOWEST is reserved for internal TIMER and IDLE task use only. */
+#define ISVALID_LOS_PRIORITY(losPrio) ((losPrio) > OS_TASK_PRIORITY_HIGHEST && (losPrio) < OS_TASK_PRIORITY_LOWEST)
 
 const osVersion_t g_stLosVersion = { 001, 001 };
 
@@ -74,8 +79,6 @@ const osVersion_t g_stLosVersion = { 001, 001 };
 #define KERNEL_ID "HUAWEI-LiteOS"
 
 //  ==== Kernel Management Functions ====
-uint32_t osTaskStackWaterMarkGet(UINT32 taskID);
-
 
 osStatus_t osKernelInitialize(void)
 {
@@ -303,27 +306,28 @@ osThreadId_t osThreadNew(osThreadFunc_t func, void *argument, const osThreadAttr
     UINT32 uwTid;
     UINT32 uwRet;
     LosTaskCB *pstTaskCB = NULL;
-    TSK_INIT_PARAM_S stTskInitParam;
+    TSK_INIT_PARAM_S stTskInitParam = {NULL};
+    UINT16 usPriority;
 
-    if (OS_INT_ACTIVE) {
-        return NULL;
-    }
-
-    if ((attr == NULL) || (func == NULL) || (attr->priority < osPriorityLow1) ||
-        (attr->priority > osPriorityAboveNormal6)) {
+    if (OS_INT_ACTIVE || (func == NULL)) {
         return (osThreadId_t)NULL;
     }
 
-    (void)memset_s(&stTskInitParam, sizeof(TSK_INIT_PARAM_S), 0, sizeof(TSK_INIT_PARAM_S));
+    usPriority = attr ? LOS_PRIORITY(attr->priority) : LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO;
+    if (!ISVALID_LOS_PRIORITY(usPriority)) {
+        /* unsupported priority */
+        return (osThreadId_t)NULL;
+    }
+
     stTskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)func;
 #ifndef LITEOS_WIFI_IOT_VERSION
     stTskInitParam.uwArg = (UINT32)argument;
 #else
     stTskInitParam.auwArgs[0] = (UINT32)argument;
 #endif
-    stTskInitParam.uwStackSize = attr->stack_size;
-    stTskInitParam.pcName = (CHAR *)attr->name;
-    stTskInitParam.usTaskPrio = OS_TASK_PRIORITY_LOWEST - ((UINT16)(attr->priority) - LOS_PRIORITY_WIN); /* 0~31 */
+    stTskInitParam.uwStackSize = attr ? attr->stack_size : LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+    stTskInitParam.pcName = (CHAR *)(attr ? attr->name : "[NULL]");
+    stTskInitParam.usTaskPrio = usPriority;
 
     uwRet = LOS_TaskCreate(&uwTid, &stTskInitParam);
 
@@ -483,12 +487,12 @@ osStatus_t osThreadSetPriority(osThreadId_t thread_id, osPriority_t priority)
         return osErrorParameter;
     }
 
-    if (priority < osPriorityLow1 || priority > osPriorityAboveNormal6) {
+    usPriority = LOS_PRIORITY(priority);
+    if (!ISVALID_LOS_PRIORITY(usPriority)) {
         return osErrorParameter;
     }
 
     pstTaskCB = (LosTaskCB *)thread_id;
-    usPriority = OS_TASK_PRIORITY_LOWEST - ((UINT16)priority - LOS_PRIORITY_WIN);
     uwRet = LOS_TaskPriSet(pstTaskCB->taskID, usPriority);
     switch (uwRet) {
         case LOS_ERRNO_TSK_PRIOR_ERROR:
@@ -521,7 +525,7 @@ osPriority_t osThreadGetPriority(osThreadId_t thread_id)
         return osPriorityError;
     }
 
-    return (osPriority_t)(OS_TASK_PRIORITY_LOWEST - (usRet - LOS_PRIORITY_WIN));
+    return (osPriority_t)CMSIS_PRIORITY(usRet);
 }
 
 
