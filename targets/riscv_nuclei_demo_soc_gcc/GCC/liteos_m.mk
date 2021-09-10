@@ -36,9 +36,11 @@ C_INCLUDES    += -I. \
                  -I$(LITEOSTOPDIR)/kernel/arch/include \
                  -I$(LITEOSTOPDIR)/kernel/arch/risc-v/nuclei/gcc
 
+ASFLAGS       += -imacros $(LITEOSTOPDIR)/kernel/include/los_config.h -DCLZ=CLZ
+
 # list of ASM .S program objects
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASMS_SOURCES:.S=.o)))
 vpath %.S $(sort $(dir $(ASMS_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.S Makefile | $(BUILD_DIR)
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $(ASFLAGS) $< -o $@
