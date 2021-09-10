@@ -194,7 +194,7 @@ extern "C" {
  * Allow inline sections
  */
 #ifndef LITE_OS_SEC_ALW_INLINE
-#define LITE_OS_SEC_ALW_INLINE      //__attribute__((always_inline))
+#define LITE_OS_SEC_ALW_INLINE      // __attribute__((always_inline))
 #endif
 
 /**
@@ -210,7 +210,7 @@ extern "C" {
  * .Text section (Code section)
  */
 #ifndef LITE_OS_SEC_TEXT
-#define LITE_OS_SEC_TEXT            //__attribute__((section(".sram.text")))
+#define LITE_OS_SEC_TEXT            // __attribute__((section(".sram.text")))
 #endif
 
 /**
@@ -226,7 +226,7 @@ extern "C" {
  * .Text.init section
  */
 #ifndef LITE_OS_SEC_TEXT_INIT
-#define LITE_OS_SEC_TEXT_INIT       //__attribute__((section(".dyn.text")))
+#define LITE_OS_SEC_TEXT_INIT       // __attribute__((section(".dyn.text")))
 #endif
 
 /**
@@ -234,7 +234,7 @@ extern "C" {
  * .Data section
  */
 #ifndef LITE_OS_SEC_DATA
-#define LITE_OS_SEC_DATA  //__attribute__((section(".dyn.data")))
+#define LITE_OS_SEC_DATA            // __attribute__((section(".dyn.data")))
 #endif
 
 /**
@@ -242,7 +242,7 @@ extern "C" {
  * .Data.init section
  */
 #ifndef LITE_OS_SEC_DATA_INIT
-#define LITE_OS_SEC_DATA_INIT  //__attribute__((section(".dyn.data")))
+#define LITE_OS_SEC_DATA_INIT       // __attribute__((section(".dyn.data")))
 #endif
 
 /**
@@ -250,7 +250,7 @@ extern "C" {
  * Not initialized variable section
  */
 #ifndef LITE_OS_SEC_BSS
-#define LITE_OS_SEC_BSS  //__attribute__((section(".sym.bss")))
+#define LITE_OS_SEC_BSS             // __attribute__((section(".sym.bss")))
 #endif
 
 /**
@@ -270,34 +270,34 @@ extern "C" {
 #endif
 
 #ifndef LITE_OS_SEC_TEXT_DATA
-#define LITE_OS_SEC_TEXT_DATA       //__attribute__((section(".dyn.data")))
-#define LITE_OS_SEC_TEXT_BSS        //__attribute__((section(".dyn.bss")))
-#define LITE_OS_SEC_TEXT_RODATA     //__attribute__((section(".dyn.rodata")))
+#define LITE_OS_SEC_TEXT_DATA       // __attribute__((section(".dyn.data")))
+#define LITE_OS_SEC_TEXT_BSS        // __attribute__((section(".dyn.bss")))
+#define LITE_OS_SEC_TEXT_RODATA     // __attribute__((section(".dyn.rodata")))
 #endif
 
 #ifndef LITE_OS_SEC_SYMDATA
-#define LITE_OS_SEC_SYMDATA         //__attribute__((section(".sym.data")))
+#define LITE_OS_SEC_SYMDATA         // __attribute__((section(".sym.data")))
 #endif
 
 #ifndef LITE_OS_SEC_SYMBSS
-#define LITE_OS_SEC_SYMBSS          //__attribute__((section(".sym.bss")))
+#define LITE_OS_SEC_SYMBSS          // __attribute__((section(".sym.bss")))
 #endif
 
 
 #ifndef LITE_OS_SEC_KEEP_DATA_DDR
-#define LITE_OS_SEC_KEEP_DATA_DDR   //__attribute__((section(".keep.data.ddr")))
+#define LITE_OS_SEC_KEEP_DATA_DDR   // __attribute__((section(".keep.data.ddr")))
 #endif
 
 #ifndef LITE_OS_SEC_KEEP_TEXT_DDR
-#define LITE_OS_SEC_KEEP_TEXT_DDR   //__attribute__((section(".keep.text.ddr")))
+#define LITE_OS_SEC_KEEP_TEXT_DDR   // __attribute__((section(".keep.text.ddr")))
 #endif
 
 #ifndef LITE_OS_SEC_KEEP_DATA_SRAM
-#define LITE_OS_SEC_KEEP_DATA_SRAM  //__attribute__((section(".keep.data.sram")))
+#define LITE_OS_SEC_KEEP_DATA_SRAM  // __attribute__((section(".keep.data.sram")))
 #endif
 
 #ifndef LITE_OS_SEC_KEEP_TEXT_SRAM
-#define LITE_OS_SEC_KEEP_TEXT_SRAM  //__attribute__((section(".keep.text.sram")))
+#define LITE_OS_SEC_KEEP_TEXT_SRAM  // __attribute__((section(".keep.text.sram")))
 #endif
 
 #ifndef LITE_OS_SEC_BSS_MINOR
@@ -378,7 +378,7 @@ typedef signed int             INTPTR;
  * @ingroup los_base
  * Align the tail of the object with the base address addr, with size bytes being the smallest unit of alignment.
  */
-#define TRUNCATE(addr, size)         ((addr) & ~((size)-1))
+#define TRUNCATE(addr, size)         ((addr) & ~((size) - 1))
 
 
 /**
