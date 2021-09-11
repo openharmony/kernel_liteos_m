@@ -167,7 +167,7 @@ STATIC Suspend OsPmCpuSuspend(LosPmCB *pm)
 
 STATIC UINT32 OsPmSuspendSleep(LosPmCB *pm)
 {
-    UINT32 ret;
+    UINT32 ret = LOS_OK;
     UINT32 intSave;
     LOS_SysSleepEnum mode;
     Suspend sysSuspend = NULL;
