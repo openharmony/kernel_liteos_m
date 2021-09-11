@@ -32,13 +32,13 @@
 #include "It_los_pm.h"
 #include "los_timer.h"
 
-#define myprintf // printf
 #define TEST_LOOP 5
 static EVENT_CB_S g_pmTestEvent;
 static UINT32 g_taskID1, g_taskID2;
 static UINT32 g_deviceCount = 0;
 static UINT32 g_sysCount = 0;
 static volatile UINT32 g_pmTestCount = 0;
+static UINT32 g_pmTimeLock = 0;
 
 static UINT32 DeviceSuspend(UINT32 mode)
 {
@@ -70,7 +70,7 @@ static UINT32 SysSuspend(VOID)
     g_testCount++;
     g_sysCount++;
 
-    if ((g_deviceCount != 1) || (g_sysCount != 1)) { /* 1: sys count */
+    if ((g_deviceCount != 1) || (g_sysCount != 1)) { /* 2: device count 1: sys count */
         g_sysCount = (UINT32)-1;
     }
 
@@ -82,6 +82,8 @@ static UINT32 SysSuspend(VOID)
 static UINT32 SystemPmEarly(UINT32 mode)
 {
     UINT32 ret;
+
+    ICUNIT_ASSERT_EQUAL(mode, LOS_SYS_LIGHT_SLEEP, mode);
 
     ret = LOS_TaskSuspend(g_taskID2);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
@@ -98,7 +100,6 @@ static UINT32 SystemPmEarly(UINT32 mode)
 static VOID SystemPmLate(UINT32 mode)
 {
     UINT32 ret;
-    LosTaskCB *taskCB = NULL;
 
     ICUNIT_ASSERT_EQUAL_VOID(mode, LOS_SYS_LIGHT_SLEEP, mode);
 
@@ -132,6 +133,7 @@ static VOID PmTestTask(VOID)
         ICUNIT_GOTO_NOT_EQUAL(g_testCount, 0, g_sysCount, EXIT);
         ICUNIT_GOTO_EQUAL(g_sysCount, 0, g_sysCount, EXIT);
 
+        g_pmTimeLock = 0;
         g_pmTestCount++;
         if (g_pmTestCount > TEST_LOOP) {
             break;
@@ -145,68 +147,38 @@ EXIT:
     return;
 }
 
-#define TEST_TASK1_LOOP 10
-static volatile UINT32 g_testSample1Count, g_testSample2Count;
 static void TaskSampleEntry2(void)
 {
-    UINT32 g_testSample2Count = TEST_FLAGS;
-
     while (1) {
-        if (g_testSample2Count == TEST_FLAGS) {
-            g_testSample2Count = 0;
-            LOS_PmLockRequest("TaskSampleEntry2");
-            myprintf("%s request pm lock\n", __FUNCTION__);
-        }
-
-        myprintf("TaskSampleEntry2 running...count: %u\n\r", g_testSample2Count);
         LOS_TaskDelay(20); /* sleep 20 ticks */
-
-        if (g_testSample2Count <= TEST_TASK1_LOOP) { /* */
-            g_testSample2Count++;
-        }
-        if (g_testSample2Count == TEST_TASK1_LOOP) {
-            LOS_PmLockRelease("TaskSampleEntry2");
-            myprintf("%s release pm lock\n", __FUNCTION__);
-        }
-
         if (g_pmTestCount > TEST_LOOP) {
             break;
         }
     }
-
-    LOS_PmLockRelease("TaskSampleEntry2");
-    myprintf("TaskSampleEntry2 exit\n");
 }
 
 static void TaskSampleEntry1(void)
 {
-    UINT32 g_testSample1Count = 0;
+    UINT32 ret;
 
     while (1) {
-        if (g_testSample1Count == 0) {
-            LOS_PmLockRequest("TaskSampleEntry1");
-            myprintf("%s request pm lock\n", __FUNCTION__);
+        if (g_pmTimeLock == 0) {
+            g_pmTimeLock = TEST_FLAGS;
+            ret = LOS_PmTimeLockRequest("TaskSampleEntry1", 1000); /* delay 1000 ms */
+            ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
+
+            ret = LOS_PmTimeLockRequest("TaskSampleEntry1", 1000); /* delay 1000 ms */
+            ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_ERRNO_PM_ALREADY_LOCK, ret);
         }
 
-        myprintf("TaskSampleEntry1 running...%u\n\r", g_testSample1Count);
         LOS_TaskDelay(50); /* sleep 50 ticks */
-
-        g_testSample1Count++;
-        if (g_testSample1Count == TEST_TASK1_LOOP) {
-            LOS_PmLockRelease("TaskSampleEntry1");
-            myprintf("%s release pm lock\n", __FUNCTION__);
-        } else if (g_testSample1Count == (TEST_TASK1_LOOP + 1)) { /* 1:  incremental */
-            g_testSample1Count = 0;
-            g_testSample2Count = TEST_FLAGS;
-        }
 
         if (g_pmTestCount > TEST_LOOP) {
             break;
         }
     }
 
-    LOS_PmLockRelease("TaskSampleEntry1");
-    myprintf("TaskSampleEntry1 exit\n");
+    return;
 }
 
 static UINT32 TestCase(VOID)
@@ -264,7 +236,7 @@ static UINT32 TestCase(VOID)
     return LOS_OK;
 }
 
-VOID ItLosPm002(VOID) // IT_Layer_ModuleORFeature_No
+VOID ItLosPm003(VOID) // IT_Layer_ModuleORFeature_No
 {
-    TEST_ADD_CASE("ItLosPm002", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
+    TEST_ADD_CASE("ItLosPm003", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
 }

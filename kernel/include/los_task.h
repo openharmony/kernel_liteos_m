@@ -1177,6 +1177,14 @@ extern VOID LOS_UDelay(UINT64 microseconds);
 
 /**
  * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * The delayed operation of this task is frozen.
+ */
+#define OS_TASK_FALG_FREEZE                         0x4000
+
+/**
+ * @ingroup los_task
  * Flag that indicates the task is in userspace.
  *
  * The task is a user task.

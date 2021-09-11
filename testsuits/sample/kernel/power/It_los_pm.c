@@ -31,9 +31,10 @@
 #include "osTest.h"
 #include "It_los_pm.h"
 
-VOID ItSuiteLosPm()
+VOID ItSuiteLosPm(VOID)
 {
     ItLosPm001();
     ItLosPm002();
+    ItLosPm003();
 }
 
