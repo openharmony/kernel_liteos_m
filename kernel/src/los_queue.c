@@ -526,12 +526,6 @@ LITE_OS_SEC_TEXT UINT32 OsQueueMailFree(UINT32 queueID, VOID *mailPool, VOID *ma
     }
 
     intSave = LOS_IntLock();
-
-    if (LOS_MemboxFree(mailPool, mailMem)) {
-        LOS_IntRestore(intSave);
-        return LOS_ERRNO_QUEUE_MAIL_FREE_ERROR;
-    }
-
     queueCB = GET_QUEUE_HANDLE(queueID);
     if (queueCB->queueState == OS_QUEUE_UNUSED) {
         LOS_IntRestore(intSave);
@@ -541,17 +535,24 @@ LITE_OS_SEC_TEXT UINT32 OsQueueMailFree(UINT32 queueID, VOID *mailPool, VOID *ma
     if (!LOS_ListEmpty(&queueCB->memList)) {
         resumedTask = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&queueCB->memList));
         OsSchedTaskWake(resumedTask);
-        mem = LOS_MemboxAlloc(mailPool);
-        if (mem == NULL) {
-            LOS_IntRestore(intSave);
-            return LOS_ERRNO_QUEUE_NO_MEMORY;
-        }
-        resumedTask->msg = mem;
+        /* When enters the current branch, means the resumed task already can get a available membox,
+         * so the resumedTask->msg can not be NULL.
+         */
+        resumedTask->msg = mailMem;
         LOS_IntRestore(intSave);
         LOS_Schedule();
+
     } else {
+        /* No task waiting for the mailMem,
+         * so free it.
+         */
+        if (LOS_MemboxFree(mailPool, mailMem)) {
+            LOS_IntRestore(intSave);
+            return LOS_ERRNO_QUEUE_MAIL_FREE_ERROR;
+        }
         LOS_IntRestore(intSave);
     }
+
     return LOS_OK;
 }
 
