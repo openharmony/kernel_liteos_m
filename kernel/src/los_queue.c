@@ -512,7 +512,6 @@ END:
  *****************************************************************************/
 LITE_OS_SEC_TEXT UINT32 OsQueueMailFree(UINT32 queueID, VOID *mailPool, VOID *mailMem)
 {
-    VOID *mem = (VOID *)NULL;
     UINT32 intSave;
     LosQueueCB *queueCB = (LosQueueCB *)NULL;
     LosTaskCB *resumedTask = (LosTaskCB *)NULL;
@@ -534,14 +533,13 @@ LITE_OS_SEC_TEXT UINT32 OsQueueMailFree(UINT32 queueID, VOID *mailPool, VOID *ma
 
     if (!LOS_ListEmpty(&queueCB->memList)) {
         resumedTask = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&queueCB->memList));
-        OsSchedTaskWake(resumedTask);
         /* When enters the current branch, means the resumed task already can get a available membox,
          * so the resumedTask->msg can not be NULL.
          */
         resumedTask->msg = mailMem;
+        OsSchedTaskWake(resumedTask);
         LOS_IntRestore(intSave);
         LOS_Schedule();
-
     } else {
         /* No task waiting for the mailMem,
          * so free it.
@@ -637,7 +635,6 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_QueueInfoGet(UINT32 queueID, QUEUE_INFO_S *que
     intSave = LOS_IntLock();
 
     queueCB = (LosQueueCB *)GET_QUEUE_HANDLE(queueID);
-
     if (queueCB->queueState == OS_QUEUE_UNUSED) {
         ret = LOS_ERRNO_QUEUE_NOT_CREATE;
         goto QUEUE_END;
@@ -652,15 +649,18 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_QueueInfoGet(UINT32 queueID, QUEUE_INFO_S *que
     queueInfo->writableCnt = queueCB->readWriteableCnt[OS_QUEUE_WRITE];
 
     LOS_DL_LIST_FOR_EACH_ENTRY(tskCB, &queueCB->readWriteList[OS_QUEUE_READ], LosTaskCB, pendList) {
-        queueInfo->waitReadTask[OS_WAIT_TASK_ID_TO_ARRAY_IDX(tskCB->taskID)] |= (1 << (tskCB->taskID & OS_WAIT_TASK_ARRAY_ELEMENT_MASK));
+        queueInfo->waitReadTask[OS_WAIT_TASK_ID_TO_ARRAY_IDX(tskCB->taskID)] |=
+            (1 << (tskCB->taskID & OS_WAIT_TASK_ARRAY_ELEMENT_MASK));
     }
 
     LOS_DL_LIST_FOR_EACH_ENTRY(tskCB, &queueCB->readWriteList[OS_QUEUE_WRITE], LosTaskCB, pendList) {
-        queueInfo->waitWriteTask[OS_WAIT_TASK_ID_TO_ARRAY_IDX(tskCB->taskID)] |= (1 << (tskCB->taskID & OS_WAIT_TASK_ARRAY_ELEMENT_MASK));
+        queueInfo->waitWriteTask[OS_WAIT_TASK_ID_TO_ARRAY_IDX(tskCB->taskID)] |=
+            (1 << (tskCB->taskID & OS_WAIT_TASK_ARRAY_ELEMENT_MASK));
     }
 
     LOS_DL_LIST_FOR_EACH_ENTRY(tskCB, &queueCB->memList, LosTaskCB, pendList) {
-        queueInfo->waitMemTask[OS_WAIT_TASK_ID_TO_ARRAY_IDX(tskCB->taskID)] |= (1 << (tskCB->taskID & OS_WAIT_TASK_ARRAY_ELEMENT_MASK));
+        queueInfo->waitMemTask[OS_WAIT_TASK_ID_TO_ARRAY_IDX(tskCB->taskID)] |=
+            (1 << (tskCB->taskID & OS_WAIT_TASK_ARRAY_ELEMENT_MASK));
     }
 
 QUEUE_END:
