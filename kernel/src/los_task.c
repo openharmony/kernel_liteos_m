@@ -44,6 +44,9 @@
 #if (LOSCFG_BASE_CORE_CPUP == 1)
 #include "los_cpup.h"
 #endif
+#if (LOSCFG_KERNEL_PM == 1)
+#include "los_pm.h"
+#endif
 
 /**
  * @ingroup los_task
@@ -403,7 +406,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsIdleTaskCreate(VOID)
     taskInitParam.pcName = "IdleCore000";
     taskInitParam.usTaskPrio = OS_TASK_PRIORITY_LOWEST;
     retVal = LOS_TaskCreateOnly(&g_idleTaskID, &taskInitParam);
-
     if (retVal != LOS_OK) {
         return retVal;
     }
@@ -803,6 +805,12 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskResume(UINT32 taskID)
         OS_GOTO_ERREND();
     }
 
+#if (LOSCFG_KERNEL_PM == 1)
+    if (tempStatus & OS_TASK_FALG_FREEZE) {
+        OsPmUnfreezeTaskUnsafe(taskID);
+    }
+#endif
+
     taskCB->taskStatus &= (~OS_TASK_STATUS_SUSPEND);
     if (!(taskCB->taskStatus & OS_CHECK_TASK_BLOCK)) {
         OsSchedTaskEnQueue(taskCB);
@@ -861,6 +869,12 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskSuspend(UINT32 taskID)
     if (tempStatus & OS_TASK_STATUS_READY) {
         OsSchedTaskDeQueue(taskCB);
     }
+
+#if (LOSCFG_KERNEL_PM == 1)
+    if ((tempStatus & (OS_TASK_STATUS_PEND_TIME | OS_TASK_STATUS_DELAY)) && OsIsPmMode()) {
+        OsPmFreezeTaskUnsafe(taskID);
+    }
+#endif
 
     taskCB->taskStatus |= OS_TASK_STATUS_SUSPEND;
     OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTOSUSPENDEDLIST, taskCB);
