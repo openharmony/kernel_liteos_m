@@ -184,13 +184,13 @@ VOID TestTaskEntry()
 UINT32 los_TestInit(VOID)
 {
     UINT32 ret;
-    TSK_INIT_PARAM_S osTaskInitParam;
+    TSK_INIT_PARAM_S osTaskInitParam = { 0 };
 
     osTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)TestTaskEntry;
     osTaskInitParam.uwStackSize = OS_TSK_TEST_STACK_SIZE;
     osTaskInitParam.pcName = "IT_TST_INI";
     osTaskInitParam.usTaskPrio = TASK_PRIO_TEST;
-    osTaskInitParam.uwResved = LOS_TASK_STATUS_DETACHED;
+    osTaskInitParam.uwResved = LOS_TASK_ATTR_JOINABLE;
 
     ret = LOS_TaskCreate(&g_testTskHandle, &osTaskInitParam);
     if (LOS_OK != ret) {

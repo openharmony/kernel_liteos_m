@@ -57,7 +57,7 @@ static UINT32 Testcase(VOID)
     task1.pcName = "EventTsk3";
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.usTaskPrio = TASK_PRIO_TEST - 2; // 2, set new task priority, it is higher than the test task.
-    task1.uwResved = LOS_TASK_STATUS_DETACHED;
+    task1.uwResved = LOS_TASK_ATTR_JOINABLE;
 
     g_testCount = 0;
     g_pevent.uwEventID = 0;
@@ -71,11 +71,13 @@ static UINT32 Testcase(VOID)
 
     g_testCount++;
 
-    LOS_TaskDelay(1);
+    ret = LOS_TaskJoin(g_testTaskID01, NULL);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT); // 3, Here, assert that g_testCount is equal to 3.
 EXIT:
     LOS_TaskDelete(g_testTaskID01);
+    LOS_TaskJoin(g_testCount, NULL);
 
     return LOS_OK;
 }

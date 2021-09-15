@@ -299,7 +299,9 @@ osThreadId_t osThreadNew(osThreadFunc_t func, void *argument, const osThreadAttr
     stTskInitParam.uwStackSize = attr ? attr->stack_size : LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     stTskInitParam.pcName = (CHAR *)(attr ? attr->name : "[NULL]");
     stTskInitParam.usTaskPrio = usPriority;
-
+    if (attr->attr_bits == osThreadJoinable) {
+        stTskInitParam.uwResved = LOS_TASK_ATTR_JOINABLE;
+    }
     uwRet = LOS_TaskCreate(&uwTid, &stTskInitParam);
 
     if (LOS_OK != uwRet) {
@@ -573,6 +575,46 @@ osStatus_t osThreadResume(osThreadId_t thread_id)
         default:
             return osOK;
     }
+}
+
+
+osStatus_t osThreadDetach(osThreadId_t thread_id)
+{
+    UINT32 ret;
+    LosTaskCB *taskCB = (LosTaskCB *)thread_id;
+
+    if (thread_id == NULL) {
+        return osErrorParameter;
+    }
+
+    ret = LOS_TaskDetach(taskCB->taskID);
+    if (ret == LOS_ERRNO_TSK_NOT_ALLOW_IN_INT) {
+        return osErrorISR;
+    } else if (ret != LOS_OK) {
+        return osErrorResource;
+    }
+
+    return osOK;
+}
+
+
+osStatus_t osThreadJoin(osThreadId_t thread_id)
+{
+    UINT32 ret;
+    LosTaskCB *taskCB = (LosTaskCB *)thread_id;
+
+    if (thread_id == NULL) {
+        return osErrorParameter;
+    }
+
+    ret = LOS_TaskJoin(taskCB->taskID, NULL);
+    if (ret == LOS_ERRNO_TSK_NOT_ALLOW_IN_INT) {
+        return osErrorISR;
+    } else if (ret != LOS_OK) {
+        return osErrorResource;
+    }
+
+    return osOK;
 }
 
 

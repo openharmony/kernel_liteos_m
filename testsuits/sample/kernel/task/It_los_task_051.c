@@ -50,6 +50,7 @@ static VOID TaskF01(VOID)
     task1.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     task1.pcName = "Tsk051B";
     task1.usTaskPrio = TASK_PRIO_TEST - 1;
+    task1.uwResved = LOS_TASK_ATTR_JOINABLE;
 
     ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT);
     g_testCount++;
@@ -57,7 +58,7 @@ static VOID TaskF01(VOID)
     ret = LOS_TaskCreate(&g_testTaskID02, &task1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_TaskDelay(2); // 2, set delay time
+    ret = LOS_TaskJoin(g_testTaskID02, NULL);
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
@@ -76,13 +77,14 @@ static UINT32 TestCase(VOID)
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.pcName = "Tsk051A";
     task1.usTaskPrio = TASK_PRIO_TEST - 2; // 2, set new task priority, it is higher than the current task.
+    task1.uwResved = LOS_TASK_ATTR_JOINABLE;
 
     g_testCount = 0;
 
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    ret = LOS_TaskDelay(2); // 2, set delay time
+    ret = LOS_TaskJoin(g_testTaskID01, NULL);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     ICUNIT_ASSERT_EQUAL(g_testCount, 3, g_testCount); // 3, Here, assert that g_testCount is equal to 3.

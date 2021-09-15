@@ -58,7 +58,7 @@ static UINT32 TestCase(VOID)
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.pcName = "Tsk105A";
     task1.usTaskPrio = TASK_PRIO_TEST - 1;
-    task1.uwResved = LOS_TASK_STATUS_DETACHED;
+    task1.uwResved = LOS_TASK_ATTR_JOINABLE;
 
     g_testCount = 0;
 
@@ -79,7 +79,8 @@ static UINT32 TestCase(VOID)
     ret = LOS_TaskPriSet(g_testTaskID01, OS_TASK_PRIORITY_LOWEST + 1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_PRIOR_ERROR, ret);
 
-    LOS_TaskDelay(10); // 10, set delay time
+    ret = LOS_TaskJoin(g_testTaskID01, NULL);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
 
@@ -90,6 +91,7 @@ static UINT32 TestCase(VOID)
 
 EXIT:
     LOS_TaskDelete(g_testTaskID01);
+    LOS_TaskJoin(g_testTaskID01, NULL);
     return LOS_OK;
 }
 

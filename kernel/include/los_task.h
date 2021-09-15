@@ -369,7 +369,65 @@ extern "C" {
  */
 #define LOS_ERRNO_TSK_OPERATE_SWTMR                 LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x22)
 
+/**
+ * @ingroup los_task
+ * Task error code: Task timeout.
+ *
+ * Value: 0x02000223
+ *
+ * Solution: Check whether the waiting time and timeout are reasonable.
+ */
 #define LOS_ERRNO_TSK_TIMEOUT                       LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x23)
+
+/**
+ * @ingroup los_task
+ * Task error code: This task cannot wait for other tasks to finish.
+ *
+ * Value: 0x02000224
+ *
+ * Solution: Check the task properties and whether it is waiting for other tasks to finish.
+ */
+#define LOS_ERRNO_TSK_NOT_JOIN                      LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x24)
+
+/**
+ * @ingroup los_task
+ * Task error code: Tasks can't join himself.
+ *
+ * Value: 0x02000225
+ *
+ * Solution: Check whether the task ID is the current running task.
+ */
+#define LOS_ERRNO_TSK_NOT_JOIN_SELF                 LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x25)
+
+/**
+ * @ingroup los_task
+ * Task error code: This task operation is not allowed to be performed in an interrupt.
+ *
+ * Value: 0x02000226
+ *
+ * Solution: Check whether the interface is used in interrupts.
+ */
+#define LOS_ERRNO_TSK_NOT_ALLOW_IN_INT              LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x26)
+
+/**
+ * @ingroup los_task
+ * Task error code: An exited task cannot be deleted.
+ *
+ * Value: 0x02000227
+ *
+ * Solution: Check whether a Joinable task exists. If so, call LOS_TaskJoin to reclaim resources.
+ */
+#define LOS_ERRNO_TSK_ALREADY_EXIT                  LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x27)
+
+/**
+ * @ingroup los_task
+ * Task error code: Locked scheduling does not allow tasks to be blocked.
+ *
+ * Value: 0x02000228
+ *
+ * Solution: Check for faulty lock scheduling logic.
+ */
+#define LOS_ERRNO_TSK_SCHED_LOCKED                  LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x28)
 
 /**
  * @ingroup los_task
@@ -395,15 +453,19 @@ typedef struct tagTskInitParam {
 
 /**
  * @ingroup los_task
+ * Task detach attribute.
+ */
+#define LOS_TASK_ATTR_JOINABLE                      0x80000000
+
+/**
+ * @ingroup los_task
  * Task name length
- *
  */
 #define LOS_TASK_NAMELEN                            32
 
 /**
  * @ingroup los_task
  * Task information structure.
- *
  */
 typedef struct tagTskInfo {
     CHAR                acName[LOS_TASK_NAMELEN];   /**< Task entrance function         */
@@ -1088,6 +1150,45 @@ extern CHAR* LOS_TaskNameGet(UINT32 taskID);
  */
 extern VOID LOS_UDelay(UINT64 microseconds);
 
+/* *
+ * @ingroup  los_task
+ * @brief: cpu delay.
+ *
+ * @par Description:
+ * This API is used to wait for the subtask to finish and reclaim the resource.
+ *
+ * @attention:
+ * <ul><li>None.</li></ul>
+ *
+ * @param taskID [IN] task ID.
+ * @param retval [IN] Value returned when the task is complete.
+ *
+ * @retval: None.
+ * @par Dependency:
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_TaskDetach.
+ */
+extern UINT32 LOS_TaskJoin(UINT32 taskID, UINTPTR *retval);
+
+/* *
+ * @ingroup  los_task
+ * @brief: Modify the task attributes to detach.
+ *
+ * @par Description:
+ * This API is used to modify the attribute of the specified task to detach.
+ *
+ * @attention:
+ * <ul><li>None.</li></ul>
+ *
+ * @param taskID [IN] task ID.
+ *
+ * @retval: None.
+ * @par Dependency:
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_TaskJoin.
+ */
+extern UINT32 LOS_TaskDetach(UINT32 taskID);
+
 /**
  * @ingroup los_task
  * Null task ID
@@ -1179,17 +1280,26 @@ extern VOID LOS_UDelay(UINT64 microseconds);
  * @ingroup los_task
  * Flag that indicates the task or task control block status.
  *
+ * The task exits and waits for the parent thread to reclaim the resource.
+ */
+#define OS_TASK_STATUS_EXIT                         0x0100
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
  * The delayed operation of this task is frozen.
  */
 #define OS_TASK_FALG_FREEZE                         0x4000
 
 /**
  * @ingroup los_task
- * Flag that indicates the task is in userspace.
+ * Flag that indicates the task or task control block status.
  *
- * The task is a user task.
+ * Task join properties, The parent thread needs to reclaim
+ * the resource after the task ends.
  */
-#define OS_TASK_STATUS_USERSPACE                    0x8000
+#define OS_TASK_FLAG_JOINABLE                       0x8000
 
 /**
  * @ingroup los_task
@@ -1354,6 +1464,8 @@ typedef struct {
     CHAR                        *taskName;                /**< Task name */
     LOS_DL_LIST                 pendList;
     LOS_DL_LIST                 timerList;
+    LOS_DL_LIST                 joinList;
+    UINTPTR                     joinRetval;               /**< Return value of the end of the task, If the task does not exit by itself, the ID of the task that killed the task is recorded. */
     EVENT_CB_S                  event;
     UINT32                      eventMask;                /**< Event mask */
     UINT32                      eventMode;                /**< Event mode */

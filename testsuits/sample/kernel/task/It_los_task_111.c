@@ -42,10 +42,10 @@ static VOID TaskF02(VOID)
     g_testCount++;
 
     // 3, modify task priority, base on testsuite task`s priority.
-    ret = LOS_TaskPriSet(g_testTaskID01, TASK_PRIO_TEST - 3);
+    ret = LOS_TaskPriSet(g_testTaskID01, TASK_PRIO_TEST - 1); /* 1: Priority is relatively cheap */
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT); /* 1: count */
     g_testCount++;
 
     return;
@@ -70,7 +70,7 @@ static VOID TaskF01(VOID)
     ret = LOS_TaskPriGet(g_testTaskID01);
 
     // 3, Assert this result is consistent with the priority that has been set.
-    ICUNIT_ASSERT_EQUAL_VOID(ret, TASK_PRIO_TEST - 3, ret);
+    ICUNIT_ASSERT_EQUAL_VOID(ret, TASK_PRIO_TEST - 1, ret); /* 1: Priority is relatively cheap */
 
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
     g_testCount++;
@@ -91,13 +91,14 @@ static UINT32 TestCase(VOID)
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.pcName = "Tsk111A";
     task1.usTaskPrio = TASK_PRIO_TEST - 2; // 2, set new task priority, it is higher than the current task.
-    task1.uwResved = LOS_TASK_STATUS_DETACHED;
+    task1.uwResved = LOS_TASK_ATTR_JOINABLE;
 
     g_testCount = 0;
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    LOS_TaskDelay(10); // 10, set delay time
+    ret = LOS_TaskJoin(g_testTaskID01, NULL);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT); // 3, Here, assert that g_testCount is equal to 3.
 
@@ -105,7 +106,7 @@ static UINT32 TestCase(VOID)
 
 EXIT:
     LOS_TaskDelete(g_testTaskID01);
-
+    LOS_TaskJoin(g_testTaskID01, NULL);
     return LOS_OK;
 }
 

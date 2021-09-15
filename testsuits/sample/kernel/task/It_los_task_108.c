@@ -92,13 +92,14 @@ static UINT32 TestCase(VOID)
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.pcName = "Tsk108A";
     task1.usTaskPrio = TASK_PRIO_TEST - 2; // 2, set new task priority, it is higher than the current task.
-    task1.uwResved = LOS_TASK_STATUS_DETACHED;
+    task1.uwResved = LOS_TASK_ATTR_JOINABLE;
 
     g_testCount = 0;
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    LOS_TaskDelay(20); // 20, set delay time
+    ret = LOS_TaskJoin(g_testTaskID01, NULL);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 4, g_testCount, EXIT); // 4, Here, assert that g_testCount is equal to 4.
 
@@ -106,7 +107,7 @@ static UINT32 TestCase(VOID)
 
 EXIT:
     LOS_TaskDelete(g_testTaskID01);
-
+    LOS_TaskJoin(g_testTaskID01, NULL);
     return LOS_OK;
 }
 
