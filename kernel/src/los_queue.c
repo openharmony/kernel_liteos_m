@@ -533,17 +533,15 @@ LITE_OS_SEC_TEXT UINT32 OsQueueMailFree(UINT32 queueID, VOID *mailPool, VOID *ma
 
     if (!LOS_ListEmpty(&queueCB->memList)) {
         resumedTask = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&queueCB->memList));
-        /* When enters the current branch, means the resumed task already can get a available membox,
-         * so the resumedTask->msg can not be NULL.
+        /* When enter this branch, it means the resumed task can
+         * get an available mailMem.
          */
         resumedTask->msg = mailMem;
         OsSchedTaskWake(resumedTask);
         LOS_IntRestore(intSave);
         LOS_Schedule();
     } else {
-        /* No task waiting for the mailMem,
-         * so free it.
-         */
+        /* No task waiting for the mailMem, so free it. */
         if (LOS_MemboxFree(mailPool, mailMem)) {
             LOS_IntRestore(intSave);
             return LOS_ERRNO_QUEUE_MAIL_FREE_ERROR;
