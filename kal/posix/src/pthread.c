@@ -75,9 +75,6 @@ static int PthreadCreateAttrInit(const pthread_attr_t *attr, void *(*startRoutin
         threadAttr = &attrTmp;
     }
 
-    if (threadAttr->detachstate == PTHREAD_CREATE_DETACHED) {
-        return ENOTSUP;
-    }
     if (threadAttr->stackaddr_set != 0) {
         return ENOTSUP;
     }
@@ -100,12 +97,14 @@ static int PthreadCreateAttrInit(const pthread_attr_t *attr, void *(*startRoutin
         return ENOMEM;
     }
 
-    pthreadData->startRoutine  = startRoutine;
-    pthreadData->param         = arg;
+    pthreadData->startRoutine   = startRoutine;
+    pthreadData->param          = arg;
     taskInitParam->pcName       = pthreadData->name;
     taskInitParam->pfnTaskEntry = PthreadEntry;
     taskInitParam->uwArg        = (UINT32)(UINTPTR)pthreadData;
-
+    if (threadAttr->detachstate != PTHREAD_CREATE_DETACHED) {
+        taskInitParam->uwResved = LOS_TASK_ATTR_JOINABLE;
+    }
     return 0;
 }
 
@@ -192,43 +191,38 @@ int pthread_cancel(pthread_t thread)
 
 int pthread_join(pthread_t thread, void **retval)
 {
-    UINT32 taskStatus;
-
-    if (!IsPthread(thread)) {
+    UINTPTR result;
+    UINT32 ret = LOS_TaskJoin((UINT32)thread, &result);
+    if (ret == LOS_ERRNO_TSK_NOT_JOIN_SELF) {
+        return EDEADLK;
+    } else if (ret != LOS_OK) {
         return EINVAL;
     }
 
-    if (retval) {
-        /* retrieve thread exit code is not supported currently */
-        return ENOTSUP;
+    if (retval != NULL) {
+        *retval = (VOID *)result;
     }
-
-    if (thread == pthread_self()) {
-        return EDEADLK;
-    }
-
-    while (LOS_TaskStatusGet((UINT32)thread, &taskStatus) == LOS_OK) {
-        (void)LOS_TaskDelay(10); /* 10: Waiting for the end of thread execution. */
-    }
-
     return 0;
 }
 
 int pthread_detach(pthread_t thread)
 {
-    if (!IsPthread(thread)) {
+    UINT32 ret = LOS_TaskDetach((UINT32)thread);
+    if (ret == LOS_ERRNO_TSK_NOT_JOIN) {
+        return ESRCH;
+    } else if (ret != LOS_OK) {
         return EINVAL;
     }
 
-    return ENOSYS;
+    return 0;
 }
 
 void pthread_exit(void *retVal)
 {
-    (void)retVal;
     LosTaskCB *tcb = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
+    tcb->joinRetval = (UINTPTR)retVal;
     free((PthreadData *)(UINTPTR)tcb->arg);
-    (void)LOS_TaskDelete(LOS_CurTaskIDGet());
+    (void)LOS_TaskDelete(tcb->taskID);
 }
 
 int pthread_setname_np(pthread_t thread, const char *name)

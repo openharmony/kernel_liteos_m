@@ -39,27 +39,6 @@
 #define OS_INVALID_SEM_ID  0xFFFFFFFF
 #define OS_ALL_TASK_MASK   0xFFFFFFFF
 
-LITE_OS_SEC_TEXT_MINOR UINT8 *OsShellCmdConvertTskStatus(UINT16 taskStatus)
-{
-    if (taskStatus & OS_TASK_STATUS_RUNNING) {
-        return (UINT8 *)"Running";
-    } else if (taskStatus & OS_TASK_STATUS_READY) {
-        return (UINT8 *)"Ready";
-    } else {
-        if (taskStatus & OS_TASK_STATUS_DELAY) {
-            return (UINT8 *)"Delay";
-        } else if (taskStatus & OS_TASK_STATUS_PEND_TIME) {
-            return (UINT8 *)"PendTime";
-        } else if (taskStatus & OS_TASK_STATUS_PEND) {
-            return (UINT8 *)"Pend";
-        } else if (taskStatus & OS_TASK_STATUS_SUSPEND) {
-            return (UINT8 *)"Suspend";
-        }
-    }
-
-    return (UINT8 *)"Invalid";
-}
-
 LITE_OS_SEC_TEXT_MINOR STATIC VOID OsShellCmdTskInfoTitle(VOID)
 {
     PRINTK("Name                   TaskEntryAddr       TID    ");
@@ -119,11 +98,11 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID OsShellCmdTskInfoData(const LosTaskCB *allTas
         PRINTK("%-23s%-20p0x%-5x", taskCB->taskName, taskCB->taskEntry, taskCB->taskID);
 #if (LOSCFG_TASK_MEM_USED == 1)
         PRINTK("%-11u%-13s0x%-11x   0x%-11x   0x%-8x   0x%-10x   ", taskCB->priority,
-               OsShellCmdConvertTskStatus(taskCB->taskStatus), getUsedSizeArray[loop], taskCB->stackSize,
+               OsConvertTskStatus(taskCB->taskStatus), getUsedSizeArray[loop], taskCB->stackSize,
                taskCB->stackPointer, taskCB->topOfStack, semId);
 #else
         PRINTK("%-11u%-13s0x%-11x   0x%-8x   0x%-10x   ", taskCB->priority,
-               OsShellCmdConvertTskStatus(taskCB->taskStatus), taskCB->stackSize,
+               OsConvertTskStatus(taskCB->taskStatus), taskCB->stackSize,
                taskCB->stackPointer, taskCB->topOfStack, semId);
 #endif
         PRINTK("\n");

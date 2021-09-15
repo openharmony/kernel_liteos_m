@@ -53,6 +53,9 @@ extern "C" {
 #error "Must specify the maximum value that tick timer counter supports!"
 #endif
 
+#define OS_TASK_BLOCKED_STATUS (OS_TASK_STATUS_PEND | OS_TASK_STATUS_SUSPEND | \
+                                OS_TASK_STATUS_EXIT | OS_TASK_STATUS_UNUSED)
+
 STATIC SchedScan  g_swtmrScan = NULL;
 STATIC SortLinkAttribute *g_taskSortLinkList = NULL;
 STATIC LOS_DL_LIST g_priQueueList[OS_PRIORITY_QUEUE_NUM];
@@ -518,7 +521,7 @@ BOOL OsSchedTaskSwitch(VOID)
 
     if (runTask->taskStatus & (OS_TASK_STATUS_PEND_TIME | OS_TASK_STATUS_DELAY)) {
         OsAdd2SortLink(&runTask->sortList, runTask->startTime, runTask->waitTimes, OS_SORT_LINK_TASK);
-    } else if (!(runTask->taskStatus & (OS_TASK_STATUS_PEND | OS_TASK_STATUS_SUSPEND | OS_TASK_STATUS_UNUSED))) {
+    } else if (!(runTask->taskStatus & OS_TASK_BLOCKED_STATUS)) {
         OsSchedTaskEnQueue(runTask);
     }
 

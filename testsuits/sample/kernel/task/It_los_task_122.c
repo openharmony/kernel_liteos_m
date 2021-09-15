@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,53 +31,57 @@
 #include "osTest.h"
 #include "It_los_task.h"
 
-
-static VOID TaskF01(VOID)
+static UINT32 g_joinTaskID;
+static VOID *TaskJoinf01(void *argument)
 {
     g_testCount++;
-    return;
+
+    return NULL;
+}
+
+static VOID *TaskJoinf02(VOID *argument)
+{
+    UINT32 ret = LOS_TaskDelete(g_joinTaskID);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    return NULL;
 }
 
 static UINT32 TestCase(VOID)
 {
+    UINT32 taskID;
     UINT32 ret;
-    TSK_INIT_PARAM_S task1 = { 0 };
-    task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
-    task1.uwStackSize = TASK_STACK_SIZE_TEST;
-    task1.pcName = "Tsk095A";
-    task1.usTaskPrio = TASK_PRIO_TEST - 2; // 2, set new task priority, it is higher than the current task.
-    task1.uwResved = LOS_TASK_ATTR_JOINABLE;
+    UINTPTR temp = 0;
+    TSK_INIT_PARAM_S osTaskInitParam = { 0 };
 
     g_testCount = 0;
-    ret = LOS_TaskCreateOnly(&g_testTaskID01, &task1);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
-    ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT);
 
-    LOS_TaskResume(g_testTaskID01);
+    osTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskJoinf01;
+    osTaskInitParam.uwStackSize = OS_TSK_TEST_STACK_SIZE;
+    osTaskInitParam.pcName = "Join";
+    osTaskInitParam.usTaskPrio = TASK_PRIO_TEST + 1;
+    osTaskInitParam.uwResved = LOS_TASK_ATTR_JOINABLE;
 
-    ret = LOS_TaskJoin(g_testTaskID01, NULL);
-    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    ret = LOS_TaskCreate(&g_joinTaskID, &osTaskInitParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
-    ret = LOS_TaskCreateOnly(&g_testTaskID01, &task1);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    osTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskJoinf02;
+    osTaskInitParam.uwStackSize = OS_TSK_TEST_STACK_SIZE;
+    osTaskInitParam.pcName = "deatch";
+    osTaskInitParam.usTaskPrio = TASK_PRIO_TEST - 1;
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
+    ret = LOS_TaskCreate(&taskID, &osTaskInitParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
-    ret = LOS_TaskDelete(g_testTaskID01);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+    ret = LOS_TaskJoin(g_joinTaskID, &temp);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(temp, taskID, temp);
 
-    LOS_TaskJoin(g_testTaskID01, NULL);
-
-    return LOS_OK;
-
-EXIT:
-    LOS_TaskDelete(g_testTaskID01);
-    LOS_TaskJoin(g_testTaskID01, NULL);
     return LOS_OK;
 }
 
-VOID ItLosTask095(VOID) // IT_Layer_ModuleORFeature_No
+VOID ItLosTask122(VOID) // IT_Layer_ModuleORFeature_No
 {
-    TEST_ADD_CASE("ItLosTask095", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
+    TEST_ADD_CASE("ItLosTask122", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
 }
 
