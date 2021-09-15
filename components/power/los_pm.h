@@ -118,6 +118,15 @@
  */
 #define LOS_ERRNO_PM_DEVICE_NULL         LOS_ERRNO_OS_ERROR(LOS_MOD_PM, 0x09)
 
+/**
+ * @ingroup los_pm
+ * Pm error code: The delay lock has already been activated.
+ *
+ * Value: 0x0200200a
+ *
+ */
+#define LOS_ERRNO_PM_ALREADY_LOCK        LOS_ERRNO_OS_ERROR(LOS_MOD_PM, 0x0a)
+
 typedef enum {
     LOS_SYS_NORMAL_SLEEP = 0,
     LOS_SYS_LIGHT_SLEEP,
@@ -132,8 +141,8 @@ typedef enum {
 } LOS_PmNodeType;
 
 typedef struct {
-    UINT32 (*suspend)(UINT32 mode);
-    VOID   (*resume)(UINT32 mode);
+    UINT32 (*suspend)(UINT32 mode); /* The device enters low power consumption, Unlocked task scheduling. */
+    VOID   (*resume)(UINT32 mode);  /* The device exits from low power consumption, Unlocked task scheduling. */
 } LosPmDevice;
 
 typedef struct {
@@ -146,13 +155,47 @@ typedef struct {
 } LosPmTickTimer;
 
 typedef struct {
+    /* Preparations before the CPU enters low power consumption.
+     * All modes except normal mode are invoked.
+     * Unlocked task scheduling.
+     */
+    UINT32 (*early)(UINT32 mode);
+    /* The system performs low-power recovery.
+     * All modes except normal mode are invoked.
+     * Unlocked task scheduling.
+     */
+    VOID   (*late)(UINT32 mode);
+    /* The system enters the Normal sleep mode.
+     * In normal mode, the value cannot be NULL.
+     */
     UINT32 (*normalSuspend)(VOID);
+    /* The system recovers from normal sleep.
+     * The value can be NULL.
+     */
     VOID   (*normalResume)(VOID);
+    /* The system enters the light sleep mode.
+     * In light sleep mode, the value cannot be NULL.
+     */
     UINT32 (*lightSuspend)(VOID);
+    /* The system recovers from light sleep.
+     * The value can be NULL.
+     */
     VOID   (*lightResume)(VOID);
+    /* The system enters the deep sleep mode.
+     * In deep sleep mode, the value cannot be NULL.
+     */
     UINT32 (*deepSuspend)(VOID);
+    /* The system recovers from deep sleep.
+     * The value can be NULL.
+     */
     VOID   (*deepResume)(VOID);
+    /* The system enters the shutdown mode.
+     * In shutdown mode, the value cannot be NULL.
+     */
     UINT32 (*shutdownSuspend)(VOID);
+    /* The system recovers from shutdown.
+     * In shutdown mode, the value cannot be NULL.
+     */
     VOID   (*shutdownResume)(VOID);
 } LosPmSysctrl;
 
@@ -173,6 +216,60 @@ typedef struct {
  * @see
  */
 UINT32 OsPmInit(VOID);
+
+/**
+ * @ingroup los_pm
+ * @brief Whether the low power consumption condition is met.
+ *
+ * @par Description:
+ * This API is used to check whether low power consumption is met.
+ *
+ * @attention None.
+ *
+ * @param  None.
+ *
+ * @retval TRUE or FALSE.
+ * @par Dependency:
+ * <ul><li>los_pm.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+BOOL OsIsPmMode(VOID);
+
+/**
+ * @ingroup los_pm
+ * @brief Freeze delay tasks, internal interfaces between modules.
+ *
+ * @par Description:
+ * This API is used to freeze delay tasks.
+ *
+ * @attention None.
+ *
+ * @param taskID [IN] task ID.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_pm.h: the header file that contains the API declaration.</li></ul>
+ * @see OsPmUnfreezeTaskUnsafe
+ */
+VOID OsPmFreezeTaskUnsafe(UINT32 taskID);
+
+/**
+ * @ingroup los_pm
+ * @brief Unfreeze delayed tasks, internal interface between modules.
+ *
+ * @par Description:
+ * This API is used to unfreeze delayed tasks.
+ *
+ * @attention None.
+ *
+ * @param taskID [IN] task ID.
+ *
+ * @retval None.
+ * @par Dependency:
+ * <ul><li>los_pm.h: the header file that contains the API declaration.</li></ul>
+ * @see OsPmFreezeTaskUnsafe
+ */
+VOID OsPmUnfreezeTaskUnsafe(UINT32 taskID);
 
 /**
  * @ingroup los_pm
@@ -287,6 +384,27 @@ UINT32 LOS_PmLockRequest(const CHAR *name);
 
 /**
  * @ingroup los_pm
+ * @brief Request to obtain the lock in current mode, so that the system will not enter
+ * this mode when it enters the idle task next time. After the specified interval, the
+ * lock is automatically released.
+ *
+ * @par Description:
+ * This API is used to obtain the delay lock in current mode.
+ *
+ * @attention None.
+ *
+ * @param  name        [IN] Who requests the lock.
+ * @param  millisecond [IN] Specifies the time to automatically release the lock.
+ *
+ * @retval error code, LOS_OK means success.
+ * @par Dependency:
+ * <ul><li>los_pm.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_PmLockRelease
+ */
+UINT32 LOS_PmTimeLockRequest(const CHAR *name, UINT64 millisecond);
+
+/**
+ * @ingroup los_pm
  * @brief Release the lock in current mode so that the next time the system enters
  * the idle task, it will enter this mode.
  *
@@ -303,6 +421,42 @@ UINT32 LOS_PmLockRequest(const CHAR *name);
  * @see LOS_PmLockRequest
  */
 UINT32 LOS_PmLockRelease(const CHAR *name);
+
+/**
+ * @ingroup los_pm
+ * @brief Gets the current PM lock status.
+ *
+ * @par Description:
+ * This API is used to Get the current PM lock status.
+ *
+ * @attention None.
+ *
+ * @param NA.
+ *
+ * @retval Number of awakening sources of the device.
+ * @par Dependency:
+ * <ul><li>los_pm.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+UINT32 LOS_PmReadLock(VOID);
+
+/**
+ * @ingroup los_pm
+ * @brief The system enters the low-power flow.
+ *
+ * @par Description:
+ * This API is used to enter the system into a low-power process.
+ *
+ * @attention None.
+ *
+ * @param  wakeCount [IN] Number of wake sources.
+ *
+ * @retval error code, LOS_OK means success.
+ * @par Dependency:
+ * <ul><li>los_pm.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+UINT32 LOS_PmSuspend(UINT32 wakeCount);
 
 #if (LOSCFG_KERNEL_PM_DEBUG == 1)
 /**

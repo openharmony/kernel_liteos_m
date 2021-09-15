@@ -31,6 +31,7 @@ static_library("test_pm") {
     "It_los_pm.c",
     "It_los_pm_001.c",
     "It_los_pm_002.c",
+    "It_los_pm_003.c",
   ]
 
   include_dirs = [ "//kernel/liteos_m/components/power" ]

@@ -61,6 +61,8 @@ VOID OsSchedSetIdleTaskSchedParam(LosTaskCB *idleTask);
 
 UINT32 OsSchedSwtmrScanRegister(SchedScan func);
 
+VOID OsSchedSetNextExpireTime(UINT64 startTime, UINT32 responseID, UINT64 taskEndTime, BOOL timeUpdate);
+
 VOID OsSchedUpdateExpireTime(UINT64 startTime, BOOL timeUpdate);
 
 VOID OsSchedTaskDeQueue(LosTaskCB *taskCB);

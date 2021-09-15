@@ -50,15 +50,20 @@ static VOID SysResume(VOID)
 {
 }
 
-static UINT32 SysSuspend(VOID)
-{
-    return HalEnterSleep();
-}
-
 static LosPmSysctrl g_sysctrl = {
     .normalSuspend = NULL,
     .normalResume = SysResume,
 };
+
+static VOID TimerStart(UINT64 timer)
+{
+
+}
+
+static UINT64 GetTimerCycle(VOID)
+{
+    return 0;
+}
 
 static VOID TickLock(VOID)
 {
@@ -128,7 +133,7 @@ static UINT32 TestCase(VOID)
 
     g_tickTimer.tickLock = TickLock;
     g_tickTimer.tickUnlock = TickUnlock;
-    g_tickTimer.timerStart = TickLock;
+    g_tickTimer.timerStart = TimerStart;
     ret = LOS_PmRegister(LOS_PM_TYPE_TICK_TIMER, &g_tickTimer);
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_PM_INVALID_PARAM, ret);
 
@@ -136,7 +141,7 @@ static UINT32 TestCase(VOID)
     ret = LOS_PmRegister(LOS_PM_TYPE_TICK_TIMER, &g_tickTimer);
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_PM_INVALID_PARAM, ret);
 
-    g_tickTimer.timerCycleGet = TickLock;
+    g_tickTimer.timerCycleGet = GetTimerCycle;
     ret = LOS_PmRegister(LOS_PM_TYPE_TICK_TIMER, &g_tickTimer);
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_PM_INVALID_PARAM, ret);
 
@@ -159,4 +164,3 @@ VOID ItLosPm001(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosPm001", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
 }
-

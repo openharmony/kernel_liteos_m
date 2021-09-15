@@ -55,6 +55,7 @@ extern "C" {
 
 extern VOID ItLosPm001(VOID);
 extern VOID ItLosPm002(VOID);
+extern VOID ItLosPm003(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus
