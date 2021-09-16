@@ -105,7 +105,7 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID OsShellCmdTskInfoData(const LosTaskCB *allTas
         return;
     }
     (VOID)memset_s(getUsedSizeArray, arraySize, 0, arraySize);
-    OsTaskMemUsed(m_aucSysMem0, getUsedSizeArray, arraySize);
+    OsTaskMemUsed(m_aucSysMem0, getUsedSizeArray, (LOSCFG_BASE_CORE_TSK_LIMIT + 1));
 #endif
 
     for (loop = 0; loop < g_taskMaxNum; ++loop) {
