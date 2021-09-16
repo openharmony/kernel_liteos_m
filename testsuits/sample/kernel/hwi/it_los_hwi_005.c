@@ -50,7 +50,7 @@ static UINT32 Testcase(VOID)
     HWI_MODE_T mode = 0;
     HWI_ARG_T arg = 0;
 
-    ret = LOS_HwiCreate(HWI_NUM_INT0, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
+    ret = LOS_HwiCreate(HWI_NUM_TEST2, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     ret = LOS_HwiCreate(HWI_NUM_INT1, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
@@ -67,16 +67,16 @@ static UINT32 Testcase(VOID)
 EXIT3:
     TestHwiDelete(HWI_NUM_TEST);
     TestHwiDelete(HWI_NUM_INT1);
-    TestHwiDelete(HWI_NUM_INT0);
+    TestHwiDelete(HWI_NUM_TEST2);
     return LOS_OK;
 
 EXIT2:
     TestHwiDelete(HWI_NUM_INT1);
-    TestHwiDelete(HWI_NUM_INT0);
+    TestHwiDelete(HWI_NUM_TEST2);
     return LOS_OK;
 
 EXIT1:
-    TestHwiDelete(HWI_NUM_INT0);
+    TestHwiDelete(HWI_NUM_TEST2);
     return LOS_OK;
 }
 

@@ -42,7 +42,7 @@ static VOID HwiF01(VOID)
 
     return;
 }
-
+#define HWI_NUM_INT0 HWI_NUM_TEST1
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
@@ -54,14 +54,14 @@ static UINT32 Testcase(VOID)
 
     for (loop = 0; loop < HWI_LOOP_NUM; loop++) {
         for (index = 0; index < OS_HWI_MAX_USED_NUM; index++) {
-            /* if not Interrupt number HWI_NUM_INT0 + 3\4\32\35\36. */
+            /* if not Interrupt number HWI_NUM_TEST1 + 3\4\32\35\36. */
             if ((index != 3) && (index != 4) && (index != 32) && (index != 35) && (index != 36)) {
-                ret = LOS_HwiCreate(HWI_NUM_INT0 + index, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
+                ret = LOS_HwiCreate(HWI_NUM_TEST1 + index, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
                 ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
             }
 
             for (index = OS_USER_HWI_MIN; index < OS_HWI_MAX_USED_NUM; index++) {
-                TestHwiDelete(HWI_NUM_INT0 + index);
+                TestHwiDelete(HWI_NUM_TEST1 + index);
             }
         }
     }
