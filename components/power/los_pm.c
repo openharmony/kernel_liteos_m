@@ -255,7 +255,7 @@ STATIC UINT32 OsPmSuspendSleep(LosPmCB *pm)
     if (!tickTimerStop) {
         currTime = OsGetCurrSchedTimeCycle();
         OsSchedResetSchedResponseTime(0);
-        OsSchedSetNextExpireTime(currTime, OS_INVALID, OS_SCHED_MAX_RESPONSE_TIME, TRUE);
+        OsSchedUpdateExpireTime(currTime, TRUE);
     }
 
     sysSuspend = OsPmCpuSuspend(pm);
@@ -685,8 +685,10 @@ VOID OsPmUnfreezeTaskUnsafe(UINT32 taskID)
     }
 
     SET_SORTLIST_VALUE(&taskCB->sortList, OS_SORT_LINK_INVALID_TIME);
-    LOS_ListDelete(&taskCB->pendList);
-    taskCB->taskStatus &= ~(OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND_TIME);
+    if (taskCB->taskStatus & OS_TASK_STATUS_PEND) {
+        LOS_ListDelete(&taskCB->pendList);
+    }
+    taskCB->taskStatus &= ~(OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND_TIME | OS_TASK_STATUS_PEND);
     return;
 }
 
