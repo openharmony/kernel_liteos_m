@@ -345,23 +345,23 @@ STATIC VOID OsAllMemNodeDoHandle(VOID *pool, VOID (*handle)(struct OsMemNodeHead
 STATIC VOID GetTaskMemUsedHandle(struct OsMemNodeHead *curNode, VOID *arg)
 {
     UINT32 *args = (UINT32 *)arg;
-    UINT32 *outArray = (UINT32 *)(UINTPTR)*args;
-    UINT32 arraySize = *(args + 1);
+    UINT32 *tskMemInfoBuf = (UINT32 *)(UINTPTR)*args;
+    UINT32 tskMemInfoCnt = *(args + 1);
 #ifndef LOSCFG_MEM_MUL_REGIONS
     if (OS_MEM_NODE_GET_USED_FLAG(curNode->sizeAndFlag)) {
 #else
     if (OS_MEM_NODE_GET_USED_FLAG(curNode->sizeAndFlag) && !OS_MEM_IS_GAP_NODE(curNode)) {
 #endif
-        if (curNode->taskID < arraySize) {
-            outArray[curNode->taskID] += OS_MEM_NODE_GET_SIZE(curNode->sizeAndFlag);
+        if (curNode->taskID < tskMemInfoCnt) {
+            tskMemInfoBuf[curNode->taskID] += OS_MEM_NODE_GET_SIZE(curNode->sizeAndFlag);
         }
     }
     return;
 }
 
-VOID OsTaskMemUsed(VOID *pool, UINT32 *outArray, UINT32 arraySize)
+VOID OsTaskMemUsed(VOID *pool, UINT32 *tskMemInfoBuf, UINT32 tskMemInfoCnt)
 {
-    UINT32 args[2] = {(UINT32)(UINTPTR)outArray, arraySize};
+    UINT32 args[2] = {(UINT32)(UINTPTR)tskMemInfoBuf, tskMemInfoCnt};
     OsAllMemNodeDoHandle(pool, GetTaskMemUsedHandle, (VOID *)args);
     return;
 }
