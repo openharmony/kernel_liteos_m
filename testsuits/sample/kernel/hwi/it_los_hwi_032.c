@@ -46,6 +46,7 @@ static int g_uwIndex;
 #else
 #define TEST_MAX_NUMBER_HWI (OS_USER_HWI_MAX - HWI_NUM_INT0)
 #define TEST_HWI_COUNT (TEST_MAX_NUMBER_HWI - 2)
+#define HWI_NUM_INT0 HWI_NUM_INT1
 #endif
 
 static VOID HwiF01(VOID)
