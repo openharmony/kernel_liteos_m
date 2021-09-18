@@ -52,12 +52,17 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
 
 WEAK VOID HalSysTickReload(UINT64 nextResponseTime)
 {
+    UINT64 timeMax = (UINT64)LOSCFG_BASE_CORE_TICK_RESPONSE_MAX - 1;
     UINT64 timer;
     UINT32 timerL, timerH;
     READ_UINT32(timerL, MTIMER);
     READ_UINT32(timerH, MTIMER + MTIMER_HI_OFFSET);
     timer = OS_COMBINED_64(timerH, timerL);
-    timer += nextResponseTime;
+    if ((timeMax - nextResponseTime) > timer) {
+        timer += nextResponseTime;
+    } else {
+        timer = timeMax;
+    }
 
     HalIrqDisable(RISCV_MACH_TIMER_IRQ);
     WRITE_UINT32(0xffffffff, MTIMERCMP + MTIMER_HI_OFFSET);
