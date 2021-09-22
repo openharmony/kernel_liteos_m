@@ -458,7 +458,6 @@ UINT32 LOS_PmReadLock(VOID);
  */
 UINT32 LOS_PmSuspend(UINT32 wakeCount);
 
-#if (LOSCFG_KERNEL_PM_DEBUG == 1)
 /**
  * @ingroup los_pm
  * @brief Output the locking information of the pm lock.
@@ -476,5 +475,4 @@ UINT32 LOS_PmSuspend(UINT32 wakeCount);
  * @see LOS_PmLockRequest
  */
 VOID LOS_PmLockInfoShow(VOID);
-#endif
 #endif
