@@ -32,7 +32,6 @@
 #include "osTest.h"
 #include "It_los_task.h"
 
-
 VOID ItSuiteLosTask()
 {
     ItLosTask001();
@@ -76,8 +75,11 @@ VOID ItSuiteLosTask()
     ItLosTask042();
     ItLosTask046();
     ItLosTask047();
+    ItLosTask048();
     ItLosTask049();
     ItLosTask050();
+    ItLosTask051();
+    ItLosTask052();
     ItLosTask055();
     ItLosTask057();
     ItLosTask058();
@@ -95,28 +97,8 @@ VOID ItSuiteLosTask()
     ItLosTask076();
     ItLosTask077();
     ItLosTask078();
-
-#if (LOS_KERNEL_TEST_FULL == 1)
-    ItLosTask039();
-    ItLosTask040();
-    ItLosTask043();
-    ItLosTask048();
-    ItLosTask051();
-    ItLosTask052();
-    ItLosTask056();
-    ItLosTask063();
-    ItLosTask075();
-    ItLosTask079();
-    ItLosTask081();
-    ItLosTask082();
-    ItLosTask083();
-    ItLosTask085();
-    ItLosTask087();
-    ItLosTask088();
     ItLosTask089();
-    ItLosTask090();
     ItLosTask092();
-    ItLosTask093();
     ItLosTask094();
     ItLosTask095();
     ItLosTask097();
@@ -135,6 +117,28 @@ VOID ItSuiteLosTask()
     ItLosTask112();
     ItLosTask113();
     ItLosTask115();
+    ItLosTask118();
+    ItLosTask119();
+    ItLosTask120();
+    ItLosTask121();
+    ItLosTask122();
+
+#if (LOS_KERNEL_TEST_FULL == 1)
+    ItLosTask039();
+    ItLosTask040();
+    ItLosTask043();
+    ItLosTask056();
+    ItLosTask063();
+    ItLosTask075();
+    ItLosTask079();
+    ItLosTask081();
+    ItLosTask082();
+    ItLosTask083();
+    ItLosTask085();
+    ItLosTask087();
+    ItLosTask088();
+    ItLosTask090();
+    ItLosTask093();
     ItLosTask116();
 #if (LOS_KERNEL_HWI_TEST == 1)
     ItLosTask053();

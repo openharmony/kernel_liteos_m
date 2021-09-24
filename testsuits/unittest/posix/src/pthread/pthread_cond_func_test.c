@@ -36,6 +36,8 @@
 #include "cmsis_os2.h"
 #include "common_test.h"
 
+static UINT32 g_testCount;
+
 /**
  * @tc.desc      : register a test suite, this suite is used to test basic flow and interface dependency
  * @param        : subsystem name is pthread
@@ -63,13 +65,234 @@ static BOOL PthreadFuncTestSuiteTearDown(void)
     return TRUE;
 }
 
+static VOID *pthread_join_f01(void *argument)
+{
+    g_testCount++;
+
+    pthread_exit((void *)8); /* 8: pthread exit code */
+    return (void *)9; /* 9: return val */
+}
+
 /**
  * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_001
- * @tc.name      : event operation for creat
+ * @tc.name      : event operation for join
  * @tc.desc      : [C- SOFTWARE -0200]
  */
 LITE_TEST_CASE(PthreadFuncTestSuite, testPthread001, Function | MediumTest | Level1)
 {
+    pthread_attr_t attr;
+    pthread_t newTh;
+    struct sched_param schedParam = { 0 };
+    UINT32 ret;
+    UINTPTR uwtemp = 1;
+
+    g_testCount = 0;
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    schedParam.sched_priority = TASK_PRIO_TEST;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_create(&newTh, &attr, pthread_join_f01, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_join(newTh, (void **)&uwtemp);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(uwtemp, 8, uwtemp); /* 8: pthread exit code */
+
+    return LOS_OK;
+};
+
+static VOID *pthread_join_f02(void *argument)
+{
+    g_testCount++;
+
+    return (void *)9; /* 9: return val */
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_002
+ * @tc.name      : event operation for join
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread002, Function | MediumTest | Level1)
+{
+    pthread_attr_t attr;
+    pthread_t newTh;
+    struct sched_param schedParam = { 0 };
+    UINT32 ret;
+    UINTPTR uwtemp = 1;
+
+    g_testCount = 0;
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    schedParam.sched_priority = TASK_PRIO_TEST;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_create(&newTh, &attr, pthread_join_f02, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_join(newTh, (void **)&uwtemp);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(uwtemp, 9, uwtemp); /* 9: pthread exit code */
+
+    return LOS_OK;
+};
+
+static VOID *pthread_join_f03(void *argument)
+{
+    int ret = pthread_detach(pthread_self());
+    ICUNIT_ASSERT_EQUAL(ret, ESRCH, ret);
+
+    g_testCount++;
+    return NULL;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_003
+ * @tc.name      : event operation for deatch
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread003, Function | MediumTest | Level1)
+{
+    pthread_attr_t attr;
+    pthread_t newTh;
+    struct sched_param schedParam = { 0 };
+    UINT32 ret;
+
+    g_testCount = 0;
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    schedParam.sched_priority = TASK_PRIO_TEST + 1;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_create(&newTh, &attr, pthread_join_f03, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_join(newTh, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+    return LOS_OK;
+};
+
+static VOID *pthread_join_f04(void *argument)
+{
+    int ret = pthread_detach(pthread_self());
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    g_testCount++;
+    return NULL;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_004
+ * @tc.name      : event operation for deatch
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread004, Function | MediumTest | Level1)
+{
+    pthread_attr_t attr;
+    pthread_t newTh;
+    struct sched_param schedParam = { 0 };
+    UINT32 ret;
+
+    g_testCount = 0;
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    schedParam.sched_priority = TASK_PRIO_TEST - 1;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_create(&newTh, &attr, pthread_join_f04, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+
+    ret = pthread_join(newTh, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, EINVAL, ret);
+
+    return LOS_OK;
+};
+
+static VOID *pthread_join_f05(void *argument)
+{
+    int ret = pthread_detach(pthread_self());
+    ICUNIT_ASSERT_EQUAL(ret, EINVAL, ret);
+
+    usleep(100000); /* 100000: sleep 100 ms */
+    return NULL;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_005
+ * @tc.name      : event operation for deatch
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread005, Function | MediumTest | Level1)
+{
+    pthread_attr_t attr;
+    pthread_t newTh;
+    struct sched_param schedParam = { 0 };
+    UINT32 ret;
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    schedParam.sched_priority = TASK_PRIO_TEST - 1;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_create(&newTh, &attr, pthread_join_f05, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_join(newTh, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, EINVAL, ret);
+
+    return LOS_OK;
 };
 
 RUN_TEST_SUITE(PthreadFuncTestSuite);

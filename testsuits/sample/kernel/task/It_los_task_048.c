@@ -58,7 +58,7 @@ static UINT32 TestCase(VOID)
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.pcName = "Tsk048A";
-    task1.uwResved = LOS_TASK_STATUS_DETACHED;
+    task1.uwResved = LOS_TASK_ATTR_JOINABLE;
     if (TASK_EXISTED_D_NUM == 4) { // 4, set priority based on TASK_EXISTED_D_NUM.
         task1.usTaskPrio = 2; // 2, TASK_EXISTED_D_NUM == 4, set 2 as priority.
     } else if (TASK_EXISTED_D_NUM == 3) { // 3, set reasonable priority based on TASK_EXISTED_D_NUM.
@@ -75,11 +75,14 @@ static UINT32 TestCase(VOID)
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
     task1.pcName = "Tsk048B";
     task1.usTaskPrio = LOS_TASK_PRIORITY_LOWEST - 1;
-    task1.uwResved = LOS_TASK_STATUS_DETACHED;
+    task1.uwResved = LOS_TASK_ATTR_JOINABLE;
     ret = LOS_TaskCreate(&g_testTaskID02, &task1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    ret = LOS_TaskDelay(2); // 2, set delay time
+    ret = LOS_TaskJoin(g_testTaskID01, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+
+    ret = LOS_TaskJoin(g_testTaskID02, NULL);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
