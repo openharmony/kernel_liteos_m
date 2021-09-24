@@ -1129,8 +1129,9 @@ osStatus_t osMutexDelete(osMutexId_t mutex_id)
 
 osSemaphoreId_t osSemaphoreNew(uint32_t max_count, uint32_t initial_count, const osSemaphoreAttr_t *attr)
 {
-    UINT32 uwRet;
+    UINT32 uwRet = LOS_NOK;
     UINT32 uwSemId;
+    UINT32 intSave;
 
     UNUSED(attr);
 
@@ -1138,14 +1139,16 @@ osSemaphoreId_t osSemaphoreNew(uint32_t max_count, uint32_t initial_count, const
         return (osSemaphoreId_t)NULL;
     }
 
-    if (1 == max_count) {
-        uwRet = LOS_BinarySemCreate((UINT16)initial_count, &uwSemId);
-    } else {
+    if (max_count > 0 && max_count <= OS_SEM_COUNTING_MAX_COUNT) {
         uwRet = LOS_SemCreate((UINT16)initial_count, &uwSemId);
     }
 
     if (uwRet == LOS_OK) {
-        return (osSemaphoreId_t)(GET_SEM(uwSemId));
+        osSemaphoreId_t semaphore_id = (osSemaphoreId_t)(GET_SEM(uwSemId));
+        intSave = LOS_IntLock();
+        ((LosSemCB *)semaphore_id)->maxSemCount = max_count;
+        LOS_IntRestore(intSave);
+        return semaphore_id;
     } else {
         return (osSemaphoreId_t)NULL;
     }
