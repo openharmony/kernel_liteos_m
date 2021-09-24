@@ -38,6 +38,7 @@ EVENT_CB_S g_pevent;
 VOID ItSuiteLosEvent()
 {
     ItLosEvent001();
+    ItLosEvent003();
     ItLosEvent004();
     ItLosEvent005();
     ItLosEvent006();
@@ -64,7 +65,6 @@ VOID ItSuiteLosEvent()
     ItLosEvent043();
 #if (LOS_KERNEL_TEST_FULL == 1)
     ItLosEvent002();
-    ItLosEvent003();
     ItLosEvent011();
     ItLosEvent012();
     ItLosEvent015();

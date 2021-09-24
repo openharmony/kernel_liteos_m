@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,53 +31,43 @@
 #include "osTest.h"
 #include "It_los_task.h"
 
-
-static VOID TaskF01(VOID)
+static VOID *TaskDeatchf01(void *argument)
 {
+    UINT32 ret = LOS_TaskDetach(LOS_CurTaskIDGet());
+    ICUNIT_ASSERT_EQUAL(ret, LOS_NOK, ret);
+
     g_testCount++;
-    return;
+
+    LOS_TaskDelay(1000); /* 1000 ticks */
+    return NULL;
 }
 
 static UINT32 TestCase(VOID)
 {
     UINT32 ret;
-    TSK_INIT_PARAM_S task1 = { 0 };
-    task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
-    task1.uwStackSize = TASK_STACK_SIZE_TEST;
-    task1.pcName = "Tsk095A";
-    task1.usTaskPrio = TASK_PRIO_TEST - 2; // 2, set new task priority, it is higher than the current task.
-    task1.uwResved = LOS_TASK_ATTR_JOINABLE;
+    UINT32 taskID;
+    TSK_INIT_PARAM_S osTaskInitParam = { 0 };
 
     g_testCount = 0;
-    ret = LOS_TaskCreateOnly(&g_testTaskID01, &task1);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
-    ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT);
 
-    LOS_TaskResume(g_testTaskID01);
+    osTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskDeatchf01;
+    osTaskInitParam.uwStackSize = OS_TSK_TEST_STACK_SIZE;
+    osTaskInitParam.pcName = "deatch";
+    osTaskInitParam.usTaskPrio = TASK_PRIO_TEST - 1;
 
-    ret = LOS_TaskJoin(g_testTaskID01, NULL);
-    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    ret = LOS_TaskCreate(&taskID, &osTaskInitParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
-    ret = LOS_TaskCreateOnly(&g_testTaskID01, &task1);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
+    ret = LOS_TaskJoin(taskID, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_NOK, ret);
 
-    ret = LOS_TaskDelete(g_testTaskID01);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-
-    LOS_TaskJoin(g_testTaskID01, NULL);
-
-    return LOS_OK;
-
-EXIT:
-    LOS_TaskDelete(g_testTaskID01);
-    LOS_TaskJoin(g_testTaskID01, NULL);
     return LOS_OK;
 }
 
-VOID ItLosTask095(VOID) // IT_Layer_ModuleORFeature_No
+VOID ItLosTask121(VOID) // IT_Layer_ModuleORFeature_No
 {
-    TEST_ADD_CASE("ItLosTask095", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
+    TEST_ADD_CASE("ItLosTask121", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
 }
 

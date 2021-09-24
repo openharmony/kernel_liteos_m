@@ -123,6 +123,22 @@ STATIC_INLINE UINT32 OsCheckTaskIDValid(UINT32 taskID)
     return ret;
 }
 
+STATIC VOID OsRecycleTaskResources(LosTaskCB *taskCB, UINTPTR *stackPtr)
+{
+    if (!(taskCB->taskStatus & OS_TASK_STATUS_EXIT)) {
+        LOS_ListAdd(&g_losFreeTask, &taskCB->pendList);
+        taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
+    }
+    if (taskCB->topOfStack != 0) {
+#if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1)
+        *stackPtr = taskCB->topOfStack - OS_TASK_STACK_PROTECT_SIZE;
+#else
+        *stackPtr = taskCB->topOfStack;
+#endif
+        taskCB->topOfStack = (UINT32)NULL;
+    }
+}
+
 STATIC VOID OsRecyleFinishedTask(VOID)
 {
     LosTaskCB *taskCB = NULL;
@@ -133,14 +149,12 @@ STATIC VOID OsRecyleFinishedTask(VOID)
     while (!LOS_ListEmpty(&g_taskRecyleList)) {
         taskCB = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&g_taskRecyleList));
         LOS_ListDelete(LOS_DL_LIST_FIRST(&g_taskRecyleList));
-        LOS_ListAdd(&g_losFreeTask, &taskCB->pendList);
-#if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1)
-        stackPtr = taskCB->topOfStack - OS_TASK_STACK_PROTECT_SIZE;
-#else
-        stackPtr = taskCB->topOfStack;
-#endif
+        stackPtr = 0;
+        OsRecycleTaskResources(taskCB, &stackPtr);
+        LOS_IntRestore(intSave);
+
         (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, (VOID *)stackPtr);
-        taskCB->topOfStack = (UINT32)NULL;
+        intSave = LOS_IntLock();
     }
     LOS_IntRestore(intSave);
 }
@@ -188,6 +202,10 @@ LITE_OS_SEC_TEXT_MINOR UINT8 *OsConvertTskStatus(UINT16 taskStatus)
         return (UINT8 *)"Running";
     } else if (taskStatus & OS_TASK_STATUS_READY) {
         return (UINT8 *)"Ready";
+    } else if (taskStatus & OS_TASK_STATUS_EXIT) {
+        return (UINT8 *)"Exit";
+    } else if (taskStatus & OS_TASK_STATUS_SUSPEND) {
+        return (UINT8 *)"Suspend";
     } else if (taskStatus & OS_TASK_STATUS_DELAY) {
         return (UINT8 *)"Delay";
     } else if (taskStatus & OS_TASK_STATUS_PEND) {
@@ -195,8 +213,6 @@ LITE_OS_SEC_TEXT_MINOR UINT8 *OsConvertTskStatus(UINT16 taskStatus)
             return (UINT8 *)"PendTime";
         }
         return (UINT8 *)"Pend";
-    } else if (taskStatus & OS_TASK_STATUS_SUSPEND) {
-        return (UINT8 *)"Suspend";
     }
 
     return (UINT8 *)"Impossible";
@@ -606,8 +622,7 @@ LITE_OS_SEC_TEXT_INIT VOID OsTaskEntry(UINT32 taskID)
     UINT32 retVal;
     LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
 
-    (VOID)taskCB->taskEntry(taskCB->arg);
-
+    taskCB->joinRetval = (UINTPTR)taskCB->taskEntry(taskCB->arg);
     retVal = LOS_TaskDelete(taskCB->taskID);
     if (retVal != LOS_OK) {
         PRINT_ERR("Delete Task[TID: %d] Failed!\n", taskCB->taskID);
@@ -671,6 +686,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *
     taskCB->stackPointer    = HalTskStackInit(taskCB->taskID, taskInitParam->uwStackSize, topOfStack);
     SET_SORTLIST_VALUE(&taskCB->sortList, OS_SORT_LINK_INVALID_TIME);
     LOS_EventInit(&(taskCB->event));
+
+    if (taskInitParam->uwResved & LOS_TASK_ATTR_JOINABLE) {
+        taskCB->taskStatus |= OS_TASK_FLAG_JOINABLE;
+        LOS_ListInit(&taskCB->joinList);
+    }
     return LOS_OK;
 }
 
@@ -892,6 +912,124 @@ LOS_ERREND:
     return retErr;
 }
 
+STATIC VOID OsTaskJoinPostUnsafe(LosTaskCB *taskCB)
+{
+    LosTaskCB *resumedTask = NULL;
+
+    if (taskCB->taskStatus & OS_TASK_FLAG_JOINABLE) {
+        if (!LOS_ListEmpty(&taskCB->joinList)) {
+            resumedTask = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&(taskCB->joinList)));
+            OsSchedTaskWake(resumedTask);
+        }
+        taskCB->taskStatus |= OS_TASK_STATUS_EXIT;
+    }
+}
+
+STATIC UINT32 OsTaskJoinPendUnsafe(LosTaskCB *taskCB)
+{
+    if (taskCB->taskStatus & OS_TASK_STATUS_EXIT) {
+        return LOS_OK;
+    } else if ((taskCB->taskStatus & OS_TASK_FLAG_JOINABLE) && LOS_ListEmpty(&taskCB->joinList)) {
+        OsSchedTaskWait(&taskCB->joinList, LOS_WAIT_FOREVER);
+        return LOS_OK;
+    }
+
+    return LOS_NOK;
+}
+
+STATIC UINT32 OsTaskSetDetachUnsafe(LosTaskCB *taskCB)
+{
+    if (taskCB->taskStatus & OS_TASK_FLAG_JOINABLE) {
+        if (LOS_ListEmpty(&(taskCB->joinList))) {
+            LOS_ListDelete(&(taskCB->joinList));
+            taskCB->taskStatus &= ~OS_TASK_FLAG_JOINABLE;
+            return LOS_OK;
+        }
+        /* This error code has a special purpose and is not allowed to appear again on the interface */
+        return LOS_ERRNO_TSK_NOT_JOIN;
+    }
+
+    return LOS_NOK;
+}
+
+LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskJoin(UINT32 taskID, UINTPTR *retval)
+{
+    LosTaskCB *taskCB = NULL;
+    UINTPTR stackPtr = 0;
+    UINT32 intSave;
+    UINT32 ret;
+
+    ret = OsCheckTaskIDValid(taskID);
+    if (ret != LOS_OK) {
+        return ret;
+    }
+
+    if (OS_INT_ACTIVE) {
+        return LOS_ERRNO_TSK_NOT_ALLOW_IN_INT;
+    }
+
+    if (g_losTaskLock != 0) {
+        return LOS_ERRNO_TSK_SCHED_LOCKED;
+    }
+
+    if (taskID == LOS_CurTaskIDGet()) {
+        return LOS_ERRNO_TSK_NOT_JOIN_SELF;
+    }
+
+    taskCB = OS_TCB_FROM_TID(taskID);
+    intSave = LOS_IntLock();
+    if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
+        LOS_IntRestore(intSave);
+        return LOS_ERRNO_TSK_NOT_CREATED;
+    }
+
+    ret = OsTaskJoinPendUnsafe(taskCB);
+    LOS_IntRestore(intSave);
+    if (ret == LOS_OK) {
+        LOS_Schedule();
+
+        if (retval != NULL) {
+            *retval = taskCB->joinRetval;
+        }
+
+        intSave = LOS_IntLock();
+        taskCB->taskStatus &= ~OS_TASK_STATUS_EXIT;
+        OsRecycleTaskResources(taskCB, &stackPtr);
+        LOS_IntRestore(intSave);
+        (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, (VOID *)stackPtr);
+        return LOS_OK;
+    }
+
+    return ret;
+}
+
+LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDetach(UINT32 taskID)
+{
+    UINT32 intSave;
+    UINT32 ret;
+    LosTaskCB *taskCB = NULL;
+
+    ret = OsCheckTaskIDValid(taskID);
+    if (ret != LOS_OK) {
+        return ret;
+    }
+
+    if (OS_INT_ACTIVE) {
+        return LOS_ERRNO_TSK_NOT_ALLOW_IN_INT;
+    }
+
+    taskCB = OS_TCB_FROM_TID(taskID);
+    intSave = LOS_IntLock();
+    if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
+        LOS_IntRestore(intSave);
+        return LOS_ERRNO_TSK_NOT_CREATED;
+    }
+
+    ret = OsTaskSetDetachUnsafe(taskCB);
+    LOS_IntRestore(intSave);
+    return ret;
+}
+
 LITE_OS_SEC_TEXT_INIT STATIC_INLINE VOID OsRunningTaskDelete(UINT32 taskID, LosTaskCB *taskCB)
 {
     LOS_ListTailInsert(&g_taskRecyleList, &taskCB->pendList);
@@ -911,19 +1049,25 @@ LITE_OS_SEC_TEXT_INIT STATIC_INLINE VOID OsRunningTaskDelete(UINT32 taskID, LosT
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
 {
     UINT32 intSave;
-    LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
-    UINTPTR stackPtr;
+    UINTPTR stackPtr = 0;
+    LosTaskCB *taskCB = NULL;
 
     UINT32 ret = OsCheckTaskIDValid(taskID);
     if (ret != LOS_OK) {
         return ret;
     }
 
+    taskCB = OS_TCB_FROM_TID(taskID);
     intSave = LOS_IntLock();
 
-    if ((taskCB->taskStatus) & OS_TASK_STATUS_UNUSED) {
+    if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
         LOS_IntRestore(intSave);
         return LOS_ERRNO_TSK_NOT_CREATED;
+    }
+
+    if (taskCB->taskStatus & OS_TASK_STATUS_EXIT) {
+        LOS_IntRestore(intSave);
+        return LOS_ERRNO_TSK_ALREADY_EXIT;
     }
 
     /* If the task is running and scheduler is locked then you can not delete it */
@@ -934,6 +1078,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
 
     OsHookCall(LOS_HOOK_TYPE_TASK_DELETE, taskCB);
     OsSchedTaskExit(taskCB);
+    OsTaskJoinPostUnsafe(taskCB);
 
     LOS_EventDestroy(&(taskCB->event));
     taskCB->event.uwEventID = OS_NULL_INT;
@@ -943,24 +1088,19 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
     (VOID)memset_s((VOID *)&g_cpup[taskCB->taskID], sizeof(OsCpupCB), 0, sizeof(OsCpupCB));
 #endif
     if (taskCB->taskStatus & OS_TASK_STATUS_RUNNING) {
-        taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
-        OsRunningTaskDelete(taskID, taskCB);
+        if (!(taskCB->taskStatus & OS_TASK_STATUS_EXIT)) {
+            taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
+            OsRunningTaskDelete(taskID, taskCB);
+        }
         LOS_IntRestore(intSave);
         LOS_Schedule();
         return LOS_OK;
-    } else {
-        taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
-        LOS_ListAdd(&g_losFreeTask, &taskCB->pendList);
-#if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1)
-        stackPtr = taskCB->topOfStack - OS_TASK_STACK_PROTECT_SIZE;
-#else
-        stackPtr = taskCB->topOfStack;
-#endif
-        (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, (VOID *)stackPtr);
-        taskCB->topOfStack = (UINT32)NULL;
     }
 
+    taskCB->joinRetval = LOS_CurTaskIDGet();
+    OsRecycleTaskResources(taskCB, &stackPtr);
     LOS_IntRestore(intSave);
+    (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, (VOID *)stackPtr);
     return LOS_OK;
 }
 

@@ -48,7 +48,6 @@ static UINT32 TestCase(VOID)
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.pcName = "Tsk014A";
     task1.usTaskPrio = TASK_PRIO_TEST - 1;
-    task1.uwResved = -1;
     g_testCount = 0;
 
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
