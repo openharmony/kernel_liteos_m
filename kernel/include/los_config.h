@@ -741,6 +741,7 @@ extern UINT8 *m_aucSysMem0;
  * 3: Call stack analysis for risc-v by scanning the stack.
  * 4: Call stack analysis for xtensa by scanning the stack.
  * 5: Call stack analysis for c-sky by scanning the stack.
+ * 6: Call stack analysis for arm9 by scanning the stack.
  * others: Not currently supported.
  */
 #ifndef LOSCFG_BACKTRACE_TYPE
