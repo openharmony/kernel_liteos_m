@@ -45,7 +45,6 @@ WEAK BOOL OsStackDataIsCodeAddr(UINTPTR value)
     return FALSE;
 }
 
-
 #if (LOSCFG_BACKTRACE_TYPE == 1)
 #define OS_BACKTRACE_START     2
 /* Thumb instruction, so the pc must be an odd number */
@@ -585,6 +584,94 @@ VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
 
     if (index < LRSize) {
         LR[index] = 0;
+    }
+}
+#elif (LOSCFG_BACKTRACE_TYPE == 6)
+#define OS_BACKTRACE_START               1
+#define STACK_OFFSET                     4
+#define THUMB_OFFSET                     2
+#define THUMB_BIT                        16
+#define ARM_ALIGN_CODE                   4
+#define THUMB_ALIGN_CODE                 2
+#define BL_CMD_OFFSET                    4
+#define ARM_BL_MASK                      0xEB000000
+#define THUMB_BL_MASK                    0xF000F000
+#define CLEAR_LOW_BIT_MASK               0xFFFFFFFE
+
+STATIC INLINE BOOL IsAligned(UINT32 val, UINT32 align)
+{
+    return ((val & (align - 1)) == 0);
+}
+
+STATIC INLINE UINTPTR OsSpGet(VOID)
+{
+    UINTPTR SP;
+    __asm volatile("mov %0, sp" : "=r"(SP));
+    return SP;
+}
+
+STATIC INLINE BOOL IsArmValidLr(UINTPTR lr)
+{
+    return ((*(UINT32 *)(lr - BL_CMD_OFFSET) & ARM_BL_MASK) == ARM_BL_MASK);
+}
+
+STATIC INLINE BOOL IsThumbValidLr(UINTPTR lr)
+{
+    lr = (*(UINT16 *)(lr - BL_CMD_OFFSET) << THUMB_BIT) + *(UINT16 *)(lr - THUMB_OFFSET);
+    return ((lr & THUMB_BL_MASK) == THUMB_BL_MASK);
+}
+
+VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
+{
+    UINT32 count = 0;
+    UINT32 index = 0;
+    LosTaskCB *taskCB = NULL;
+    UINT32 taskID;
+    UINT32 stackStart, stackEnd;
+    UINTPTR framePtr, tmpFramePtr, linkReg;
+
+    if (LR == NULL) {
+        return;
+    }
+
+    if (SP == 0) {
+        SP = OsSpGet();
+    }
+
+    if (LOS_TaskIsRunning()) {
+        taskID = LOS_CurTaskIDGet();
+        taskCB = OS_TCB_FROM_TID(taskID);
+        stackStart = taskCB->topOfStack;
+        stackEnd = stackStart + taskCB->stackSize;
+    } else {
+        stackStart = CSTACK_START_ADDR;
+        stackEnd = CSTACK_END_ADDR;
+    }
+
+    while ((SP > stackStart) && (SP < stackEnd)) {
+        linkReg = *(UINTPTR *)SP;
+        if (!OsStackDataIsCodeAddr(linkReg)) {
+            SP += STACK_OFFSET;
+            continue;
+        }
+        if (((!IsAligned(linkReg, ARM_ALIGN_CODE)) || !IsArmValidLr(linkReg)) &&
+            ((!IsAligned(linkReg - 1, THUMB_ALIGN_CODE)) || !IsThumbValidLr(linkReg - 1))) {
+            SP += STACK_OFFSET;
+            continue;
+        }
+        if (index >= jumpCount) {
+            LR[count++] = linkReg & CLEAR_LOW_BIT_MASK;
+            if (count == LRSize) {
+                break;
+            }
+        }
+        ++index;
+        SP += STACK_OFFSET;
+    }
+
+    /* if linkReg is not enough,clean up the last of the effective LR as the end. */
+    if (count < LRSize) {
+        LR[count] = 0;
     }
 }
 #else

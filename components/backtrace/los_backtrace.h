@@ -183,6 +183,31 @@ extern CHAR *CSTACK_SECTION_END;
 
 #define ALGIN_CODE                      2
 #define STACK_OFFSET                    4
+#elif (LOSCFG_BACKTRACE_TYPE == 6)
+extern CHAR *__svc_stack;
+extern CHAR *__svc_stack_top;
+/* The default code section start address */
+#define CODE_SECTION_START      __text_start
+/* The default code section end address */
+#define CODE_SECTION_END        __text_end
+/* The default C stack section start address */
+#define CSTACK_SECTION_START    __svc_stack
+/* The default C stack section end address */
+#define CSTACK_SECTION_END      __svc_stack_top
+
+extern CHAR *CODE_SECTION_START;
+extern CHAR *CODE_SECTION_END;
+extern CHAR *CSTACK_SECTION_START;
+extern CHAR *CSTACK_SECTION_END;
+
+/* Default only one code section. In fact, there may be more than one.
+   You can define more than one and redefine the OsStackDataIsCodeAddr function
+   to support searching in multiple code sections */
+#define CODE_START_ADDR     ((UINTPTR)&CODE_SECTION_START)
+#define CODE_END_ADDR       ((UINTPTR)&CODE_SECTION_END)
+#define CSTACK_START_ADDR   ((UINTPTR)&CSTACK_SECTION_START)
+#define CSTACK_END_ADDR     ((UINTPTR)&CSTACK_SECTION_END)
+
 #endif
 
 /* This function is currently used to register the memory leak check hook,
@@ -202,3 +227,4 @@ VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP);
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 #endif
+
