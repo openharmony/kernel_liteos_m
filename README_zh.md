@@ -52,11 +52,11 @@ OpenHarmony LiteOS-M内核的编译构建系统是一个基于gn和ninja的组�
 
 ### 搭建系统基础环境
 
-在搭建各个开发板环境前，需要完成OpenHarmony系统基础环境搭建。系统基础环境主要是指OpenHarmony的编译环境和开发环境，详细介绍请参考官方站点[Ubuntu编译环境准备](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-lite-env-setup-linux.md)。开发者需要根据环境搭建文档，完成下述软件的安装：Python3.7+、gn、ninja、hb。对于LiteOS-M内核，还需要安装Make构建工具和[ARM GCC编译工具链](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)。
+在搭建各个开发板环境前，需要完成OpenHarmony系统基础环境搭建。系统基础环境主要是指OpenHarmony的编译环境和开发环境，详细介绍请参考官方站点[Ubuntu编译环境准备](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/quick-start/quickstart-lite-env-setup-linux.md)。开发者需要根据环境搭建文档，完成下述软件的安装：Python3.7+、gn、ninja、hb。对于LiteOS-M内核，还需要安装Make构建工具和[ARM GCC编译工具链](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)。
 
 ### 获取OpenHarmony源码
 
-开发者需要在Linux服务器上通过Git克隆获取OpenHarmony最新源码，详细的源码获取方式，请见[源码获取](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/get-code/sourcecode-acquire.md)。获取OpenHarmony完整仓代码后，假设克隆目录为`~/openHarmony`。
+开发者需要在Linux服务器上通过Git克隆获取OpenHarmony最新源码，详细的源码获取方式，请见[源码获取](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/get-code/sourcecode-acquire.md)。获取OpenHarmony完整仓代码后，假设克隆目录为`~/openHarmony`。
 
 ### 获取示例工程源码
 
@@ -78,7 +78,7 @@ chmod +x ~/openHarmony/device/st/nucleo_f767zi/build.sh
 cp -r ~/nucleo_f767zi/vendor/st ~/openHarmony/vendor/st
 ```
 
-关于示例代码目录的说明，可以参考资料站点[板级目录规范](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/transplant-chip-board-overview.md)。如果需要自行移植开发板，请参考[板级系统移植](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/transplant-chip-board.md)。
+关于示例代码目录的说明，可以参考资料站点[板级目录规范](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/porting/transplant-chip-board-overview.md)。如果需要自行移植开发板，请参考[板级系统移植](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/porting/transplant-chip-board.md)。
 
 ### 编译运行
 
@@ -121,7 +121,7 @@ LiteOS-M内核移植的具体开发板的工程由社区开发者提供，可以
 
 ## 相关仓<a name="section1371113476307"></a>
 
-[内核子系统](https://gitee.com/openharmony/docs/blob/master/zh-cn/readme/%E5%86%85%E6%A0%B8%E5%AD%90%E7%B3%BB%E7%BB%9F.md)
+[内核子系统](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/readme/%E5%86%85%E6%A0%B8%E5%AD%90%E7%B3%BB%E7%BB%9F.md)
 
 **kernel\_liteos\_m**
 
