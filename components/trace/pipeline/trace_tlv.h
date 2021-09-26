@@ -85,7 +85,6 @@ typedef struct {
  * @par Dependency:
  * <ul><li>trace_tlv.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TraceDataEncode
- * @since Huawei LiteOS V200R005C00
  */
 extern UINT32 OsTraceDataEncode(UINT8 type, const TlvTable *table, UINT8 *src, UINT8 *dest, INT32 destLen);
 
