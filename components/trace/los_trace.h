@@ -287,7 +287,6 @@ typedef struct {
  *
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
- * @since Huawei LiteOS V200R005C00
  */
 typedef BOOL (*TRACE_HWI_FILTER_HOOK)(UINT32 hwiNum);
 
@@ -391,7 +390,6 @@ extern TRACE_EVENT_HOOK g_traceEventHook;
  *
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
- * @since Huawei LiteOS V200R005C00
  */
 #define LOS_TRACE(TYPE, IDENTITY, ...)                                             \
     do {                                                                           \
@@ -423,7 +421,6 @@ extern TRACE_EVENT_HOOK g_traceEventHook;
  *
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
- * @since Huawei LiteOS V200R005C00
  */
 #define LOS_TRACE_EASY(TYPE, IDENTITY, ...)                                                                          \
     do {                                                                                                             \
@@ -461,7 +458,6 @@ extern TRACE_EVENT_HOOK g_traceEventHook;
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TraceInit
- * @since Huawei LiteOS V200R005C00
  */
 extern UINT32 LOS_TraceInit(VOID *buf, UINT32 size);
 
@@ -483,7 +479,6 @@ extern UINT32 LOS_TraceInit(VOID *buf, UINT32 size);
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TraceStart
- * @since Huawei LiteOS V200R005C00
  */
 extern UINT32 LOS_TraceStart(VOID);
 
@@ -504,7 +499,6 @@ extern UINT32 LOS_TraceStart(VOID);
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TraceStop
- * @since Huawei LiteOS V200R005C00
  */
 extern VOID LOS_TraceStop(VOID);
 
@@ -525,7 +519,6 @@ extern VOID LOS_TraceStop(VOID);
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TraceReset
- * @since Huawei LiteOS V200R005C00
  */
 extern VOID LOS_TraceReset(VOID);
 
@@ -549,7 +542,6 @@ extern VOID LOS_TraceReset(VOID);
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TraceEventMaskSet
- * @since Huawei LiteOS V200R005C00
  */
 extern VOID LOS_TraceEventMaskSet(UINT32 mask);
 
@@ -572,7 +564,6 @@ extern VOID LOS_TraceEventMaskSet(UINT32 mask);
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TraceRecordDump
- * @since Huawei LiteOS V200R005C00
  */
 extern VOID LOS_TraceRecordDump(BOOL toClient);
 
@@ -595,7 +586,6 @@ extern VOID LOS_TraceRecordDump(BOOL toClient);
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TraceRecordGet
- * @since Huawei LiteOS V200R005C00
  */
 extern OfflineHead *LOS_TraceRecordGet(VOID);
 
@@ -616,7 +606,6 @@ extern OfflineHead *LOS_TraceRecordGet(VOID);
  * @par Dependency:
  * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_TraceHwiFilterHookReg
- * @since Huawei LiteOS V200R005C00
  */
 extern VOID LOS_TraceHwiFilterHookReg(TRACE_HWI_FILTER_HOOK hook);
 #ifdef __cplusplus

@@ -71,7 +71,7 @@ After the compilation is successful, the executable file  **NUCLEO-F767.hex**  i
 
 ## Repositories Involved<a name="section1371113476307"></a>
 
-[Kernel subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/kernel.md)
+[Kernel subsystem](https://gitee.com/openharmony/docs/blob/HEAD/en/readme/kernel.md)
 
 **kernel\_liteos\_m**
 
