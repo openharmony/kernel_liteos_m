@@ -127,7 +127,6 @@ typedef enum {
  * @par Dependency:
  * <ul><li>los_printf.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_Printf
- * @since none
  */
 #if (LOSCFG_KERNEL_PRINTF == 1)
 extern INT32 printf(const CHAR *fmt, ...);
