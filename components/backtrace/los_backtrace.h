@@ -170,15 +170,19 @@ UINT32 HalBackTraceGet(UINTPTR sp, UINT32 retAddr, UINTPTR *callChain, UINT32 ma
 #define CODE_SECTION_START      __text_start
 /* The default code section end address */
 #define CODE_SECTION_END        __text_end
+/* The default C stack section start address */
+#define CSTACK_SECTION_START    __init_stack_s
 /* The default C stack section end address */
 #define CSTACK_SECTION_END      __ram_end
 
 extern CHAR *CODE_SECTION_START;
 extern CHAR *CODE_SECTION_END;
+extern CHAR *CSTACK_SECTION_START;
 extern CHAR *CSTACK_SECTION_END;
 
 #define CODE_START_ADDR     ((UINTPTR)&CODE_SECTION_START)
 #define CODE_END_ADDR       ((UINTPTR)&CODE_SECTION_END)
+#define CSTACK_START_ADDR   ((UINTPTR)&CSTACK_SECTION_START)
 #define CSTACK_END_ADDR     ((UINTPTR)&CSTACK_SECTION_END)
 
 #define ALGIN_CODE                      2

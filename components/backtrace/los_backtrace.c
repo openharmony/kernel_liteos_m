@@ -32,6 +32,9 @@
 #include "los_backtrace.h"
 #include "los_task.h"
 #include "los_debug.h"
+#if (LOSCFG_BACKTRACE_TYPE == 4)
+#include "los_arch_regs.h"
+#endif
 
 #if (LOSCFG_BACKTRACE_TYPE != 0)
 /* This function is used to judge whether the data in the stack is a code section address.
@@ -354,9 +357,9 @@ STATIC INLINE UINTPTR OsAddrIsValid(UINTPTR sp)
 #elif (LOSCFG_BACKTRACE_TYPE == 4)
 #define OS_BACKTRACE_START     0
 #define ALIGN_MASK             (4 - 1)
-#define OS_REG_LR_OFFSET       136
+#define OS_REG_LR_OFFSET       (CONTEXT_SIZE - 8)
 
-UINT32 IsFpAligned(UINT32 value)
+UINT32 IsSpAligned(UINT32 value)
 {
     return (value & (UINT32)(ALIGN_MASK)) == 0;
 }
@@ -370,10 +373,10 @@ STATIC INLINE UINTPTR HalGetLr(VOID)
     return regLr;
 }
 
-/* This function is used to check fp address. */
-BOOL IsValidFP(UINTPTR regFP, UINTPTR start, UINTPTR end)
+/* This function is used to check sp address. */
+BOOL IsValidSP(UINTPTR regSP, UINTPTR start, UINTPTR end)
 {
-    return (regFP > start) && (regFP <= end) && IsFpAligned(regFP);
+    return (regSP >= start) && (regSP <= end) && IsSpAligned(regSP);
 }
 
 /* This function is used to check return address. */
@@ -387,28 +390,22 @@ BOOL IsValidRa(UINTPTR regRA)
 
 BOOL FindSuitableStack(UINTPTR regSP, UINTPTR *start, UINTPTR *end)
 {
-    UINT32 index;
     UINT32 stackStart;
     UINT32 stackEnd;
     BOOL found = FALSE;
-    LosTaskCB *taskCB = NULL;
 
-    /* Search in the task stacks */
-    for (index = 0; index < g_taskMaxNum; index++) {
-        taskCB = OS_TCB_FROM_TID(index);
-        if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
-            continue;
-        }
-
+    if (LOS_TaskIsRunning()) {
+        UINT32 taskID = LOS_CurTaskIDGet();
+        LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
         stackStart = taskCB->topOfStack;
         stackEnd = taskCB->topOfStack + taskCB->stackSize;
-        if (IsValidFP(regSP, stackStart, stackEnd)) {
+        if (IsValidSP(regSP, stackStart, stackEnd)) {
             found = TRUE;
             goto FOUND;
         }
     }
 
-    if (IsValidFP(regSP, CSTACK_START_ADDR, CSTACK_END_ADDR)) {
+    if (IsValidSP(regSP, CSTACK_START_ADDR, CSTACK_END_ADDR)) {
         stackStart = CSTACK_START_ADDR;
         stackEnd = CSTACK_END_ADDR;
         found = TRUE;
@@ -440,7 +437,7 @@ UINT32 HalBackTraceGet(UINTPTR sp, UINT32 retAddr, UINTPTR *callChain, UINT32 ma
         return 0;
     }
 
-    while (IsValidFP(backSp, stackStart, stackEnd)) {
+    while (IsValidSP(backSp, stackStart, stackEnd)) {
         if (callChain == NULL) {
             PRINTK("trace%u  ra:0x%x  sp:0x%x\n", count, (backRa << WINDOW_INCREMENT_SHIFT) >>
                     WINDOW_INCREMENT_SHIFT, backSp);
@@ -502,40 +499,37 @@ STATIC INLINE UINTPTR OsSpGet(VOID)
 /* This function is used to check sp. */
 BOOL IsValidSP(UINTPTR regSP, UINTPTR start, UINTPTR end)
 {
-    return (regSP > start) && (regSP < end);
+    return (regSP >= start) && (regSP <= end);
 }
 
-STATIC INLINE BOOL FindSuitableStack(UINTPTR *regSP, UINTPTR *start, UINTPTR *end)
+BOOL FindSuitableStack(UINTPTR regSP, UINTPTR *start, UINTPTR *end)
 {
-    UINT32 index;
-    UINT32 topOfStack;
-    UINT32 stackBottom;
+    UINT32 stackStart;
+    UINT32 stackEnd;
     BOOL found = FALSE;
-    LosTaskCB *taskCB = NULL;
 
-    /* Search in the task stacks */
-    for (index = 0; index < g_taskMaxNum; index++) {
-        taskCB = &g_taskCBArray[index];
-        if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
-            continue;
-        }
-        topOfStack = taskCB->topOfStack;
-        stackBottom = taskCB->topOfStack + taskCB->stackSize;
-
-        if (IsValidSP(*regSP, topOfStack, stackBottom)) {
+    if (LOS_TaskIsRunning()) {
+        UINT32 taskID = LOS_CurTaskIDGet();
+        LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
+        stackStart = taskCB->topOfStack;
+        stackEnd = taskCB->topOfStack + taskCB->stackSize;
+        if (IsValidSP(regSP, stackStart, stackEnd)) {
             found = TRUE;
             goto FOUND;
         }
     }
 
+    if (IsValidSP(regSP, CSTACK_START_ADDR, CSTACK_END_ADDR)) {
+        stackStart = CSTACK_START_ADDR;
+        stackEnd = CSTACK_END_ADDR;
+        found = TRUE;
+        goto FOUND;
+    }
+
 FOUND:
     if (found == TRUE) {
-        *start = topOfStack;
-        *end = stackBottom;
-    } else if (*regSP < CSTACK_END_ADDR) {
-        *start = *regSP;
-        *end = CSTACK_END_ADDR;
-        found = TRUE;
+        *start = stackStart;
+        *end = stackEnd;
     }
 
     return found;
@@ -543,7 +537,7 @@ FOUND:
 
 VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
 {
-    UINTPTR stackPointer = SP;
+    UINTPTR stackPointer;
     UINTPTR topOfStack;
     UINTPTR tmpStack = 0;
     UINTPTR stackBottom;
@@ -559,7 +553,9 @@ VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
         SP = OsSpGet();
     }
 
-    if (FindSuitableStack(&stackPointer, &topOfStack, &stackBottom) == FALSE) {
+    stackPointer = SP;
+
+    if (FindSuitableStack(stackPointer, &topOfStack, &stackBottom) == FALSE) {
         return;
     }
 
