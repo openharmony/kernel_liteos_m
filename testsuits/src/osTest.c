@@ -177,8 +177,9 @@ VOID TestTaskEntry()
     TestCmsis2();
 #endif
 
-    PRINTF("\t\n --- Test End --- \n");
-    PRINTF("\nfailed count : %d, success count:%d\n", g_failResult, g_passResult);
+    /* The log is used for testing entrance guard, please do not make any changes. */
+    PRINTF("\nfailed count:%d, success count:%d\n", g_failResult, g_passResult);
+    PRINTF("--- Test End ---\n");
 }
 
 UINT32 los_TestInit(VOID)

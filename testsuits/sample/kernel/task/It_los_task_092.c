@@ -45,7 +45,7 @@ static UINT32 TestCase(VOID)
     UINT32 ret;
     TSK_INIT_PARAM_S task1 = { 0 };
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
-    task1.uwStackSize = 0x423; // Set reasonable stack space.
+    task1.uwStackSize = LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE + 0x23; // 0x23: Set reasonable stack space.
     task1.pcName = "Tsk092A";
     task1.usTaskPrio = TASK_PRIO_TEST - 1;
     task1.uwResved = 0;
