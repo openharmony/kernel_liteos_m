@@ -52,8 +52,15 @@ typedef struct {
     UINT32 lbeg;
     UINT32 lend;
     UINT32 lcount;
-    UINT32 temp[4];
-    UINT32 res[8];
+#if (defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U))
+    UINT32 temp;
+    UINT16 cpenable;
+    UINT16 cpstored;
+    UINT32 fcr;
+    UINT32 fsr;
+    UINT32 regF[16];
+#endif
+    UINT32 res[4];
 } TaskContext;
 
 #ifdef __cplusplus

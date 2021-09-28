@@ -67,7 +67,7 @@ static_library("kernel") {
     } else {
       deps = [ "arch/arm/cortex-m33/gcc/NTZ:arch" ]
     }
-  } else if ("$board_cpu" == "ck802") {
+  } else if ("$board_cpu" == "ck802" || "$board_cpu" == "e802") {
     deps = [ "arch/csky/v2/gcc:arch" ]
   } else if ("$board_cpu" == "") {
     if ("$board_arch" == "rv32imac" || "$board_arch" == "rv32imafdc") {

@@ -39,27 +39,27 @@
 .global HalTaskContextSwitch
 HalTaskContextSwitch:
 
-    entry   sp, 16    
-    addi    a2, sp, -CONTEXT_SIZE    
-    PUSH_ALL_REG a2    
-    call0   SaveRetAddr    
-    beqi    a3, 1, .switchdone    
+    entry   sp, 16
+    addi    a2, sp, -CONTEXT_SIZE
+    PUSH_ALL_REG a2
+    call0   SaveRetAddr
+    beqi    a3, 1, .switchdone
     movi    a4, g_losTask
     l32i    a5, a4, 0   /* get run task */
-    s32i    a2, a5, 0   /* store sp */    
+    s32i    a2, a5, 0   /* store sp */
     l32i    a5, a4, 4   /* get new task */
     s32i    a5, a4, 0   /* run task = new task */
-    l32i    a4, a5, 0   /* get new sp */  
+    l32i    a4, a5, 0   /* get new sp */
     rsr     a5, PS
     movi    a3, ~(WOE_ENABLE | LEVEL_MASK)
-    and     a2, a5, a3    
+    and     a2, a5, a3
     addi    a2, a2, 3
     wsr     a2, PS
     rsync
     call0   SpillWindow
     mov     a2, a4
-    POP_ALL_REG a2
-    rfe
+    POP_ALL_REG a2 EPC5 EPS5
+    rfi     5
 
 .switchdone:
     retw
@@ -68,14 +68,14 @@ HalTaskContextSwitch:
 .global HakSpillWindow
 HakSpillWindow:
 
-    entry   sp, 16
+    entry   sp, 32
 
     addi    a2, sp, -CONTEXT_SIZE
     PUSH_ALL_REG a2
     
     rsr     a5, PS
     movi    a3, ~(WOE_ENABLE | LEVEL_MASK)  /* disable woe and int */
-    and     a3, a5, a3    
+    and     a3, a5, a3
     addi    a3, a3, LEVEL3
     wsr     a3, PS
     rsync
@@ -84,10 +84,10 @@ HakSpillWindow:
     call0   SpillWindow
 
     l32i    a5, a4, CONTEXT_OFF_PS /* restroe PS */
-    wsr     a5,  PS
+    wsr     a5, PS
     rsync
-    l32i    a0,  a4, CONTEXT_OFF_A0
-    l32i    a1,  a4, CONTEXT_OFF_A1
+    l32i    a0, a4, CONTEXT_OFF_A0
+    l32i    a1, a4, CONTEXT_OFF_A1
 
     retw
 
@@ -101,7 +101,7 @@ OsStartToRun:
 
     rsr     a4, PS
     movi    a3, ~(WOE_ENABLE | LEVEL_MASK)
-    and     a2, a4, a3    
+    and     a2, a4, a3
     addi    a2, a2, LEVEL3
     wsr     a2, PS
     rsync
@@ -111,8 +111,8 @@ OsStartToRun:
     call0   SpillWindow
 
     mov     a2, a5
-    POP_ALL_REG a2
-    rfe
+    POP_ALL_REG a2 EPC5 EPS5
+    rfi     5
 
 .global SaveRetAddr
 .type   SaveRetAddr, @function
@@ -121,8 +121,8 @@ OsStartToRun:
 
 SaveRetAddr:
 
-    movi    a3,  1
-    s32i    a3,  a2, CONTEXT_OFF_A3
-    s32i    a0,  a2, CONTEXT_OFF_PC    /* save pc */
+    movi    a3, 1
+    s32i    a3, a2, CONTEXT_OFF_A3
+    s32i    a0, a2, CONTEXT_OFF_PC    /* save pc */
     movi    a3, 0
     ret

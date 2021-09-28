@@ -38,14 +38,10 @@
 #include "los_sched.h"
 #include "los_debug.h"
 
-#define OVERFLOW_MAX      0xFFFFFFFF
-
 UINT32 GetCcount(VOID)
 {
     UINT32 intSave;
-
     __asm__ __volatile__("rsr %0, ccount" : "=a"(intSave) :);
-
     return intSave;
 }
 
@@ -57,21 +53,13 @@ VOID ResetCcount(VOID)
 UINT32 GetCcompare(VOID)
 {
     UINT32 intSave;
-
     __asm__ __volatile__("rsr %0, ccompare0" : "=a"(intSave) :);
-
     return intSave;
 }
 
 VOID SetCcompare(UINT32 newCompareVal)
 {
     __asm__ __volatile__("wsr %0, ccompare0; rsync" : : "a"(newCompareVal));
-}
-
-VOID HalUpdateTimerCmpVal(UINT32 newCompareVal)
-{
-    SetCcompare(newCompareVal);
-    ResetCcount();
 }
 
 /* ****************************************************************************
@@ -104,8 +92,8 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
     g_sysClock = OS_SYS_CLOCK;
     g_cyclesPerTick = OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;
 
-    SetCcompare(g_cyclesPerTick);
     ResetCcount();
+    SetCcompare(LOSCFG_BASE_CORE_TICK_RESPONSE_MAX);
 
     __asm__ __volatile__("wsr %0, ccompare1; rsync" : : "a"(0));
     __asm__ __volatile__("wsr %0, ccompare2; rsync" : : "a"(0));
@@ -116,20 +104,32 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
 
 WEAK VOID HalSysTickReload(UINT64 nextResponseTime)
 {
-    HalUpdateTimerCmpVal(nextResponseTime);
+    UINT32 timerL;
+    timerL = GetCcount();
+    timerL += nextResponseTime;
+    SetCcompare(timerL);
 }
 
 WEAK UINT64 HalGetTickCycle(UINT32 *period)
 {
-    UINT32 ccount;
-    UINT32 intSave = LOS_IntLock();
+    UINT32 tickCycleH;
+    UINT32 tickCycleL;
+    UINT32 temp;
+    static UINT64 tickCycle = 0;
 
-    ccount = GetCcount();
-    *period = g_cyclesPerTick;
+    (VOID)period;
+    UINT32 intSave = LOS_IntLock();
+    temp = tickCycle & 0xFFFFFFFF;
+    tickCycleH = tickCycle >> SHIFT_32_BIT;
+    tickCycleL = GetCcount();
+    if (tickCycleL < temp) {
+        tickCycleH++;
+    }
+    tickCycle = (((UINT64)tickCycleH) << SHIFT_32_BIT) | tickCycleL;
 
     LOS_IntRestore(intSave);
 
-    return ccount;
+    return tickCycle;
 }
 
 WEAK VOID HalTickLock(VOID)

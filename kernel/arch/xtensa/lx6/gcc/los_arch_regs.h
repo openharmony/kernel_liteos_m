@@ -49,7 +49,7 @@ extern "C" {
 #define SPREG_PS_DEPC                                        SPREG_PS_DEPC_MASK
 /* PS register -- interrupt part */
 #define SPREG_PS_DI_SHIFT                                    3
-#define SPREG_PS_DI_MASK                                     0x00000008
+#define SPREG_PS_DI_MASK                                     0x0000000F
 #define SPREG_PS_DI                                          SPREG_PS_DI_MASK
 #define SPREG_PS_DI_DEPC                                     0x0000000C
 /* PS register -- stack part */
@@ -115,19 +115,41 @@ extern "C" {
 #define CONTEXT_OFF_LBEG                                     84
 #define CONTEXT_OFF_LEND                                     88
 #define CONTEXT_OFF_LCOUNT                                   92
+
+#if (defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U))
 #define CONTEXT_OFF_TMP0                                     96
-#define CONTEXT_OFF_TMP1                                     100
-#define CONTEXT_OFF_TMP2                                     104
-#define CONTEXT_OFF_EXIT                                     108
-#define CONTEXT_SIZE                                         144
+#define CONTEXT_OFF_CPENABLE                                 100
+#define CONTEXT_OFF_CPSTORED                                 102
+#define CONTEXT_OFF_FCR                                      104
+#define CONTEXT_OFF_FSR                                      108
+#define CONTEXT_OFF_F0                                       112
+#define CONTEXT_OFF_F1                                       116
+#define CONTEXT_OFF_F2                                       120
+#define CONTEXT_OFF_F3                                       124
+#define CONTEXT_OFF_F4                                       128
+#define CONTEXT_OFF_F5                                       132
+#define CONTEXT_OFF_F6                                       136
+#define CONTEXT_OFF_F7                                       140
+#define CONTEXT_OFF_F8                                       144
+#define CONTEXT_OFF_F9                                       148
+#define CONTEXT_OFF_F10                                      152
+#define CONTEXT_OFF_F11                                      156
+#define CONTEXT_OFF_F12                                      160
+#define CONTEXT_OFF_F13                                      164
+#define CONTEXT_OFF_F14                                      168
+#define CONTEXT_OFF_F15                                      172
+#define CONTEXT_SIZE                                         192
+#else
+#define CONTEXT_SIZE                                         112
+#endif
 #define EXCCAUSE_LEVEL1INTERRUPT                             4
 #define XTENSA_LOGREG_NUM                                    16
 #define INDEX_OF_SP                                          1
 #define INDEX_OF_ARGS0                                       6
 
-#define WINDOWSTARTBITS	                                     16
-#define WINDOWBASEBITS	                                     4
-#define WINDOWSTARTMASK	                                     ((1 << WINDOWSTARTBITS) - 1)
+#define WINDOWSTARTBITS                                      16
+#define WINDOWBASEBITS                                       4
+#define WINDOWSTARTMASK                                      ((1 << WINDOWSTARTBITS) - 1)
 
 #define WOE_ENABLE                                           0x40000
 #define BIT_CALLINC                                          16

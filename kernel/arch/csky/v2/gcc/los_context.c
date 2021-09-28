@@ -145,7 +145,6 @@ VOID HalTaskSchedule(VOID)
     BOOL isSwitch = OsSchedTaskSwitch();
     if (isSwitch) {
         HalTaskContextSwitch();
-        return;
     }
     LOS_IntRestore(intSave);
     return;

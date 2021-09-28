@@ -158,13 +158,13 @@ SpillWindow:
     or      a2, a2, a3
     rsr     a3, WINDOWBASE
 
-1:
-    bbsi.l  a2, WINDOWSTARTBITS-1, 2f
+.RestoreWindowBase:
+    bbsi.l  a2, WINDOWSTARTBITS - 1, .RestoreWindow
     slli    a2, a2, 1
     addi    a3, a3, -1
-    j       1b
+    j       .RestoreWindowBase
 
-2:
+.RestoreWindow:
     extui   a3, a3, 0, WINDOWSTARTBITS    /* the original bit */
 
     addi    a3, a3, 1
