@@ -193,12 +193,10 @@ STATIC INLINE UINTPTR OsAddrIsValid(UINTPTR sp)
     return pc;
 }
 #elif (LOSCFG_BACKTRACE_TYPE == 2)
-STATIC INLINE BOOL OsBackTraceFpCheck(UINT32 value);
 #define OS_BACKTRACE_START     1
 #define OS_RA_OFFSET           4
 #define OS_FP_OFFSET           8
 #define OS_FP_ALIGN(value)     (((UINT32)(value) & (UINT32)(LOSCFG_STACK_POINT_ALIGN_SIZE - 1)) == 0)
-#define OS_FP_CHECK(value)     (((UINT32)(value) != FP_INIT_VALUE) && OS_FP_ALIGN(value))
 
 STATIC INLINE UINTPTR OsFpGet(VOID)
 {
@@ -208,12 +206,41 @@ STATIC INLINE UINTPTR OsFpGet(VOID)
     return fp;
 }
 
+WEAK BOOL IsValidFP(UINTPTR fp)
+{
+    LosTaskCB *taskCB = NULL;
+    UINTPTR stackTop, stackBottom;
+    UINTPTR irqStackTop, irqStackBottom;
+
+    if ((fp == FP_INIT_VALUE) || !OS_FP_ALIGN(fp)) {
+        return FALSE;
+    }
+
+    if (LOS_TaskIsRunning()) {
+        taskCB = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
+        stackTop = taskCB->topOfStack;
+        stackBottom = taskCB->topOfStack + taskCB->stackSize;
+        irqStackTop = (UINTPTR)CSTACK_START_ADDR;
+        irqStackBottom = (UINTPTR)CSTACK_SECTION_END;
+    } else {
+        stackTop = 0;
+        stackBottom = 0;
+        irqStackTop = (UINTPTR)CSTACK_START_ADDR;
+        irqStackBottom = (UINTPTR)CSTACK_SECTION_END;
+    }
+
+    if (((fp > stackTop) && (fp <= stackBottom)) || ((fp > irqStackTop) && (fp <= irqStackBottom))) {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
 {
-    UNUSED(SP);
-    UINT32 backFp = OsFpGet();
-    UINT32 tmpFp;
-    UINT32 backRa;
+    UINTPTR backFp;
+    UINTPTR tmpFp;
+    UINTPTR backRa;
     UINT32 count = 0;
     UINT32 index = 0;
 
@@ -221,21 +248,31 @@ VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
         return;
     }
 
-    while (OS_FP_CHECK(backFp)) {
+    if (SP != 0) {
+        backFp = SP;
+    } else {
+        backFp = OsFpGet();
+    }
+
+    if (!IsValidFP(backFp)) {
+        PRINT_ERR("BackTrace failed! Invalid fp 0x%x\n", backFp);
+        return;
+    }
+
+    do {
         tmpFp = backFp;
-        backRa = *((UINT32 *)(UINTPTR)(tmpFp - OS_RA_OFFSET));
-        backFp = *((UINT32 *)(UINTPTR)(tmpFp - OS_FP_OFFSET));
+        backRa = *((UINTPTR *)(UINTPTR)(tmpFp - OS_RA_OFFSET));
+        backFp = *((UINTPTR *)(UINTPTR)(tmpFp - OS_FP_OFFSET));
         if (index++ < jumpCount) {
             continue;
         }
 
         LR[count] = backRa;
         count++;
-        if ((count == LRSize) || (backFp == tmpFp) ||
-            (!OsStackDataIsCodeAddr(backRa))) {
+        if ((count == LRSize) || (backFp == tmpFp)) {
             break;
         }
-    }
+    } while (IsValidFP(backFp));
 
     if (count < LRSize) {
         LR[count] = 0;
@@ -737,7 +774,7 @@ VOID LOS_BackTrace(VOID)
     PRINTK("----- traceback end -----\r\n");
 }
 
-VOID OSBackTraceInit(VOID)
+VOID OsBackTraceInit(VOID)
 {
     OsBackTraceHookSet(LOS_RecordLR);
 }

@@ -483,7 +483,7 @@ extern UINT8 *m_aucSysMem0;
  * Configuration memory leak detection
  * @attention
  * Need to enable backtrace module synchronously by configuration LOSCFG_BACKTRACE_TYPE,
- * and call OSBackTraceInit to complete initialization before the memory pool is initialized.
+ * and call OsBackTraceInit to complete initialization before the memory pool is initialized.
  */
 #ifndef LOSCFG_MEM_LEAKCHECK
 #define LOSCFG_MEM_LEAKCHECK                                0

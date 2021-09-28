@@ -218,41 +218,21 @@ LITE_OS_SEC_TEXT UINT32 HalHwiDelete(HWI_HANDLE_T hwiNum)
     return LOS_OK;
 }
 
-STATIC VOID DisplayTaskInfo(VOID)
+STATIC VOID ExcBackTrace(UINTPTR fp)
 {
-    TSK_INFO_S taskInfo;
-    UINT32 index;
-    UINT32 ret;
-
-    PRINTK("ID  Pri    Status     name \n\r");
-    PRINTK("--  ---    ---------  ----\n\r");
-
-    for (index = 0; index < LOSCFG_BASE_CORE_TSK_LIMIT; index++) {
-        ret = LOS_TaskInfoGet(index, &taskInfo);
-        if (ret != LOS_OK) {
-            continue;
-        }
-        PRINTK("%d    %d     %s      %s \n\r",
-               taskInfo.uwTaskID, taskInfo.usTaskPrio, OsConvertTskStatus(taskInfo.usTaskStatus), taskInfo.acName);
-    }
-    return;
-}
-
-STATIC VOID ExcBackTrace(VOID)
-{
-    UINTPTR LR[LOSCFG_BACKTRACE_DEPTH] = {0};
+    UINTPTR LR[LOSCFG_BACKTRACE_DEPTH] = { 0 };
     UINT32 index;
 
-    OsBackTraceHookCall(LR, LOSCFG_BACKTRACE_DEPTH, 1, 0); /* 1: Ignore the one layer call relationship within the function. */
+    OsBackTraceHookCall(LR, LOSCFG_BACKTRACE_DEPTH, 0, fp);
 
-    PRINTK("----- traceback start -----\r\n");
+    PRINTK("----- traceback start -----\n");
     for (index = 0; index < LOSCFG_BACKTRACE_DEPTH; index++) {
         if (LR[index] == 0) {
             break;
         }
-        PRINTK("traceback %d -- lr = 0x%x\r\n", index, LR[index]);
+        PRINTK("traceback %d -- lr = 0x%x\n", index, LR[index]);
     }
-    PRINTK("----- traceback end -----\r\n");
+    PRINTK("----- traceback end -----\n");
 }
 
 STATIC VOID ExcInfoDisplayContext(const LosExcInfo *exc)
@@ -295,29 +275,33 @@ STATIC VOID ExcInfoDisplayContext(const LosExcInfo *exc)
     PRINTK("t5         = 0x%x\n", taskContext->t5);
     PRINTK("t6         = 0x%x\n", taskContext->t6);
 
-    ExcBackTrace();
+    ExcBackTrace(taskContext->s0);
 }
 
 STATIC VOID ExcInfoDisplay(const LosExcContext *excBufAddr)
 {
-    PRINTK("\r\nException Information     \n\r");
+    PRINTK("\nException Information     \n");
 
     if (g_excInfo.type < RISCV_EXC_TYPE_NUM) {
-        PRINTK("Exc  type : Oops  - %s\n\r", g_excInformation[g_excInfo.type]);
+        PRINTK("Exc  type : Oops  - %s\n", g_excInformation[g_excInfo.type]);
     } else {
-        PRINTK("Exc  type : Oops  - Invalid\n\r");
+        PRINTK("Exc  type : Oops  - Invalid\n");
     }
 
-    PRINTK("taskName = %s\n\r", g_losTask.runTask->taskName);
-    PRINTK("taskID = %u\n\r", g_losTask.runTask->taskID);
-    PRINTK("system mem addr:0x%x\n\r", (UINTPTR)LOSCFG_SYS_HEAP_ADDR);
+    if (LOS_TaskIsRunning()) {
+        PRINTK("taskName = %s\n", g_losTask.runTask->taskName);
+        PRINTK("taskID = %u\n", g_losTask.runTask->taskID);
+    } else {
+        PRINTK("The exception occurs during system startup!\n");
+    }
+    PRINTK("system mem addr:0x%x\n", (UINTPTR)LOSCFG_SYS_HEAP_ADDR);
     ExcInfoDisplayContext(&g_excInfo);
 }
 
 WEAK UINT32 HalUnalignedAccessFix(UINTPTR mcause, UINTPTR mepc, UINTPTR mtval, VOID *sp)
 {
     /* Unaligned access fixes are not supported by default */
-    PRINTK("Unaligned access fixes are not supported by default!\n\r");
+    PRINTK("Unaligned access fixes are not supported by default!\n");
     return LOS_NOK;
 }
 
@@ -327,7 +311,7 @@ VOID HalExcEntry(const LosExcContext *excBufAddr)
     g_excInfo.type = excBufAddr->mcause & 0x1FF;
     g_excInfo.context = (LosExcContext *)excBufAddr;
     if (g_excInfo.nestCnt > 2) { /* 2: Number of layers of exception nesting */
-        PRINTK("hard fault!\n\r");
+        PRINTK("hard fault!\n");
         goto SYSTEM_DEATH;
     }
 
@@ -342,8 +326,10 @@ VOID HalExcEntry(const LosExcContext *excBufAddr)
 
     ExcInfoDisplay(excBufAddr);
 
-    PRINTK("----------------All Task infomation ------------\n\r");
-    DisplayTaskInfo();
+    if (LOS_TaskIsRunning()) {
+        PRINTK("----------------All Task infomation ------------\n");
+        OsGetAllTskInfo();
+    }
 
 SYSTEM_DEATH:
     OsDoExcHook(EXC_INTERRUPT);
