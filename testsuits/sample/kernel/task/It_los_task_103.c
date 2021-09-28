@@ -50,7 +50,7 @@ static VOID TaskF01(VOID)
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.pcName = "Tsk103B";
-    task1.usTaskPrio = TASK_PRIO_TEST - 2; // 2, set new task priority, it is higher than the current task.
+    task1.usTaskPrio = TASK_PRIO_TEST - 1; // 1, set new task priority, it is higher than the current task.
     task1.uwResved = LOS_TASK_STATUS_DETACHED;
 
     ret = LOS_TaskCreate(&g_testTaskID02, &task1);
@@ -59,7 +59,7 @@ static VOID TaskF01(VOID)
     ret = LOS_TaskPriGet(g_testTaskID02);
 
     // 2, Assert this result is consistent with the priority that has been set.
-    ICUNIT_ASSERT_EQUAL_VOID(ret, TASK_PRIO_TEST - 2, ret);
+    ICUNIT_ASSERT_EQUAL_VOID(ret, TASK_PRIO_TEST - 1, ret);
 
     ret = LOS_TaskPriGet(g_testTaskID01);
 
