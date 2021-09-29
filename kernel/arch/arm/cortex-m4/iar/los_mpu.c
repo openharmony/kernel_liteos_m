@@ -97,7 +97,7 @@ STATIC UINT32 HalMpuEncodeSize(UINT64 size)
     if (size > SIZE_4G_BYTE) {
         return 0;
     }
-    if ((size & 0x1F) != 0) { /* size sould aligned to 32 byte at least. */
+    if ((size & 0x1F) != 0) { /* size should aligned to 32 byte at least. */
         return 0;
     }
     size = (size >> 2);
