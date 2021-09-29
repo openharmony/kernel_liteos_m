@@ -35,6 +35,7 @@ static_library("arch") {
     "los_dispatch.S",
     "los_exc.S",
     "los_interrupt.c",
+    "los_mpu.c",
     "los_timer.c",
   ]
 

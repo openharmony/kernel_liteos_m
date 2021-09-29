@@ -784,6 +784,10 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_MPU_ENABLE                                    0
 #endif
 
+#if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1) && (LOSCFG_MPU_ENABLE == 0)
+#error "if hardware stack protection is enabled, then MPU should be supported and enabled"
+#endif
+
 /*=============================================================================
                                        shell module configuration
 =============================================================================*/

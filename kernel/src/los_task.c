@@ -94,6 +94,14 @@
  */
 #define OS_TASK_STACK_TOP_OFFSET                4
 
+#if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1)
+/**
+ * @ingroup los_task
+ * @brief the size of task stack's protection area
+ */
+#define OS_TASK_STACK_PROTECT_SIZE              32
+#endif
+
 LITE_OS_SEC_BSS  LosTaskCB                           *g_taskCBArray = NULL;
 LITE_OS_SEC_BSS  LosTask                             g_losTask;
 LITE_OS_SEC_BSS  UINT16                              g_losTaskLock;
