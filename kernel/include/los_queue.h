@@ -341,7 +341,7 @@ extern "C" {
  */
 #define OS_WAIT_TASK_ARRAY_LEN                   ((LOSCFG_BASE_CORE_TSK_LIMIT >> 5) + 1)
 #define OS_WAIT_TASK_ID_TO_ARRAY_IDX(taskID)     (taskID >> 5)
-#define OS_WAIT_TASK_ARRAY_ELEMENT_MASK          ((1 << OS_WAIT_TASK_ARRAY_LEN) - 1)
+#define OS_WAIT_TASK_ARRAY_ELEMENT_MASK          (31)
 
 /**
  * @ingroup los_queue
