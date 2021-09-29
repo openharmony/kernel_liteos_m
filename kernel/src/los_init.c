@@ -121,7 +121,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     PRINTK("entering kernel init...\n");
 
 #if (LOSCFG_BACKTRACE_TYPE != 0)
-    OSBackTraceInit();
+    OsBackTraceInit();
 #endif
 
     OsRegister();
