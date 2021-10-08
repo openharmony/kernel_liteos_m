@@ -274,7 +274,6 @@ STATIC VOID OsMemboxExcInfoGetSub(const LOS_MEMBOX_INFO *pool, MemInfoCB *memExc
     MEMBOX_LOCK(intSave);
     memExcInfo->type = MEM_MANG_MEMBOX;
     memExcInfo->startAddr = (UINTPTR)pool;
-    memExcInfo->size = pool->uwBlkNum * pool->uwBlkSize;
     memExcInfo->blockSize = pool->uwBlkSize;
     memExcInfo->size = pool->uwBlkNum; /* Block num */
     memExcInfo->free = pool->uwBlkNum - pool->uwBlkCnt;
