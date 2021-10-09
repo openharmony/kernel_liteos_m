@@ -171,7 +171,7 @@ TaskContextSwitch:
     ldr     r0, [r5, #4]
     str     r0, [r5]
 
-    ldr     r1,   [r0]
+    ldr     r1, [r0]
 
 #if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
      (defined(__FPU_USED) && (__FPU_USED == 1U)))

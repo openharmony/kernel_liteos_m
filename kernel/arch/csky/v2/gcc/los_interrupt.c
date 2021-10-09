@@ -42,12 +42,6 @@
 #include "los_memory.h"
 #include "los_membox.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 #define INT_OFFSET       6
 #define PRI_OFF_PER_INT  8
 #define PRI_PER_REG      4
@@ -583,8 +577,3 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
     return;
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

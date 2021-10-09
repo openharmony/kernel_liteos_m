@@ -375,8 +375,7 @@ extern UINT32 HalIntNumGet(VOID);
  *
  * @retval:None.
  * @par Dependency:
- * <ul><li>los_arch_interrupt.h: the header file that contains the API declaration.</li
-></ul>
+ * <ul><li>los_arch_interrupt.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern VOID HalHwiDefaultHandler(VOID);
@@ -546,7 +545,7 @@ VOID HalExcMemFault(VOID);
 VOID HalExcBusFault(VOID);
 VOID HalExcUsageFault(VOID);
 VOID HalExcSvcCall(VOID);
-VOID HalHwiInit();
+VOID HalHwiInit(VOID);
 
 
 /**

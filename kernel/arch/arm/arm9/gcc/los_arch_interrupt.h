@@ -282,7 +282,7 @@ typedef struct TagExcContext {
 
 typedef VOID (*EXC_PROC_FUNC)(UINT32, EXC_CONTEXT_S *);
 VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, UINT32 pid, EXC_CONTEXT_S *excBufAddr);
-VOID HalHwiInit();
+VOID HalHwiInit(VOID);
 
 /**
  * @ingroup los_exc

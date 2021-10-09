@@ -50,7 +50,7 @@ extern "C" {
  * <ul>The pointer v must not be NULL.</ul>
  *
  * @param  v       [IN] The variable pointer.
- * @param  val       [IN] The exchange value.
+ * @param  val     [IN] The exchange value.
  *
  * @retval #INT32       The previous value of the atomic variable
  * @par Dependency:
@@ -78,7 +78,7 @@ STATIC INLINE INT32 HalAtomicXchg32bits(volatile INT32 *v, INT32 val)
  * @brief Atomic auto-decrement.
  *
  * @par Description:
- * This API is used to implementating the atomic auto-decrement and return the result of auto-decrement.
+ * This API is used to implement the atomic auto-decrement and return the result of auto-decrement.
  * @attention
  * <ul>
  * <li>The pointer v must not be NULL.</li>
@@ -120,7 +120,7 @@ STATIC INLINE INT32 HalAtomicDecRet(volatile INT32 *v)
  *
  * @param  v       [IN] The variable pointer.
  * @param  val     [IN] The new value.
- * @param  oldVal      [IN] The old value.
+ * @param  oldVal  [IN] The old value.
  *
  * @retval TRUE  The previous value of the atomic variable is not equal to oldVal.
  * @retval FALSE The previous value of the atomic variable is equal to oldVal.

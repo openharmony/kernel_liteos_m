@@ -90,4 +90,4 @@ extern VOID HalStartToRun(VOID);
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* _LOS_HW_H */
+#endif /* _LOS_ARCH_CONTEXT_H */

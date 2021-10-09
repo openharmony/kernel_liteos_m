@@ -308,7 +308,7 @@ _hwiActiveCheckNext:
 
     LDR  R2, =g_taskScheduled
     LDR  R2, [R2]
-    TST  R2, #1         // OS_FLG_BGD_ACTIVE
+    TST  R2, #1                         // OS_FLG_BGD_ACTIVE
     BEQ  _ExcInMSP                      // if exc occured in Init then branch
 
 
@@ -321,7 +321,7 @@ _hwiActiveCheckNext:
 
     MRS   R3,  PSP
     ADD   R12, R3, #104
-    PUSH  {R12}    // save task SP
+    PUSH  {R12}                         // save task SP
 
     MRS   R12, PRIMASK
     PUSH {R4-R12}
@@ -344,12 +344,12 @@ _hwiActiveCheckNext:
 _NoFloatInPsp:
     .fnstart
     .cantunwind
-    MOV   R2,  R13                           //no auto push floating registers
+    MOV   R2,  R13                      // no auto push floating registers
     SUB   R13, #32                      // add 8 Bytes reg(for STMFD)
 
     MRS   R3,  PSP
     ADD   R12, R3, #32
-    PUSH  {R12}    // save task SP
+    PUSH  {R12}                         // save task SP
 
     MRS   R12, PRIMASK
     PUSH {R4-R12}

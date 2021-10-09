@@ -546,7 +546,7 @@ VOID HalExcMemFault(VOID);
 VOID HalExcBusFault(VOID);
 VOID HalExcUsageFault(VOID);
 VOID HalSVCHandler(VOID);
-VOID HalHwiInit();
+VOID HalHwiInit(VOID);
 
 
 /**

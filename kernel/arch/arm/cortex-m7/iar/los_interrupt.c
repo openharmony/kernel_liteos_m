@@ -49,7 +49,7 @@ UINT32 g_intCount = 0;
 #pragma data_alignment=0x100
 /* *
  * @ingroup los_hwi
- * hardware interrupt form mapping handling function array.
+ * Hardware interrupt form mapping handling function array.
  */
 STATIC HWI_PROC_FUNC g_hwiForm[OS_VECTOR_CNT] = {0};
 
@@ -62,7 +62,7 @@ typedef struct {
 
 /* *
  * @ingroup los_hwi
- * hardware interrupt handler form mapping handling function array.
+ * Hardware interrupt handler form mapping handling function array.
  */
 STATIC HWI_HANDLER_FUNC g_hwiHandlerForm[OS_VECTOR_CNT] = {{ (HWI_PROC_FUNC)0, (HWI_ARG_T)0 }};
 
