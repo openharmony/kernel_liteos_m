@@ -740,7 +740,7 @@ UINT32 LOS_PmReadLock(VOID)
 {
     UINT32 ret = LOS_EventRead(&g_pmEvent, PM_EVENT_LOCK_MASK, LOS_WAITMODE_OR | LOS_WAITMODE_CLR, LOS_WAIT_FOREVER);
     if (ret > PM_EVENT_LOCK_MASK) {
-        PRINT_ERR("%s event read failed! ERROR: 0x%x\n", ret);
+        PRINT_ERR("%s event read failed! ERROR: 0x%x\n", __FUNCTION__, ret);
     }
 
     return LOS_OK;
