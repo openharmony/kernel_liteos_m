@@ -39,12 +39,6 @@
 #include "los_arch_timer.h"
 #include "nuclei_sdk_hal.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 #define configKERNEL_INTERRUPT_PRIORITY         0
 
 #define SYSTICK_TICK_CONST  (SOC_TIMER_FREQ / LOSCFG_BASE_CORE_TICK_PER_SECOND)
@@ -116,8 +110,3 @@ UINT32 HalEnterSleep(VOID)
     return LOS_OK;
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

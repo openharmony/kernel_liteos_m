@@ -78,7 +78,7 @@ STATIC INLINE INT32 HalAtomicXchg32bits(volatile INT32 *v, INT32 val)
  * @brief Atomic auto-decrement.
  *
  * @par Description:
- * This API is used to implementating the atomic auto-decrement and return the result of auto-decrement.
+ * This API is used to implement the atomic auto-decrement and return the result of auto-decrement.
  * @attention
  * <ul>
  * <li>The pointer v must not be NULL.</li>

@@ -37,12 +37,6 @@
 #include "los_debug.h"
 #include "nuclei_sdk_hal.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 UINT32 g_intCount = 0;
 
 // LosExcInfo g_excInfo;
@@ -188,8 +182,3 @@ __attribute__((always_inline)) inline UINT32 HalIsIntActive(VOID)
     return (g_intCount > 0);
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

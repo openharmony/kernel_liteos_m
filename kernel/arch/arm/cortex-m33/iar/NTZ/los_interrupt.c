@@ -491,7 +491,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, U
  Output      : None
  Return      : None
  **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT VOID HalHwiInit()
+LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
 {
 #if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)
     UINT32 index;

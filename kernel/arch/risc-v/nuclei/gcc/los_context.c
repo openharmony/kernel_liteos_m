@@ -32,12 +32,6 @@ extern VOID HalHwiInit(VOID);
 #define INITIAL_MSTATUS                 ( MSTATUS_MPP | MSTATUS_MPIE | MSTATUS_FS_INITIAL)
 #define ALIGN_DOWN(size, align)         ((size) & ~((align) - 1))
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 LITE_OS_SEC_TEXT_INIT VOID HalArchInit(VOID)
 {
     UINT32 ret;
@@ -105,8 +99,3 @@ VOID HalTaskSwitch(VOID)
     g_losTask.runTask = g_losTask.newTask;
 }
 
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

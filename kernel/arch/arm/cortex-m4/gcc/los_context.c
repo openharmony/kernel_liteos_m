@@ -78,7 +78,7 @@ LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID)
  Description : Task stack initialization function
  Input       : taskID     --- TaskID
                stackSize  --- Total size of the stack
-               topStack    --- Top of task's stack
+               topStack   --- Top of task's stack
  Output      : None
  Return      : Context pointer
  **************************************************************************** */

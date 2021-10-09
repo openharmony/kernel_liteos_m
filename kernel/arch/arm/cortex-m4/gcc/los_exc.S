@@ -352,7 +352,7 @@ _hwiActiveCheckNext:
 _NoFloatInPsp:
     .fnstart
     .cantunwind
-    MOV   R2,  R13                      //no auto push floating registers
+    MOV   R2,  R13                      // no auto push floating registers
     SUB   R13, #32                      // add 8 Bytes reg(for STMFD)
 
     MRS   R3,  PSP

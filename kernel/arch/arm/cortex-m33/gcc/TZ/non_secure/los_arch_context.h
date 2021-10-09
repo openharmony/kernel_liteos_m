@@ -43,7 +43,7 @@ extern "C" {
 
 typedef struct TagTskContext {
     UINT32 secureContext;
-    UINT32 stackLmit;
+    UINT32 stackLimit;
     UINT32 excReturn;
 #if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
      (defined(__FPU_USED) && (__FPU_USED == 1U)))

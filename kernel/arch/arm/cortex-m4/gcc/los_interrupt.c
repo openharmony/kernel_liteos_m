@@ -52,7 +52,7 @@ LITE_OS_SEC_VEC
 #endif
 /* *
  * @ingroup los_hwi
- * hardware interrupt form mapping handling function array.
+ * Hardware interrupt form mapping handling function array.
  */
 STATIC HWI_PROC_FUNC __attribute__((aligned(0x100))) g_hwiForm[OS_VECTOR_CNT] = {0};
 
@@ -65,7 +65,7 @@ typedef struct {
 
 /* *
  * @ingroup los_hwi
- * hardware interrupt handler form mapping handling function array.
+ * Hardware interrupt handler form mapping handling function array.
  */
 STATIC HWI_HANDLER_FUNC g_hwiHandlerForm[OS_VECTOR_CNT] = {{ (HWI_PROC_FUNC)0, (HWI_ARG_T)0 }};
 
@@ -502,7 +502,7 @@ WEAK VOID __stack_chk_fail(VOID)
  Output      : None
  Return      : None
  **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT VOID HalHwiInit()
+LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
 {
 #if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)
     UINT32 index;

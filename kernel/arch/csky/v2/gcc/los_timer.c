@@ -37,12 +37,6 @@
 #include "los_sched.h"
 #include "los_debug.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 typedef struct {
     UINT32 CTRL;
     UINT32 LOAD;
@@ -138,9 +132,3 @@ UINT32 HalEnterSleep(VOID)
     Wfi();
     return LOS_OK;
 }
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

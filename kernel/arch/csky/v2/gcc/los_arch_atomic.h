@@ -79,7 +79,8 @@ STATIC INLINE INT32 HalAtomicXchg32bits(volatile INT32 *v, INT32 val)
  * @attention
  * <ul>
  * <li>The pointer v must not be NULL.</li>
- * <li>The value which v point to must not be INT_MIN to avoid overflow after reducing 1.</li></ul>
+ * <li>The value which v point to must not be INT_MIN to avoid overflow after reducing 1.</li>
+ * </ul>
  *
  * @param  v      [IN] The addSelf variable pointer.
  *
