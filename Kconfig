@@ -408,7 +408,7 @@ endmenu
 ######################## config options of filesystem ##################
 menu "FileSystem"
 
-rsource "components/fs/Kconfig"
+rsource "components/fs/vfs/Kconfig"
 
 endmenu
 

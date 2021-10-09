@@ -33,6 +33,7 @@
 
 #include <sys/features.h>
 #include <sys/types.h>
+#include <sys/uio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,11 +41,6 @@ extern "C" {
 
 typedef unsigned socklen_t;
 typedef unsigned short sa_family_t;
-
-struct iovec {
-    void *iov_base;
-    size_t iov_len;
-};
 
 struct msghdr {
     void *msg_name;

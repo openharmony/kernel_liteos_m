@@ -34,7 +34,7 @@ module_switch = defined(LOSCFG_FS_LITTLEFS)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
   configs += [ "$LITEOSTOPDIR:warn_config" ]
-  sources = LITTLEFS_SRC_FILES_FOR_KERNEL_MODULE + [ "lfs_api.c" ]
+  sources = LITTLEFS_SRC_FILES_FOR_KERNEL_MODULE + [ "lfs_adapter.c" ]
 }
 
 config("public") {

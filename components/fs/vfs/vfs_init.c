@@ -27,29 +27,28 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "stdlib.h"
+#include "vfs_operations.h"
+#if (LOSCFG_SUPPORT_LITTLEFS == 1)
+#include "lfs_adapter.h"
+#endif
+#if (LOSCFG_SUPPORT_FATFS == 1)
+#include "fatfs.h"
+#endif
+#include "los_compiler.h"
+#include "los_mux.h"
 
-#ifndef _ADAPT_SYS_UIO_H
-#define _ADAPT_SYS_UIO_H
-
-#include <sys/features.h>
-#include <sys/types.h>
-
-#ifdef __cplusplus
-extern "C" {
+int OsVfsInit(void)
+{
+    if (LOS_MuxCreate(&g_fsMutex) != LOS_OK) {
+        return LOS_NOK;
+    }
+#if (LOSCFG_SUPPORT_FATFS == 1)
+    FatFsInit();
 #endif
 
-#define UIO_MAXIOV 1024
-
-struct iovec {
-    void *iov_base;
-    size_t iov_len;
-};
-
-ssize_t readv(int, const struct iovec *, int);
-ssize_t writev(int, const struct iovec *, int);
-
-#ifdef __cplusplus
+#if (LOSCFG_SUPPORT_LITTLEFS == 1)
+    LfsInit();
+#endif
+    return LOS_OK;
 }
-#endif
-
-#endif

@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,10 +28,11 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _FATFS_H
-#define _FATFS_H
+#ifndef _VFS_MOUNT_H_
+#define _VFS_MOUNT_H_
 
-#include "ff.h"
+#include "sys/statfs.h"
+#include "los_compiler.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -40,7 +40,32 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-void FatFsInit(void);
+struct FsMap;
+struct MountPoint;
+
+struct MountOps {
+    int (*mount)(struct MountPoint *mp, unsigned long mountflags,
+                 const void *data);
+    int (*umount)(struct MountPoint *mp);
+    int (*umount2)(struct MountPoint *mp, int flag);
+    int (*statfs)(const char *path, struct statfs *buf);
+};
+
+struct MountPoint {
+    struct FsMap      *mFs;    /* file system info */
+    struct MountPoint *mNext;  /* point to next mount point */
+    const char        *mPath;  /* target path, /system, /usr, etc. */
+    const char        *mDev;   /* device, "emmc0p0", "emmc0p1", etc. */
+    UINT32             mRefs;  /* reference to mount point */
+    void              *mData;  /* specific file system handle */
+    BOOL               mWriteEnable; /* writable flag */
+};
+
+extern struct MountPoint *g_mountPoints;
+#define LOS_MP_FOR_EACH_ENTRY(prev) \
+        for (prev = g_mountPoints; prev != NULL; prev = prev->mNext)
+
+struct MountPoint *VfsMpFind(const char *path, const char **pathInMp);
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -48,4 +73,4 @@ void FatFsInit(void);
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* _FATFS_H */
+#endif /* _VFS_MOUNT_H_ */
