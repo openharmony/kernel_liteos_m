@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,54 +32,8 @@
 #ifndef _VFS_CONFIG_H_
 #define _VFS_CONFIG_H_
 
-#define PATH_MAX 256
-#define CONFIG_DISABLE_MQUEUE   // disable posix mqueue inode configure
-
-/* file system configur */
-
-#define CONFIG_FS_WRITABLE      // enable file system can be written
-#define CONFIG_FS_READABLE      // enable file system can be read
-#define CONFIG_DEBUG_FS         // enable vfs debug function
-
-
-/* fatfs cache configur */
-/* config block size for fat file system, only can be 0,32,64,128,256,512,1024 */
-#define CONFIG_FS_FAT_SECTOR_PER_BLOCK  64
-
-/* config block num for fat file system */
-#define CONFIG_FS_FAT_READ_NUMS         7
-#define CONFIG_FS_FAT_BLOCK_NUMS        28
-
-#ifdef LOSCFG_FS_FAT_CACHE_SYNC_THREAD
-
-/* config the priority of sync task */
-
-#define CONFIG_FS_FAT_SYNC_THREAD_PRIO 10
-
-/* config dirty ratio of bcache for fat file system */
-
-#define CONFIG_FS_FAT_DIRTY_RATIO      60
-
-/* config time interval of sync thread for fat file system, in milliseconds */
-
-#define CONFIG_FS_FAT_SYNC_INTERVAL    5000
-#endif
-
-#define CONFIG_FS_FLASH_BLOCK_NUM 1
-
-#define CONFIG_FS_MAX_LNK_CNT 40
-
-/* nfs configure */
-
-#define CONFIG_NFS_MACHINE_NAME "IPC"   // nfs device name is IPC
-#define CONFIG_NFS_MACHINE_NAME_SIZE 3  // size of nfs machine name
-
-
 /* file descriptors configure */
 
-#define CONFIG_NFILE_STREAMS        1   // enable file stream
-#define CONFIG_STDIO_BUFFER_SIZE    0
-#define CONFIG_NUNGET_CHARS         0
 #define MIN_START_FD 3 // 0,1,2 are used for stdin,stdout,stderr respectively
 
 /* net configure */
@@ -87,12 +41,8 @@
 #ifdef LOSCFG_NET_LWIP_SACK             // enable socket and net function
 #include "lwip/lwipopts.h"
 #define CONFIG_NSOCKET_DESCRIPTORS  LWIP_CONFIG_NUM_SOCKETS  // max numbers of socket descriptor
-#define CONFIG_NET_SENDFILE         1   // enable sendfile function
-#define CONFIG_NET_TCP              1   // enable sendfile and send function
 #else
 #define CONFIG_NSOCKET_DESCRIPTORS  0
-#define CONFIG_NET_SENDFILE         0   // disable sendfile function
-#define CONFIG_NET_TCP              0   // disable sendfile and send function
 #endif
 
 /* max numbers of other descriptors except socket descriptors */

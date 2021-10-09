@@ -144,7 +144,12 @@ int ftruncate(int fd, off_t length)
 
 int ioctl(int fd, int req, ...)
 {
-	return -1;
+    va_list ap;
+    va_start(ap, req);
+    int ret;
+    ret = LOS_Ioctl(fd, req, ap);
+    va_end(ap);
+    return ret;
 }
 
 ssize_t pread(int fd, void *buf, size_t nbyte, off_t offset)

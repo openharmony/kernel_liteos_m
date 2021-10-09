@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,10 +28,10 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _FATFS_H
-#define _FATFS_H
+#ifndef _VFS_MAPS_H_
+#define _VFS_MAPS_H_
 
-#include "ff.h"
+#include "los_compiler.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -40,7 +39,26 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-void FatFsInit(void);
+struct MountOps;
+
+struct FsManagement {
+    int (*fdisk)(const char *dev, int *lengthArray, int partNum);
+    int (*format)(const char *partName, void *data);
+};
+
+
+struct FsMap {
+    const char *fsType;
+    const struct MountOps *fsMops;
+    const struct FileOps *fsFops;
+    const struct FsManagement *fsMgt;
+    UINT32 fsRefs;
+    struct FsMap *next;
+};
+
+int OsFsRegister(const char *fsType, struct MountOps *fsMops,
+        struct FileOps *fsFops, struct FsManagement *fsMgt);
+struct FsMap *VfsFsMapGet(const char *fsType);
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -48,4 +66,4 @@ void FatFsInit(void);
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* _FATFS_H */
+#endif /* _VFS_MAPS_H_ */

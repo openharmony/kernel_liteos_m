@@ -30,6 +30,7 @@
  */
 
 #include "stdarg.h"
+#include "vfs_operations.h"
 #include "los_arch.h"
 #include "los_config.h"
 #include "los_debug.h"
@@ -211,6 +212,14 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     ret = OsSwtmrInit();
     if (ret != LOS_OK) {
         PRINT_ERR("OsSwtmrInit error\n");
+        return ret;
+    }
+#endif
+
+#if (LOSCFG_FS_VFS == 1)
+    ret = OsVfsInit();
+    if (ret != LOS_OK) {
+        PRINT_ERR("OsVfsInit error\n");
         return ret;
     }
 #endif
