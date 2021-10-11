@@ -544,6 +544,7 @@ WEAK VOID __stack_chk_fail(VOID)
  **************************************************************************** */
 VOID HalHwiInit(VOID)
 {
+    EnableExceptionInterface();
     for (UINT32 i = 0; i < OS_HWI_MAX_NUM; i++) {
         g_hwiForm[i + OS_SYS_VECTOR_CNT] = HalHwiDefaultHandler;
         HalIrqMask(i);
@@ -551,4 +552,3 @@ VOID HalHwiInit(VOID)
     asm volatile ("wsr %0, vecbase" : : "r"(INIT_VECTOR_START));
     return;
 }
-

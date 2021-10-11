@@ -177,7 +177,7 @@ InterruptEntry1:
 
     call4   HalInterrupt
     mov     a2, a1
-    POP_ALL_REG a2
+    POP_ALL_REG a2 EPC1 PS
     rfe    
 
 .begin      literal_prefix .InterruptEntry2
@@ -294,7 +294,7 @@ UnderFlowGroup2:
     l32i  a3, a9, 12
     l32i  a2, a9, 8
     l32i  a1, a9, 4
-    l32i  a0, a9, 0  
+    l32i  a0, a9, 0
     addi  a9, a9, 16
 
     addi  a1, a1, -12
@@ -329,7 +329,7 @@ OverFlowGroup3:
     s32i    a10, a0, 24
     s32i    a9, a0, 20
     s32i    a8, a0, 16
-    s32i    a7, a0, 12      
+    s32i    a7, a0, 12
     s32i    a6, a0, 8
     s32i    a5, a0, 4
     s32i    a4, a0, 0
@@ -343,7 +343,7 @@ UnderFlowGroup3:
     l32i  a3, a13, 12
     l32i  a2, a13, 8
     l32i  a1, a13, 4
-    l32i  a0, a13, 0  
+    l32i  a0, a13, 0
     addi  a13, a13, 16
 
     addi  a1, a1, -12
@@ -355,8 +355,16 @@ UnderFlowGroup3:
     l32i    a10, a0, 24
     l32i    a9, a0, 20
     l32i    a8, a0, 16
-    l32i    a7, a4, 12      
+    l32i    a7, a4, 12
     l32i    a6, a4, 8
     l32i    a5, a4, 4
     l32i    a4, a4, 0
     rfwu
+
+.global EnableExceptionInterface
+.section    .iram,"ax"
+.type       EnableExceptionInterface,@function
+.align      4
+EnableExceptionInterface:
+    entry   a1,16
+    retw

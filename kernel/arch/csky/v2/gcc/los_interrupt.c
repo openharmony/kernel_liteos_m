@@ -56,6 +56,7 @@
 
 #define OS_USER_HWI_MIN                 0
 #define OS_USER_HWI_MAX                 (LOSCFG_PLATFORM_HWI_LIMIT - 1)
+#define HWI_ALIGNSIZE                   0x400
 
 UINT32 g_intCount = 0;
 CHAR g_trapStackBase[OS_TRAP_STACK_SIZE];
@@ -92,7 +93,7 @@ UINT32 HalIntLock(VOID)
     return intSave;
 }
 
-UINT32 HalIntUnlock(VOID)
+UINT32 HalIntUnLock(VOID)
 {
     UINT32 intSave;
     __asm__ __volatile__(
@@ -181,7 +182,7 @@ UINT32 HalIrqClear(UINT32 hwiNum)
  * @ingroup los_hwi
  * Hardware interrupt form mapping handling function array.
  */
-STATIC HWI_PROC_FUNC __attribute__((aligned(0x100))) g_hwiForm[OS_VECTOR_CNT] = {0};
+STATIC HWI_PROC_FUNC __attribute__((aligned(HWI_ALIGNSIZE))) g_hwiForm[OS_VECTOR_CNT] = {0};
 
 #if (OS_HWI_WITH_ARG == 1)
 

@@ -68,14 +68,28 @@ UINT32 g_stackDefault[] = {
     0x00000000,     /* REG_OFF_LCOUNT */
     0x00000000,     /* REG_OFF_LEND */
     0x00000000,     /* REG_OFF_LBEG */
-    0x00000000,     /* REG_OFF_TMP */
-    0x00000000,     /* REG_OFF_TMP */
-    0x00000000,     /* REG_OFF_TMP */
-    0x00000000,     /* REG_OFF_TMP */
-    0x00000000,     /* REG_OFF_SPILL_RESERVED */
-    0x00000000,     /* REG_OFF_SPILL_RESERVED */
-    0x00000000,     /* REG_OFF_SPILL_RESERVED */
-    0x00000000,     /* REG_OFF_SPILL_RESERVED */
+#if (defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U))
+    0x00000000,     /* REG_OFF_TMP0 */
+    0x00000001,     /* REG_OFF_CPENABLE | CONTEXT_OFF_CPSTORED */
+    0x00000000,     /* REG_OFF_FCR */
+    0x00000000,     /* REG_OFF_FSR */
+    0x00000000,     /* REG_OFF_F0 */
+    0x00000000,     /* REG_OFF_F1 */
+    0x00000000,     /* REG_OFF_F2 */
+    0x00000000,     /* REG_OFF_F3 */
+    0x00000000,     /* REG_OFF_F4 */
+    0x00000000,     /* REG_OFF_F5 */
+    0x00000000,     /* REG_OFF_F6 */
+    0x00000000,     /* REG_OFF_F7 */
+    0x00000000,     /* REG_OFF_F8 */
+    0x00000000,     /* REG_OFF_F9 */
+    0x00000000,     /* REG_OFF_F10 */
+    0x00000000,     /* REG_OFF_F11 */
+    0x00000000,     /* REG_OFF_F12 */
+    0x00000000,     /* REG_OFF_F13 */
+    0x00000000,     /* REG_OFF_F14 */
+    0x00000000,     /* REG_OFF_F15 */
+#endif
     0x00000000,     /* REG_OFF_SPILL_RESERVED */
     0x00000000,     /* REG_OFF_SPILL_RESERVED */
     0x00000000,     /* REG_OFF_SPILL_RESERVED */
@@ -157,7 +171,6 @@ VOID HalTaskSchedule(VOID)
     BOOL isSwitch = OsSchedTaskSwitch();
     if (isSwitch) {
         HalTaskContextSwitch();
-        return;
     }
 
     LOS_IntRestore(intSave);
