@@ -55,7 +55,6 @@ extern EVENT_CB_S g_eventCB3;
 #define TIMER_LOS_SELF_DELETED 1
 
 extern UINT32 g_idleTaskID;
-static UINT32 g_usSwTmrMaxNum;
 
 static UINT32 g_swtmrId1;
 static UINT32 g_swtmrId2;

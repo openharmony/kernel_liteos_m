@@ -31,6 +31,7 @@
 #include "osTest.h"
 #include "It_los_pm.h"
 #include "los_timer.h"
+#include "los_sched.h"
 
 #define TEST_LOOP 5
 static EVENT_CB_S g_pmTestEvent;

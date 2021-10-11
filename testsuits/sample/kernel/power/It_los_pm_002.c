@@ -31,6 +31,7 @@
 #include "osTest.h"
 #include "It_los_pm.h"
 #include "los_timer.h"
+#include "los_sched.h"
 
 #define myprintf // printf
 #define TEST_LOOP 5
@@ -98,7 +99,6 @@ static UINT32 SystemPmEarly(UINT32 mode)
 static VOID SystemPmLate(UINT32 mode)
 {
     UINT32 ret;
-    LosTaskCB *taskCB = NULL;
 
     ICUNIT_ASSERT_EQUAL_VOID(mode, LOS_SYS_LIGHT_SLEEP, mode);
 
@@ -154,12 +154,12 @@ static void TaskSampleEntry2(void)
     while (1) {
         if (g_testSample2Count == TEST_FLAGS) {
             g_testSample2Count = 0;
-            LOS_PmLockRequest("TaskSampleEntry2");
+            (VOID)LOS_PmLockRequest("TaskSampleEntry2");
             myprintf("%s request pm lock\n", __FUNCTION__);
         }
 
         myprintf("TaskSampleEntry2 running...count: %u\n\r", g_testSample2Count);
-        LOS_TaskDelay(20); /* sleep 20 ticks */
+        (VOID)LOS_TaskDelay(20); /* sleep 20 ticks */
 
         if (g_testSample2Count <= TEST_TASK1_LOOP) { /* */
             g_testSample2Count++;
@@ -174,7 +174,7 @@ static void TaskSampleEntry2(void)
         }
     }
 
-    LOS_PmLockRelease("TaskSampleEntry2");
+    (VOID)LOS_PmLockRelease("TaskSampleEntry2");
     myprintf("TaskSampleEntry2 exit\n");
 }
 
@@ -184,7 +184,7 @@ static void TaskSampleEntry1(void)
 
     while (1) {
         if (g_testSample1Count == 0) {
-            LOS_PmLockRequest("TaskSampleEntry1");
+            (VOID)LOS_PmLockRequest("TaskSampleEntry1");
             myprintf("%s request pm lock\n", __FUNCTION__);
         }
 
@@ -205,7 +205,7 @@ static void TaskSampleEntry1(void)
         }
     }
 
-    LOS_PmLockRelease("TaskSampleEntry1");
+    (VOID)LOS_PmLockRelease("TaskSampleEntry1");
     myprintf("TaskSampleEntry1 exit\n");
 }
 

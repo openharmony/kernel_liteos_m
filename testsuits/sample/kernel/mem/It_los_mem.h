@@ -46,6 +46,9 @@ extern "C" {
 
 #define OS_MEM_WATERLINE YES
 
+#define LOS_DLNK_NODE_HEAD_SIZE 0
+#define MIN_DLNK_POOL_SIZE      0
+
 #ifdef OS_MEM_WATERLINE
 #define TEST_MEM_MINIUSE (LOS_DLNK_HEAD_SIZE + LOS_DLNK_NODE_HEAD_SIZE + sizeof(LOS_MEM_POOL_INFO))
 #endif
@@ -84,7 +87,7 @@ struct TestMemNodeHead {
     UINT32 magic;
 #endif
 #if (LOSCFG_MEM_LEAKCHECK == 1)
-    UINTPTR linkReg[LOS_RECORD_LR_CNT];
+    UINTPTR linkReg[LOSCFG_MEM_RECORD_LR_CNT];
 #endif
     union {
         struct TestMemNodeHead *prev; /* The prev is used for current node points to the previous node */

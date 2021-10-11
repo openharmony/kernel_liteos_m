@@ -99,7 +99,7 @@ char *g_strLevel[] = {
     "LEVEL0", "LEVEL1", "LEVEL2", "LEVEL3"
 };
 char *g_strType[] = {
-    "FUNCTITON", "PRESSURE", "PERFORMANCE"
+    "FUNCTION", "PRESSURE", "PERFORMANCE"
 };
 
 iUINT32 ICunitRunF()
@@ -127,7 +127,7 @@ iUINT32 ICunitRunF()
         } else {
             g_failResult++;
             iCunit_Case_FailedCnt++;
-            PRINTF("  [Failed]-%s-%s-%s-%s-%s-[Errline: %d RetCode:0x%x]\n", psubCaseArray->pcCaseID,
+            PRINTF("  [Failed]-%s-%s-%s-%s-%s-[Errline: %d RetCode:0x%lx]\n", psubCaseArray->pcCaseID,
                 g_strLayer[psubCaseArray->testcase_layer], g_strModule[psubCaseArray->testcase_module],
                 g_strLevel[psubCaseArray->testcase_level], g_strType[psubCaseArray->testcase_type],
                 psubCaseArray->errLine, psubCaseArray->retCode);
