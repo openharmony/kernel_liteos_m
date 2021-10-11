@@ -32,7 +32,7 @@
 #include "los_debug.h"
 #include "stdarg.h"
 #include "los_interrupt.h"
-
+#include "los_task.h"
 
 #if (LOSCFG_KERNEL_PRINTF == 1)
 STATIC const CHAR *g_logString[] = {
@@ -91,7 +91,7 @@ INT32 OsLogLevelCheck(INT32 level)
     }
 
     if ((level != LOG_COMMON_LEVEL) && ((level > LOG_EMG_LEVEL) && (level <= LOG_DEBUG_LEVEL))) {
-        PRINTK("[%s]", g_logString[level]);
+        PRINTK("[%s][%s]", g_logString[level], LOS_CurTaskNameGet());
     }
 
     return LOS_OK;
