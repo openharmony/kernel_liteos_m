@@ -47,7 +47,6 @@ UINT32 g_testTaskIdHwi = 0xFFFF;
 static UINT32 Testcase(VOID)
 {
     UINT32           ret;
-    UINT32           loop;
     HWI_PRIOR_T      hwiPrio = 2;
     HWI_MODE_T       mode    = 0;
     HWI_ARG_T        arg     = 0;
@@ -67,7 +66,6 @@ static UINT32 Testcase(VOID)
 
     return LOS_OK;
 
-EXIT:
     LOS_TaskDelete(g_testTaskIdHwi);
     TestHwiDelete(HWI_NUM_TEST);
 
