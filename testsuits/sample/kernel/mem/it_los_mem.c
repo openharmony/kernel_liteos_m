@@ -40,7 +40,7 @@ void MemStart(void)
     g_testPool = LOS_MemAlloc(LOSCFG_SYS_HEAP_ADDR, TEST_POOL_SIZE);
 
     if ((g_memPool == NULL) || (g_testPool == NULL)) {
-        PRINT_ERR("alloc failed , mem TestCase would be failed!!!!%x !!! %x", g_memPool, g_testPool);
+        PRINT_ERR("alloc failed , mem TestCase would be failed!!!!%p !!! %p", g_memPool, g_testPool);
     }
 }
 

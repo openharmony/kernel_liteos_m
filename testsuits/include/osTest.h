@@ -337,6 +337,7 @@ extern VOID ItSuiteLosHwi(void);
 extern VOID ItSuiteLosMem(void);
 extern VOID ItSuiteLosDynlink(void);
 extern VOID ItSuite_Los_FatFs(void);
+extern VOID ItSuiteLosPm(void);
 
 extern VOID ItSuite_Cmsis_Lostask(void);
 extern VOID ItSuite_Cmsis_Lostask_add(void);

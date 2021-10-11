@@ -63,8 +63,10 @@ static UINT32 TestCase(VOID)
         ICUNIT_GOTO_NOT_EQUAL(p0, NULL, 0, EXIT);
         d[i] = p0;
     }
-    if (!((UINT32)(UINTPTR)g_memPool < (UINT32)(UINTPTR)d[0] < (UINT32)(UINTPTR)d[1] < (UINT32)(UINTPTR)p[1]))
+    if (!(((UINT32)(UINTPTR)g_memPool < (UINT32)(UINTPTR)d[0]) && ((UINT32)(UINTPTR)d[0] < (UINT32)(UINTPTR)d[1]) &&
+        ((UINT32)(UINTPTR)d[1] < (UINT32)(UINTPTR)p[1]))) {
         ICUNIT_GOTO_EQUAL(1, 0, 0, EXIT);
+    }
 
 EXIT:
     MemFree();

@@ -58,7 +58,7 @@ static UINT32 TestCase(VOID)
     f0 = LOS_MemAlloc(g_memPool, size / 4); // 4, The reallocated memory size is a quarter of its previous size.
     ICUNIT_GOTO_NOT_EQUAL(f0, NULL, f0, EXIT);
 
-    if (!((UINT32)(UINTPTR)p[0] < (UINT32)(UINTPTR)f0 < (UINT32)(UINTPTR)p[1])) {
+    if (!(((UINT32)(UINTPTR)p[0] < (UINT32)(UINTPTR)f0) && ((UINT32)(UINTPTR)f0 < (UINT32)(UINTPTR)p[1]))) {
         ICUNIT_GOTO_EQUAL(1, 0, 0, EXIT);
     }
 
