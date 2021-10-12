@@ -213,7 +213,7 @@ LITE_OS_SEC_TEXT_MINOR VOID ExecCmdline(const CHAR *cmdline)
         return;
     }
 
-    OsShellInit(0);
+    (VOID)OsShellInit();
 
     /* strip out unnecessary characters */
     ret = PreHandleCmdline(cmdline, &output, &outputlen);

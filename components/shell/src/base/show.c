@@ -46,7 +46,7 @@ STATIC UINT32 OsShellCmdInit(VOID)
     return OsShellSysCmdRegister();
 }
 
-UINT32 OsShellInit(INT32 consoleId)
+UINT32 OsShellInit(VOID)
 {
     if (g_shellSourceFlag == FALSE) {
         UINT32 ret = OsShellCmdInit();
