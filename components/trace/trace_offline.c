@@ -49,21 +49,19 @@ UINT32 OsTraceGetMaskTid(UINT32 tid)
     return tid | ((tid < LOSCFG_BASE_CORE_TSK_LIMIT) ? g_tidMask[tid] << BITS_NUM_FOR_TASK_ID : 0); /* tid < 65535 */
 }
 
-UINT32 OsTraceBufInit(VOID *buf, UINT32 size)
+UINT32 OsTraceBufInit(UINT32 size)
 {
     UINT32 headSize;
-
+    VOID *buf = NULL;
     headSize = sizeof(OfflineHead) + sizeof(ObjData) * LOSCFG_TRACE_OBJ_MAX_NUM;
     if (size <= headSize) {
         TRACE_ERROR("trace buf size not enough than 0x%x\n", headSize);
         return LOS_ERRNO_TRACE_BUF_TOO_SMALL;
     }
 
+    buf = LOS_MemAlloc(m_aucSysMem0, size);
     if (buf == NULL) {
-        buf = LOS_MemAlloc(m_aucSysMem0, size);
-        if (buf == NULL) {
-            return LOS_ERRNO_TRACE_NO_MEMORY;
-        }
+        return LOS_ERRNO_TRACE_NO_MEMORY;
     }
 
     (VOID)memset_s(buf, size, 0, size);
