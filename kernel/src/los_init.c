@@ -187,9 +187,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 
 #if (LOSCFG_KERNEL_TRACE == 1)
-    ret = LOS_TraceInit(NULL, LOSCFG_TRACE_BUFFER_SIZE);
+    ret = OsTraceInit(LOSCFG_TRACE_BUFFER_SIZE);
     if (ret != LOS_OK) {
-        PRINT_ERR("LOS_TraceInit error\n");
+        PRINT_ERR("OsTraceInit error\n");
         return ret;
     }
 #endif
