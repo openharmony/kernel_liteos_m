@@ -3,7 +3,6 @@
 -   [简介](#section11660541593)
 -   [目录](#section161941989596)
 -   [约束](#section119744591305)
--   [使用说明](#section3732185231214)
 -   [相关仓](#section1371113476307)
 
 ## 简介<a name="section11660541593"></a>
@@ -38,29 +37,6 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 开发语言：C/C++；
 
 适用架构：当前只适用于cortex-m3、cortex-m4、cortex-m7、risc-v芯片架构。
-
-## 使用说明<a name="section3732185231214"></a>
-
-LiteOS-M内核提供了三种芯片架构的工程位于targets目录。三种架构的工程编译及使用方式如下：
-
--   cortex-m3：
-
-kernel/liteos\_m/targets/cortex-m3\_stm32f103\_simulator\_keil目录是基于STM32F103芯片架构构建的keil工程目录，keil开发工具可通过网络下载并安装。进入cortex-m3\_stm32f103\_simulator\_keil/project目录，双击los\_demo.uvproj文件即可打开相应工程，编译成功后即可通过JLINK或者STM32 ST-LINK Utility烧录至对应单板。
-
--   cortex-m4：
-
-kernel/liteos\_m/targets/cortex-m4\_stm32f429ig\_fire-challenger\_iar目录是基于STM32F429IG芯片架构构建的IAR工程目录，IAR开发工具可通过网络下载并安装。进入cortex-m4\_stm32f429ig\_fire-challenger\_iar/project目录，双击los\_demo.eww文件即可打开相应工程，编译成功后即可通过JLINK或者STM32 ST-LINK Utility烧录至对应单板。
-
--   cortex-m7：
-
-kernel/liteos\_m/targets/cortex-m7\_nucleo\_f767zi\_gcc目录是基于STM32F767ZI芯片架构构建的Makefile工程目录。编译方式如下：
-
-```
-cd kernel/liteos_m/targets/cortex-m7_nucleo_f767zi_gcc
-make clean; make
-```
-
-编译成功后在cortex-m7\_nucleo\_f767zi\_gcc/build目录下生成NUCLEO-F767.hex可执行文件，通过烧录工具STM32 ST-LINK Utility烧录到对应的单板。
 
 ## 修改日志
 

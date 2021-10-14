@@ -3,7 +3,6 @@
 -   [Introduction](#section11660541593)
 -   [Directory Structure](#section161941989596)
 -   [Constraints](#section119744591305)
--   [Usage](#section3732185231214)
 -   [Repositories Involved](#section1371113476307)
 
 ## Introduction<a name="section11660541593"></a>
@@ -38,29 +37,6 @@ The OpenHarmony LiteOS Cortex-M is the kernel designed for the lightweight opera
 Programming languages: C and C++
 
 Currently applicable architectures: Cortex-M3, Cortex-M4, Cortex-M7, and RISC-V
-
-## Usage<a name="section3732185231214"></a>
-
-LiteOS Cortex-M provides projects for three chip architectures, which are located in the  **targets**  directory. The methods of compiling and using these projects are as follows:
-
--   Cortex-M3:
-
-The  **kernel/liteos\_m/targets/cortex-m3\_stm32f103\_simulator\_keil**  directory is the Keil project directory created based on the STM32F103 chip architecture. You can download and install Keil development tools from the Internet. To compile the Cortex-M3 project, go to the  **cortex-m3\_stm32f103\_simulator\_keil/project**  directory and double-click the  **los\_demo.uvproj**  file to open the desired project. After the compilation is successful, burn the file to the corresponding board using JLINK or STM32 ST-LINK Utility.
-
--   Cortex-M4:
-
-The  **kernel/liteos\_m/targets/cortex-m4\_stm32f429ig\_fire-challenger\_iar**  directory is the IAR project directory created based on the STM32F429IG chip architecture. You can download and install IAR development tools from the Internet. To compile the Cortex-M4 project, go to the  **cortex-m4\_stm32f429ig\_fire-challenger\_iar/project**  directory and double-click the  **los\_demo.eww**  file to open the desired project. After the compilation is successful, burn the file to the corresponding board using JLINK or STM32 ST-LINK Utility.
-
--   Cortex-M7:
-
-The  **kernel/liteos\_m/targets/cortex-m7\_nucleo\_f767zi\_gcc**  directory is the Makefile project directory created based on the STM32F767ZI chip architecture. The compilation commands are as follows:
-
-```
-cd kernel/liteos_m/targets/cortex-m7_nucleo_f767zi_gcc
-make clean; make
-```
-
-After the compilation is successful, the executable file  **NUCLEO-F767.hex**  is generated in the  **cortex-m7\_nucleo\_f767zi\_gcc/build**  directory. Burn the file to the corresponding board using STM32 ST-LINK Utility.
 
 ## Change Log
 
