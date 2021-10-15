@@ -122,6 +122,7 @@ VOID ItSuiteLosTask()
     ItLosTask120();
     ItLosTask121();
     ItLosTask122();
+    ItLosTask123();
 
 #if (LOS_KERNEL_TEST_FULL == 1)
     ItLosTask039();
