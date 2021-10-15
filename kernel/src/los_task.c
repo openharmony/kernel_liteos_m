@@ -1033,6 +1033,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDetach(UINT32 taskID)
         return LOS_ERRNO_TSK_NOT_CREATED;
     }
 
+    if (taskCB->taskStatus & OS_TASK_STATUS_EXIT) {
+        LOS_IntRestore(intSave);
+        return LOS_TaskJoin(taskID, NULL);
+    }
+
     ret = OsTaskSetDetachUnsafe(taskCB);
     LOS_IntRestore(intSave);
     return ret;
