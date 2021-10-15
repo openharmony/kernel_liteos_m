@@ -62,6 +62,9 @@ static UINT32 TestCase(VOID)
 
     ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
 
+    ret = LOS_TaskDelete(taskID);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_NOT_CREATED, ret);
+
     return LOS_OK;
 }
 

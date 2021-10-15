@@ -31,43 +31,41 @@
 #include "osTest.h"
 #include "It_los_task.h"
 
-static VOID *TaskJoinf01(void *argument)
+static VOID *TaskDeatchf01(void *argument)
 {
     g_testCount++;
-
-    return (VOID *)9; /* 9: return val */
+    return NULL;
 }
 
 static UINT32 TestCase(VOID)
 {
-    UINT32 taskID;
     UINT32 ret;
-    UINTPTR uwtemp = 1;
+    UINT32 taskID;
     TSK_INIT_PARAM_S osTaskInitParam = { 0 };
 
     g_testCount = 0;
 
-    osTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskJoinf01;
+    osTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskDeatchf01;
     osTaskInitParam.uwStackSize = OS_TSK_TEST_STACK_SIZE;
-    osTaskInitParam.pcName = "Join";
-    osTaskInitParam.usTaskPrio = TASK_PRIO_TEST;
+    osTaskInitParam.pcName = "deatch";
+    osTaskInitParam.usTaskPrio = TASK_PRIO_TEST - 5; /* 5: Relatively high priority */
     osTaskInitParam.uwResved = LOS_TASK_ATTR_JOINABLE;
 
     ret = LOS_TaskCreate(&taskID, &osTaskInitParam);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
-    ret = LOS_TaskJoin(taskID, &uwtemp);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
-    ICUNIT_ASSERT_EQUAL(uwtemp, 9, uwtemp); /* 8: pthread exit code */
+    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+
+    ret = LOS_TaskDetach(taskID);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     ret = LOS_TaskDelete(taskID);
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_NOT_CREATED, ret);
-
     return LOS_OK;
 }
 
-VOID ItLosTask118(VOID) // IT_Layer_ModuleORFeature_No
+VOID ItLosTask123(VOID) // IT_Layer_ModuleORFeature_No
 {
-    TEST_ADD_CASE("ItLosTask118", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
+    TEST_ADD_CASE("ItLosTask123", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
 }
 
