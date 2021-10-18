@@ -41,9 +41,7 @@
 #include "lwip/icmp.h"
 #include "los_config.h"
 #include <string.h>
-
-#include "shcmd.h"
-#include "shell.h"
+#include <time.h>
 #include "los_debug.h"
 #include "los_task.h"
 
