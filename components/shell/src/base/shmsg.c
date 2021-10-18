@@ -163,7 +163,7 @@ END:
     return ret;
 }
 
-static VOID ParseAndExecCmdline(CmdParsed *cmdParsed, const CHAR *cmdline, UINT32 len)
+STATIC VOID ParseAndExecCmdline(CmdParsed *cmdParsed, const CHAR *cmdline, UINT32 len)
 {
     INT32 i;
     UINT32 ret;
@@ -259,7 +259,7 @@ VOID ShellTaskEntry(VOID)
 LITE_OS_SEC_TEXT_MINOR UINT32 LosShellInit(VOID)
 {
     UINT32 ret;
-    UINT32 taskID1, taskID2;
+    UINT32 taskID1;
     TSK_INIT_PARAM_S task1 = { 0 };
 
     ret = LOS_EventInit(&g_shellInputEvent);

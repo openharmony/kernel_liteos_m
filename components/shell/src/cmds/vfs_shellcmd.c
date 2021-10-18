@@ -67,13 +67,13 @@ typedef enum {
         } \
     } while (0)
 
-int OsShellCmdDoChdir(const char *path)
+INT32 OsShellCmdDoChdir(const CHAR *path)
 {
-    char *fullpath = NULL;
-    char *fullpathBak = NULL;
+    CHAR *fullpath = NULL;
+    CHAR *fullpathBak = NULL;
     DIR *dirent = NULL;
-    int ret;
-    char *shellWorkingDirectory = OsShellGetWorkingDirtectory();
+    INT32 ret;
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirtectory();
     if (shellWorkingDirectory == NULL) {
         return -1;
     }
@@ -100,7 +100,7 @@ int OsShellCmdDoChdir(const char *path)
     }
 
     /* close directory stream */
-    (void)closedir(dirent);
+    (VOID)closedir(dirent);
 
     /* copy full path to working directory */
     LOS_TaskLock();
@@ -117,48 +117,50 @@ int OsShellCmdDoChdir(const char *path)
     return 0;
 }
 
-static char *OsLsGetFullpath(const char *path, struct dirent *pdirent)
+STATIC CHAR *OsLsGetFullpath(const CHAR *path, struct dirent *pdirent)
 {
-    char *fullpath = NULL;
-    int ret;
+    CHAR *fullpath = NULL;
+    INT32 ret;
+    size_t pathLen;
 
     if (path[1] != '\0') {
-        fullpath = (char *)malloc(strlen(path) + strlen(pdirent->d_name) + 2);
+        pathLen = strlen(path) + strlen(pdirent->d_name) + 2; /* 2, path + '/' + d_name + '\0' */
+        fullpath = (CHAR *)malloc(pathLen);
         if (fullpath == NULL) {
             goto exit_with_nomem;
         }
 
-        ret = snprintf_s(fullpath, strlen(path) + strlen(pdirent->d_name) + 2,
-                         strlen(path) + strlen(pdirent->d_name) + 1, "%s/%s", path, pdirent->d_name);
+        ret = snprintf_s(fullpath, pathLen, pathLen, "%s/%s", path, pdirent->d_name);
         if (ret < 0) {
             free(fullpath);
             return NULL;
         }
     } else {
-        fullpath = (char *)malloc(strlen(pdirent->d_name) + 2);
+        pathLen = strlen(pdirent->d_name) + 2; /* 2, '/' + d_name + '\0' */
+        fullpath = (CHAR *)malloc(pathLen);
         if (fullpath == NULL) {
             goto exit_with_nomem;
         }
 
-        ret = snprintf_s(fullpath, strlen(pdirent->d_name) + 2, strlen(pdirent->d_name) + 1,
-                         "/%s", pdirent->d_name);
+        ret = snprintf_s(fullpath, pathLen, pathLen, "/%s", pdirent->d_name);
         if (ret < 0) {
             free(fullpath);
             return NULL;
         }
     }
-return fullpath;
+
+    return fullpath;
 exit_with_nomem:
-    return (char *)NULL;
+    return (CHAR *)NULL;
 }
 
-void OsLs(const char *pathname)
+VOID OsLs(const CHAR *pathname)
 {
     struct dirent *pdirent = NULL;
-    char *path = NULL;
-    char *fullpath = NULL;
-    char *fullpathBak = NULL;
-    int ret;
+    CHAR *path = NULL;
+    CHAR *fullpath = NULL;
+    CHAR *fullpathBak = NULL;
+    INT32 ret;
     struct stat statInfo = { 0 };
     DIR *d = NULL;
 
@@ -184,11 +186,11 @@ void OsLs(const char *pathname)
         do {
             pdirent = readdir(d);
             if (pdirent != NULL) {
-                (void)memset_s(&statInfo, sizeof(struct stat), 0, sizeof(struct stat));
+                (VOID)memset_s(&statInfo, sizeof(struct stat), 0, sizeof(struct stat));
                 fullpath = OsLsGetFullpath(path, pdirent);
                 if (fullpath == NULL) {
                     free(path);
-                    (void)closedir(d);
+                    (VOID)closedir(d);
                     return;
                 }
 
@@ -207,16 +209,16 @@ void OsLs(const char *pathname)
             }
         } while (pdirent != NULL);
 
-        (void)closedir(d);
+        (VOID)closedir(d);
     }
 }
 
-int OsShellCmdLs(int argc, const char **argv)
+INT32 OsShellCmdLs(INT32 argc, const CHAR **argv)
 {
-    char *fullpath = NULL;
-    const char *filename = NULL;
-    int ret;
-    char *shellWorkingDirectory = OsShellGetWorkingDirtectory();
+    CHAR *fullpath = NULL;
+    const CHAR *filename = NULL;
+    INT32 ret;
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirtectory();
     if (shellWorkingDirectory == NULL) {
         return -1;
     }
@@ -238,10 +240,10 @@ int OsShellCmdLs(int argc, const char **argv)
     return 0;
 }
 
-int OsShellCmdCd(int argc, const char **argv)
+INT32 OsShellCmdCd(INT32 argc, const CHAR **argv)
 {
     if (argc == 0) {
-        (void)OsShellCmdDoChdir("/");
+        (VOID)OsShellCmdDoChdir("/");
         return 0;
     }
 
@@ -254,14 +256,14 @@ int OsShellCmdCd(int argc, const char **argv)
 #define CAT_TASK_STACK_SIZE  0x3000
 pthread_mutex_t g_mutex_cat = PTHREAD_MUTEX_INITIALIZER;
 
-int OsShellCmdCat(int argc, const char **argv)
+INT32 OsShellCmdCat(INT32 argc, const CHAR **argv)
 {
-    char *fullpath = NULL;
-    int ret;
+    CHAR *fullpath = NULL;
+    INT32 ret;
     CHAR buf[CAT_BUF_SIZE];
     size_t size;
 
-    char *shellWorkingDirectory = OsShellGetWorkingDirtectory();
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirtectory();
 
     if (shellWorkingDirectory == NULL) {
         return -1;
@@ -272,7 +274,7 @@ int OsShellCmdCat(int argc, const char **argv)
     ret = VfsNormalizePath(shellWorkingDirectory, argv[0], &fullpath);
     ERROR_OUT_IF(ret < 0, SetErr(-ret, "cat error"), return -1);
 
-    int fd = open(fullpath, O_RDONLY, 0666);
+    INT32 fd = open(fullpath, O_RDONLY, 0666);
 
     if (fd == -1) {
         ret = -1;
@@ -280,15 +282,15 @@ int OsShellCmdCat(int argc, const char **argv)
     }
 
     do {
-        (void)memset_s(buf, sizeof(buf), 0, CAT_BUF_SIZE);
+        (VOID)memset_s(buf, sizeof(buf), 0, CAT_BUF_SIZE);
         size = read(fd, buf, CAT_BUF_SIZE - 1);
-        if ((int)size < 0) {
+        if ((INT32)size < 0) {
             free(fullpath);
             close(fd);
             return -1;
         }
         PRINTK("%s", buf);
-        (void)LOS_TaskDelay(1);
+        (VOID)LOS_TaskDelay(1);
     } while (size == CAT_BUF_SIZE);
 
     free(fullpath);
@@ -297,12 +299,12 @@ int OsShellCmdCat(int argc, const char **argv)
     return ret;
 }
 
-int OsShellCmdMkdir(int argc, const char **argv)
+INT32 OsShellCmdMkdir(INT32 argc, const CHAR **argv)
 {
-    int ret;
-    char *fullpath = NULL;
-    const char *filename = NULL;
-    char *shellWorkingDirectory = OsShellGetWorkingDirtectory();
+    INT32 ret;
+    CHAR *fullpath = NULL;
+    const CHAR *filename = NULL;
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirtectory();
     if (shellWorkingDirectory == NULL) {
         return -1;
     }
@@ -321,11 +323,10 @@ int OsShellCmdMkdir(int argc, const char **argv)
     return 0;
 }
 
-int OsShellCmdPwd(int argc, const char **argv)
+INT32 OsShellCmdPwd(INT32 argc, const CHAR **argv)
 {
-    char buf[SHOW_MAX_LEN] = {0};
-    DIR *dir = NULL;
-    char *shellWorkingDirectory = OsShellGetWorkingDirtectory();
+    CHAR buf[SHOW_MAX_LEN] = {0};
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirtectory();
     if (shellWorkingDirectory == NULL) {
         return -1;
     }
@@ -344,13 +345,13 @@ int OsShellCmdPwd(int argc, const char **argv)
     return 0;
 }
 
-int OsShellCmdTouch(int argc, const char **argv)
+INT32 OsShellCmdTouch(INT32 argc, const CHAR **argv)
 {
-    int ret;
-    int fd = -1;
-    char *fullpath = NULL;
-    const char *filename = NULL;
-    char *shellWorkingDirectory = OsShellGetWorkingDirtectory();
+    INT32 ret;
+    INT32 fd = -1;
+    CHAR *fullpath = NULL;
+    const CHAR *filename = NULL;
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirtectory();
     if (shellWorkingDirectory == NULL) {
         return -1;
     }
@@ -368,33 +369,33 @@ int OsShellCmdTouch(int argc, const char **argv)
         return -1;
     }
 
-    (void)close(fd);
+    (VOID)close(fd);
     return 0;
 }
 
 #define CP_BUF_SIZE 4096
 pthread_mutex_t g_mutexCp = PTHREAD_MUTEX_INITIALIZER;
 
-static int OsShellCmdDoCp(const char *srcFilePath, const char *dstFileName)
+STATIC INT32 OsShellCmdDoCp(const CHAR *srcFilePath, const CHAR *dstFileName)
 {
-    int  ret;
-    char *srcFullPath = NULL;
-    char *drcFullPath = NULL;
-    const char *srcFileName = NULL;
-    char *dstFilePath = NULL;
-    char *buf = NULL;
-    const char *filename = NULL;
+    INT32  ret;
+    CHAR *srcFullPath = NULL;
+    CHAR *drcFullPath = NULL;
+    const CHAR *srcFileName = NULL;
+    CHAR *dstFilePath = NULL;
+    CHAR *buf = NULL;
+    const CHAR *filename = NULL;
     size_t rdSize, wrSize;
-    int srcFd = -1;
-    int dstFd = -1;
+    INT32 srcFd = -1;
+    INT32 dstFd = -1;
     struct stat statBuf;
     mode_t srcMode;
-    char *shellWorkingDirectory = OsShellGetWorkingDirtectory();
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirtectory();
     if (shellWorkingDirectory == NULL) {
         return -1;
     }
 
-    buf = (char *)malloc(CP_BUF_SIZE);
+    buf = (CHAR *)malloc(CP_BUF_SIZE);
     if (buf == NULL) {
         PRINTK("cp error: Out of memory!\n");
         return -1;
@@ -461,7 +462,7 @@ static int OsShellCmdDoCp(const char *srcFilePath, const char *dstFileName)
     }
 
     /* Copy begins. */
-    (void)pthread_mutex_lock(&g_mutexCp);
+    (VOID)pthread_mutex_lock(&g_mutexCp);
     srcFd = open(srcFullPath, O_RDONLY);
     if (srcFd < 0) {
         PRINTK("cp error: can't open %s. %s.\n", srcFullPath, strerror(errno));
@@ -475,7 +476,7 @@ static int OsShellCmdDoCp(const char *srcFilePath, const char *dstFileName)
     }
 
     do {
-        (void)memset_s(buf, CP_BUF_SIZE, 0, CP_BUF_SIZE);
+        (VOID)memset_s(buf, CP_BUF_SIZE, 0, CP_BUF_SIZE);
         rdSize = read(srcFd, buf, CP_BUF_SIZE);
         if (rdSize < 0) {
             PRINTK("cp %s %s failed. %s.\n", srcFullPath, drcFullPath, strerror(errno));
@@ -492,17 +493,17 @@ static int OsShellCmdDoCp(const char *srcFilePath, const char *dstFileName)
     free(buf);
     free(srcFullPath);
     free(drcFullPath);
-    (void)close(srcFd);
-    (void)close(dstFd);
-    (void)pthread_mutex_unlock(&g_mutexCp);
+    (VOID)close(srcFd);
+    (VOID)close(dstFd);
+    (VOID)pthread_mutex_unlock(&g_mutexCp);
     return LOS_OK;
 
 errout_with_fd:
-    (void)close(dstFd);
+    (VOID)close(dstFd);
 errout_with_srcfd:
-    (void)close(srcFd);
+    (VOID)close(srcFd);
 errout_with_mutex:
-    (void)pthread_mutex_unlock(&g_mutexCp);
+    (VOID)pthread_mutex_unlock(&g_mutexCp);
 errout_with_path:
     free(drcFullPath);
 errout_with_srcpath:
@@ -514,15 +515,15 @@ errout_with_srcpath:
 /* The separator and EOF for a directory fullpath: '/'and '\0' */
 #define SEPARATOR_EOF_LEN 2
 
-static int OsShellCmdDoRmdir(const char *pathname)
+STATIC INT32 OsShellCmdDoRmdir(const CHAR *pathname)
 {
     struct dirent *dirent = NULL;
     struct stat statInfo;
     DIR *d = NULL;
-    char *fullpath = NULL;
-    int ret;
+    CHAR *fullpath = NULL;
+    INT32 ret;
 
-    (void)memset_s(&statInfo, sizeof(statInfo), 0, sizeof(struct stat));
+    (VOID)memset_s(&statInfo, sizeof(statInfo), 0, sizeof(struct stat));
     if (stat(pathname, &statInfo) != 0) {
         return -1;
     }
@@ -543,34 +544,34 @@ static int OsShellCmdDoRmdir(const char *pathname)
             size_t fullPathBufSize = strlen(pathname) + strlen(dirent->d_name) + SEPARATOR_EOF_LEN;
             if (fullPathBufSize <= 0) {
                 PRINTK("buffer size is invalid!\n");
-                (void)closedir(d);
+                (VOID)closedir(d);
                 return -1;
             }
-            fullpath = (char *)malloc(fullPathBufSize);
+            fullpath = (CHAR *)malloc(fullPathBufSize);
             if (fullpath == NULL) {
                 PRINTK("malloc failure!\n");
-                (void)closedir(d);
+                (VOID)closedir(d);
                 return -1;
             }
             ret = snprintf_s(fullpath, fullPathBufSize, fullPathBufSize - 1, "%s/%s", pathname, dirent->d_name);
             if (ret < 0) {
                 PRINTK("name is too long!\n");
                 free(fullpath);
-                (void)closedir(d);
+                (VOID)closedir(d);
                 return -1;
             }
-            (void)OsShellCmdDoRmdir(fullpath);
+            (VOID)OsShellCmdDoRmdir(fullpath);
             free(fullpath);
         }
     }
-    (void)closedir(d);
+    (VOID)closedir(d);
     return rmdir(pathname);
 }
 
 /*  Wildcard matching operations  */
-static int OsWildcardMatch(const char *src, const char *filename)
+STATIC INT32 OsWildcardMatch(const CHAR *src, const CHAR *filename)
 {
-    int ret;
+    INT32 ret;
 
     if (*src != '\0') {
         if (*filename == '*') {
@@ -616,7 +617,7 @@ static int OsWildcardMatch(const char *src, const char *filename)
 }
 
 /*   To determine whether a wildcard character exists in a path   */
-static int OsIsContainersWildcard(const char *filename)
+STATIC INT32 OsIsContainersWildcard(const CHAR *filename)
 {
     while (*filename != '\0') {
         if ((*filename == '*') || (*filename == '?')) {
@@ -629,9 +630,9 @@ static int OsIsContainersWildcard(const char *filename)
 
 /*  Delete a matching file or directory  */
 
-static int OsWildcardDeleteFileOrDir(const char *fullpath, wildcard_type mark)
+STATIC INT32 OsWildcardDeleteFileOrDir(const CHAR *fullpath, wildcard_type mark)
 {
-    int ret;
+    INT32 ret;
 
     switch (mark) {
         case RM_RECURSIVER:
@@ -658,12 +659,12 @@ static int OsWildcardDeleteFileOrDir(const char *fullpath, wildcard_type mark)
 
 /*  Split the path with wildcard characters  */
 
-static char* OsWildcardSplitPath(char *fullpath, char **handle, char **wait)
+STATIC CHAR *OsWildcardSplitPath(CHAR *fullpath, CHAR **handle, CHAR **wait)
 {
-    int n;
-    int a = 0;
-    int b = 0;
-    int len  = strlen(fullpath);
+    INT32 n;
+    INT32 a = 0;
+    INT32 b = 0;
+    INT32 len  = strlen(fullpath);
 
     for (n = 0; n < len; n++) {
         if (fullpath[n] == '/') {
@@ -688,18 +689,18 @@ static char* OsWildcardSplitPath(char *fullpath, char **handle, char **wait)
 
 /*  Handling entry of the path with wildcard characters  */
 
-static int OsWildcardExtractDirectory(char *fullpath, void *dst, wildcard_type mark)
+STATIC INT32 OsWildcardExtractDirectory(CHAR *fullpath, VOID *dst, wildcard_type mark)
 {
-    char separator[] = "/";
-    char src[PATH_MAX] = {0};
+    CHAR separator[] = "/";
+    CHAR src[PATH_MAX] = {0};
     struct dirent *dirent = NULL;
-    char *f = NULL;
-    char *s = NULL;
-    char *t = NULL;
-    int ret = 0;
+    CHAR *f = NULL;
+    CHAR *s = NULL;
+    CHAR *t = NULL;
+    INT32 ret = 0;
     DIR *d = NULL;
     struct stat statBuf;
-    int deleteFlag = 0;
+    INT32 deleteFlag = 0;
 
     f = OsWildcardSplitPath(fullpath, &s, &t);
 
@@ -709,7 +710,7 @@ static int OsWildcardExtractDirectory(char *fullpath, void *dst, wildcard_type m
         } else if (mark == CP_COUNT) {
             ret = stat(fullpath, &statBuf);
             if (ret == 0 && (S_ISREG(statBuf.st_mode) || S_ISLNK(statBuf.st_mode))) {
-                (*(int *)dst)++;
+                (*(INT32 *)dst)++;
             }
         } else {
             ret = OsWildcardDeleteFileOrDir(fullpath, mark);
@@ -751,8 +752,8 @@ static int OsWildcardExtractDirectory(char *fullpath, void *dst, wildcard_type m
                 } else if (mark == CP_COUNT) {
                     ret = stat(src, &statBuf);
                     if (ret == 0 && (S_ISREG(statBuf.st_mode) || S_ISLNK(statBuf.st_mode))) {
-                        (*(int *)dst)++;
-                        if ((*(int *)dst) > 1) {
+                        (*(INT32 *)dst)++;
+                        if ((*(INT32 *)dst) > 1) {
                             break;
                         }
                     }
@@ -772,32 +773,32 @@ static int OsWildcardExtractDirectory(char *fullpath, void *dst, wildcard_type m
                     goto closedir_out;
                 }
                 ret = OsWildcardExtractDirectory(src, dst, mark);
-                if (mark == CP_COUNT && (*(int *)dst) > 1) {
+                if (mark == CP_COUNT && (*(INT32 *)dst) > 1) {
                     break;
                 }
             }
         }
     }
-    (void)closedir(d);
+    (VOID)closedir(d);
     if (deleteFlag == 1) {
         ret = 0;
     }
     return ret;
 closedir_out:
-    (void)closedir(d);
+    (VOID)closedir(d);
     return VFS_ERROR;
 }
 
-int OsShellCmdCp(int argc, const char **argv)
+INT32 OsShellCmdCp(INT32 argc, const CHAR **argv)
 {
-    int  ret;
-    const char *src = NULL;
-    const char *dst = NULL;
-    char *srcFullPath = NULL;
-    char *drcFullPath = NULL;
+    INT32  ret;
+    const CHAR *src = NULL;
+    const CHAR *dst = NULL;
+    CHAR *srcFullPath = NULL;
+    CHAR *drcFullPath = NULL;
     struct stat statBuf;
-    int count = 0;
-    char *shellWorkingDirectory = OsShellGetWorkingDirtectory();
+    INT32 count = 0;
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirtectory();
     if (shellWorkingDirectory == NULL) {
         return -1;
     }
@@ -847,12 +848,12 @@ int OsShellCmdCp(int argc, const char **argv)
 
     if (OsIsContainersWildcard(srcFullPath)) {
         if (ret < 0 || S_ISREG(statBuf.st_mode) || S_ISLNK(statBuf.st_mode)) {
-            char *srcCopy = strdup(srcFullPath);
+            CHAR *srcCopy = strdup(srcFullPath);
             if (srcCopy == NULL) {
                 PRINTK("cp error : Out of memory.\n");
                 goto errout_with_path;
             }
-            (void)OsWildcardExtractDirectory(srcCopy, &count, CP_COUNT);
+            (VOID)OsWildcardExtractDirectory(srcCopy, &count, CP_COUNT);
             free(srcCopy);
             if (count > 1) {
                 PRINTK("cp error : %s is not a directory.\n", drcFullPath);
@@ -874,17 +875,17 @@ errout_with_srcpath:
     return VFS_ERROR;
 }
 
-static inline void PrintRmUsage(void)
+STATIC INLINE VOID PrintRmUsage(VOID)
 {
     PRINTK("rm [FILE] or rm [-r/-R] [FILE]\n");
 }
 
-int OsShellCmdRm(int argc, const char **argv)
+INT32 OsShellCmdRm(INT32 argc, const CHAR **argv)
 {
-    int  ret;
-    char *fullpath = NULL;
-    const char *filename = NULL;
-    char *shellWorkingDirectory = OsShellGetWorkingDirtectory();
+    INT32  ret;
+    CHAR *fullpath = NULL;
+    const CHAR *filename = NULL;
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirtectory();
 
     if (shellWorkingDirectory == NULL) {
         return -1;
@@ -922,12 +923,12 @@ int OsShellCmdRm(int argc, const char **argv)
     return 0;
 }
 
-int OsShellCmdRmdir(int argc, const char **argv)
+INT32 OsShellCmdRmdir(INT32 argc, const CHAR **argv)
 {
-    int  ret;
-    char *fullpath = NULL;
-    const char *filename = NULL;
-    char *shellWorkingDirectory = OsShellGetWorkingDirtectory();
+    INT32  ret;
+    CHAR *fullpath = NULL;
+    const CHAR *filename = NULL;
+    CHAR *shellWorkingDirectory = OsShellGetWorkingDirtectory();
     if (shellWorkingDirectory == NULL) {
         return -1;
     }

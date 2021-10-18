@@ -32,6 +32,7 @@
 #include "stdlib.h"
 #include "shcmd.h"
 #include "shell.h"
+#include "los_memory.h"
 
 #define MEM_SIZE_1K 0x400
 #define MEM_SIZE_1M 0x100000

@@ -90,7 +90,7 @@ extern UINT32 OsCmdKeyShift(const CHAR *cmdKey, CHAR *cmdOut, UINT32 size);
 extern UINT32 OsShellKeyInit(ShellCB *shellCB);
 extern VOID OsShellKeyDeInit(CmdKeyLink *cmdKeyLink);
 extern UINT32 OsShellSysCmdRegister(VOID);
-extern int VfsNormalizePath(const char *directory, const char *filename, char **pathname);
+extern INT32 VfsNormalizePath(const CHAR *directory, const CHAR *filename, CHAR **pathname);
 extern INT32 OsShellCmdDate(INT32 argc, const CHAR **argv);
 extern INT32 OsShellCmdDumpTask(INT32 argc, const CHAR **argv);
 extern UINT32 OsShellCmdFree(INT32 argc, const CHAR **argv);
@@ -106,7 +106,7 @@ extern INT32 OsShellCmdRmdir(INT32 argc, const CHAR **argv);
 extern INT32 OsShellCmdMkdir(INT32 argc, const CHAR **argv);
 extern INT32 OsShellCmdCp(INT32 argc, const CHAR **argv);
 extern INT32 OsShellCmdHelp(INT32 argc, const CHAR **argv);
-
+extern UINT32 OsCmdInit(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus
