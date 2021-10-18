@@ -38,7 +38,6 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#define LOSCFG_STACK_POINT_ALIGN_SIZE 16
 #define SAVED_REG_NUM                 8
 #define SPILL_WINDOW_SIZE             8
 

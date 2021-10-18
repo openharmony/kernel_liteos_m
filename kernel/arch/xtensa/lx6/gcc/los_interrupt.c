@@ -79,7 +79,7 @@ VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector, VOID *arg)
 #else
 /* *
  * @ingroup los_hwi
- * hardware interrupt handler form mapping handling function array.
+ * Hardware interrupt handler form mapping handling function array.
  */
 STATIC HWI_PROC_FUNC g_hwiHandlerForm[OS_VECTOR_CNT] = {0};
 
