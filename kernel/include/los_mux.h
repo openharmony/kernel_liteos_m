@@ -174,6 +174,16 @@ extern "C" {
 
 /**
  * @ingroup los_mux
+ *
+ * Mutex error code: The API is called in a system-level task, which is forbidden.
+ * Value: 0x02001d0D
+ *
+ * Solution: Do not call the API in system-level tasks.
+ */
+#define LOS_ERRNO_MUX_PEND_IN_SYSTEM_TASK   LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x0D)
+
+/**
+ * @ingroup los_mux
  * @brief Create a mutex.
  *
  * @par Description:

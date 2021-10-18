@@ -241,13 +241,14 @@ extern "C" {
 
 /**
  * @ingroup los_task
- * Task error code: The operation is performed on the idle task.
+ * Task error code: The operation is performed on the system-level task.
  *
  * Value: 0x02000214
  *
- * Solution: Check the task ID and do not operate on the idle task.
+ * Solution: Check the task ID and do not operate on the system-level task.
  */
-#define LOS_ERRNO_TSK_OPERATE_IDLE                  LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x14)
+#define LOS_ERRNO_TSK_OPERATE_SYSTEM_TASK           LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x14)
+#define LOS_ERRNO_TSK_OPERATE_IDLE                  LOS_ERRNO_TSK_OPERATE_SYSTEM_TASK
 
 /**
  * @ingroup los_task
@@ -1283,6 +1284,14 @@ extern UINT32 LOS_TaskDetach(UINT32 taskID);
  * The task exits and waits for the parent thread to reclaim the resource.
  */
 #define OS_TASK_STATUS_EXIT                         0x0100
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task property.
+ *
+ * The task is system-level task, like idle, swtmr and etc.
+ */
+#define OS_TASK_FLAG_SYSTEM_TASK                    0x1000U
 
 /**
  * @ingroup los_task

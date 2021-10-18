@@ -116,6 +116,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsSwtmrTaskCreate(VOID)
     swtmrTask.pcName          = "Swt_Task";
     swtmrTask.usTaskPrio      = 0;
     ret = LOS_TaskCreate(&g_swtmrTaskID, &swtmrTask);
+    if (ret == LOS_OK) {
+        OS_TCB_FROM_TID(g_swtmrTaskID)->taskStatus |= OS_TASK_FLAG_SYSTEM_TASK;
+    }
     return ret;
 }
 
@@ -667,5 +670,3 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrDelete(UINT32 swtmrId)
 }
 
 #endif /* (LOSCFG_BASE_CORE_SWTMR == 1) */
-
-

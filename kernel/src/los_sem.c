@@ -202,6 +202,9 @@ STATIC_INLINE UINT32 OsSemValidCheck(LosSemCB *semPended)
         return LOS_ERRNO_SEM_PEND_IN_LOCK;
     }
 
+    if (g_losTask.runTask->taskStatus & OS_TASK_FLAG_SYSTEM_TASK) {
+        return LOS_ERRNO_SEM_PEND_IN_SYSTEM_TASK;
+    }
     return LOS_OK;
 }
 

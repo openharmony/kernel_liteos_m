@@ -158,6 +158,15 @@ extern "C" {
 
 /**
  * @ingroup los_sem
+ * Semaphore error code: The API is called in a system-level task, which is forbidden.
+ * Value: 0x0200070B
+ *
+ * Solution: Do not call the API in system-level tasks.
+ */
+#define LOS_ERRNO_SEM_PEND_IN_SYSTEM_TASK  LOS_ERRNO_OS_ERROR(LOS_MOD_SEM, 0x0B)
+
+/**
+ * @ingroup los_sem
  * @brief Create a Counting semaphore.
  *
  * @par Description:
