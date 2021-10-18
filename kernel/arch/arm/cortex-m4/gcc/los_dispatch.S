@@ -30,7 +30,7 @@
  */
 .syntax unified
 .arch armv7e-m
-.fpu fpv5-d16
+.fpu fpv4-sp-d16
 .thumb
 
 .equ    OS_FPU_CPACR,                0xE000ED88
