@@ -333,7 +333,7 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
     int ret = 0;
     u32_t intrvl;
     char *data_buf = NULL;
-    BOOL timeout_flag = false;
+    BOOL timeout_flag = FALSE;
     char buf[50];
 
     u32_t destip = parg[0];
@@ -398,14 +398,14 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
         do {
             pfd.events = POLLIN;
             pfd.revents = 0;
-            timeout_flag = false;
+            timeout_flag = FALSE;
             ret = poll(&pfd, 1, LWIP_SHELL_CMD_PING_TIMEOUT);
             if (ret < 0) {
                 perror("Ping: poll\n");
                 goto FAILURE;
             } else if (ret == 0) {
                 /* first type timeout event */
-                timeout_flag = true;
+                timeout_flag = TRUE;
                 break;
             }
 
@@ -445,7 +445,7 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
         } while (timout_ms >= 0);
 
         /* all timeout events are true timeout */
-        if ((timout_ms < 0) || (timeout_flag == true)) {
+        if ((timout_ms < 0) || (timeout_flag == TRUE)) {
             failed_cnt++;
             i++;
             PRINTK("\nPing: destination unreachable ...");
