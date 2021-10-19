@@ -29,8 +29,9 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "lwip/sockets.h"
+#include "lwip/priv/tcpip_priv.h"
 #include "lwip/priv/sockets_priv.h"
-#include <lwip/sockets.h>
 
 #if !LWIP_COMPAT_SOCKETS
 #if LWIP_SOCKET
@@ -186,3 +187,80 @@ unsigned int if_nametoindex(const char *ifname)
 
 #endif
 #endif /* !LWIP_COMPAT_SOCKETS */
+
+#define IOCTL_CMD_CASE_HANDLER() do {                      \
+    err_t  err;                                            \
+    struct lwip_ioctl_apimsg msg;                          \
+    msg.sock = sock;                                       \
+    msg.cmd = cmd;                                         \
+    msg.argp = argp;                                       \
+                                                           \
+    err = tcpip_api_call(lwip_do_ioctl_impl, &msg.call);   \
+    if (err != ENOSYS) {                                   \
+        sock_set_errno(sock, err);                         \
+        done_socket(sock);                                 \
+        return -(err != ERR_OK);                           \
+    }                                                      \
+} while (0)
+
+struct lwip_ioctl_apimsg {
+    struct tcpip_api_call_data call;
+    struct lwip_sock *sock;
+    long cmd;
+    void *argp;
+};
+
+static err_t lwip_do_ioctl_impl(struct tcpip_api_call_data *call);
+
+#include "../api/sockets.c"
+
+static u8_t lwip_ioctl_internal_SIOCGIFBRDADDR(struct ifreq *ifr)
+{
+    struct netif *netif = NULL;
+    struct sockaddr_in *sock_in = NULL;
+
+    /* get netif subnet broadcast addr */
+    netif = netif_find(ifr->ifr_name);
+    if (netif == NULL) {
+        return ENODEV;
+    }
+    if (ip4_addr_isany_val(*(ip_2_ip4(&netif->netmask)))) {
+        return ENXIO;
+    }
+    sock_in = (struct sockaddr_in *)&ifr->ifr_addr;
+    sock_in->sin_family = AF_INET;
+    sock_in->sin_addr.s_addr = (ip_2_ip4(&((netif)->ip_addr))->addr | ~(ip_2_ip4(&netif->netmask)->addr));
+    return 0;
+}
+
+static u8_t lwip_ioctl_impl(const struct lwip_sock *sock, long cmd, void *argp)
+{
+    u8_t err = 0;
+    struct ifreq *ifr = (struct ifreq *)argp;
+    bool is_ipv6 = 0;
+
+    /* allow it only on IPv6 sockets... */
+    is_ipv6 = NETCONNTYPE_ISIPV6((unsigned int)(sock->conn->type));
+
+    switch ((u32_t)cmd) {
+        case SIOCGIFBRDADDR:
+            if (is_ipv6 != 0) {
+                err = EINVAL;
+            } else {
+                err = lwip_ioctl_internal_SIOCGIFBRDADDR(ifr);
+            }
+            break;
+        default:
+            err = ENOSYS;
+            LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_ioctl(UNIMPL: 0x%lx)\n", cmd));
+            break;
+    }
+
+    return err;
+}
+
+static err_t lwip_do_ioctl_impl(struct tcpip_api_call_data *call)
+{
+    struct lwip_ioctl_apimsg *msg = (struct lwip_ioctl_apimsg *)(void *)call;
+    return lwip_ioctl_impl(msg->sock, msg->cmd, msg->argp);
+}
