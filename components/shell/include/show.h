@@ -43,7 +43,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 extern CHAR *OsShellGetWorkingDirtectory(VOID);
-extern UINT32 OsShellInit(INT32 consoleId);
+extern UINT32 OsShellInit(VOID);
 extern INT32 OsShellDeinit(INT32 consoleId);
 
 static inline void SetErrno(int errcode)
