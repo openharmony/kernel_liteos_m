@@ -347,12 +347,12 @@ ssize_t read(int fd, void *buf, size_t nbyte)
         return recv(fd, buf, nbyte, 0);
     }
 #endif
-    if (g_fs->fsFops == NULL || g_fs->fsFops->Read == NULL) {
-        errno = ENOSYS;
-        return FS_FAILURE;
-    }
     if (g_fs == NULL) {
         errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Read == NULL) {
+        errno = ENOSYS;
         return FS_FAILURE;
     }
     return g_fs->fsFops->Read(fd, buf, nbyte);
