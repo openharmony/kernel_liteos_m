@@ -268,7 +268,7 @@ _hwiActiveCheck:
     RBIT  R2, R3
     CLZ   R2, R2
     AND   R12, R12, #1
-    ADD   R2, R2, R12, LSL #5               // calculate R2 (hwi number) as uwPid
+    ADD   R2, R2, R12, LSL #5               // calculate R2 (hwi number) as pid
     .fnend
 
     .type _ExcInMSP, %function
@@ -282,10 +282,7 @@ _ExcInMSP:
     PUSH  {R3}
     MRS   R12, PRIMASK                  // store message-->exc: disable int?
     PUSH {R4-R12}                       // store message-->exc: {R4-R12}
-#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined(__FPU_USED) && (__FPU_USED == 1U)))
     VPUSH {D8-D15}
-#endif
     B     _handleEntry
   .fnend
 
@@ -341,10 +338,7 @@ _hwiActiveCheckNext:
 
     MRS   R12, PRIMASK
     PUSH {R4-R12}
-#if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
-     (defined(__FPU_USED) && (__FPU_USED == 1U)))
     VPUSH {D8-D15}
-#endif
 
     // copy auto saved task register
 
