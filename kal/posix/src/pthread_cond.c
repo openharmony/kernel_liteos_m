@@ -60,6 +60,7 @@ int pthread_condattr_destroy(pthread_condattr_t *attr)
         return EINVAL;
     }
 
+    (VOID)memset_s(attr, sizeof(pthread_condattr_t), 0, sizeof(pthread_condattr_t));
     return 0;
 }
 
@@ -69,6 +70,22 @@ int pthread_condattr_init(pthread_condattr_t *attr)
         return EINVAL;
     }
 
+    attr->clock = CLOCK_REALTIME;
+    return 0;
+}
+
+int pthread_condattr_setclock(pthread_condattr_t *attr, clockid_t clk)
+{
+    if ((attr == NULL) || (clk < 0)) {
+        return EINVAL;
+    }
+
+    if ((clk != CLOCK_REALTIME) && (clk != CLOCK_MONOTONIC) &&
+        (clk != CLOCK_PROCESS_CPUTIME_ID) && (clk != CLOCK_THREAD_CPUTIME_ID)) {
+        return EINVAL;
+    }
+
+    attr->clock = clk;
     return 0;
 }
 
@@ -84,11 +101,17 @@ STATIC INLINE INT32 CondInitCheck(const pthread_cond_t *cond)
 int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr)
 {
     int ret = ENOERR;
+    pthread_condattr_t condAttr;
 
     if (cond == NULL) {
         return EINVAL;
     }
-    (VOID)attr;
+
+    if (attr == NULL) {
+        pthread_condattr_init(&condAttr);
+        attr = &condAttr;
+    }
+
     (VOID)LOS_EventInit(&(cond->event));
 
     cond->mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
@@ -101,6 +124,7 @@ int pthread_cond_init(pthread_cond_t *cond, const pthread_condattr_t *attr)
     cond->value = 0;
     (VOID)pthread_mutex_lock(cond->mutex);
     cond->count = 0;
+    cond->clock = attr->clock;
     (VOID)pthread_mutex_unlock(cond->mutex);
 
     return ret;
@@ -202,12 +226,16 @@ STATIC INT32 ProcessReturnVal(pthread_cond_t *cond, INT32 val)
 }
 
 int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
-                           const struct timespec *absTime)
+                           const struct timespec *ts)
 {
-    UINT32 absTicks;
     INT32 ret;
+    UINT32 absTicks;
+    const UINT32 nsPerTick = OS_SYS_NS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND;
+    struct timespec tp;
+    UINT64 nseconds;
+    UINT64 currTime;
 
-    if ((cond == NULL) || (mutex == NULL) || (absTime == NULL)) {
+    if ((cond == NULL) || (mutex == NULL) || (ts == NULL)) {
         return EINVAL;
     }
 
@@ -222,15 +250,21 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
     cond->count++;
     (VOID)pthread_mutex_unlock(cond->mutex);
 
-    if ((absTime->tv_sec == 0) && (absTime->tv_nsec == 0)) {
-        return ETIMEDOUT;
-    }
-
-    if (!ValidTimeSpec(absTime)) {
+    if (!ValidTimeSpec(ts)) {
         return EINVAL;
     }
 
-    absTicks = OsTimeSpec2Tick(absTime);
+    clock_gettime(cond->clock, &tp);
+    currTime = (UINT64)tp.tv_sec * OS_SYS_NS_PER_SECOND + tp.tv_nsec;
+    nseconds = (UINT64)ts->tv_sec * OS_SYS_NS_PER_SECOND + ts->tv_nsec;
+    if (currTime >= nseconds) {
+        return ETIMEDOUT;
+    }
+    absTicks = ((nseconds - currTime) + nsPerTick - 1) / nsPerTick + 1;
+    if (absTicks >= UINT32_MAX) {
+        return EINVAL;
+    }
+
     if (pthread_mutex_unlock(mutex) != ENOERR) {
         PRINT_ERR("%s: %d failed\n", __FUNCTION__, __LINE__);
     }

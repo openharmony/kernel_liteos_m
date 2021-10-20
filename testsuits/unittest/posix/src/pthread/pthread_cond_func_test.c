@@ -159,9 +159,10 @@ LITE_TEST_CASE(PthreadFuncTestSuite, testPthread002, Function | MediumTest | Lev
 static VOID *pthread_join_f03(void *argument)
 {
     int ret = pthread_detach(pthread_self());
-    ICUNIT_ASSERT_EQUAL(ret, ESRCH, ret);
+    ICUNIT_GOTO_EQUAL(ret, ESRCH, ret, EXIT);
 
     g_testCount++;
+EXIT:
     return NULL;
 }
 
@@ -205,9 +206,10 @@ LITE_TEST_CASE(PthreadFuncTestSuite, testPthread003, Function | MediumTest | Lev
 static VOID *pthread_join_f04(void *argument)
 {
     int ret = pthread_detach(pthread_self());
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     g_testCount++;
+EXIT:
     return NULL;
 }
 
@@ -252,9 +254,10 @@ LITE_TEST_CASE(PthreadFuncTestSuite, testPthread004, Function | MediumTest | Lev
 static VOID *pthread_join_f05(void *argument)
 {
     int ret = pthread_detach(pthread_self());
-    ICUNIT_ASSERT_EQUAL(ret, EINVAL, ret);
+    ICUNIT_GOTO_EQUAL(ret, EINVAL, ret, EXIT);
 
     usleep(100000); /* 100000: sleep 100 ms */
+EXIT:
     return NULL;
 }
 
@@ -291,6 +294,237 @@ LITE_TEST_CASE(PthreadFuncTestSuite, testPthread005, Function | MediumTest | Lev
 
     ret = pthread_join(newTh, NULL);
     ICUNIT_ASSERT_EQUAL(ret, EINVAL, ret);
+
+    return LOS_OK;
+};
+
+static pthread_cond_t g_pthread_cond;
+static pthread_mutex_t g_pthread_mutex;
+#define TEST_THREAD_COUNT 5
+static void *pthread_cond_func001(void *arg)
+{
+    int ret;
+    struct timespec ts;
+
+    g_testCount++;
+
+    ret = pthread_mutex_lock(&g_pthread_mutex);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_sec += 60; /* 60: wait 1 minute */
+
+    ret = pthread_cond_timedwait(&g_pthread_cond, &g_pthread_mutex, &ts);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = pthread_mutex_unlock(&g_pthread_mutex);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    g_testCount++;
+EXIT:
+    return NULL;
+}
+
+static VOID *pthread_f06(void *argument)
+{
+    int policy;
+    int ret;
+    int i;
+    pthread_attr_t attr;
+    struct sched_param schedParam = { 0 };
+    pthread_t thread[TEST_THREAD_COUNT];
+
+    g_testCount = 0;
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = pthread_getschedparam(pthread_self(), &policy, &schedParam);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    schedParam.sched_priority -= 1;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    for (i = 0; i < TEST_THREAD_COUNT; i++) {
+        ret = pthread_create(&thread[i], &attr, pthread_cond_func001, NULL);
+        ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    }
+
+    ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT); /* 5: Five threads */
+
+    ret = pthread_mutex_lock(&g_pthread_mutex);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = pthread_cond_broadcast(&g_pthread_cond);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = pthread_mutex_unlock(&g_pthread_mutex);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ICUNIT_GOTO_EQUAL(g_testCount, 10, g_testCount, EXIT); /* 10: Twice per thread */
+
+    for (i = 0; i < TEST_THREAD_COUNT; i++) {
+        ret = pthread_join(thread[i], NULL);
+        ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    }
+
+EXIT:
+    return NULL;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_006
+ * @tc.name      : event operation for deatch
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread006, Function | MediumTest | Level1)
+{
+    pthread_attr_t attr;
+    pthread_t newTh;
+    struct sched_param schedParam = { 0 };
+    UINT32 ret;
+
+    ret = pthread_mutex_init(&g_pthread_mutex, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_cond_init(&g_pthread_cond, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    schedParam.sched_priority = TASK_PRIO_TEST - 1;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_create(&newTh, &attr, pthread_f06, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_join(newTh, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    return LOS_OK;
+};
+
+static void *pthread_cond_func002(void *arg)
+{
+    int ret;
+    struct timespec ts;
+
+    g_testCount++;
+
+    ret = pthread_mutex_lock(&g_pthread_mutex);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_sec += 60; /* 60: wait 1 minute */
+
+    ret = pthread_cond_timedwait(&g_pthread_cond, &g_pthread_mutex, &ts);
+    ICUNIT_GOTO_EQUAL(ret, ETIMEDOUT, ret, EXIT);
+
+    ret = pthread_mutex_unlock(&g_pthread_mutex);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    g_testCount++;
+
+EXIT:
+    return NULL;
+}
+
+static VOID *pthread_f07(void *argument)
+{
+    int policy;
+    int ret;
+    int i;
+    pthread_attr_t attr;
+    struct sched_param schedParam = { 0 };
+    pthread_t thread[TEST_THREAD_COUNT];
+
+    g_testCount = 0;
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = pthread_getschedparam(pthread_self(), &policy, &schedParam);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    schedParam.sched_priority -= 1;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    for (i = 0; i < TEST_THREAD_COUNT; i++) {
+        ret = pthread_create(&thread[i], &attr, pthread_cond_func002, NULL);
+        ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    }
+
+    ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT); /* 5: Five threads */
+
+    for (i = 0; i < TEST_THREAD_COUNT; i++) {
+        ret = pthread_join(thread[i], NULL);
+        ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    }
+
+    ICUNIT_GOTO_EQUAL(g_testCount, 10, g_testCount, EXIT); /* 10: Twice per thread */
+
+EXIT:
+    return NULL;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_007
+ * @tc.name      : event operation for deatch
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread007, Function | MediumTest | Level1)
+{
+    pthread_attr_t attr;
+    pthread_t newTh;
+    struct sched_param schedParam = { 0 };
+    UINT32 ret;
+
+    ret = pthread_mutex_init(&g_pthread_mutex, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_cond_init(&g_pthread_cond, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    schedParam.sched_priority = TASK_PRIO_TEST - 1;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_create(&newTh, &attr, pthread_f07, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_join(newTh, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     return LOS_OK;
 };
