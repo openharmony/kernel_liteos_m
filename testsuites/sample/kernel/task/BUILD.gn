@@ -152,5 +152,5 @@ static_library("test_task") {
     "It_los_task_123.c",
   ]
 
-  configs += [ "//kernel/liteos_m/testsuits:include" ]
+  configs += [ "//kernel/liteos_m/testsuites:include" ]
 }

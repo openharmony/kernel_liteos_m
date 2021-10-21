@@ -143,5 +143,5 @@ static_library("test_swtmr") {
     "It_los_swtmr_Delay_005.c",
   ]
 
-  configs += [ "//kernel/liteos_m/testsuits:include" ]
+  configs += [ "//kernel/liteos_m/testsuites:include" ]
 }
