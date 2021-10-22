@@ -166,5 +166,5 @@ static_library("test_queue") {
     "Llt_los_queue_001.c",
   ]
 
-  configs += [ "//kernel/liteos_m/testsuits:include" ]
+  configs += [ "//kernel/liteos_m/testsuites:include" ]
 }

@@ -74,5 +74,5 @@ static_library("test_event") {
     "It_los_event_043.c",
   ]
 
-  configs += [ "//kernel/liteos_m/testsuits:include" ]
+  configs += [ "//kernel/liteos_m/testsuites:include" ]
 }
