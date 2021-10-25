@@ -25,8 +25,10 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-import("//kernel/liteos_m/config.gni")
-LWIP_PORTING_DIR = "//kernel/liteos_m/components/net/lwip-2.1"
+
+import("//kernel/liteos_m/liteos.gni")
+
+LWIP_PORTING_DIR = get_path_info(".", "abspath")
 
 LWIP_PORTING_INCLUDE_DIRS = [ "$LWIP_PORTING_DIR/porting/include" ]
 
@@ -40,6 +42,6 @@ LWIP_PORTING_FILES = [
   "$LWIP_PORTING_DIR/enhancement/src/lwip_ifaddrs.c",
 ]
 
-if (enable_ohos_kernel_liteos_m_shell) {
+if (defined(LOSCFG_SHELL)) {
   LWIP_PORTING_FILES += [ "$LWIP_PORTING_DIR/porting/src/api_shell.c" ]
 }

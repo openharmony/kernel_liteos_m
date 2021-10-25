@@ -26,23 +26,14 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/config.gni")
+import("//kernel/liteos_m/liteos.gni")
 
-config("dynlink_config") {
-  include_dirs = [ "./" ]
-  if (arch == "arm") {
-    include_dirs += [ "../../kernel/arch/arm/include" ]
-  } else {
-    assert(false,
-           "Dynlink module does not support for other archs except for arm!")
-  }
+module_switch = defined(LOSCFG_KERNEL_DYNLINK)
+module_name = get_path_info(rebase_path("."), "name")
+kernel_module(module_name) {
+  sources = [ "los_dynlink.c" ]
 }
 
-static_library("dynlink") {
-  sources = [ "los_dynlink.c" ]
-
-  public_configs = [ ":dynlink_config" ]
-  configs += [ "$LITEOSTOPDIR:los_config" ]
-
-  deps = [ "//kernel/liteos_m/kal/posix" ]
+config("public") {
+  include_dirs = [ "." ]
 }

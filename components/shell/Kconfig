@@ -1,0 +1,36 @@
+config SHELL
+    bool "Enable Shell"
+    default n
+    depends on DEBUG_VERSION
+    select USE_SHELL
+    help
+      Answer Y to enable LiteOS support shell cmd.
+
+config USE_SHELL
+    bool
+    default n
+
+menu "Functionality of Shell"
+    depends on SHELL
+
+config SHELL_PRIO
+    int "Shell Task Priority"
+    default 3
+    range 1 31
+    depends on SHELL
+
+config SHELL_LK
+    bool "Enable Shell lk"
+    default y
+    depends on DEBUG_VERSION && SHELL
+    help
+      Answer Y to enable LiteOS support shell lk.
+
+config SHELL_DMESG
+    bool "Enable Shell dmesg"
+    default n
+    depends on DEBUG_VERSION && SHELL && SHELL_CMD_DEBUG
+    help
+      Answer Y to enable LiteOS support shell dmesg.
+
+endmenu

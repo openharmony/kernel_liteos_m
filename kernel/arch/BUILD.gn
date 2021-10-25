@@ -29,24 +29,53 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-module_name = get_path_info(rebase_path("."), "name")
-kernel_module(module_name) {
-  sources = [
-    "src/los_event.c",
-    "src/los_init.c",
-    "src/los_mux.c",
-    "src/los_queue.c",
-    "src/los_sched.c",
-    "src/los_sem.c",
-    "src/los_sortlink.c",
-    "src/los_swtmr.c",
-    "src/los_task.c",
-    "src/los_tick.c",
-    "src/mm/los_membox.c",
-    "src/mm/los_memory.c",
-  ]
+group("arch") {
+  if ("$board_cpu" == "cortex-m3") {
+    deps = [ "arm/cortex-m3/gcc/:arch" ]
+  } else if ("$board_cpu" == "cortex-m4") {
+    deps = [ "arm/cortex-m4/gcc/:arch" ]
+  } else if ("$board_cpu" == "cortex-m7") {
+    deps = [ "arm/cortex-m7/gcc/:arch" ]
+  } else if ("$board_cpu" == "cortex-m33") {
+    if (defined(LOSCFG_SECURE_TRUSTZONE)) {
+      deps = [ "arm/cortex-m33/gcc/TZ:arch" ]
+    } else {
+      deps = [ "arm/cortex-m33/gcc/NTZ:arch" ]
+    }
+  } else if ("$board_cpu" == "ck802" || "$board_cpu" == "e802") {
+    deps = [ "csky/v2/gcc:arch" ]
+  } else if ("$board_cpu" == "") {
+    if ("$board_arch" == "rv32imac" || "$board_arch" == "rv32imafdc") {
+      deps = [ "risc-v/riscv32/gcc:arch" ]
+    } else if ("$board" == "esp32") {
+      deps = [ "xtensa/lx6/gcc:arch" ]
+    }
+  }
 }
 
 config("public") {
   include_dirs = [ "include" ]
+  if (defined(LOSCFG_ARCH_ARM)) {
+    include_dirs += [ "arm/include" ]
+    if (defined(LOSCFG_ARCH_CORTEX_M3)) {
+      include_dirs += [ "arm/cortex-m3/gcc" ]
+    } else if (defined(LOSCFG_ARCH_CORTEX_M4)) {
+      include_dirs += [ "arm/cortex-m4/gcc" ]
+    } else if (defined(LOSCFG_ARCH_CORTEX_M7)) {
+      include_dirs += [ "arm/cortex-m7/gcc" ]
+    } else if (defined(LOSCFG_ARCH_CORTEX_M33)) {
+      if (defined(LOSCFG_TRUSTZONE)) {
+        include_dirs += [ "arm/cortex-m33/gcc/TZ/non_secure" ]
+      } else {
+        include_dirs += [ "arm/cortex-m33/gcc/NTZ" ]
+      }
+    }
+  } else if (defined(LOSCFG_ARCH_RISCV32)) {
+    include_dirs += [ "risc-v/riscv32/gcc" ]
+    include_dirs += [ "risc-v/riscv32/gcc/asm" ]
+  } else if (defined(LOSCFG_ARCH_CSKY)) {
+    include_dirs += [ "csky/v2/gcc" ]
+  } else if (defined(LOSCFG_ARCH_XTENSA)) {
+    include_dirs += [ "xtensa/lx6/gcc" ]
+  }
 }

@@ -202,14 +202,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 #endif
 
-#if (LOSCFG_TEST == 1)
-    ret = los_TestInit();
-    if (ret != LOS_OK) {
-        PRINT_ERR("los_TestInit error\n");
-        return ret;
-    }
-#endif
-
 #if (LOSCFG_PLATFORM_EXC == 1)
     OsExcMsgDumpInit();
 #endif

@@ -93,7 +93,6 @@ typedef struct {
 
 LittleFsHandleStruct *GetFreeFd(int *fd);
 
-int InitMountInfo(const char *fileSystemType, const struct MountOps *fsMops);
 int LfsMount(const char *source, const char *target, const char *fileSystemType, unsigned long mountflags,
     const void *data);
 
@@ -113,8 +112,6 @@ int LfsRename(const char *oldName, const char *newName);
 int LfsStat(const char *path, struct stat *buf);
 int LfsFsync(int fd);
 int SetDefaultMountPath(int pathNameIndex, const char* target);
-
-const struct FsMap *MountFindfs(const char *filesystemtype);
 
 #endif /* _LFS_API_H_ */
 

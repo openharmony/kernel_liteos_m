@@ -27,13 +27,11 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/config.gni")
+import("//kernel/liteos_m/liteos.gni")
 
-config("include") {
-  include_dirs = [ "include" ]
-}
-
-static_library("posix") {
+module_switch = defined(LOSCFG_COMPAT_POSIX)
+module_name = get_path_info(rebase_path("."), "name")
+kernel_module(module_name) {
   sources = [
     "src/errno.c",
     "src/libc.c",
@@ -46,9 +44,8 @@ static_library("posix") {
     "src/semaphore.c",
     "src/time.c",
   ]
+}
 
-  public_configs = [ ":include" ]
-  configs += [ "$LITEOSTOPDIR:los_config" ]
-
-  public_deps = [ "//third_party/musl/porting/liteos_m/kernel" ]
+config("public") {
+  include_dirs = [ "include" ]
 }

@@ -27,32 +27,26 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-static_library("fs_operations") {
-  sources = [ "./fs.c" ]
+import("//kernel/liteos_m/liteos.gni")
 
-  include_dirs = [
-    "../../../kernel/arch/include",
-    "../../../kernel/include",
-    "../../../utils",
-    "../../../kal/posix/include",
-    "./",
-  ]
-
-  deps = [ "//kernel/liteos_m/kal/posix" ]
-}
-
-declare_args() {
-  enable_ohos_kernel_liteos_m_fatfs = true
-  enable_ohos_kernel_liteos_m_littlefs = true
+module_switch = defined(LOSCFG_FS_VFS)
+module_name = "fs_operations"
+kernel_module(module_name) {
+  sources = [ "fs.c" ]
 }
 
 group("fs") {
-  deps = []
-  deps += [ ".:fs_operations" ]
-  if (enable_ohos_kernel_liteos_m_fatfs) {
-    deps += [ "fatfs:fatfs" ]
-  }
-  if (enable_ohos_kernel_liteos_m_littlefs) {
-    deps += [ "littlefs:littlefs" ]
-  }
+  deps = [ ":$module_name" ]
+  deps += [
+    "fatfs",
+    "littlefs",
+  ]
+}
+
+config("public") {
+  include_dirs = [ "." ]
+  configs = [
+    "fatfs:public",
+    "littlefs:public",
+  ]
 }
