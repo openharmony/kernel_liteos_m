@@ -263,6 +263,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 HalHwiDelete(HWI_HANDLE_T hwiNum)
 #define BUSFAULT                        (1 << 17)
 #define MEMFAULT                        (1 << 16)
 #define DIV0FAULT                       (1 << 4)
+#define UNALIGNFAULT                    (1 << 3)
 #define HARDFAULT_IRQN                  (-13)
 
 ExcInfo g_excInfo = {0};
@@ -510,8 +511,9 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
 
     /* Enable USGFAULT, BUSFAULT, MEMFAULT */
     *(volatile UINT32 *)OS_NVIC_SHCSR |= (USGFAULT | BUSFAULT | MEMFAULT);
+	
     /* Enable DIV 0 and unaligned exception */
-    *(volatile UINT32 *)OS_NVIC_CCR |= DIV0FAULT;
+    *(volatile UINT32 *)OS_NVIC_CCR |= (DIV0FAULT | UNALIGNFAULT);
 
     return;
 }
