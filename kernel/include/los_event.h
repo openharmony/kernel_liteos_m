@@ -157,6 +157,15 @@ extern "C" {
 
 /**
  * @ingroup los_event
+ * Event reading error code: The event is being read in a system-level task.
+ * Value: 0x02001c09
+ *
+ * Solution: Read the event in a valid task.
+ */
+#define LOS_ERRNO_EVENT_READ_IN_SYSTEM_TASK LOS_ERRNO_OS_ERROR(LOS_MOD_EVENT, 0x09)
+
+/**
+ * @ingroup los_event
  * Event control structure
  */
 typedef struct tagEvent {

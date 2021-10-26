@@ -108,6 +108,9 @@ LITE_OS_SEC_TEXT UINT32 LOS_EventRead(PEVENT_CB_S eventCB, UINT32 eventMask, UIN
     if (OS_INT_ACTIVE) {
         return LOS_ERRNO_EVENT_READ_IN_INTERRUPT;
     }
+    if (g_losTask.runTask->taskStatus & OS_TASK_FLAG_SYSTEM_TASK) {
+        return LOS_ERRNO_EVENT_READ_IN_SYSTEM_TASK;
+    }
     intSave = LOS_IntLock();
     ret = LOS_EventPoll(&(eventCB->uwEventID), eventMask, mode);
     OsHookCall(LOS_HOOK_TYPE_EVENT_READ, eventCB, eventMask, mode, timeOut);
@@ -204,6 +207,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_EventDestroy(PEVENT_CB_S eventCB)
     OsHookCall(LOS_HOOK_TYPE_EVENT_DESTROY, eventCB);
     return LOS_OK;
 }
+
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 eventMask)
 {
     UINT32 intSave;
@@ -216,5 +220,3 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 eventMa
     LOS_IntRestore(intSave);
     return LOS_OK;
 }
-
-

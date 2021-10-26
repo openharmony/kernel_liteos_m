@@ -876,8 +876,14 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskSuspend(UINT32 taskID)
     taskCB = OS_TCB_FROM_TID(taskID);
     intSave = LOS_IntLock();
     tempStatus = taskCB->taskStatus;
+
     if (tempStatus & OS_TASK_STATUS_UNUSED) {
         retErr = LOS_ERRNO_TSK_NOT_CREATED;
+        OS_GOTO_ERREND();
+    }
+
+    if (tempStatus & OS_TASK_FLAG_SYSTEM_TASK) {
+        retErr = LOS_ERRNO_TSK_OPERATE_SYSTEM_TASK;
         OS_GOTO_ERREND();
     }
 
@@ -1069,6 +1075,10 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
 
     taskCB = OS_TCB_FROM_TID(taskID);
     intSave = LOS_IntLock();
+    if (taskCB->taskStatus & OS_TASK_FLAG_SYSTEM_TASK) {
+        LOS_IntRestore(intSave);
+        return LOS_ERRNO_TSK_OPERATE_SYSTEM_TASK;
+    }
 
     if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
         LOS_IntRestore(intSave);
@@ -1133,6 +1143,9 @@ LITE_OS_SEC_TEXT UINT32 LOS_TaskDelay(UINT32 tick)
         return LOS_ERRNO_TSK_DELAY_IN_LOCK;
     }
 
+    if (g_losTask.runTask->taskStatus & OS_TASK_FLAG_SYSTEM_TASK) {
+        return LOS_ERRNO_TSK_OPERATE_SYSTEM_TASK;
+    }
     OsHookCall(LOS_HOOK_TYPE_TASK_DELAY, tick);
     if (tick == 0) {
         return LOS_TaskYield();
@@ -1200,6 +1213,10 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskPriSet(UINT32 taskID, UINT16 taskPrio)
     if (tempStatus & OS_TASK_STATUS_UNUSED) {
         LOS_IntRestore(intSave);
         return LOS_ERRNO_TSK_NOT_CREATED;
+    }
+    if (tempStatus & OS_TASK_FLAG_SYSTEM_TASK) {
+        LOS_IntRestore(intSave);
+        return LOS_ERRNO_TSK_OPERATE_SYSTEM_TASK;
     }
 
     isReady = OsSchedModifyTaskSchedParam(taskCB, taskPrio);

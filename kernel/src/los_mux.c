@@ -172,6 +172,10 @@ STATIC_INLINE UINT32 OsMuxValidCheck(LosMuxCB *muxPended)
         return LOS_ERRNO_MUX_PEND_IN_LOCK;
     }
 
+    if (g_losTask.runTask->taskStatus & OS_TASK_FLAG_SYSTEM_TASK) {
+        return LOS_ERRNO_MUX_PEND_IN_SYSTEM_TASK;
+    }
+
     return LOS_OK;
 }
 
