@@ -78,7 +78,7 @@ chmod +x ~/openHarmony/device/st/nucleo_f767zi/build.sh
 cp -r ~/nucleo_f767zi/vendor/st ~/openHarmony/vendor/st
 ```
 
-关于示例代码目录的说明，可以参考资料站点[板级目录规范](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/porting/transplant-chip-board-overview.md)。如果需要自行移植开发板，请参考[板级系统移植](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/porting/transplant-chip-board.md)。
+关于示例代码目录的说明，可以参考资料站点[板级目录规范](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/porting/porting-chip-board-overview.md)。如果需要自行移植开发板，请参考[板级系统移植](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/porting/porting-chip-board.md)。
 
 ### 编译运行
 
