@@ -29,9 +29,10 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- .syntax unified
- .arch armv7e-m
- .thumb
+.syntax unified
+.arch armv7e-m
+.fpu fpv4-sp-d16
+.thumb
 .section .text
 
 
@@ -281,7 +282,7 @@ _ExcInMSP:
     PUSH  {R3}
     MRS   R12, PRIMASK                  // store message-->exc: disable int?
     PUSH {R4-R12}                       // store message-->exc: {R4-R12}
-    #VPUSH {D8-D15}                     // FPU
+    VPUSH {D8-D15}                      // FPU
     B     _handleEntry
   .fnend
 
@@ -337,12 +338,13 @@ _hwiActiveCheckNext:
 
     MRS   R12, PRIMASK
     PUSH {R4-R12}
+    VPUSH {D8-D15}                      // FPU
 
     // copy auto saved task register
 
-    LDMFD R3!, {R4-R11}                  // R4-R11 store PSP reg(auto push when exc in task)
-    #VLDMIA  R3!, {D8-D15}               // FPU
-    #VSTMDB  R2!, {D8-D15}               // FPU
+    LDMFD R3!, {R4-R11}                 // R4-R11 store PSP reg(auto push when exc in task)
+    VLDMIA  R3!, {D8-D15}               // FPU
+    VSTMDB  R2!, {D8-D15}               // FPU
     STMFD R2!, {R4-R11}
     B     _handleEntry
   .fnend
