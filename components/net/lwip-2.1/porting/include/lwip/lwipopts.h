@@ -134,7 +134,7 @@
 #define LWIP_NETIF_LOOPBACK             1
 #define LWIP_POSIX_SOCKETS_IO_NAMES     0
 #define LWIP_RAW                        1
-#define LWIP_SOCKET_OFFSET              FAT_MAX_OPEN_FILES
+#define LWIP_SOCKET_OFFSET              0
 #define LWIP_SO_RCVBUF                  1
 #define LWIP_SO_RCVTIMEO                1
 #define LWIP_SO_SNDTIMEO                1
@@ -220,74 +220,10 @@
 #undef LWIP_NETIF_PROMISC
 #define LWIP_NETIF_PROMISC              0
 
-#undef LWIP_ICMP
-#define LWIP_ICMP                       0
-
-#undef LWIP_DHCP
-#define LWIP_DHCP                       1
-
-#undef LWIP_IGMP
-#define LWIP_IGMP                       0
+#define MEMP_MEM_MALLOC                 1
 
 #undef LWIP_IPV6
 #define LWIP_IPV6                       0
-
-#undef LWIP_IPV6_DHCP6
-#define LWIP_IPV6_DHCP6                 0
-
-#undef TCP_SND_BUF
-#define TCP_SND_BUF                     (65535 / 3)
-
-#undef TCP_WND
-#define TCP_WND                         ((TCP_SND_BUF * 2) / 3)
-
-#undef TCP_SND_QUEUELEN
-#define TCP_SND_QUEUELEN                (2 * (TCP_SND_BUF / TCP_MSS))
-
-#undef MEMP_NUM_NETDB
-#define MEMP_NUM_NETDB                  1
-
-#undef MEMP_NUM_ARP_QUEUE
-#define MEMP_NUM_ARP_QUEUE              4
-
-#undef MEMP_NUM_NETBUF
-#define MEMP_NUM_NETBUF                 32
-
-#undef MEMP_NUM_NETCONN
-#define MEMP_NUM_NETCONN                32
-
-#undef MEMP_NUM_PBUF
-#define MEMP_NUM_PBUF                   0
-
-#undef PBUF_POOL_SIZE
-#define PBUF_POOL_SIZE                  0
-
-#undef MEMP_NUM_RAW_PCB
-#define MEMP_NUM_RAW_PCB                8
-
-#undef MEMP_NUM_REASSDATA
-#define MEMP_NUM_REASSDATA              12
-
-#undef MEMP_NUM_TCPIP_MSG_API
-#define MEMP_NUM_TCPIP_MSG_API          32
-
-#undef MEMP_NUM_TCPIP_MSG_INPKT
-#define MEMP_NUM_TCPIP_MSG_INPKT        32
-
-#undef MEMP_NUM_TCP_PCB
-#define MEMP_NUM_TCP_PCB                8
-
-#undef MEMP_NUM_TCP_PCB_LISTEN
-#define MEMP_NUM_TCP_PCB_LISTEN         4
-
-#undef MEMP_NUM_TCP_SEG
-#define MEMP_NUM_TCP_SEG                64
-
-#undef MEMP_NUM_UDP_PCB
-#define MEMP_NUM_UDP_PCB                4
-
-#undef TCPIP_THREAD_STACKSIZE
-#define TCPIP_THREAD_STACKSIZE          0x1000
 
 #undef LWIP_SOCKET_SELECT
 #define LWIP_SOCKET_SELECT              1
