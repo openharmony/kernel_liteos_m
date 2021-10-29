@@ -105,6 +105,5 @@ extern void LwipLogPrintf(const char *fmt, ...);
 
 #define init_waitqueue_head(...)
 #define poll_check_waiters(...)
-#define IOCTL_CMD_CASE_HANDLER()
 
 #endif /* _LWIP_PORTING_CC_H_ */

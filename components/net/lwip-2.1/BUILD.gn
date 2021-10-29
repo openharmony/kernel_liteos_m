@@ -44,6 +44,8 @@ static_library("lwip") {
 
   sources = LWIP_PORTING_FILES + LWIPNOAPPSFILES
 
+  sources -= [ "$LWIPDIR/api/sockets.c" ]
+
   configs += [ ":lwip_depends" ]
 
   deps = [ "//kernel/liteos_m/kal/posix" ]
