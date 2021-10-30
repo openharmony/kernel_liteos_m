@@ -161,6 +161,27 @@ int inet_pton(int af, const char *src, void *dst)
     return lwip_inet_pton(af, src, dst);
 }
 
+#ifndef LWIP_INET_ADDR_FUNC
+in_addr_t inet_addr(const char *cp)
+{
+    return ipaddr_addr(cp);
+}
+#endif
+
+#ifndef LWIP_INET_NTOA_FUNC
+char *inet_ntoa(struct in_addr addr)
+{
+    return ip4addr_ntoa((const ip4_addr_t*)&(addr));
+}
+#endif
+
+#ifndef LWIP_INET_ATON_FUNC
+int inet_aton(const char *cp, struct in_addr *addr)
+{
+    return ip4addr_aton(cp, (ip4_addr_t*)addr);
+}
+#endif
+
 int ioctlsocket(int s, long cmd, void *argp)
 {
     return lwip_ioctl(s, cmd, argp);
