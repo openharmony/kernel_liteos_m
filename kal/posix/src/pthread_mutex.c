@@ -31,6 +31,7 @@
 
 #include <pthread.h>
 #include <time.h>
+#include <securec.h>
 #include "los_compiler.h"
 #include "los_mux.h"
 #include "errno.h"
@@ -61,13 +62,53 @@ static inline int MapError(UINT32 err)
     }
 }
 
+int pthread_mutexattr_init(pthread_mutexattr_t *mutexAttr)
+{
+    if (mutexAttr == NULL) {
+        return EINVAL;
+    }
+
+    mutexAttr->type = PTHREAD_MUTEX_RECURSIVE;
+    return 0;
+}
+
+int pthread_mutexattr_settype(pthread_mutexattr_t *mutexAttr, int type)
+{
+    if (mutexAttr == NULL) {
+        return EINVAL;
+    }
+
+    if (((unsigned)type != PTHREAD_MUTEX_NORMAL) &&
+        ((unsigned)type != PTHREAD_MUTEX_RECURSIVE) &&
+        ((unsigned)type != PTHREAD_MUTEX_ERRORCHECK)) {
+        return EINVAL;
+    }
+
+    if ((unsigned)type != PTHREAD_MUTEX_RECURSIVE) {
+        return EOPNOTSUPP;
+    }
+
+    mutexAttr->type = PTHREAD_MUTEX_RECURSIVE;
+    return 0;
+}
+
+int pthread_mutexattr_destroy(pthread_mutexattr_t *mutexAttr)
+{
+    if (mutexAttr == NULL) {
+        return EINVAL;
+    }
+
+    (VOID)memset_s(mutexAttr, sizeof(pthread_mutexattr_t), 0, sizeof(pthread_mutexattr_t));
+    return 0;
+}
+
 /* Initialize mutex. If mutexAttr is NULL, use default attributes. */
 int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexAttr)
 {
     UINT32 muxHandle;
     UINT32 ret;
 
-    if (mutexAttr != NULL) {
+    if ((mutexAttr != NULL) && (mutexAttr->type != PTHREAD_MUTEX_RECURSIVE)) {
         return EOPNOTSUPP;
     }
 
