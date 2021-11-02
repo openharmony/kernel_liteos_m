@@ -42,7 +42,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 extern UINT32 ShellMsgTypeGet(CmdParsed *cmdParsed, const CHAR *cmdType);
-extern void ExecCmdline(const char *cmdline);
+extern VOID ExecCmdline(const CHAR *cmdline);
 
 #define SHELL_CMD_PARSE_EVENT   0x111
 

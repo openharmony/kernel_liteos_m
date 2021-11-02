@@ -29,6 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <securec.h>
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
@@ -39,9 +40,9 @@
 
 #define TEMP_PATH_MAX (PATH_MAX + SHOW_MAX_LEN)
 
-static unsigned int VfsStrnlen(const char *str, size_t maxlen)
+STATIC UINT32 VfsStrnlen(const CHAR *str, size_t maxlen)
 {
-    const char *p = NULL;
+    const CHAR *p = NULL;
 
     for (p = str; ((maxlen-- != 0) && (*p != '\0')); ++p) {}
 
@@ -49,10 +50,10 @@ static unsigned int VfsStrnlen(const char *str, size_t maxlen)
 }
 
 /* abandon the redundant '/' in the path, only keep one. */
-static char *StrPath(char *path)
+STATIC CHAR *StrPath(CHAR *path)
 {
-    char *dest = path;
-    char *src = path;
+    CHAR *dest = path;
+    CHAR *src = path;
 
     while (*src != '\0') {
         if (*src == '/') {
@@ -68,7 +69,7 @@ static char *StrPath(char *path)
     return path;
 }
 
-static void StrRemovePathEndSlash(char *dest, const char *fullpath)
+STATIC VOID StrRemovePathEndSlash(CHAR *dest, const CHAR *fullpath)
 {
     if ((*dest == '.') && (*(dest - 1) == '/')) {
         *dest = '\0';
@@ -79,10 +80,10 @@ static void StrRemovePathEndSlash(char *dest, const char *fullpath)
     }
 }
 
-static char *StrNormalizePath(char *fullpath)
+STATIC CHAR *StrNormalizePath(CHAR *fullpath)
 {
-    char *dest = fullpath;
-    char *src = fullpath;
+    CHAR *dest = fullpath;
+    CHAR *src = fullpath;
 
     /* 2: The position of the path character: / and the end character /0 */
     while (*src != '\0') {
@@ -131,10 +132,10 @@ static char *StrNormalizePath(char *fullpath)
     return dest;
 }
 
-static int VfsNormalizePathParameCheck(const char *filename, char **pathname)
+STATIC INT32 VfsNormalizePathParameCheck(const CHAR *filename, CHAR **pathname)
 {
-    int namelen;
-    char *name = NULL;
+    INT32 namelen;
+    CHAR *name = NULL;
 
     if (pathname == NULL) {
         return -EINVAL;
@@ -156,7 +157,7 @@ static int VfsNormalizePathParameCheck(const char *filename, char **pathname)
         return -ENAMETOOLONG;
     }
 
-    for (name = (char *)filename + namelen; ((name != filename) && (*name != '/')); name--) {
+    for (name = (CHAR *)filename + namelen; ((name != filename) && (*name != '/')); name--) {
         if (strlen(name) > NAME_MAX) {
             *pathname = NULL;
             return -ENAMETOOLONG;
@@ -166,47 +167,47 @@ static int VfsNormalizePathParameCheck(const char *filename, char **pathname)
     return namelen;
 }
 
-static char *VfsNotAbsolutePath(const char *directory, const char *filename, char **pathname, int namelen)
+STATIC CHAR *VfsNotAbsolutePath(const CHAR *directory, const CHAR *filename, CHAR **pathname, INT32 namelen)
 {
-    int ret;
-    char *fullpath = NULL;
+    INT32 ret;
+    CHAR *fullpath = NULL;
 
     /* 2: The position of the path character: / and the end character /0 */
 
     if ((namelen > 1) && (filename[0] == '.') && (filename[1] == '/')) {
-        filename += 2; /* 2, sizeof "./" */
+        filename += 2; /* 2, size of "./" */
     }
 
-    fullpath = (char *)malloc(strlen(directory) + namelen + 2);
+    fullpath = (CHAR *)malloc(strlen(directory) + namelen + 2); /* 2, size of "./" */
     if (fullpath == NULL) {
         *pathname = NULL;
         SetErrno(ENOMEM);
-        return (char *)NULL;
+        return (CHAR *)NULL;
     }
 
-    /* 2, sizeof "./", join path and file name */
+    /* 2, size of "./", join path and file name */
     ret = snprintf_s(fullpath, strlen(directory) + namelen + 2, strlen(directory) + namelen + 1,
                      "%s/%s", directory, filename);
     if (ret < 0) {
         *pathname = NULL;
         free(fullpath);
         SetErrno(ENAMETOOLONG);
-        return (char *)NULL;
+        return (CHAR *)NULL;
     }
 
     return fullpath;
 }
 
-static char *VfsNormalizeFullpath(const char *directory, const char *filename, char **pathname, int namelen)
+STATIC CHAR *VfsNormalizeFullpath(const CHAR *directory, const CHAR *filename, CHAR **pathname, INT32 namelen)
 {
-    char *fullpath = NULL;
+    CHAR *fullpath = NULL;
 
     if (filename[0] != '/') {
         /* not a absolute path */
 
         fullpath = VfsNotAbsolutePath(directory, filename, pathname, namelen);
         if (fullpath == NULL) {
-            return (char *)NULL;
+            return (CHAR *)NULL;
         }
     } else {
         /* it's a absolute path, use it directly */
@@ -215,23 +216,23 @@ static char *VfsNormalizeFullpath(const char *directory, const char *filename, c
         if (fullpath == NULL) {
             *pathname = NULL;
             SetErrno(ENOMEM);
-            return (char *)NULL;
+            return (CHAR *)NULL;
         }
         if (filename[1] == '/') {
             *pathname = NULL;
             free(fullpath);
             SetErrno(EINVAL);
-            return (char *)NULL;
+            return (CHAR *)NULL;
         }
     }
 
     return fullpath;
 }
 
-int VfsNormalizePath(const char *directory, const char *filename, char **pathname)
+INT32 VfsNormalizePath(const CHAR *directory, const CHAR *filename, CHAR **pathname)
 {
-    char *fullpath = NULL;
-    int namelen;
+    CHAR *fullpath = NULL;
+    INT32 namelen;
 
     namelen = VfsNormalizePathParameCheck(filename, pathname);
     if (namelen < 0) {
@@ -254,8 +255,8 @@ int VfsNormalizePath(const char *directory, const char *filename, char **pathnam
         return -errno;
     }
 
-    (void)StrPath(fullpath);
-    (void)StrNormalizePath(fullpath);
+    (VOID)StrPath(fullpath);
+    (VOID)StrNormalizePath(fullpath);
     if (strlen(fullpath) >= PATH_MAX) {
         *pathname = NULL;
         free(fullpath);

@@ -330,14 +330,14 @@ ShellCB *OsGetShellCb(VOID)
     return g_shellCB;
 }
 
-char *OsShellGetWorkingDirtectory(VOID)
+CHAR *OsShellGetWorkingDirtectory(VOID)
 {
     return OsGetShellCb()->shellWorkingDirectory;
 }
 
 VOID OsShellCBInit(VOID)
 {
-    int ret;
+    INT32 ret;
     ShellCB *shellCB = NULL;
 
     shellCB = (ShellCB *)malloc(sizeof(ShellCB));
@@ -349,17 +349,17 @@ VOID OsShellCBInit(VOID)
         goto ERR_OUT1;
     }
 
-    ret = (int)OsShellKeyInit(shellCB);
+    ret = (INT32)OsShellKeyInit(shellCB);
     if (ret != SH_OK) {
         goto ERR_OUT1;
     }
-    (void)strncpy_s(shellCB->shellWorkingDirectory, PATH_MAX, "/", 2); /* 2:space for "/" */
+    (VOID)strncpy_s(shellCB->shellWorkingDirectory, PATH_MAX, "/", 2); /* 2:space for "/" */
 
     g_shellCB = shellCB;
     return;
 
 ERR_OUT1:
-    (void)free(shellCB);
+    (VOID)free(shellCB);
     return;
 }
 

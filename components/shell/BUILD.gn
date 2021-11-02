@@ -50,6 +50,8 @@ static_library("shell") {
     "./include",
   ]
 
+  configs += [ "$LITEOSTOPDIR:los_config" ]
+
   if (enable_ohos_kernel_liteos_m_lwip) {
     defines = [ "LWIP_SHELLCMD_ENABLE" ]
   }

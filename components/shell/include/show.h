@@ -46,12 +46,12 @@ extern CHAR *OsShellGetWorkingDirtectory(VOID);
 extern UINT32 OsShellInit(VOID);
 extern INT32 OsShellDeinit(INT32 consoleId);
 
-static inline void SetErrno(int errcode)
+STATIC INLINE VOID SetErrno(INT32 errcode)
 {
     errno = errcode;
 }
 
-static inline void SetErr(int errcode, const char *errMessage)
+STATIC INLINE VOID SetErr(INT32 errcode, const CHAR *errMessage)
 {
     SetErrno(errcode);
     PRINTK(errMessage);
