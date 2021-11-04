@@ -105,7 +105,7 @@ The LiteOS-M kernel porting projects for specific development boards are provide
 
 -   Cortex-M3:
 
-    - STM32F103   https://gitee.com/rtos_lover/stm32f103_simulator_keil
+    - STM32F103（https://gitee.com/rtos_lover/stm32f103_simulator_keil）
 
         This repository provides the Keil project code for building the OpenHarmony LiteOS-M kernel based on the STM32F103 chip architecture. This code supports build in Keil MDK mode.
 
@@ -123,6 +123,6 @@ The LiteOS-M kernel porting projects for specific development boards are provide
 
 ## Repositories Involved<a name="section1371113476307"></a>
 
-[Kernel Subsystem](https://gitee.com/openharmony/docs/blob/HEAD/en/readme/%E5%86%85%E6%A0%B8%E5%AD%90%E7%B3%BB%E7%BB%9F.md)
+[Kernel Subsystem](https://gitee.com/Annie_wang/docs/blob/master/en/readme/kernel-subsystem.md)
 
 **kernel\_liteos\_m**
