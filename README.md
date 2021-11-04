@@ -8,9 +8,11 @@
 
 ## Introduction<a name="section11660541593"></a>
 
-OpenHarmony LiteOS-M is a lightweight operating system kernel designed for the Internet of Things (IoT) field. It features small footprint, low power consumption, and high performance. It has a simple code structure, including the minimum kernel function set, kernel abstraction layer, optional components, and project directory. The LiteOS-M kernel is divided into the hardware layer and hardware-irrelevant layers. The hardware layer provides a unified hardware abstraction layer (HAL) interface for easier hardware adaptation. A range of compilation toolchains can be used with different chip architectures to meet the expansion of diversified hardware and compilation toolchains in the Artificial Intelligence of Things (AIoT) field.**Figure1** shows the architecture of the LiteOS-M kernel.
+OpenHarmony LiteOS-M is a lightweight operating system kernel designed for the Internet of Things (IoT) field. It features small footprint, low power consumption, and high performance. It has a simple code structure, including the minimum kernel function set, kernel abstraction layer, optional components, and project directory. The LiteOS-M kernel is divided into the hardware layer and hardware-irrelevant layers. The hardware layer provides a unified hardware abstraction layer (HAL) interface for easier hardware adaptation. A range of compilation toolchains can be used with different chip architectures to meet the expansion of diversified hardware and compilation toolchains in the Artificial Intelligence of Things (AIoT) field.
+**Figure1** shows the architecture of the LiteOS-M kernel.
 
 **Figure 1** Architecture of the OpenHarmony LiteOS-M kernel<a name="fig0865152210223"></a>
+
 ![](figures/architecture-of-openharmony-the-liteos-cortex-m-kernel.png "OpenHarmony-LiteOS-M Kernel Architecture")
 
 ## Directory Structure<a name="section161941989596"></a>
@@ -56,7 +58,7 @@ Before setting up the environment for a development board, you must set up the b
 
 ### Obtaining the OpenHarmony Source Code
 
-Obtain the latest OpenHarmony source code through Git clone on a Linux server. For details about how to obtain the source code, see [Source Code Acquisition](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/get-code/sourcecode-acquire.md). This document assumes that the clone directory is `~/openHarmony` after the complete OpenHarmony repository code is obtained.
+Obtain the latest OpenHarmony source code through Git clone on a Linux server. For details about how to obtain the source code, see [Source Code Acquisition](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/quick-start/quickstart-lite-env-setup-linux.md). This document assumes that the clone directory is `~/openHarmony` after the complete OpenHarmony repository code is obtained.
 
 ### Obtaining the Source Code of the Sample Project
 
