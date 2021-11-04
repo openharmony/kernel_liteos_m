@@ -85,7 +85,9 @@ For details about the directory of the sample code, see [Board-Level Directory S
 ### Building and Running
 
 Before the build, configure the **bin** directory of the cross compilation toolchain in the **PATH** environment variable or set **board&#95;toolchain&#95;path** in the **device/st/nucleo&#95;f767zi/liteos&#95;m/config.gni** file to the **bin** directory of the cross compilation toolchain.
-In the **OpenHarmony** root directory, run the **hb set** command to set the product path, select **nucleo_f767zi**, and run the **hb build** command to start the build. Example:
+In the **OpenHarmony** root directory, run the **hb set** command to set the product path, select **nucleo_f767zi**, and run the **hb build** command to start the build. 
+
+Example:
 
 ```
 user@dev:~/OpenHarmony$ hb set
