@@ -49,14 +49,15 @@ extern "C" {
 #endif /* __cplusplus */
 
 #if (LOSCFG_DEBUG_HOOK == 1)
+typedef VOID *VOID_PTR;
 #define LOS_HOOK_ALL_TYPES_DEF                                                                              \
     /* Hook types supported by memory modules */                                                            \
-    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_INIT, (VOID *pool, UINT32 size))                                    \
-    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_DEINIT, (VOID *pool))                                               \
-    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_ALLOC, (VOID *pool, VOID *ptr, UINT32 size))                        \
-    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_FREE, (VOID *pool, VOID *ptr))                                      \
-    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_REALLOC, (VOID *pool, VOID *ptr, UINT32 size))                      \
-    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_ALLOCALIGN, (VOID *pool, VOID *ptr, UINT32 size, UINT32 boundary))  \
+    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_INIT, (VOID_PTR pool, UINT32 size))                                 \
+    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_DEINIT, (VOID_PTR pool))                                            \
+    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_ALLOC, (VOID_PTR pool, VOID_PTR ptr, UINT32 size))                  \
+    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_FREE, (VOID_PTR pool, VOID_PTR ptr))                                \
+    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_REALLOC, (VOID_PTR pool, VOID_PTR ptr, UINT32 size))                \
+    LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_MEM_ALLOCALIGN, (VOID_PTR pool, VOID_PTR ptr, UINT32 size, UINT32 boundary))  \
     /* Hook types supported by event modules */                                                             \
     LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_EVENT_INIT, (PEVENT_CB_S eventCB))                                      \
     LOS_HOOK_TYPE_DEF(LOS_HOOK_TYPE_EVENT_READ, (PEVENT_CB_S eventCB, UINT32 eventMask, UINT32 mode,        \
