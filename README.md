@@ -58,7 +58,7 @@ Before setting up the environment for a development board, you must set up the b
 
 ### Obtaining the OpenHarmony Source Code
 
-Obtain the latest OpenHarmony source code through Git clone on a Linux server. For details about how to obtain the source code, see [Source Code Acquisition](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/quick-start/quickstart-lite-env-setup-linux.md). This document assumes that the clone directory is `~/openHarmony` after the complete OpenHarmony repository code is obtained.
+Obtain the latest OpenHarmony source code through Git clone on a Linux server. For details about how to obtain the source code, see [Source Code Acquisition](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/get-code/sourcecode-acquire.md). This document assumes that the clone directory is `~/openHarmony` after the complete OpenHarmony repository code is obtained.
 
 ### Obtaining the Source Code of the Sample Project
 
@@ -107,19 +107,19 @@ The LiteOS-M kernel porting projects for specific development boards are provide
 
 -   Cortex-M3:
 
-    - STM32F103 (https://gitee.com/rtos_lover/stm32f103_simulator_keil）
+    - STM32F103 https://gitee.com/rtos_lover/stm32f103_simulator_keil
 
         This repository provides the Keil project code for building the OpenHarmony LiteOS-M kernel based on the STM32F103 chip architecture. This code supports build in Keil MDK mode.
 
 -   Cortex-M4:
 
-    - STM32F429IGTb (https://gitee.com/harylee/stm32f429ig_firechallenger)
+    - STM32F429IGTb https://gitee.com/harylee/stm32f429ig_firechallenger
 
         This repository provides the project code for porting the OpenHarmony LiteOS-M kernel to support the STM32F429IGTb development board. The code supports build in Ninja, GCC, and IAR modes.
 
 -   Cortex-M7:
 
-    - Nucleo-F767ZI (https://gitee.com/harylee/nucleo_f767zi)
+    - Nucleo-F767ZI https://gitee.com/harylee/nucleo_f767zi
 
         This repository provides the project code for porting the OpenHarmony LiteOS-M kernel to support the Nucleo-F767ZI development board. The code supports build in Ninja, GCC, and IAR modes.
 
