@@ -276,6 +276,7 @@ int OsShellCmdCat(int argc, const char **argv)
 
     if (fd == -1) {
         ret = -1;
+        free(fullpath);
         return ret;
     }
 

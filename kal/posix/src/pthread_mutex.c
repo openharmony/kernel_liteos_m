@@ -38,6 +38,7 @@
 
 #define OS_SYS_NS_PER_MSECOND 1000000
 #define OS_SYS_NS_PER_SECOND  1000000000
+#define OS_UINT_MAX (~0U)
 
 static inline int MapError(UINT32 err)
 {
@@ -99,8 +100,7 @@ int pthread_mutex_destroy(pthread_mutex_t *mutex)
 int pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct timespec *absTimeout)
 {
     UINT32 ret;
-    UINT32 timeout;
-    UINT64 timeoutNs;
+    INT64 timeoutMs;
     struct timespec curTime = {0};
     if ((mutex->magic != _MUX_MAGIC) || (absTimeout->tv_nsec < 0) || (absTimeout->tv_nsec >= OS_SYS_NS_PER_SECOND)) {
         return EINVAL;
@@ -115,12 +115,13 @@ int pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct timespec *absTi
     if (ret != LOS_OK) {
         return EINVAL;
     }
-    timeoutNs = (absTimeout->tv_sec - curTime.tv_sec) * OS_SYS_NS_PER_SECOND + (absTimeout->tv_nsec - curTime.tv_nsec);
-    if (timeoutNs <= 0) {
-        return ETIMEDOUT;
+    timeoutMs = (absTimeout->tv_sec - curTime.tv_sec) * OS_SYS_MS_PER_SECOND +
+                (absTimeout->tv_nsec - curTime.tv_nsec) / OS_SYS_NS_PER_MSECOND;
+    if (timeoutMs < 0 || timeoutMs >= OS_UINT_MAX) {
+        return EINVAL;
     }
-    timeout = (timeoutNs + (OS_SYS_NS_PER_MSECOND - 1)) / OS_SYS_NS_PER_MSECOND;
-    ret = LOS_MuxPend(mutex->handle, timeout);
+    
+    ret = LOS_MuxPend(mutex->handle, (UINT32)timeoutMs);
     return MapError(ret);
 }
 
