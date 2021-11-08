@@ -89,7 +89,6 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID OsShellCmdTskInfoData(const LosTaskCB *allTas
 {
     const LosTaskCB *taskCB = NULL;
     UINT32 loop;
-    UINT32 semId;
 
     for (loop = 0; loop < g_taskMaxNum; ++loop) {
         taskCB = allTaskArray + loop;
@@ -97,12 +96,10 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID OsShellCmdTskInfoData(const LosTaskCB *allTas
             continue;
         }
 
-        semId = OsGetSemID(taskCB);
-
         PRINTK("%-23s%-20p0x%-5x", taskCB->taskName, taskCB->taskEntry, taskCB->taskID);
         PRINTK("%-11u%-13s0x%-11x   0x%-8x   0x%-10x   ", taskCB->priority,
                OsShellCmdConvertTskStatus(taskCB->taskStatus), taskCB->stackSize,
-               taskCB->stackPointer, taskCB->topOfStack, semId);
+               taskCB->stackPointer, taskCB->topOfStack);
         PRINTK("\n");
     }
 }
