@@ -187,18 +187,67 @@ int ioctlsocket(int s, long cmd, void *argp)
     return lwip_ioctl(s, cmd, argp);
 }
 
+#ifdef LWIP_SOCKET_READ_FUNC
+ssize_t read(int fd, void *buf, size_t len)
+{
+    return lwip_read(fd, buf, len);
+}
+#endif
+
+#ifdef LWIP_SOCKET_WRITE_FUNC
+ssize_t write(int fd, const void *buf, size_t len)
+{
+    return lwip_write(fd, buf, len);
+}
+#endif
+
+#ifdef LWIP_SOCKET_CLOSE_FUNC
+int close(int fd)
+{
+    return lwip_close(fd);
+}
+#endif
+
+#ifdef LWIP_SOCKET_IOCTL_FUNC
+int ioctl(int fd, int req, ...)
+{
+    UINTPTR arg = 0;
+    va_list ap;
+    va_start(ap, req);
+    arg = va_arg(ap, UINTPTR);
+    va_end(ap);
+    return lwip_ioctl(fd, (long)req, (void *)arg);
+}
+#endif
+
+#ifdef LWIP_SOCKET_FCNTL_FUNC
+int fcntl(int fd, int cmd, ...)
+{
+    int val = 0;
+    va_list ap;
+    va_start(ap, cmd);
+    val = va_arg(ap, int);
+    va_end(ap);
+    return lwip_fcntl(fd, cmd, val);
+}
+#endif
+
 #if LWIP_SOCKET_SELECT
+#ifdef LWIP_SOCKET_SELECT_FUNC
 int select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset, struct timeval *timeout)
 {
     return lwip_select(maxfdp1, readset, writeset, exceptset, timeout);
 }
 #endif
+#endif
 
 #if LWIP_SOCKET_POLL
+#ifdef LWIP_SOCKET_POLL_FUNC
 int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 {
     return lwip_poll(fds, nfds, timeout);
 }
+#endif
 #endif
 
 unsigned int if_nametoindex(const char *ifname)

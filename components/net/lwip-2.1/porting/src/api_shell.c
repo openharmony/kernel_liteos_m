@@ -397,7 +397,7 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
             pfd.events = POLLIN;
             pfd.revents = 0;
             timeout_flag = FALSE;
-            ret = poll(&pfd, 1, LWIP_SHELL_CMD_PING_TIMEOUT);
+            ret = lwip_poll(&pfd, 1, LWIP_SHELL_CMD_PING_TIMEOUT);
             if (ret < 0) {
                 perror("Ping: poll\n");
                 goto FAILURE;
