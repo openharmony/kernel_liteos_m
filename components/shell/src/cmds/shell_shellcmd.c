@@ -31,6 +31,10 @@
 
 #include "shcmd.h"
 
+#define DEFAULT_SCREEN_WIDTH 80
+#define MAX_CMD_KEY_WIDTH    8
+#define CMD_ITEM_PER_LINE    (DEFAULT_SCREEN_WIDTH / (MAX_CMD_KEY_WIDTH + 1))
+
 INT32 OsShellCmdHelp(INT32 argc, const CHAR **argv)
 {
     UINT32 loop = 0;
@@ -45,10 +49,10 @@ INT32 OsShellCmdHelp(INT32 argc, const CHAR **argv)
 
     PRINTK("*******************shell commands:*************************\n");
     LOS_DL_LIST_FOR_EACH_ENTRY(curCmdItem, &(cmdInfo->cmdList.list), CmdItemNode, list) {
-        if ((loop & (8 - 1)) == 0) { /* 8 - 1:just align print */
+        if ((loop % CMD_ITEM_PER_LINE) == 0) { /* just align print */
             PRINTK("\n");
         }
-        PRINTK("%-12s  ", curCmdItem->cmd->cmdKey);
+        PRINTK("%-8s ", curCmdItem->cmd->cmdKey);
 
         loop++;
     }
