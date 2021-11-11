@@ -27,24 +27,39 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/config.gni")
+import("//kernel/liteos_m/liteos.gni")
 
-static_library("trace") {
+module_switch = defined(LOSCFG_KERNEL_TRACE)
+module_name = get_path_info(rebase_path("."), "name")
+kernel_module(module_name) {
   sources = [
     "cnv/trace_cnv.c",
     "los_trace.c",
-    "pipeline/serial/trace_pipeline_serial.c",
-    "pipeline/trace_pipeline.c",
-    "pipeline/trace_tlv.c",
-    "trace_offline.c",
-    "trace_online.c",
   ]
 
   include_dirs = [
-    "./",
+    ".",
     "cnv",
     "pipeline",
-    "pipeline/serial",
   ]
-  configs += [ "$LITEOSTOPDIR:los_config" ]
+
+  if (defined(LOSCFG_RECORDER_MODE_OFFLINE)) {
+    sources += [ "trace_offline.c" ]
+  }
+
+  if (defined(LOSCFG_RECORDER_MODE_ONLINE)) {
+    sources += [ "trace_online.c" ]
+  }
+
+  if (defined(LOSCFG_TRACE_CLIENT_INTERACT)) {
+    sources += [
+      "pipeline/trace_pipeline.c",
+      "pipeline/trace_tlv.c",
+    ]
+  }
+
+  if (defined(LOSCFG_TRACE_PIPELINE_SERIAL)) {
+    sources += [ "pipeline/serial/trace_pipeline_serial.c" ]
+    include_dirs += [ "pipeline/serial" ]
+  }
 }

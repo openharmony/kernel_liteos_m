@@ -26,27 +26,18 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//third_party/lwip/lwip.gni")
+import("//kernel/liteos_m/liteos.gni")
+import("$LITEOSTHIRDPARTY/lwip/lwip.gni")
 import("lwip_porting.gni")
 
-config("lwip_depends") {
-  defines = [ "_BSD_SOURCE = 1" ]
+module_switch = defined(LOSCFG_NET_LWIP_SACK)
+module_name = "lwip"
+kernel_module(module_name) {
+  sources = LWIP_PORTING_FILES + LWIPNOAPPSFILES - [ "$LWIPDIR/api/sockets.c" ]
+  defines = [ "_BSD_SOURCE=1" ]
+  include_dirs = [ "//utils/native/lite/include" ]
 }
 
-static_library("lwip") {
-  include_dirs = [
-    "//kernel/liteos_m/kal/posix/include",
-    "//kernel/liteos_m/kernel/arch/include",
-  ]
-
-  include_dirs += LWIP_PORTING_INCLUDE_DIRS
-  include_dirs += LWIP_INCLUDE_DIRS
-
-  sources = LWIP_PORTING_FILES + LWIPNOAPPSFILES
-
-  sources -= [ "$LWIPDIR/api/sockets.c" ]
-
-  configs += [ ":lwip_depends" ]
-
-  deps = [ "//kernel/liteos_m/kal/posix" ]
+config("public") {
+  include_dirs = LWIP_PORTING_INCLUDE_DIRS + LWIP_INCLUDE_DIRS
 }

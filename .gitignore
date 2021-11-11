@@ -14,3 +14,8 @@ targets/cortex-m7_nucleo_f767zi_gcc/build
 *.o
 *.d
 *.su
+
+# Menuconfig temp files
+/config.h
+/.config
+/.config.old

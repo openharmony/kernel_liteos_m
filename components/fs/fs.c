@@ -45,18 +45,12 @@
 #include "sys/stat.h"
 #include "unistd.h"
 
-struct FsMap g_fsmap[MAX_FILESYSTEM_LEN] = {0};
-struct FsMap *g_fs = NULL;
-
 #ifdef LOSCFG_NET_LWIP_SACK
-#include "lwip/lwipopts.h"
+#define _BSD_SOURCE
 #include "lwip/sockets.h"
-#define CONFIG_NSOCKET_DESCRIPTORS  LWIP_CONFIG_NUM_SOCKETS
-#else
-#define CONFIG_NSOCKET_DESCRIPTORS  0
 #endif
 
-#define CONFIG_NFILE_DESCRIPTORS    FAT_MAX_OPEN_FILES /* only for random currently */
+#include "vfs_config.h"
 
 #ifdef LOSCFG_RANDOM_DEV
 #include "hks_client.h"
@@ -158,6 +152,9 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
     return totalLen;
 }
 #endif
+
+static struct FsMap g_fsmap[MAX_FILESYSTEM_LEN] = {0};
+static struct FsMap *g_fs = NULL;
 
 static void InitMountInfo(void)
 {

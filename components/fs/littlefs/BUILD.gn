@@ -27,23 +27,21 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-static_library("littlefs") {
+import("//kernel/liteos_m/liteos.gni")
+
+module_switch = defined(LOSCFG_FS_LITTLEFS)
+module_name = get_path_info(rebase_path("."), "name")
+kernel_module(module_name) {
   sources = [
-    "//third_party/littlefs/lfs.c",
-    "//third_party/littlefs/lfs_util.c",
+    "$LITEOSTHIRDPARTY/littlefs/bd/lfs_rambd.c",
+    "$LITEOSTHIRDPARTY/littlefs/lfs.c",
+    "$LITEOSTHIRDPARTY/littlefs/lfs_util.c",
     "lfs_api.c",
   ]
+}
 
-  include_dirs = [
-    "../../../kernel/arch/include",
-    "../../../kernel/include",
-    "../../../utils",
-    "../../../kal/cmsis",
-    "../../../kal/posix/include",
-    "./",
-    "../",
-    "//third_party/littlefs",
-  ]
-
-  deps = [ "//kernel/liteos_m/kal/posix" ]
+config("public") {
+  include_dirs = [ "." ]
+  include_dirs += [ "$LITEOSTHIRDPARTY/littlefs" ]
+  include_dirs += [ "$LITEOSTHIRDPARTY/littlefs/bd" ]
 }

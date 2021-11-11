@@ -27,9 +27,10 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/config.gni")
+import("//kernel/liteos_m/liteos.gni")
 
-static_library("arch") {
+module_name = "arch"
+kernel_module(module_name) {
   sources = [
     "non_secure/los_context.c",
     "non_secure/los_dispatch.S",
@@ -40,9 +41,7 @@ static_library("arch") {
   ]
 
   include_dirs = [
-    "./non_secure",
-    "./secure",
+    "non_secure",
+    "secure",
   ]
-
-  configs += [ "$LITEOSTOPDIR:los_config" ]
 }

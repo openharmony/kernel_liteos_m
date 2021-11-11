@@ -29,14 +29,32 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-group("kal") {
-  deps = [ "cmsis" ]
-  deps += [ "posix" ]
+group("components") {
+  deps = [
+    "backtrace",
+    "cppsupport",
+    "cpup",
+    "dynlink",
+    "exchook",
+    "fs",
+    "net",
+    "power",
+    "shell",
+    "trace",
+  ]
 }
 
 config("public") {
   configs = [
-    "cmsis:public",
-    "posix:public",
+    "backtrace:public",
+    "cppsupport:public",
+    "cpup:public",
+    "dynlink:public",
+    "exchook:public",
+    "fs:public",
+    "net:public",
+    "power:public",
+    "shell:public",
+    "trace:public",
   ]
 }

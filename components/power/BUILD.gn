@@ -27,10 +27,14 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/config.gni")
+import("//kernel/liteos_m/liteos.gni")
 
-static_library("pm") {
+module_switch = defined(LOSCFG_KERNEL_PM)
+module_name = get_path_info(rebase_path("."), "name")
+kernel_module(module_name) {
   sources = [ "los_pm.c" ]
+}
 
-  configs += [ "$LITEOSTOPDIR:los_config" ]
+config("public") {
+  include_dirs = [ "." ]
 }

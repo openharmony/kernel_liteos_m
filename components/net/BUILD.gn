@@ -27,21 +27,16 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//kernel/liteos_m/liteos.gni")
+
 declare_args() {
-  enable_ohos_kernel_liteos_m_cppsupport = true
-  enable_ohos_kernel_liteos_m_cpup = true
-  enable_ohos_kernel_liteos_m_exchook = true
-  enable_ohos_kernel_liteos_m_kal = true
-  enable_ohos_kernel_liteos_m_fs = true
-  enable_ohos_kernel_liteos_m_shell = true
-  enable_ohos_kernel_liteos_m_backtrace = true
-  enable_ohos_kernel_liteos_m_test = false
-  enable_ohos_kernel_liteos_m_pm = true
-  enable_ohos_kernel_liteos_m_trace = false
-  enable_ohos_kernel_liteos_m_lwip = false
-  enable_ohos_kernel_liteos_m_dynlink = false
-  enable_ohos_kernel_liteos_m_tz = false
-  ohos_kernel_liteos_m_lwip_path = "components/net/lwip-2.1:lwip"
+  ohos_kernel_liteos_m_lwip_path = "lwip-2.1"
 }
 
-LITEOSTOPDIR = "//kernel/liteos_m"
+config("public") {
+  configs = [ "$ohos_kernel_liteos_m_lwip_path:public" ]
+}
+
+group("net") {
+  deps = [ "$ohos_kernel_liteos_m_lwip_path" ]
+}

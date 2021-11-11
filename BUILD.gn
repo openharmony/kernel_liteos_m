@@ -27,67 +27,293 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("config.gni")
+import("//build/lite/config/component/lite_component.gni")
 
-LITEOS_LOS_CONFIG_H = rebase_path("$LITEOSTOPDIR/kernel/include/los_config.h")
+LITEOS_MENUCONFIG_H = rebase_path("$root_out_dir/config.h")
 
-config("los_config") {
-  cflags = [ "-Werror" ]
+declare_args() {
+  liteos_name = "OHOS_Image"
+  liteos_config_file = "${ohos_build_type}.config"
+  liteos_kernel_only = false
+}
 
-  asmflags = [
-    "-DCLZ=CLZ",
+liteos_config_file =
+    rebase_path(liteos_config_file, "", "$product_path/kernel_configs")
+print("liteos_config_file:", liteos_config_file)
+
+exec_script("//build/lite/run_shell_cmd.py",
+            [ "env" + " CONFIG_=LOSCFG_" + " KCONFIG_CONFIG_HEADER='y=true'" +
+                  " KCONFIG_CONFIG=$liteos_config_file" +
+                  " DEVICE_PATH=$device_path" + " srctree=" + rebase_path(".") +
+                  " genconfig" + " --header-path $LITEOS_MENUCONFIG_H" +
+                  " --file-list kconfig_files.txt" +
+                  " --env-list kconfig_env.txt" + " --config-out config.gni" ],
+            "",
+            [ liteos_config_file ])
+
+import("liteos.gni")
+
+visibility = [ "$LITEOSTOPDIR/*" ]
+
+liteos_arch_cflags = []
+if (defined(LOSCFG_ARCH_ARM)) {
+  mcpu = LOSCFG_ARCH_CPU
+  if (defined(LOSCFG_ARCH_ARM_AARCH64) && defined(LOSCFG_ARCH_FPU_DISABLE)) {
+    mcpu += "+nofp"
+  }
+  liteos_arch_cflags += [ "-mcpu=$mcpu" ]
+  if (defined(LOSCFG_ARCH_ARM_AARCH32) && defined(LOSCFG_ARCH_FPU)) {
+    liteos_arch_cflags += [ "-mfpu=$LOSCFG_ARCH_FPU" ]
+  }
+}
+
+cc = "$ohos_current_cc_command " + string_join(" ", liteos_arch_cflags)
+if (ohos_build_compiler == "clang") {
+  cc += " --target=$target_triple"
+}
+
+config("arch_config") {
+  cflags = liteos_arch_cflags
+  asmflags = cflags
+  ldflags = cflags
+  if (defined(LOSCFG_ARCH_ARM_AARCH32)) {
+    if (!defined(LOSCFG_COMPILER_CLANG_LLVM)) {
+      cflags += [ "-mthumb-interwork" ]
+    }
+  }
+  if (defined(LOSCFG_THUMB)) {
+    cflags += [ "-mthumb" ]
+    if (defined(LOSCFG_COMPILER_CLANG_LLVM)) {
+      cflags += [ "-mimplicit-it=thumb" ]
+    } else {
+      cflags += [ "-Wa,-mimplicit-it=thumb" ]
+    }
+  }
+}
+
+config("stdinc_config") {
+  std_include = exec_script("//build/lite/run_shell_cmd.py",
+                            [ "$cc -print-file-name=include" ],
+                            "trim string")
+  cflags = [
+    "-isystem",
+    std_include,
+  ]
+  cflags += [ "-nostdinc" ]
+  asmflags = cflags
+}
+
+config("ssp_config") {
+  cflags = []
+  if (defined(LOSCFG_CC_STACKPROTECTOR_ALL)) {
+    cflags += [ "-fstack-protector-all" ]
+  } else if (defined(LOSCFG_CC_STACKPROTECTOR_STRONG)) {
+    cflags += [ "-fstack-protector-strong" ]
+  } else if (defined(LOSCFG_CC_STACKPROTECTOR)) {
+    cflags += [
+      "-fstack-protector",
+      "--param",
+      "ssp-buffer-size=4",
+    ]
+  } else {
+    cflags += [ "-fno-stack-protector" ]
+  }
+  asmflags = cflags
+}
+
+config("optimize_config") {
+  cflags = []
+  if (defined(LOSCFG_COMPILE_DEBUG)) {
+    cflags += [
+      "-g",
+      "-gdwarf-2",
+    ]
+    optimization_cflag = "-O0"
+  }
+  if (defined(LOSCFG_COMPILE_OPTIMIZE)) {
+    optimization_cflag = "-O2"
+  }
+  if (defined(LOSCFG_COMPILE_OPTIMIZE_SIZE)) {
+    if (defined(LOSCFG_COMPILER_CLANG_LLVM)) {
+      optimization_cflag = "-Oz"
+    } else {
+      optimization_cflag = "-Os"
+    }
+  }
+  if (defined(LOSCFG_COMPILE_LTO)) {
+    if (defined(LOSCFG_COMPILER_CLANG_LLVM)) {
+      cflags += [ "-flto=thin" ]
+    } else {
+      #cflags += [ "-flto" ]
+    }
+  }
+  cflags += [ optimization_cflag ]
+  asmflags = cflags
+}
+
+config("kconfig_config") {
+  cflags = [
     "-imacros",
-    "$LITEOS_LOS_CONFIG_H",
+    "$LITEOS_MENUCONFIG_H",
+  ]
+  asmflags = cflags
+}
+
+config("warn_config") {
+  cflags = [
+    "-Wall",
+    "-Werror",
+    "-Wpointer-arith",
+    "-Wstrict-prototypes",
+    "-Winvalid-pch",
+    "-Wno-address-of-packed-member",
+  ]
+  asmflags = cflags
+}
+
+config("dialect_config") {
+  cflags_c = [ "-std=c99" ]
+  cflags_cc = [ "-std=c++11" ]
+}
+
+config("misc_config") {
+  defines = [ "__LITEOS__" ]
+  defines += [ "__LITEOS_M__" ]
+  if (!defined(LOSCFG_DEBUG_VERSION)) {
+    defines += [ "NDEBUG" ]
+  }
+
+  cflags = [
+    "-fno-pic",
+    "-fno-builtin",
+    "-fms-extensions",
+    "-fno-strict-aliasing",
+    "-fno-common",
+    "-fsigned-char",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-fno-exceptions",
+    "-fno-omit-frame-pointer",
+    "-fno-short-enums",
   ]
 
-  include_dirs = [
-    "//kernel/liteos_m/kernel/include",
-    "//kernel/liteos_m/kernel/arch/include",
-    "//kernel/liteos_m/utils",
-    "//third_party/bounds_checking_function/include",
+  if (!defined(LOSCFG_COMPILER_CLANG_LLVM)) {
+    cflags += [ "-fno-aggressive-loop-optimizations" ]
+  }
+
+  asmflags = cflags
+  asmflags += [ "-DCLZ=CLZ" ]
+}
+
+config("los_config") {
+  configs = [
+    ":arch_config",
+    ":kconfig_config",
+
+    #":stdinc_config",
+    ":dialect_config",
+    ":optimize_config",
+    ":ssp_config",
+
+    #":warn_config",
+    ":misc_config",
   ]
 }
 
-group("kernel") {
-  deps = [
-    "kernel:kernel",
-    "utils:utils",
-    "//third_party/bounds_checking_function:libsec_static",
+cmd = "if [ -f $device_path/BUILD.gn ]; then echo true; else echo false; fi"
+HAVE_DEVICE_SDK = exec_script("//build/lite/run_shell_cmd.py", [ cmd ], "value")
+
+config("public") {
+  configs = [
+    "kernel/arch:public",
+    "kernel:public",
+    "kal:public",
+    "components:public",
+    "utils:public",
   ]
-  if (enable_ohos_kernel_liteos_m_cppsupport) {
-    deps += [ "components/cppsupport:cppsupport" ]
+
+  if (HAVE_DEVICE_SDK) {
+    configs += [ "$device_path:public" ]
   }
-  if (enable_ohos_kernel_liteos_m_cpup) {
-    deps += [ "components/cpup:cpup" ]
+
+  configs +=
+      [ "$LITEOSTHIRDPARTY/bounds_checking_function:libsec_public_config" ]
+  configs += [ "$LITEOSTHIRDPARTY/musl/porting/liteos_m/kernel:include" ]
+}
+
+group("modules") {
+  deps = [
+    "components",
+    "kal",
+    "kernel",
+    "kernel/arch",
+    "testsuites",
+    "utils",
+    HDFTOPDIR,
+  ]
+
+  if (HAVE_DEVICE_SDK) {
+    deps += [ device_path ]
   }
-  if (enable_ohos_kernel_liteos_m_exchook) {
-    deps += [ "components/exchook:exchook" ]
+
+  deps += [ "$LITEOSTHIRDPARTY/bounds_checking_function:libsec_static" ]
+  deps += [ "$LITEOSTHIRDPARTY/musl/porting/liteos_m/kernel" ]
+}
+
+static_library("libkernel") {
+  deps = [ ":modules" ]
+  public_configs = [
+    ":public",
+    ":los_config",
+  ]
+  complete_static_lib = true
+  visibility += []
+}
+
+group("kernel") {
+  public_deps = [ ":libkernel" ]
+  visibility += [ "//build/lite:ohos" ]
+}
+
+group("liteos_m") {
+}
+
+executable("liteos") {
+  configs += [
+    ":public",
+    ":los_config",
+  ]
+
+  ldflags = [
+    "-static",
+    "-Wl,--gc-sections",
+    "-Wl,-Map=$liteos_name.map",
+  ]
+
+  output_dir = target_out_dir
+
+  if (liteos_kernel_only) {
+    deps = [ ":kernel" ]
+  } else {
+    deps = [ "//build/lite:ohos" ]
   }
-  if (enable_ohos_kernel_liteos_m_backtrace) {
-    deps += [ "components/backtrace:backtrace" ]
-  }
-  if (enable_ohos_kernel_liteos_m_fs) {
-    deps += [ "components/fs:fs" ]
-  }
-  if (enable_ohos_kernel_liteos_m_pm) {
-    deps += [ "components/power:pm" ]
-  }
-  if (enable_ohos_kernel_liteos_m_trace) {
-    deps += [ "components/trace:trace" ]
-  }
-  if (enable_ohos_kernel_liteos_m_kal) {
-    deps += [ "kal:kal" ]
-  }
-  if (enable_ohos_kernel_liteos_m_shell) {
-    deps += [ "components/shell:shell" ]
-  }
-  if (enable_ohos_kernel_liteos_m_test) {
-    deps += [ "testsuites:test" ]
-  }
-  if (enable_ohos_kernel_liteos_m_lwip) {
-    deps += [ ohos_kernel_liteos_m_lwip_path ]
-  }
-  if (enable_ohos_kernel_liteos_m_dynlink) {
-    deps += [ "components/dynlink:dynlink" ]
-  }
+}
+
+copy("copy_liteos") {
+  deps = [ ":liteos" ]
+  sources = [ "$target_out_dir/unstripped/bin/liteos" ]
+  outputs = [ "$root_out_dir/$liteos_name" ]
+}
+
+build_ext_component("build_kernel_image") {
+  deps = [ ":copy_liteos" ]
+  exec_path = rebase_path(root_out_dir)
+
+  objcopy = "${compile_prefix}objcopy$toolchain_cmd_suffix"
+  objdump = "${compile_prefix}objdump$toolchain_cmd_suffix"
+
+  command = "$objcopy -O binary $liteos_name $liteos_name.bin"
+  command +=
+      " && sh -c '$objdump -t $liteos_name | sort >$liteos_name.sym.sorted'"
+  command += " && sh -c '$objdump -d $liteos_name >$liteos_name.asm'"
 }

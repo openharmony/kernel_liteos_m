@@ -480,21 +480,6 @@ extern UINT8 *m_aucSysMem0;
 
 /**
  * @ingroup los_config
- * Configuration memory leak detection
- * @attention
- * Need to enable backtrace module synchronously by configuration LOSCFG_BACKTRACE_TYPE,
- * and call OsBackTraceInit to complete initialization before the memory pool is initialized.
- */
-#ifndef LOSCFG_MEM_LEAKCHECK
-#define LOSCFG_MEM_LEAKCHECK                                0
-#endif
-
-#if (LOSCFG_MEM_LEAKCHECK == 1) && (LOSCFG_BACKTRACE_TYPE == 0)
-    #error "if LOSCFG_MEM_LEAKCHECK is set to 1, then LOSCFG_BACKTRACE_TYPE must be set to 1, 2 or 3."
-#endif
-
-/**
- * @ingroup los_config
  * The default is 4, which means that the function call stack is recorded from the kernel interface,
  * such as LOS_MemAlloc/LOS_MemAllocAlign/LOS_MemRealloc/LOS_MemFree. If you want to further ignore
  * the number of function call layers, you can increase this value appropriately.
@@ -567,14 +552,6 @@ extern UINT8 *m_aucSysMem0;
 ============================================================================= */
 /**
  * @ingroup los_config
- * Configuration item for exception tailoring
- */
-#ifndef LOSCFG_PLATFORM_EXC
-#define LOSCFG_PLATFORM_EXC                                 0
-#endif
-
-/**
- * @ingroup los_config
  * Configuration of hardware stack protection
  */
 #ifndef LOSCFG_EXC_HARDWARE_STACK_PROTECTION
@@ -582,27 +559,8 @@ extern UINT8 *m_aucSysMem0;
 #endif
 
 /* =============================================================================
-                                        CPUP module configuration
+                                       KAL module configuration
 ============================================================================= */
-/**
- * @ingroup los_config
- * Configuration item for CPU usage tailoring
- */
-#ifndef LOSCFG_BASE_CORE_CPUP
-#define LOSCFG_BASE_CORE_CPUP                               0
-#endif
-
-/* =============================================================================
-                                       Test module configuration
-============================================================================= */
-/**
- * @ingroup los_config
- * Configuration test case to open
- */
-#ifndef LOSCFG_TEST
-#define LOSCFG_TEST                                         0
-#endif
-
 /**
  * @ingroup los_config
  * Configuration CMSIS_OS_VER
@@ -612,66 +570,14 @@ extern UINT8 *m_aucSysMem0;
 #endif
 
 /* =============================================================================
-                                       Fs module configuration
-============================================================================= */
-#ifndef LOSCFG_SUPPORT_FATFS
-#define LOSCFG_SUPPORT_FATFS                                0
-#endif
-
-#ifndef LOSCFG_SUPPORT_LITTLEFS
-#define LOSCFG_SUPPORT_LITTLEFS                             1
-#endif
-
-#ifndef LOSCFG_LFS_MAX_MOUNT_SIZE
-#define LOSCFG_LFS_MAX_MOUNT_SIZE                           3
-#endif
-
-/* =============================================================================
                                        Trace module configuration
 ============================================================================= */
 /**
  * @ingroup los_config
  * Configuration trace tool
  */
-#ifndef LOSCFG_DEBUG_HOOK
-#define LOSCFG_DEBUG_HOOK                                   0
-#endif
-
-#if (LOSCFG_DEBUG_HOOK == 1)
-#ifndef LOSCFG_KERNEL_TRACE
-#define LOSCFG_KERNEL_TRACE                                 0
-#endif
-#endif
 
 #if (LOSCFG_KERNEL_TRACE == 1)
-
-#ifndef LOSCFG_TRACE_FRAME_MAX_PARAMS
-#define LOSCFG_TRACE_FRAME_MAX_PARAMS                       3
-#endif
-
-#ifndef LOSCFG_TRACE_FRAME_EVENT_COUNT
-#define LOSCFG_TRACE_FRAME_EVENT_COUNT                      0
-#endif
-
-#ifndef LOSCFG_RECORDER_MODE_OFFLINE
-#define LOSCFG_RECORDER_MODE_OFFLINE                        1
-#endif
-
-#ifndef LOSCFG_RECORDER_MODE_ONLINE
-#define LOSCFG_RECORDER_MODE_ONLINE                         0
-#endif
-
-#if (!(LOSCFG_RECORDER_MODE_OFFLINE ^ LOSCFG_RECORDER_MODE_ONLINE))
-#error One of LOSCFG_RECORDER_MODE_OFFLINE and LOSCFG_RECORDER_MODE_ONLINE should be set to 1 and only.
-#endif
-
-#ifndef LOSCFG_TRACE_CLIENT_INTERACT
-#define LOSCFG_TRACE_CLIENT_INTERACT                        1
-#endif
-
-#ifndef LOSCFG_TRACE_BUFFER_SIZE
-#define LOSCFG_TRACE_BUFFER_SIZE                            2048
-#endif
 
 #ifndef NUM_HAL_INTERRUPT_UART
 #define NUM_HAL_INTERRUPT_UART                              0xff
@@ -681,41 +587,6 @@ extern UINT8 *m_aucSysMem0;
 #define OS_TICK_INT_NUM                                     0xff
 #endif
 
-#endif
-
-/* =============================================================================
-                                       PM module configuration
-============================================================================= */
-/**
- * @ingroup los_config
- * Configuration item for low power frame tailoring
- */
-#ifndef LOSCFG_KERNEL_PM
-#define LOSCFG_KERNEL_PM                                     1
-#endif
-
-/**
- * @ingroup los_config
- * Configuration item for priority of low-power task.
- */
-#ifndef LOSCFG_KERNEL_PM_TASK_PTIORITY
-#define LOSCFG_KERNEL_PM_TASK_PTIORITY                       1
-#endif
-
-/**
- * @ingroup los_config
- * Configuration item for stack size of low-power task.
- */
-#ifndef LOSCFG_KERNEL_PM_TASK_STACKSIZE
-#define LOSCFG_KERNEL_PM_TASK_STACKSIZE                      0x800
-#endif
-
-/**
- * @ingroup los_config
- * Configuration item for low power frame debug tailoring
- */
-#ifndef LOSCFG_KERNEL_PM_DEBUG
-#define LOSCFG_KERNEL_PM_DEBUG                               0
 #endif
 
 /* =============================================================================
@@ -730,52 +601,8 @@ extern UINT8 *m_aucSysMem0;
 #endif
 
 /* =============================================================================
-                                       backtrace configuration
+                                       misc configuration
 ============================================================================= */
-/**
- * @ingroup los_config
- * Configuration backtrace type
- * 0: Close stack analysis module.
- * 1: Call stack analysis for cortex-m series by scanning the stack.
- * 2: Call stack analysis for risc-v by using frame pointer.
- * 3: Call stack analysis for risc-v by scanning the stack.
- * 4: Call stack analysis for xtensa by scanning the stack.
- * 5: Call stack analysis for c-sky by scanning the stack.
- * 6: Call stack analysis for arm9 by scanning the stack.
- * others: Not currently supported.
- */
-#ifndef LOSCFG_BACKTRACE_TYPE
-#define LOSCFG_BACKTRACE_TYPE                                0
-#endif
-
-/**
- * @ingroup los_config
- * Configuration backtrace depth.
- */
-#ifndef LOSCFG_BACKTRACE_DEPTH
-#define LOSCFG_BACKTRACE_DEPTH                               15
-#endif
-
-/* =============================================================================
-                                       trustzone configuration
-============================================================================= */
-/**
- * @ingroup los_config
- * Configuration trustzone secure heap size.
- */
-#ifndef LOSCFG_SECURE_HEAP_SIZE
-#define LOSCFG_SECURE_HEAP_SIZE                              2048
-#endif
-
-/**
- * @ingroup los_config
- * Configuration trustzone secure stack default size.
- * The secure stack must be allocated before the task calls non-secure callble functions.
- */
-#ifndef LOSCFG_SECURE_STACK_DEFAULT_SIZE
-#define LOSCFG_SECURE_STACK_DEFAULT_SIZE                     512
-#endif
-
 /**
  * @ingroup los_config
  * Configuration item for mpu.
@@ -786,25 +613,6 @@ extern UINT8 *m_aucSysMem0;
 
 #if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1) && (LOSCFG_MPU_ENABLE == 0)
 #error "if hardware stack protection is enabled, then MPU should be supported and enabled"
-#endif
-
-/*=============================================================================
-                                       shell module configuration
-=============================================================================*/
-/**
- * @ingroup los_config
- * Configuration item for shell.
- */
-#ifndef LOSCFG_USE_SHELL
-#define LOSCFG_USE_SHELL                                     0
-#endif
-
-/**
- * @ingroup los_config
- * Configuration shell task priority.
- */
-#ifndef LOSCFG_SHELL_PRIO
-#define LOSCFG_SHELL_PRIO                                    3
 #endif
 
 /**
