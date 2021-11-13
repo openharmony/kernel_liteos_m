@@ -34,7 +34,6 @@ LWIP_PORTING_INCLUDE_DIRS = [ "$LWIP_PORTING_DIR/porting/include" ]
 
 LWIP_PORTING_FILES = [
   "$LWIP_PORTING_DIR/porting/src/driverif.c",
-  "$LWIP_PORTING_DIR/porting/src/lwip_init.c",
   "$LWIP_PORTING_DIR/porting/src/netdb_porting.c",
   "$LWIP_PORTING_DIR/porting/src/sockets_porting.c",
   "$LWIP_PORTING_DIR/porting/src/sys_arch.c",
