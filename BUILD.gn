@@ -207,7 +207,7 @@ config("misc_config") {
 
 config("los_config") {
   configs = [
-    ":arch_config",
+    #":arch_config",
     ":kconfig_config",
 
     #":stdinc_config",
