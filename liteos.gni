@@ -114,6 +114,28 @@ template("config") {
   }
 }
 
+template("module_group") {
+  assert(defined(invoker.modules), "modules are must")
+  group(target_name) {
+    deps = []
+    foreach(m, invoker.modules) {
+      deps += [ m ]
+    }
+    if (defined(invoker.deps)) {
+      deps += invoker.deps
+    }
+  }
+  config("public") {
+    configs = []
+    foreach(m, invoker.modules) {
+      configs += [ "$m:public" ]
+    }
+    if (defined(invoker.configs)) {
+      configs += invoker.configs
+    }
+  }
+}
+
 set_defaults("kernel_module") {
   configs = [
     "$LITEOSTOPDIR:public",
@@ -121,6 +143,7 @@ set_defaults("kernel_module") {
   ]
   visibility = [
     "$LITEOSTOPDIR/*",
-    "../*",
+    "..:*",
+    ":*",
   ]
 }
