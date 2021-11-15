@@ -41,7 +41,6 @@
 #include "los_config.h"
 #include "kernel_test.h"
 #include "log.h"
-#include <bits/alltypes.h>
 #include <fcntl.h>
 #include <dirent.h>
 #include "sys/stat.h"
