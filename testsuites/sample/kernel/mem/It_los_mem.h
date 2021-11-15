@@ -44,7 +44,7 @@ extern "C" {
 #include "iCunit.h"
 #include "math.h"
 
-#define OS_MEM_WATERLINE YES
+#define OS_MEM_WATERLINE 1
 
 #define LOS_DLNK_NODE_HEAD_SIZE 0
 #define MIN_DLNK_POOL_SIZE      0

@@ -38,7 +38,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if (OS_SYS_MEM_CHECK == YES)
+#if (OS_SYS_MEM_CHECK == 1)
 #define LOS_DLNK_ENABLE_ALLOC_CHECK
 #endif
 
@@ -82,7 +82,7 @@ typedef struct tagLOS_DLNK_NODE {
  * @param pool           [IN] Starting address of memory.
  * @param size           [IN] Memory size.
  *
- * @retval #OS_ERROR     ¨C1: The dynamic memory fails to be initialized.
+ * @retval #OS_ERROR     ï¿½C1: The dynamic memory fails to be initialized.
  * @retval #LOS_OK       0: The dynamic memory is successfully initialized.
  * @par Dependency:
  * <ul>

@@ -163,16 +163,6 @@ extern "C" {
 #define LEVEL4                                               4
 #define LEVEL5                                               5
 
-#ifdef YES
-#undef YES
-#endif
-#define YES                                                  1
-
-#ifdef NO
-#undef NO
-#endif
-#define NO                                                   0
-
 #ifdef __cplusplus
 #if __cplusplus
 }
