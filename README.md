@@ -48,6 +48,8 @@ OpenHarmony LiteOS-M supports only C and C++.
 
 It applies only to Cortex-M3, Cortex-M4, Cortex-M7, and RISC-V chip architectures.
 
+As for dynamic loading module, the shared library to be loaded needs signature verification or source restriction to ensure security.
+
 ## Usage<a name="section3732185231214"></a>
 
 The OpenHarmony LiteOS-M kernel build system is a modular build system based on Generate Ninja (GN) and Ninja. It supports module-based configuration, tailoring, and assembling, and helps you build custom products. This document describes how to build a LiteOS-M project based on GN and Ninja. For details about the methods such as GCC+Makefile, IAR, and Keil MDK, visit the community websites.
