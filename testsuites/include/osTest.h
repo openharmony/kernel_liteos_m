@@ -188,12 +188,12 @@ extern EVENT_CB_S g_exampleEvent;
 #define TST_IT
 #endif
 
-#define TEST_PT YES
+#define TEST_PT 1
 
-#if (YES == OS_INCLUDE_DYNMEM)
-#define TEST_BIG YES
+#if (1 == OS_INCLUDE_DYNMEM)
+#define TEST_BIG 1
 #else
-#define TEST_BIG NO
+#define TEST_BIG 0
 #endif
 
 #define TASK_PRIO_TEST 25

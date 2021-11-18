@@ -59,7 +59,7 @@ VOID ItSuiteLosSem(void)
     ItLosSem026();
     ItLosSem028();
     ItLosSem029();
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     ItLosSem031();
 #endif
     ItLosSem032();

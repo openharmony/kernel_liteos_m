@@ -57,7 +57,7 @@ VOID ItSuiteLosHwi()
     ItLosHwi022();
     ItLosHwi023();
     ItLosHwi024();
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == YES)
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     ItLosHwi026();
 #endif
     ItLosHwi027();

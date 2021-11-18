@@ -278,7 +278,7 @@ UINT32 TestHwiDelete(UINT32 hwiNum)
 VOID TestHwiClear(UINT32 hwiNum) {}
 #endif
 
-#if (LOSCFG_BASE_IPC_SEM == YES)
+#if (LOSCFG_BASE_IPC_SEM == 1)
 UINT32 TestSemDelete(UINT32 semHandle)
 {
     return LOS_SemDelete(semHandle);
