@@ -172,7 +172,7 @@ endchoice
 
 
 ######################### config options of cpu arch ################
-source "kernel/arch/Kconfig"
+source "arch/Kconfig"
 
 # Device Kconfig import
 osource "$(DEVICE_PATH)/Kconfig"

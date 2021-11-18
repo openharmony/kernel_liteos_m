@@ -53,7 +53,7 @@ exec_script("//build/lite/run_shell_cmd.py",
 
 import("liteos.gni")
 
-visibility = [ "$LITEOSTOPDIR/*" ]
+visibility = [ ":*" ]
 
 liteos_arch_cflags = []
 if (defined(LOSCFG_ARCH_ARM)) {
@@ -225,7 +225,7 @@ HAVE_DEVICE_SDK = exec_script("//build/lite/run_shell_cmd.py", [ cmd ], "value")
 
 config("public") {
   configs = [
-    "kernel/arch:public",
+    "arch:public",
     "kernel:public",
     "kal:public",
     "components:public",
@@ -243,10 +243,10 @@ config("public") {
 
 group("modules") {
   deps = [
+    "arch",
     "components",
     "kal",
     "kernel",
-    "kernel/arch",
     "testsuites",
     "utils",
     HDFTOPDIR,
