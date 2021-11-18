@@ -48,6 +48,10 @@ ifeq ($(DEVICE_PATH),)
 DEVICE_PATH:=$(ohos_device_path)
 endif
 
+ifeq ($(BOARD_COMPANY),)
+BOARD_COMPANY:=$(ohos_device_company)
+endif
+
 ifeq ($(TEE:1=y),y)
 tee = _tee
 endif
@@ -64,6 +68,9 @@ LITEOS_CONFIG_FILE ?= $(LITEOSTOPDIR)/.config
 # export los_config.mk related environment variables
 export LITEOS_MENUCONFIG_H
 export LITEOS_CONFIG_FILE
+export BOARD_COMPANY
+export DEVICE_PATH
+export PRODUCT_PATH
 
 # export kconfig related environment variables
 export CONFIG_=LOSCFG_

@@ -44,6 +44,7 @@ print("liteos_config_file:", liteos_config_file)
 exec_script("//build/lite/run_shell_cmd.py",
             [ "env" + " CONFIG_=LOSCFG_" + " KCONFIG_CONFIG_HEADER='y=true'" +
                   " KCONFIG_CONFIG=$liteos_config_file" +
+                  " BOARD_COMPANY=$device_company" +
                   " DEVICE_PATH=$device_path" + " srctree=" + rebase_path(".") +
                   " genconfig" + " --header-path $LITEOS_MENUCONFIG_H" +
                   " --file-list kconfig_files.txt" +
@@ -223,6 +224,9 @@ config("los_config") {
 cmd = "if [ -f $device_path/BUILD.gn ]; then echo true; else echo false; fi"
 HAVE_DEVICE_SDK = exec_script("//build/lite/run_shell_cmd.py", [ cmd ], "value")
 
+# board and soc decoupling feature, device_path should contains board
+BOARD_SOC_FEATURE = device_path != string_replace(device_path, "/board/", "")
+
 config("public") {
   configs = [
     "arch:public",
@@ -232,8 +236,13 @@ config("public") {
     "utils:public",
   ]
 
-  if (HAVE_DEVICE_SDK) {
-    configs += [ "$device_path:public" ]
+  if (BOARD_SOC_FEATURE) {
+    configs += [ "//device/board/$device_company:public" ]
+    configs += [ "//device/soc/$LOSCFG_SOC_COMPANY:public" ]
+  } else {
+    if (HAVE_DEVICE_SDK) {
+      configs += [ "$device_path:public" ]
+    }
   }
 
   configs +=
@@ -252,14 +261,22 @@ group("modules") {
     HDFTOPDIR,
   ]
 
-  if (HAVE_DEVICE_SDK) {
-    deps += [ device_path ]
+  if (BOARD_SOC_FEATURE) {
+    deps += [ "//device/board/$device_company" ]
+    deps += [ "//device/soc/$LOSCFG_SOC_COMPANY" ]
+  } else {
+    if (HAVE_DEVICE_SDK) {
+      deps += [ device_path ]
+    }
   }
 
   deps += [ "$LITEOSTHIRDPARTY/bounds_checking_function:libsec_static" ]
   deps += [ "$LITEOSTHIRDPARTY/musl/porting/liteos_m/kernel" ]
 }
 
+# when HAVE_DEVICE_SDK is not reached, gn raises an error. so we just use it as
+# not needed
+not_needed("*", [ "$HAVE_DEVICE_SDK" ])
 static_library("libkernel") {
   deps = [ ":modules" ]
   public_configs = [
