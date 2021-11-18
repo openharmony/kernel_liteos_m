@@ -32,6 +32,8 @@
 #include "lwip/sockets.h"
 #include "lwip/priv/tcpip_priv.h"
 #include "lwip/priv/sockets_priv.h"
+#include "lwip/prot/dhcp.h"
+#include "lwip/dhcp.h"
 
 #if !LWIP_COMPAT_SOCKETS
 #if LWIP_SOCKET
@@ -284,6 +286,401 @@ static err_t lwip_do_ioctl_impl(struct tcpip_api_call_data *call);
 
 #include "../api/sockets.c"
 
+static u8_t lwip_ioctl_internal_SIOCGIFCONF(struct ifreq *ifr)
+{
+    struct ifconf *ifc = NULL;
+    struct netif *netif = NULL;
+    struct ifreq ifreq;
+    struct sockaddr_in *sock_in = NULL;
+    int pos;
+    int len;
+    int ret;
+
+    /* Format the caller's buffer. */
+    ifc = (struct ifconf *)ifr;
+    len = ifc->ifc_len;
+
+    /* Loop over the interfaces, and write an info block for each. */
+    pos = 0;
+    for (netif = netif_list; netif != NULL; netif = netif->next) {
+        if (ifc->ifc_buf == NULL) {
+            pos = (pos + (int)sizeof(struct ifreq));
+            continue;
+        }
+
+        if (len < (int)sizeof(ifreq)) {
+            break;
+        }
+        (void)memset_s(&ifreq, sizeof(struct ifreq), 0, sizeof(struct ifreq));
+        if (netif->link_layer_type == LOOPBACK_IF) {
+            ret = snprintf_s(ifreq.ifr_name, IFNAMSIZ, (IFNAMSIZ - 1), "%.2s", netif->name);
+            if ((ret <= 0) || (ret >= IFNAMSIZ)) {
+                LWIP_DEBUGF(NETIF_DEBUG, ("lwip_ioctl: snprintf_s ifr_name failed."));
+                return ENOBUFS;
+            }
+        } else {
+            ret = snprintf_s(ifreq.ifr_name, IFNAMSIZ, (IFNAMSIZ - 1), "%s", netif_get_name(netif));
+            if ((ret <= 0) || (ret >= IFNAMSIZ)) {
+                LWIP_DEBUGF(NETIF_DEBUG, ("lwip_ioctl: snprintf_s ifr_name failed."));
+                return ENOBUFS;
+            }
+        }
+
+        sock_in = (struct sockaddr_in *)&ifreq.ifr_addr;
+        sock_in->sin_family = AF_INET;
+        sock_in->sin_addr.s_addr = ip_2_ip4(&netif->ip_addr)->addr;
+        if (memcpy_s(ifc->ifc_buf + pos, sizeof(struct ifreq), &ifreq, sizeof(struct ifreq)) != EOK) {
+            return ENOBUFS;
+        }
+        pos = pos + (int)sizeof(struct ifreq);
+        len = len - (int)sizeof(struct ifreq);
+    }
+
+    ifc->ifc_len = pos;
+
+    return 0;
+}
+
+static u8_t lwip_ioctl_internal_SIOCGIFADDR(struct ifreq *ifr)
+{
+    struct netif *netif = NULL;
+    struct sockaddr_in *sock_in = NULL;
+
+    /* get netif ipaddr */
+    netif = netif_find(ifr->ifr_name);
+    if (netif == NULL) {
+        return ENODEV;
+    } else {
+        sock_in = (struct sockaddr_in *)&ifr->ifr_addr;
+        sock_in->sin_family = AF_INET;
+        sock_in->sin_addr.s_addr = ip_2_ip4(&netif->ip_addr)->addr;
+        return 0;
+    }
+}
+
+static u8_t lwip_ioctl_internal_SIOCGIFNETMASK(struct ifreq *ifr)
+{
+    struct netif *netif = NULL;
+    struct sockaddr_in *sock_in = NULL;
+
+    /* get netif netmask */
+    netif = netif_find(ifr->ifr_name);
+    if (netif == NULL) {
+        return ENODEV;
+    } else {
+        sock_in = (struct sockaddr_in *)&ifr->ifr_netmask;
+        sock_in->sin_family = AF_INET;
+        sock_in->sin_addr.s_addr = ip_2_ip4(&netif->netmask)->addr;
+        return 0;
+    }
+}
+
+static u8_t lwip_ioctl_internal_SIOCGIFHWADDR(struct ifreq *ifr)
+{
+    struct netif *netif = NULL;
+
+    /* get netif hw addr */
+    netif = netif_find(ifr->ifr_name);
+    if (netif == NULL) {
+        return ENODEV;
+    }
+#if LWIP_HAVE_LOOPIF
+    else if (netif->link_layer_type == LOOPBACK_IF) {
+        return EPERM;
+    }
+#endif /* LWIP_HAVE_LOOPIF */
+    else {
+        if (memcpy_s((void *)ifr->ifr_hwaddr.sa_data, sizeof(ifr->ifr_hwaddr.sa_data),
+                     (void *)netif->hwaddr, netif->hwaddr_len) != EOK) {
+            return EINVAL;
+        }
+        return 0;
+    }
+}
+
+static u8_t lwip_ioctl_internal_SIOCSIFFLAGS(struct ifreq *ifr)
+{
+    struct netif *netif = NULL;
+
+    /* set netif hw addr */
+    netif = netif_find(ifr->ifr_name);
+    if (netif == NULL) {
+        return ENODEV;
+    }
+#if LWIP_HAVE_LOOPIF
+    else if (netif->link_layer_type == LOOPBACK_IF) {
+        return EPERM;
+    }
+#endif /* LWIP_HAVE_LOOPIF */
+    else {
+        if (((unsigned short)ifr->ifr_flags & IFF_UP) && !(netif->flags & NETIF_FLAG_UP)) {
+            (void)netif_set_up(netif);
+        } else if (!((unsigned short)ifr->ifr_flags & IFF_UP) && (netif->flags & NETIF_FLAG_UP)) {
+            (void)netif_set_down(netif);
+        }
+        if (((unsigned short)ifr->ifr_flags & IFF_RUNNING) && !(netif->flags & NETIF_FLAG_LINK_UP)) {
+            (void)netif_set_link_up(netif);
+        } else if (!((unsigned short)ifr->ifr_flags & IFF_RUNNING) && (netif->flags & NETIF_FLAG_LINK_UP)) {
+            (void)netif_set_link_down(netif);
+        }
+
+        if ((unsigned short)ifr->ifr_flags & IFF_BROADCAST) {
+            netif->flags |= NETIF_FLAG_BROADCAST;
+        } else {
+            netif->flags = netif->flags & (~NETIF_FLAG_BROADCAST);
+        }
+        if ((unsigned short)ifr->ifr_flags & IFF_NOARP) {
+            netif->flags = (netif->flags & (~NETIF_FLAG_ETHARP));
+        } else {
+            netif->flags |= NETIF_FLAG_ETHARP;
+        }
+
+        if ((unsigned short)ifr->ifr_flags & IFF_MULTICAST) {
+#if LWIP_IGMP
+            netif->flags |= NETIF_FLAG_IGMP;
+#endif /* LWIP_IGMP */
+#if LWIP_IPV6 && LWIP_IPV6_MLD
+            netif->flags |= NETIF_FLAG_MLD6;
+#endif /* LWIP_IPV6_MLD */
+        } else {
+#if LWIP_IGMP
+            netif->flags = (netif->flags & ~NETIF_FLAG_IGMP);
+#endif /* LWIP_IGMP */
+#if LWIP_IPV6 && LWIP_IPV6_MLD
+            netif->flags = (netif->flags & ~NETIF_FLAG_MLD6);
+#endif /* LWIP_IPV6_MLD */
+        }
+
+#if LWIP_DHCP
+        if ((unsigned short)ifr->ifr_flags & IFF_DYNAMIC) {
+            (void)dhcp_start(netif);
+        } else {
+            dhcp_stop(netif);
+#if !LWIP_DHCP_SUBSTITUTE
+            dhcp_cleanup(netif);
+#endif
+        }
+#endif
+
+#if LWIP_NETIF_PROMISC
+        if (((unsigned short)ifr->ifr_flags & IFF_PROMISC)) {
+            netif->flags |= NETIF_FLAG_PROMISC;
+        } else {
+            netif->flags &= ~NETIF_FLAG_PROMISC;
+        }
+        if (netif->drv_config) {
+            netif->drv_config(netif, IFF_PROMISC, !!((unsigned short)ifr->ifr_flags & IFF_PROMISC));
+        }
+#endif /* LWIP_NETIF_PROMISC */
+        return 0;
+    }
+}
+
+static u8_t lwip_ioctl_internal_SIOCGIFFLAGS(struct ifreq *ifr)
+{
+    struct netif *netif = NULL;
+
+    /* set netif hw addr */
+    netif = netif_find(ifr->ifr_name);
+    if (netif == NULL) {
+        return ENODEV;
+    } else {
+        if (netif->flags & NETIF_FLAG_UP) {
+            ifr->ifr_flags = ((unsigned short)(ifr->ifr_flags)) | IFF_UP;
+        } else {
+            ifr->ifr_flags = ((unsigned short)(ifr->ifr_flags)) & ~IFF_UP;
+        }
+        if (netif->flags & NETIF_FLAG_LINK_UP) {
+            ifr->ifr_flags = ((unsigned short)(ifr->ifr_flags)) | IFF_RUNNING;
+        } else {
+            ifr->ifr_flags = ((unsigned short)(ifr->ifr_flags)) & ~IFF_RUNNING;
+        }
+        if (netif->flags & NETIF_FLAG_BROADCAST) {
+            ifr->ifr_flags = ((unsigned short)(ifr->ifr_flags)) | IFF_BROADCAST;
+        } else {
+            ifr->ifr_flags = ((unsigned short)(ifr->ifr_flags)) & ~IFF_BROADCAST;
+        }
+        if (netif->flags & NETIF_FLAG_ETHARP) {
+            ifr->ifr_flags = ((unsigned short)(ifr->ifr_flags)) & ~IFF_NOARP;
+        } else {
+            ifr->ifr_flags = ((unsigned short)(ifr->ifr_flags)) | IFF_NOARP;
+        }
+
+#if LWIP_IGMP || LWIP_IPV6_MLD
+        if (
+#if LWIP_IGMP
+            (netif->flags & NETIF_FLAG_IGMP)
+#endif /* LWIP_IGMP */
+#if LWIP_IGMP && LWIP_IPV6_MLD
+            ||
+#endif /* LWIP_IGMP && LWIP_IPV6_MLD */
+#if LWIP_IPV6_MLD
+            (netif->flags & NETIF_FLAG_MLD6)
+#endif /* LWIP_IPV6_MLD */
+                ) {
+            ifr->ifr_flags = (short)((unsigned short)ifr->ifr_flags | IFF_MULTICAST);
+        } else {
+            ifr->ifr_flags = (short)((unsigned short)ifr->ifr_flags & (~IFF_MULTICAST));
+        }
+#endif /* LWIP_IGMP || LWIP_IPV6_MLD */
+
+#if LWIP_DHCP
+        if (dhcp_supplied_address(netif)) {
+            ifr->ifr_flags = (short)((unsigned short)ifr->ifr_flags | IFF_DYNAMIC);
+        } else {
+            ifr->ifr_flags = (short)((unsigned short)ifr->ifr_flags & (~IFF_DYNAMIC));
+        }
+#endif
+
+#if LWIP_HAVE_LOOPIF
+        if (netif->link_layer_type == LOOPBACK_IF) {
+            ifr->ifr_flags = ((unsigned short)(ifr->ifr_flags)) | IFF_LOOPBACK;
+        }
+#endif
+
+#if LWIP_NETIF_PROMISC
+        if (netif->flags & NETIF_FLAG_PROMISC) {
+            ifr->ifr_flags = ((unsigned short)(ifr->ifr_flags)) | IFF_PROMISC;
+        } else {
+            ifr->ifr_flags = ((unsigned short)(ifr->ifr_flags)) & ~IFF_PROMISC;
+        }
+#endif /* LWIP_NETIF_PROMISC */
+
+        return 0;
+    }
+}
+
+static u8_t lwip_ioctl_internal_SIOCGIFNAME(struct ifreq *ifr)
+{
+    struct netif *netif = NULL;
+    int ret;
+
+    for (netif = netif_list; netif != NULL; netif = netif->next) {
+        if (ifr->ifr_ifindex == netif_get_index(netif)) {
+            break;
+        }
+    }
+
+    if (netif == NULL) {
+        return ENODEV;
+    } else {
+        if (netif->link_layer_type == LOOPBACK_IF) {
+            ret = snprintf_s(ifr->ifr_name, IFNAMSIZ, (IFNAMSIZ - 1), "%.2s", netif->name);
+            if ((ret <= 0) || (ret >= IFNAMSIZ)) {
+                return ENOBUFS;
+            }
+        } else {
+            ret = snprintf_s(ifr->ifr_name, IFNAMSIZ, (IFNAMSIZ - 1), "%s", netif_get_name(netif));
+            if ((ret <= 0) || (ret >= IFNAMSIZ)) {
+                return ENOBUFS;
+            }
+        }
+        return 0;
+    }
+}
+
+static u8_t lwip_validate_ifname(const char *name, u8_t *let_pos)
+{
+    unsigned short num_pos = 0;
+    unsigned short letter_pos = 0;
+    unsigned short pos = 0;
+    u8_t have_num = 0;
+
+    /* if the first position of variable name is not letter, such as '6eth2' */
+    if (!((*name >= 'a' && *name <= 'z') || (*name >= 'A' && *name <= 'Z'))) {
+        return 0;
+    }
+
+    /* check if the position of letter is bigger than the the position of digital */
+    while (*name != '\0') {
+        if ((*name >= '0') && (*name <= '9')) {
+            num_pos = pos;
+            have_num = 1;
+        } else if (((*name >= 'a') && (*name <= 'z')) || ((*name >= 'A') && (*name <= 'Z'))) {
+            letter_pos = pos;
+            if (have_num != 0) {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+        pos++;
+        name++;
+    }
+
+    /* for the speacil case as all position of variable name is letter, such as 'ethabc' */
+    if (num_pos == 0) {
+        return 0;
+    }
+
+    /* cheak if the digital in the variable name is bigger than 255, such as 'eth266' */
+    if (atoi(name - (pos - letter_pos - 1)) > 255) {
+        return 0;
+    }
+
+    *let_pos = (u8_t)letter_pos;
+
+    return 1;
+}
+
+static u8_t lwip_ioctl_internal_SIOCSIFNAME(struct ifreq *ifr)
+{
+    struct netif *netif = NULL;
+    u8_t letter_pos = 0;
+
+    netif = netif_find(ifr->ifr_name);
+    if (netif == NULL) {
+        return ENODEV;
+    } else if (netif->link_layer_type == LOOPBACK_IF) {
+        return EPERM;
+    } else if ((netif->flags & IFF_UP) != 0) {
+        return EBUSY;
+    } else {
+        if (strncmp(ifr->ifr_name, ifr->ifr_newname, IFNAMSIZ) == 0) {
+            /* not change */
+            return 0;
+        }
+
+        ifr->ifr_newname[IFNAMSIZ - 1] = '\0';
+        if ((lwip_validate_ifname(ifr->ifr_newname, &letter_pos) == 0) || (strlen(ifr->ifr_newname) > (IFNAMSIZ - 1))) {
+            return EINVAL;
+        }
+
+        if (strncpy_s(netif->full_name, sizeof(netif->full_name), ifr->ifr_newname, strlen(ifr->ifr_newname)) != EOK) {
+            return EINVAL;
+        }
+    }
+
+    return 0;
+}
+
+static u8_t lwip_ioctl_internal_SIOCGIFINDEX(struct ifreq *ifr)
+{
+    struct netif *netif = NULL;
+
+    netif = netif_find(ifr->ifr_name);
+    if (netif == NULL) {
+        return ENODEV;
+    } else {
+        ifr->ifr_ifindex = netif_get_index(netif);
+        return 0;
+    }
+}
+
+static u8_t lwip_ioctl_internal_SIOCGIFMTU(struct ifreq *ifr)
+{
+    struct netif *netif = NULL;
+
+    /* get netif hw addr */
+    netif = netif_find(ifr->ifr_name);
+    if (netif == NULL) {
+        return ENODEV;
+    } else {
+        ifr->ifr_mtu = netif->mtu;
+        return 0;
+    }
+}
+
 static u8_t lwip_ioctl_internal_SIOCGIFBRDADDR(struct ifreq *ifr)
 {
     struct netif *netif = NULL;
@@ -313,6 +710,48 @@ static u8_t lwip_ioctl_impl(const struct lwip_sock *sock, long cmd, void *argp)
     is_ipv6 = NETCONNTYPE_ISIPV6((unsigned int)(sock->conn->type));
 
     switch ((u32_t)cmd) {
+        case SIOCGIFCONF:
+            if (is_ipv6 != 0) {
+                err = EINVAL;
+            } else {
+                err = lwip_ioctl_internal_SIOCGIFCONF(ifr);
+            }
+            break;
+        case SIOCGIFADDR:
+            if (is_ipv6 != 0) {
+                err = EINVAL;
+            } else {
+                err = lwip_ioctl_internal_SIOCGIFADDR(ifr);
+            }
+            break;
+        case SIOCGIFNETMASK:
+            if (is_ipv6 != 0) {
+                err = EINVAL;
+            } else {
+                err = lwip_ioctl_internal_SIOCGIFNETMASK(ifr);
+            }
+            break;
+        case SIOCGIFHWADDR:
+            err = lwip_ioctl_internal_SIOCGIFHWADDR(ifr);
+            break;
+        case SIOCSIFFLAGS:
+            err = lwip_ioctl_internal_SIOCSIFFLAGS(ifr);
+            break;
+        case SIOCGIFFLAGS:
+            err = lwip_ioctl_internal_SIOCGIFFLAGS(ifr);
+            break;
+        case SIOCGIFNAME:
+            err = lwip_ioctl_internal_SIOCGIFNAME(ifr);
+            break;
+        case SIOCSIFNAME:
+            err = lwip_ioctl_internal_SIOCSIFNAME(ifr);
+            break;
+        case SIOCGIFINDEX:
+            err = lwip_ioctl_internal_SIOCGIFINDEX(ifr);
+            break;
+        case SIOCGIFMTU:
+            err = lwip_ioctl_internal_SIOCGIFMTU(ifr);
+            break;
         case SIOCGIFBRDADDR:
             if (is_ipv6 != 0) {
                 err = EINVAL;
