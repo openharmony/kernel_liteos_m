@@ -177,6 +177,35 @@ source "arch/Kconfig"
 # Device Kconfig import
 osource "$(DEVICE_PATH)/Kconfig"
 
+config SOC_COMPANY
+    string "SoC company name to locate soc build path"
+    help
+      This option specifies the SoC company name, used to locate the build path for soc. This option is set by the
+      SoC's Kconfig file, and should be exactly the same with SoC company path, and the user should generally avoid
+       modifying it via the menu configuration.
+
+orsource "../../device/board/*/Kconfig.liteos_m.shields"
+
+orsource "../../device/board/$(BOARD_COMPANY)/Kconfig.liteos_m.defconfig.boards"
+
+choice
+    prompt "Board Selection"
+
+orsource "../../device/board/$(BOARD_COMPANY)/Kconfig.liteos_m.boards"
+
+endchoice
+
+orsource "../../device/soc/*/Kconfig.liteos_m.defconfig"
+
+choice
+    prompt "SoC Series Selection"
+
+orsource "../../device/soc/*/Kconfig.liteos_m.series"
+
+endchoice
+
+orsource "../../device/soc/*/Kconfig.liteos_m.soc"
+
 config QUICK_START
     bool "Enable QUICK_START"
     default n
