@@ -32,6 +32,7 @@
 #ifndef _LWIP_PORTING_NETDB_H_
 #define _LWIP_PORTING_NETDB_H_
 
+#include "lwip/arch.h"
 #include <netdb.h>
 #include_next <lwip/netdb.h>
 

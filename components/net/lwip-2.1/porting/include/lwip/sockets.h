@@ -32,6 +32,7 @@
 #ifndef _LWIP_PORTING_SOCKETS_H_
 #define _LWIP_PORTING_SOCKETS_H_
 
+#include "lwip/arch.h"
 #include <sys/socket.h>
 #include <poll.h>
 #include <netinet/tcp.h>

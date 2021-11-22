@@ -106,4 +106,8 @@ extern void LwipLogPrintf(const char *fmt, ...);
 #define init_waitqueue_head(...)
 #define poll_check_waiters(...)
 
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE 1
+#endif
+
 #endif /* _LWIP_PORTING_CC_H_ */
