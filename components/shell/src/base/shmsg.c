@@ -108,29 +108,6 @@ CHAR *GetCmdName(const CHAR *cmdline, UINT32 len)
     return cmdName;
 }
 
-INT32 ShellCmdExec(const CHAR *msgName, const CHAR *cmdString)
-{
-    UINT32 uintRet;
-    errno_t err;
-    CmdParsed cmdParsed;
-
-    if (msgName == NULL || cmdString == NULL) {
-        return -EFAULT;
-    }
-    err = memset_s(&cmdParsed, sizeof(CmdParsed), 0, sizeof(CmdParsed));
-    if (err != EOK) {
-        return -EFAULT;
-    }
-
-    uintRet = ShellMsgTypeGet(&cmdParsed, msgName);
-    if (uintRet != LOS_OK) {
-        PRINTK("%s:command not found\n", msgName);
-        return -EFAULT;
-    } else {
-        (VOID)OsCmdExec(&cmdParsed, (CHAR *)cmdString);
-    }
-    return 0;
-}
 
 UINT32 PreHandleCmdline(const CHAR *input, CHAR **output, UINT32 *outputlen)
 {
@@ -169,19 +146,17 @@ STATIC VOID ParseAndExecCmdline(CmdParsed *cmdParsed, const CHAR *cmdline, UINT3
 {
     INT32 i;
     UINT32 ret;
-    CHAR *cmdlineOrigin = NULL;
     CHAR *cmdName = NULL;
 
-    cmdlineOrigin = strdup(cmdline);
-    if (cmdlineOrigin == NULL) {
+    cmdName = GetCmdName(cmdline, len);
+    if (cmdName == NULL) {
         PRINTK("malloc failure in %s[%d]\n", __FUNCTION__, __LINE__);
         return;
     }
 
-    cmdName = GetCmdName(cmdline, len);
-    if (cmdName == NULL) {
-        free(cmdlineOrigin);
-        PRINTK("malloc failure in %s[%d]\n", __FUNCTION__, __LINE__);
+    ret = ShellMsgTypeGet(cmdParsed, cmdName);
+    if (ret != LOS_OK) {
+        PRINTK("%s:command not found\n", cmdName);
         return;
     }
 
@@ -191,7 +166,7 @@ STATIC VOID ParseAndExecCmdline(CmdParsed *cmdParsed, const CHAR *cmdline, UINT3
         goto OUT;
     }
 
-    (VOID)ShellCmdExec(cmdName, cmdlineOrigin);
+    (VOID)OsCmdExec(cmdParsed);
 
 OUT:
     for (i = 0; i < cmdParsed->paramCnt; i++) {
@@ -201,7 +176,6 @@ OUT:
         }
     }
     free(cmdName);
-    free(cmdlineOrigin);
 }
 
 LITE_OS_SEC_TEXT_MINOR VOID ExecCmdline(const CHAR *cmdline)

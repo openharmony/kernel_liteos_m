@@ -282,7 +282,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsShellSysCmdRegister(VOID)
     return LOS_OK;
 }
 
-LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdExec(CmdParsed *cmdParsed, CHAR *cmdStr)
+LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdExec(CmdParsed *cmdParsed)
 {
     UINT32 ret;
     CmdCallBackFunc cmdHook = NULL;
@@ -290,13 +290,8 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdExec(CmdParsed *cmdParsed, CHAR *cmdStr)
     UINT32 i;
     const CHAR *cmdKey = NULL;
 
-    if ((cmdParsed == NULL) || (cmdStr == NULL) || (strlen(cmdStr) == 0)) {
+    if (cmdParsed == NULL) {
         return (UINT32)OS_ERROR;
-    }
-
-    ret = OsCmdParse(cmdStr, cmdParsed);
-    if (ret != LOS_OK) {
-        goto OUT;
     }
 
     LOS_DL_LIST_FOR_EACH_ENTRY(curCmdItem, &(cmdInfo.cmdList.list), CmdItemNode, list) {
