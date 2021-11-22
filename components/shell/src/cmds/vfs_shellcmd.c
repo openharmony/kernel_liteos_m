@@ -291,7 +291,7 @@ INT32 OsShellCmdCat(INT32 argc, const CHAR **argv)
         }
         PRINTK("%s", buf);
         (VOID)LOS_TaskDelay(1);
-    } while (size == CAT_BUF_SIZE);
+    } while (size == CAT_BUF_SIZE - 1);
 
     free(fullpath);
     close(fd);
