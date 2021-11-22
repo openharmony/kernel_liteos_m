@@ -322,6 +322,7 @@ const struct FileOps g_lfsFops = {
     .Rename = LfsRename,
     .Getattr = LfsStat,
     .Fsync = LfsFsync,
+    .Fstat = LfsFstat,
 };
 
 int LfsMount(const char *source, const char *target, const char *fileSystemType, unsigned long mountflags,
@@ -767,6 +768,36 @@ int LfsFsync(int fd)
 
     ret = lfs_file_sync(g_handle[fd].lfsHandle, &(g_handle[fd].file));
     if (ret != 0) {
+        errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
+    }
+    return ret;
+}
+
+int LfsFstat(int fd, struct stat *buf)
+{
+    int ret;
+    struct lfs_info info;
+
+    if (buf == NULL) {
+        errno = EFAULT;
+        return FS_FAILURE;
+    }
+
+    if (LfsFdIsValid(fd) == FALSE) {
+        errno = EBADF;
+        return VFS_ERROR;
+    }
+
+    ret = lfs_stat(g_handle[fd].lfsHandle, g_handle[fd].pathName, &info);
+    if (ret == 0) {
+        buf->st_size = info.size;
+        if (info.type == LFS_TYPE_REG) {
+            buf->st_mode = S_IFREG;
+        } else {
+            buf->st_mode = S_IFDIR;
+        }
+    } else {
         errno = LittlefsErrno(ret);
         ret = VFS_ERROR;
     }
