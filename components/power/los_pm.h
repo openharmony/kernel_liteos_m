@@ -233,43 +233,11 @@ UINT32 OsPmInit(VOID);
  * <ul><li>los_pm.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
+#if (LOSCFG_KERNEL_PM == 1)
 BOOL OsIsPmMode(VOID);
-
-/**
- * @ingroup los_pm
- * @brief Freeze delay tasks, internal interfaces between modules.
- *
- * @par Description:
- * This API is used to freeze delay tasks.
- *
- * @attention None.
- *
- * @param taskID [IN] task ID.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_pm.h: the header file that contains the API declaration.</li></ul>
- * @see OsPmUnfreezeTaskUnsafe
- */
-VOID OsPmFreezeTaskUnsafe(UINT32 taskID);
-
-/**
- * @ingroup los_pm
- * @brief Unfreeze delayed tasks, internal interface between modules.
- *
- * @par Description:
- * This API is used to unfreeze delayed tasks.
- *
- * @attention None.
- *
- * @param taskID [IN] task ID.
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_pm.h: the header file that contains the API declaration.</li></ul>
- * @see OsPmFreezeTaskUnsafe
- */
-VOID OsPmUnfreezeTaskUnsafe(UINT32 taskID);
+#else
+#define OsIsPmMode() (0)
+#endif
 
 /**
  * @ingroup los_pm

@@ -79,6 +79,10 @@ VOID OsSchedYield(VOID);
 
 VOID OsSchedTaskExit(LosTaskCB *taskCB);
 
+VOID OsSchedSuspend(LosTaskCB *taskCB);
+
+BOOL OsSchedResume(LosTaskCB *taskCB);
+
 VOID OsSchedTick(VOID);
 
 UINT32 OsSchedInit(VOID);
