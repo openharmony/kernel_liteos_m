@@ -28,7 +28,7 @@
 
 import("//kernel/liteos_m/liteos.gni")
 import("$LITEOSTHIRDPARTY/lwip/lwip.gni")
-import("lwip_porting.gni")
+import("$LITEOSTOPDIR/components/net/lwip-2.1/lwip_porting.gni")
 
 module_switch = defined(LOSCFG_NET_LWIP_SACK)
 module_name = "lwip"
