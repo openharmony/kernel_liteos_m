@@ -46,6 +46,8 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 
 适用架构：当前只适用于cortex-m3、cortex-m4、cortex-m7、risc-v芯片架构。
 
+动态加载模块：待加载的共享库需要验签或者限制来源，确保安全性。
+
 ## 使用说明<a name="section3732185231214"></a>
 
 OpenHarmony LiteOS-M内核的编译构建系统是一个基于gn和ninja的组件化构建系统，支持按组件配置、裁剪和拼装，按需构建出定制化的产品。本文主要介绍如何基于gn和ninja编译LiteOS-M工程，GCC+Makefile、IAR、Keil MDK等编译方式可以参考社区爱好者贡献的站点。
