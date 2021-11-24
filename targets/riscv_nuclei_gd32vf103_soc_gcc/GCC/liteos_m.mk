@@ -22,19 +22,19 @@ C_INCLUDES    += -I$(LITEOSTOPDIR)/../../third_party/bounds_checking_function/in
 C_SOURCES     += $(wildcard $(LITEOSTOPDIR)/../../third_party/bounds_checking_function/src/*.c)
 
 # NMSIS related
-C_INCLUDES    += -I$(LITEOSTOPDIR)/kernel/arch/risc-v/nuclei/gcc/nmsis/Core/Include \
-                 -I$(LITEOSTOPDIR)/kernel/arch/risc-v/nuclei/gcc/nmsis/DSP/Include \
-                 -I$(LITEOSTOPDIR)/kernel/arch/risc-v/nuclei/gcc/nmsis/NN/Include
+C_INCLUDES    += -I$(LITEOSTOPDIR)/arch/risc-v/nuclei/gcc/nmsis/Core/Include \
+                 -I$(LITEOSTOPDIR)/arch/risc-v/nuclei/gcc/nmsis/DSP/Include \
+                 -I$(LITEOSTOPDIR)/arch/risc-v/nuclei/gcc/nmsis/NN/Include
 
-ASM_SOURCES   += $(wildcard $(LITEOSTOPDIR)/kernel/arch/risc-v/nuclei/gcc/*.s)
+ASM_SOURCES   += $(wildcard $(LITEOSTOPDIR)/arch/risc-v/nuclei/gcc/*.s)
 
-ASMS_SOURCES  += $(wildcard $(LITEOSTOPDIR)/kernel/arch/risc-v/nuclei/gcc/*.S)
+ASMS_SOURCES  += $(wildcard $(LITEOSTOPDIR)/arch/risc-v/nuclei/gcc/*.S)
 
-C_SOURCES     += $(wildcard $(LITEOSTOPDIR)/kernel/arch/risc-v/nuclei/gcc/*.c)
+C_SOURCES     += $(wildcard $(LITEOSTOPDIR)/arch/risc-v/nuclei/gcc/*.c)
 
 C_INCLUDES    += -I. \
-                 -I$(LITEOSTOPDIR)/kernel/arch/include \
-                 -I$(LITEOSTOPDIR)/kernel/arch/risc-v/nuclei/gcc
+                 -I$(LITEOSTOPDIR)/arch/include \
+                 -I$(LITEOSTOPDIR)/arch/risc-v/nuclei/gcc
 
 ASFLAGS       += -imacros $(LITEOSTOPDIR)/kernel/include/los_config.h -DCLZ=CLZ
 
