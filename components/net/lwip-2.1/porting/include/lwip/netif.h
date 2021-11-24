@@ -32,6 +32,7 @@
 #ifndef _LWIP_PORTING_NETIF_H_
 #define _LWIP_PORTING_NETIF_H_
 
+#include "lwip/arch.h"
 #include <net/if.h>
 #include <netinet/ip.h>
 

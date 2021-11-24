@@ -704,7 +704,7 @@ static u8_t lwip_ioctl_impl(const struct lwip_sock *sock, long cmd, void *argp)
 {
     u8_t err = 0;
     struct ifreq *ifr = (struct ifreq *)argp;
-    bool is_ipv6 = 0;
+    u8_t is_ipv6 = 0;
 
     /* allow it only on IPv6 sockets... */
     is_ipv6 = NETCONNTYPE_ISIPV6((unsigned int)(sock->conn->type));
