@@ -120,6 +120,30 @@ extern UINT32 LOS_MemDeInit(VOID *pool);
 extern UINT32 LOS_MemPoolList(VOID);
 #endif
 
+#if (LOSCFG_MEM_FREE_BY_TASKID == 1)
+/**
+ * @ingroup los_memory
+ * @brief Free memory nodes allocated by the specified task.
+ *
+ * @par Description:
+ * <ul>
+ * <li>This API is used to free all memory nodes allocated by the specified task.</li>
+ * </ul>
+ * 
+ * @param pool           [IN] The memory pool address.
+ * @param taskID         [IN] The task ID and all memory nodes allocated by this task will be freed.
+ * 
+ * @retval #OS_ERROR     The memory pool is NULL or the task ID is invalid.
+ * @retval #LOS_OK       All memory nodes allocated by this task are freed successfully.
+ * @par Dependency:
+ * <ul>
+ * <li>los_memory.h: the header file that contains the API declaration.</li>
+ * </ul>
+ * @see None.
+ */
+extern UINT32 LOS_MemFreeByTaskID(VOID *pool, UINT32 taskID);
+#endif
+
 #if (LOSCFG_MEM_MUL_REGIONS == 1)
 typedef struct {
     VOID *startAddress;
