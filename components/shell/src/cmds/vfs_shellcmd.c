@@ -857,7 +857,7 @@ INT32 OsShellCmdCp(INT32 argc, const CHAR **argv)
             (VOID)OsWildcardExtractDirectory(srcCopy, &count, CP_COUNT);
             free(srcCopy);
             if (count > 1) {
-                PRINTK("cp error : %s is not a directory.\n", drcFullPath);
+                PRINTK("cp error : Can not copy two or more files.\n");
                 goto errout_with_path;
             }
         }
