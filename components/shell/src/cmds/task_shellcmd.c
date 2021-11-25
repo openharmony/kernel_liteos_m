@@ -74,7 +74,6 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID OsShellCmdTskInfoData(const LosTaskCB *allTas
 {
     const LosTaskCB *taskCB = NULL;
     UINT32 loop;
-    UINT32 semId;
 
 #if (LOSCFG_TASK_MEM_USED == 1)
     UINT32 arraySize = sizeof(UINT32) * (LOSCFG_BASE_CORE_TSK_LIMIT + 1);
@@ -93,17 +92,15 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID OsShellCmdTskInfoData(const LosTaskCB *allTas
             continue;
         }
 
-        semId = OsGetSemID(taskCB);
-
         PRINTK("%-23s%-20p0x%-5x", taskCB->taskName, taskCB->taskEntry, taskCB->taskID);
 #if (LOSCFG_TASK_MEM_USED == 1)
         PRINTK("%-11u%-13s0x%-11x   0x%-11x   0x%-8x   0x%-10x   ", taskCB->priority,
                OsConvertTskStatus(taskCB->taskStatus), getUsedSizeArray[loop], taskCB->stackSize,
-               taskCB->stackPointer, taskCB->topOfStack, semId);
+               taskCB->stackPointer, taskCB->topOfStack);
 #else
         PRINTK("%-11u%-13s0x%-11x   0x%-8x   0x%-10x   ", taskCB->priority,
                OsConvertTskStatus(taskCB->taskStatus), taskCB->stackSize,
-               taskCB->stackPointer, taskCB->topOfStack, semId);
+               taskCB->stackPointer, taskCB->topOfStack);
 #endif
         PRINTK("\n");
     }
