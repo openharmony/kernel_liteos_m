@@ -28,17 +28,16 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import("//kernel/liteos_m/liteos.gni")
+import("//third_party/bounds_checking_function/libsec_src.gni")
 
-group("kal") {
-  deps = [ "cmsis" ]
-  deps += [ "posix" ]
-  deps += [ "libsec" ]
+module_name = get_path_info(rebase_path("."), "name")
+kernel_module(module_name) {
+  sources = libsec_sources
+
+  public_configs = [ ":public" ]
 }
 
 config("public") {
-  configs = [
-    "cmsis:public",
-    "posix:public",
-    "libsec:public",
-  ]
+  include_dirs = libsec_include_dirs
+  defines = [ "SECUREC_IN_KERNEL=0" ]
 }
