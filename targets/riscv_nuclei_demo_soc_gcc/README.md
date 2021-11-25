@@ -17,17 +17,17 @@ Nuclei DDR200T开发板是一款集成了FPGA和通用MCU的RISC-V评估开发�
 │   └── cpup                              # CPUP功能
 ├── kal                                   # 内核抽象层
 │   └── posix                             # posix标准接口支持
+├── arch                                  # 内核指令架构层代码
+│   ├── risc-v                            # risc-v架构的代码
+│   │   └── nuclei                        # nuclei内核相关代码
+│   │       └── gcc                       # gcc编译器相关代码
+│   │           └── nmsis                 # nmsis内核标准
+│   └── include                           # 对外接口存放目录
+│       ├── los_atomic.h                  # 定义通用arch的原子操作
+│       ├── los_context.h                 # 定义通用arch的上下文切换
+│       ├── los_arch.h                    # 定义通用arch初始化
+│       └── los_interrupt.h               # 定义通用arch中断
 ├── kernel                                # 内核最小功能集支持
-│   ├── arch                              # 内核指令架构层代码
-│   │   ├── risc-v                        # risc-v架构的代码
-│   │   │   └── nuclei                    # nuclei内核相关代码
-│   │   │       └── gcc                   # gcc编译器相关代码
-│   │   │           ├── nmsis             # nmsis内核标准
-│   │   └── include                       # 对外接口存放目录
-│   │       ├── los_arch_atomic.h         # 定义通用arch的原子操作
-│   │       ├── los_arch_context.h        # 定义通用arch的上下文切换
-│   │       ├── los_arch.h                # 定义通用arch初始化
-│   │       └── los_arch_interrupt.h      # 定义通用arch中断
 │   ├── include                           # 对外接口存放目录
 │   │   ├── los_config.h                  # 功能开关和配置参数
 │   │   ├── los_event.h                   # 事件
@@ -41,12 +41,12 @@ Nuclei DDR200T开发板是一款集成了FPGA和通用MCU的RISC-V评估开发�
 │   │   └── los_timer.h                   # 定时器
 │   └── src                               # 内核最小功能集源码
 ├── targets                               # 板级工程目录
-│   ├── riscv_nuclei_demo_soc_gcc         # Nuclei DDR200T开发板相关代码
+│   └── riscv_nuclei_demo_soc_gcc         # Nuclei DDR200T开发板相关代码
 │       ├── GCC                           # 编译相关
 │       ├── OS_CONFIG                     # 开发板配置功能开关和配置参数
 │       ├── SoC                           # SOC相关代码
 │       └── Src                           # application相关代码
-├── utils                                 # 通用公共目录
+└── utils                                 # 通用公共目录
     ├── include
     │   ├── los_compiler.h                # 编译工具配置，类型定义
     │   ├── los_debug.h                   # debug，printf相关
@@ -73,7 +73,7 @@ Nuclei DDR200T开发板是一款集成了FPGA和通用MCU的RISC-V评估开发�
 
 - **工具链配置**
 
-请先确认您使用的是centos系统或Ububntu 64bit。
+请先确认您使用的是centos系统或Ubuntu 64bit。
 
 1. 新建一个`Nuclei` 文件夹，比如`~/home/Nuclei`
 2. 参考下图，从[Nuclei Download Center](https://nucleisys.com/download.php)下载工具链和OpenOCD。
