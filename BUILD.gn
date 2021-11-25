@@ -289,7 +289,8 @@ static_library("libkernel") {
 
 group("kernel") {
   public_deps = [ ":libkernel" ]
-  visibility += [ "//build/lite:ohos" ]
+  visibility = []
+  visibility += [ "*:*" ]
 }
 
 group("liteos_m") {
