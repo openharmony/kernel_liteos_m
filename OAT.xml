@@ -29,11 +29,11 @@
         </policylist>
         <filefilterlist>
             <filefilter name="defaultFilter" desc="文件属于FreeBSD仓库软连接，本仓库屏蔽告警，在FreeBSD仓库进行处理">
-                <filteritem type="filepath" name="kernel/arch/risc-v/nuclei/gcc/nmsis/Library/.*" desc="文件属于三方芯片的二进制代码，属于社区贡献，不用提供额外的说明"/>
+                <filteritem type="filepath" name="arch/risc-v/nuclei/gcc/nmsis/Library/.*" desc="文件属于三方芯片的二进制代码，属于社区贡献，不用提供额外的说明"/>
                 <filteritem type="filepath" name="targets/riscv_nuclei_demo_soc_gcc/.*" desc="文件属于nuclei三方芯片的源代码，文件头说明跟随liteos_m/LICENSE，不用额外说明"/>
                 <filteritem type="filepath" name="targets/riscv_nuclei_gd32vf103_soc_gcc/.*" desc="文件属于nuclei三方芯片的源代码，文件头说明跟随liteos_m/LICENSE，不用额外说明"/>
                 <filteritem type="filepath" name="NOTICE" desc="NOTICE文件"/>
-                <filteritem type="filepath" name="kernel/arch/risc-v/nuclei" desc="该文件的license为apache 2.0符合"/>
+                <filteritem type="filepath" name="arch/risc-v/nuclei" desc="该文件的license为apache 2.0符合"/>
             </filefilter>
             <filefilter name="defaultFilter" desc="Files not to check">
                 <!--filteritem type="filename" name="*.uvwxyz" desc="Describe the reason for filtering scan results"/-->
