@@ -245,8 +245,6 @@ config("public") {
     }
   }
 
-  configs +=
-      [ "$LITEOSTHIRDPARTY/bounds_checking_function:libsec_public_config" ]
   configs += [ "$LITEOSTHIRDPARTY/musl/porting/liteos_m/kernel:include" ]
 }
 
@@ -270,7 +268,6 @@ group("modules") {
     }
   }
 
-  deps += [ "$LITEOSTHIRDPARTY/bounds_checking_function:libsec_static" ]
   deps += [ "$LITEOSTHIRDPARTY/musl/porting/liteos_m/kernel" ]
 }
 
