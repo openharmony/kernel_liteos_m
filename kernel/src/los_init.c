@@ -66,6 +66,10 @@
 #include "los_dynlink.h"
 #endif
 
+#ifdef LOSCFG_KERNEL_LMS
+#include "los_lms_pri.h"
+#endif
+
 /*****************************************************************************
  Function    : LOS_Reboot
  Description : system exception, die in here, wait for watchdog.
@@ -125,6 +129,10 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
 #endif
 
     OsRegister();
+
+#ifdef LOSCFG_KERNEL_LMS
+    OsLmsInit();
+#endif
     ret = OsMemSystemInit();
     if (ret != LOS_OK) {
         PRINT_ERR("OsMemSystemInit error %d\n", ret);

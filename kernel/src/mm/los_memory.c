@@ -37,7 +37,9 @@
 #include "los_hook.h"
 #include "los_interrupt.h"
 #include "los_task.h"
-
+#ifdef LOSCFG_KERNEL_LMS
+#include "los_lms_pri.h"
+#endif
 
 /* Used to cut non-essential functions. */
 #define OS_MEM_EXPAND_ENABLE    0
@@ -534,7 +536,7 @@ RETRY:
     OsMemFreeNodeAdd(pool, (struct OsMemFreeNodeHead *)newNode);
 
     endNode = OS_MEM_END_NODE(newNode, size);
-    (VOID)memset_s(endNode, sizeof(*endNode), 0, sizeof(*endNode));
+    (VOID)memset(endNode, 0, sizeof(*endNode));
     endNode->ptr.next = NULL;
     OS_MEM_SET_MAGIC(endNode);
     OsMemSentinelNodeSet(endNode, NULL, 0);
@@ -553,6 +555,71 @@ VOID LOS_MemExpandEnable(VOID *pool)
 }
 #endif
 
+#ifdef LOSCFG_KERNEL_LMS
+STATIC INLINE VOID OsLmsFirstNodeMark(VOID *pool, struct OsMemNodeHead *node)
+{
+    if (g_lms == NULL) {
+        return;
+    }
+
+    g_lms->simpleMark((UINTPTR)pool, (UINTPTR)node, LMS_SHADOW_PAINT_U8);
+    g_lms->simpleMark((UINTPTR)node, (UINTPTR)node + OS_MEM_NODE_HEAD_SIZE, LMS_SHADOW_REDZONE_U8);
+    g_lms->simpleMark((UINTPTR)OS_MEM_NEXT_NODE(node), (UINTPTR)OS_MEM_NEXT_NODE(node) + OS_MEM_NODE_HEAD_SIZE,
+        LMS_SHADOW_REDZONE_U8);
+    g_lms->simpleMark((UINTPTR)node + OS_MEM_NODE_HEAD_SIZE, (UINTPTR)OS_MEM_NEXT_NODE(node),
+        LMS_SHADOW_AFTERFREE_U8);
+}
+
+STATIC INLINE VOID OsLmsAllocAlignMark(VOID *ptr, VOID *alignedPtr, UINT32 size)
+{
+    struct OsMemNodeHead *allocNode = NULL;
+
+    if ((g_lms == NULL) || (ptr == NULL)) {
+        return;
+    }
+    allocNode = (struct OsMemNodeHead *)((struct OsMemUsedNodeHead *)ptr - 1);
+    if (ptr != alignedPtr) {
+        g_lms->simpleMark((UINTPTR)ptr, (UINTPTR)ptr + sizeof(UINT32), LMS_SHADOW_PAINT_U8);
+        g_lms->simpleMark((UINTPTR)ptr + sizeof(UINT32), (UINTPTR)alignedPtr, LMS_SHADOW_REDZONE_U8);
+    }
+
+    /* mark remining as redzone */
+    g_lms->simpleMark(LMS_ADDR_ALIGN((UINTPTR)alignedPtr + size), (UINTPTR)OS_MEM_NEXT_NODE(allocNode),
+        LMS_SHADOW_REDZONE_U8);
+}
+
+STATIC INLINE VOID OsLmsReallocMergeNodeMark(struct OsMemNodeHead *node)
+{
+    if (g_lms == NULL) {
+        return;
+    }
+
+    g_lms->simpleMark((UINTPTR)node + OS_MEM_NODE_HEAD_SIZE, (UINTPTR)OS_MEM_NEXT_NODE(node),
+        LMS_SHADOW_ACCESSABLE_U8);
+}
+
+STATIC INLINE VOID OsLmsReallocSplitNodeMark(struct OsMemNodeHead *node)
+{
+    if (g_lms == NULL) {
+        return;
+    }
+    /* mark next node */
+    g_lms->simpleMark((UINTPTR)OS_MEM_NEXT_NODE(node),
+        (UINTPTR)OS_MEM_NEXT_NODE(node) + OS_MEM_NODE_HEAD_SIZE, LMS_SHADOW_REDZONE_U8);
+    g_lms->simpleMark((UINTPTR)OS_MEM_NEXT_NODE(node) + OS_MEM_NODE_HEAD_SIZE,
+        (UINTPTR)OS_MEM_NEXT_NODE(OS_MEM_NEXT_NODE(node)), LMS_SHADOW_AFTERFREE_U8);
+}
+
+STATIC INLINE VOID OsLmsReallocResizeMark(struct OsMemNodeHead *node, UINT32 resize)
+{
+    if (g_lms == NULL) {
+        return;
+    }
+    /* mark remaining as redzone */
+    g_lms->simpleMark((UINTPTR)node + resize, (UINTPTR)OS_MEM_NEXT_NODE(node), LMS_SHADOW_REDZONE_U8);
+}
+#endif
+
 #if (LOSCFG_MEM_LEAKCHECK == 1)
 struct OsMemLeakCheckInfo {
     struct OsMemNodeHead *node;
@@ -568,7 +635,7 @@ STATIC INLINE VOID OsMemLeakCheckInfoRecord(struct OsMemNodeHead *node)
 
     if (!OS_MEM_NODE_GET_LEAK_FLAG(node->sizeAndFlag)) {
         info->node = node;
-        (VOID)memcpy_s(info->linkReg, sizeof(info->linkReg), node->linkReg, sizeof(node->linkReg));
+        (VOID)memcpy(info->linkReg, node->linkReg, sizeof(node->linkReg));
         OS_MEM_NODE_SET_LEAK_FLAG(node->sizeAndFlag);
         g_leakCheckRecordCnt++;
         if (g_leakCheckRecordCnt >= LOSCFG_MEM_LEAKCHECK_RECORD_MAX_NUM) {
@@ -579,14 +646,13 @@ STATIC INLINE VOID OsMemLeakCheckInfoRecord(struct OsMemNodeHead *node)
 
 STATIC INLINE VOID OsMemLeakCheckInit(VOID)
 {
-    (VOID)memset_s(g_leakCheckRecord, sizeof(struct OsMemLeakCheckInfo) * LOSCFG_MEM_LEAKCHECK_RECORD_MAX_NUM,
-                   0, sizeof(struct OsMemLeakCheckInfo) * LOSCFG_MEM_LEAKCHECK_RECORD_MAX_NUM);
+    (VOID)memset(g_leakCheckRecord, 0, sizeof(struct OsMemLeakCheckInfo) * LOSCFG_MEM_LEAKCHECK_RECORD_MAX_NUM);
     g_leakCheckRecordCnt = 0;
 }
 
 STATIC INLINE VOID OsMemLinkRegisterRecord(struct OsMemNodeHead *node)
 {
-    (VOID)memset_s(node->linkReg, sizeof(node->linkReg), 0, sizeof(node->linkReg));
+    (VOID)memset(node->linkReg, 0, sizeof(node->linkReg));
     OsBackTraceHookCall(node->linkReg, LOSCFG_MEM_RECORD_LR_CNT, LOSCFG_MEM_OMIT_LR_CNT, 0);
 }
 
@@ -840,6 +906,12 @@ STATIC INLINE VOID *OsMemCreateUsedNode(VOID *addr)
     OsMemNodeSetTaskID(node);
 #endif
 
+#ifdef LOSCFG_KERNEL_LMS
+    struct OsMemNodeHead *newNode = (struct OsMemNodeHead *)node;
+    if (g_lms != NULL) {
+        g_lms->mallocMark(newNode, OS_MEM_NEXT_NODE(newNode), OS_MEM_NODE_HEAD_SIZE);
+    }
+#endif
     return node + 1;
 }
 
@@ -848,8 +920,18 @@ STATIC UINT32 OsMemPoolInit(VOID *pool, UINT32 size)
     struct OsMemPoolHead *poolHead = (struct OsMemPoolHead *)pool;
     struct OsMemNodeHead *newNode = NULL;
     struct OsMemNodeHead *endNode = NULL;
-
-    (VOID)memset_s(poolHead, sizeof(struct OsMemPoolHead), 0, sizeof(struct OsMemPoolHead));
+#ifdef LOSCFG_KERNEL_LMS
+    UINT32 resize = 0;
+    if (g_lms != NULL) {
+        /*
+         * resize == 0, shadow memory init failed, no shadow memory for this pool, set poolSize as original size.
+         * resize != 0, shadow memory init successful, set poolSize as resize.
+         */
+        resize = g_lms->init(pool, size);
+        size = (resize == 0) ? size : resize;
+    }
+#endif
+    (VOID)memset(poolHead, 0, sizeof(struct OsMemPoolHead));
 
     poolHead->info.pool = pool;
     poolHead->info.totalSize = size;
@@ -878,13 +960,18 @@ STATIC UINT32 OsMemPoolInit(VOID *pool, UINT32 size)
     poolHead->info.waterLine = poolHead->info.curUsedSize;
 #endif
 
+#ifdef LOSCFG_KERNEL_LMS
+    if (resize != 0) {
+        OsLmsFirstNodeMark(pool, newNode);
+    }
+#endif
     return LOS_OK;
 }
 
 #if (LOSCFG_MEM_MUL_POOL == 1)
 STATIC VOID OsMemPoolDeinit(VOID *pool)
 {
-    (VOID)memset_s(pool, sizeof(struct OsMemPoolHead), 0, sizeof(struct OsMemPoolHead));
+    (VOID)memset(pool, 0, sizeof(struct OsMemPoolHead));
 }
 
 STATIC UINT32 OsMemPoolAdd(VOID *pool, UINT32 size)
@@ -1118,6 +1205,9 @@ VOID *LOS_MemAllocAlign(VOID *pool, UINT32 size, UINT32 boundary)
         ptr = OsMemAlloc(pool, useSize, intSave);
         alignedPtr = (VOID *)OS_MEM_ALIGN(ptr, boundary);
         if (ptr == alignedPtr) {
+#ifdef LOSCFG_KERNEL_LMS
+            OsLmsAllocAlignMark(ptr, alignedPtr, size);
+#endif
             break;
         }
 
@@ -1127,6 +1217,9 @@ VOID *LOS_MemAllocAlign(VOID *pool, UINT32 size, UINT32 boundary)
         OS_MEM_NODE_SET_ALIGNED_FLAG(allocNode->header.sizeAndFlag);
         OS_MEM_SET_GAPSIZE_ALIGNED_FLAG(gapSize);
         *(UINT32 *)((UINTPTR)alignedPtr - sizeof(gapSize)) = gapSize;
+#ifdef LOSCFG_KERNEL_LMS
+        OsLmsAllocAlignMark(ptr, alignedPtr, size);
+#endif
         ptr = alignedPtr;
     } while (0);
     MEM_UNLOCK(poolHead, intSave);
@@ -1252,6 +1345,13 @@ STATIC INLINE UINT32 OsMemFree(struct OsMemPoolHead *pool, struct OsMemNodeHead 
 #if (LOSCFG_MEM_LEAKCHECK == 1)
     OsMemLinkRegisterRecord(node);
 #endif
+#ifdef LOSCFG_KERNEL_LMS
+    struct OsMemNodeHead *nextNodeBackup = OS_MEM_NEXT_NODE(node);
+    struct OsMemNodeHead *curNodeBackup = node;
+    if (g_lms != NULL) {
+        g_lms->check((UINTPTR)node + OS_MEM_NODE_HEAD_SIZE, TRUE);
+    }
+#endif
     struct OsMemNodeHead *preNode = node->ptr.prev; /* merage preNode */
     if ((preNode != NULL) && !OS_MEM_NODE_GET_USED_FLAG(preNode->sizeAndFlag)) {
         OsMemFreeNodeDelete(pool, (struct OsMemFreeNodeHead *)preNode);
@@ -1278,7 +1378,11 @@ STATIC INLINE UINT32 OsMemFree(struct OsMemPoolHead *pool, struct OsMemNodeHead 
 #endif
 
     OsMemFreeNodeAdd(pool, (struct OsMemFreeNodeHead *)node);
-
+#ifdef LOSCFG_KERNEL_LMS
+    if (g_lms != NULL) {
+        g_lms->freeMark(curNodeBackup, nextNodeBackup, OS_MEM_NODE_HEAD_SIZE);
+    }
+#endif
     return ret;
 }
 
@@ -1343,6 +1447,11 @@ STATIC INLINE VOID OsMemReAllocSmaller(VOID *pool, UINT32 allocSize, struct OsMe
 #if (LOSCFG_MEM_WATERLINE == 1)
         poolInfo->info.curUsedSize -= nodeSize - allocSize;
 #endif
+#ifdef LOSCFG_KERNEL_LMS
+        OsLmsReallocSplitNodeMark(node);
+    } else {
+        OsLmsReallocResizeMark(node, allocSize);
+#endif
     }
     OS_MEM_NODE_SET_USED_FLAG(node->sizeAndFlag);
 #if (LOSCFG_MEM_LEAKCHECK == 1)
@@ -1356,8 +1465,16 @@ STATIC INLINE VOID OsMemMergeNodeForReAllocBigger(VOID *pool, UINT32 allocSize, 
     node->sizeAndFlag = nodeSize;
     OsMemFreeNodeDelete(pool, (struct OsMemFreeNodeHead *)nextNode);
     OsMemMergeNode(nextNode);
+#ifdef LOSCFG_KERNEL_LMS
+    OsLmsReallocMergeNodeMark(node);
+#endif
     if ((allocSize + OS_MEM_MIN_LEFT_SIZE) <= node->sizeAndFlag) {
         OsMemSplitNode(pool, node, allocSize);
+#ifdef LOSCFG_KERNEL_LMS
+        OsLmsReallocSplitNodeMark(node);
+    } else {
+        OsLmsReallocResizeMark(node, allocSize);
+#endif
     }
     OS_MEM_NODE_SET_USED_FLAG(node->sizeAndFlag);
     OsMemWaterUsedRecord((struct OsMemPoolHead *)pool, node->sizeAndFlag - nodeSize);
@@ -1752,10 +1869,8 @@ struct OsMemIntegrityCheckInfo g_integrityCheckRecord = {0};
 STATIC INLINE VOID OsMemCheckInfoRecord(const struct OsMemNodeHead *errNode,
                                      const struct OsMemNodeHead *preNode)
 {
-    (VOID)memcpy_s(&g_integrityCheckRecord.preNode, sizeof(struct OsMemNodeHead),
-                   preNode, sizeof(struct OsMemNodeHead));
-    (VOID)memcpy_s(&g_integrityCheckRecord.errNode, sizeof(struct OsMemNodeHead),
-                   errNode, sizeof(struct OsMemNodeHead));
+    (VOID)memcpy(&g_integrityCheckRecord.preNode, preNode, sizeof(struct OsMemNodeHead));
+    (VOID)memcpy(&g_integrityCheckRecord.errNode, errNode, sizeof(struct OsMemNodeHead));
 }
 
 STATIC VOID OsMemIntegrityCheckError(struct OsMemPoolHead *pool,
@@ -1891,7 +2006,7 @@ UINT32 LOS_MemInfoGet(VOID *pool, LOS_MEM_POOL_STATUS *poolStatus)
         return LOS_NOK;
     }
 
-    (VOID)memset_s(poolStatus, sizeof(LOS_MEM_POOL_STATUS), 0, sizeof(LOS_MEM_POOL_STATUS));
+    (VOID)memset(poolStatus, 0, sizeof(LOS_MEM_POOL_STATUS));
 
     OsAllMemNodeDoHandle(pool, OsMemNodeInfoGetHandle, (VOID *)poolStatus);
 
@@ -2054,9 +2169,19 @@ STATIC INLINE VOID OsMemMulRegionsLink(struct OsMemPoolHead *poolHead, VOID *las
 
     curStartAddress = memRegion->startAddress;
     curLength = memRegion->length;
-
+#ifdef LOSCFG_KERNEL_LMS
+    UINT32 resize = 0;
+    if (g_lms != NULL) {
+        /*
+         * resize == 0, shadow memory init failed, no shadow memory for this pool, set poolSize as original size.
+         * resize != 0, shadow memory init successful, set poolSize as resize.
+         */
+        resize = g_lms->init(curStartAddress, curLength);
+        curLength = (resize == 0) ? curLength : resize;
+    }
+#endif
     // mark the gap between two regions as one used node
-    gapSize = (UINT8 *)(curStartAddress) - ((UINT8 *)(lastStartAddress) + lastLength);
+    gapSize = (UINT8 *)(curStartAddress) - ((UINT8 *)(poolHead) + poolHead->info.totalSize);
     lastEndNode->sizeAndFlag = gapSize + OS_MEM_NODE_HEAD_SIZE;
     OS_MEM_SET_MAGIC(lastEndNode);
     OS_MEM_NODE_SET_USED_FLAG(lastEndNode->sizeAndFlag);
@@ -2122,7 +2247,7 @@ UINT32 LOS_MemRegionsAdd(VOID *pool, const LosMemRegion *const memRegions, UINT3
     }
 
     firstFreeNode = OS_MEM_FIRST_NODE(lastStartAddress);
-    lastEndNode = OS_MEM_END_NODE(lastStartAddress, lastLength);
+    lastEndNode = OS_MEM_END_NODE(lastStartAddress, poolHead->info.totalSize);
     /* traverse the rest memory regions, and initialize them as free nodes and link together */
     while (regionCount < memRegionCount) {
         curStartAddress = memRegion->startAddress;
@@ -2131,7 +2256,7 @@ UINT32 LOS_MemRegionsAdd(VOID *pool, const LosMemRegion *const memRegions, UINT3
         OsMemMulRegionsLink(poolHead, lastStartAddress, lastLength, lastEndNode, memRegion);
         lastStartAddress = curStartAddress;
         lastLength = curLength;
-        lastEndNode = OS_MEM_END_NODE(curStartAddress, curLength);
+        lastEndNode = OS_MEM_END_NODE(poolHead, poolHead->info.totalSize);
         memRegion++;
         regionCount++;
     }
@@ -2163,7 +2288,7 @@ STATIC VOID OsMemExcInfoGetSub(struct OsMemPoolHead *pool, MemInfoCB *memExcInfo
     UINT32 taskID = OS_TASK_ERRORID;
     UINT32 intSave = 0;
 
-    (VOID)memset_s(memExcInfo, sizeof(MemInfoCB), 0, sizeof(MemInfoCB));
+    (VOID)memset(memExcInfo, 0, sizeof(MemInfoCB));
 
     MEM_LOCK(pool, intSave);
     memExcInfo->type = MEM_MANG_MEMORY;

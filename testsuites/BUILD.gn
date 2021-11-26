@@ -69,6 +69,9 @@ group("testsuites") {
   if (defined(LOSCFG_DYNLINK)) {
     deps += [ "sample/kernel/dynlink:test_dynlink" ]
   }
+  if (defined(LOSCFG_KERNEL_LMS)) {
+    deps += [ "sample/kernel/lms:test_lms" ]
+  }
   if (!module_switch) {
     deps = []
   }
