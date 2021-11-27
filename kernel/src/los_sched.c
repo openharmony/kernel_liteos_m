@@ -34,9 +34,7 @@
 #include "los_tick.h"
 #include "los_debug.h"
 #include "los_hook.h"
-#if (LOSCFG_KERNEL_PM == 1)
 #include "los_pm.h"
-#endif
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -222,7 +220,6 @@ STATIC INLINE VOID OsSchedSetNextExpireTime(UINT64 startTime, UINT32 responseID,
 
 VOID OsSchedUpdateExpireTime(UINT64 startTime, BOOL timeUpdate)
 {
-    BOOL isPmMode = FALSE;
     UINT64 endTime;
     LosTaskCB *runTask = g_losTask.runTask;
 
@@ -230,9 +227,7 @@ VOID OsSchedUpdateExpireTime(UINT64 startTime, BOOL timeUpdate)
         return;
     }
 
-#if (LOSCFG_KERNEL_PM == 1)
-    isPmMode = OsIsPmMode();
-#endif
+    BOOL isPmMode = OsIsPmMode();
     if ((runTask->taskID != g_idleTaskID) && !isPmMode) {
         INT32 timeSlice = (runTask->timeSlice <= OS_TIME_SLICE_MIN) ? OS_SCHED_TIME_SLICES : runTask->timeSlice;
         endTime = startTime + timeSlice;
@@ -413,6 +408,66 @@ VOID OsSchedTaskWake(LosTaskCB *resumedTask)
         !(resumedTask->taskStatus & OS_TASK_STATUS_RUNNING)) {
         OsSchedTaskEnQueue(resumedTask);
     }
+}
+
+STATIC VOID OsSchedFreezeTask(LosTaskCB *taskCB)
+{
+    UINT64 responseTime = GET_SORTLIST_VALUE(&taskCB->sortList);
+    OsDeleteSortLink(&taskCB->sortList, OS_SORT_LINK_TASK);
+    SET_SORTLIST_VALUE(&taskCB->sortList, responseTime);
+    taskCB->taskStatus |= OS_TASK_FALG_FREEZE;
+    return;
+}
+
+STATIC VOID OsSchedUnfreezeTask(LosTaskCB *taskCB)
+{
+    UINT64 currTime, responseTime;
+    UINT32 remainTick;
+
+    taskCB->taskStatus &= ~OS_TASK_FALG_FREEZE;
+    currTime = OsGetCurrSchedTimeCycle();
+    responseTime = GET_SORTLIST_VALUE(&taskCB->sortList);
+    if (responseTime > currTime) {
+        remainTick = ((responseTime - currTime) + OS_CYCLE_PER_TICK - 1) / OS_CYCLE_PER_TICK;
+        OsAdd2SortLink(&taskCB->sortList, currTime, remainTick, OS_SORT_LINK_TASK);
+        return;
+    }
+
+    SET_SORTLIST_VALUE(&taskCB->sortList, OS_SORT_LINK_INVALID_TIME);
+    if (taskCB->taskStatus & OS_TASK_STATUS_PEND) {
+        LOS_ListDelete(&taskCB->pendList);
+    }
+    taskCB->taskStatus &= ~(OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND_TIME | OS_TASK_STATUS_PEND);
+    return;
+}
+
+VOID OsSchedSuspend(LosTaskCB *taskCB)
+{
+    if (taskCB->taskStatus & OS_TASK_STATUS_READY) {
+        OsSchedTaskDeQueue(taskCB);
+    }
+
+    if ((taskCB->taskStatus & (OS_TASK_STATUS_PEND_TIME | OS_TASK_STATUS_DELAY)) && OsIsPmMode()) {
+        OsSchedFreezeTask(taskCB);
+    }
+
+    taskCB->taskStatus |= OS_TASK_STATUS_SUSPEND;
+    OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTOSUSPENDEDLIST, taskCB);
+}
+
+BOOL OsSchedResume(LosTaskCB *taskCB)
+{
+    if (taskCB->taskStatus & OS_TASK_FALG_FREEZE) {
+        OsSchedUnfreezeTask(taskCB);
+    }
+
+    taskCB->taskStatus &= (~OS_TASK_STATUS_SUSPEND);
+    if (!(taskCB->taskStatus & (OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND))) {
+        OsSchedTaskEnQueue(taskCB);
+        return TRUE;
+    }
+
+    return FALSE;
 }
 
 BOOL OsSchedModifyTaskSchedParam(LosTaskCB *taskCB, UINT16 priority)

@@ -71,11 +71,6 @@
 #define UWROLLNUMDEC(NUMBER)  \
             ((NUMBER) = ((NUMBER) - 1))
 
-
-#define OS_CHECK_TASK_BLOCK                     (OS_TASK_STATUS_DELAY |  \
-                                                 OS_TASK_STATUS_PEND |   \
-                                                 OS_TASK_STATUS_SUSPEND)
-
 /**
  * @ingroup los_task
  * @brief check task id's validation
@@ -830,20 +825,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskResume(UINT32 taskID)
         OS_GOTO_ERREND();
     }
 
-#if (LOSCFG_KERNEL_PM == 1)
-    if (tempStatus & OS_TASK_FALG_FREEZE) {
-        OsPmUnfreezeTaskUnsafe(taskID);
-    }
-#endif
-
-    taskCB->taskStatus &= (~OS_TASK_STATUS_SUSPEND);
-    if (!(taskCB->taskStatus & OS_CHECK_TASK_BLOCK)) {
-        OsSchedTaskEnQueue(taskCB);
-        if (g_taskScheduled) {
-            LOS_IntRestore(intSave);
-            LOS_Schedule();
-            return LOS_OK;
-        }
+    BOOL needSched = OsSchedResume(taskCB);
+    if (needSched && g_taskScheduled) {
+        LOS_IntRestore(intSave);
+        LOS_Schedule();
+        return LOS_OK;
     }
 
     LOS_IntRestore(intSave);
@@ -897,18 +883,8 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskSuspend(UINT32 taskID)
         OS_GOTO_ERREND();
     }
 
-    if (tempStatus & OS_TASK_STATUS_READY) {
-        OsSchedTaskDeQueue(taskCB);
-    }
+    OsSchedSuspend(taskCB);
 
-#if (LOSCFG_KERNEL_PM == 1)
-    if ((tempStatus & (OS_TASK_STATUS_PEND_TIME | OS_TASK_STATUS_DELAY)) && OsIsPmMode()) {
-        OsPmFreezeTaskUnsafe(taskID);
-    }
-#endif
-
-    taskCB->taskStatus |= OS_TASK_STATUS_SUSPEND;
-    OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTOSUSPENDEDLIST, taskCB);
     if (taskID == g_losTask.runTask->taskID) {
         LOS_IntRestore(intSave);
         LOS_Schedule();

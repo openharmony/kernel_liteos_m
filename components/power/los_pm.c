@@ -657,41 +657,6 @@ UINT32 LOS_PmLockRelease(const CHAR *name)
     return ret;
 }
 
-VOID OsPmFreezeTaskUnsafe(UINT32 taskID)
-{
-    UINT64 responseTime;
-    LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
-
-    responseTime = GET_SORTLIST_VALUE(&taskCB->sortList);
-    OsDeleteSortLink(&taskCB->sortList, OS_SORT_LINK_TASK);
-    SET_SORTLIST_VALUE(&taskCB->sortList, responseTime);
-    taskCB->taskStatus |= OS_TASK_FALG_FREEZE;
-    return;
-}
-
-VOID OsPmUnfreezeTaskUnsafe(UINT32 taskID)
-{
-    LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
-    UINT64 currTime, responseTime;
-    UINT32 remainTick;
-
-    taskCB->taskStatus &= ~OS_TASK_FALG_FREEZE;
-    currTime = OsGetCurrSchedTimeCycle();
-    responseTime = GET_SORTLIST_VALUE(&taskCB->sortList);
-    if (responseTime > currTime) {
-        remainTick = ((responseTime - currTime) + OS_CYCLE_PER_TICK - 1) / OS_CYCLE_PER_TICK;
-        OsAdd2SortLink(&taskCB->sortList, currTime, remainTick, OS_SORT_LINK_TASK);
-        return;
-    }
-
-    SET_SORTLIST_VALUE(&taskCB->sortList, OS_SORT_LINK_INVALID_TIME);
-    if (taskCB->taskStatus & OS_TASK_STATUS_PEND) {
-        LOS_ListDelete(&taskCB->pendList);
-    }
-    taskCB->taskStatus &= ~(OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND_TIME | OS_TASK_STATUS_PEND);
-    return;
-}
-
 STATIC VOID OsPmSwtmrHandler(UINT32 arg)
 {
     const CHAR *name = (const CHAR *)arg;
