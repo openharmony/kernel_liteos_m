@@ -195,7 +195,6 @@ config("misc_config") {
     "-fdata-sections",
     "-fno-exceptions",
     "-fno-omit-frame-pointer",
-    "-fno-short-enums",
   ]
 
   if (!defined(LOSCFG_COMPILER_CLANG_LLVM)) {
