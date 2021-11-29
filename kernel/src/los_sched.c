@@ -415,7 +415,7 @@ STATIC VOID OsSchedFreezeTask(LosTaskCB *taskCB)
     UINT64 responseTime = GET_SORTLIST_VALUE(&taskCB->sortList);
     OsDeleteSortLink(&taskCB->sortList, OS_SORT_LINK_TASK);
     SET_SORTLIST_VALUE(&taskCB->sortList, responseTime);
-    taskCB->taskStatus |= OS_TASK_FALG_FREEZE;
+    taskCB->taskStatus |= OS_TASK_FLAG_FREEZE;
     return;
 }
 
@@ -424,7 +424,7 @@ STATIC VOID OsSchedUnfreezeTask(LosTaskCB *taskCB)
     UINT64 currTime, responseTime;
     UINT32 remainTick;
 
-    taskCB->taskStatus &= ~OS_TASK_FALG_FREEZE;
+    taskCB->taskStatus &= ~OS_TASK_FLAG_FREEZE;
     currTime = OsGetCurrSchedTimeCycle();
     responseTime = GET_SORTLIST_VALUE(&taskCB->sortList);
     if (responseTime > currTime) {
@@ -457,7 +457,7 @@ VOID OsSchedSuspend(LosTaskCB *taskCB)
 
 BOOL OsSchedResume(LosTaskCB *taskCB)
 {
-    if (taskCB->taskStatus & OS_TASK_FALG_FREEZE) {
+    if (taskCB->taskStatus & OS_TASK_FLAG_FREEZE) {
         OsSchedUnfreezeTask(taskCB);
     }
 

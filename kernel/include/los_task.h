@@ -1299,7 +1299,7 @@ extern UINT32 LOS_TaskDetach(UINT32 taskID);
  *
  * The delayed operation of this task is frozen.
  */
-#define OS_TASK_FALG_FREEZE                         0x4000
+#define OS_TASK_FLAG_FREEZE                         0x4000
 
 /**
  * @ingroup los_task

@@ -164,7 +164,7 @@ typedef struct {
      * All modes except normal mode are invoked.
      * Unlocked task scheduling.
      */
-    VOID   (*late)(UINT32 mode);
+    VOID (*late)(UINT32 mode);
     /* The system enters the Normal sleep mode.
      * In normal mode, the value cannot be NULL.
      */
@@ -172,7 +172,7 @@ typedef struct {
     /* The system recovers from normal sleep.
      * The value can be NULL.
      */
-    VOID   (*normalResume)(VOID);
+    VOID (*normalResume)(VOID);
     /* The system enters the light sleep mode.
      * In light sleep mode, the value cannot be NULL.
      */
@@ -180,7 +180,7 @@ typedef struct {
     /* The system recovers from light sleep.
      * The value can be NULL.
      */
-    VOID   (*lightResume)(VOID);
+    VOID (*lightResume)(VOID);
     /* The system enters the deep sleep mode.
      * In deep sleep mode, the value cannot be NULL.
      */
@@ -188,7 +188,7 @@ typedef struct {
     /* The system recovers from deep sleep.
      * The value can be NULL.
      */
-    VOID   (*deepResume)(VOID);
+    VOID (*deepResume)(VOID);
     /* The system enters the shutdown mode.
      * In shutdown mode, the value cannot be NULL.
      */
@@ -196,7 +196,7 @@ typedef struct {
     /* The system recovers from shutdown.
      * In shutdown mode, the value cannot be NULL.
      */
-    VOID   (*shutdownResume)(VOID);
+    VOID (*shutdownResume)(VOID);
 } LosPmSysctrl;
 
 /**
@@ -236,7 +236,10 @@ UINT32 OsPmInit(VOID);
 #if (LOSCFG_KERNEL_PM == 1)
 BOOL OsIsPmMode(VOID);
 #else
-#define OsIsPmMode() (0)
+STATIC INLINE BOOL OsIsPmMode(VOID)
+{
+    return FALSE;
+}
 #endif
 
 /**
@@ -399,7 +402,7 @@ UINT32 LOS_PmLockRelease(const CHAR *name);
  *
  * @attention None.
  *
- * @param NA.
+ * @param None.
  *
  * @retval Number of awakening sources of the device.
  * @par Dependency:

@@ -128,7 +128,7 @@ extern UINT64 LOS_SysCycleGet(VOID);
     ((cycle) % OS_SYS_CLOCK) * OS_SYS_NS_PER_SECOND / (freq))
 
 #define OS_SYS_NS_TO_CYCLE(time, freq) (((time) / OS_SYS_NS_PER_SECOND) * (freq) +     \
-    (time % OS_SYS_NS_PER_SECOND) * (freq) / OS_SYS_NS_PER_SECOND)
+    ((time) % OS_SYS_NS_PER_SECOND) * (freq) / OS_SYS_NS_PER_SECOND)
 
 /**
  * @ingroup los_tick
