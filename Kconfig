@@ -355,6 +355,9 @@ config PLATFORM_EXC
 ######################### config options of trace #########################
 source "components/trace/Kconfig"
 
+######################### config options of lms #########################
+source "components/lms/Kconfig"
+
 endmenu
 
 ######################### config options of lib ########################

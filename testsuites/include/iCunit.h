@@ -162,6 +162,7 @@ typedef enum {
 #endif
     TEST_DRIVERBASE,
     TEST_DYNLINK,
+    TEST_LMS,
 } LiteOS_test_module;
 
 typedef enum {

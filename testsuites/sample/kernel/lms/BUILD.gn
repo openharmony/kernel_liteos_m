@@ -27,36 +27,52 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/liteos.gni")
-
-group("components") {
-  deps = [
-    "backtrace",
-    "cppsupport",
-    "cpup",
-    "dynlink",
-    "exchook",
-    "fs",
-    "lms",
-    "net",
-    "power",
-    "shell",
-    "trace",
+static_library("test_lms") {
+  sources = [
+    "It_los_lms.c",
+    "It_los_lms_001.c",
+    "It_los_lms_002.c",
+    "It_los_lms_003.c",
+    "It_los_lms_004.c",
+    "It_los_lms_005.c",
+    "It_los_lms_006.c",
+    "It_los_lms_007.c",
+    "It_los_lms_008.c",
+    "It_los_lms_009.c",
+    "It_los_lms_010.c",
+    "It_los_lms_011.c",
+    "It_los_lms_012.c",
+    "It_los_lms_013.c",
+    "It_los_lms_014.c",
+    "It_los_lms_015.c",
+    "It_los_lms_016.c",
+    "It_los_lms_017.c",
+    "It_los_lms_018.c",
+    "It_los_lms_019.c",
+    "It_los_lms_020.c",
+    "It_los_lms_021.c",
+    "It_los_lms_022.c",
+    "It_los_lms_023.c",
+    "It_los_lms_024.c",
   ]
-}
 
-config("public") {
-  configs = [
-    "backtrace:public",
-    "cppsupport:public",
-    "cpup:public",
-    "dynlink:public",
-    "exchook:public",
-    "fs:public",
-    "net:public",
-    "power:public",
-    "shell:public",
-    "trace:public",
-    "lms:public",
-  ]
+  if ("$ohos_build_compiler_specified" == "gcc") {
+    cflags_c = [
+      "-O0",
+      "-fsanitize=kernel-address",
+    ]
+  } else {
+    cflags_c = [
+      "-O0",
+      "-fsanitize=kernel-address",
+      "-mllvm",
+      "-asan-instrumentation-with-call-threshold=0",
+      "-mllvm",
+      "-asan-stack=0",
+      "-mllvm",
+      "-asan-globals=0",
+    ]
+  }
+
+  configs += [ "//kernel/liteos_m/testsuites:include" ]
 }
