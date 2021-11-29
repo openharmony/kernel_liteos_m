@@ -115,7 +115,7 @@ LITE_TEST_CASE(PosixRegexFuncTestSuite, testRegexExtended001, Function | MediumT
     TestRegex(REG_EXTENDED, "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*.\\w+([-.]\\w+)*$", "harmony20000925@abcdef.com", REG_OK,
         "harmony20000925@abcdef.com");
 
-    TestRegex(REG_EXTENDED, "^addr=([^&]*)", "huawei123&sex=girl&age=18\r\naddr=bantian&hobby=movie", REG_NOMATCH,
+    TestRegex(REG_EXTENDED, "^addr=([^&]*)", "fawei123&sex=girl&age=18\r\naddr=bantian&hobby=movie", REG_NOMATCH,
         NULL);
 }
 
@@ -138,10 +138,10 @@ LITE_TEST_CASE(PosixRegexFuncTestSuite, testRegexIcase001, Function | MediumTest
  */
 LITE_TEST_CASE(PosixRegexFuncTestSuite, testRegexNewline001, Function | MediumTest | Level1)
 {
-    TestRegex(REG_EXTENDED | REG_NEWLINE, "^addr=([^&]*)", "huawei123&sex=girl&age=18\r\naddr=bantian&hobby=movie",
+    TestRegex(REG_EXTENDED | REG_NEWLINE, "^addr=([^&]*)", "fawei123&sex=girl&age=18\r\naddr=bantian&hobby=movie",
         REG_OK, "addr=bantian");
 
-    TestRegex(REG_EXTENDED | REG_NEWLINE, "^addr=([^&]*)", "huawei123&sex=girl&age=18&addr=bantian&hobby=movie",
+    TestRegex(REG_EXTENDED | REG_NEWLINE, "^addr=([^&]*)", "fawei123&sex=girl&age=18&addr=bantian&hobby=movie",
         REG_NOMATCH, NULL);
 }
 
