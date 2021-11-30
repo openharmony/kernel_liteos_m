@@ -89,6 +89,9 @@ LITE_OS_SEC_TEXT_INIT VOID LOS_Panic(const CHAR *fmt, ...)
     va_start(ap, fmt);
     PRINT_ERR(fmt, ap);
     va_end(ap);
+#if (LOSCFG_BACKTRACE_TYPE != 0)
+    LOS_BackTrace();
+#endif
     HalSysExit();
 }
 
