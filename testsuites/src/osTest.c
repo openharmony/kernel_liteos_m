@@ -171,6 +171,10 @@ void TestKernel(void)
 #if (LOS_KERNEL_PM_TEST == 1)
     ItSuiteLosPm();
 #endif
+
+#if (LOS_KERNEL_LMK_TEST == 1)
+    ItSuiteLosLmk();
+#endif
 }
 
 

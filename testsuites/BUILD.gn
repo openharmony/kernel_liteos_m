@@ -72,6 +72,9 @@ group("testsuites") {
   if (defined(LOSCFG_KERNEL_LMS)) {
     deps += [ "sample/kernel/lms:test_lms" ]
   }
+  if (defined(LOSCFG_KERNEL_LMK)) {
+    deps += [ "sample/kernel/lmk:test_lmk" ]
+  }
   if (!module_switch) {
     deps = []
   }
