@@ -59,13 +59,7 @@ static UINT32 TestCase(VOID)
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.pcName = "Tsk048A";
     task1.uwResved = LOS_TASK_ATTR_JOINABLE;
-    if (TASK_EXISTED_D_NUM == 4) { // 4, set priority based on TASK_EXISTED_D_NUM.
-        task1.usTaskPrio = 2; // 2, TASK_EXISTED_D_NUM == 4, set 2 as priority.
-    } else if (TASK_EXISTED_D_NUM == 3) { // 3, set reasonable priority based on TASK_EXISTED_D_NUM.
-        task1.usTaskPrio = 1;
-    } else {
-        task1.usTaskPrio = 0;
-    }
+    task1.usTaskPrio = 1;
 
     g_testCount = 0;
 

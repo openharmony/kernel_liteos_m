@@ -231,18 +231,10 @@ extern EVENT_CB_S g_exampleEvent;
 
 #define OS_EVENT_TIMEOUT_MAX_VAL 0xFFFFFFFF
 
-#if (LOSCFG_BASE_CORE_SWTMR == 1)
-#define TASK_EXISTED_NUM 3
-#else
-#define TASK_EXISTED_NUM 2
-#endif
-
-
-#if (LOSCFG_BASE_CORE_SWTMR == 1)
-#define QUEUE_EXISTED_NUM 1
-#else
-#define QUEUE_EXISTED_NUM 0
-#endif
+extern UINT32 QueueUsedCountGet(VOID);
+extern UINT32 TaskUsedCountGet(VOID);
+#define TASK_EXISTED_NUM TaskUsedCountGet()
+#define QUEUE_EXISTED_NUM QueueUsedCountGet()
 
 #define HWI_NUM_INT_NEG (-4)
 #define HWI_NUM_INT0 0

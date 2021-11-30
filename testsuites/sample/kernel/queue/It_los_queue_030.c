@@ -40,7 +40,8 @@ static UINT32 Testcase(VOID)
     CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
     CHAR buff2[QUEUE_SHORT_BUFFER_LENGTH] = "";
 
-    for (index = 0; index < LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM; index++) {
+    UINT32 limit = LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM;
+    for (index = 0; index < limit; index++) {
         ret = LOS_QueueCreate(NULL, QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
         ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     }
@@ -53,7 +54,7 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
 EXIT:
-    for (index = 0; index < LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM; index++) {
+    for (index = 0; index < limit; index++) {
         ret = LOS_QueueDelete(queueID[index]);
         ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
     }

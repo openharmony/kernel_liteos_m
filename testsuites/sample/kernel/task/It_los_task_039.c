@@ -55,7 +55,8 @@ static UINT32 TestCase(VOID)
 
     LOS_TaskLock();
 
-    for (index = 0; index < LOSCFG_BASE_CORE_TSK_LIMIT - TASK_EXISTED_D_NUM + 1; index++) {
+    UINT32 limit = LOSCFG_BASE_CORE_TSK_LIMIT - TaskUsedCountGet();
+    for (index = 0; index < limit + 1; index++) {
         task1.usTaskPrio = index % OS_TASK_PRIORITY_LOWEST;
         task1.pcName = acName;
         task1.uwResved = LOS_TASK_STATUS_DETACHED;
@@ -70,7 +71,7 @@ static UINT32 TestCase(VOID)
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_TSK_TCB_UNAVAILABLE, ret, EXIT);
 EXIT:
 
-    for (index = 0; index < LOSCFG_BASE_CORE_TSK_LIMIT - TASK_EXISTED_D_NUM + 1; index++) {
+    for (index = 0; index < limit + 1; index++) {
         ret = LOS_TaskDelete(testTaskID[index]);
         ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
     }

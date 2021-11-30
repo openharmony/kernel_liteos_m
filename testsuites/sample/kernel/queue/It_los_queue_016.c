@@ -42,13 +42,14 @@ static UINT32 Testcase(VOID)
     ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, NULL, 0, QUEUE_BASE_MSGSIZE);
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_QUEUE_CREAT_PTR_NULL, ret);
 
-    for (index = 0; index < LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM; index++) {
+    UINT32 limit = LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM;
+    for (index = 0; index < limit; index++) {
         ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
         ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     }
 
 EXIT:
-    for (index = 0; index < LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM; index++)
+    for (index = 0; index < limit; index++)
         LOS_QueueDelete(queueID[index]);
 
     return LOS_OK;
