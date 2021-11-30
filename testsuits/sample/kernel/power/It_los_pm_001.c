@@ -152,8 +152,8 @@ static UINT32 TestCase(VOID)
     ret = LOS_PmUnregister(LOS_PM_TYPE_TICK_TIMER, &g_tickTimer);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    ret = LOS_PmRegister(LOS_PM_TYPE_SYSCTRL, &g_sysctrl);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_PM_INVALID_PARAM, ret);
+    ret = LOS_PmUnregister(LOS_PM_TYPE_SYSCTRL, &g_sysctrl);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     ret = LOS_PmUnregister(LOS_PM_TYPE_DEVICE, &g_device1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
