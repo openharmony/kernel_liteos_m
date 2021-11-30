@@ -39,27 +39,6 @@ static VOID TaskF01(VOID)
     return;
 }
 
-#ifdef __RISC_V__
-static UINT32 OsShellCmdTaskCntGet(VOID)
-{
-    UINT32 loop;
-    UINT32 taskCnt = 0;
-    UINT32 intSave;
-    LosTaskCB *taskCB = (LosTaskCB *)NULL;
-
-    intSave = LOS_IntLock();
-    for (loop = 0; loop < g_taskMaxNum; loop++) {
-        taskCB = (((LosTaskCB *)g_taskCBArray) + loop);
-        if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
-            continue;
-        }
-        taskCnt++;
-    }
-    (VOID)LOS_IntRestore(intSave);
-    return taskCnt;
-}
-#endif
-
 static UINT32 TestCase(VOID)
 {
     UINT32 ret;
@@ -69,19 +48,12 @@ static UINT32 TestCase(VOID)
     UINT8 pro;
     CHAR acName[TASK_NAME_NUM];
     UINT32 auwTestTaskID[LOSCFG_BASE_CORE_TSK_LIMIT];
-#ifdef __RISC_V__
-    UINT32 taskCnt;
-    taskCnt = OsShellCmdTaskCntGet();
-#endif
+    UINT32 taskCnt = TaskUsedCountGet();
     TSK_INIT_PARAM_S task1 = { 0 };
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
     task1.uwStackSize = LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE;
 
-#ifdef __RISC_V__
     g_leavingTaskNum = LOSCFG_BASE_CORE_TSK_LIMIT - taskCnt;
-#else
-    g_leavingTaskNum = LOSCFG_BASE_CORE_TSK_LIMIT - TASK_EXISTED_NUM;
-#endif
     LOS_TaskLock();
 
     if (LOSCFG_BASE_CORE_SWTMR == 1) {

@@ -79,7 +79,6 @@ UINT32 g_usSemID3[LOSCFG_BASE_IPC_SEM_CONFIG + 1];
 #define TST_RAMADDRSTART 0x20000000
 #define TST_RAMADDREND 0x20010000
 
-#if (CMSIS_OS_VER == 2)
 extern SWTMR_CTRL_S *g_swtmrCBArray;
 UINT32 SwtmrCountGetTest(VOID)
 {
@@ -98,7 +97,42 @@ UINT32 SwtmrCountGetTest(VOID)
     (VOID)LOS_IntRestore(intSave);
     return swTmrCnt;
 }
-#endif
+
+extern LosQueueCB *g_allQueue;
+UINT32 QueueUsedCountGet(VOID)
+{
+    UINT32 intSave;
+    UINT32 count = 0;
+
+    intSave = LOS_IntLock();
+    for (UINT32 index = 0; index < LOSCFG_BASE_IPC_QUEUE_LIMIT; index++) {
+        LosQueueCB *queueNode = ((LosQueueCB *)g_allQueue) + index;
+        if (queueNode->queueState == OS_QUEUE_INUSED) {
+            count++;
+        }
+    }
+    LOS_IntRestore(intSave);
+
+    return count;
+}
+
+extern LosTaskCB *g_taskCBArray;
+UINT32 TaskUsedCountGet(VOID)
+{
+    UINT32 intSave;
+    UINT32 count = 0;
+
+    intSave = LOS_IntLock();
+    for (UINT32 index = 0; index < LOSCFG_BASE_CORE_TSK_LIMIT; index++) {
+        LosTaskCB *taskCB = ((LosTaskCB *)g_taskCBArray) + index;
+        if (taskCB->taskStatus & OS_TASK_STATUS_UNUSED) {
+            count++;
+        }
+    }
+    LOS_IntRestore(intSave);
+
+    return (LOSCFG_BASE_CORE_TSK_LIMIT - count);
+}
 
 void TestKernel(void)
 {

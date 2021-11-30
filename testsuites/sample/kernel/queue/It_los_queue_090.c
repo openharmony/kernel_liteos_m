@@ -46,7 +46,8 @@ static UINT32 Testcase(VOID)
     const UINT32 len = 1;
     const UINT32 count = 256; // 256, set maxMsgSize
 
-    for (index = 0; index < LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM; index++) {
+    UINT32 limit = LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM;
+    for (index = 0; index < limit; index++) {
         ret = LOS_QueueCreate(NULL, len, &queueID[index], 0, count);
         ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
@@ -60,7 +61,7 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_CB_UNAVAILABLE, ret, EXIT);
 
     for (j = 0; j < 100; j++) { // 100, test times
-        for (index = 0; index < LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM; index++) {
+        for (index = 0; index < limit; index++) {
             for (i = 0; i < len; i++) {
                 ret = LOS_QueueWrite(queueID[index], filebuf, count, 0);
                 ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
@@ -77,29 +78,28 @@ static UINT32 Testcase(VOID)
             ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_ISEMPTY, ret, EXIT);
         }
     }
-    ret = LOS_QueueWrite(queueID[LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM - 1], filebuf, count, 0);
+    ret = LOS_QueueWrite(queueID[limit - 1], filebuf, count, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_QueueRead(queueID[LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM - 1], readbuf, count, 0);
+    ret = LOS_QueueRead(queueID[limit - 1], readbuf, count, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_QueueInfoGet(queueID[LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM - 1], &queueInfo);
+    ret = LOS_QueueInfoGet(queueID[limit - 1], &queueInfo);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     ICUNIT_GOTO_EQUAL(queueInfo.queueLen, len, queueInfo.queueLen, EXIT);
-    ICUNIT_GOTO_EQUAL(queueInfo.queueID, queueID[LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM - 1],
-        queueInfo.queueID, EXIT);
+    ICUNIT_GOTO_EQUAL(queueInfo.queueID, queueID[limit - 1], queueInfo.queueID, EXIT);
 
-    ret = LOS_QueueRead(queueID[LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM - 1], readbuf, count, 0);
+    ret = LOS_QueueRead(queueID[limit - 1], readbuf, count, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_ISEMPTY, ret, EXIT);
 
-    for (index = 0; index < LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM; index++) {
+    for (index = 0; index < limit; index++) {
         ret = LOS_QueueDelete(queueID[index]);
         ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
     }
     return LOS_OK;
 
 EXIT:
-    for (index = 0; index < LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM; index++) {
+    for (index = 0; index < limit; index++) {
         LOS_QueueDelete(queueID[index]);
     }
     return LOS_OK;

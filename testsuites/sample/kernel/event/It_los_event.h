@@ -41,13 +41,6 @@ extern "C" {
 #define SYS_EXIST_SWTMR 1
 #define TEST_HWI_RUNTIME 0x100000
 #define TASK_LOOP_NUM 0x100000
-#if (LOSCFG_BASE_CORE_SWTMR == 1)
-#define TASK_EXISTED_NUM 3
-#else
-#define TASK_EXISTED_NUM 2
-#endif
-
-#define TASK_EXISTED_D_NUM TASK_EXISTED_NUM
 #define TASK_NAME_NUM 10
 #define IT_TASK_LOOP 20
 
