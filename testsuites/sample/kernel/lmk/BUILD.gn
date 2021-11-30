@@ -1,5 +1,4 @@
-# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2021-2021 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -27,38 +26,16 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/liteos.gni")
-
-group("components") {
-  deps = [
-    "backtrace",
-    "cppsupport",
-    "cpup",
-    "dynlink",
-    "exchook",
-    "fs",
-    "lmk",
-    "lms",
-    "net",
-    "power",
-    "shell",
-    "trace",
+static_library("test_lmk") {
+  sources = [
+    "It_los_lmk.c",
+    "It_los_lmk_001.c",
+    "It_los_lmk_002.c",
+    "It_los_lmk_003.c",
+    "It_los_lmk_004.c",
   ]
-}
 
-config("public") {
-  configs = [
-    "backtrace:public",
-    "cppsupport:public",
-    "cpup:public",
-    "dynlink:public",
-    "exchook:public",
-    "fs:public",
-    "net:public",
-    "power:public",
-    "shell:public",
-    "trace:public",
-    "lmk:public",
-    "lms:public",
-  ]
+  include_dirs = [ "//kernel/liteos_m/components/lmk" ]
+
+  configs += [ "//kernel/liteos_m/testsuites:include" ]
 }
