@@ -42,7 +42,6 @@
 #define OS_PM_SYS_EARLY        1
 #define OS_PM_SYS_DEVICE_EARLY 2
 
-typedef UINT32 (*SysSuspend)(VOID);
 typedef UINT32 (*Suspend)(UINT32 mode);
 
 typedef struct {
@@ -70,8 +69,23 @@ typedef struct {
 #define PM_EVENT_LOCK_RELEASE 0x1
 STATIC EVENT_CB_S g_pmEvent;
 STATIC LosPmCB g_pmCB;
-STATIC LosPmSysctrl *g_sysctrl = NULL;
+STATIC LosPmSysctrl g_sysctrl;
 STATIC UINT64 g_pmSleepTime;
+
+STATIC VOID OsPmSysctrlInit(VOID)
+{
+    /* Default handler functions, which are implemented by the product */
+    g_sysctrl.early = NULL;
+    g_sysctrl.late = NULL;
+    g_sysctrl.normalSuspend = HalEnterSleep;
+    g_sysctrl.normalResume = NULL;
+    g_sysctrl.lightSuspend = HalEnterSleep;
+    g_sysctrl.lightResume = NULL;
+    g_sysctrl.deepSuspend = HalEnterSleep;
+    g_sysctrl.deepResume = NULL;
+    g_sysctrl.shutdownSuspend = NULL;
+    g_sysctrl.shutdownResume = NULL;
+}
 
 STATIC VOID OsPmTickTimerStart(LosPmCB *pm)
 {
@@ -147,26 +161,20 @@ STATIC VOID OsPmCpuResume(LosPmCB *pm)
     }
 }
 
-STATIC SysSuspend OsPmCpuSuspend(LosPmCB *pm)
+STATIC VOID OsPmCpuSuspend(LosPmCB *pm)
 {
-    SysSuspend sysSuspend = NULL;
-
     /* cpu enter low power mode */
     LOS_ASSERT(pm->sysctrl != NULL);
 
     if (pm->sysMode == LOS_SYS_NORMAL_SLEEP) {
-        sysSuspend = pm->sysctrl->normalSuspend;
+        pm->sysctrl->normalSuspend();
     } else if (pm->sysMode == LOS_SYS_LIGHT_SLEEP) {
-        sysSuspend = pm->sysctrl->lightSuspend;
+        pm->sysctrl->lightSuspend();
     } else if (pm->sysMode == LOS_SYS_DEEP_SLEEP) {
-        sysSuspend = pm->sysctrl->deepSuspend;
+        pm->sysctrl->deepSuspend();
     } else {
-        sysSuspend = pm->sysctrl->shutdownSuspend;
+        pm->sysctrl->shutdownSuspend();
     }
-
-    LOS_ASSERT(sysSuspend != NULL);
-
-    return sysSuspend;
 }
 
 STATIC VOID OsPmResumePrepare(LosPmCB *pm, UINT32 mode, UINT32 prepare)
@@ -230,7 +238,6 @@ STATIC UINT32 OsPmSuspendSleep(LosPmCB *pm)
     LOS_SysSleepEnum mode;
     UINT32 prepare = 0;
     BOOL tickTimerStop = FALSE;
-    SysSuspend sysSuspend;
     UINT64 currTime;
 
     ret = OsPmSuspendCheck(pm, &sysSuspendEarly, &deviceSuspend, &mode);
@@ -258,14 +265,7 @@ STATIC UINT32 OsPmSuspendSleep(LosPmCB *pm)
         OsSchedUpdateExpireTime(currTime, TRUE);
     }
 
-    sysSuspend = OsPmCpuSuspend(pm);
-    LOS_IntRestore(intSave);
-
-    if (!pm->isWake) {
-        ret = sysSuspend();
-    }
-
-    intSave = LOS_IntLock();
+    OsPmCpuSuspend(pm);
 
     OsPmCpuResume(pm);
 
@@ -284,16 +284,13 @@ STATIC VOID OsPmNormalSleep(VOID)
 {
     UINT32 intSave;
     LosPmCB *pm = &g_pmCB;
-    SysSuspend sysSuspend = NULL;
 
     intSave = LOS_IntLock();
-    sysSuspend = OsPmCpuSuspend(pm);
-    LOS_IntRestore(intSave);
 
-    (VOID)sysSuspend();
+    OsPmCpuSuspend(pm);
 
-    intSave = LOS_IntLock();
     OsPmCpuResume(pm);
+
     LOS_IntRestore(intSave);
 }
 
@@ -338,16 +335,38 @@ STATIC UINT32 OsPmTickTimerRegister(LosPmCB *pm, LosPmTickTimer *tickTimer)
 
 STATIC UINT32 OsPmSysctrlRegister(LosPmCB *pm, LosPmSysctrl *sysctrl)
 {
-    UINT32 intSave;
-
-    if (sysctrl->normalSuspend == NULL) {
-        return LOS_ERRNO_PM_INVALID_PARAM;
+    UINT32 intSave = LOS_IntLock();
+    if (sysctrl->early != NULL) {
+        pm->sysctrl->early = sysctrl->early;
     }
-
-    intSave = LOS_IntLock();
-    pm->sysctrl = sysctrl;
+    if (sysctrl->late != NULL) {
+        pm->sysctrl->late = sysctrl->late;
+    }
+    if (sysctrl->normalSuspend != NULL) {
+        pm->sysctrl->normalSuspend = sysctrl->normalSuspend;
+    }
+    if (sysctrl->normalResume != NULL) {
+        pm->sysctrl->normalResume = sysctrl->normalResume;
+    }
+    if (sysctrl->lightSuspend != NULL) {
+        pm->sysctrl->lightSuspend = sysctrl->lightSuspend;
+    }
+    if (sysctrl->lightResume != NULL) {
+        pm->sysctrl->lightResume = sysctrl->lightResume;
+    }
+    if (sysctrl->deepSuspend != NULL) {
+        pm->sysctrl->deepSuspend = sysctrl->deepSuspend;
+    }
+    if (sysctrl->deepResume != NULL) {
+        pm->sysctrl->deepResume = sysctrl->deepResume;
+    }
+    if (sysctrl->shutdownSuspend != NULL) {
+        pm->sysctrl->shutdownSuspend = sysctrl->shutdownSuspend;
+    }
+    if (sysctrl->shutdownResume != NULL) {
+        pm->sysctrl->shutdownResume = sysctrl->shutdownResume;
+    }
     LOS_IntRestore(intSave);
-
     return LOS_OK;
 }
 
@@ -409,27 +428,13 @@ STATIC UINT32 OsPmTickTimerUnregister(LosPmCB *pm, LosPmTickTimer *tickTimer)
 
 STATIC UINT32 OsPmSysctrlUnregister(LosPmCB *pm, LosPmSysctrl *sysctrl)
 {
-    UINT32 intSave;
-    VOID *freeNode = NULL;
+    (VOID)sysctrl;
 
-    intSave = LOS_IntLock();
-    if (pm->sysctrl == sysctrl) {
-        if (pm->sysctrl == g_sysctrl) {
-            freeNode = (VOID *)pm->sysctrl;
-            g_sysctrl = NULL;
-        }
-
-        pm->sysctrl = NULL;
-        LOS_IntRestore(intSave);
-
-        if (freeNode != NULL) {
-            (VOID)LOS_MemFree((VOID *)OS_SYS_MEM_ADDR, freeNode);
-        }
-        return LOS_OK;
-    }
-
+    UINT32 intSave = LOS_IntLock();
+    OsPmSysctrlInit();
+    pm->pmMode = LOS_SYS_NORMAL_SLEEP;
     LOS_IntRestore(intSave);
-    return LOS_ERRNO_PM_INVALID_NODE;
+    return LOS_OK;
 }
 
 UINT32 LOS_PmUnregister(LOS_PmNodeType type, VOID *node)
@@ -756,20 +761,8 @@ UINT32 OsPmInit(VOID)
         return ret;
     }
 
-    g_sysctrl = (LosPmSysctrl *)LOS_MemAlloc((VOID *)OS_SYS_MEM_ADDR, sizeof(LosPmSysctrl));
-    if (g_sysctrl == NULL) {
-        return LOS_NOK;
-    }
-
-    (VOID)memset_s(g_sysctrl, sizeof(LosPmSysctrl), 0, sizeof(LosPmSysctrl));
-    g_sysctrl->normalSuspend = HalEnterSleep;
-
-    ret = LOS_PmRegister(LOS_PM_TYPE_SYSCTRL, (VOID *)g_sysctrl);
-    if (ret != LOS_OK) {
-        (VOID)LOS_MemFree((VOID *)OS_SYS_MEM_ADDR, g_sysctrl);
-        g_sysctrl = NULL;
-    }
-
+    OsPmSysctrlInit();
+    pm->sysctrl = &g_sysctrl;
     return ret;
 }
 #endif
