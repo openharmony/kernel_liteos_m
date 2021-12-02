@@ -63,6 +63,11 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
     UINT32 ret;
     TSK_INIT_PARAM_S task = {0};
 
+    if (name == NULL || (strlen(name) == 0)) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_thread_new: name is null"));
+        return -1;
+    }
+
     /* Create host Task */
     task.pfnTaskEntry = (TSK_ENTRY_FUNC)thread;
     task.uwStackSize = stackSize;
@@ -140,6 +145,11 @@ void sys_arch_unprotect(sys_prot_t pval)
  */
 err_t sys_mbox_new(sys_mbox_t *mbox, int size)
 {
+    if (mbox == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_new: mbox is null"));
+        return ERR_ARG;
+    }
+
     CHAR qName[] = "lwIP";
     UINT32 ret = LOS_QueueCreate(qName, (UINT16)size, mbox, 0, sizeof(void *));
     switch (ret) {
@@ -157,6 +167,11 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int size)
 
 void sys_mbox_post(sys_mbox_t *mbox, void *msg)
 {
+    if (mbox == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_post: mbox is null"));
+        return;
+    }
+
     /* Caution: the second parameter is NOT &msg */
     UINT32 ret = LOS_QueueWrite(*mbox, msg, sizeof(char *), LOS_WAIT_FOREVER);
     if (ret != LOS_OK) {
@@ -166,6 +181,11 @@ void sys_mbox_post(sys_mbox_t *mbox, void *msg)
 
 err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg)
 {
+    if (mbox == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_trypost: mbox is null"));
+        return ERR_ARG;
+    }
+
     /* Caution: the second parameter is NOT &msg */
     UINT32 ret = LOS_QueueWrite(*mbox, msg, sizeof(char *), 0);
     switch (ret) {
@@ -187,6 +207,11 @@ err_t sys_mbox_trypost_fromisr(sys_mbox_t *mbox, void *msg)
 
 u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeoutMs)
 {
+    if (mbox == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox is null"));
+        return ERR_ARG;
+    }
+
     void *ignore = 0; /* if msg==NULL, the fetched msg should be dropped */
     UINT64 tick = ROUND_UP_DIV((UINT64)timeoutMs * LOSCFG_BASE_CORE_TICK_PER_SECOND, OS_SYS_MS_PER_SECOND);
     UINT32 ret = LOS_QueueRead(*mbox, msg ? msg : &ignore, sizeof(void *), tick ? (UINT32)tick : LOS_WAIT_FOREVER);
@@ -205,6 +230,11 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeoutMs)
 
 u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
 {
+    if (mbox == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_tryfetch: mbox is null"));
+        return ERR_ARG;
+    }
+
     void *ignore = 0; /* if msg==NULL, the fetched msg should be dropped */
     UINT32 ret = LOS_QueueRead(*mbox, msg ? msg : &ignore, sizeof(void *), 0);
     switch (ret) {
@@ -223,17 +253,32 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
 
 void sys_mbox_free(sys_mbox_t *mbox)
 {
+    if (mbox == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_free: mbox is null"));
+        return;
+    }
+
     (void)LOS_QueueDelete(*mbox);
 }
 
 int sys_mbox_valid(sys_mbox_t *mbox)
 {
+    if (mbox == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_valid: mbox is null"));
+        return ERR_ARG;
+    }
+
     QUEUE_INFO_S queueInfo;
     return LOS_OK == LOS_QueueInfoGet(*mbox, &queueInfo);
 }
 
 void sys_mbox_set_invalid(sys_mbox_t *mbox)
 {
+    if (mbox == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_set_invalid: mbox is null"));
+        return;
+    }
+
     *mbox = LOSCFG_BASE_IPC_QUEUE_LIMIT;
 }
 
@@ -242,6 +287,11 @@ void sys_mbox_set_invalid(sys_mbox_t *mbox)
  */
 err_t sys_sem_new(sys_sem_t *sem, u8_t count)
 {
+    if (sem == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_sem_new: sem is null"));
+        return ERR_ARG;
+    }
+
     UINT32 ret = LOS_SemCreate(count, sem);
     if (ret != LOS_OK) {
         return ERR_ARG;
@@ -252,11 +302,20 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count)
 
 void sys_sem_signal(sys_sem_t *sem)
 {
+    if (sem == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_sem_signal: sem is null"));
+        return;
+    }
     (void)LOS_SemPost(*sem);
 }
 
 u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeoutMs)
 {
+    if (sem == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_sem_wait: sem is null"));
+        return ERR_ARG;
+    }
+
     UINT64 tick = ROUND_UP_DIV((UINT64)timeoutMs * LOSCFG_BASE_CORE_TICK_PER_SECOND, OS_SYS_MS_PER_SECOND);
     UINT32 ret = LOS_SemPend(*sem, tick ? (UINT32)tick : LOS_WAIT_FOREVER); // timeoutMs 0 means wait forever
     switch (ret) {
@@ -273,16 +332,28 @@ u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeoutMs)
 
 void sys_sem_free(sys_sem_t *sem)
 {
+    if (sem == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_sem_free: sem is null"));
+        return;
+    }
     (void)LOS_SemDelete(*sem);
 }
 
 int sys_sem_valid(sys_sem_t *sem)
 {
+    if (sem == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_sem_valid: sem is null"));
+        return ERR_ARG;
+    }
     return *sem != LOSCFG_BASE_IPC_SEM_LIMIT;
 }
 
 void sys_sem_set_invalid(sys_sem_t *sem)
 {
+    if (sem == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_sem_set_invalid: sem is null"));
+        return;
+    }
     *sem = LOSCFG_BASE_IPC_SEM_LIMIT;
 }
 
@@ -291,6 +362,11 @@ void sys_sem_set_invalid(sys_sem_t *sem)
  */
 err_t sys_mutex_new(sys_mutex_t *mutex)
 {
+    if (mutex == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mutex_new: mutex is null"));
+        return ERR_ARG;
+    }
+
     UINT32 ret = LOS_MuxCreate(mutex);
     if (ret != LOS_OK) {
         return ERR_ARG;
@@ -301,26 +377,51 @@ err_t sys_mutex_new(sys_mutex_t *mutex)
 
 void sys_mutex_lock(sys_mutex_t *mutex)
 {
+    if (mutex == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mutex_lock: mutex is null"));
+        return;
+    }
+
     (void)LOS_MuxPend(*mutex, LOS_WAIT_FOREVER);
 }
 
 void sys_mutex_unlock(sys_mutex_t *mutex)
 {
+    if (mutex == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mutex_unlock: mutex is null"));
+        return;
+    }
+
     (void)LOS_MuxPost(*mutex);
 }
 
 void sys_mutex_free(sys_mutex_t *mutex)
 {
+    if (mutex == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mutex_free: mutex is null"));
+        return;
+    }
+
     (void)LOS_MuxDelete(*mutex);
 }
 
 int sys_mutex_valid(sys_mutex_t *mutex)
 {
+    if (mutex == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mutex_valid: mutex is null"));
+        return ERR_ARG;
+    }
+
     return *mutex != LOSCFG_BASE_IPC_MUX_LIMIT;
 }
 
 void sys_mutex_set_invalid(sys_mutex_t *mutex)
 {
+    if (mutex == NULL) {
+        LWIP_DEBUGF(SYS_DEBUG, ("sys_mutex_set_invalid: mutex is null"));
+        return;
+    }
+
     *mutex = LOSCFG_BASE_IPC_MUX_LIMIT;
 }
 
