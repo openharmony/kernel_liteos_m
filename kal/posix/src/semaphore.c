@@ -29,6 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdint.h>
 #include <semaphore.h>
 #include <errno.h>
 #include "los_sem.h"

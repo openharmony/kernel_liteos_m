@@ -44,3 +44,10 @@ config IRQ_USE_STANDALONE_STACK
     depends on ARCH_ARM_AARCH64 || ARCH_ARM_AARCH32
     help
       This option will support using standalone interrupt stack.
+
+config ARCH_UNALIGNED_EXC
+    bool "Enable Unaligned Exception"
+    default y
+    depends on ARCH_ARM
+    help
+     This option will enable unaligned exception.
