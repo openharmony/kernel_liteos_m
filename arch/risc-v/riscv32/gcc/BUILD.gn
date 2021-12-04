@@ -38,6 +38,11 @@ kernel_module(module_name) {
     "los_interrupt.c",
     "los_timer.c",
   ]
+}
 
-  include_dirs = [ "asm" ]
+config("public") {
+  include_dirs = [
+    ".",
+    "asm",
+  ]
 }
