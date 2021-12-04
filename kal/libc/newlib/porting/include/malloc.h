@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,81 +28,17 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "securec.h"
-#include "los_config.h"
-#include "los_memory.h"
+#ifndef _ADAPT_MALLOC_H
+#define _ADAPT_MALLOC_H
 
+#include <sys/types.h>
 
-void *calloc(size_t nitems, size_t size)
-{
-    size_t real_size;
-    void *ptr = NULL;
+void __wrap__free_r(struct _reent *reent, void *aptr);
+size_t __wrap__malloc_usable_size_r(struct _reent *reent, void *aptr);
+void *__wrap__malloc_r(struct _reent *reent, size_t nbytes);
+void *__wrap__memalign_r(struct _reent *reent, size_t align, size_t nbytes);
+void *__wrap__realloc_r(struct _reent *reent, void *aptr, size_t nbytes);
 
-    if (nitems == 0 || size == 0) {
-        return NULL;
-    }
+#include_next <malloc.h>
 
-    real_size = (size_t)(nitems * size);
-    ptr = LOS_MemAlloc(OS_SYS_MEM_ADDR, real_size);
-    if (ptr != NULL) {
-        (void)memset_s(ptr, real_size, 0, real_size);
-    }
-    return ptr;
-}
-
-void free(void *ptr)
-{
-    if (ptr == NULL) {
-        return;
-    }
-
-    LOS_MemFree(OS_SYS_MEM_ADDR, ptr);
-}
-
-void *malloc(size_t size)
-{
-    if (size == 0) {
-        return NULL;
-    }
-
-    return LOS_MemAlloc(OS_SYS_MEM_ADDR, size);
-}
-
-void *zalloc(size_t size)
-{
-    void *ptr = NULL;
-
-    if (size == 0) {
-        return NULL;
-    }
-
-    ptr = LOS_MemAlloc(OS_SYS_MEM_ADDR, size);
-    if (ptr != NULL) {
-        (void)memset_s(ptr, size, 0, size);
-    }
-    return ptr;
-}
-
-void *memalign(size_t boundary, size_t size)
-{
-    if (size == 0) {
-        return NULL;
-    }
-
-    return LOS_MemAllocAlign(OS_SYS_MEM_ADDR, size, boundary);
-}
-
-void *realloc(void *ptr, size_t size)
-{
-    if (ptr == NULL) {
-        return malloc(size);
-    }
-
-    if (size == 0) {
-        free(ptr);
-        return NULL;
-    }
-
-    return LOS_MemRealloc(OS_SYS_MEM_ADDR, ptr, size);
-}
-
+#endif /* !_ADAPT_MALLOC_H */

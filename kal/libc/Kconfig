@@ -27,18 +27,18 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/liteos.gni")
+choice
+    prompt "Choose libc implementation"
+    default LIBC_MUSL
+    help
+      Choose libc implementation.
 
-module_switch = defined(LOSCFG_KAL_CMSIS)
-module_name = get_path_info(rebase_path("."), "name")
-kernel_module(module_name) {
-  sources = [ "cmsis_liteos2.c" ]
-}
+config LIBC_MUSL
+    bool "musl libc"
+rsource "musl/Kconfig"
 
-config("public") {
-  include_dirs = [
-    ".",
-    "$LITEOSTHIRDPARTY/cmsis/CMSIS/RTOS2/Include",
-    "$LITEOSTHIRDPARTY/cmsis/CMSIS/Core/Include",
-  ]
-}
+config LIBC_NEWLIB
+    bool "newlibc"
+rsource "newlib/Kconfig"
+
+endchoice

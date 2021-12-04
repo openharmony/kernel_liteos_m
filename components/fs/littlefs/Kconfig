@@ -27,18 +27,18 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/liteos.gni")
+config FS_LITTLEFS
+    bool "Enable Little FS"
+    default n
+    depends on FS_VFS
+    help
+      Answer Y to enable LiteOS support Little FS filesystem.
 
-module_switch = defined(LOSCFG_KAL_CMSIS)
-module_name = get_path_info(rebase_path("."), "name")
-kernel_module(module_name) {
-  sources = [ "cmsis_liteos2.c" ]
-}
+if FS_LITTLEFS
+config LFS_MAX_MOUNT_SIZE
+    int "Maximum number of mount points"
+    default 3
+    help
+        This is a global maximum number of mount points.
 
-config("public") {
-  include_dirs = [
-    ".",
-    "$LITEOSTHIRDPARTY/cmsis/CMSIS/RTOS2/Include",
-    "$LITEOSTHIRDPARTY/cmsis/CMSIS/Core/Include",
-  ]
-}
+endif # FS_LITTLEFS

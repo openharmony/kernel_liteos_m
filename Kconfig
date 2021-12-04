@@ -373,53 +373,15 @@ endmenu
 
 ######################### config options of compatibility ##############
 menu "Compat"
-config  COMPAT_POSIX
-    bool "Enable Posix"
-    default y
 
-    help
-      Answer Y to enable LiteOS support posix interface.
-
-config  COMPAT_CMSIS
-    bool "Enable CMSIS v2"
-    default n
-
-    help
-      Answer Y to enable LiteOS support CMSIS v2 interface.
+rsource "kal/Kconfig"
 
 endmenu
 
 ######################## config options of filesystem ##################
 menu "FileSystem"
-config FS_VFS
-    bool "Enable VFS"
-    default y
 
-    help
-      Answer Y to enable LiteOS support virtual filesystem.
-
-source "components/fs/fatfs/Kconfig"
-
-config FS_LITTLEFS
-    bool "Enable littlefs"
-    default n
-    depends on FS_VFS
-    select SUPPORT_LITTLEFS
-    help
-      Answer Y to enable LiteOS support littlefs.
-
-config LFS_MAX_MOUNT_SIZE
-    int "Littlefs max mounts"
-    default 3
-    depends on FS_LITTLEFS
-
-config SUPPORT_FATFS
-    bool
-    default n
-
-config SUPPORT_LITTLEFS
-    bool
-    default n
+rsource "components/fs/Kconfig"
 
 endmenu
 
@@ -429,7 +391,7 @@ config NET_LWIP
     bool "Enable Lwip"
     default n
     select NET_LWIP_SACK
-    select COMPAT_CMSIS
+    select KAL_CMSIS
 
     help
       Answer Y to enable LiteOS support lwip.
