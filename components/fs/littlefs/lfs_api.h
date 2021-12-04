@@ -45,8 +45,6 @@
 
 #define INVALID_FD (-1)
 
-typedef unsigned mode_t;
-
 #ifndef VFS_ERROR
 #define VFS_ERROR (-1)
 #endif

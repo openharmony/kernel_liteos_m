@@ -29,16 +29,22 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-module_switch = defined(LOSCFG_KAL_CMSIS)
+module_switch = defined(LOSCFG_LIBC_NEWLIB)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
-  sources = [ "cmsis_liteos2.c" ]
+  sources = [
+    "porting/src/fs.c",
+    "porting/src/malloc.c",
+    "porting/src/other_adapt.c",
+    "porting/src/time.c",
+  ]
+
+  if (defined(LOSCFG_LIBC_NEWLIB_FS)) {
+    sources +=
+        [ "//third_party/musl/porting/liteos_m/kernel/src/misc/realpath.c" ]
+  }
 }
 
 config("public") {
-  include_dirs = [
-    ".",
-    "$LITEOSTHIRDPARTY/cmsis/CMSIS/RTOS2/Include",
-    "$LITEOSTHIRDPARTY/cmsis/CMSIS/Core/Include",
-  ]
+  include_dirs = [ "porting/include" ]
 }

@@ -47,6 +47,7 @@
 /* accumulative time delta from discontinuous modify */
 STATIC struct timespec g_accDeltaFromSet;
 
+#ifndef __USE_NEWLIB__
 STATIC const UINT16 g_daysInMonth[2][13] = {
     /* Normal years.  */
     { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
@@ -56,15 +57,16 @@ STATIC const UINT16 g_daysInMonth[2][13] = {
 
 STATIC const UINT8 g_montbl[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
+/* internal shared struct tm object for localtime and gmtime */
+static struct tm g_tm;
+#endif
+
 /*
  * Time zone information, stored in seconds,
  * negative values indicate the east of UTC,
  * positive values indicate the west of UTC.
  */
 long timezone = -8 * 60 * 60; // defaults to CST: 8 hours east of the Prime Meridian
-
-/* internal shared struct tm object for localtime and gmtime */
-static struct tm g_tm;
 
 int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
 {
@@ -295,10 +297,18 @@ int clock_settime(clockid_t clockID, const struct timespec *tp)
         case CLOCK_MONOTONIC_RAW:
         case CLOCK_PROCESS_CPUTIME_ID:
         case CLOCK_BOOTTIME:
+#ifdef CLOCK_REALTIME_ALARM
         case CLOCK_REALTIME_ALARM:
+#endif
+#ifdef CLOCK_BOOTTIME_ALARM
         case CLOCK_BOOTTIME_ALARM:
+#endif
+#ifdef CLOCK_SGI_CYCLE
         case CLOCK_SGI_CYCLE:
+#endif
+#ifdef CLOCK_TAI
         case CLOCK_TAI:
+#endif
         case CLOCK_THREAD_CPUTIME_ID:
             errno = ENOTSUP;
             return -1;
@@ -329,10 +339,18 @@ int clock_gettime(clockid_t clockID, struct timespec *tp)
         case CLOCK_THREAD_CPUTIME_ID:
         case CLOCK_PROCESS_CPUTIME_ID:
         case CLOCK_BOOTTIME:
+#ifdef CLOCK_REALTIME_ALARM
         case CLOCK_REALTIME_ALARM:
+#endif
+#ifdef CLOCK_BOOTTIME_ALARM
         case CLOCK_BOOTTIME_ALARM:
+#endif
+#ifdef CLOCK_SGI_CYCLE
         case CLOCK_SGI_CYCLE:
+#endif
+#ifdef CLOCK_TAI
         case CLOCK_TAI:
+#endif
             errno = ENOTSUP;
             return -1;
         default:
@@ -360,10 +378,18 @@ int clock_getres(clockid_t clockID, struct timespec *tp)
         case CLOCK_THREAD_CPUTIME_ID:
         case CLOCK_PROCESS_CPUTIME_ID:
         case CLOCK_BOOTTIME:
+#ifdef CLOCK_REALTIME_ALARM
         case CLOCK_REALTIME_ALARM:
+#endif
+#ifdef CLOCK_BOOTTIME_ALARM
         case CLOCK_BOOTTIME_ALARM:
+#endif
+#ifdef CLOCK_SGI_CYCLE
         case CLOCK_SGI_CYCLE:
+#endif
+#ifdef CLOCK_TAI
         case CLOCK_TAI:
+#endif
             errno = ENOTSUP;
             return -1;
         default:
@@ -387,10 +413,18 @@ int clock_nanosleep(clockid_t clk, int flags, const struct timespec *req, struct
         case CLOCK_MONOTONIC:
         case CLOCK_PROCESS_CPUTIME_ID:
         case CLOCK_BOOTTIME:
+#ifdef CLOCK_REALTIME_ALARM
         case CLOCK_REALTIME_ALARM:
+#endif
+#ifdef CLOCK_BOOTTIME_ALARM
         case CLOCK_BOOTTIME_ALARM:
+#endif
+#ifdef CLOCK_SGI_CYCLE
         case CLOCK_SGI_CYCLE:
+#endif
+#ifdef CLOCK_TAI
         case CLOCK_TAI:
+#endif
             if (flags == 0 || flags == TIMER_ABSTIME) {
                 return ENOTSUP;
             }
@@ -426,7 +460,7 @@ time_t time(time_t *timer)
     }
     return ts.tv_sec;
 }
-
+#ifndef __USE_NEWLIB__
 /*
  * Compute the `struct tm' representation of T,
  * offset OFFSET seconds east of UTC,
@@ -607,6 +641,7 @@ int gettimeofday(struct timeval *tv, void *ptz)
     }
     return 0;
 }
+#endif
 
 int settimeofday(const struct timeval *tv, const struct timezone *tz)
 {
@@ -643,7 +678,7 @@ int settimeofday(const struct timeval *tv, const struct timezone *tz)
     return 0;
 }
 
-int usleep(unsigned useconds)
+int usleep(useconds_t useconds)
 {
     struct timespec specTime = { 0 };
     UINT64 nanoseconds = (UINT64)useconds * OS_SYS_NS_PER_US;

@@ -82,12 +82,6 @@
 #define CONFIG_NUNGET_CHARS         0
 #define MIN_START_FD 3 // 0,1,2 are used for stdin,stdout,stderr respectively
 
-#define FD_SET_TOTAL_SIZE               (FD_SETSIZE + CONFIG_NEXPANED_DESCRIPTORS)
-#define FD_SETSIZE                      (CONFIG_NFILE_DESCRIPTORS + CONFIG_NSOCKET_DESCRIPTORS)
-#define CONFIG_NEXPANED_DESCRIPTORS     (CONFIG_NTIME_DESCRIPTORS + CONFIG_NQUEUE_DESCRIPTORS)
-#define TIMER_FD_OFFSET                 FD_SETSIZE
-#define MQUEUE_FD_OFFSET                (FD_SETSIZE + CONFIG_NTIME_DESCRIPTORS)
-
 /* net configure */
 
 #ifdef LOSCFG_NET_LWIP_SACK             // enable socket and net function
@@ -128,6 +122,12 @@
 /* mqueue configure */
 
 #define CONFIG_NQUEUE_DESCRIPTORS    256
+
+#define FD_SETSIZE                      (CONFIG_NFILE_DESCRIPTORS + CONFIG_NSOCKET_DESCRIPTORS)
+#define CONFIG_NEXPANED_DESCRIPTORS     (CONFIG_NTIME_DESCRIPTORS + CONFIG_NQUEUE_DESCRIPTORS)
+#define FD_SET_TOTAL_SIZE               (FD_SETSIZE + CONFIG_NEXPANED_DESCRIPTORS)
+#define TIMER_FD_OFFSET                 FD_SETSIZE
+#define MQUEUE_FD_OFFSET                (FD_SETSIZE + CONFIG_NTIME_DESCRIPTORS)
 
 /* directory configure */
 

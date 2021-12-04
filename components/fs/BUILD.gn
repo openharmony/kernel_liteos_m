@@ -29,24 +29,11 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-module_switch = defined(LOSCFG_FS_VFS)
-module_name = "fs_operations"
-kernel_module(module_name) {
-  sources = [ "fs.c" ]
-}
-
-group("fs") {
-  deps = [ ":$module_name" ]
-  deps += [
-    "fatfs",
+module_name = get_path_info(rebase_path("."), "name")
+module_group(module_name) {
+  modules = [
+    "vfs",
     "littlefs",
-  ]
-}
-
-config("public") {
-  include_dirs = [ "." ]
-  configs = [
-    "fatfs:public",
-    "littlefs:public",
+    "fatfs",
   ]
 }

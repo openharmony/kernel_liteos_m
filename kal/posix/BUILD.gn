@@ -29,21 +29,34 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-module_switch = defined(LOSCFG_COMPAT_POSIX)
+module_switch = defined(LOSCFG_POSIX_API)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
   sources = [
     "src/errno.c",
     "src/libc.c",
-    "src/malloc.c",
-    "src/mqueue.c",
-    "src/pthread.c",
-    "src/pthread_attr.c",
-    "src/pthread_cond.c",
-    "src/pthread_mutex.c",
-    "src/semaphore.c",
-    "src/time.c",
   ]
+
+  if (defined(LOSCFG_POSIX_THREAD_API)) {
+    sources += [
+      "src/pthread.c",
+      "src/pthread_attr.c",
+      "src/pthread_cond.c",
+      "src/pthread_mutex.c",
+    ]
+  }
+
+  if (defined(LOSCFG_POSIX_CLOCK_API)) {
+    sources += [ "src/time.c" ]
+  }
+
+  if (defined(LOSCFG_POSIX_SEM_API)) {
+    sources += [ "src/semaphore.c" ]
+  }
+
+  if (defined(LOSCFG_POSIX_MQUEUE_API)) {
+    sources += [ "src/mqueue.c" ]
+  }
 }
 
 config("public") {

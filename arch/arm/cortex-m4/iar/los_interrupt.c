@@ -524,7 +524,11 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
     *(volatile UINT32 *)OS_NVIC_SHCSR |= (USGFAULT | BUSFAULT | MEMFAULT);
 	
     /* Enable DIV 0 and unaligned exception */
+#ifdef LOSCFG_ARCH_UNALIGNED_EXC
     *(volatile UINT32 *)OS_NVIC_CCR |= (DIV0FAULT | UNALIGNFAULT);
+#else
+    *(volatile UINT32 *)OS_NVIC_CCR |= (DIV0FAULT);
+#endif
 
     return;
 }

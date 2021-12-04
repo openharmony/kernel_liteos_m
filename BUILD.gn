@@ -102,6 +102,9 @@ config("stdinc_config") {
   ]
   cflags += [ "-nostdinc" ]
   asmflags = cflags
+  if (defined(LOSCFG_LIBC_NEWLIB)) {
+    cflags -= [ "-nostdinc" ]
+  }
 }
 
 config("ssp_config") {
@@ -210,7 +213,7 @@ config("los_config") {
     #":arch_config",
     ":kconfig_config",
 
-    #":stdinc_config",
+    ":stdinc_config",
     ":dialect_config",
     ":optimize_config",
     ":ssp_config",
@@ -243,8 +246,6 @@ config("public") {
       configs += [ "$device_path:public" ]
     }
   }
-
-  configs += [ "$LITEOSTHIRDPARTY/musl/porting/liteos_m/kernel:include" ]
 }
 
 group("modules") {
@@ -266,8 +267,6 @@ group("modules") {
       deps += [ device_path ]
     }
   }
-
-  deps += [ "$LITEOSTHIRDPARTY/musl/porting/liteos_m/kernel" ]
 }
 
 # when HAVE_DEVICE_SDK is not reached, gn raises an error. so we just use it as

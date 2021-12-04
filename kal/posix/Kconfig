@@ -27,18 +27,36 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/liteos.gni")
+config POSIX_API
+    bool "Enable POSIX API"
+    default y
+    help
+      Answer Y to enable LiteOS support POSIX API.
 
-module_switch = defined(LOSCFG_KAL_CMSIS)
-module_name = get_path_info(rebase_path("."), "name")
-kernel_module(module_name) {
-  sources = [ "cmsis_liteos2.c" ]
-}
+if POSIX_API
 
-config("public") {
-  include_dirs = [
-    ".",
-    "$LITEOSTHIRDPARTY/cmsis/CMSIS/RTOS2/Include",
-    "$LITEOSTHIRDPARTY/cmsis/CMSIS/Core/Include",
-  ]
-}
+config POSIX_THREAD_API
+    bool "Enable POSIX Thread API"
+    default y
+    help
+      Answer Y to enable LiteOS support POSIX Thread API.
+
+config POSIX_SEM_API
+    bool "Enable POSIX Semaphore API"
+    default y
+    help
+      Answer Y to enable LiteOS support POSIX Semaphore API.
+
+config POSIX_CLOCK_API
+    bool "Enable POSIX Semaphore API"
+    default y
+    help
+      Answer Y to enable LiteOS support POSIX Clock API.
+
+config POSIX_MQUEUE_API
+    bool "Enable POSIX Semaphore API"
+    default y
+    help
+      Answer Y to enable LiteOS support POSIX Mqueue API.
+
+endif # POSIX_API

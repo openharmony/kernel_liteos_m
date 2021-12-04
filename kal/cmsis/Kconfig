@@ -27,18 +27,10 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/liteos.gni")
+config KAL_CMSIS
+    bool "Enable KAL CMSIS"
+    default y
+    help
+      Answer Y to enable LiteOS Kernel Abstraction Layer support CMSIS API.
 
-module_switch = defined(LOSCFG_KAL_CMSIS)
-module_name = get_path_info(rebase_path("."), "name")
-kernel_module(module_name) {
-  sources = [ "cmsis_liteos2.c" ]
-}
 
-config("public") {
-  include_dirs = [
-    ".",
-    "$LITEOSTHIRDPARTY/cmsis/CMSIS/RTOS2/Include",
-    "$LITEOSTHIRDPARTY/cmsis/CMSIS/Core/Include",
-  ]
-}
