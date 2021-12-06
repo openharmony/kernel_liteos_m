@@ -31,6 +31,7 @@ config FS_LITTLEFS
     bool "Enable Little FS"
     default n
     depends on FS_VFS
+    select SUPPORT_LITTLEFS
     help
       Answer Y to enable LiteOS support Little FS filesystem.
 
