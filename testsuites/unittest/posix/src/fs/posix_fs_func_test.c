@@ -53,6 +53,24 @@
  */
 LITE_TEST_SUIT(Posix, PosixFs, PosixFsFuncTestSuite);
 
+/* Corresponding to different platforms, only need to modify TEST_ROOT  */
+#define TEST_ROOT            "/ram"
+
+#define TEST_FILE_PTAH_RIGHT    TEST_ROOT"/FILE0"   /* file path, to open/rd/close */
+
+#define FILE0                   "FILE0"             /* common file name used for testing  */
+#define FILE1                   TEST_ROOT"/FILE1"   /* common file under test root path name used for testing */
+#define DIR1                    TEST_ROOT"/DIR1/"   /* common path under test root path name used for testing */
+
+#define DIRA                    TEST_ROOT"/a"
+#define DIRAB                   TEST_ROOT"/a/b"
+#define DIRAC                   TEST_ROOT"/a/c"
+
+
+#define TEST_BUF_SIZE           40                  /* 40, common data for test, no special meaning */
+#define TEST_SEEK_SIZE          10                  /* 10, common data for test, no special meaning */
+#define TEST_RW_SIZE            20                  /* 20, common data for test, no special meaning */
+#define TEST_LOOPUP_TIME        20                 /* 100, common data for test, no special meaning */
 /* *
  * @tc.setup     : setup for all testcases
  * @return       : setup result, TRUE is success, FALSE is fail
@@ -71,10 +89,6 @@ static BOOL PosixFsFuncTestSuiteTearDown(void)
     printf("+-------------------------------------------+\n");
     return TRUE;
 }
-
-#define FILE0 "FILE0"
-#define FILE1 "/opt/test/FILE1"
-#define DIR1 "/opt/test/DIR1/"
 
 /* *
  * @tc.number   SUB_KERNEL_FS_DIRNAME_001
@@ -99,7 +113,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsDirname002, Function | MediumTest | L
     char path[] = FILE1;
     char *workDir = dirname((char *)path);
     TEST_ASSERT_NOT_NULL(workDir);
-    TEST_ASSERT_EQUAL_STRING("/opt/test", workDir);
+    TEST_ASSERT_EQUAL_STRING(TEST_ROOT, workDir);
 }
 
 /* *
@@ -113,7 +127,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsDirname003, Function | MediumTest | L
     char path[] = DIR1;
     char *workDir = dirname((char *)path);
     TEST_ASSERT_NOT_NULL(workDir);
-    TEST_ASSERT_EQUAL_STRING("/opt/test", workDir);
+    TEST_ASSERT_EQUAL_STRING(TEST_ROOT, workDir);
 }
 
 /* *
@@ -145,9 +159,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsDirname004, Function | MediumTest | L
     TEST_ASSERT_EQUAL_STRING(".", workDir);
 }
 
-#define TEST_FILE_PTAH_RIGHT "/temp"
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_005
+ * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_001
  * @tc.name     fopen and fclose
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -163,7 +176,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose001, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_006
+ * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_002
  * @tc.name     fopen and fclose
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -179,7 +192,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose002, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_007
+ * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_003
  * @tc.name     fopen and fclose
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -195,7 +208,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose003, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_008
+ * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_004
  * @tc.name     fopen and fclose
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -211,7 +224,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose004, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_009
+ * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_005
  * @tc.name     fopen and fclose
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -224,7 +237,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose005, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_010
+ * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_006
  * @tc.name     remove the path before fopen and fclose
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -242,7 +255,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose006, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_011
+ * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_007
  * @tc.name     remove the path before fopen and fclose
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -260,7 +273,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose007, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_012
+ * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_008
  * @tc.name     remove the path before fopen and fclose
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -270,7 +283,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose008, Function | MediumTest
     FILE *fp = NULL;
 
     remove(TEST_FILE_PTAH_RIGHT);
-    fp = fopen(TEST_FILE_PTAH_RIGHT, "r");
+    fp = fopen(TEST_FILE_PTAH_RIGHT, "a+");
     TEST_ASSERT_NOT_NULL(fp);
 
     ret = fclose(fp);
@@ -278,7 +291,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose008, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_013
+ * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_009
  * @tc.name     remove the path before fopen and fclose
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -296,7 +309,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose009, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_014
+ * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_010
  * @tc.name     remove the path before fopen and fclose
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -306,29 +319,29 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose010, Function | MediumTest
     FILE *fp = NULL;
 
     remove(TEST_FILE_PTAH_RIGHT);
-    fp = fopen(TEST_FILE_PTAH_RIGHT, NULL);
-    TEST_ASSERT_NULL(fp);
+    fp = fopen(TEST_FILE_PTAH_RIGHT, "wr");
+    TEST_ASSERT_NOT_NULL(fp);
+
+    ret = fclose(fp);
+    TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_015
- * @tc.name     remove the path before fopen and fclose
+ * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_011
+ * @tc.name     wrong input
  * @tc.desc     [C- SOFTWARE -0200]
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose011, Function | MediumTest | Level1)
 {
     int ret = 0;
     FILE *fp = NULL;
-    int err = 0;
 
-    ret = fclose(NULL);
-    TEST_ASSERT_EQUAL_INT(ret, -1);
-    err = errno;
-    TEST_ASSERT_EQUAL_INT(err, EINVAL);
+    fp = fopen(TEST_FILE_PTAH_RIGHT, NULL);
+    TEST_ASSERT_NULL(fp);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_016
+ * @tc.number   SUB_KERNEL_FS_FDOPEN_001
  * @tc.name     fdopen
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -338,8 +351,9 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen001, Function | MediumTest | Le
     FILE *fp = NULL;
     int fd = 0;
 
+    remove(TEST_FILE_PTAH_RIGHT);
     fd = open(TEST_FILE_PTAH_RIGHT, O_CREAT | O_RDWR, 0666);
-    TEST_ASSERT_TRUE(fd > 0);
+    TEST_ASSERT_TRUE(fd >= 0);
 
     fp = fdopen(fd, "w");
     TEST_ASSERT_NOT_NULL(fp);
@@ -349,7 +363,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen001, Function | MediumTest | Le
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_017
+ * @tc.number   SUB_KERNEL_FS_FDOPEN_002
  * @tc.name     fdopen
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -359,8 +373,9 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen002, Function | MediumTest | Le
     FILE *fp = NULL;
     int fd = 0;
 
+    remove(TEST_FILE_PTAH_RIGHT);
     fd = open(TEST_FILE_PTAH_RIGHT, O_CREAT | O_RDWR, 0666);
-    TEST_ASSERT_TRUE(fd > 0);
+    TEST_ASSERT_TRUE(fd >= 0);
 
     fp = fdopen(fd, "w+");
     TEST_ASSERT_NOT_NULL(fp);
@@ -370,7 +385,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen002, Function | MediumTest | Le
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_018
+ * @tc.number   SUB_KERNEL_FS_FDOPEN_003
  * @tc.name     fdopen
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -380,8 +395,9 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen003, Function | MediumTest | Le
     FILE *fp = NULL;
     int fd = 0;
 
+    remove(TEST_FILE_PTAH_RIGHT);
     fd = open(TEST_FILE_PTAH_RIGHT, O_CREAT | O_RDWR, 0666);
-    TEST_ASSERT_TRUE(fd > 0);
+    TEST_ASSERT_TRUE(fd >= 0);
 
     fp = fdopen(fd, "a");
     TEST_ASSERT_NOT_NULL(fp);
@@ -391,7 +407,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen003, Function | MediumTest | Le
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_019
+ * @tc.number   SUB_KERNEL_FS_FDOPEN_004
  * @tc.name     fdopen
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -401,10 +417,11 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen004, Function | MediumTest | Le
     FILE *fp = NULL;
     int fd = 0;
 
+    remove(TEST_FILE_PTAH_RIGHT);
     fd = open(TEST_FILE_PTAH_RIGHT, O_CREAT | O_RDWR, 0666);
-    TEST_ASSERT_TRUE(fd > 0);
+    TEST_ASSERT_TRUE(fd >= 0);
 
-    fp = fdopen(500, "w");
+    fp = fdopen(500, "w"); /* 500 is a wrong fd */
     // in some fs, may return ok, so return null or not is pass.
     if (NULL == fp) {
         close (fd);
@@ -417,7 +434,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen004, Function | MediumTest | Le
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_020
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_001
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -431,14 +448,14 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek001, Function | MediumTest 
     TEST_ASSERT_NOT_NULL(fp);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 0);
+    TEST_ASSERT_EQUAL_INT((int)off, 0);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_021
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_002
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -455,14 +472,14 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek002, Function | MediumTest 
     TEST_ASSERT_TRUE(ret != -1);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 0);
+    TEST_ASSERT_EQUAL_INT((int)off, 0);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_022
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_003
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -475,18 +492,18 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek003, Function | MediumTest 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fseek(fp, 10L, SEEK_SET);
+    ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
     TEST_ASSERT_TRUE(ret != -1);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 10);
+    TEST_ASSERT_EQUAL_INT((int)off, TEST_SEEK_SIZE);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_023
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_004
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -499,18 +516,18 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek004, Function | MediumTest 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fseek(fp, 10L, SEEK_END);
+    ret = fseek(fp, TEST_SEEK_SIZE, SEEK_END);
     TEST_ASSERT_TRUE(ret != -1);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 10);
+    TEST_ASSERT_EQUAL_INT((int)off, TEST_SEEK_SIZE);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_024
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_005
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -523,18 +540,18 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek005, Function | MediumTest 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fseek(fp, 10L, SEEK_CUR);
+    ret = fseek(fp, TEST_SEEK_SIZE, SEEK_CUR);
     TEST_ASSERT_TRUE(ret != -1);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 10);
+    TEST_ASSERT_EQUAL_INT((int)off, TEST_SEEK_SIZE);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_025
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_006
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -551,14 +568,14 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek006, Function | MediumTest 
     TEST_ASSERT_EQUAL_INT(ret, -1);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 0);
+    TEST_ASSERT_EQUAL_INT((int)off, 0);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_026
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_007
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -575,14 +592,14 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek007, Function | MediumTest 
     TEST_ASSERT_EQUAL_INT(ret, -1);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 0);
+    TEST_ASSERT_EQUAL_INT((int)off, 0);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_027
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_008
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -599,14 +616,14 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek008, Function | MediumTest 
     TEST_ASSERT_EQUAL_INT(ret, -1);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 0);
+    TEST_ASSERT_EQUAL_INT((int)off, 0);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_028
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_009
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -619,18 +636,18 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek009, Function | MediumTest 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fseek(fp, 10L, 5);
-    TEST_ASSERT_TRUE(ret != 0);
+    /* wrong input, fs may return not error, no need to check return value */
+    ret = fseek(fp, TEST_SEEK_SIZE, 5); /* 5, a wrong input */
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 0);
+    TEST_ASSERT_EQUAL_INT(off, 0);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_029
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_010
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -646,9 +663,9 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek010, Function | MediumTest 
 
     fd = fp->fd;
 
-    fp->fd = 500;
+    fp->fd = 500; /* 500 is a wrong fd */
 
-    ret = fseek(fp, 10L, SEEK_SET);
+    ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
     TEST_ASSERT_EQUAL_INT(ret, -1);
 
     fp->fd = fd;
@@ -658,7 +675,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek010, Function | MediumTest 
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_030
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_011
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -671,14 +688,14 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek011, Function | MediumTest 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fseek(fp, 100L, SEEK_SET);
+    ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
     TEST_ASSERT_TRUE(ret != -1);
 
-    ret = fseek(fp, 40L, SEEK_CUR);
+    ret = fseek(fp, TEST_SEEK_SIZE, SEEK_CUR);
     TEST_ASSERT_TRUE(ret != -1);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 140);
+    TEST_ASSERT_EQUAL_INT((int)off, (TEST_SEEK_SIZE + TEST_SEEK_SIZE));
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
@@ -686,7 +703,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek011, Function | MediumTest 
 
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_031
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_012
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -699,21 +716,21 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek012, Function | MediumTest 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fseek(fp, 100L, SEEK_SET);
+    ret = fseek(fp, (TEST_SEEK_SIZE + TEST_SEEK_SIZE), SEEK_SET);
     TEST_ASSERT_TRUE(ret != -1);
 
-    ret = fseek(fp, 20L, SEEK_SET);
+    ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
     TEST_ASSERT_TRUE(ret != -1);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 20);
+    TEST_ASSERT_EQUAL_INT((int)off, TEST_SEEK_SIZE);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_032
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_013
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -726,21 +743,21 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek013, Function | MediumTest 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fseek(fp, 100L, SEEK_SET);
+    ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
     TEST_ASSERT_TRUE(ret != -1);
 
-    ret = fseek(fp, 20L, SEEK_END);
+    ret = fseek(fp, TEST_SEEK_SIZE, SEEK_END);
     TEST_ASSERT_TRUE(ret != -1);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 20);
+    TEST_ASSERT_EQUAL_INT((int)off, TEST_SEEK_SIZE);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_033
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_014
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -753,20 +770,20 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek014, Function | MediumTest 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fseek(fp, 100L, SEEK_SET);
+    ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
     TEST_ASSERT_TRUE(ret != -1);
 
     rewind(fp);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 0);
+    TEST_ASSERT_EQUAL_INT((int)off, 0);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_034
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_015
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -779,20 +796,20 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek015, Function | MediumTest 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fseek(fp, 100L, SEEK_CUR);
+    ret = fseek(fp, TEST_SEEK_SIZE, SEEK_CUR);
     TEST_ASSERT_TRUE(ret != -1);
 
     rewind(fp);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 0);
+    TEST_ASSERT_EQUAL_INT((int)off, 0);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_035
+ * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_016
  * @tc.name     ftell and fseek
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -805,20 +822,20 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek016, Function | MediumTest 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fseek(fp, 100L, SEEK_END);
+    ret = fseek(fp, TEST_SEEK_SIZE, SEEK_END);
     TEST_ASSERT_TRUE(ret != -1);
 
     rewind(fp);
 
     off = ftell(fp);
-    TEST_ASSERT_EQUAL_INT64(off, 0);
+    TEST_ASSERT_EQUAL_INT((int)off, 0);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_036
+ * @tc.number   SUB_KERNEL_FS_FPUTS_001
  * @tc.name     fputs
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -826,8 +843,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs001, Function | MediumTest | Lev
 {
     int ret = 0;
     FILE *fp = NULL;
-    const char chr1[10] = "hello";
-    char str[20] = {0};
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
@@ -840,7 +857,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs001, Function | MediumTest | Lev
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_037
+ * @tc.number   SUB_KERNEL_FS_FPUTS_002
  * @tc.name     fputs
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -848,8 +865,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs002, Function | MediumTest | Lev
 {
     int ret = 0;
     FILE *fp = NULL;
-    const char chr1[10] = "hello";
-    char str[20] = {0};
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "a");
     TEST_ASSERT_NOT_NULL(fp);
@@ -862,7 +879,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs002, Function | MediumTest | Lev
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_038
+ * @tc.number   SUB_KERNEL_FS_FPUTS_003
  * @tc.name     fputs
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -870,8 +887,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs003, Function | MediumTest | Lev
 {
     int ret = 0;
     FILE *fp = NULL;
-    const char chr1[10] = "hello";
-    char str[20] = {0};
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
     TEST_ASSERT_NOT_NULL(fp);
@@ -884,7 +901,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs003, Function | MediumTest | Lev
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_039
+ * @tc.number   SUB_KERNEL_FS_FPUTS_004
  * @tc.name     fputs
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -892,8 +909,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs004, Function | MediumTest | Lev
 {
     int ret = 0;
     FILE *fp = NULL;
-    const char chr1[10] = "hello";
-    char str[20] = {0};
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
     TEST_ASSERT_NOT_NULL(fp);
@@ -913,7 +930,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs004, Function | MediumTest | Lev
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_040
+ * @tc.number   SUB_KERNEL_FS_FPUTS_005
  * @tc.name     fputs
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -921,27 +938,27 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs005, Function | MediumTest | Lev
 {
     int ret = 0;
     FILE *fp = NULL;
-    const char chr1[10] = "hello";
-    char str[20] = {0};
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    char str[TEST_BUF_SIZE] = {0};
     int i;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
     TEST_ASSERT_NOT_NULL(fp);
 
-    for (i = 0; i < 200; i++) {
+    for (i = 0; i < TEST_LOOPUP_TIME; i++) {
         ret = fputs(chr1, fp);
         TEST_ASSERT_TRUE(ret != -1);
     }
 
     ret = ftell(fp);
-    TEST_ASSERT_EQUAL_INT(ret, 1000);
+    TEST_ASSERT_EQUAL_INT(ret, TEST_LOOPUP_TIME * strlen(chr1));
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_041
+ * @tc.number   SUB_KERNEL_FS_FWRITE_001
  * @tc.name     fread and fwrite
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -951,10 +968,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite001, Function | MediumTest
     FILE *fp = NULL;
     long off = 0;
 
-    const char chr1[10] = "hello";
-    const char chr2[10] = "world";
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    const char chr2[TEST_BUF_SIZE] = "world";
 
-    char str[20] = {0};
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
@@ -967,7 +984,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite001, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_042
+ * @tc.number   SUB_KERNEL_FS_FWRITE_002
  * @tc.name     fread and fwrite
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -977,10 +994,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite002, Function | MediumTest
     FILE *fp = NULL;
     long off = 0;
 
-    const char chr1[10] = "hello";
-    const char chr2[10] = "world";
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    const char chr2[TEST_BUF_SIZE] = "world";
 
-    char str[20] = {0};
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
@@ -993,7 +1010,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite002, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_043
+ * @tc.number   SUB_KERNEL_FS_FWRITE_003
  * @tc.name     fread and fwrite
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1003,10 +1020,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite003, Function | MediumTest
     FILE *fp = NULL;
     long off = 0;
 
-    const char chr1[10] = "hello";
-    const char chr2[10] = "world";
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    const char chr2[TEST_BUF_SIZE] = "world";
 
-    char str[20] = {0};
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "r");
     TEST_ASSERT_NOT_NULL(fp);
@@ -1019,7 +1036,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite003, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_044
+ * @tc.number   SUB_KERNEL_FS_FWRITE_004
  * @tc.name     fread and fwrite
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1029,10 +1046,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite004, Function | MediumTest
     FILE *fp = NULL;
     long off = 0;
 
-    const char chr1[10] = "hello";
-    const char chr2[10] = "world";
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    const char chr2[TEST_BUF_SIZE] = "world";
 
-    char str[20] = {0};
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "r");
     TEST_ASSERT_NOT_NULL(fp);
@@ -1045,7 +1062,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite004, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_045
+ * @tc.number   SUB_KERNEL_FS_FWRITE_005
  * @tc.name     fread and fwrite
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1055,10 +1072,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite005, Function | MediumTest
     FILE *fp = NULL;
     long off = 0;
 
-    const char chr1[10] = "hello";
-    const char chr2[10] = "world";
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    const char chr2[TEST_BUF_SIZE] = "world";
 
-    char str[20] = {0};
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "a");
     TEST_ASSERT_NOT_NULL(fp);
@@ -1071,7 +1088,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite005, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_046
+ * @tc.number   SUB_KERNEL_FS_FWRITE_006
  * @tc.name     fread and fwrite
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1081,27 +1098,27 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite006, Function | MediumTest
     FILE *fp = NULL;
     long off = 0;
 
-    const char chr1[10] = "hello";
-    const char chr2[10] = "world";
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    const char chr2[TEST_BUF_SIZE] = "world";
 
-    char str[20] = {0};
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fwrite(chr1, strlen(chr1) + 1, 1, fp);
+    ret = fwrite(chr1, strlen(chr1), 1, fp);
     TEST_ASSERT_TRUE(ret != -1);
 
     (void)fseek(fp, 0L, SEEK_SET);
 
-    ret = fread(str, 20, 1, fp);
+    ret = fread(str, TEST_RW_SIZE, 1, fp);
     TEST_ASSERT_TRUE(ret != -1);
 
-    ret = fwrite(chr2, strlen(chr2) + 1, 1, fp);
+    ret = fwrite(chr2, strlen(chr2), 1, fp);
     TEST_ASSERT_TRUE(ret != -1);
 
     (void)fseek(fp, 0L, SEEK_SET);
-    ret = fread(str, 20, 1, fp);
+    ret = fread(str, TEST_RW_SIZE, 1, fp);
     TEST_ASSERT_TRUE(ret != -1);
 
     ret = strcmp(str, "helloworld");
@@ -1113,7 +1130,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite006, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_047
+ * @tc.number   SUB_KERNEL_FS_FWRITE_007
  * @tc.name     fread and fwrite
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1123,23 +1140,23 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite007, Function | MediumTest
     FILE *fp = NULL;
     long off = 0;
 
-    const char chr1[10] = "hello";
-    const char chr2[10] = "world";
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    const char chr2[TEST_BUF_SIZE] = "world";
 
-    char str[20] = {0};
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fwrite(chr1, strlen(chr1) + 1, 1, fp);
+    ret = fwrite(chr1, strlen(chr1), 1, fp);
     TEST_ASSERT_TRUE(ret != -1);
 
-    ret = fwrite(chr2, strlen(chr2) + 1, 1, fp);
+    ret = fwrite(chr2, strlen(chr2), 1, fp);
     TEST_ASSERT_TRUE(ret != -1);
 
     (void)fseek(fp, 0L, SEEK_SET);
 
-    ret = fread(str, 20, 1, fp);
+    ret = fread(str, TEST_RW_SIZE, 1, fp);
     TEST_ASSERT_TRUE(ret != -1);
 
     ret = strcmp(str, "helloworld");
@@ -1150,7 +1167,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite007, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_048
+ * @tc.number   SUB_KERNEL_FS_FWRITE_008
  * @tc.name     fread and fwrite
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1158,28 +1175,32 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite008, Function | MediumTest
 {
     int ret = 0;
     FILE *fp = NULL;
-    long off = 0;
     int i;
 
-    const char chr1[10] = "hello";
-    const char chr2[10] = "world";
+    const char chr1[TEST_BUF_SIZE] = "hello";
+    const char chr2[TEST_BUF_SIZE] = "world";
 
-    char str[30] = {0};
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
     TEST_ASSERT_NOT_NULL(fp);
 
-    for (i = 0; i < 200; i++) {
-        ret = fwrite(chr1, strlen(chr1) + 1, 1, fp);
+    for (i = 0; i < TEST_LOOPUP_TIME; i++) {
+        ret = fwrite(chr1, strlen(chr1), 1, fp);
         TEST_ASSERT_TRUE(ret != -1);
     }
 
-    (void)fseek(fp, 100L, SEEK_SET);
+    for (i = 0; i < TEST_LOOPUP_TIME; i++) {
+        ret = fwrite(chr2, strlen(chr2), 1, fp);
+        TEST_ASSERT_TRUE(ret != -1);
+    }
 
-    ret = fread(str, 20, 1, fp);
+    (void)fseek(fp, (TEST_LOOPUP_TIME - 2) * strlen(chr1), SEEK_SET); /* 2, means will read chr1 2times */
+
+    ret = fread(str, TEST_RW_SIZE, 1, fp);
     TEST_ASSERT_TRUE(ret != -1);
 
-    ret = strcmp(str, "hellohellohellohello");
+    ret = strncmp(str, "hellohelloworldworld", TEST_RW_SIZE);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 
     ret = fclose(fp);
@@ -1187,7 +1208,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite008, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_049
+ * @tc.number   SUB_KERNEL_FS_FWRITE_009
  * @tc.name     fread and fwrite
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1195,28 +1216,25 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite009, Function | MediumTest
 {
     int ret = 0;
     FILE *fp = NULL;
-    long off = 0;
     int i;
 
-    const char chr1[10] = "123456789";
-    char str[30] = {0};
+    const char chr1[TEST_BUF_SIZE] = "12345";
+    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
     TEST_ASSERT_NOT_NULL(fp);
 
-    for (i = 0; i < 200; i++) {
-        ret = fwrite(chr1, 5, 1, fp);
+    for (i = 0; i < TEST_LOOPUP_TIME; i++) {
+        ret = fwrite(chr1, strlen(chr1), 1, fp);
         TEST_ASSERT_TRUE(ret != -1);
     }
 
-    (void)fseek(fp, 100L, SEEK_SET);
+    (void)fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
 
-    for (i = 0; i < 10; i++) {
+    ret = fread(str, TEST_RW_SIZE, 1, fp);
+    TEST_ASSERT_TRUE(ret != -1);
 
-        ret = fread(str, 20, 1, fp);
-        TEST_ASSERT_TRUE(ret != -1);
-    }
-    ret = strcmp(str, "1234512345123451234512345");
+    ret = strncmp(str, "1234512345123451234512345", TEST_RW_SIZE);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 
     ret = fclose(fp);
@@ -1224,7 +1242,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite009, Function | MediumTest
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_050
+ * @tc.number   SUB_KERNEL_FS_READDIR_001
  * @tc.name     readdir
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1232,16 +1250,22 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsReaddir001, Function | MediumTest | L
 {
     DIR *dirp;
     struct dirent *dResult;
+    int ret = 0;
 
-    dirp = opendir(DIR1);
+    ret = mkdir(DIRA, 0777);
+    dirp = opendir(DIRA);
     TEST_ASSERT_NOT_NULL(dirp);
 
     dResult = readdir(dirp);
     TEST_ASSERT_NOT_NULL(dResult);
+
+    ret = closedir(dirp);
+    TEST_ASSERT_EQUAL_INT(ret, 0);
+    ret = rmdir(DIRA);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_051
+ * @tc.number   SUB_KERNEL_FS_READDIR_002
  * @tc.name     readdir
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1249,32 +1273,28 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsReaddir002, Function | MediumTest | L
 {
     DIR *dirp;
     struct dirent *dResult;
-    long tellDir0;
-    long tellDir1;
-    long tellDir2;
+    off_t tellDir0;
+    off_t tellDir1;
+    int ret = 0;
 
-    dirp = opendir(DIR1);
+    ret = mkdir(DIRA, 0777);
+    dirp = opendir((DIRA));
     TEST_ASSERT_NOT_NULL(dirp);
 
     dResult = readdir(dirp);
     TEST_ASSERT_NOT_NULL(dirp);
     tellDir0 = dResult->d_off;
-    TEST_ASSERT_TRUE(tellDir0 == tellDir1);
 
     dResult = readdir(dirp);
     TEST_ASSERT_NOT_NULL(dirp);
     tellDir1 = dResult->d_off;
 
-    rewinddir(dirp);
-    dResult = readdir(dirp);
-    TEST_ASSERT_NOT_NULL(dirp);
-    tellDir2 = dResult->d_off;
-
-    TEST_ASSERT_TRUE(tellDir0 == tellDir2);
+    TEST_ASSERT_TRUE(tellDir0 == tellDir1);
+    ret = rmdir(DIRA);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_052
+ * @tc.number   SUB_KERNEL_FS_REMOVE_001
  * @tc.name     remove
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1290,7 +1310,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRemove001, Function | MediumTest | Le
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_053
+ * @tc.number   SUB_KERNEL_FS_REMOVE_002
  * @tc.name     remove
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1298,14 +1318,14 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRemove002, Function | MediumTest | Le
 {
     int ret = 0;
 
-    ret = mkdir("a", 0777);
+    ret = mkdir(DIRA, 0777);
     TEST_ASSERT_EQUAL_INT(ret, 0);
-    ret = remove("a");
+    ret = remove(DIRA);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_054
+ * @tc.number   SUB_KERNEL_FS_RMDIR_001
  * @tc.name     rmdir
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1313,21 +1333,21 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRmdir001, Function | MediumTest | Lev
 {
     int ret = 0;
 
-    ret = mkdir("a", 0777);
+    ret = mkdir(DIRA, 0777);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 
-    ret = mkdir("a/b", 0777);
+    ret = mkdir(DIRAB, 0777);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 
-    ret = rmdir("a/b");
+    ret = rmdir(DIRAB);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 
-    ret = rmdir("a");
+    ret = rmdir(DIRA);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_055
+ * @tc.number   SUB_KERNEL_FS_RMDIR_002
  * @tc.name     rmdir
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1335,55 +1355,27 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRmdir002, Function | MediumTest | Lev
 {
     int ret = 0;
 
-    ret = mkdir("a", 0777);
+    ret = mkdir(DIRA, 0777);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 
-    ret = mkdir("a/b", 0777);
+    ret = mkdir(DIRAB, 0777);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 
-    ret = mkdir("a/c", 0777);
+    ret = mkdir(DIRAC, 0777);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 
-    ret = rmdir("a/b");
+    ret = rmdir(DIRAB);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 
-    ret = rmdir("a/c");
+    ret = rmdir(DIRAC);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 
-    ret = rmdir("a");
+    ret = rmdir(DIRA);
     TEST_ASSERT_EQUAL_INT(ret, 0);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_056
- * @tc.name     rmdir
- * @tc.desc     [C- SOFTWARE -0200]
- */
-LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRmdir003, Function | MediumTest | Level1)
-{
-    int ret = 0;
-
-    ret = mkdir("a", 0777);
-    TEST_ASSERT_EQUAL_INT(ret, 0);
-
-    ret = mkdir("a/b", 0777);
-    TEST_ASSERT_EQUAL_INT(ret, 0);
-
-    ret = mkdir("a/c", 0777);
-    TEST_ASSERT_EQUAL_INT(ret, 0);
-
-    ret = rmdir("a/b");
-    TEST_ASSERT_EQUAL_INT(ret, 0);
-
-    ret = rmdir("a");
-    TEST_ASSERT_EQUAL_INT(ret, 0);
-
-    ret = rmdir("a/c");
-    TEST_ASSERT_EQUAL_INT(ret, -1);
-}
-
-/* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_057
+ * @tc.number   SUB_KERNEL_FS_UNLINK_001
  * @tc.name     unlink
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1391,36 +1383,19 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsUnlink001, Function | MediumTest | Le
 {
     int ret = 0;
     int fd = 0;
-    char tmpFileName[]= "test";
+    char tmpFileName[]= FILE1;
 
-    fd = open(tmpFileName, O_RDWR);
+    fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
     TEST_ASSERT_TRUE(ret != -1);
 
     (void)close(fd);
-    ret = unlink(tmpFileName);
-    TEST_ASSERT_TRUE(ret != -1);
-}
-
-/* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_058
- * @tc.name     unlink
- * @tc.desc     [C- SOFTWARE -0200]
- */
-LITE_TEST_CASE(PosixFsFuncTestSuite, testFsUnlink002, Function | MediumTest | Level1)
-{
-    int ret = 0;
-    int fd = 0;
-    char tmpFileName[5]= "test";
-
-    fd = creat(tmpFileName, 0777);
-    TEST_ASSERT_TRUE(ret != -1);
 
     ret = unlink(tmpFileName);
     TEST_ASSERT_TRUE(ret != -1);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_059
+ * @tc.number   SUB_KERNEL_FS_STAT_001
  * @tc.name     unlink
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1428,9 +1403,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat001, Function | MediumTest | Leve
 {
     struct stat buf;
     int fd = 0;
-    char tmpFileName[5]= "test";
+    char tmpFileName[]= FILE1;
     int ret = 0;
 
+    remove(FILE1);
     fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
     TEST_ASSERT_TRUE(ret != -1);
 
@@ -1441,7 +1417,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat001, Function | MediumTest | Leve
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_060
+ * @tc.number   SUB_KERNEL_FS_STAT_002
  * @tc.name     unlink
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1449,16 +1425,18 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat002, Function | MediumTest | Leve
 {
     struct stat buf;
     int fd = 0;
-    char tmpFileName[5]= "test";
+    char tmpFileName[]= FILE1;
     int ret = 0;
     ssize_t size = 0;
-    char writeBuf[] = "write test";
+    char writeBuf[TEST_BUF_SIZE] = "write test";
 
+    remove(FILE1);
     fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
     TEST_ASSERT_TRUE(ret != -1);
 
     size = write(fd, writeBuf, sizeof(writeBuf));
     TEST_ASSERT_TRUE(ret != -1);
+
     (void)close(fd);
 
     ret = stat(tmpFileName, &buf);
@@ -1468,7 +1446,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat002, Function | MediumTest | Leve
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_061
+ * @tc.number   SUB_KERNEL_FS_STAT_003
  * @tc.name     unlink
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -1476,10 +1454,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat003, Function | MediumTest | Leve
 {
     struct stat buf;
     int fd;
-    char tmpFileName[5]= "test";
+    char tmpFileName[]= FILE1;
     int ret = 0;
     ssize_t size;
-    char writeBuf[] = "write test";
+    char writeBuf[TEST_BUF_SIZE] = "write test";
 
     fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
     TEST_ASSERT_TRUE(ret != -1);
@@ -1495,77 +1473,104 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat003, Function | MediumTest | Leve
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_062
+ * extern lseek is necessary, Otherwise it will cause stacking errors
+ */
+extern off_t lseek(int fd, off_t offset, int whence);
+
+/* *
+ * @tc.number   SUB_KERNEL_FS_WRITE_001
  * @tc.name     unlink
  * @tc.desc     [C- SOFTWARE -0200]
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite001, Function | MediumTest | Level1)
 {
-    int reLseek;
+    off_t reLseek;
     int fd = 0;
-    char writeBuf[100];
+    char writeBuf[TEST_BUF_SIZE];
     int ret = 0;
-    char tmpFileName[5]= "test";
+    char tmpFileName[]= FILE1;
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < TEST_BUF_SIZE; i++) {
         writeBuf[i] = '1';
     }
 
     fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
     TEST_ASSERT_TRUE(ret != -1);
 
-    ret = write(fd, writeBuf, 20);
+    ret = write(fd, writeBuf, TEST_RW_SIZE);
     TEST_ASSERT_TRUE(ret != -1);
 
     reLseek = lseek(fd, 0, SEEK_CUR);
 
-    ret = write(fd, writeBuf, 20);
+    ret = write(fd, writeBuf, TEST_RW_SIZE);
     TEST_ASSERT_TRUE(ret != -1);
 
     reLseek = lseek(fd, 0, SEEK_CUR);
 
-    TEST_ASSERT_TRUE(40 == reLseek);
+    TEST_ASSERT_TRUE((TEST_RW_SIZE + TEST_RW_SIZE) == (unsigned int)reLseek);
 
     (void)close(fd);
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_DIRNAME_063
+ * @tc.number   SUB_KERNEL_FS_WRITE_002
  * @tc.name     unlink
  * @tc.desc     [C- SOFTWARE -0200]
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite002, Function | MediumTest | Level1)
 {
     int fd = 0;
-    char writeBuf[] = "123456789";
+    char writeBuf[TEST_BUF_SIZE] = "0123456789";
     int ret = 0;
     struct stat statbuf;
-    char tmpFileName[5]= "test";
+    char tmpFileName[]= FILE1;
+    int i;
 
+    remove(FILE1);
     fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
     TEST_ASSERT_TRUE(ret != -1);
 
-    ret = write(fd, writeBuf, 20);
+    for (i = 0; i < TEST_LOOPUP_TIME; i++) {
+        ret = write(fd, writeBuf, sizeof(writeBuf));
+    }
     TEST_ASSERT_TRUE(ret != -1);
+
+    (void)close(fd);
 
     ret = stat(tmpFileName, &statbuf);
     TEST_ASSERT_TRUE(ret != -1);
 
-    TEST_ASSERT_TRUE(statbuf.st_size == sizeof(writeBuf));
-
-    (void)close(fd);
+    TEST_ASSERT_TRUE(statbuf.st_size == sizeof(writeBuf) * TEST_LOOPUP_TIME);
 }
 
 RUN_TEST_SUITE(PosixFsFuncTestSuite);
 
-
 void PosixFsFuncTest()
 {
-    LOG("begin PosixFsFuncTest....");
+    LOG("begin PosixFsFuncTest....\r\n");
+
+    RUN_ONE_TESTCASE(testFsUnlink001);
+
+    RUN_ONE_TESTCASE(testFsStat001);
+    RUN_ONE_TESTCASE(testFsStat002);
+    RUN_ONE_TESTCASE(testFsStat003);
+
+    RUN_ONE_TESTCASE(testFsWrite001);
+    RUN_ONE_TESTCASE(testFsWrite002);
+
     RUN_ONE_TESTCASE(testFsDirname001);
     RUN_ONE_TESTCASE(testFsDirname002);
     RUN_ONE_TESTCASE(testFsDirname003);
     RUN_ONE_TESTCASE(testFsDirname004);
+
+    RUN_ONE_TESTCASE(testFsReaddir001);
+    RUN_ONE_TESTCASE(testFsReaddir002);
+
+    RUN_ONE_TESTCASE(testFsRemove001);
+    RUN_ONE_TESTCASE(testFsRemove002);
+
+    RUN_ONE_TESTCASE(testFsRmdir001);
+    RUN_ONE_TESTCASE(testFsRmdir002);
 
     RUN_ONE_TESTCASE(testFsFopenFclose001);
     RUN_ONE_TESTCASE(testFsFopenFclose002);
@@ -1583,7 +1588,6 @@ void PosixFsFuncTest()
     RUN_ONE_TESTCASE(testFsFdopen002);
     RUN_ONE_TESTCASE(testFsFdopen003);
     RUN_ONE_TESTCASE(testFsFdopen004);
-
 
     RUN_ONE_TESTCASE(testFsFtellFseek001);
     RUN_ONE_TESTCASE(testFsFtellFseek002);
@@ -1617,26 +1621,6 @@ void PosixFsFuncTest()
     RUN_ONE_TESTCASE(testFsFreadFwrite007);
     RUN_ONE_TESTCASE(testFsFreadFwrite008);
     RUN_ONE_TESTCASE(testFsFreadFwrite009);
-
-    RUN_ONE_TESTCASE(testFsReaddir001);
-    RUN_ONE_TESTCASE(testFsReaddir002);
-
-    RUN_ONE_TESTCASE(testFsRemove001);
-    RUN_ONE_TESTCASE(testFsRemove002);
-
-    RUN_ONE_TESTCASE(testFsRmdir001);
-    RUN_ONE_TESTCASE(testFsRmdir002);
-    RUN_ONE_TESTCASE(testFsRmdir003);
-
-    RUN_ONE_TESTCASE(testFsUnlink001);
-    RUN_ONE_TESTCASE(testFsUnlink002);
-
-    RUN_ONE_TESTCASE(testFsStat001);
-    RUN_ONE_TESTCASE(testFsStat002);
-    RUN_ONE_TESTCASE(testFsStat003);
-
-    RUN_ONE_TESTCASE(testFsWrite001);
-    RUN_ONE_TESTCASE(testFsWrite002);
 
     return;
 }
