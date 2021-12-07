@@ -31,13 +31,13 @@
 #include "osTest.h"
 #include "It_los_task.h"
 
-static VOID *TaskDeatchf01(void *argument)
+static int TaskDeatchf01(UINT32 argument)
 {
     int ret = LOS_TaskDetach(LOS_CurTaskIDGet());
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_NOT_JOIN, ret);
 
     g_testCount++;
-    return NULL;
+    return 0;
 }
 
 static UINT32 TestCase(VOID)

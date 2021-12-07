@@ -39,7 +39,7 @@ static UINT32 Testcase(VOID)
     UINT32 swTmrID = 0xfffffff; // LOSCFG_BASE_CORE_SWTMR_LIMIT.
 
     ret = LOS_SwtmrDelete(swTmrID);
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_ID_INVALID, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_NOT_CREATED, ret, EXIT);
 
     return LOS_OK;
 EXIT:

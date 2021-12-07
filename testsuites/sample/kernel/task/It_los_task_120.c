@@ -31,7 +31,7 @@
 #include "osTest.h"
 #include "It_los_task.h"
 
-static VOID *TaskDeatchf01(void *argument)
+static int TaskDeatchf01(UINT32 argument)
 {
     UINT32 ret = LOS_TaskDetach(LOS_CurTaskIDGet());
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
@@ -39,7 +39,7 @@ static VOID *TaskDeatchf01(void *argument)
     g_testCount++;
 
     LOS_TaskDelay(1000); /* 1000 ticks */
-    return NULL;
+    return 0;
 }
 
 static UINT32 TestCase(VOID)
@@ -63,6 +63,8 @@ static UINT32 TestCase(VOID)
 
     ret = LOS_TaskJoin(taskID, NULL);
     ICUNIT_ASSERT_EQUAL(ret, LOS_NOK, ret);
+
+    LOS_TaskDelay(1500); /* 1500 ticks wait for the end of child task. */
 
     return LOS_OK;
 }

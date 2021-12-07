@@ -113,6 +113,7 @@ VOID ItSuiteLosSwtmr(void)
     ItLosSwtmr076();
     ItLosSwtmr077();
     ItLosSwtmr078();
+    ItLosSwtmr079();
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     ItLosSwtmrAlign005();
     ItLosSwtmrAlign006();

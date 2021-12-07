@@ -61,6 +61,8 @@ LITE_OS_SEC_BSS SwtmrAlignData      g_swtmrAlignID[LOSCFG_BASE_CORE_SWTMR_LIMIT]
 #define SWTMR_MAX_RUNNING_TICKS 2
 #define OS_SWTMR_MAX_TIMERID    ((0xFFFFFFFF / LOSCFG_BASE_CORE_SWTMR_LIMIT) * LOSCFG_BASE_CORE_SWTMR_LIMIT)
 
+STATIC VOID OsSwtmrDelete(SWTMR_CTRL_S *swtmr);
+
 /*****************************************************************************
 Function    : OsSwtmrTask
 Description : Swtmr task main loop, handle time-out timer.
@@ -71,6 +73,8 @@ Return      : None
 LITE_OS_SEC_TEXT VOID OsSwtmrTask(VOID)
 {
     SwtmrHandlerItem swtmrHandle;
+    SWTMR_CTRL_S *swtmr = NULL;
+    UINT32 intSave;
     UINT32 readSize;
     UINT32 ret;
     UINT64 tick;
@@ -79,9 +83,20 @@ LITE_OS_SEC_TEXT VOID OsSwtmrTask(VOID)
         readSize = sizeof(SwtmrHandlerItem);
         ret = LOS_QueueReadCopy(g_swtmrHandlerQueue, &swtmrHandle, &readSize, LOS_WAIT_FOREVER);
         if ((ret == LOS_OK) && (readSize == sizeof(SwtmrHandlerItem))) {
-            if (swtmrHandle.handler == NULL) {
+            if ((swtmrHandle.handler == NULL) || (swtmrHandle.swtmrID >= OS_SWTMR_MAX_TIMERID)) {
                 continue;
             }
+
+            intSave = LOS_IntLock();
+            swtmr = g_swtmrCBArray + swtmrHandle.swtmrID % LOSCFG_BASE_CORE_SWTMR_LIMIT;
+            if (swtmr->usTimerID != swtmrHandle.swtmrID) {
+                LOS_IntRestore(intSave);
+                continue;
+            }
+            if (swtmr->ucMode == LOS_SWTMR_MODE_ONCE) {
+                OsSwtmrDelete(swtmr);
+            }
+            LOS_IntRestore(intSave);
 
             tick = LOS_TickCountGet();
             swtmrHandle.handler(swtmrHandle.arg);
@@ -233,8 +248,14 @@ Input       : swtmr --- Need to delete Software Timer, When using, Ensure that i
 Output      : None
 Return      : None
 *****************************************************************************/
-STATIC_INLINE VOID OsSwtmrDelete(SWTMR_CTRL_S *swtmr)
+STATIC VOID OsSwtmrDelete(SWTMR_CTRL_S *swtmr)
 {
+    if (swtmr->usTimerID < (OS_SWTMR_MAX_TIMERID - LOSCFG_BASE_CORE_SWTMR_LIMIT)) {
+        swtmr->usTimerID += LOSCFG_BASE_CORE_SWTMR_LIMIT;
+    } else {
+        swtmr->usTimerID %= LOSCFG_BASE_CORE_SWTMR_LIMIT;
+    }
+
     /* insert to free list */
     swtmr->pstNext = g_swtmrFreeList;
     g_swtmrFreeList = swtmr;
@@ -264,16 +285,10 @@ STATIC VOID OsSwtmrTimeoutHandle(UINT64 currTime, SWTMR_CTRL_S *swtmr)
 
     swtmrHandler.handler = swtmr->pfnHandler;
     swtmrHandler.arg = swtmr->uwArg;
+    swtmrHandler.swtmrID = swtmr->usTimerID;
 
     (VOID)LOS_QueueWriteCopy(g_swtmrHandlerQueue, &swtmrHandler, sizeof(SwtmrHandlerItem), LOS_NO_WAIT);
-    if (swtmr->ucMode == LOS_SWTMR_MODE_ONCE) {
-        OsSwtmrDelete(swtmr);
-        if (swtmr->usTimerID < (OS_SWTMR_MAX_TIMERID - LOSCFG_BASE_CORE_SWTMR_LIMIT)) {
-            swtmr->usTimerID += LOSCFG_BASE_CORE_SWTMR_LIMIT;
-        } else {
-            swtmr->usTimerID %= LOSCFG_BASE_CORE_SWTMR_LIMIT;
-        }
-    } else if (swtmr->ucMode == LOS_SWTMR_MODE_PERIOD) {
+    if (swtmr->ucMode == LOS_SWTMR_MODE_PERIOD) {
         OsSwtmrStart(currTime, swtmr);
     } else if (swtmr->ucMode == LOS_SWTMR_MODE_NO_SELFDELETE) {
         swtmr->ucState = OS_SWTMR_STATUS_CREATED;
@@ -503,7 +518,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStart(UINT32 swtmrId)
     SWTMR_CTRL_S *swtmr = g_swtmrCBArray + swtmrId % LOSCFG_BASE_CORE_SWTMR_LIMIT;
     if (swtmr->usTimerID != swtmrId) {
         LOS_IntRestore(intSave);
-        return LOS_ERRNO_SWTMR_ID_INVALID;
+        return LOS_ERRNO_SWTMR_NOT_CREATED;
     }
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
@@ -560,7 +575,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrStop(UINT32 swtmrId)
     swtmr = g_swtmrCBArray + swtmrCbId;
     if (swtmr->usTimerID != swtmrId) {
         LOS_IntRestore(intSave);
-        return LOS_ERRNO_SWTMR_ID_INVALID;
+        return LOS_ERRNO_SWTMR_NOT_CREATED;
     }
 
     switch (swtmr->ucState) {
@@ -601,10 +616,9 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrTimeGet(UINT32 swtmrId, UINT32 *tick)
     intSave = LOS_IntLock();
     swtmrCbId = swtmrId % LOSCFG_BASE_CORE_SWTMR_LIMIT;
     swtmr = g_swtmrCBArray + swtmrCbId;
-
     if (swtmr->usTimerID != swtmrId) {
         LOS_IntRestore(intSave);
-        return LOS_ERRNO_SWTMR_ID_INVALID;
+        return LOS_ERRNO_SWTMR_NOT_CREATED;
     }
     switch (swtmr->ucState) {
         case OS_SWTMR_STATUS_UNUSED:
@@ -646,7 +660,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_SwtmrDelete(UINT32 swtmrId)
     swtmr = g_swtmrCBArray + swtmrCbId;
     if (swtmr->usTimerID != swtmrId) {
         LOS_IntRestore(intSave);
-        return LOS_ERRNO_SWTMR_ID_INVALID;
+        return LOS_ERRNO_SWTMR_NOT_CREATED;
     }
 
     switch (swtmr->ucState) {
