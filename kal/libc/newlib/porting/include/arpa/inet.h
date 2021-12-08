@@ -28,17 +28,39 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _ADAPT_LIMITS_H
-#define _ADAPT_LIMITS_H
+#ifndef _ADAPT_ARPA_INET_H
+#define _ADAPT_ARPA_INET_H
 
-#include_next <limits.h>
-#include <sys/syslimits.h>
+#include <sys/features.h>
+#include <netinet/in.h>
 
-#define SSIZE_MAX   LONG_MAX
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#undef PATH_MAX
-#undef NAME_MAX
-#define PATH_MAX 256
-#define NAME_MAX 256
+in_addr_t inet_addr(const char *cp);
+in_addr_t inet_network(const char *cp);
+char *inet_ntoa(struct in_addr addr);
+int inet_pton(int af, const char *__restrict src, void *__restrict dst);
+const char *inet_ntop(int af, const void *__restrict src, char *__restrict dst, socklen_t size);
 
-#endif /* !_ADAPT_LIMITS_H */
+int inet_aton(const char *cp, struct in_addr *addr);
+struct in_addr inet_makeaddr(in_addr_t net, in_addr_t host);
+in_addr_t inet_lnaof(struct in_addr addr);
+in_addr_t inet_netof(struct in_addr addr);
+
+uint32_t htonl(uint32_t hostvar);
+uint16_t htons(uint16_t hostvar);
+uint32_t ntohl(uint32_t netvar);
+uint16_t ntohs(uint16_t netvar);
+
+#undef INET_ADDRSTRLEN
+#undef INET6_ADDRSTRLEN
+#define INET_ADDRSTRLEN     16
+#define INET6_ADDRSTRLEN    46
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !_ADAPT_ARPA_INET_H */
