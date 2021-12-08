@@ -31,6 +31,11 @@
 #ifndef _ADAPT_ENDIAN_H
 #define _ADAPT_ENDIAN_H
 
+#define LITTLE_ENDIAN   _LITTLE_ENDIAN
+#define BIG_ENDIAN      _BIG_ENDIAN
+#define PDP_ENDIAN      _PDP_ENDIAN
+#define BYTE_ORDER      _BYTE_ORDER
+
 #include_next <machine/endian.h>
 
 #endif /* !_ADAPT_ENDIAN_H */
