@@ -45,3 +45,7 @@ kernel_module(module_name) {
     "secure",
   ]
 }
+
+config("public") {
+  include_dirs = [ "non_secure" ]
+}

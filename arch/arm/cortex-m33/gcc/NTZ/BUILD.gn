@@ -39,3 +39,7 @@ kernel_module(module_name) {
     "los_timer.c",
   ]
 }
+
+config("public") {
+  include_dirs = [ "." ]
+}
