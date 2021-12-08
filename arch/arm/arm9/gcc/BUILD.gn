@@ -40,3 +40,7 @@ kernel_module(module_name) {
     "reset_vector.S",
   ]
 }
+
+config("public") {
+  include_dirs = [ "." ]
+}

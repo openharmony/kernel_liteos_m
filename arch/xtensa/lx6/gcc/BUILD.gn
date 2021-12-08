@@ -40,3 +40,7 @@ kernel_module(module_name) {
     "los_window.S",
   ]
 }
+
+config("public") {
+  include_dirs = [ "." ]
+}

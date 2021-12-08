@@ -29,17 +29,11 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-module_name = "arch"
-kernel_module(module_name) {
-  sources = [
-    "los_context.c",
-    "los_dispatch.S",
-    "los_exc.S",
-    "los_interrupt.c",
-    "los_timer.c",
-  ]
+config("arm_config") {
+  include_dirs = [ "include" ]
 }
 
-config("public") {
-  include_dirs = [ "." ]
+module_group("arm") {
+  modules = [ "$board_cpu/gcc" ]
+  configs = [ ":arm_config" ]
 }
