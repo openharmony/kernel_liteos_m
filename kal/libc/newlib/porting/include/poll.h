@@ -28,17 +28,35 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _ADAPT_LIMITS_H
-#define _ADAPT_LIMITS_H
+#ifndef _ADAPT_POLL_H
+#define _ADAPT_POLL_H
 
-#include_next <limits.h>
-#include <sys/syslimits.h>
+#include <sys/features.h>
+#include <sys/types.h>
 
-#define SSIZE_MAX   LONG_MAX
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#undef PATH_MAX
-#undef NAME_MAX
-#define PATH_MAX 256
-#define NAME_MAX 256
+#define POLLIN      0x001
+#define POLLPRI     0x002
+#define POLLOUT     0x004
+#define POLLERR     0x008
+#define POLLHUP     0x010
+#define POLLNVAL    0x020
 
-#endif /* !_ADAPT_LIMITS_H */
+typedef unsigned long nfds_t;
+
+struct pollfd {
+    int fd;
+    short events;
+    short revents;
+};
+
+int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* !_ADAPT_POLL_H */
