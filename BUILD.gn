@@ -54,8 +54,6 @@ exec_script("//build/lite/run_shell_cmd.py",
 
 import("liteos.gni")
 
-visibility = [ ":*" ]
-
 liteos_arch_cflags = []
 if (defined(LOSCFG_ARCH_ARM)) {
   mcpu = LOSCFG_ARCH_CPU
@@ -271,21 +269,15 @@ group("modules") {
 
 # when HAVE_DEVICE_SDK is not reached, gn raises an error. so we just use it as
 # not needed
-not_needed("*", [ "$HAVE_DEVICE_SDK" ])
+not_needed([ "HAVE_DEVICE_SDK" ])
+
 static_library("libkernel") {
   deps = [ ":modules" ]
-  public_configs = [
-    ":public",
-    ":los_config",
-  ]
-  complete_static_lib = true
-  visibility += []
+  complete_static_lib = false
 }
 
 group("kernel") {
-  public_deps = [ ":libkernel" ]
-  visibility = []
-  visibility += [ "*:*" ]
+  deps = [ ":libkernel" ]
 }
 
 group("liteos_m") {
