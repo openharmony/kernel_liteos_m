@@ -39,12 +39,12 @@ static VOID *TaskJoinf01(void *argument)
     return NULL;
 }
 
-static VOID *TaskJoinf02(VOID *argument)
+static int TaskJoinf02(VOID *argument)
 {
     UINT32 ret = LOS_TaskDelete(g_joinTaskID);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
-    return NULL;
+    return 0;
 }
 
 static UINT32 TestCase(VOID)

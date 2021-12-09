@@ -448,6 +448,7 @@ typedef struct {
     SWTMR_PROC_FUNC     handler;        /**< Callback function that handles software timer timeout */
     UINT32              arg;            /**< Parameter passed in when the callback function
                                              that handles software timer timeout is called */
+    UINT32              swtmrID;        /**< The id used to obtain the software timer handle */
 } SwtmrHandlerItem;
 
 extern SWTMR_CTRL_S *g_swtmrCBArray;

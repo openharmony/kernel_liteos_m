@@ -43,7 +43,7 @@ static VOID SwtmrF01(UINT32 arg)
     }
 
     ret = LOS_SwtmrTimeGet(g_swtmrId1, &tick);
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_ID_INVALID, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_NOT_CREATED, ret, EXIT);
 
     g_testCount++;
     return;
@@ -80,7 +80,7 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ret = LOS_SwtmrTimeGet(g_swtmrId1, &tick);
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_ID_INVALID, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_NOT_CREATED, ret, EXIT);
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
 
 #if (TIMER_LOS_SELF_DELETED == 0)
