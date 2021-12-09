@@ -808,6 +808,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskResume(UINT32 taskID)
     LosTaskCB *taskCB = NULL;
     UINT16 tempStatus;
     UINT32 retErr = OS_ERROR;
+    BOOL needSched = FALSE;
 
     if (taskID > LOSCFG_BASE_CORE_TSK_LIMIT) {
         return LOS_ERRNO_TSK_ID_INVALID;
@@ -825,7 +826,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskResume(UINT32 taskID)
         OS_GOTO_ERREND();
     }
 
-    BOOL needSched = OsSchedResume(taskCB);
+    needSched = OsSchedResume(taskCB);
     if (needSched && g_taskScheduled) {
         LOS_IntRestore(intSave);
         LOS_Schedule();

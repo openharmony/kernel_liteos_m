@@ -32,14 +32,27 @@
 #include "osTest.h"
 #include "It_los_swtmr.h"
 
-
-extern SWTMR_CTRL_S *g_swtmrCBArray;
+static UINT32 g_swTmrID1;
+static UINT32 g_swTmrID2;
 
 static VOID SwtmrF01(UINT32 arg)
 {
     if (arg != TIMER_LOS_HANDLER_PARAMETER) {
         return;
     }
+
+    LOS_SwtmrDelete(g_swTmrID2);
+
+    g_testCount++;
+    return;
+}
+
+static VOID SwtmrF02(UINT32 arg)
+{
+    if (arg != TIMER_LOS_HANDLER_PARAMETER) {
+        return;
+    }
+
     g_testCount++;
     return;
 }
@@ -47,75 +60,46 @@ static VOID SwtmrF01(UINT32 arg)
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
-    UINT32 swTmrCBID;
-    UINT8 status;
-    UINT32 tick;
-    UINT32 delayTime;
-    UINT32 swTmrID;
-    SWTMR_CTRL_S *swtmr = NULL;
-
     g_testCount = 0;
-    swTmrID = 0;
 
-    ret = LOS_SwtmrCreate(TIMER_LOS_EXPIRATION3, LOS_SWTMR_MODE_ONCE, (SWTMR_PROC_FUNC)SwtmrF01, &swTmrID,
-        TIMER_LOS_HANDLER_PARAMETER
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
-        , OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_INSENSITIVE
+    ret = LOS_SwtmrCreate(TIMER_LOS_EXPIRATION1, LOS_SWTMR_MODE_ONCE,
+                          (SWTMR_PROC_FUNC)SwtmrF01, &g_swTmrID1, TIMER_LOS_HANDLER_PARAMETER,
+                          OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_INSENSITIVE);
+#else
+    ret = LOS_SwtmrCreate(TIMER_LOS_EXPIRATION1, LOS_SWTMR_MODE_ONCE,
+                          (SWTMR_PROC_FUNC)SwtmrF01, &g_swTmrID1, TIMER_LOS_HANDLER_PARAMETER);
 #endif
-    );
-
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    swTmrCBID = swTmrID % LOSCFG_BASE_CORE_SWTMR_LIMIT;
-    swtmr = g_swtmrCBArray + swTmrCBID;
-    status = swtmr->ucState;
-    swtmr->ucState = swtmr->ucState | 0x55;
-
-    ret = LOS_SwtmrStart(swTmrID);
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_STATUS_INVALID, ret, EXIT);
-
-    ret = LOS_SwtmrTimeGet(swTmrID, &tick);
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_STATUS_INVALID, ret, EXIT);
-
-    ret = LOS_SwtmrStop(swTmrID);
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_STATUS_INVALID, ret, EXIT);
-
-    ret = LOS_SwtmrDelete(swTmrID);
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_STATUS_INVALID, ret, EXIT);
-
-    swtmr->ucState = status;
-    ret = LOS_SwtmrStart(swTmrID);
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
+    ret = LOS_SwtmrCreate(TIMER_LOS_EXPIRATION1, LOS_SWTMR_MODE_ONCE,
+                          (SWTMR_PROC_FUNC)SwtmrF02, &g_swTmrID2, TIMER_LOS_HANDLER_PARAMETER,
+                          OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_INSENSITIVE);
+#else
+    ret = LOS_SwtmrCreate(TIMER_LOS_EXPIRATION1, LOS_SWTMR_MODE_ONCE,
+                          (SWTMR_PROC_FUNC)SwtmrF02, &g_swTmrID2, TIMER_LOS_HANDLER_PARAMETER);
+#endif
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    // 5, set delay time
-    delayTime = 5;
-    ret = LOS_TaskDelay(delayTime);
+    ret = LOS_SwtmrStart(g_swTmrID1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_SwtmrTimeGet(swTmrID, &tick);
+    ret = LOS_SwtmrStart(g_swTmrID2);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    ICUNIT_GOTO_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime - 1, tick, EXIT);
 
-    ret = LOS_TaskDelay(7); // 7, set delay time.
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+    ret = LOS_TaskDelay(10); // 10, set delay time.
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
 
-    ret = LOS_SwtmrTimeGet(swTmrID, &tick);
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_NOT_CREATED, ret, EXIT);
-
-#if (TIMER_LOS_SELF_DELETED == 0)
-    ret = LOS_SwtmrDelete(swTmrID);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-#endif
-
     return LOS_OK;
+
 EXIT:
-    LOS_SwtmrDelete(swTmrID);
-    return LOS_OK;
+    LOS_SwtmrDelete(g_swTmrID1);
+    LOS_SwtmrDelete(g_swTmrID2);
+    return LOS_NOK;
 }
 
-VOID ItLosSwtmr074(VOID)
+VOID ItLosSwtmr079(VOID)
 {
-    TEST_ADD_CASE("ItLosSwtmr074", Testcase, TEST_LOS, TEST_SWTMR, TEST_LEVEL0, TEST_FUNCTION);
+    TEST_ADD_CASE("ItLosSwtmr079", Testcase, TEST_LOS, TEST_SWTMR, TEST_LEVEL0, TEST_FUNCTION);
 }
-
