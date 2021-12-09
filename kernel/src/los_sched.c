@@ -34,7 +34,9 @@
 #include "los_tick.h"
 #include "los_debug.h"
 #include "los_hook.h"
+#if (LOSCFG_KERNEL_PM == 1)
 #include "los_pm.h"
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -221,13 +223,16 @@ STATIC INLINE VOID OsSchedSetNextExpireTime(UINT64 startTime, UINT32 responseID,
 VOID OsSchedUpdateExpireTime(UINT64 startTime, BOOL timeUpdate)
 {
     UINT64 endTime;
+    BOOL isPmMode = FALSE;
     LosTaskCB *runTask = g_losTask.runTask;
 
     if (!g_taskScheduled || g_tickIntLock) {
         return;
     }
 
-    BOOL isPmMode = OsIsPmMode();
+#if (LOSCFG_KERNEL_PM == 1)
+    isPmMode = OsIsPmMode();
+#endif
     if ((runTask->taskID != g_idleTaskID) && !isPmMode) {
         INT32 timeSlice = (runTask->timeSlice <= OS_TIME_SLICE_MIN) ? OS_SCHED_TIME_SLICES : runTask->timeSlice;
         endTime = startTime + timeSlice;
@@ -443,11 +448,15 @@ STATIC VOID OsSchedUnfreezeTask(LosTaskCB *taskCB)
 
 VOID OsSchedSuspend(LosTaskCB *taskCB)
 {
+    BOOL isPmMode = FALSE;
     if (taskCB->taskStatus & OS_TASK_STATUS_READY) {
         OsSchedTaskDeQueue(taskCB);
     }
 
-    if ((taskCB->taskStatus & (OS_TASK_STATUS_PEND_TIME | OS_TASK_STATUS_DELAY)) && OsIsPmMode()) {
+#if (LOSCFG_KERNEL_PM == 1)
+    isPmMode = OsIsPmMode();
+#endif
+    if ((taskCB->taskStatus & (OS_TASK_STATUS_PEND_TIME | OS_TASK_STATUS_DELAY)) && isPmMode) {
         OsSchedFreezeTask(taskCB);
     }
 
