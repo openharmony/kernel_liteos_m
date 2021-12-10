@@ -63,9 +63,6 @@ STATIC const UINT8 g_montbl[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 
  */
 long timezone = -8 * 60 * 60; // defaults to CST: 8 hours east of the Prime Meridian
 
-/* internal shared struct tm object for localtime and gmtime */
-static struct tm g_tm;
-
 int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
 {
     UINT64 nseconds;
@@ -508,7 +505,8 @@ struct tm *gmtime_r(const time_t *timep, struct tm *result)
 
 struct tm *gmtime(const time_t *timer)
 {
-    return gmtime_r(timer, &g_tm);
+    static struct tm tm;
+    return gmtime_r(timer, &tm);
 }
 
 struct tm *localtime_r(const time_t *timep, struct tm *result)
@@ -526,7 +524,8 @@ struct tm *localtime_r(const time_t *timep, struct tm *result)
 
 struct tm *localtime(const time_t *timer)
 {
-    return localtime_r(timer, &g_tm);
+    static struct tm tm;
+    return localtime_r(timer, &tm);
 }
 
 static time_t ConvertUtc2Secs(struct tm *tm)
