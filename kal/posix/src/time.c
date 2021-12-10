@@ -542,7 +542,8 @@ struct tm *gmtime_r(const time_t *timep, struct tm *result)
 
 struct tm *gmtime(const time_t *timer)
 {
-    return gmtime_r(timer, &g_tm);
+    static struct tm tm;
+    return gmtime_r(timer, &tm);
 }
 
 struct tm *localtime_r(const time_t *timep, struct tm *result)
@@ -560,7 +561,8 @@ struct tm *localtime_r(const time_t *timep, struct tm *result)
 
 struct tm *localtime(const time_t *timer)
 {
-    return localtime_r(timer, &g_tm);
+    static struct tm tm;
+    return localtime_r(timer, &tm);
 }
 
 static time_t ConvertUtc2Secs(struct tm *tm)
