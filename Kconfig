@@ -391,7 +391,6 @@ config NET_LWIP
     bool "Enable Lwip"
     default n
     select NET_LWIP_SACK
-    select KAL_CMSIS
 
     help
       Answer Y to enable LiteOS support lwip.
