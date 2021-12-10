@@ -37,7 +37,6 @@
 #include <los_queue.h>
 #include <los_sem.h>
 #include <los_mux.h>
-#include "cmsis_os2.h"
 #include <los_tick.h>
 #include <los_config.h>
 
@@ -94,7 +93,8 @@ void sys_init(void)
 u32_t sys_now(void)
 {
     /* Lwip docs mentioned like wraparound is not a problem in this funtion */
-    return (u32_t)osKernelGetTickCount();
+    return (u32_t)((LOS_TickCountGet() * OS_SYS_MS_PER_SECOND) /
+            LOSCFG_BASE_CORE_TICK_PER_SECOND);
 }
 
 /**
