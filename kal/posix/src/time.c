@@ -56,9 +56,6 @@ STATIC const UINT16 g_daysInMonth[2][13] = {
 };
 
 STATIC const UINT8 g_montbl[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-
-/* internal shared struct tm object for localtime and gmtime */
-static struct tm g_tm;
 #endif
 
 /*
