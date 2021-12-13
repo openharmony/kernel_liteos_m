@@ -82,7 +82,7 @@ int sem_init(sem_t *sem, int shared, unsigned int value)
         return -1;
     }
 
-    sem->s_magic = _SEM_MAGIC;
+    sem->s_magic = (int)_SEM_MAGIC;
     sem->s_handle = (int)semHandle;
 
     return 0;
@@ -92,7 +92,7 @@ int sem_destroy(sem_t *sem)
 {
     UINT32 ret;
 
-    if ((sem == NULL) || (sem->s_magic != _SEM_MAGIC)) {
+    if ((sem == NULL) || (sem->s_magic != (int)_SEM_MAGIC)) {
         errno = EINVAL;
         return -1;
     }
@@ -109,7 +109,7 @@ int sem_wait(sem_t *sem)
 {
     UINT32 ret;
 
-    if ((sem == NULL) || (sem->s_magic != _SEM_MAGIC)) {
+    if ((sem == NULL) || (sem->s_magic != (int)_SEM_MAGIC)) {
         errno = EINVAL;
         return -1;
     }
@@ -126,7 +126,7 @@ int sem_post(sem_t *sem)
 {
     UINT32 ret;
 
-    if ((sem == NULL) || (sem->s_magic != _SEM_MAGIC)) {
+    if ((sem == NULL) || (sem->s_magic != (int)_SEM_MAGIC)) {
         errno = EINVAL;
         return -1;
     }
@@ -159,7 +159,7 @@ int sem_timedwait(sem_t *sem, const struct timespec *timeout)
     UINT32 ret;
     long long tickCnt;
 
-    if ((sem == NULL) || (sem->s_magic != _SEM_MAGIC)) {
+    if ((sem == NULL) || (sem->s_magic != (int)_SEM_MAGIC)) {
         errno = EINVAL;
         return -1;
     }
