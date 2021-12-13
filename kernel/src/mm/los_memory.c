@@ -40,6 +40,9 @@
 #ifdef LOSCFG_KERNEL_LMS
 #include "los_lms_pri.h"
 #endif
+#if (LOSCFG_KERNEL_LMK == 1)
+#include "los_lmk.h"
+#endif
 
 /* Used to cut non-essential functions. */
 #define OS_MEM_EXPAND_ENABLE    0
@@ -1103,7 +1106,7 @@ STATIC INLINE VOID *OsMemAlloc(struct OsMemPoolHead *pool, UINT32 size, UINT32 i
 #endif
 
     UINT32 allocSize = OS_MEM_ALIGN(size + OS_MEM_NODE_HEAD_SIZE, OS_MEM_ALIGN_SIZE);
-#if OS_MEM_EXPAND_ENABLE
+#if OS_MEM_EXPAND_ENABLE || (LOSCFG_KERNEL_LMK == 1)
 retry:
 #endif
     allocNode = OsMemFreeNodeGet(pool, allocSize);
@@ -1114,6 +1117,13 @@ retry:
             if (ret == 0) {
                 goto retry;
             }
+        }
+#endif
+
+#if (LOSCFG_KERNEL_LMK == 1)
+        UINT32 killRet = LOS_LmkTasksKill();
+        if (killRet == LOS_OK) {
+            goto retry;
         }
 #endif
         PRINT_ERR("---------------------------------------------------"
