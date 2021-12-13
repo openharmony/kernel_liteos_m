@@ -1664,6 +1664,8 @@ STATIC INLINE VOID OsMemMagicCheckPrint(struct OsMemNodeHead **tmpNode)
     PRINT_ERR("[%s], %d, memory check error!\n"
               "memory used but magic num wrong, magic num = 0x%x\n",
               __FUNCTION__, __LINE__, (*tmpNode)->magic);
+#else
+    (VOID)tmpNode;
 #endif
 }
 
@@ -1684,8 +1686,7 @@ STATIC UINT32 OsMemAddrValidCheckPrint(const VOID *pool, struct OsMemFreeNodeHea
     return LOS_OK;
 }
 
-STATIC UINT32 OsMemIntegrityCheckSub(struct OsMemNodeHead **tmpNode, const VOID *pool,
-                const struct OsMemNodeHead *endNode)
+STATIC UINT32 OsMemIntegrityCheckSub(struct OsMemNodeHead **tmpNode, const VOID *pool)
 {
     if (!OS_MEM_MAGIC_VALID(*tmpNode)) {
         OsMemMagicCheckPrint(tmpNode);
@@ -1782,7 +1783,7 @@ STATIC UINT32 OsMemIntegrityCheck(const struct OsMemPoolHead *pool, struct OsMem
             if (OS_MEM_IS_GAP_NODE(*tmpNode)) {
                 continue;
             }
-            if (OsMemIntegrityCheckSub(tmpNode, pool, endNode) == LOS_NOK) {
+            if (OsMemIntegrityCheckSub(tmpNode, pool) == LOS_NOK) {
                 return LOS_NOK;
             }
             *preNode = *tmpNode;

@@ -78,7 +78,7 @@ STATIC INLINE VOID OsAddNode2SortLink(SortLinkAttribute *sortLinkHeader, SortLin
     } while (1);
 }
 
-VOID OsDeleteNodeSortLink(SortLinkAttribute *sortLinkHeader, SortLinkList *sortList)
+VOID OsDeleteNodeSortLink(SortLinkList *sortList)
 {
     LOS_ListDelete(&sortList->sortLinkNode);
     SET_SORTLIST_VALUE(sortList, OS_SORT_LINK_INVALID_TIME);
@@ -120,23 +120,14 @@ VOID OsAdd2SortLink(SortLinkList *node, UINT64 startTime, UINT32 waitTicks, Sort
     LOS_IntRestore(intSave);
 }
 
-VOID OsDeleteSortLink(SortLinkList *node, SortLinkType type)
+VOID OsDeleteSortLink(SortLinkList *node)
 {
     UINT32 intSave;
-    SortLinkAttribute *sortLinkHeader = NULL;
-
-    if (type == OS_SORT_LINK_TASK) {
-        sortLinkHeader = &g_taskSortLink;
-    } else if (type == OS_SORT_LINK_SWTMR) {
-        sortLinkHeader = &g_swtmrSortLink;
-    } else {
-        LOS_Panic("Sort link type error : %u\n", type);
-    }
 
     intSave = LOS_IntLock();
     if (node->responseTime != OS_SORT_LINK_INVALID_TIME) {
         OsSchedResetSchedResponseTime(node->responseTime);
-        OsDeleteNodeSortLink(sortLinkHeader, node);
+        OsDeleteNodeSortLink(node);
     }
     LOS_IntRestore(intSave);
 }
