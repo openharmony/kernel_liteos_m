@@ -642,8 +642,6 @@ UINT64 LOS_SchedTickTimeoutNsGet(VOID)
 
 VOID LOS_SchedTickHandler(VOID)
 {
-    BOOL needSched = FALSE;
-
     if (!g_taskScheduled) {
         return;
     }
@@ -653,19 +651,21 @@ VOID LOS_SchedTickHandler(VOID)
     if (g_schedResponseID == OS_INVALID) {
         g_tickIntLock++;
         if (g_swtmrScan != NULL) {
-            needSched = g_swtmrScan();
+            (VOID)g_swtmrScan();
         }
 
-        needSched |= OsSchedScanTimerList();
+        (VOID)OsSchedScanTimerList();
         g_tickIntLock--;
     }
 
+    OsTimeSliceUpdate(g_losTask.runTask, g_tickStartTime);
+    g_losTask.runTask->startTime = OsGetCurrSchedTimeCycle();
+
     g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
-    if (needSched && LOS_CHECK_SCHEDULE) {
+    if (LOS_CHECK_SCHEDULE) {
         HalTaskSchedule();
     } else {
-        OsTimeSliceUpdate(g_losTask.runTask, g_tickStartTime);
-        OsSchedUpdateExpireTime(g_tickStartTime, TRUE);
+        OsSchedUpdateExpireTime(g_losTask.runTask->startTime, TRUE);
     }
 
     LOS_IntRestore(intSave);
