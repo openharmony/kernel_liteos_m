@@ -29,36 +29,12 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-group("components") {
-  deps = [
-    "backtrace",
-    "cppsupport",
-    "cpup",
-    "dynlink",
-    "exchook",
-    "fs",
-    "lmk",
-    "lms",
-    "net",
-    "power",
-    "shell",
-    "trace",
-  ]
+module_switch = defined(LOSCFG_KERNEL_LMK)
+module_name = get_path_info(rebase_path("."), "name")
+kernel_module(module_name) {
+  sources = [ "los_lmk.c" ]
 }
 
 config("public") {
-  configs = [
-    "backtrace:public",
-    "cppsupport:public",
-    "cpup:public",
-    "dynlink:public",
-    "exchook:public",
-    "fs:public",
-    "net:public",
-    "power:public",
-    "shell:public",
-    "trace:public",
-    "lmk:public",
-    "lms:public",
-  ]
+  include_dirs = [ "." ]
 }
