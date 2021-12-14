@@ -631,6 +631,14 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_PLATFORM_HWI_WITH_ARG                       0
 #endif
 
+/**
+ * @ingroup los_config
+ * Configuration item to set interrupt vector align size.
+ */
+#ifndef LOSCFG_ARCH_HWI_VECTOR_ALIGN
+#define LOSCFG_ARCH_HWI_VECTOR_ALIGN                         0x100
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }

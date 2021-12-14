@@ -47,7 +47,7 @@ UINT32 g_intCount = 0;
 #ifdef __ICCARM__
 #pragma location = ".data.vector"
 #elif defined(__CC_ARM) || defined(__GNUC__)
-#pragma data_alignment=0x100
+#pragma data_alignment=LOSCFG_ARCH_HWI_VECTOR_ALIGN
 LITE_OS_SEC_VEC
 #endif
 /* *
