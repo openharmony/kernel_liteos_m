@@ -46,7 +46,7 @@ UINT32 g_intCount = 0;
 
 /*lint -restore*/
 #pragma location = ".data.vector"
-#pragma data_alignment=0x100
+#pragma data_alignment=LOSCFG_ARCH_HWI_VECTOR_ALIGN
 /* *
  * @ingroup los_hwi
  * Hardware interrupt form mapping handling function array.
