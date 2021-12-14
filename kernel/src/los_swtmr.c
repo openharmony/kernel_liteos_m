@@ -270,7 +270,7 @@ STATIC VOID OsSwtmrDelete(SWTMR_CTRL_S *swtmr)
 
 LITE_OS_SEC_TEXT VOID OsSwtmrStop(SWTMR_CTRL_S *swtmr)
 {
-    OsDeleteSortLink(&swtmr->stSortList, OS_SORT_LINK_SWTMR);
+    OsDeleteSortLink(&swtmr->stSortList);
     swtmr->ucState = OS_SWTMR_STATUS_CREATED;
 
     OsSchedUpdateExpireTime(OsGetCurrSchedTimeCycle(), TRUE);
@@ -310,7 +310,7 @@ STATIC BOOL OsSwtmrScan(VOID)
         SWTMR_CTRL_S *swtmr = LOS_DL_LIST_ENTRY(sortList, SWTMR_CTRL_S, stSortList);
         swtmr->startTime = GET_SORTLIST_VALUE(sortList);
 
-        OsDeleteNodeSortLink(g_swtmrSortLinkList, sortList);
+        OsDeleteNodeSortLink(sortList);
         OsHookCall(LOS_HOOK_TYPE_SWTMR_EXPIRED, swtmr);
         OsSwtmrTimeoutHandle(currTime, swtmr);
 
