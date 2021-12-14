@@ -69,6 +69,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsMuxInit(VOID)
     for (index = 0; index < LOSCFG_BASE_IPC_MUX_LIMIT; index++) {
         muxNode = ((LosMuxCB *)g_allMux) + index;
         muxNode->muxID = index;
+        muxNode->owner = (LosTaskCB *)NULL;
         muxNode->muxStat = OS_MUX_UNUSED;
         LOS_ListTailInsert(&g_unusedMuxList, &muxNode->muxList);
     }
