@@ -173,6 +173,8 @@ STATIC INLINE VOID OsSchedTickReload(UINT64 nextResponseTime, UINT32 responseID,
     if (timeUpdate) {
         g_schedTimerBase = OsGetCurrSysTimeCycle();
     }
+#else
+    (VOID)timeUpdate;
 #endif
 
     if (isTimeSlice) {
@@ -273,7 +275,7 @@ STATIC INLINE VOID OsSchedPriQueueDelete(LOS_DL_LIST *priqueueItem, UINT32 prior
     }
 }
 
-STATIC INLINE VOID OsSchedWakePendTimeTask(UINT64 currTime, LosTaskCB *taskCB, BOOL *needSchedule)
+STATIC INLINE VOID OsSchedWakePendTimeTask(LosTaskCB *taskCB, BOOL *needSchedule)
 {
     UINT16 tempStatus = taskCB->taskStatus;
     if (tempStatus & (OS_TASK_STATUS_PEND | OS_TASK_STATUS_DELAY)) {
@@ -313,10 +315,8 @@ STATIC INLINE BOOL OsSchedScanTimerList(VOID)
     UINT64 currTime = OsGetCurrSchedTimeCycle();
     while (sortList->responseTime <= currTime) {
         LosTaskCB *taskCB = LOS_DL_LIST_ENTRY(sortList, LosTaskCB, sortList);
-        OsDeleteNodeSortLink(g_taskSortLinkList, &taskCB->sortList);
-
-        OsSchedWakePendTimeTask(currTime, taskCB, &needSchedule);
-
+        OsDeleteNodeSortLink(&taskCB->sortList);
+        OsSchedWakePendTimeTask(taskCB, &needSchedule);
         if (LOS_ListEmpty(listObject)) {
             break;
         }
@@ -368,7 +368,7 @@ VOID OsSchedTaskExit(LosTaskCB *taskCB)
     }
 
     if (taskCB->taskStatus & (OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND_TIME)) {
-        OsDeleteSortLink(&taskCB->sortList, OS_SORT_LINK_TASK);
+        OsDeleteSortLink(&taskCB->sortList);
         taskCB->taskStatus &= ~(OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND_TIME);
     }
 }
@@ -405,7 +405,7 @@ VOID OsSchedTaskWake(LosTaskCB *resumedTask)
     resumedTask->taskStatus &= ~OS_TASK_STATUS_PEND;
 
     if (resumedTask->taskStatus & OS_TASK_STATUS_PEND_TIME) {
-        OsDeleteSortLink(&resumedTask->sortList, OS_SORT_LINK_TASK);
+        OsDeleteSortLink(&resumedTask->sortList);
         resumedTask->taskStatus &= ~OS_TASK_STATUS_PEND_TIME;
     }
 
@@ -418,7 +418,7 @@ VOID OsSchedTaskWake(LosTaskCB *resumedTask)
 STATIC VOID OsSchedFreezeTask(LosTaskCB *taskCB)
 {
     UINT64 responseTime = GET_SORTLIST_VALUE(&taskCB->sortList);
-    OsDeleteSortLink(&taskCB->sortList, OS_SORT_LINK_TASK);
+    OsDeleteSortLink(&taskCB->sortList);
     SET_SORTLIST_VALUE(&taskCB->sortList, responseTime);
     taskCB->taskStatus |= OS_TASK_FLAG_FREEZE;
     return;
