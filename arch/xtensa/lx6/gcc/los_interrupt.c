@@ -42,7 +42,7 @@
 #include "los_membox.h"
 #include "los_arch_regs.h"
 
-UINT32 g_intCount = FALSE;
+UINT32 g_intCount = 0;
 
 /* *
  * @ingroup los_hwi
@@ -236,7 +236,7 @@ UINT32 HalIrqClear(HWI_HANDLE_T vector)
 
 INLINE UINT32 HalIsIntActive(VOID)
 {
-    return (g_intCount == TRUE);
+    return (g_intCount > 0);
 }
 
 /* ****************************************************************************
@@ -276,7 +276,7 @@ VOID HalInterrupt(VOID)
     UINT32 intSave;
 
     intSave = LOS_IntLock();
-    g_intCount = TRUE;
+    g_intCount++;
     LOS_IntRestore(intSave);
 
     hwiIndex = HalIntNumGet();
@@ -301,7 +301,7 @@ VOID HalInterrupt(VOID)
     OsHookCall(LOS_HOOK_TYPE_ISR_EXIT, hwiIndex);
 
     intSave = LOS_IntLock();
-    g_intCount = FALSE;
+    g_intCount--;
     LOS_IntRestore(intSave);
     HalIrqEndCheckNeedSched();
 }

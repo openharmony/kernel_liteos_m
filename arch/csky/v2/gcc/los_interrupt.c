@@ -287,7 +287,7 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
     UINT32 intSave;
 
     intSave = LOS_IntLock();
-    g_intCount = TRUE;
+    g_intCount++;
     LOS_IntRestore(intSave);
 
     hwiIndex = HalIntNumGet();
@@ -310,7 +310,7 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
     OsHookCall(LOS_HOOK_TYPE_ISR_EXIT, hwiIndex);
 
     intSave = LOS_IntLock();
-    g_intCount = FALSE;
+    g_intCount--;
     HalIrqEndCheckNeedSched();
     LOS_IntRestore(intSave);
 }
