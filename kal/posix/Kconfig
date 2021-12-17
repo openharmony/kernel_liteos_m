@@ -48,13 +48,13 @@ config POSIX_SEM_API
       Answer Y to enable LiteOS support POSIX Semaphore API.
 
 config POSIX_CLOCK_API
-    bool "Enable POSIX Semaphore API"
+    bool "Enable POSIX Clock API"
     default y
     help
       Answer Y to enable LiteOS support POSIX Clock API.
 
 config POSIX_MQUEUE_API
-    bool "Enable POSIX Semaphore API"
+    bool "Enable POSIX Mqueue API"
     default y
     help
       Answer Y to enable LiteOS support POSIX Mqueue API.
