@@ -523,7 +523,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalExcHandleEntry(EXC_CONTEXT_S *excBufAddr, UINT32 f
     g_excInfo.faultAddr = faultAddr;
 
     if (g_losTask.runTask != NULL) {
-        if (tmpFlag >= 0) {
+        if (tmpFlag > 0) {
             g_excInfo.phase = OS_EXC_IN_HWI;
             g_excInfo.thrdPid = tmpFlag;
         } else {
