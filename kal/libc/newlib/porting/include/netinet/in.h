@@ -194,6 +194,30 @@ struct ip_mreq {
 };
 #endif
 
+#define IPV6_ADDRFORM               1
+#define IPV6_CHECKSUM               7
+#define IPV6_NEXTHOP                9
+#define IPV6_AUTHHDR                10
+#define IPV6_UNICAST_HOPS           16
+#define IPV6_MULTICAST_IF           17
+#define IPV6_MULTICAST_HOPS         18
+#define IPV6_MULTICAST_LOOP         19
+#define IPV6_JOIN_GROUP             20
+#define IPV6_LEAVE_GROUP            21
+#define IPV6_V6ONLY                 26
+#define IPV6_JOIN_ANYCAST           27
+#define IPV6_LEAVE_ANYCAST          28
+#define IPV6_IPSEC_POLICY           34
+
+#define IN6ADDR_ANY_INIT      {{{ 0x00, 0x00, 0x00, 0x00, \
+                                  0x00, 0x00, 0x00, 0x00, \
+                                  0x00, 0x00, 0x00, 0x00, \
+                                  0x00, 0x00, 0x00, 0x00 }}}
+#define IN6ADDR_LOOPBACK_INIT {{{ 0x00, 0x00, 0x00, 0x00, \
+                                  0x00, 0x00, 0x00, 0x00, \
+                                  0x00, 0x00, 0x00, 0x00, \
+                                  0x00, 0x00, 0x00, 0x01 }}}
+
 struct in6_addr {
     union {
         uint8_t __s6_addr[16];
