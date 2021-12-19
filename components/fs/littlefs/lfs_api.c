@@ -290,7 +290,7 @@ static int ConvertFlagToLfsOpenFlag (int oflags)
         lfsOpenFlag |= LFS_O_WRONLY;
     }
 
-    if (oflags & O_RDONLY) {
+    if (oflags == O_RDONLY) {
         lfsOpenFlag |= LFS_O_RDONLY;
     }
 
