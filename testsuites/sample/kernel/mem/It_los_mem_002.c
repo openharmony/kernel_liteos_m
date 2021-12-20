@@ -38,8 +38,6 @@ static UINT32 TestCase(VOID)
     UINT32 size;
     void *p = NULL;
 
-    MemStart();
-
     size = 0;
     p = LOS_MemAlloc((void *)LOSCFG_SYS_HEAP_ADDR, size);
     ICUNIT_ASSERT_EQUAL(p, NULL, p);
@@ -47,8 +45,6 @@ static UINT32 TestCase(VOID)
     size = 0xffffffff;
     p = LOS_MemAlloc((void *)LOSCFG_SYS_HEAP_ADDR, size);
     ICUNIT_ASSERT_EQUAL(p, NULL, p);
-
-    MemEnd();
 
     return LOS_OK;
 }

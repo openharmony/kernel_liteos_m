@@ -57,7 +57,6 @@ void MemInit(void)
 
 void MemFree(void)
 {
-    (void)memset_s(g_memPool, TEST_MEM_SIZE, 0, TEST_MEM_SIZE);
     (void)LOS_MemDeInit(g_memPool);
 }
 
