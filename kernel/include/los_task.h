@@ -1579,7 +1579,7 @@ extern LOS_DL_LIST          g_losFreeTask;
  * Circular linked list that stores tasks that are deleted automatically.
  *
  */
-extern LOS_DL_LIST          g_taskRecyleList;
+extern LOS_DL_LIST          g_taskRecycleList;
 
 /**
  * @ingroup  los_task
