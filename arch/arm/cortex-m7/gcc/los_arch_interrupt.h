@@ -309,7 +309,7 @@ extern UINT32 _BootVectors[];
  */
 #define OS_EXC_SYS_TICK                       15
 
-#if (OS_HWI_WITH_ARG == 1)
+#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
 /* *
  * @ingroup los_arch_interrupt
  * Set interrupt vector table.
@@ -528,7 +528,6 @@ VOID HalExcUsageFault(VOID);
 VOID HalExcSvcCall(VOID);
 VOID HalHwiInit(VOID);
 
-
 /**
  * @ingroup los_exc
  * Cortex-M exception types: An error occurred while the bus status register was being pushed.
@@ -665,15 +664,18 @@ VOID HalHwiInit(VOID);
  *
  */
 typedef struct TagExcInfo {
-    /**< Exception occurrence phase: 0 means that an exception occurs in initialization, 1 means that an exception occurs in a task, and 2 means that an exception occurs in an interrupt */
+    /**< Exception occurrence phase: 0 means that an exception occurs in initialization,
+     * 1 means that an exception occurs in a task, and 2 means that an exception occurs in an interrupt */
     UINT16 phase;
     /**< Exception type. When exceptions occur, check the numbers 1 - 21 listed above */
     UINT16 type;
     /**< If the exact address access error indicates the wrong access address when the exception occurred */
     UINT32 faultAddr;
-    /**< An exception occurs in an interrupt, indicating the interrupt number. An exception occurs in the task, indicating the task ID, or 0xFFFFFFFF if it occurs during initialization */
+    /**< An exception occurs in an interrupt, indicating the interrupt number.
+     * An exception occurs in the task, indicating the task ID, or 0xFFFFFFFF if it occurs during initialization */
     UINT32 thrdPid;
-    /**< Number of nested exceptions. Currently only registered hook functions are supported when an exception is entered for the first time */
+    /**< Number of nested exceptions. Currently only registered hook functions are supported
+     * when an exception is entered for the first time */
     UINT16 nestCnt;
     /**< reserve */
     UINT16 reserved;

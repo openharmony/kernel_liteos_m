@@ -52,11 +52,13 @@ extern "C" {
 #define RTC_CALIBRATE_SLEEP_TIME 8
 #define MACHINE_CYCLE_DEALAY_TIMES (LOSCFG_BASE_CORE_TICK_PER_SECOND << 2)
 
-VOID HalTickLock(VOID);
+typedef VOID (*OS_TICK_HANDLER)(VOID);
 
-VOID HalTickUnlock(VOID);
+VOID ArchTickLock(VOID);
 
-UINT32 HalEnterSleep(VOID);
+VOID ArchTickUnlock(VOID);
+
+UINT32 ArchEnterSleep(VOID);
 
 /**
  * @ingroup los_timer
@@ -78,7 +80,7 @@ UINT32 HalEnterSleep(VOID);
  * <ul><li>los_timer.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
-UINT64 HalGetTickCycle(UINT32 *period);
+UINT64 ArchGetTickCycle(UINT32 *period);
 
 /**
  * @ingroup los_timer
@@ -100,7 +102,7 @@ UINT64 HalGetTickCycle(UINT32 *period);
  * <ul><li>los_timer.h: the header file that contains the API declaration.</li></ul>
  * @see None
  */
-extern VOID HalSysTickReload(UINT64 nextResponseTime);
+VOID ArchSysTickReload(UINT64 nextResponseTime);
 
 #ifdef __cplusplus
 #if __cplusplus

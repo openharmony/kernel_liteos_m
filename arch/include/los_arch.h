@@ -41,7 +41,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-VOID HalArchInit(VOID);
+VOID ArchInit(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

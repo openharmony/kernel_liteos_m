@@ -41,25 +41,25 @@
     .section .text
     .align 4
 
-    .type HalIntLock, %function
-    .global HalIntLock
-HalIntLock:
+    .type ArchIntLock, %function
+    .global ArchIntLock
+ArchIntLock:
     csrr    a0, mstatus           // return value
     li      t0, MSTATUS_MIE   // mie
     csrrc   zero, mstatus, t0
     ret
 
-    .type HalIntUnLock, %function
-    .global HalIntUnLock
-HalIntUnLock:
+    .type ArchIntUnLock, %function
+    .global ArchIntUnLock
+ArchIntUnLock:
     csrr    a0, mstatus           // return value
     li      t0, MSTATUS_MIE   // mie
     csrrs   zero, mstatus, t0
     ret
 
-    .type HalIntRestore, %function
-    .global HalIntRestore
-HalIntRestore:
+    .type ArchIntRestore, %function
+    .global ArchIntRestore
+ArchIntRestore:
     csrw mstatus, a0
     ret
 

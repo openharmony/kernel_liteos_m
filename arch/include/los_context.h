@@ -65,7 +65,7 @@ extern "C" {
  * <ul><li>los_context.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
-extern VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack);
+VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack);
 
 /**
  * @ingroup  los_context
@@ -84,7 +84,7 @@ extern VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack);
  * <ul><li>los_context.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
-LITE_OS_SEC_TEXT_MINOR NORETURN VOID HalSysExit(VOID);
+LITE_OS_SEC_TEXT_MINOR NORETURN VOID ArchSysExit(VOID);
 
 /**
  * @ingroup  los_context
@@ -103,10 +103,9 @@ LITE_OS_SEC_TEXT_MINOR NORETURN VOID HalSysExit(VOID);
  * <ul><li>los_context.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
-extern VOID HalTaskSchedule(VOID);
+VOID ArchTaskSchedule(VOID);
 
-typedef VOID (*OS_TICK_HANDLER)(VOID);
-UINT32 HalStartSchedule(VOID);
+UINT32 ArchStartSchedule(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

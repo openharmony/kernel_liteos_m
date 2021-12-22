@@ -97,7 +97,7 @@ VOID OsSchedUpdateSchedTimeBase(VOID)
 {
     UINT32 period = 0;
 
-    (VOID)HalGetTickCycle(&period);
+    (VOID)ArchGetTickCycle(&period);
     g_schedTimerBase += period;
 }
 
@@ -113,12 +113,12 @@ VOID OsSchedTimerBaseReset(UINT64 currTime)
 UINT64 OsGetCurrSysTimeCycle(VOID)
 {
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 1)
-    return HalGetTickCycle(NULL);
+    return ArchGetTickCycle(NULL);
 #else
     STATIC UINT64 oldSchedTime = 0;
     UINT32 period = 0;
     UINT32 intSave = LOS_IntLock();
-    UINT64 time = HalGetTickCycle(&period);
+    UINT64 time = ArchGetTickCycle(&period);
     UINT64 schedTime = g_schedTimerBase + time;
     if (schedTime < oldSchedTime) {
         /* Turn the timer count */
@@ -184,7 +184,7 @@ STATIC INLINE VOID OsSchedTickReload(UINT64 nextResponseTime, UINT32 responseID,
         g_schedResponseID = OS_INVALID;
     }
     g_schedResponseTime = nextExpireTime;
-    HalSysTickReload(nextResponseTime);
+    ArchSysTickReload(nextResponseTime);
 }
 
 STATIC INLINE VOID OsSchedSetNextExpireTime(UINT64 startTime, UINT32 responseID, UINT64 taskEndTime, BOOL timeUpdate)
@@ -663,7 +663,7 @@ VOID LOS_SchedTickHandler(VOID)
 
     g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
     if (LOS_CHECK_SCHEDULE) {
-        HalTaskSchedule();
+        ArchTaskSchedule();
     } else {
         OsSchedUpdateExpireTime(g_losTask.runTask->startTime, TRUE);
     }
@@ -674,7 +674,7 @@ VOID LOS_SchedTickHandler(VOID)
 VOID LOS_Schedule(VOID)
 {
     if (g_taskScheduled && LOS_CHECK_SCHEDULE) {
-        HalTaskSchedule();
+        ArchTaskSchedule();
     }
 }
 
