@@ -29,8 +29,16 @@
 
 import("config.gni")
 
+LITEOS_LOS_CONFIG_H = rebase_path("$LITEOSTOPDIR/kernel/include/los_config.h")
+
 config("los_config") {
   cflags = [ "-Werror" ]
+
+  asmflags = [
+    "-DCLZ=CLZ",
+    "-imacros",
+    "$LITEOS_LOS_CONFIG_H",
+  ]
 
   include_dirs = [
     "//kernel/liteos_m/kernel/include",
