@@ -49,22 +49,22 @@ typedef enum {
     MPU_AP_RO_USER_RO = 0x6,         /* Privileged:Read-only      Unprivileged:Read-only */
 } MpuApConfig;
 
-VOID HalMpuEnable(UINT32 defaultRegionEnable)
+VOID ArchMpuEnable(UINT32 defaultRegionEnable)
 {
-    UINT32 intSave = HalIntLock();
+    UINT32 intSave = ArchIntLock();
     MPU->CTRL = (MPU_CTRL_ENABLE_Msk | ((defaultRegionEnable << MPU_CTRL_PRIVDEFENA_Pos) & MPU_CTRL_PRIVDEFENA_Msk));
     SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
     __DSB();
     __ISB();
-    HalIntRestore(intSave);
+    ArchIntRestore(intSave);
 }
-VOID HalMpuDisable(VOID)
+VOID ArchMpuDisable(VOID)
 {
-    UINT32 intSave = HalIntLock();
+    UINT32 intSave = ArchIntLock();
     MPU->CTRL = 0;
     __DSB();
     __ISB();
-    HalIntRestore(intSave);
+    ArchIntRestore(intSave);
 }
 
 STATIC VOID HalMpuRASRAddMemAttr(MPU_CFG_PARA *para, UINT32 *RASR)
@@ -147,7 +147,7 @@ STATIC UINT32 HalMpuGetRASR(UINT32 encodeSize, MPU_CFG_PARA *para)
     return RASR;
 }
 
-UINT32 HalMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para)
+UINT32 ArchMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para)
 {
     UINT32 RASR;
     UINT32 RBAR;
@@ -175,9 +175,9 @@ UINT32 HalMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para)
     }
     RBAR = para->baseAddr & MPU_RBAR_ADDR_Msk;
     RASR = HalMpuGetRASR(encodeSize, para);
-    intSave = HalIntLock();
+    intSave = ArchIntLock();
     if (g_regionNumBeUsed[regionId]) {
-        HalIntRestore(intSave);
+        ArchIntRestore(intSave);
         return LOS_NOK;
     }
     MPU->RNR = RNR;
@@ -186,11 +186,11 @@ UINT32 HalMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para)
     __DSB();
     __ISB();
     g_regionNumBeUsed[regionId] = 1; /* Set mpu region used flag */
-    HalIntRestore(intSave);
+    ArchIntRestore(intSave);
     return LOS_OK;
 }
 
-UINT32 HalMpuDisableRegion(UINT32 regionId)
+UINT32 ArchMpuDisableRegion(UINT32 regionId)
 {
     volatile UINT32 type;
     UINT32 intSave;
@@ -199,9 +199,9 @@ UINT32 HalMpuDisableRegion(UINT32 regionId)
         return LOS_NOK;
     }
 
-    intSave = HalIntLock();
+    intSave = ArchIntLock();
     if (!g_regionNumBeUsed[regionId]) {
-        HalIntRestore(intSave);
+        ArchIntRestore(intSave);
         return LOS_NOK;
     }
 
@@ -213,20 +213,20 @@ UINT32 HalMpuDisableRegion(UINT32 regionId)
         __ISB();
     }
     g_regionNumBeUsed[regionId] = 0; /* clear mpu region used flag */
-    HalIntRestore(intSave);
+    ArchIntRestore(intSave);
     return LOS_OK;
 }
 
-INT32 HalMpuUnusedRegionGet(VOID)
+INT32 ArchMpuUnusedRegionGet(VOID)
 {
     INT32 id;
-    UINT32 intSave = HalIntLock();
+    UINT32 intSave = ArchIntLock();
     for (id = 0; id < MPU_MAX_REGION_NUM; id++) {
         if (!g_regionNumBeUsed[id]) {
             break;
         }
     }
-    HalIntRestore(intSave);
+    ArchIntRestore(intSave);
 
     if (id == MPU_MAX_REGION_NUM) {
         return -1;

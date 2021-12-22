@@ -100,8 +100,8 @@ VOID TaskSample(VOID)
         printf("Task2 create failed\n");
     }
 
-    HalHwiInit();
-    HalHwiCreate(EXTI0_IRQn, 9, ECLIC_NON_VECTOR_INTERRUPT, EXTI0_IRQHandler, ECLIC_LEVEL_TRIGGER);
+    LOS_HwiInit();
+    LOS_HwiCreate(EXTI0_IRQn, 9, ECLIC_NON_VECTOR_INTERRUPT, EXTI0_IRQHandler, ECLIC_LEVEL_TRIGGER);
 }
 
 VOID RunTaskSample(VOID)

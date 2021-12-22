@@ -50,7 +50,7 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
     return LOS_OK; /* never return */
 }
 
-WEAK VOID HalSysTickReload(UINT64 nextResponseTime)
+WEAK VOID ArchSysTickReload(UINT64 nextResponseTime)
 {
     UINT64 timeMax = (UINT64)LOSCFG_BASE_CORE_TICK_RESPONSE_MAX - 1;
     UINT64 timer;
@@ -71,7 +71,7 @@ WEAK VOID HalSysTickReload(UINT64 nextResponseTime)
     HalIrqEnable(RISCV_MACH_TIMER_IRQ);
 }
 
-WEAK UINT64 HalGetTickCycle(UINT32 *period)
+WEAK UINT64 ArchGetTickCycle(UINT32 *period)
 {
     (VOID)period;
     UINT32 timerL, timerH;
@@ -81,7 +81,7 @@ WEAK UINT64 HalGetTickCycle(UINT32 *period)
     return OS_COMBINED_64(timerH, timerL);
 }
 
-UINT32 HalEnterSleep(VOID)
+UINT32 ArchEnterSleep(VOID)
 {
     wfi();
 

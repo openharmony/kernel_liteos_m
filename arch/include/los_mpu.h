@@ -79,11 +79,11 @@ typedef struct {
     MpuMemType memType;
 } MPU_CFG_PARA;
 
-VOID HalMpuEnable(UINT32 defaultRegionEnable);
-VOID HalMpuDisable();
-UINT32 HalMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para);
-UINT32 HalMpuDisableRegion(UINT32 regionId);
-INT32 HalMpuUnusedRegionGet(VOID);
+VOID ArchMpuEnable(UINT32 defaultRegionEnable);
+VOID ArchMpuDisable();
+UINT32 ArchMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para);
+UINT32 ArchMpuDisableRegion(UINT32 regionId);
+INT32 ArchMpuUnusedRegionGet(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

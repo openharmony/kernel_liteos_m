@@ -77,11 +77,11 @@ STATIC VOID OsPmSysctrlInit(VOID)
     /* Default handler functions, which are implemented by the product */
     g_sysctrl.early = NULL;
     g_sysctrl.late = NULL;
-    g_sysctrl.normalSuspend = HalEnterSleep;
+    g_sysctrl.normalSuspend = ArchEnterSleep;
     g_sysctrl.normalResume = NULL;
-    g_sysctrl.lightSuspend = HalEnterSleep;
+    g_sysctrl.lightSuspend = ArchEnterSleep;
     g_sysctrl.lightResume = NULL;
-    g_sysctrl.deepSuspend = HalEnterSleep;
+    g_sysctrl.deepSuspend = ArchEnterSleep;
     g_sysctrl.deepResume = NULL;
     g_sysctrl.shutdownSuspend = NULL;
     g_sysctrl.shutdownResume = NULL;

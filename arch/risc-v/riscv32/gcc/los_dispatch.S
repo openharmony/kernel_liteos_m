@@ -33,9 +33,9 @@
 
 .global  HalEnableIRQ
 .global  HalDisableIRQ
-.global  HalIntLock
-.global  HalIntUnLock
-.global  HalIntRestore
+.global  ArchIntLock
+.global  ArchIntUnLock
+.global  ArchIntRestore
 .global  HalStartToRun
 .global  HalTaskContextSwitch
 .extern  __irq_stack_top
@@ -166,18 +166,18 @@ HalEnableIRQ:
     csrsi  mstatus, RISCV_MSTATUS_MIE
     ret
 
-HalIntLock:
+ArchIntLock:
     csrr    a0, mstatus           // return value
     li      t0, RISCV_MSTATUS_MIE   // mie
     csrrc   zero, mstatus, t0
     ret
 
-HalIntUnLock:
+ArchIntUnLock:
     csrr    a0, mstatus           // return value
     li      t0, RISCV_MSTATUS_MIE   // mie
     csrrs   zero, mstatus, t0
     ret
 
-HalIntRestore:
+ArchIntRestore:
     csrw mstatus, a0
     ret

@@ -46,7 +46,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
 }
 
 /*****************************************************************************
- Function    : HalHwiCreate
+ Function    : ArchHwiCreate
  Description : create hardware interrupt
  Input       : hwiNum       --- hwi num to create
                hwiPrio      --- priority of the hwi
@@ -59,11 +59,11 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
  Output      : None
  Return      : LOS_OK on success or error code on failure
  *****************************************************************************/
- UINT32 HalHwiCreate(HWI_HANDLE_T hwiNum,
-                                     HWI_PRIOR_T hwiPrio,
-                                     HWI_MODE_T mode,
-                                     HWI_PROC_FUNC handler,
-                                     HWI_ARG_T arg)
+ UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
+                      HWI_PRIOR_T hwiPrio,
+                      HWI_MODE_T mode,
+                      HWI_PROC_FUNC handler,
+                      HWI_ARG_T arg)
 {
     if (hwiNum > SOC_INT_MAX) {
         return OS_ERRNO_HWI_NUM_INVALID;
@@ -98,12 +98,12 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
 }
 
 /*****************************************************************************
- Function    : HalHwiDelete
+ Function    : ArchHwiDelete
  Description : Delete hardware interrupt
  Input       : hwiNum   --- hwi num to delete
  Return      : LOS_OK on success or error code on failure
  *****************************************************************************/
-LITE_OS_SEC_TEXT UINT32 HalHwiDelete(HWI_HANDLE_T hwiNum)
+LITE_OS_SEC_TEXT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum)
 {
     // change func to default func
     ECLIC_SetVector(hwiNum, (rv_csr_t)HalHwiDefaultHandler);
@@ -177,7 +177,7 @@ __attribute__((always_inline)) inline VOID HalIntExit(VOID)
     g_intCount -= 1;
 }
 
-__attribute__((always_inline)) inline UINT32 HalIsIntActive(VOID)
+__attribute__((always_inline)) inline UINT32 ArchIsIntActive(VOID)
 {
     return (g_intCount > 0);
 }
