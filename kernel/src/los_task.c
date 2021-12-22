@@ -104,7 +104,7 @@ LITE_OS_SEC_BSS  UINT32                              g_taskMaxNum;
 LITE_OS_SEC_BSS  UINT32                              g_idleTaskID;
 LITE_OS_SEC_BSS  UINT32                              g_swtmrTaskID;
 LITE_OS_SEC_DATA_INIT LOS_DL_LIST                    g_losFreeTask;
-LITE_OS_SEC_DATA_INIT LOS_DL_LIST                    g_taskRecyleList;
+LITE_OS_SEC_DATA_INIT LOS_DL_LIST                    g_taskRecycleList;
 LITE_OS_SEC_BSS  BOOL                                g_taskScheduled = FALSE;
 
 STATIC VOID (*PmEnter)(VOID) = NULL;
@@ -149,9 +149,9 @@ STATIC VOID OsRecyleFinishedTask(VOID)
     UINTPTR stackPtr;
 
     intSave = LOS_IntLock();
-    while (!LOS_ListEmpty(&g_taskRecyleList)) {
-        taskCB = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&g_taskRecyleList));
-        LOS_ListDelete(LOS_DL_LIST_FIRST(&g_taskRecyleList));
+    while (!LOS_ListEmpty(&g_taskRecycleList)) {
+        taskCB = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&g_taskRecycleList));
+        LOS_ListDelete(LOS_DL_LIST_FIRST(&g_taskRecycleList));
         stackPtr = 0;
         OsRecycleTaskResources(taskCB, &stackPtr);
         LOS_IntRestore(intSave);
@@ -385,7 +385,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsTaskInit(VOID)
     // Ignore the return code when matching CSEC rule 6.6(1).
     (VOID)memset_s(g_taskCBArray, size, 0, size);
     LOS_ListInit(&g_losFreeTask);
-    LOS_ListInit(&g_taskRecyleList);
+    LOS_ListInit(&g_taskRecycleList);
     for (index = 0; index <= LOSCFG_BASE_CORE_TSK_LIMIT; index++) {
         g_taskCBArray[index].taskStatus = OS_TASK_STATUS_UNUSED;
         g_taskCBArray[index].taskID = index;
@@ -1025,7 +1025,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDetach(UINT32 taskID)
 
 LITE_OS_SEC_TEXT_INIT STATIC_INLINE VOID OsRunningTaskDelete(UINT32 taskID, LosTaskCB *taskCB)
 {
-    LOS_ListTailInsert(&g_taskRecyleList, &taskCB->pendList);
+    LOS_ListTailInsert(&g_taskRecycleList, &taskCB->pendList);
     g_losTask.runTask = &g_taskCBArray[g_taskMaxNum];
     g_losTask.runTask->taskID = taskID;
     g_losTask.runTask->taskStatus = taskCB->taskStatus | OS_TASK_STATUS_RUNNING;
