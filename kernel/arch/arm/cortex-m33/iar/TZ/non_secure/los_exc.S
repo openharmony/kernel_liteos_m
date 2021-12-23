@@ -187,7 +187,7 @@ _hwiActiveCheck
     ADD   R2, R2, R12, LSL #5               ; calculate R2 (hwi number) as uwPid
 
 _ExcInMSP
-    CMP   LR, #0XFFFFFFED
+    CMP   LR, #0xFFFFFFE9
     BNE   _NoFloatInMsp
     ADD   R3, R13, #104
     PUSH  {R3}

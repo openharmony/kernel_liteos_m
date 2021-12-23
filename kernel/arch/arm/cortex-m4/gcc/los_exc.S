@@ -275,7 +275,7 @@ _hwiActiveCheck:
 _ExcInMSP:
     .fnstart
     .cantunwind
-    CMP   LR, #0XFFFFFFED
+    CMP   LR, #0xFFFFFFE9
     BNE   _NoFloatInMsp
     ADD   R3, R13, #104
     PUSH  {R3}
