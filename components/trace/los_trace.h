@@ -320,7 +320,7 @@ extern TRACE_EVENT_HOOK g_traceEventHook;
 #define TASK_RESUME_PARAMS(taskId, taskStatus, prio)     taskId, taskStatus, prio
 #define TASK_SIGNAL_PARAMS(taskId, signal, schedFlag)    // taskId, signal, schedFlag
 
-#define SWTMR_START_PARAMS(swtmrId, mode, overrun, interval, expiry)  swtmrId, mode, overrun, interval, expiry
+#define SWTMR_START_PARAMS(swtmrId, mode, interval)  swtmrId, mode, interval
 #define SWTMR_DELETE_PARAMS(swtmrId)                                  swtmrId
 #define SWTMR_EXPIRED_PARAMS(swtmrId)                                 swtmrId
 #define SWTMR_STOP_PARAMS(swtmrId)                                    swtmrId
@@ -433,33 +433,6 @@ extern TRACE_EVENT_HOOK g_traceEventHook;
 #else
 #define LOS_TRACE_EASY(...)
 #endif
-
-/**
- * @ingroup los_trace
- * @brief Intialize the trace when the system startup.
- *
- * @par Description:
- * This API is used to intilize the trace for system level.
- * @attention
- * <ul>
- * <li>This API can be called only after the memory is initialized. Otherwise, the Trace Init will be fail.</li>
- * </ul>
- *
- * @param buf        [IN] Type #VOID *. The ptr is trace buffer address, if ptr is NULL, system will malloc a new one in
- *                                  trace offline mode.
- * @param size       [IN] Type #UINT32. The trace buffer's size.
- *
- * @retval #LOS_ERRNO_TRACE_ERROR_STATUS        0x02001400: The trace status is not TRACE_UNINIT.
- * @retval #LOS_ERRNO_TRACE_NO_MEMORY           0x02001401: The memory is not enough for initilize.
- * @retval #LOS_ERRNO_TRACE_BUF_TOO_SMALL       0x02001402: Trace buf size not enough.
- * @retval #LOS_ERRNO_TSK_TCB_UNAVAILABLE       0x02000211: No free task control block is available.
- * @retval #LOS_ERRNO_TSK_MP_SYNC_RESOURCE      0x02000225: Mp sync resource create failed
- * @retval #LOS_OK                              0x00000000: The intialization is successful.
- * @par Dependency:
- * <ul><li>los_trace.h: the header file that contains the API declaration.</li></ul>
- * @see LOS_TraceInit
- */
-extern UINT32 LOS_TraceInit(VOID *buf, UINT32 size);
 
 /**
  * @ingroup los_trace
