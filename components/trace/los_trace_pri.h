@@ -119,10 +119,10 @@ typedef struct {
     OfflineHead *head;
 } TraceOfflineHeaderInfo;
 
+extern UINT32 OsTraceInit(VOID);
 extern UINT32 OsTraceGetMaskTid(UINT32 taskId);
 extern VOID OsTraceSetObj(ObjData *obj, const LosTaskCB *tcb);
 extern VOID OsTraceWriteOrSendEvent(const TraceEventFrame *frame);
-extern UINT32 OsTraceBufInit(VOID *buf, UINT32 size);
 extern VOID OsTraceObjAdd(UINT32 eventType, UINT32 taskId);
 extern BOOL OsTraceIsEnable(VOID);
 extern OfflineHead *OsTraceRecordGet(VOID);
@@ -145,6 +145,7 @@ extern VOID OsTraceSendNotify(UINT32 type, UINT32 value);
 #define OsTraceReset()
 #define OsTraceRecordDump(toClient)
 #else
+extern UINT32 OsTraceBufInit(UINT32 size);
 extern VOID OsTraceReset(VOID);
 extern VOID OsTraceRecordDump(BOOL toClient);
 #define OsTraceNotifyStart()
