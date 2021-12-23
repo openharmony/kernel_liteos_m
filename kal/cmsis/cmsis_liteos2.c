@@ -112,7 +112,7 @@ osStatus_t osKernelGetInfo(osVersion_t *version, char *id_buf, uint32_t id_size)
         }
         uwRet = memcpy_s(id_buf, id_size, KERNEL_ID, id_size);
         if (uwRet != EOK) {
-            PRINT_ERR("%s[%d] memcpy failed, error type = %u\n", __FUNCTION__, __LINE__, uwRet);
+            PRINT_ERR("%s[%d] memcpy failed, error type = %lu\n", __FUNCTION__, __LINE__, uwRet);
             return osError;
         }
     }
