@@ -623,6 +623,14 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_TASK_MEM_USED                                 0
 #endif
 
+/* *
+ * @ingroup los_interrupt
+ * Configuration item for interrupt with argument
+ */
+#ifndef LOSCFG_PLATFORM_HWI_WITH_ARG
+#define LOSCFG_PLATFORM_HWI_WITH_ARG                       0
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }

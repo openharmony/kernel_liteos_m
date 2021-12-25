@@ -31,11 +31,11 @@
 
     PRESERVE8
 
-    EXPORT  HalIntLock
-    EXPORT  HalIntUnLock
-    EXPORT  HalIntRestore
+    EXPORT  ArchIntLock
+    EXPORT  ArchIntUnLock
+    EXPORT  ArchIntRestore
     EXPORT  HalStartToRun
-    EXPORT  HalTaskSchedule
+    EXPORT  ArchTaskSchedule
     EXPORT  HalPendSV
     IMPORT  OsSchedTaskSwitch
     IMPORT  g_losTask
@@ -90,21 +90,21 @@ __DisabledFPU
     BX      R6
 
 
-HalIntLock
+ArchIntLock
     MRS     R0, PRIMASK
     CPSID   I
     BX      LR
 
-HalIntUnLock
+ArchIntUnLock
     MRS     R0, PRIMASK
     CPSIE   I
     BX      LR
 
-HalIntRestore
+ArchIntRestore
     MSR     PRIMASK, R0
     BX      LR
 
-HalTaskSchedule
+ArchTaskSchedule
     LDR     R0, =OS_NVIC_INT_CTRL
     LDR     R1, =OS_NVIC_PENDSVSET
     STR     R1, [R0]

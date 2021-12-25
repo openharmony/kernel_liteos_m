@@ -36,19 +36,18 @@
 #include "los_task.h"
 #include "los_sched.h"
 #include "los_interrupt.h"
-#include "los_arch_timer.h"
 #include "los_debug.h"
 
 STATIC UINT32 g_sysNeedSched = FALSE;
 
 /* ****************************************************************************
- Function    : HalArchInit
+ Function    : ArchInit
  Description : arch init function
  Input       : None
  Output      : None
  Return      : None
  **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT VOID HalArchInit(VOID)
+LITE_OS_SEC_TEXT_INIT VOID ArchInit(VOID)
 {
     UINT32 ret;
     HalHwiInit();
@@ -60,13 +59,13 @@ LITE_OS_SEC_TEXT_INIT VOID HalArchInit(VOID)
 }
 
 /* ****************************************************************************
- Function    : HalSysExit
+ Function    : ArchSysExit
  Description : Task exit function
  Input       : None
  Output      : None
  Return      : None
  **************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID)
+LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
 {
     LOS_IntLock();
     while (1) {
@@ -74,7 +73,7 @@ LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID)
 }
 
 /* ****************************************************************************
- Function    : HalTskStackInit
+ Function    : ArchTskStackInit
  Description : Task stack initialization function
  Input       : taskID     --- TaskID
                stackSize  --- Total size of the stack
@@ -82,7 +81,7 @@ LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID)
  Output      : None
  Return      : Context pointer
  **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
+LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
 {
     TaskContext *context = NULL;
     errno_t result;
@@ -110,13 +109,13 @@ LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOI
     context->R11 = 0x11111111L;
     context->R12 = 0x12121212L;
     context->R13 = 0x13131313L;
-    context->R15 = (UINT32)HalSysExit;
+    context->R15 = (UINT32)ArchSysExit;
     context->EPSR = 0xe0000144L;
     context->EPC = (UINT32)OsTaskEntry;
     return (VOID *)context;
 }
 
-LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(VOID)
+LITE_OS_SEC_TEXT_INIT UINT32 ArchStartSchedule(VOID)
 {
     (VOID)LOS_IntLock();
     OsSchedStart();
@@ -127,11 +126,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(VOID)
 VOID HalIrqEndCheckNeedSched(VOID)
 {
     if (g_sysNeedSched && g_taskScheduled && LOS_CHECK_SCHEDULE) {
-        HalTaskSchedule();
+        ArchTaskSchedule();
     }
 }
 
-VOID HalTaskSchedule(VOID)
+VOID ArchTaskSchedule(VOID)
 {
     UINT32 intSave;
 

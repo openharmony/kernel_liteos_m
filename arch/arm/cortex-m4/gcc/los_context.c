@@ -36,18 +36,17 @@
 #include "los_task.h"
 #include "los_sched.h"
 #include "los_interrupt.h"
-#include "los_arch_timer.h"
 #include "los_timer.h"
 #include "los_debug.h"
 
 /* ****************************************************************************
- Function    : HalArchInit
+ Function    : ArchInit
  Description : arch init function
  Input       : None
  Output      : None
  Return      : None
  **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT VOID HalArchInit(VOID)
+LITE_OS_SEC_TEXT_INIT VOID ArchInit(VOID)
 {
     UINT32 ret;
 
@@ -60,13 +59,13 @@ LITE_OS_SEC_TEXT_INIT VOID HalArchInit(VOID)
 }
 
 /* ****************************************************************************
- Function    : HalSysExit
+ Function    : ArchSysExit
  Description : Task exit function
  Input       : None
  Output      : None
  Return      : None
  **************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID)
+LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
 {
     LOS_IntLock();
     while (1) {
@@ -74,7 +73,7 @@ LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID)
 }
 
 /* ****************************************************************************
- Function    : HalTskStackInit
+ Function    : ArchTskStackInit
  Description : Task stack initialization function
  Input       : taskID     --- TaskID
                stackSize  --- Total size of the stack
@@ -82,7 +81,7 @@ LITE_OS_SEC_TEXT_MINOR VOID HalSysExit(VOID)
  Output      : None
  Return      : Context pointer
  **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
+LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
 {
     TaskContext *context = NULL;
     errno_t result;
@@ -148,14 +147,14 @@ LITE_OS_SEC_TEXT_INIT VOID *HalTskStackInit(UINT32 taskID, UINT32 stackSize, VOI
     context->uwR2 = 0x02020202L;
     context->uwR3 = 0x03030303L;
     context->uwR12 = 0x12121212L;
-    context->uwLR = (UINT32)(UINTPTR)HalSysExit;
+    context->uwLR = (UINT32)(UINTPTR)ArchSysExit;
     context->uwPC = (UINT32)(UINTPTR)OsTaskEntry;
     context->uwxPSR = 0x01000000L;
 
     return (VOID *)context;
 }
 
-LITE_OS_SEC_TEXT_INIT UINT32 HalStartSchedule(VOID)
+LITE_OS_SEC_TEXT_INIT UINT32 ArchStartSchedule(VOID)
 {
     (VOID)LOS_IntLock();
     OsSchedStart();

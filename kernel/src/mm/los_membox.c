@@ -64,8 +64,8 @@ STATIC INLINE UINT32 OsMemBoxCheckMagic(LOS_MEMBOX_NODE *node)
     ((VOID *)((UINT8 *)(addr) + OS_MEMBOX_NODE_HEAD_SIZE))
 #define OS_MEMBOX_NODE_ADDR(addr) \
     ((LOS_MEMBOX_NODE *)(VOID *)((UINT8 *)(addr) - OS_MEMBOX_NODE_HEAD_SIZE))
-#define MEMBOX_LOCK(state)       ((state) = HalIntLock())
-#define MEMBOX_UNLOCK(state)     HalIntRestore(state)
+#define MEMBOX_LOCK(state)       ((state) = ArchIntLock())
+#define MEMBOX_UNLOCK(state)     ArchIntRestore(state)
 
 STATIC INLINE UINT32 OsCheckBoxMem(const LOS_MEMBOX_INFO *boxInfo, const VOID *node)
 {

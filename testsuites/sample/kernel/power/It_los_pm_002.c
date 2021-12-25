@@ -77,7 +77,7 @@ static UINT32 SysSuspend(VOID)
 
     UINT64 timeout = LOS_SchedTickTimeoutNsGet();
     printf("pm timeout : %u ns -> %u ticks\n", (UINT32)timeout, (UINT32)(timeout / OS_NS_PER_TICK));
-    return HalEnterSleep();
+    return ArchEnterSleep();
 }
 
 static UINT32 SystemPmEarly(UINT32 mode)
@@ -112,7 +112,7 @@ static VOID SystemPmLate(UINT32 mode)
 static LosPmSysctrl g_sysctrl = {
     .early = SystemPmEarly,
     .late = SystemPmLate,
-    .normalSuspend = HalEnterSleep,
+    .normalSuspend = ArchEnterSleep,
     .normalResume = NULL,
     .lightSuspend = SysSuspend,
     .lightResume = SysResume,
