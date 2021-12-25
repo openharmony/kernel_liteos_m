@@ -199,7 +199,7 @@ extern UINT32 g_intCount;
  */
 #define OS_ERRNO_HWI_FASTMODE_ALREADY_CREATED LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x07)
 
-#if (OS_HWI_WITH_ARG == 1)
+#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
 /* *
  * @ingroup los_arch_interrupt
  * Set interrupt vector table.

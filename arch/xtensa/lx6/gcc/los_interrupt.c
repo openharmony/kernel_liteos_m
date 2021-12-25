@@ -50,7 +50,7 @@ UINT32 g_intCount = 0;
  */
 STATIC HWI_PROC_FUNC __attribute__((aligned(0x100))) g_hwiForm[OS_VECTOR_CNT] = {0};
 
-#if (OS_HWI_WITH_ARG == 1)
+#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
 
 typedef struct {
     HWI_PROC_FUNC pfnHandler;
@@ -105,7 +105,7 @@ UINT32 HwiNumValid(UINT32 num)
  * @ingroup los_hwi
  * Lock all interrupt.
  */
-UINT32 HalIntLock(VOID)
+UINT32 ArchIntLock(VOID)
 {
     UINT32 ret;
 
@@ -117,7 +117,7 @@ UINT32 HalIntLock(VOID)
  * @ingroup los_hwi
  * Restore interrupt status.
  */
-VOID HalIntRestore(UINT32 intSave)
+VOID ArchIntRestore(UINT32 intSave)
 {
     __asm__ volatile("wsr.ps %0; rsync" : : "r"(intSave) : "memory");
 }
@@ -126,7 +126,7 @@ VOID HalIntRestore(UINT32 intSave)
  * @ingroup los_hwi
  * Unlock interrupt.
  */
-UINT32 HalIntUnLock(VOID)
+UINT32 ArchIntUnLock(VOID)
 {
     UINT32 intSave;
 
@@ -139,7 +139,7 @@ UINT32 HalIntUnLock(VOID)
  * @ingroup los_hwi
  * Determine if the interrupt is locked
  */
-STATIC INLINE UINT32 HalIntLocked(VOID)
+STATIC INLINE UINT32 ArchIntLocked(VOID)
 {
     UINT32 intSave;
     __asm__ volatile("rsr %0, ps " : "=r"(intSave) : : "memory");
@@ -234,7 +234,7 @@ UINT32 HalIrqClear(HWI_HANDLE_T vector)
     return LOS_OK;
 }
 
-INLINE UINT32 HalIsIntActive(VOID)
+INLINE UINT32 ArchIsIntActive(VOID)
 {
     return (g_intCount > 0);
 }
@@ -286,7 +286,7 @@ VOID HalInterrupt(VOID)
 
     HalPreInterruptHandler(hwiIndex);
 
-#if (OS_HWI_WITH_ARG == 1)
+#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
     if (g_hwiHandlerForm[hwiIndex].pfnHandler != 0) {
         g_hwiHandlerForm[hwiIndex].pfnHandler((VOID *)g_hwiHandlerForm[hwiIndex].pParm);
     }
@@ -307,7 +307,7 @@ VOID HalInterrupt(VOID)
 }
 
 /* ****************************************************************************
- Function    : HalHwiCreate
+ Function    : ArchHwiCreate
  Description : create hardware interrupt
  Input       : hwiNum   --- hwi num to create
                hwiPrio  --- priority of the hwi
@@ -317,11 +317,11 @@ VOID HalInterrupt(VOID)
  Output      : None
  Return      : LOS_OK on success or error code on failure
  **************************************************************************** */
-UINT32 HalHwiCreate(HWI_HANDLE_T hwiNum,
-                    HWI_PRIOR_T hwiPrio,
-                    HWI_MODE_T mode,
-                    HWI_PROC_FUNC handler,
-                    HWI_ARG_T arg)
+UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
+                     HWI_PRIOR_T hwiPrio,
+                     HWI_MODE_T mode,
+                     HWI_PROC_FUNC handler,
+                     HWI_ARG_T arg)
 {
     UINT32 intSave;
 
@@ -342,7 +342,7 @@ UINT32 HalHwiCreate(HWI_HANDLE_T hwiNum,
     }
 
     intSave = LOS_IntLock();
-#if (OS_HWI_WITH_ARG == 1)
+#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
     OsSetVector(hwiNum, handler, arg);
 #else
     OsSetVector(hwiNum, handler);
@@ -355,13 +355,13 @@ UINT32 HalHwiCreate(HWI_HANDLE_T hwiNum,
 }
 
 /* ****************************************************************************
- Function    : HalHwiDelete
+ Function    : ArchHwiDelete
  Description : Delete hardware interrupt
  Input       : hwiNum   --- hwi num to delete
  Output      : None
  Return      : LOS_OK on success or error code on failure
  **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT UINT32 HalHwiDelete(HWI_HANDLE_T hwiNum)
+LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum)
 {
     UINT32 intSave;
 
@@ -522,7 +522,7 @@ VOID HalExcHandleEntry(UINTPTR faultAddr, EXC_CONTEXT_S *excBufAddr, UINT32 type
 
     OsDoExcHook(EXC_INTERRUPT);
     OsExcInfoDisplay(&g_excInfo);
-    HalSysExit();
+    ArchSysExit();
 }
 
 /* Stack protector */

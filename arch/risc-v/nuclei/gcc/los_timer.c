@@ -78,12 +78,12 @@ void HalTickSysTickHandler( void )
     }
 }
 
-WEAK VOID HalSysTickReload(UINT64 nextResponseTime)
+WEAK VOID ArchSysTickReload(UINT64 nextResponseTime)
 {
     SysTick_Reload(nextResponseTime);
 }
 
-WEAK UINT64 HalGetTickCycle(UINT32 *period)
+WEAK UINT64 ArchGetTickCycle(UINT32 *period)
 {
     UINT64 ticks;
     UINT32 intSave = LOS_IntLock();
@@ -93,17 +93,17 @@ WEAK UINT64 HalGetTickCycle(UINT32 *period)
     return ticks;
 }
 
-WEAK VOID HalTickLock(VOID)
+WEAK VOID ArchTickLock(VOID)
 {
     SysTimer_Stop();
 }
 
-WEAK VOID HalTickUnlock(VOID)
+WEAK VOID ArchTickUnlock(VOID)
 {
     SysTimer_Start();
 }
 
-UINT32 HalEnterSleep(VOID)
+UINT32 ArchEnterSleep(VOID)
 {
     __WFI();
 

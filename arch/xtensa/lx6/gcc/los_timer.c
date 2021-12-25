@@ -82,7 +82,7 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
     }
 
 #if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)
-#if (OS_HWI_WITH_ARG == 1)
+#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
     OsSetVector(OS_TICK_INT_NUM, (HWI_PROC_FUNC)handler, NULL);
 #else
     OsSetVector(OS_TICK_INT_NUM, (HWI_PROC_FUNC)handler);
@@ -102,7 +102,7 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
     return LOS_OK;
 }
 
-WEAK VOID HalSysTickReload(UINT64 nextResponseTime)
+WEAK VOID ArchSysTickReload(UINT64 nextResponseTime)
 {
     UINT32 timerL;
     timerL = GetCcount();
@@ -110,7 +110,7 @@ WEAK VOID HalSysTickReload(UINT64 nextResponseTime)
     SetCcompare(timerL);
 }
 
-WEAK UINT64 HalGetTickCycle(UINT32 *period)
+WEAK UINT64 ArchGetTickCycle(UINT32 *period)
 {
     UINT32 tickCycleH;
     UINT32 tickCycleL;
@@ -132,12 +132,12 @@ WEAK UINT64 HalGetTickCycle(UINT32 *period)
     return tickCycle;
 }
 
-WEAK VOID HalTickLock(VOID)
+WEAK VOID ArchTickLock(VOID)
 {
     HalIrqMask(OS_TICK_INT_NUM);
 }
 
-WEAK VOID HalTickUnlock(VOID)
+WEAK VOID ArchTickUnlock(VOID)
 {
     HalIrqUnmask(OS_TICK_INT_NUM);
 }
@@ -152,7 +152,7 @@ VOID Dsb(VOID)
     __asm__ volatile("dsync" : : : "memory");
 }
 
-UINT32 HalEnterSleep(VOID)
+UINT32 ArchEnterSleep(VOID)
 {
     Dsb();
     Wfi();

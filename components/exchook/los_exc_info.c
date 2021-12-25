@@ -238,7 +238,7 @@ VOID OsExcRegister(ExcInfoType type, EXC_INFO_SAVE_CALLBACK func, VOID *arg)
 {
     ExcInfoArray *excInfo = NULL;
     if ((type >= OS_EXC_TYPE_MAX) || (func == NULL)) {
-        PRINT_ERR("HalExcRegister ERROR!\n");
+        PRINT_ERR("OsExcRegister ERROR!\n");
         return;
     }
     excInfo = &(g_excArray[type]);

@@ -218,7 +218,7 @@ extern VIC_TYPE *VIC_REG;
  */
 #define LOS_ERRNO_HWI_NUM_INVALID             OS_ERRNO_HWI_NUM_INVALID
 
-#if (OS_HWI_WITH_ARG == 1)
+#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
 /* *
  * @ingroup los_arch_interrupt
  * Set interrupt vector table.
