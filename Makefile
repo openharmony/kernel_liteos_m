@@ -98,7 +98,7 @@ endef
 export HELP
 
 all:
-	$(HIDE)hb build -f --gn-args "liteos_kernel_only=true liteos_name=$(LITEOS_TARGET)"
+	$(HIDE)hb build -f --gn-args "liteos_kernel_only=true liteos_name=\"$(LITEOS_TARGET)\""
 
 help:
 	$(HIDE)echo "$$HELP"
