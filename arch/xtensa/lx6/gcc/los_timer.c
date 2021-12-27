@@ -34,63 +34,36 @@
 #include "los_tick.h"
 #include "los_arch_interrupt.h"
 #include "los_arch_timer.h"
-#include "los_context.h"
-#include "los_sched.h"
 #include "los_debug.h"
 
-UINT32 GetCcount(VOID)
-{
-    UINT32 intSave;
-    __asm__ __volatile__("rsr %0, ccount" : "=a"(intSave) :);
-    return intSave;
-}
+STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler);
+STATIC VOID SysTickReload(UINT64 nextResponseTime);
+STATIC UINT64 SysTickCycleGet(UINT32 *period);
+STATIC VOID SysTickLock(VOID);
+STATIC VOID SysTickUnlock(VOID);
 
-VOID ResetCcount(VOID)
-{
-    __asm__ __volatile__("wsr %0, ccount; rsync" : :"a"(0));
-}
+STATIC ArchTickTimer g_archTickTimer = {
+    .freq = OS_SYS_CLOCK,
+    .irqNum = OS_TICK_INT_NUM,
+    .init = SysTickStart,
+    .getCycle = SysTickCycleGet,
+    .reload = SysTickReload,
+    .lock = SysTickLock,
+    .unlock = SysTickUnlock,
+    .tickHandler = NULL,
+};
 
-UINT32 GetCcompare(VOID)
+STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
 {
-    UINT32 intSave;
-    __asm__ __volatile__("rsr %0, ccompare0" : "=a"(intSave) :);
-    return intSave;
-}
-
-VOID SetCcompare(UINT32 newCompareVal)
-{
-    __asm__ __volatile__("wsr %0, ccompare0; rsync" : : "a"(newCompareVal));
-}
-
-/* ****************************************************************************
-Function    : HalTickStart
-Description : Configure Tick Interrupt Start
-Input       : none
-output      : none
-return      : LOS_OK - Success , or LOS_ERRNO_TICK_CFG_INVALID - failed
-**************************************************************************** */
-WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
-{
-    UINT32 ret;
-    UINT32 ccount;
-    UINT32 nextTickCycles;
-
-    if ((OS_SYS_CLOCK == 0) ||
-        (LOSCFG_BASE_CORE_TICK_PER_SECOND == 0) ||
-        (LOSCFG_BASE_CORE_TICK_PER_SECOND > OS_SYS_CLOCK)) {
-        return LOS_ERRNO_TICK_CFG_INVALID;
-    }
+    ArchTickTimer *tick = &g_archTickTimer;
 
 #if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
-    OsSetVector(OS_TICK_INT_NUM, (HWI_PROC_FUNC)handler, NULL);
+    OsSetVector(tick->irqNum, handler, NULL);
 #else
-    OsSetVector(OS_TICK_INT_NUM, (HWI_PROC_FUNC)handler);
+    OsSetVector(tick->irqNum, handler);
 #endif
 #endif
-
-    g_sysClock = OS_SYS_CLOCK;
-    g_cyclesPerTick = OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND;
 
     ResetCcount();
     SetCcompare(LOSCFG_BASE_CORE_TICK_RESPONSE_MAX);
@@ -98,11 +71,11 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
     __asm__ __volatile__("wsr %0, ccompare1; rsync" : : "a"(0));
     __asm__ __volatile__("wsr %0, ccompare2; rsync" : : "a"(0));
 
-    HalIrqUnmask(OS_TICK_INT_NUM);
+    HalIrqUnmask(tick->irqNum);
     return LOS_OK;
 }
 
-WEAK VOID ArchSysTickReload(UINT64 nextResponseTime)
+STATIC VOID SysTickReload(UINT64 nextResponseTime)
 {
     UINT32 timerL;
     timerL = GetCcount();
@@ -110,7 +83,7 @@ WEAK VOID ArchSysTickReload(UINT64 nextResponseTime)
     SetCcompare(timerL);
 }
 
-WEAK UINT64 ArchGetTickCycle(UINT32 *period)
+STATIC UINT64 SysTickCycleGet(UINT32 *period)
 {
     UINT32 tickCycleH;
     UINT32 tickCycleL;
@@ -132,14 +105,19 @@ WEAK UINT64 ArchGetTickCycle(UINT32 *period)
     return tickCycle;
 }
 
-WEAK VOID ArchTickLock(VOID)
+STATIC VOID SysTickLock(VOID)
 {
     HalIrqMask(OS_TICK_INT_NUM);
 }
 
-WEAK VOID ArchTickUnlock(VOID)
+STATIC VOID SysTickUnlock(VOID)
 {
     HalIrqUnmask(OS_TICK_INT_NUM);
+}
+
+ArchTickTimer *ArchSysTickTimerGet(VOID)
+{
+    return &g_archTickTimer;
 }
 
 VOID Wfi(VOID)

@@ -31,14 +31,7 @@
 
 LITE_OS_SEC_TEXT_INIT VOID ArchInit(VOID)
 {
-    UINT32 ret;
     HalHwiInit();
-
-    ret = HalTickStart(OsTickHandler);
-    if (ret != LOS_OK) {
-        PRINT_ERR("Tick start failed!\n");
-        return;
-    }
 }
 
 LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)

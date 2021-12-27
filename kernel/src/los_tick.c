@@ -30,37 +30,180 @@
  */
 
 #include "los_tick.h"
+#include "securec.h"
 #include "los_config.h"
 #include "los_task.h"
 #include "los_swtmr.h"
 #include "los_sched.h"
+#include "los_debug.h"
 
-
+LITE_OS_SEC_BSS STATIC ArchTickTimer *g_sysTickTimer = NULL;
 LITE_OS_SEC_BSS UINT32 g_ticksPerSec;
 LITE_OS_SEC_BSS UINT32 g_uwCyclePerSec;
 LITE_OS_SEC_BSS UINT32 g_cyclesPerTick;
 LITE_OS_SEC_BSS UINT32 g_sysClock;
+LITE_OS_SEC_BSS BOOL g_sysTimerIsInit = FALSE;
 
-#if (LOSCFG_BASE_CORE_TICK_HW_TIME == 1)
-extern VOID platform_tick_handler(VOID);
+#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
+STATIC UINT64 g_tickTimerBase;
+
+LITE_OS_SEC_TEXT STATIC VOID OsUpdateSysTimeBase(VOID)
+{
+    UINT32 period = 0;
+
+    (VOID)g_sysTickTimer->getCycle(&period);
+    g_tickTimerBase += period;
+}
+
+LITE_OS_SEC_TEXT VOID OsTickTimerBaseReset(UINT64 currTime)
+{
+    LOS_ASSERT(currTime > g_tickTimerBase);
+
+    g_tickTimerBase = currTime;
+}
 #endif
 
 LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)
 {
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
-    OsSchedUpdateSchedTimeBase();
-#endif
-
-#if (LOSCFG_BASE_CORE_TICK_HW_TIME == 1)
-    platform_tick_handler();
+    OsUpdateSysTimeBase();
 #endif
 
     LOS_SchedTickHandler();
 }
 
-UINT64 LOS_SysCycleGet(VOID)
+LITE_OS_SEC_TEXT VOID OsTickTimerReload(UINT64 responseTime)
 {
-    return OsGetCurrSysTimeCycle();
+#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
+    g_tickTimerBase = LOS_SysCycleGet();
+#endif
+    g_sysTickTimer->reload(responseTime);
+}
+
+LITE_OS_SEC_TEXT UINT64 LOS_SysCycleGet(VOID)
+{
+#if (LOSCFG_BASE_CORE_TICK_WTIMER == 1)
+    return g_sysTickTimer->getCycle(NULL);
+#else
+    STATIC UINT64 oldSchedTime = 0;
+    UINT32 period = 0;
+    UINT32 intSave = LOS_IntLock();
+    UINT64 time = g_sysTickTimer->getCycle(&period);
+    UINT64 schedTime = g_tickTimerBase + time;
+    if (schedTime < oldSchedTime) {
+        /* Turn the timer count */
+        g_tickTimerBase += period;
+        schedTime = g_tickTimerBase + time;
+    }
+
+    LOS_ASSERT(schedTime >= oldSchedTime);
+
+    oldSchedTime = schedTime;
+    LOS_IntRestore(intSave);
+    return schedTime;
+#endif
+}
+
+LITE_OS_SEC_TEXT STATIC UINT32 TickTimerCheck(const ArchTickTimer *tick)
+{
+    if (tick == NULL) {
+        return LOS_ERRNO_SYS_PTR_NULL;
+    }
+
+    if ((tick->freq == 0) ||
+        (LOSCFG_BASE_CORE_TICK_PER_SECOND == 0) ||
+        (LOSCFG_BASE_CORE_TICK_PER_SECOND > tick->freq)) {
+        return LOS_ERRNO_SYS_CLOCK_INVALID;
+    }
+
+    if (tick->irqNum > (INT32)LOSCFG_PLATFORM_HWI_LIMIT) {
+        return LOS_ERRNO_TICK_CFG_INVALID;
+    }
+
+    if (tick->init == NULL || tick->reload == NULL ||
+        tick->lock == NULL || tick->unlock == NULL ||
+        tick->getCycle == NULL) {
+        return LOS_ERRNO_SYS_HOOK_IS_NULL;
+    }
+
+    if (g_sysTimerIsInit) {
+        return LOS_ERRNO_SYS_TIMER_IS_RUNNING;
+    }
+
+    return LOS_OK;
+}
+
+LITE_OS_SEC_TEXT_INIT UINT32 OsTickTimerInit(VOID)
+{
+    UINT32 ret;
+    HWI_PROC_FUNC tickHandler = (HWI_PROC_FUNC)OsTickHandler;
+    g_sysTickTimer = LOS_SysTickTimerGet();
+
+    ret = TickTimerCheck(g_sysTickTimer);
+    if (ret != LOS_OK) {
+        PRINT_ERR("Tick timer param check failed, Error 0x%x\n", ret);
+        return ret;
+    }
+
+    g_sysClock = g_sysTickTimer->freq;
+    g_cyclesPerTick = g_sysTickTimer->freq / LOSCFG_BASE_CORE_TICK_PER_SECOND;
+
+    if (g_sysTickTimer->tickHandler != NULL) {
+        tickHandler = g_sysTickTimer->tickHandler;
+    }
+    ret = g_sysTickTimer->init(tickHandler);
+    if (ret == LOS_OK) {
+        g_sysTimerIsInit = TRUE;
+    }
+    return ret;
+}
+
+LITE_OS_SEC_TEXT UINT32 LOS_TickTimerRegister(const ArchTickTimer *timer, const HWI_PROC_FUNC tickHandler)
+{
+    UINT32 intSave;
+    UINT32 ret;
+
+    if ((timer == NULL) && (tickHandler == NULL)) {
+        return LOS_ERRNO_SYS_PTR_NULL;
+    }
+
+    if (timer != NULL) {
+        ret = TickTimerCheck(timer);
+        if (ret != LOS_OK) {
+            return ret;
+        }
+
+        intSave = LOS_IntLock();
+        if (g_sysTickTimer == NULL) {
+            g_sysTickTimer = LOS_SysTickTimerGet();
+        }
+
+        if (g_sysTickTimer == timer) {
+            LOS_IntRestore(intSave);
+            return LOS_ERRNO_SYS_TIMER_ADDR_FAULT;
+        }
+
+        errno_t errRet = memcpy_s(g_sysTickTimer, sizeof(ArchTickTimer), timer, sizeof(ArchTickTimer));
+        if (errRet != EOK) {
+            PRINT_ERR("%s timer addr fault! errno %d\n", __FUNCTION__, errRet);
+            ret = LOS_ERRNO_SYS_TIMER_ADDR_FAULT;
+        }
+        LOS_IntRestore(intSave);
+        return ret;
+    }
+
+    if (g_sysTimerIsInit) {
+        return LOS_ERRNO_SYS_TIMER_IS_RUNNING;
+    }
+
+    intSave = LOS_IntLock();
+    if (g_sysTickTimer == NULL) {
+        g_sysTickTimer = LOS_SysTickTimerGet();
+    }
+
+    g_sysTickTimer->tickHandler = tickHandler;
+    LOS_IntRestore(intSave);
+    return LOS_OK;
 }
 
 /*****************************************************************************
@@ -72,7 +215,7 @@ Return      : current tick
 *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT64 LOS_TickCountGet(VOID)
 {
-    return OsGetCurrSchedTimeCycle() / OS_CYCLE_PER_TICK;
+    return LOS_SysCycleGet() / OS_CYCLE_PER_TICK;
 }
 
 /*****************************************************************************
@@ -176,5 +319,3 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsCpuTick2US(CpuTick *cpuTick, UINT32 *usHi, UINT32
 
     return LOS_OK;
 }
-
-

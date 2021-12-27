@@ -35,22 +35,13 @@
 #include "los_task.h"
 #include "los_sched.h"
 #include "los_memory.h"
-#include "los_timer.h"
-#include "los_debug.h"
 #include "soc.h"
 
 STATIC UINT32 g_sysNeedSched = FALSE;
 
 LITE_OS_SEC_TEXT_INIT VOID ArchInit(VOID)
 {
-    UINT32 ret;
     HalHwiInit();
-
-    ret = HalTickStart(OsTickHandler);
-    if (ret != LOS_OK) {
-        PRINT_ERR("Tick start failed!\n");
-        return;
-    }
 }
 
 VOID HalIrqEndCheckNeedSched(VOID)

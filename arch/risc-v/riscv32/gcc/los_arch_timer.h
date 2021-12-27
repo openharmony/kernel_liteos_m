@@ -45,8 +45,6 @@ extern "C" {
 #define MTIMER_HI_OFFSET 4
 #define OS_COMBINED_64(hi, ho) (((UINT64)(hi) << 32) | (ho))
 
-UINT32 HalTickStart(OS_TICK_HANDLER handler);
-
 #ifdef __cplusplus
 #if __cplusplus
 }

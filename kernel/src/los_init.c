@@ -148,6 +148,12 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
 
     ArchInit();
 
+    ret = OsTickTimerInit();
+    if (ret != LOS_OK) {
+        PRINT_ERR("OsTickTimerInit error! 0x%x\n", ret);
+        return ret;
+    }
+
     ret = OsTaskInit();
     if (ret != LOS_OK) {
         PRINT_ERR("OsTaskInit error\n");

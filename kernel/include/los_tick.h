@@ -38,6 +38,7 @@
 #define _LOS_TICK_H
 
 #include "los_error.h"
+#include "los_timer.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -58,7 +59,7 @@ extern "C" {
 
 /**
  * @ingroup los_tick
- * Tick error code: This error code is not in use temporarily.
+ * Tick error code: The system tick timer uninitialized.
  *
  * Value: 0x02000401
  *
@@ -182,6 +183,36 @@ extern UINT64 LOS_SysCycleGet(VOID);
 
 /**
  * @ingroup los_tick
+ * System time error code: The Tick Timer must be registered before kernel initialization.
+ *
+ * Value: 0x02000015
+ *
+ * Solution: None.
+ */
+#define LOS_ERRNO_SYS_TIMER_IS_RUNNING         LOS_ERRNO_OS_ERROR(LOS_MOD_SYS, 0x15)
+
+/**
+ * @ingroup los_tick
+ * System time error code: The tick timer method is NULL.
+ *
+ * Value: 0x02000016
+ *
+ * Solution: None.
+ */
+#define LOS_ERRNO_SYS_HOOK_IS_NULL             LOS_ERRNO_OS_ERROR(LOS_MOD_SYS, 0x16)
+
+/**
+ * @ingroup los_tick
+ * System time error code: The tick timer addr fault.
+ *
+ * Value: 0x02000017
+ *
+ * Solution: None.
+ */
+#define LOS_ERRNO_SYS_TIMER_ADDR_FAULT          LOS_ERRNO_OS_ERROR(LOS_MOD_SYS, 0x16)
+
+/**
+ * @ingroup los_tick
  * system time structure.
  */
 typedef struct TagSysTime {
@@ -193,6 +224,14 @@ typedef struct TagSysTime {
     UINT8   ucSecond;  /**< value 0 - 59 */
     UINT8   ucWeek;    /**< value 0 - 6  */
 } SYS_TIME_S;
+
+VOID OsTickTimerReload(UINT64 responseTime);
+
+#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
+VOID OsTickTimerBaseReset(UINT64 currTime);
+#endif
+
+UINT32 OsTickTimerInit(VOID);
 
 /**
  * @ingroup los_tick
@@ -275,6 +314,24 @@ extern UINT32 LOS_Tick2MS(UINT32 ticks);
  * @see LOS_Tick2MS
  */
 extern UINT32 LOS_MS2Tick(UINT32 millisec);
+
+/**
+ * @ingroup los_tick
+ * @brief Re-initializes the system tick timer.
+ *
+ * @par Description:
+ * This API is used to re-initialize the system Tick timer.
+ * @attention
+ *
+ * @param timer        [IN] Specify the tick timer.
+ * @param tickHandler  [IN] Tick Interrupts the execution of the hook function.
+ *
+ * @retval LOS_OK or Error code.
+ * @par Dependency:
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
+ * @see
+ */
+extern UINT32 LOS_TickTimerRegister(const ArchTickTimer *timer, const HWI_PROC_FUNC tickHandler);
 
 /**
  * @ingroup los_tick
