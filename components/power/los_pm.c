@@ -109,7 +109,8 @@ STATIC VOID OsPmTickTimerStart(LosPmCB *pm)
         currTime = pm->enterSleepTime + realSleepTime;
         pm->enterSleepTime = 0;
 
-        OsSchedTimerBaseReset(currTime);
+        OsTickTimerBaseReset(currTime);
+        OsSchedResetSchedResponseTime(0);
     }
 #endif
 
@@ -139,7 +140,7 @@ STATIC BOOL OsPmTickTimerStop(LosPmCB *pm)
         sleepCycle = OS_SYS_NS_TO_CYCLE(sleepCycle, tickTimer->freq);
 
         /* The main CPU reduces the frequency */
-        pm->enterSleepTime = OsGetCurrSysTimeCycle();
+        pm->enterSleepTime = LOS_SysCycleGet();
         tickTimer->tickLock();
         tickTimer->timerStart(sleepCycle);
         return TRUE;
@@ -262,7 +263,7 @@ STATIC UINT32 OsPmSuspendSleep(LosPmCB *pm)
     if (!tickTimerStop) {
         currTime = OsGetCurrSchedTimeCycle();
         OsSchedResetSchedResponseTime(0);
-        OsSchedUpdateExpireTime(currTime, TRUE);
+        OsSchedUpdateExpireTime(currTime);
     }
 
     OsPmCpuSuspend(pm);

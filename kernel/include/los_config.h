@@ -115,10 +115,6 @@ extern "C" {
 #endif
 #endif
 
-#ifndef LOSCFG_BASE_CORE_TICK_HW_TIME
-#define LOSCFG_BASE_CORE_TICK_HW_TIME                       0
-#endif
-
 /**
  * @ingroup los_config
  * System timer is a 64/128 bit timer

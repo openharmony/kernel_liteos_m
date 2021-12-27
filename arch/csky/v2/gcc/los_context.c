@@ -49,13 +49,7 @@ STATIC UINT32 g_sysNeedSched = FALSE;
  **************************************************************************** */
 LITE_OS_SEC_TEXT_INIT VOID ArchInit(VOID)
 {
-    UINT32 ret;
     HalHwiInit();
-
-    ret = HalTickStart(OsTickHandler);
-    if (ret != LOS_OK) {
-        PRINT_ERR("Tick start failed!\n");
-    }
 }
 
 /* ****************************************************************************

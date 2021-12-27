@@ -35,7 +35,6 @@
 #include "los_tick.h"
 #include "los_reg.h"
 #include "los_arch_interrupt.h"
-#include "los_sched.h"
 #include "los_arch_timer.h"
 #include "nuclei_sdk_hal.h"
 
@@ -43,11 +42,28 @@
 
 #define SYSTICK_TICK_CONST  (SOC_TIMER_FREQ / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
-static OS_TICK_HANDLER systick_handler = (OS_TICK_HANDLER)NULL;
+STATIC HWI_PROC_FUNC g_sysTickHandler = (HWI_PROC_FUNC)NULL;
 
 extern UINT32 g_intCount;
 
-WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
+STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler);
+STATIC VOID SysTickReload(UINT64 nextResponseTime);
+STATIC UINT64 SysTickCycleGet(UINT32 *period);
+STATIC VOID SysTickLock(VOID);
+STATIC VOID SysTickUnlock(VOID);
+
+STATIC ArchTickTimer g_archTickTimer = {
+    .freq = OS_SYS_CLOCK,
+    .irqNum = SysTimer_IRQn,
+    .init = SysTickStart,
+    .getCycle = SysTickCycleGet,
+    .reload = SysTickReload,
+    .lock = SysTickLock,
+    .unlock = SysTickUnlock,
+    .tickHandler = NULL,
+};
+
+STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
 {
     SysTick_Config(SYSTICK_TICK_CONST);
     ECLIC_DisableIRQ(SysTimer_IRQn);
@@ -59,31 +75,29 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
     ECLIC_SetShvIRQ(SysTimerSW_IRQn, ECLIC_VECTOR_INTERRUPT);
     ECLIC_SetLevelIRQ(SysTimerSW_IRQn, configKERNEL_INTERRUPT_PRIORITY);
     ECLIC_EnableIRQ(SysTimerSW_IRQn);
-    g_sysClock = OS_SYS_CLOCK;
-    g_cyclesPerTick = g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND;
     g_intCount = 0;
 
-    systick_handler = handler;
+    g_sysTickHandler = handler;
 
     return LOS_OK; /* never return */
 }
 
-#define HalTickSysTickHandler eclic_mtip_handler
+#define ArchTickSysTickHandler eclic_mtip_handler
 
-void HalTickSysTickHandler( void )
+void ArchTickSysTickHandler(void)
 {
     /* Do systick handler registered in HalTickStart. */
-    if ((void *)systick_handler != NULL) {
-        systick_handler();
+    if ((void *)g_sysTickHandler != NULL) {
+        g_sysTickHandler();
     }
 }
 
-WEAK VOID ArchSysTickReload(UINT64 nextResponseTime)
+STATIC VOID SysTickReload(UINT64 nextResponseTime)
 {
     SysTick_Reload(nextResponseTime);
 }
 
-WEAK UINT64 ArchGetTickCycle(UINT32 *period)
+STATIC UINT64 SysTickCycleGet(UINT32 *period)
 {
     UINT64 ticks;
     UINT32 intSave = LOS_IntLock();
@@ -93,14 +107,19 @@ WEAK UINT64 ArchGetTickCycle(UINT32 *period)
     return ticks;
 }
 
-WEAK VOID ArchTickLock(VOID)
+STATIC VOID SysTickLock(VOID)
 {
     SysTimer_Stop();
 }
 
-WEAK VOID ArchTickUnlock(VOID)
+STATIC VOID SysTickUnlock(VOID)
 {
     SysTimer_Start();
+}
+
+ArchTickTimer *ArchSysTickTimerGet(VOID)
+{
+    return &g_archTickTimer;
 }
 
 UINT32 ArchEnterSleep(VOID)

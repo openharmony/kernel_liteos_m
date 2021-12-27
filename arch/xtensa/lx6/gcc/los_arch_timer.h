@@ -43,7 +43,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 VOID SysTick_Handler(VOID);
-UINT32 HalTickStart(OS_TICK_HANDLER handler);
 
 #define TIM0_GROUP0             0x3FF5F000
 #define TIM0_GROUP1             0x3FF60000
@@ -63,6 +62,30 @@ typedef struct {
     UINT64 LOAD;
     UINT32 LOAD_TRI;
 } Systick_t;
+
+STATIC INLINE UINT32 GetCcount(VOID)
+{
+    UINT32 intSave;
+    __asm__ __volatile__("rsr %0, ccount" : "=a"(intSave) :);
+    return intSave;
+}
+
+STATIC INLINE VOID ResetCcount(VOID)
+{
+    __asm__ __volatile__("wsr %0, ccount; rsync" : :"a"(0));
+}
+
+STATIC INLINE UINT32 GetCcompare(VOID)
+{
+    UINT32 intSave;
+    __asm__ __volatile__("rsr %0, ccompare0" : "=a"(intSave) :);
+    return intSave;
+}
+
+STATIC INLINE VOID SetCcompare(UINT32 newCompareVal)
+{
+    __asm__ __volatile__("wsr %0, ccompare0; rsync" : : "a"(newCompareVal));
+}
 
 #ifdef __cplusplus
 #if __cplusplus

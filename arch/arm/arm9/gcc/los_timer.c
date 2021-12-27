@@ -29,8 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "los_timer.h"
 #include "los_config.h"
-#include "los_sched.h"
 #include "los_arch_context.h"
 #include "los_arch_interrupt.h"
 #include "los_reg.h"
@@ -51,14 +51,24 @@
 #define OS_TIMER_READ_CTL_ADDR      (OS_TIMER_REG_BASE + 16)
 #define OS_TIMER_READ_VAL_ADDR      (OS_TIMER_REG_BASE + 20)
 
-/* ****************************************************************************
-Function    : HalTickStart
-Description : Configure Tick Interrupt Start
-Input       : none
-output      : none
-return      : LOS_OK - Success , or LOS_ERRNO_TICK_CFG_INVALID - failed
-**************************************************************************** */
-WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
+STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler);
+STATIC VOID SysTickReload(UINT64 nextResponseTime);
+STATIC UINT64 SysTickCycleGet(UINT32 *period);
+STATIC VOID SysTickLock(VOID);
+STATIC VOID SysTickUnlock(VOID);
+
+STATIC ArchTickTimer g_archTickTimer = {
+    .freq = OS_SYS_CLOCK,
+    .irqNum = OS_TIMER_IRQ_NUM,
+    .init = SysTickStart,
+    .getCycle = SysTickCycleGet,
+    .reload = SysTickReload,
+    .lock = SysTickLock,
+    .unlock = SysTickUnlock,
+    .tickHandler = NULL,
+};
+
+STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
 {
     UINT32 intSave = LOS_IntLock();
     UINT32 value;
@@ -83,7 +93,7 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
     return LOS_OK;
 }
 
-STATIC VOID HalClockIrqClear(VOID)
+STATIC VOID SysTickClockIrqClear(VOID)
 {
     UINT32 mask = OS_TIMER_INT_MASK << OS_TIMER_INT_POS;
     UINT32 status;
@@ -94,15 +104,15 @@ STATIC VOID HalClockIrqClear(VOID)
     } while (status & mask);
 }
 
-WEAK VOID ArchSysTickReload(UINT64 nextResponseTime)
+STATIC VOID SysTickReload(UINT64 nextResponseTime)
 {
-    ArchTickLock();
+    SysTickLock();
     WRITE_UINT32(nextResponseTime, OS_TIMER_PERIOD_REG_ADDR);
-    HalClockIrqClear();
-    ArchTickUnlock();
+    SysTickClockIrqClear();
+    SysTickUnlock();
 }
 
-WEAK UINT64 ArchGetTickCycle(UINT32 *period)
+STATIC UINT64 SysTickCycleGet(UINT32 *period)
 {
     UINT32 val;
 
@@ -118,7 +128,7 @@ WEAK UINT64 ArchGetTickCycle(UINT32 *period)
     return (UINT64)val;
 }
 
-WEAK VOID ArchTickLock(VOID)
+STATIC VOID SysTickLock(VOID)
 {
     UINT32 value;
 
@@ -129,7 +139,7 @@ WEAK VOID ArchTickLock(VOID)
     WRITE_UINT32(value, OS_TIMER_CTL_REG_ADDR);
 }
 
-WEAK VOID ArchTickUnlock(VOID)
+STATIC VOID SysTickUnlock(VOID)
 {
     UINT32 value;
 
@@ -138,6 +148,11 @@ WEAK VOID ArchTickUnlock(VOID)
     value &= ~(OS_TIMER_INT_MASK << OS_TIMER_INT_POS);
     value |= 0x1 << OS_TIMER_INT_POS;
     WRITE_UINT32(value, OS_TIMER_CTL_REG_ADDR);
+}
+
+ArchTickTimer *ArchSysTickTimerGet(VOID)
+{
+    return &g_archTickTimer;
 }
 
 UINT32 ArchEnterSleep(VOID)
