@@ -53,3 +53,25 @@ HandleEntry:
     lrw    r2, HalExcHandleEntry
     jmp    r2
 
+.section .text
+.align  2
+.global IrqEntry
+IrqEntry:
+    psrset  ee
+    subi   sp, 72
+    stm    r0-r15, (sp)
+    mfcr   r0, epsr
+    stw    r0, (sp, 64)
+    mfcr   r0, epc
+    stw    r0, (sp, 68)
+
+    jbsr   HalInterrupt
+
+    ldw    r0, (sp, 68)
+    mtcr   r0, epc
+    ldw    r0, (sp, 64)
+    bseti  r0, r0, 6
+    mtcr   r0, epsr
+    ldm    r0-r15, (sp)
+    addi   sp, 72
+    rte
