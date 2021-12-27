@@ -63,7 +63,7 @@ extern "C" {
 #endif
 
 // For BSD 4.4 socket sa_len compatibility
-#define DF_NADDR(addr)
+#define DF_NADDR(addr)  ip_addr_t naddr = (addr)
 #define SA_LEN(addr, _)  (IP_IS_V4_VAL(addr) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6))
 #define sa_len sa_data[0] * 0 + SA_LEN(naddr, _)
 #define sin_len sin_zero[0]
