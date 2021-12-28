@@ -521,25 +521,6 @@ typedef struct TagExcContext {
 typedef VOID (*EXC_PROC_FUNC)(UINT32, EXC_CONTEXT_S *);
 VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, UINT32 pid, EXC_CONTEXT_S *excBufAddr);
 
-/**
- * @ingroup  los_hwi
- * @brief: Exception initialization.
- *
- * @par Description:
- * This API is used to configure the exception function vector table.
- *
- * @attention:
- * <ul><li>None.</li></ul>
- *
- * @param uwArraySize [IN] Memory size of exception.
- *
- * @retval: None
- * @par Dependency:
- * <ul><li>los_hwi.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-VOID OsExcInit(VOID);
-
 VOID HalExcNMI(VOID);
 VOID HalExcHardFault(VOID);
 VOID HalExcMemFault(VOID);
