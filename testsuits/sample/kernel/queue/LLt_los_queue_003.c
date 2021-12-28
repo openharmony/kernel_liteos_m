@@ -30,11 +30,11 @@
  */
 
 #include "It_los_queue.h"
+#include "los_membox.h"
 
 #define LOS_MEMBOX_MAGIC_SIZE 4
 static UINT32 g_uwQueueID122 = 0;
 static unsigned char g_aucMailBoxPool[40 + LOS_MEMBOX_MAGIC_SIZE] = {0};
-static VOID *g_pMailBox = NULL;
 static BOOL  g_bTaskFinish1 = FALSE;
 static BOOL  g_bTaskFinish2 = FALSE;
 
@@ -61,7 +61,6 @@ EXIT:
 
 static VOID StTaskAllocNoWait(VOID)
 {
-    UINT32 ret;
     VOID *memBox = NULL;
 
     memBox = OsQueueMailAlloc(g_uwQueueID122, (VOID *)g_aucMailBoxPool, LOS_NO_WAIT);
@@ -139,5 +138,3 @@ VOID LltLosQueue003(VOID)
 {
     TEST_ADD_CASE("LltLosQueue003", Testcase, TEST_LOS, TEST_QUE, TEST_LEVEL1, TEST_FUNCTION);
 }
-
-
