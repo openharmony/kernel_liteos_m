@@ -93,6 +93,7 @@ int pthread_mutex_destroy(pthread_mutex_t *mutex)
         return MapError(ret);
     }
     mutex->handle = _MUX_INVALID_HANDLE;
+    mutex->magic = 0;
     return 0;
 }
 
