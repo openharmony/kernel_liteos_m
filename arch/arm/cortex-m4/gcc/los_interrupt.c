@@ -44,17 +44,12 @@
 UINT32 g_intCount = 0;
 
 /*lint -restore*/
-#ifdef __ICCARM__
-#pragma location = ".data.vector"
-#pragma data_alignment=0x100
-#elif defined(__CC_ARM) || defined(__GNUC__)
-LITE_OS_SEC_VEC
-#endif
+
 /* *
  * @ingroup los_hwi
  * Hardware interrupt form mapping handling function array.
  */
-STATIC HWI_PROC_FUNC __attribute__((aligned(0x100))) g_hwiForm[OS_VECTOR_CNT] = {0};
+STATIC HWI_PROC_FUNC __attribute__((aligned(LOSCFG_ARCH_HWI_VECTOR_ALIGN))) g_hwiForm[OS_VECTOR_CNT] = {0};
 
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
 
