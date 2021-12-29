@@ -49,7 +49,7 @@ UINT32 g_intCount = 0;
  * @ingroup los_hwi
  * Hardware interrupt form mapping handling function array.
  */
-STATIC HWI_PROC_FUNC __attribute__((aligned(0x100))) g_hwiForm[OS_VECTOR_CNT] = {0};
+STATIC HWI_PROC_FUNC __attribute__((aligned(LOSCFG_ARCH_HWI_VECTOR_ALIGN))) g_hwiForm[OS_VECTOR_CNT] = {0};
 
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
 
