@@ -39,19 +39,34 @@
 #include "los_task.h"
 
 #define PTHREAD_NAMELEN 16
+#define PTHREAD_KEY_UNUSED 0
+#define PTHREAD_KEY_USED   1
+
+typedef void (*PthreadKeyDtor)(void *);
+typedef struct {
+    int flag;
+    PthreadKeyDtor destructor;
+} PthreadKey;
+static unsigned int g_pthreadkeyCount = 0;
+static PthreadKey   g_pthreadKeyData[PTHREAD_KEYS_MAX];
+static LOS_DL_LIST  g_pthreadListHead;
 
 typedef struct {
     void *(*startRoutine)(void *);
     void *param;
     char name[PTHREAD_NAMELEN];
+    uintptr_t *key;
+    LOS_DL_LIST threadList;
 } PthreadData;
+
+static void PthreadExitKeyDtor(PthreadData *pthreadData);
 
 static void *PthreadEntry(UINT32 param)
 {
     PthreadData *pthreadData = (PthreadData *)(UINTPTR)param;
     void *(*startRoutine)(void *) = pthreadData->startRoutine;
     void *ret = startRoutine(pthreadData->param);
-    free(pthreadData);
+    pthread_exit(ret);
     return ret;
 }
 
@@ -65,7 +80,6 @@ static int PthreadCreateAttrInit(const pthread_attr_t *attr, void *(*startRoutin
 {
     const pthread_attr_t *threadAttr = attr;
     struct sched_param schedParam = { 0 };
-    PthreadData *pthreadData = NULL;
     INT32 policy = 0;
     pthread_attr_t attrTmp;
     INT32 ret;
@@ -92,13 +106,14 @@ static int PthreadCreateAttrInit(const pthread_attr_t *attr, void *(*startRoutin
         taskInitParam->usTaskPrio = (UINT16)schedParam.sched_priority;
     }
 
-    pthreadData = (PthreadData *)malloc(sizeof(PthreadData));
+    PthreadData *pthreadData = (PthreadData *)malloc(sizeof(PthreadData));
     if (pthreadData == NULL) {
         return ENOMEM;
     }
 
     pthreadData->startRoutine   = startRoutine;
     pthreadData->param          = arg;
+    pthreadData->key            = NULL;
     taskInitParam->pcName       = pthreadData->name;
     taskInitParam->pfnTaskEntry = PthreadEntry;
     taskInitParam->uwArg        = (UINT32)(UINTPTR)pthreadData;
@@ -114,6 +129,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     TSK_INIT_PARAM_S taskInitParam = { 0 };
     UINT32 taskID;
     UINT32 ret;
+    UINT32 intSave;
 
     if ((thread == NULL) || (startRoutine == NULL)) {
         return EINVAL;
@@ -128,6 +144,15 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         free((VOID *)(UINTPTR)taskInitParam.uwArg);
         return EINVAL;
     }
+
+    PthreadData *pthreadData = (PthreadData *)taskInitParam.uwArg;
+    intSave = LOS_IntLock();
+    if (g_pthreadListHead.pstNext == NULL) {
+        LOS_ListInit(&g_pthreadListHead);
+    }
+
+    LOS_ListAdd(&g_pthreadListHead, &pthreadData->threadList);
+    LOS_IntRestore(intSave);
 
     /* set pthread default name */
     (void)sprintf_s(taskInitParam.pcName, PTHREAD_NAMELEN, "pthread%u", taskID);
@@ -219,9 +244,21 @@ int pthread_detach(pthread_t thread)
 
 void pthread_exit(void *retVal)
 {
+    UINT32 intSave;
+
     LosTaskCB *tcb = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
     tcb->joinRetval = (UINTPTR)retVal;
-    free((PthreadData *)(UINTPTR)tcb->arg);
+    PthreadData *pthreadData = (PthreadData *)(UINTPTR)tcb->arg;
+
+    if (pthreadData->key != NULL) {
+        PthreadExitKeyDtor(pthreadData);
+    }
+
+    intSave = LOS_IntLock();
+    LOS_ListDelete(&pthreadData->threadList);
+    LOS_IntRestore(intSave);
+    free(pthreadData);
+
     (void)LOS_TaskDelete(tcb->taskID);
 }
 
@@ -266,3 +303,162 @@ int pthread_getname_np(pthread_t thread, char *buf, size_t buflen)
     }
     return ERANGE;
 }
+
+static void PthreadExitKeyDtor(PthreadData *pthreadData)
+{
+    PthreadKey *keys = NULL;
+    unsigned int intSave;
+
+    intSave = LOS_IntLock();
+    for (unsigned int count = 0; count < PTHREAD_KEYS_MAX; count++) {
+        keys = &g_pthreadKeyData[count];
+        if (keys->flag == PTHREAD_KEY_UNUSED) {
+            continue;
+        }
+        PthreadKeyDtor dtor = keys->destructor;
+        LOS_IntRestore(intSave);
+
+        if ((dtor != NULL) && (pthreadData->key[count] != 0)) {
+            dtor((void *)pthreadData->key[count]);
+        }
+
+        intSave = LOS_IntLock();
+    }
+    LOS_IntRestore(intSave);
+
+    free((void *)pthreadData->key);
+}
+
+int pthread_key_create(pthread_key_t *k, void (*dtor)(void *))
+{
+    unsigned int intSave;
+    unsigned int count = 0;
+    PthreadKey *keys = NULL;
+
+    if (k == NULL) {
+        return EINVAL;
+    }
+
+    intSave = LOS_IntLock();
+    if (g_pthreadkeyCount >= PTHREAD_KEYS_MAX) {
+        LOS_IntRestore(intSave);
+        return EAGAIN;
+    }
+
+    do {
+        keys = &g_pthreadKeyData[count];
+        if (keys->flag == PTHREAD_KEY_UNUSED) {
+            break;
+        }
+        count++;
+    } while (count < PTHREAD_KEYS_MAX);
+
+    keys->destructor = dtor;
+    keys->flag = PTHREAD_KEY_USED;
+    g_pthreadkeyCount++;
+    LOS_IntRestore(intSave);
+
+    *k = count;
+    return 0;
+}
+
+int pthread_key_delete(pthread_key_t k)
+{
+    unsigned int intSave;
+
+    if (k >= PTHREAD_KEYS_MAX) {
+        return EINVAL;
+    }
+
+    intSave = LOS_IntLock();
+    if ((g_pthreadkeyCount == 0) || (g_pthreadKeyData[k].flag == PTHREAD_KEY_UNUSED)) {
+        LOS_IntRestore(intSave);
+        return EAGAIN;
+    }
+
+    LOS_DL_LIST *list = g_pthreadListHead.pstNext;
+    while (list != &g_pthreadListHead) {
+        PthreadData *pthreadData = (PthreadData *)LOS_DL_LIST_ENTRY(list, PthreadData, threadList);
+        if (pthreadData->key != NULL) {
+            if ((g_pthreadKeyData[k].destructor != NULL) && (pthreadData->key[k] != 0)) {
+                g_pthreadKeyData[k].destructor((void *)pthreadData->key[k]);
+            }
+            pthreadData->key[k] = 0;
+        }
+        list = list->pstNext;
+    }
+
+    g_pthreadKeyData[k].destructor = NULL;
+    g_pthreadKeyData[k].flag = PTHREAD_KEY_UNUSED;
+    g_pthreadkeyCount--;
+    LOS_IntRestore(intSave);
+    return 0;
+}
+
+int pthread_setspecific(pthread_key_t k, const void *x)
+{
+    pthread_t self = pthread_self();
+    unsigned int intSave;
+    uintptr_t *key = NULL;
+
+    if (k >= PTHREAD_KEYS_MAX) {
+        return EINVAL;
+    }
+
+    if (!IsPthread(self)) {
+        return EINVAL;
+    }
+
+    LosTaskCB *taskCB = OS_TCB_FROM_TID((UINT32)self);
+    PthreadData *pthreadData = (PthreadData *)taskCB->arg;
+    if (pthreadData->key == NULL) {
+        key = (uintptr_t *)malloc(sizeof(uintptr_t) * PTHREAD_KEYS_MAX);
+        if (key == NULL) {
+            return ENOMEM;
+        }
+        (void)memset_s(key, sizeof(uintptr_t) * PTHREAD_KEYS_MAX, 0, sizeof(uintptr_t) * PTHREAD_KEYS_MAX);
+    }
+
+    intSave = LOS_IntLock();
+    if (g_pthreadKeyData[k].flag == PTHREAD_KEY_UNUSED) {
+        LOS_IntRestore(intSave);
+        free(key);
+        return EAGAIN;
+    }
+
+    if (pthreadData->key == NULL) {
+        pthreadData->key = key;
+    }
+
+    pthreadData->key[k] = (uintptr_t)x;
+    LOS_IntRestore(intSave);
+    return 0;
+}
+
+void *pthread_getspecific(pthread_key_t k)
+{
+    unsigned int intSave;
+    void *key = NULL;
+    pthread_t self = pthread_self();
+
+    if (k >= PTHREAD_KEYS_MAX) {
+        return NULL;
+    }
+
+    if (!IsPthread(self)) {
+        return NULL;
+    }
+
+    LosTaskCB *taskCB = OS_TCB_FROM_TID((UINT32)self);
+    PthreadData *pthreadData = (PthreadData *)taskCB->arg;
+    intSave = LOS_IntLock();
+    if ((g_pthreadKeyData[k].flag == PTHREAD_KEY_UNUSED) || (pthreadData->key == NULL)) {
+        LOS_IntRestore(intSave);
+        return NULL;
+    }
+
+    key = (void *)pthreadData->key[k];
+    LOS_IntRestore(intSave);
+    return key;
+}
+
