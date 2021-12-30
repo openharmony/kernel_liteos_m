@@ -529,4 +529,115 @@ LITE_TEST_CASE(PthreadFuncTestSuite, testPthread007, Function | MediumTest | Lev
     return LOS_OK;
 };
 
+static int g_pthreadKey1;
+static int g_pthreadKey2;
+static void pthreadKeyFree(void *data)
+{
+    if (data != NULL) {
+        free(data);
+    }
+}
+
+static void *pthread_f08(void *arg)
+{
+#define TEST_KEY_SIZE 0x100
+    int *data = (int *)malloc(TEST_KEY_SIZE);
+    if (data == NULL) {
+        return (void *)ENOMEM;
+    }
+
+    (void)memset_s(data, TEST_KEY_SIZE, 0, TEST_KEY_SIZE);
+    *data = 100 + (int)pthread_self(); /* 100: test data */
+    int ret = pthread_setspecific(g_pthreadKey1, (void *)data);
+    if (ret != 0) {
+        return (void *)ret;
+    }
+
+    data = (int *)malloc(TEST_KEY_SIZE);
+    if (data == NULL) {
+        return (void *)ENOMEM;
+    }
+
+    (void)memset_s(data, TEST_KEY_SIZE, 0, TEST_KEY_SIZE);
+    *data = 200 + (int)pthread_self(); /* 200: test data */
+    ret = pthread_setspecific(g_pthreadKey2, (void *)data);
+    if (ret != 0) {
+        return (void *)ret;
+    }
+
+    int *result = (int *)pthread_getspecific(g_pthreadKey1);
+    if (result == NULL) {
+        return (void *)EINVAL;
+    }
+
+    if (*result != (100 + (int)pthread_self())) { /* 100: test data */
+        return (void *)EDEADLK;
+    }
+
+    result = (int *)pthread_getspecific(g_pthreadKey2);
+    if (result == NULL) {
+        return (void *)EINVAL;
+    }
+
+    if (*result != (200 + (int)pthread_self())) { /* 200: test data */
+        return (void *)EDEADLK;
+    }
+
+    return NULL;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_008
+ * @tc.name      : event operation for deatch
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread008, Function | MediumTest | Level1)
+{
+    pthread_attr_t attr;
+    pthread_t newTh1, newTh2;
+    struct sched_param schedParam = { 0 };
+    int result = 0;
+    UINT32 ret;
+
+    ret = pthread_key_create(&g_pthreadKey1, pthreadKeyFree);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_key_create(&g_pthreadKey2, pthreadKeyFree);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    schedParam.sched_priority = TASK_PRIO_TEST - 1;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_create(&newTh1, &attr, pthread_f08, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_create(&newTh2, &attr, pthread_f08, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_join(newTh1, (void **)&result);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(result, 0, result);
+
+    ret = pthread_join(newTh2, (void **)&result);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(result, 0, result);
+
+    ret = pthread_key_delete(g_pthreadKey1);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_key_delete(g_pthreadKey2);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return LOS_OK;
+};
+
 RUN_TEST_SUITE(PthreadFuncTestSuite);
