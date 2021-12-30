@@ -94,3 +94,20 @@ void *__wrap__realloc_r(struct _reent *reent, void *aptr, size_t nbytes)
 
     return LOS_MemRealloc(OS_SYS_MEM_ADDR, aptr, nbytes);
 }
+
+void *__wrap__calloc_r(struct _reent *reent, size_t nitems, size_t size)
+{
+    size_t real_size;
+    void *ptr = NULL;
+
+    if (nitems == 0 || size == 0) {
+        return NULL;
+    }
+
+    real_size = (size_t)(nitems * size);
+    ptr = LOS_MemAlloc(OS_SYS_MEM_ADDR, real_size);
+    if (ptr != NULL) {
+        (void)memset_s(ptr, real_size, 0, real_size);
+    }
+    return ptr;
+}
