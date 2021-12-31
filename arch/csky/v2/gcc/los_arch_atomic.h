@@ -46,8 +46,7 @@ STATIC INLINE INT32 ArchAtomicRead(const Atomic *v)
     UINT32 intSave;
 
     intSave = LOS_IntLock();
-
-    __asm__ __volatile__("ldrex   %0, [%1]\n"
+    __asm__ __volatile__("ldw %0, (%1)\n"
                          : "=&r"(val)
                          : "r"(v)
                          : "cc");
@@ -58,17 +57,12 @@ STATIC INLINE INT32 ArchAtomicRead(const Atomic *v)
 
 STATIC INLINE VOID ArchAtomicSet(Atomic *v, INT32 setVal)
 {
-    UINT32 status;
     UINT32 intSave;
 
     intSave = LOS_IntLock();
-
-    __asm__ __volatile__("1:ldrex   %0, [%2]\n"
-                         "  strex   %0, %3, [%2]\n"
-                         "  teq %0, #0\n"
-                         "  beq 1b"
-                         : "=&r"(status), "+m"(*v)
-                         : "r"(v), "r"(setVal)
+    __asm__ __volatile__("stw %0, (%1, 0)"
+                         : "=&r"(setVal)
+                         : "r"(v)
                          : "cc");
     LOS_IntRestore(intSave);
 }
@@ -76,16 +70,17 @@ STATIC INLINE VOID ArchAtomicSet(Atomic *v, INT32 setVal)
 STATIC INLINE INT32 ArchAtomicAdd(Atomic *v, INT32 addVal)
 {
     INT32 val;
-    UINT32 status;
+    UINT32 intSave;
 
-    do {
-        __asm__ __volatile__("ldrex   %1, [%2]\n"
-                             "add   %1, %1, %3\n"
-                             "strex   %0, %1, [%2]"
-                             : "=&r"(status), "=&r"(val)
-                             : "r"(v), "r"(addVal)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
+    intSave = LOS_IntLock();
+
+    __asm__ __volatile__("ldw %0, (%1)\n"
+                         "add %0, %0, %2\n"
+                         "stw %0, (%1, 0)"
+                         : "=&r"(val)
+                         : "r"(v), "r"(addVal)
+                         : "cc");
+    LOS_IntRestore(intSave);
 
     return val;
 }
@@ -93,16 +88,17 @@ STATIC INLINE INT32 ArchAtomicAdd(Atomic *v, INT32 addVal)
 STATIC INLINE INT32 ArchAtomicSub(Atomic *v, INT32 subVal)
 {
     INT32 val;
-    UINT32 status;
+    UINT32 intSave;
 
-    do {
-        __asm__ __volatile__("ldrex   %1, [%2]\n"
-                             "sub   %1, %1, %3\n"
-                             "strex   %0, %1, [%2]"
-                             : "=&r"(status), "=&r"(val)
-                             : "r"(v), "r"(subVal)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
+    intSave = LOS_IntLock();
+
+    __asm__ __volatile__("ldw %0, (%1)\n"
+                         "sub %0, %2\n"
+                         "stw %0, (%1, 0)"
+                         : "=&r"(val)
+                         : "r"(v), "r"(subVal)
+                         : "cc");
+    LOS_IntRestore(intSave);
 
     return val;
 }
@@ -148,15 +144,15 @@ STATIC INLINE INT32 ArchAtomicDecRet(Atomic *v)
 STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
 {
     INT32 prevVal = 0;
-    UINT32 status = 0;
+    UINT32 intSave;
 
-    do {
-        __asm__ __volatile__("ldrex   %0, [%3]\n"
-                             "strex   %1, %4, [%3]"
-                             : "=&r"(prevVal), "=&r"(status), "+m"(*v)
-                             : "r"(v), "r"(val)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
+    intSave = LOS_IntLock();
+    __asm__ __volatile__("ldw %0, (%1)\n"
+                         "stw %2, (%1)"
+                         : "=&r"(prevVal)
+                         : "r"(v), "r"(val)
+                         : "cc");
+    LOS_IntRestore(intSave);
 
     return prevVal;
 }
@@ -183,19 +179,19 @@ STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
 STATIC INLINE BOOL ArchAtomicCmpXchg32bits(volatile INT32 *v, INT32 val, INT32 oldVal)
 {
     INT32 prevVal = 0;
-    UINT32 status = 0;
+    UINT32 intSave;
 
-    do {
-        __asm__ __volatile__("1: ldrex %0, %2\n"
-                             "    mov %1, #0\n"
-                             "    cmp %0, %3\n"
-                             "    bne 2f\n"
-                             "    strex %1, %4, %2\n"
-                             "2:"
-                             : "=&r"(prevVal), "=&r"(status), "+Q"(*v)
-                             : "r"(oldVal), "r"(val)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
+    intSave = LOS_IntLock();
+
+    __asm__ __volatile__("1: ldw %0, (%1)\n"
+                         "   cmpne %0, %2\n"
+                         "   bt 2f\n"
+                         "   stw %3, (%1)\n"
+                         "2:"
+                         : "=&r"(prevVal)
+                         : "r"(v), "r"(oldVal), "r"(val)
+                         : "cc");
+    LOS_IntRestore(intSave);
 
     return prevVal != oldVal;
 }

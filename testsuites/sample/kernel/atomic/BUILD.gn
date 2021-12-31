@@ -27,56 +27,19 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/liteos.gni")
-
-config("include") {
-  defines = []
-  include_dirs = [
-    "include",
-    "//kernel/liteos_m/kernel/include",
-    "//kernel/liteos_m/kernel/arch/include",
-    "//kernel/liteos_m/components/cpup",
-  ]
-
-  if (defined(LOSCFG_KERNEL_TEST_FULL)) {
-    defines += [ "LOS_KERNEL_TEST_FULL=1" ]
-  }
-}
-
-module_switch = defined(LOSCFG_TEST)
-kernel_module("test_init") {
+static_library("test_atomic") {
   sources = [
-    "src/iCunit.c",
-    "src/osTest.c",
+    "it_los_atomic.c",
+    "it_los_atomic_001.c",
+    "it_los_atomic_002.c",
+    "it_los_atomic_003.c",
+    "it_los_atomic_004.c",
+    "it_los_atomic_005.c",
+    "it_los_atomic_006.c",
+    "it_los_atomic_007.c",
+    "it_los_atomic_008.c",
+    "it_los_atomic_009.c",
   ]
-
-  configs += [ ":include" ]
-}
-
-group("testsuites") {
-  deps = [
-    ":test_init",
-    "sample/kernel/atomic:test_atomic",
-    "sample/kernel/event:test_event",
-    "sample/kernel/hwi:test_hwi",
-    "sample/kernel/mem:test_mem",
-    "sample/kernel/mux:test_mux",
-    "sample/kernel/power:test_pm",
-    "sample/kernel/queue:test_queue",
-    "sample/kernel/sem:test_sem",
-    "sample/kernel/swtmr:test_swtmr",
-    "sample/kernel/task:test_task",
-  ]
-  if (defined(LOSCFG_DYNLINK)) {
-    deps += [ "sample/kernel/dynlink:test_dynlink" ]
-  }
-  if (defined(LOSCFG_KERNEL_LMS)) {
-    deps += [ "sample/kernel/lms:test_lms" ]
-  }
-  if (defined(LOSCFG_KERNEL_LMK)) {
-    deps += [ "sample/kernel/lmk:test_lmk" ]
-  }
-  if (!module_switch) {
-    deps = []
-  }
+  include_dirs = [ "." ]
+  configs += [ "//kernel/liteos_m/testsuites:include" ]
 }

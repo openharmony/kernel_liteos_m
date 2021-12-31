@@ -136,6 +136,9 @@ UINT32 TaskUsedCountGet(VOID)
 
 void TestKernel(void)
 {
+#if (LOS_KERNEL_ATOMIC_TEST == 1)
+    ItSuiteLosAtomic();
+#endif
 #if (LOS_KERNEL_CORE_TASK_TEST == 1)
     ItSuiteLosTask();
 #endif
