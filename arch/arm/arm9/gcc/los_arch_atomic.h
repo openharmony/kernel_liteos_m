@@ -40,75 +40,191 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-/**
- * @ingroup  los_arch_atomic
- * @brief Atomic exchange for 32-bit variable.
- *
- * @par Description:
- * This API is used to implement the atomic exchange for 32-bit variable
- * and return the previous value of the atomic variable.
- * @attention
- * <ul>The pointer v must not be NULL.</ul>
- *
- * @param  v       [IN] The variable pointer.
- * @param  val       [IN] The exchange value.
- *
- * @retval #INT32       The previous value of the atomic variable
- * @par Dependency:
- * <ul><li>los_arch_atomic.h: the header file that contains the API declaration.</li></ul>
- * @see
- */
-STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
+STATIC INLINE INT32 ArchAtomicRead(const Atomic *v)
 {
-    return -1;
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    LOS_IntRestore(intSave);
+    return *v;
 }
 
-/**
- * @ingroup  los_arch_atomic
- * @brief Atomic auto-decrement.
- *
- * @par Description:
- * This API is used to implement the atomic auto-decrement and return the result of auto-decrement.
- * @attention
- * <ul>
- * <li>The pointer v must not be NULL.</li>
- * <li>The value which v point to must not be INT_MIN to avoid overflow after reducing 1.</li>
- * </ul>
- *
- * @param  v      [IN] The addSelf variable pointer.
- *
- * @retval #INT32  The return value of variable auto-decrement.
- * @par Dependency:
- * <ul><li>los_arch_atomic.h: the header file that contains the API declaration.</li></ul>
- * @see
- */
-STATIC INLINE INT32 ArchAtomicDecRet(volatile INT32 *v)
+STATIC INLINE VOID ArchAtomicSet(Atomic *v, INT32 setVal)
 {
-    return -1;
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    *v = setVal;
+    LOS_IntRestore(intSave);
 }
 
-/**
- * @ingroup  los_arch_atomic
- * @brief Atomic exchange for 32-bit variable with compare.
- *
- * @par Description:
- * This API is used to implement the atomic exchange for 32-bit variable, if the value of variable is equal to oldVal.
- * @attention
- * <ul>The pointer v must not be NULL.</ul>
- *
- * @param  v       [IN] The variable pointer.
- * @param  val     [IN] The new value.
- * @param  oldVal      [IN] The old value.
- *
- * @retval TRUE  The previous value of the atomic variable is not equal to oldVal.
- * @retval FALSE The previous value of the atomic variable is equal to oldVal.
- * @par Dependency:
- * <ul><li>los_arch_atomic.h: the header file that contains the API declaration.</li></ul>
- * @see
- */
-STATIC INLINE BOOL ArchAtomicCmpXchg32bits(volatile INT32 *v, INT32 val, INT32 oldVal)
+STATIC INLINE INT32 ArchAtomicAdd(Atomic *v, INT32 addVal)
 {
-    return FALSE;
+    INT32 val;
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    *v += addVal;
+    val = *v;
+    LOS_IntRestore(intSave);
+
+    return val;
+}
+
+STATIC INLINE INT32 ArchAtomicSub(Atomic *v, INT32 subVal)
+{
+    INT32 val;
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    *v -= subVal;
+    val = *v;
+    LOS_IntRestore(intSave);
+
+    return val;
+}
+
+STATIC INLINE VOID ArchAtomicInc(Atomic *v)
+{
+    (VOID)ArchAtomicAdd(v, 1);
+}
+
+STATIC INLINE VOID ArchAtomicDec(Atomic *v)
+{
+    (VOID)ArchAtomicSub(v, 1);
+}
+
+STATIC INLINE INT32 ArchAtomicIncRet(Atomic *v)
+{
+    return ArchAtomicAdd(v, 1);
+}
+
+STATIC INLINE INT32 ArchAtomicDecRet(Atomic *v)
+{
+    return ArchAtomicSub(v, 1);
+}
+
+STATIC INLINE INT32 ArchAtomicXchg32bits(Atomic *v, INT32 val)
+{
+    INT32 prevVal;
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    prevVal = *v;
+    *v = val;
+    LOS_IntRestore(intSave);
+
+    return prevVal;
+}
+
+STATIC INLINE BOOL ArchAtomicCmpXchg32bits(Atomic *v, INT32 val, INT32 oldVal)
+{
+    INT32 prevVal;
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    prevVal = *v;
+    if (prevVal == oldVal) {
+        *v = val;
+    }
+    LOS_IntRestore(intSave);
+
+    return prevVal != oldVal;
+}
+
+STATIC INLINE INT64 ArchAtomic64Read(const Atomic64 *v)
+{
+    INT64 val;
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    val = *v;
+    LOS_IntRestore(intSave);
+
+    return val;
+}
+
+STATIC INLINE VOID ArchAtomic64Set(Atomic64 *v, INT64 setVal)
+{
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    *v = setVal;
+    LOS_IntRestore(intSave);
+}
+
+STATIC INLINE INT64 ArchAtomic64Add(Atomic64 *v, INT64 addVal)
+{
+    INT64 val;
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    *v += addVal;
+    val = *v;
+    LOS_IntRestore(intSave);
+
+    return val;
+}
+
+STATIC INLINE INT64 ArchAtomic64Sub(Atomic64 *v, INT64 subVal)
+{
+    INT64 val;
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    *v -= subVal;
+    val = *v;
+    LOS_IntRestore(intSave);
+
+    return val;
+}
+
+STATIC INLINE VOID ArchAtomic64Inc(Atomic64 *v)
+{
+    (VOID)ArchAtomic64Add(v, 1);
+}
+
+STATIC INLINE INT64 ArchAtomic64IncRet(Atomic64 *v)
+{
+    return ArchAtomic64Add(v, 1);
+}
+
+STATIC INLINE VOID ArchAtomic64Dec(Atomic64 *v)
+{
+    (VOID)ArchAtomic64Sub(v, 1);
+}
+
+STATIC INLINE INT64 ArchAtomic64DecRet(Atomic64 *v)
+{
+    return ArchAtomic64Sub(v, 1);
+}
+
+STATIC INLINE INT64 ArchAtomicXchg64bits(Atomic64 *v, INT64 val)
+{
+    INT64 prevVal;
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    prevVal = *v;
+    *v = val;
+    LOS_IntRestore(intSave);
+
+    return prevVal;
+}
+
+STATIC INLINE BOOL ArchAtomicCmpXchg64bits(Atomic64 *v, INT64 val, INT64 oldVal)
+{
+    INT64 prevVal;
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    prevVal = *v;
+    if (prevVal == oldVal) {
+        *v = val;
+    }
+    LOS_IntRestore(intSave);
+
+    return prevVal != oldVal;
 }
 
 #ifdef __cplusplus

@@ -47,10 +47,10 @@ STATIC INLINE INT32 ArchAtomicRead(const Atomic *v)
 
     intSave = LOS_IntLock();
 
-    __asm__ __volatile__("ldrex   %0, [%1]\n"
-                         : "=&r"(val)
-                         : "r"(v)
-                         : "cc");
+    __asm__ __volatile__("l32ai %0, %1, 0\n"
+                         : "=&a"(val)
+                         : "a"(v)
+                         : "memory");
     LOS_IntRestore(intSave);
 
     return val;
@@ -58,53 +58,55 @@ STATIC INLINE INT32 ArchAtomicRead(const Atomic *v)
 
 STATIC INLINE VOID ArchAtomicSet(Atomic *v, INT32 setVal)
 {
-    UINT32 status;
+    INT32 val;
     UINT32 intSave;
 
     intSave = LOS_IntLock();
 
-    __asm__ __volatile__("1:ldrex   %0, [%2]\n"
-                         "  strex   %0, %3, [%2]\n"
-                         "  teq %0, #0\n"
-                         "  beq 1b"
-                         : "=&r"(status), "+m"(*v)
-                         : "r"(v), "r"(setVal)
-                         : "cc");
+    __asm__ __volatile__("l32ai %0, %2, 0\n"
+                         "wsr %0, SCOMPARE1\n"
+                         "s32c1i %3, %1"
+                         : "=&a"(val), "+m"(*v)
+                         :  "a"(v), "a"(setVal)
+                         : "memory");
     LOS_IntRestore(intSave);
 }
 
 STATIC INLINE INT32 ArchAtomicAdd(Atomic *v, INT32 addVal)
 {
     INT32 val;
-    UINT32 status;
+    UINT32 intSave;
 
-    do {
-        __asm__ __volatile__("ldrex   %1, [%2]\n"
-                             "add   %1, %1, %3\n"
-                             "strex   %0, %1, [%2]"
-                             : "=&r"(status), "=&r"(val)
-                             : "r"(v), "r"(addVal)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
+    intSave = LOS_IntLock();
 
-    return val;
+    __asm__ __volatile__("l32ai %0, %2, 0\n"
+                         "wsr %0, SCOMPARE1\n"
+                         "add   %0, %0, %3\n"
+                         "s32c1i %0, %1\n"
+                         : "=&a"(val), "+m"(*v)
+                         : "a"(v), "a"(addVal)
+                         : "memory");
+    LOS_IntRestore(intSave);
+
+    return *v;
 }
 
 STATIC INLINE INT32 ArchAtomicSub(Atomic *v, INT32 subVal)
 {
     INT32 val;
-    UINT32 status;
+    UINT32 intSave;
 
-    do {
-        __asm__ __volatile__("ldrex   %1, [%2]\n"
-                             "sub   %1, %1, %3\n"
-                             "strex   %0, %1, [%2]"
-                             : "=&r"(status), "=&r"(val)
-                             : "r"(v), "r"(subVal)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
+    intSave = LOS_IntLock();
 
-    return val;
+    __asm__ __volatile__("l32ai %0, %2, 0\n"
+                         "wsr %0, SCOMPARE1\n"
+                         "sub   %0, %0, %3\n"
+                         "s32c1i %0, %1\n"
+                         : "=&a"(val), "+m"(*v)
+                         : "a"(v), "a"(subVal)
+                         : "memory");
+    LOS_IntRestore(intSave);
+    return *v;
 }
 
 STATIC INLINE VOID ArchAtomicInc(Atomic *v)
@@ -148,15 +150,17 @@ STATIC INLINE INT32 ArchAtomicDecRet(Atomic *v)
 STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
 {
     INT32 prevVal = 0;
-    UINT32 status = 0;
+    UINT32 intSave;
 
-    do {
-        __asm__ __volatile__("ldrex   %0, [%3]\n"
-                             "strex   %1, %4, [%3]"
-                             : "=&r"(prevVal), "=&r"(status), "+m"(*v)
-                             : "r"(v), "r"(val)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
+    intSave = LOS_IntLock();
+
+    __asm__ __volatile__("l32ai %0, %2, 0\n"
+                         "wsr %0, SCOMPARE1\n"
+                         "s32c1i %3, %1\n"
+                         : "=&a"(prevVal), "+m"(*v)
+                         : "a"(v), "a"(val)
+                         : "memory");
+    LOS_IntRestore(intSave);
 
     return prevVal;
 }
@@ -183,19 +187,19 @@ STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
 STATIC INLINE BOOL ArchAtomicCmpXchg32bits(volatile INT32 *v, INT32 val, INT32 oldVal)
 {
     INT32 prevVal = 0;
-    UINT32 status = 0;
+    UINT32 intSave;
 
-    do {
-        __asm__ __volatile__("1: ldrex %0, %2\n"
-                             "    mov %1, #0\n"
-                             "    cmp %0, %3\n"
-                             "    bne 2f\n"
-                             "    strex %1, %4, %2\n"
-                             "2:"
-                             : "=&r"(prevVal), "=&r"(status), "+Q"(*v)
-                             : "r"(oldVal), "r"(val)
-                             : "cc");
-    } while (__builtin_expect(status != 0, 0));
+    intSave = LOS_IntLock();
+
+    __asm__ __volatile__("l32ai %0, %2, 0\n"
+                         "wsr %0, SCOMPARE1\n"
+                         "bne %0, %3, 2f\n"
+                         "s32c1i %4, %1\n"
+                         "2:\n"
+                         : "=&a"(prevVal), "+m"(*v)
+                         : "a"(v), "a"(oldVal), "a"(val)
+                         : "cc");
+    LOS_IntRestore(intSave);
 
     return prevVal != oldVal;
 }
