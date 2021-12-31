@@ -41,4 +41,6 @@
 #define PATH_MAX 256
 #define NAME_MAX 256
 
+#define PTHREAD_KEYS_MAX 128
+
 #endif /* !_ADAPT_LIMITS_H */
