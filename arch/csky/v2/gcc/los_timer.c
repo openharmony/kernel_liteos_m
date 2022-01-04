@@ -33,8 +33,6 @@
 #include "los_config.h"
 #include "los_tick.h"
 #include "los_arch_interrupt.h"
-#include "los_context.h"
-#include "los_sched.h"
 #include "los_debug.h"
 
 typedef struct {
@@ -56,6 +54,23 @@ typedef struct {
 
 #define TIM_INT_NUM          1
 
+STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler);
+STATIC VOID SysTickReload(UINT64 nextResponseTime);
+STATIC UINT64 SysTickCycleGet(UINT32 *period);
+STATIC VOID SysTickLock(VOID);
+STATIC VOID SysTickUnlock(VOID);
+
+STATIC ArchTickTimer g_archTickTimer = {
+    .freq = OS_SYS_CLOCK,
+    .irqNum = TIM_INT_NUM,
+    .init = SysTickStart,
+    .getCycle = SysTickCycleGet,
+    .reload = SysTickReload,
+    .lock = SysTickLock,
+    .unlock = SysTickUnlock,
+    .tickHandler = NULL,
+};
+
 /* ****************************************************************************
 Function    : HalTickStart
 Description : Configure Tick Interrupt Start
@@ -63,15 +78,10 @@ Input       : none
 output      : none
 return      : LOS_OK - Success , or LOS_ERRNO_TICK_CFG_INVALID - failed
 **************************************************************************** */
-WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
+STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
 {
-    if ((OS_SYS_CLOCK == 0) || (LOSCFG_BASE_CORE_TICK_PER_SECOND == 0) ||
-        (LOSCFG_BASE_CORE_TICK_PER_SECOND > OS_SYS_CLOCK)) {
-        return LOS_ERRNO_TICK_CFG_INVALID;
-    }
+    ArchTickTimer *tick = &g_archTickTimer;
 
-    g_sysClock = OS_SYS_CLOCK;
-    g_cyclesPerTick = OS_CYCLE_PER_TICK;
     SysTick->LOAD = (OS_CYCLE_PER_TICK - 1);
     SysTick->VAL = 0;
     SysTick->CTRL |= (CORETIM_SOURCE | CORETIM_ENABLE | CORETIM_INTMASK);
@@ -80,15 +90,15 @@ WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
 
 #if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
-    OsSetVector(TIM_INT_NUM, (HWI_PROC_FUNC)handler, NULL);
+    OsSetVector(tick->irqNum, handler, NULL);
 #else
-    OsSetVector(TIM_INT_NUM, (HWI_PROC_FUNC)handler);
+    OsSetVector(tick->irqNum, handler);
 #endif
 #endif
     return LOS_OK;
 }
 
-WEAK VOID ArchSysTickReload(UINT64 nextResponseTime)
+STATIC VOID SysTickReload(UINT64 nextResponseTime)
 {
     SysTick->CTRL &= ~CORETIM_ENABLE;
     SysTick->LOAD = (UINT32)(nextResponseTime - 1UL); /* set reload register */
@@ -96,7 +106,7 @@ WEAK VOID ArchSysTickReload(UINT64 nextResponseTime)
     SysTick->CTRL |= CORETIM_ENABLE;
 }
 
-WEAK UINT64 ArchGetTickCycle(UINT32 *period)
+STATIC UINT64 SysTickCycleGet(UINT32 *period)
 {
     UINT32 hwCycle;
     UINT32 intSave = LOS_IntLock();
@@ -106,14 +116,19 @@ WEAK UINT64 ArchGetTickCycle(UINT32 *period)
     return (UINT64)hwCycle;
 }
 
-WEAK VOID ArchTickLock(VOID)
+STATIC VOID SysTickLock(VOID)
 {
     SysTick->CTRL &= ~CORETIM_ENABLE;
 }
 
-WEAK VOID ArchTickUnlock(VOID)
+STATIC VOID SysTickUnlock(VOID)
 {
     SysTick->CTRL |= CORETIM_ENABLE;
+}
+
+ArchTickTimer *ArchSysTickTimerGet(VOID)
+{
+    return &g_archTickTimer;
 }
 
 VOID Wfi(VOID)

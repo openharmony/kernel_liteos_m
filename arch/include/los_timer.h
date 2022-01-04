@@ -33,6 +33,7 @@
 #define _LOS_TIMER_H
 
 #include "los_compiler.h"
+#include "los_interrupt.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -52,57 +53,36 @@ extern "C" {
 #define RTC_CALIBRATE_SLEEP_TIME 8
 #define MACHINE_CYCLE_DEALAY_TIMES (LOSCFG_BASE_CORE_TICK_PER_SECOND << 2)
 
-typedef VOID (*OS_TICK_HANDLER)(VOID);
-
-VOID ArchTickLock(VOID);
-
-VOID ArchTickUnlock(VOID);
+typedef struct {
+    UINT32        freq;
+    INT32         irqNum;
+    UINT32        (*init)(HWI_PROC_FUNC tickHandler);
+    UINT64        (*getCycle)(UINT32 *period);
+    VOID          (*reload)(UINT64 time);
+    VOID          (*lock)(VOID);
+    VOID          (*unlock)(VOID);
+    HWI_PROC_FUNC tickHandler;
+} ArchTickTimer;
 
 UINT32 ArchEnterSleep(VOID);
 
 /**
  * @ingroup los_timer
- * @brief Get systick cycle.
+ * @brief Get tick timer control block.
  *
  * @par Description:
- * This API is used to get systick cycle and return current tick period.
+ * This API is used to get tick timer control block.
  *
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
+ * @param  None
  *
- * @param: period [OUT] current tick period.
- *
- * @retval current tick count.
- *
+ * @retval #tick timer control block
  * @par Dependency:
  * <ul><li>los_timer.h: the header file that contains the API declaration.</li></ul>
- * @see
+ * @see None.
  */
-UINT64 ArchGetTickCycle(UINT32 *period);
+ArchTickTimer *ArchSysTickTimerGet(VOID);
 
-/**
- * @ingroup los_timer
- * @brief reconfig systick, and clear SysTick_IRQn.
- *
- * @par Description:
- * <ul>
- * <li>This API is used to reconfig systick, and clear SysTick_IRQn.</li>
- * </ul>
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  nextResponseTime  [IN] tick period
- *
- * @retval None.
- * @par Dependency:
- * <ul><li>los_timer.h: the header file that contains the API declaration.</li></ul>
- * @see None
- */
-VOID ArchSysTickReload(UINT64 nextResponseTime);
+#define LOS_SysTickTimerGet ArchSysTickTimerGet
 
 #ifdef __cplusplus
 #if __cplusplus
