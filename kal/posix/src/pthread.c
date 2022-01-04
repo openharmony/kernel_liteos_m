@@ -98,12 +98,14 @@ static int PthreadCreateAttrInit(const pthread_attr_t *attr, void *(*startRoutin
     taskInitParam->uwStackSize = threadAttr->stacksize;
     if (threadAttr->inheritsched == PTHREAD_EXPLICIT_SCHED) {
         taskInitParam->usTaskPrio = (UINT16)threadAttr->schedparam.sched_priority;
-    } else {
+    } else if (IsPthread(pthread_self())) {
         ret = pthread_getschedparam(pthread_self(), &policy, &schedParam);
         if (ret != 0) {
             return ret;
         }
         taskInitParam->usTaskPrio = (UINT16)schedParam.sched_priority;
+    } else {
+        taskInitParam->usTaskPrio = (UINT16)threadAttr->schedparam.sched_priority;
     }
 
     PthreadData *pthreadData = (PthreadData *)malloc(sizeof(PthreadData));
@@ -140,6 +142,9 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         return ret;
     }
 
+    /* set pthread default name */
+    (void)sprintf_s(taskInitParam.pcName, PTHREAD_NAMELEN, "pthread%u", taskID);
+
     if (LOS_TaskCreateOnly(&taskID, &taskInitParam) != LOS_OK) {
         free((VOID *)(UINTPTR)taskInitParam.uwArg);
         return EINVAL;
@@ -153,9 +158,6 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
 
     LOS_ListAdd(&g_pthreadListHead, &pthreadData->threadList);
     LOS_IntRestore(intSave);
-
-    /* set pthread default name */
-    (void)sprintf_s(taskInitParam.pcName, PTHREAD_NAMELEN, "pthread%u", taskID);
 
     (void)LOS_TaskResume(taskID);
 
