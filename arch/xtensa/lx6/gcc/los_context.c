@@ -143,15 +143,7 @@ VOID HalStartToRun(VOID)
 
 LITE_OS_SEC_TEXT_INIT UINT32 ArchStartSchedule(VOID)
 {
-    UINT32 ret;
-
     (VOID)LOS_IntLock();
-
-    ret = HalTickStart(OsTickHandler);
-    if (ret != LOS_OK) {
-        PRINT_ERR("Tick start failed!\n");
-    }
-
     OsSchedStart();
     HalStartToRun();
     return LOS_OK;

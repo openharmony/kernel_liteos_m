@@ -34,7 +34,7 @@
 
 #include "los_task.h"
 #include "los_interrupt.h"
-#include "los_timer.h"
+#include "los_tick.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -53,15 +53,11 @@ extern UINT64 g_sysSchedStartTime;
 
 VOID OsSchedResetSchedResponseTime(UINT64 responseTime);
 
-VOID OsSchedUpdateSchedTimeBase(VOID);
-
-UINT64 OsGetCurrSysTimeCycle(VOID);
-
 VOID OsSchedSetIdleTaskSchedParam(LosTaskCB *idleTask);
 
 UINT32 OsSchedSwtmrScanRegister(SchedScan func);
 
-VOID OsSchedUpdateExpireTime(UINT64 startTime, BOOL timeUpdate);
+VOID OsSchedUpdateExpireTime(UINT64 startTime);
 
 VOID OsSchedTaskDeQueue(LosTaskCB *taskCB);
 
@@ -95,12 +91,10 @@ LosTaskCB *OsGetTopTask(VOID);
 
 UINT32 OsSchedRealSleepTimeSet(VOID (*func)(UINT64));
 
-VOID OsSchedTimerBaseReset(UINT64 currTime);
-
 STATIC INLINE UINT64 OsGetCurrSchedTimeCycle(VOID)
 {
     if (g_sysSchedStartTime != OS_64BIT_MAX) {
-        return (OsGetCurrSysTimeCycle() - g_sysSchedStartTime);
+        return (LOS_SysCycleGet() - g_sysSchedStartTime);
     }
 
     return 0;

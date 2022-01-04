@@ -34,23 +34,44 @@
 #include "los_tick.h"
 #include "los_reg.h"
 #include "los_arch_interrupt.h"
-#include "los_sched.h"
 #include "los_arch_timer.h"
 #include "riscv_hal.h"
+#include "los_debug.h"
 
+STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler);
+STATIC VOID SysTickReload(UINT64 nextResponseTime);
+STATIC UINT64 SysTickCycleGet(UINT32 *period);
+STATIC VOID SysTickLock(VOID);
+STATIC VOID SysTickUnlock(VOID);
 
-WEAK UINT32 HalTickStart(OS_TICK_HANDLER handler)
+STATIC ArchTickTimer g_archTickTimer = {
+    .freq = OS_SYS_CLOCK,
+    .irqNum = RISCV_MACH_TIMER_IRQ,
+    .init = SysTickStart,
+    .getCycle = SysTickCycleGet,
+    .reload = SysTickReload,
+    .lock = SysTickLock,
+    .unlock = SysTickUnlock,
+    .tickHandler = NULL,
+};
+
+STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
 {
-    g_sysClock = OS_SYS_CLOCK;
-    g_cyclesPerTick = g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND;
-    g_intCount = 0;
+    UINT32 period = (UINT32)LOSCFG_BASE_CORE_TICK_RESPONSE_MAX;
+    UINT32 ret = LOS_HwiCreate(RISCV_MACH_TIMER_IRQ, 0x1, 0, handler, period);
+    if (ret != LOS_OK) {
+        return ret;
+    }
 
-    HalClockInit(handler, (UINT32)LOSCFG_BASE_CORE_TICK_RESPONSE_MAX);
+    WRITE_UINT32(0xffffffff, MTIMERCMP + 4); /* The high 4 bits of mtimer */
+    WRITE_UINT32(period, MTIMERCMP);
+    WRITE_UINT32(0x0, MTIMERCMP + 4); /* The high 4 bits of mtimer */
 
-    return LOS_OK; /* never return */
+    HalIrqEnable(RISCV_MACH_TIMER_IRQ);
+    return LOS_OK;
 }
 
-WEAK VOID ArchSysTickReload(UINT64 nextResponseTime)
+STATIC VOID SysTickReload(UINT64 nextResponseTime)
 {
     UINT64 timeMax = (UINT64)LOSCFG_BASE_CORE_TICK_RESPONSE_MAX - 1;
     UINT64 timer;
@@ -71,7 +92,7 @@ WEAK VOID ArchSysTickReload(UINT64 nextResponseTime)
     HalIrqEnable(RISCV_MACH_TIMER_IRQ);
 }
 
-WEAK UINT64 ArchGetTickCycle(UINT32 *period)
+STATIC UINT64 SysTickCycleGet(UINT32 *period)
 {
     (VOID)period;
     UINT32 timerL, timerH;
@@ -79,6 +100,21 @@ WEAK UINT64 ArchGetTickCycle(UINT32 *period)
     READ_UINT32(timerL, MTIMER);
     READ_UINT32(timerH, MTIMER + MTIMER_HI_OFFSET);
     return OS_COMBINED_64(timerH, timerL);
+}
+
+STATIC VOID SysTickLock(VOID)
+{
+    HalIrqDisable(RISCV_MACH_TIMER_IRQ);
+}
+
+STATIC VOID SysTickUnlock(VOID)
+{
+    HalIrqEnable(RISCV_MACH_TIMER_IRQ);
+}
+
+ArchTickTimer *ArchSysTickTimerGet(VOID)
+{
+    return &g_archTickTimer;
 }
 
 UINT32 ArchEnterSleep(VOID)

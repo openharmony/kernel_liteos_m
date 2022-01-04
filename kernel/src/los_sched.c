@@ -90,50 +90,6 @@ VOID OsSchedResetSchedResponseTime(UINT64 responseTime)
     }
 }
 
-#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
-STATIC UINT64 g_schedTimerBase;
-
-VOID OsSchedUpdateSchedTimeBase(VOID)
-{
-    UINT32 period = 0;
-
-    (VOID)ArchGetTickCycle(&period);
-    g_schedTimerBase += period;
-}
-
-VOID OsSchedTimerBaseReset(UINT64 currTime)
-{
-    LOS_ASSERT(currTime > g_schedTimerBase);
-
-    g_schedTimerBase = currTime;
-    g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
-}
-#endif
-
-UINT64 OsGetCurrSysTimeCycle(VOID)
-{
-#if (LOSCFG_BASE_CORE_TICK_WTIMER == 1)
-    return ArchGetTickCycle(NULL);
-#else
-    STATIC UINT64 oldSchedTime = 0;
-    UINT32 period = 0;
-    UINT32 intSave = LOS_IntLock();
-    UINT64 time = ArchGetTickCycle(&period);
-    UINT64 schedTime = g_schedTimerBase + time;
-    if (schedTime < oldSchedTime) {
-        /* Turn the timer count */
-        g_schedTimerBase += period;
-        schedTime = g_schedTimerBase + time;
-    }
-
-    LOS_ASSERT(schedTime >= oldSchedTime);
-
-    oldSchedTime = schedTime;
-    LOS_IntRestore(intSave);
-    return schedTime;
-#endif
-}
-
 STATIC INLINE VOID OsTimeSliceUpdate(LosTaskCB *taskCB, UINT64 currTime)
 {
     LOS_ASSERT(currTime >= taskCB->startTime);
@@ -145,7 +101,7 @@ STATIC INLINE VOID OsTimeSliceUpdate(LosTaskCB *taskCB, UINT64 currTime)
     taskCB->startTime = currTime;
 }
 
-STATIC INLINE VOID OsSchedTickReload(UINT64 nextResponseTime, UINT32 responseID, BOOL isTimeSlice, BOOL timeUpdate)
+STATIC INLINE VOID OsSchedTickReload(UINT64 nextResponseTime, UINT32 responseID, BOOL isTimeSlice)
 {
     UINT64 currTime, nextExpireTime;
     UINT32 usedTime;
@@ -169,14 +125,6 @@ STATIC INLINE VOID OsSchedTickReload(UINT64 nextResponseTime, UINT32 responseID,
         return;
     }
 
-#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
-    if (timeUpdate) {
-        g_schedTimerBase = OsGetCurrSysTimeCycle();
-    }
-#else
-    (VOID)timeUpdate;
-#endif
-
     if (isTimeSlice) {
         /* The expiration time of the current system is the thread's slice expiration time */
         g_schedResponseID = responseID;
@@ -184,10 +132,10 @@ STATIC INLINE VOID OsSchedTickReload(UINT64 nextResponseTime, UINT32 responseID,
         g_schedResponseID = OS_INVALID;
     }
     g_schedResponseTime = nextExpireTime;
-    ArchSysTickReload(nextResponseTime);
+    OsTickTimerReload(nextResponseTime);
 }
 
-STATIC INLINE VOID OsSchedSetNextExpireTime(UINT64 startTime, UINT32 responseID, UINT64 taskEndTime, BOOL timeUpdate)
+STATIC INLINE VOID OsSchedSetNextExpireTime(UINT64 startTime, UINT32 responseID, UINT64 taskEndTime)
 {
     UINT64 nextExpireTime;
     UINT64 nextResponseTime = 0;
@@ -219,10 +167,10 @@ STATIC INLINE VOID OsSchedSetNextExpireTime(UINT64 startTime, UINT32 responseID,
         return;
     }
 
-    OsSchedTickReload(nextResponseTime, responseID, isTimeSlice, timeUpdate);
+    OsSchedTickReload(nextResponseTime, responseID, isTimeSlice);
 }
 
-VOID OsSchedUpdateExpireTime(UINT64 startTime, BOOL timeUpdate)
+VOID OsSchedUpdateExpireTime(UINT64 startTime)
 {
     UINT64 endTime;
     BOOL isPmMode = FALSE;
@@ -241,7 +189,7 @@ VOID OsSchedUpdateExpireTime(UINT64 startTime, BOOL timeUpdate)
     } else {
         endTime = OS_SCHED_MAX_RESPONSE_TIME - OS_TICK_RESPONSE_PRECISION;
     }
-    OsSchedSetNextExpireTime(startTime, runTask->taskID, endTime, timeUpdate);
+    OsSchedSetNextExpireTime(startTime, runTask->taskID, endTime);
 }
 
 STATIC INLINE VOID OsSchedPriQueueEnHead(LOS_DL_LIST *priqueueItem, UINT32 priority)
@@ -564,14 +512,14 @@ VOID OsSchedStart(VOID)
 
     /* Initialize the schedule timeline and enable scheduling */
     g_taskScheduled = TRUE;
-    OsSchedSetStartTime(OsGetCurrSysTimeCycle());
+    OsSchedSetStartTime(LOS_SysCycleGet());
 
     newTask->startTime = OsGetCurrSchedTimeCycle();
     OsSchedTaskDeQueue(newTask);
 
     g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
     g_schedResponseID = OS_INVALID;
-    OsSchedSetNextExpireTime(newTask->startTime, newTask->taskID, newTask->startTime + newTask->timeSlice, TRUE);
+    OsSchedSetNextExpireTime(newTask->startTime, newTask->taskID, newTask->startTime + newTask->timeSlice);
 
     PRINTK("Entering scheduler\n");
 }
@@ -615,7 +563,7 @@ BOOL OsSchedTaskSwitch(VOID)
     if (g_schedResponseID == runTask->taskID) {
         g_schedResponseTime = OS_SCHED_MAX_RESPONSE_TIME;
     }
-    OsSchedSetNextExpireTime(newTask->startTime, newTask->taskID, endTime, TRUE);
+    OsSchedSetNextExpireTime(newTask->startTime, newTask->taskID, endTime);
 
     return isTaskSwitch;
 }
@@ -665,7 +613,7 @@ VOID LOS_SchedTickHandler(VOID)
     if (LOS_CHECK_SCHEDULE) {
         ArchTaskSchedule();
     } else {
-        OsSchedUpdateExpireTime(g_losTask.runTask->startTime, TRUE);
+        OsSchedUpdateExpireTime(g_losTask.runTask->startTime);
     }
 
     LOS_IntRestore(intSave);
