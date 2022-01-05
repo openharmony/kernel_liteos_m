@@ -43,7 +43,7 @@ STATIC VOID SysTickLock(VOID);
 STATIC VOID SysTickUnlock(VOID);
 
 STATIC ArchTickTimer g_archTickTimer = {
-    .freq = OS_SYS_CLOCK,
+    .freq = 0,
     .irqNum = SysTick_IRQn,
     .init = SysTickStart,
     .getCycle = SysTickCycleGet,
@@ -57,6 +57,8 @@ STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
 {
     UINT32 ret;
     ArchTickTimer *tick = &g_archTickTimer;
+
+    tick->freq = OS_SYS_CLOCK;
 
 #if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)

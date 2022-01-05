@@ -61,7 +61,7 @@ STATIC VOID SysTickLock(VOID);
 STATIC VOID SysTickUnlock(VOID);
 
 STATIC ArchTickTimer g_archTickTimer = {
-    .freq = OS_SYS_CLOCK,
+    .freq = 0,
     .irqNum = TIM_INT_NUM,
     .init = SysTickStart,
     .getCycle = SysTickCycleGet,
@@ -81,6 +81,8 @@ return      : LOS_OK - Success , or LOS_ERRNO_TICK_CFG_INVALID - failed
 STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
 {
     ArchTickTimer *tick = &g_archTickTimer;
+
+    tick->freq = OS_SYS_CLOCK;
 
     SysTick->LOAD = (OS_CYCLE_PER_TICK - 1);
     SysTick->VAL = 0;
