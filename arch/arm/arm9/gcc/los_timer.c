@@ -58,7 +58,7 @@ STATIC VOID SysTickLock(VOID);
 STATIC VOID SysTickUnlock(VOID);
 
 STATIC ArchTickTimer g_archTickTimer = {
-    .freq = OS_SYS_CLOCK,
+    .freq = 0,
     .irqNum = OS_TIMER_IRQ_NUM,
     .init = SysTickStart,
     .getCycle = SysTickCycleGet,
@@ -72,6 +72,9 @@ STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
 {
     UINT32 intSave = LOS_IntLock();
     UINT32 value;
+
+    ArchTickTimer *tick = &g_archTickTimer;
+    tick->freq = OS_SYS_CLOCK;
 
     READ_UINT32(value, OS_TIMER_CLK_PWD_ADDR);
     value &= ~(OS_TIMER_32K_CLK_BIT);

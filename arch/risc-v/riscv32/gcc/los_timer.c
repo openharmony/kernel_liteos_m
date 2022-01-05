@@ -45,7 +45,7 @@ STATIC VOID SysTickLock(VOID);
 STATIC VOID SysTickUnlock(VOID);
 
 STATIC ArchTickTimer g_archTickTimer = {
-    .freq = OS_SYS_CLOCK,
+    .freq = 0,
     .irqNum = RISCV_MACH_TIMER_IRQ,
     .init = SysTickStart,
     .getCycle = SysTickCycleGet,
@@ -57,11 +57,15 @@ STATIC ArchTickTimer g_archTickTimer = {
 
 STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
 {
+    ArchTickTimer *tick = &g_archTickTimer;
+
     UINT32 period = (UINT32)LOSCFG_BASE_CORE_TICK_RESPONSE_MAX;
     UINT32 ret = LOS_HwiCreate(RISCV_MACH_TIMER_IRQ, 0x1, 0, handler, period);
     if (ret != LOS_OK) {
         return ret;
     }
+
+    tick->freq = OS_SYS_CLOCK;
 
     WRITE_UINT32(0xffffffff, MTIMERCMP + 4); /* The high 4 bits of mtimer */
     WRITE_UINT32(period, MTIMERCMP);

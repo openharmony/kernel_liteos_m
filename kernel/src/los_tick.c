@@ -104,7 +104,7 @@ LITE_OS_SEC_TEXT UINT64 LOS_SysCycleGet(VOID)
 #endif
 }
 
-LITE_OS_SEC_TEXT STATIC UINT32 TickTimerCheck(const ArchTickTimer *tick)
+STATIC UINT32 TickTimerCheck(const ArchTickTimer *tick)
 {
     if (tick == NULL) {
         return LOS_ERRNO_SYS_PTR_NULL;
@@ -120,9 +120,9 @@ LITE_OS_SEC_TEXT STATIC UINT32 TickTimerCheck(const ArchTickTimer *tick)
         return LOS_ERRNO_TICK_CFG_INVALID;
     }
 
-    if (tick->init == NULL || tick->reload == NULL ||
-        tick->lock == NULL || tick->unlock == NULL ||
-        tick->getCycle == NULL) {
+    if ((tick->init == NULL) || (tick->reload == NULL) ||
+        (tick->lock == NULL) || (tick->unlock == NULL) ||
+        (tick->getCycle == NULL)) {
         return LOS_ERRNO_SYS_HOOK_IS_NULL;
     }
 
@@ -136,26 +136,43 @@ LITE_OS_SEC_TEXT STATIC UINT32 TickTimerCheck(const ArchTickTimer *tick)
 LITE_OS_SEC_TEXT_INIT UINT32 OsTickTimerInit(VOID)
 {
     UINT32 ret;
+    UINT32 intSave;
     HWI_PROC_FUNC tickHandler = (HWI_PROC_FUNC)OsTickHandler;
+
     g_sysTickTimer = LOS_SysTickTimerGet();
-
-    ret = TickTimerCheck(g_sysTickTimer);
-    if (ret != LOS_OK) {
-        PRINT_ERR("Tick timer param check failed, Error 0x%x\n", ret);
-        return ret;
+    if ((g_sysTickTimer->init == NULL) || (g_sysTickTimer->reload == NULL) ||
+        (g_sysTickTimer->lock == NULL) || (g_sysTickTimer->unlock == NULL) ||
+        (g_sysTickTimer->getCycle == NULL)) {
+        return LOS_ERRNO_SYS_HOOK_IS_NULL;
     }
-
-    g_sysClock = g_sysTickTimer->freq;
-    g_cyclesPerTick = g_sysTickTimer->freq / LOSCFG_BASE_CORE_TICK_PER_SECOND;
 
     if (g_sysTickTimer->tickHandler != NULL) {
         tickHandler = g_sysTickTimer->tickHandler;
     }
+
+    intSave = LOS_IntLock();
     ret = g_sysTickTimer->init(tickHandler);
-    if (ret == LOS_OK) {
-        g_sysTimerIsInit = TRUE;
+    if (ret != LOS_OK) {
+        LOS_IntRestore(intSave);
+        return ret;
     }
-    return ret;
+
+    if ((g_sysTickTimer->freq == 0) || (g_sysTickTimer->freq < LOSCFG_BASE_CORE_TICK_PER_SECOND)) {
+        LOS_IntRestore(intSave);
+        return LOS_ERRNO_SYS_CLOCK_INVALID;
+    }
+
+    if (g_sysTickTimer->irqNum > (INT32)LOSCFG_PLATFORM_HWI_LIMIT) {
+        LOS_IntRestore(intSave);
+        return LOS_ERRNO_TICK_CFG_INVALID;
+    }
+
+    g_sysClock = g_sysTickTimer->freq;
+    g_cyclesPerTick = g_sysTickTimer->freq / LOSCFG_BASE_CORE_TICK_PER_SECOND;
+    g_sysTimerIsInit = TRUE;
+
+    LOS_IntRestore(intSave);
+    return LOS_OK;
 }
 
 LITE_OS_SEC_TEXT UINT32 LOS_TickTimerRegister(const ArchTickTimer *timer, const HWI_PROC_FUNC tickHandler)

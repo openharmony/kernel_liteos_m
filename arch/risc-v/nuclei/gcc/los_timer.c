@@ -53,7 +53,7 @@ STATIC VOID SysTickLock(VOID);
 STATIC VOID SysTickUnlock(VOID);
 
 STATIC ArchTickTimer g_archTickTimer = {
-    .freq = OS_SYS_CLOCK,
+    .freq = 0,
     .irqNum = SysTimer_IRQn,
     .init = SysTickStart,
     .getCycle = SysTickCycleGet,
@@ -65,6 +65,9 @@ STATIC ArchTickTimer g_archTickTimer = {
 
 STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
 {
+    ArchTickTimer *tick = &g_archTickTimer;
+    tick->freq = OS_SYS_CLOCK;
+
     SysTick_Config(SYSTICK_TICK_CONST);
     ECLIC_DisableIRQ(SysTimer_IRQn);
     ECLIC_SetLevelIRQ(SysTimer_IRQn, configKERNEL_INTERRUPT_PRIORITY);
