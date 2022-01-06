@@ -4,6 +4,7 @@
 -   [Directory Structure](#section161941989596)
 -   [Constraints](#section119744591305)
 -   [Usage](#section3732185231214)
+-   [Contribution](#section1371123476307)
 -   [Repositories Involved](#section1371113476307)
 
 ## Introduction<a name="section11660541593"></a>
@@ -21,24 +22,46 @@ The directory structure is as follows. For more details, see [arch_spec.md](arch
 
 ```
 /kernel/liteos_m
+├── arch                 # Code of the kernel instruction architecture layer
+│   ├── arm              # Code of the ARM32 architecture
+│   │   ├── arm9         # Code of the ARM9 architecture
+│   │   ├── cortex-m3    # Code of the cortex-m3 architecture
+│   │   ├── cortex-m33   # Code of the cortex-m33 architecture
+│   │   ├── cortex-m4    # Code of the cortex-m4 architecture
+│   │   ├── cortex-m7    # Code of the cortex-m7 architecture
+│   │   └── include      # Arm architecture public header file directory
+│   ├── csky             # Code of the csky architecture
+│   │   └── v2           # Code of the csky v2 architecture
+│   ├── include          # APIs exposed externally
+│   ├── risc-v           # Code of the risc-v architecture
+│   │   ├── nuclei       # Code of the nuclei system technology risc-v architecture
+│   │   └── riscv32      # Code of the risc-v architecture
+│   └── xtensa           # Code of the xtensa architecture
+│       └── lx6          # Code of the lx6 xtensa architecture
 ├── components           # Optional components
 │   ├── backtrace        # Backtrace support
 │   ├── cppsupport       # C++ support
-│   └── cpup             # CPU percent (CPUP)
+│   ├── cpup             # CPU percent (CPUP)
 │   ├── dynlink          # Dynamic loading and linking
 │   ├── exchook          # Exception hooks
 │   ├── fs               # File systems
-│   └── net              # Networking functions
+│   ├── lmk              # Low memory killer functions
+│   ├── lms              # Lite memory sanitizer functions
+│   ├── net              # Networking functions
+│   ├── power            # Power management
+│   ├── shell            # Shell function
+│   ├── fs               # File systems
+│   └── trace            # Trace tool
+├── drivers              # driver Kconfig
 ├── kal                  # Kernel abstraction layer
 │   ├── cmsis            # CMSIS API support
 │   └── posix            # POSIX API support
 ├── kernel               # Minimum kernel function set
-│   ├── arch             # Code of the kernel instruction architecture layer
-│   │   ├── arm          # Code of the Arm32 architecture
-│   │   └── include      # APIs exposed externally
 │   ├── include          # APIs exposed externally
 │   └── src              # Source code of the minimum kernel function set
 ├── targets              # Board-level projects
+├── testsuites           # Kernel testsuites
+├── tools                # Kernel tools
 ├── utils                # Common directory
 ```
 
@@ -46,62 +69,27 @@ The directory structure is as follows. For more details, see [arch_spec.md](arch
 
 OpenHarmony LiteOS-M supports only C and C++.
 
-It applies only to Cortex-M3, Cortex-M4, Cortex-M7, and RISC-V chip architectures.
+Applicable architecture: See the directory structure for the arch layer.
 
 As for dynamic loading module, the shared library to be loaded needs signature verification or source restriction to ensure security.
 
 ## Usage<a name="section3732185231214"></a>
 
-The OpenHarmony LiteOS-M kernel build system is a modular build system based on Generate Ninja (GN) and Ninja. It supports module-based configuration, tailoring, and assembling, and helps you build custom products. This document describes how to build a LiteOS-M project based on GN and Ninja. For details about the methods such as GCC+Makefile, IAR, and Keil MDK, visit the community websites.
+The OpenHarmony LiteOS-M kernel build system is a modular build system based on Generate Ninja (GN) and Ninja. It supports module-based configuration, tailoring, and assembling, and helps you build custom products. This document describes how to build a LiteOS-M project based on GN and Ninja. For details about the methods such as GCC+gn, IAR, and Keil MDK, visit the community websites.
 
 ### Setting Up the Environment
 
-Before setting up the environment for a development board, you must set up the basic system environment for OpenHarmony first. The basic system environment includes the OpenHarmony build environment and development environment. For details, see [Setting Up Ubuntu Development Environment](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/quick-start/quickstart-lite-env-setup-linux.md). You need to install Python3.7+, GN, Ninja, and hb. For the LiteOS-M kernel, you also need to install the Make build tool and [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads).
+Before setting up the environment for a development board, you must set up the basic system environment for OpenHarmony first. The basic system environment includes the OpenHarmony build environment and development environment. For details, see [Setting Up Development Environment](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/quick-start/quickstart-lite-env-setup.md).
 
 ### Obtaining the OpenHarmony Source Code
 
-Obtain the latest OpenHarmony source code through Git clone on a Linux server. For details about how to obtain the source code, see [Source Code Acquisition](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/get-code/sourcecode-acquire.md). This document assumes that the clone directory is `~/openHarmony` after the complete OpenHarmony repository code is obtained.
+For details about how to obtain the source code, see [Source Code Acquisition](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/get-code/sourcecode-acquire.md). This document assumes that the clone directory is `~/openHarmony` after the complete OpenHarmony repository code is obtained.
 
-### Obtaining the Source Code of the Sample Project
+### Example projects that are already supported
 
-The following uses the development board Nucleo-F767Zi as an example to describe how to build and run the `OpenHarmony LiteOS-M` kernel project. In the local directory, run the following command to clone the sample code:
+Qemu simulator: `arm_mps2_an386、esp32、riscv32_virt、SmartL_E802`, For details about how to compile and run, see [qemu guide](https://gitee.com/openharmony/device_qemu)
 
-```
-git clone https://gitee.com/harylee/nucleo_f767zi.git
-```
-
-The code is cloned to **~/nucleo_f767zi**. Run the following commands to copy the **device** and **vendor** directories in the code directory to the corresponding directories of the **openHarmony** project:
-
-```
-mkdir ~/openHarmony/device/st
-
-cp -r ~/nucleo_f767zi/device/st/nucleo_f767zi ~/openHarmony/device/st/nucleo_f767zi
-
-chmod +x ~/openHarmony/device/st/nucleo_f767zi/build.sh
-
-cp -r ~/nucleo_f767zi/vendor/st ~/openHarmony/vendor/st
-```
-
-For details about the directory of the sample code, see [Board-Level Directory Specifications](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/porting/porting-chip-board-overview.md). If you need to port the development board, see [Board-Level OS Porting](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/porting/porting-chip-board.md).
-
-### Building and Running
-
-Before the build, configure the **bin** directory of the cross compilation toolchain in the **PATH** environment variable or set **board&#95;toolchain&#95;path** in the **device/st/nucleo&#95;f767zi/liteos&#95;m/config.gni** file to the **bin** directory of the cross compilation toolchain.
-In the **OpenHarmony** root directory, run the **hb set** command to set the product path, select **nucleo_f767zi**, and run the **hb build** command to start the build. 
-
-Example:
-
-```
-user@dev:~/OpenHarmony$ hb set
-
-[OHOS INFO] Input code path: # Press Enter and select nucleo_f767zi.
-
-OHOS Which product do you need? nucleo_f767zi@st
-
-user@dev:~/OpenHarmony$ hb build
-```
-
-The image is generated in the **~/openHarmony/out/nucleo&#95;f767zi/** directory. You can download the image file to the board by using the STM32 ST-LINK Utility software and run the image.
+Bestechnic: `bes2600`, For details about how to compile and run, see [Bestechnic developer guide](https://gitee.com/openharmony/device_soc_bestechnic)
 
 ### Community Porting Project Links
 
@@ -124,6 +112,20 @@ The LiteOS-M kernel porting projects for specific development boards are provide
     - Nucleo-F767ZI https://gitee.com/harylee/nucleo_f767zi
 
         This repository provides the project code for porting the OpenHarmony LiteOS-M kernel to support the Nucleo-F767ZI development board. The code supports build in Ninja, GCC, and IAR modes.
+
+## Contribution<a name="section1371123476307"></a>
+
+[How to involve](https://gitee.com/openharmony/docs/blob/HEAD/en/contribute/contribution.md)
+
+[Commit message spec](https://gitee.com/openharmony/kernel_liteos_m/wikis/Commit%20message%E8%A7%84%E8%8C%83)
+
+[Liteos-M kernel coding style guide](https://gitee.com/openharmony/kernel_liteos_m/wikis/OpenHarmony%E8%BD%BB%E5%86%85%E6%A0%B8%E7%BC%96%E7%A0%81%E8%A7%84%E8%8C%83)
+
+How to contribute a chip based on Liteos-M kernel:
+
+[ Board-Level Directory Specifications](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/porting/porting-chip-board-overview.md)
+
+[Mini System SoC Porting Guide](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/porting/porting-minichip.md)
 
 ## Repositories Involved<a name="section1371113476307"></a>
 

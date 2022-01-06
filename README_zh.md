@@ -4,6 +4,7 @@
 -   [目录](#section161941989596)
 -   [约束](#section119744591305)
 -   [使用说明](#section3732185231214)
+-   [贡献](#section1371123476307)
 -   [相关仓](#section1371113476307)
 
 ## 简介<a name="section11660541593"></a>
@@ -19,24 +20,45 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 
 ```
 /kernel/liteos_m
+├── arch                 # 内核指令架构层目录
+│   ├── arm              # arm 架构代码
+│   │   ├── arm9         # arm9 架构代码
+│   │   ├── cortex-m3    # cortex-m3架构代码
+│   │   ├── cortex-m33   # cortex-m33架构代码
+│   │   ├── cortex-m4    # cortex-m4架构代码
+│   │   ├── cortex-m7    # cortex-m7架构代码
+│   │   └── include      # arm架构公共头文件目录
+│   ├── csky             # csky架构代码
+│   │   └── v2           # csky v2架构代码
+│   ├── include          # 架构层对外接口存放目录
+│   ├── risc-v           # risc-v 架构
+│   │   ├── nuclei       # 芯来科技risc-v架构代码
+│   │   └── riscv32      # risc-v官方通用架构代码
+│   └── xtensa           # xtensa 架构代码
+│       └── lx6          # xtensa lx6架构代码
 ├── components           # 可选组件
-│   ├── backtrace        # 回溯栈支持
+│   ├── backtrace        # 栈回溯功能
 │   ├── cppsupport       # C++支持
 │   ├── cpup             # CPUP功能
 │   ├── dynlink          # 动态加载与链接
 │   ├── exchook          # 异常钩子
 │   ├── fs               # 文件系统
-│   └── net              # Network功能
+│   ├── lmk              # Low memory killer 机制
+│   ├── lms              # Lite memory sanitizer 机制
+│   ├── net              # Network功能
+│   ├── power            # 低功耗管理
+│   ├── shell            # shell功能
+│   └── trace            # trace 工具
+├── drivers              # 驱动框架Kconfig
 ├── kal                  # 内核抽象层
 │   ├── cmsis            # cmsis标准接口支持
 │   └── posix            # posix标准接口支持
 ├── kernel               # 内核最小功能集支持
-│   ├── arch             # 内核指令架构层代码
-│   │   ├── arm          # arm32架构的代码
-│   │   └── include      # 对外接口存放目录
 │   ├── include          # 对外接口存放目录
 │   └── src              # 内核最小功能集源码
 ├── targets              # 板级工程目录
+├── testsuites           # 内核测试用例
+├── tools                # 内核工具
 ├── utils                # 通用公共目录
 ```
 
@@ -44,60 +66,28 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 
 开发语言：C/C++；
 
-适用架构：当前只适用于cortex-m3、cortex-m4、cortex-m7、risc-v芯片架构。
+适用架构：详见目录结构arch层。
 
 动态加载模块：待加载的共享库需要验签或者限制来源，确保安全性。
 
 ## 使用说明<a name="section3732185231214"></a>
 
-OpenHarmony LiteOS-M内核的编译构建系统是一个基于gn和ninja的组件化构建系统，支持按组件配置、裁剪和拼装，按需构建出定制化的产品。本文主要介绍如何基于gn和ninja编译LiteOS-M工程，GCC+Makefile、IAR、Keil MDK等编译方式可以参考社区爱好者贡献的站点。
+OpenHarmony
+LiteOS-M内核的编译构建系统是一个基于gn和ninja的组件化构建系统，支持按组件配置、裁剪和拼装，按需构建出定制化的产品。本文主要介绍如何基于gn和ninja编译LiteOS-M工程，GCC+gn、IAR、Keil MDK等编译方式可以参考社区爱好者贡献的站点。
 
 ### 搭建系统基础环境
 
-在搭建各个开发板环境前，需要完成OpenHarmony系统基础环境搭建。系统基础环境主要是指OpenHarmony的编译环境和开发环境，详细介绍请参考官方站点[Ubuntu编译环境准备](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/quick-start/quickstart-lite-env-setup-linux.md)。开发者需要根据环境搭建文档，完成下述软件的安装：Python3.7+、gn、ninja、hb。对于LiteOS-M内核，还需要安装Make构建工具和[ARM GCC编译工具链](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)。
+在搭建各个开发板环境前，需要完成OpenHarmony系统基础环境搭建。系统基础环境主要是指OpenHarmony的编译环境和开发环境，详细介绍请参考官方站点[开发环境准备](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/quick-start/quickstart-lite-env-setup.md)。开发者需要根据环境搭建文档完成环境搭建。
 
 ### 获取OpenHarmony源码
 
-开发者需要在Linux服务器上通过Git克隆获取OpenHarmony最新源码，详细的源码获取方式，请见[源码获取](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/get-code/sourcecode-acquire.md)。获取OpenHarmony完整仓代码后，假设克隆目录为`~/openHarmony`。
+详细的源码获取方式，请见[源码获取](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/get-code/sourcecode-acquire.md)。获取OpenHarmony完整仓代码后，假设克隆目录为`~/openHarmony`。
 
-### 获取示例工程源码
+### 已支持的示例工程
 
-以开发板Nucleo-F767Zi为例，演示如何编译运行`OpenHarmony LiteOS-M`内核工程。在本地目录，执行下述命令克隆示例代码。
+Qemu模拟器: `arm_mps2_an386、esp32、riscv32_virt、SmartL_E802`, 编译运行详见: [Qemu指导](https://gitee.com/openharmony/device_qemu)
 
-```
-git clone https://gitee.com/harylee/nucleo_f767zi.git
-```
-
-假设克隆到的代码目录为`~/nucleo_f767zi`。 执行如下命令把代码目录的`device`、`vendor`目录复制到`openHarmony`工程的相应目录。
-
-```
-mkdir ~/openHarmony/device/st
-
-cp -r ~/nucleo_f767zi/device/st/nucleo_f767zi ~/openHarmony/device/st/nucleo_f767zi
-
-chmod +x ~/openHarmony/device/st/nucleo_f767zi/build.sh
-
-cp -r ~/nucleo_f767zi/vendor/st ~/openHarmony/vendor/st
-```
-
-关于示例代码目录的说明，可以参考资料站点[板级目录规范](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/porting/porting-chip-board-overview.md)。如果需要自行移植开发板，请参考[板级系统移植](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/porting/porting-chip-board.md)。
-
-### 编译运行
-
-编译运行前，交叉编译工具链`bin`目录配置到`PATH`环境变量中或者配置`device/st/nucleo_f767zi/liteos_m/config.gni`文件中`board_toolchain_path`配置项为交叉编译工具链`bin`目录。
-在`OpenHarmony`根目录，执行`hb set`设置产品路径，选择`nucleo_f767zi`产品，然后执行`hb build`开启编译。如下：
-
-```
-user@dev:~/OpenHarmony$ hb set
-
-[OHOS INFO] Input code path: # 直接按回车，然后选择nucleo_f767zi产品即可
-
-OHOS Which product do you need? nucleo_f767zi@st
-
-user@dev:~/OpenHarmony$ hb build
-```
-
-最终的镜像生成在`~/openHarmony/out/nucleo_f767zi/`目录中，通过`STM32 ST-LINK Utility`软件将镜像文件下载至单板查看运行效果。
+恒玄科技: `bes2600`, 编译运行详见: [恒玄开发指导](https://gitee.com/openharmony/device_soc_bestechnic)
 
 ### 社区移植工程链接
 
@@ -120,6 +110,22 @@ LiteOS-M内核移植的具体开发板的工程由社区开发者提供，可以
     - Nucleo-F767ZI   https://gitee.com/harylee/nucleo_f767zi
 
         该仓包含OpenHarmony LiteOS-M内核移植支持`Nucleo-F767ZI`开发板的工程代码，支持Ninja、GCC、IAR等方式进行编译。
+
+## 贡献<a name="section1371123476307"></a>
+
+[如何贡献](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/contribute/%E5%8F%82%E4%B8%8E%E8%B4%A1%E7%8C%AE.md)
+
+[Commit message规范](https://gitee.com/openharmony/kernel_liteos_m/wikis/Commit%20message%E8%A7%84%E8%8C%83)
+
+[Liteos-M 内核编码规范](https://gitee.com/openharmony/kernel_liteos_m/wikis/OpenHarmony%E8%BD%BB%E5%86%85%E6%A0%B8%E7%BC%96%E7%A0%81%E8%A7%84%E8%8C%83)
+
+如何基于Liteos-M内核贡献一款芯片:
+
+[板级目录规范](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/porting/porting-chip-board-overview.md)
+
+[轻量系统芯片移植指导](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/porting-minichip.md)
+
+[轻量系统芯片移植案例](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/porting-minichip-cases.md)
 
 ## 相关仓<a name="section1371113476307"></a>
 
