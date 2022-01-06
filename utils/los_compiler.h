@@ -321,6 +321,9 @@ typedef signed long long       INT64;
 typedef unsigned int           UINTPTR;
 typedef signed int             INTPTR;
 
+typedef volatile INT32 Atomic;
+typedef volatile INT64 Atomic64;
+
 #define VOID          void
 
 #ifndef FALSE
