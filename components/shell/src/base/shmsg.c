@@ -42,6 +42,8 @@
 EVENT_CB_S g_shellInputEvent;
 #define SHELL_CMD_MAX_SIZE 64
 
+#define VISIABLE_CHAR(ch) ((ch) > 0x1F && (ch) < 0x7F)
+
 UINT32 ShellMsgTypeGet(CmdParsed *cmdParsed, const CHAR *cmdType)
 {
     CmdItemNode *curCmdItem = (CmdItemNode *)NULL;
@@ -232,9 +234,17 @@ VOID ShellTaskEntry(VOID)
     CHAR buf[SHELL_CMD_MAX_SIZE] = {0};
     CHAR *ptr = buf;
     PRINTK("OHOS # ");
-    while(1) {
+    while (1) {
         (VOID)LOS_EventRead(&g_shellInputEvent, 0x1, LOS_WAITMODE_AND | LOS_WAITMODE_CLR, LOS_WAIT_FOREVER);
-        while((*ptr = (UINT8)UartGetc()) != 0 && *ptr != 13) {
+        while ((*ptr = (UINT8)UartGetc()) != 0 && *ptr != 13) {
+            if (*ptr == '\x03') { /* ctrl + c */
+                PRINTK("^C\n\rOHOS # ", *ptr);
+                ptr = buf;
+                break;
+            }
+            if (!VISIABLE_CHAR(*ptr)) {
+                break;
+            }
             PRINTK("%c", *ptr);
             if ((ptr - buf) == (sizeof(buf) - 1)) {
                 break;
@@ -243,14 +253,13 @@ VOID ShellTaskEntry(VOID)
         }
         if (ptr != buf) {
             if (*ptr == 13 || ((ptr - buf) == (sizeof(buf) - 1))) {
-                PRINTK("%c", *ptr);
                 *ptr = '\0';
                 ptr = buf;
-                PRINTK("\n\r", buf);
+                PRINTK("\n\r");
                 ExecCmdline(buf);
                 PRINTK("OHOS # ");
             }
-        } else {
+        } else if (*ptr == 13) {
             PRINTK("\n\rOHOS # ");
         }
     }
