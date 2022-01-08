@@ -27,6 +27,27 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//build/lite/config/component/lite_component.gni")
+
+LITEOS_MENUCONFIG_H = rebase_path("$root_out_dir/config.h")
+
+liteos_config_file = "${ohos_build_type}.config"
+
+liteos_config_file =
+    rebase_path(liteos_config_file, "", "$product_path/kernel_configs")
+print("liteos_config_file:", liteos_config_file)
+
+exec_script("//build/lite/run_shell_cmd.py",
+            [ "env" + " CONFIG_=LOSCFG_" + " KCONFIG_CONFIG_HEADER='y=true'" +
+                  " KCONFIG_CONFIG=$liteos_config_file" +
+                  " BOARD_COMPANY=$device_company" +
+                  " DEVICE_PATH=$device_path" + " srctree=" + rebase_path(".") +
+                  " genconfig" + " --header-path $LITEOS_MENUCONFIG_H" +
+                  " --file-list kconfig_files.txt" +
+                  " --env-list kconfig_env.txt" + " --config-out config.gni" ],
+            "",
+            [ liteos_config_file ])
+
 import("$root_out_dir/config.gni")
 
 LITEOSTOPDIR = "//kernel/liteos_m"
