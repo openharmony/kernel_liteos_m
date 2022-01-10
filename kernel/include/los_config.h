@@ -635,6 +635,20 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_ARCH_HWI_VECTOR_ALIGN                         0x100
 #endif
 
+/**
+ * @ingroup los_config
+ * Task extension field additional functions, such as IAR TLS.
+ */
+#ifndef LOSCFG_TASK_STRUCT_EXTENSION
+#define LOSCFG_TASK_STRUCT_EXTENSION
+#endif
+#ifndef LOSCFG_TASK_CREATE_EXTENSION_HOOK
+#define LOSCFG_TASK_CREATE_EXTENSION_HOOK(taskCB)
+#endif
+#ifndef LOSCFG_TASK_DELETE_EXTENSION_HOOK
+#define LOSCFG_TASK_DELETE_EXTENSION_HOOK(taskCB)
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }
