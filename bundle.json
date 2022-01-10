@@ -1,0 +1,63 @@
+{
+    "name": "@ohos/liteos_m",
+    "version": "3.1.0",
+    "description": "liteos-m kernel",
+    "publishAs": "code-segment",
+    "homePage": "https://gitee.com/openharmony",
+    "repository": "https://gitee.com/openharmony/kernel_liteos_m",
+    "license": "BSD 3-clause",
+    "domain": "os",
+    "language": "",
+    "private": false,
+    "scripts": {},
+    "tags": [
+        "kernel"
+    ],
+    "keywords": [
+        "kernel",
+        "liteos-m"
+    ],
+    "envs": [],
+    "dirs": [],
+    "author": {},
+    "contributors": [],
+    "segment": {
+        "destPath": "kernel/liteos_m"
+    },
+    "component": {
+        "name": "liteos_m",
+        "subsystem": "kernel",
+        "syscap": [
+            "SystemCapability.Kernel.liteos-m"
+        ],
+        "features": [],
+        "adapted_system_type": [
+            "mini"
+        ],
+        "rom": "300KB",
+        "ram": "100KB",
+        "deps": {
+            "components": [
+                "utils_lite"
+            ],
+            "third_party": [
+                "bounds_checking_function",
+                "cmsis",
+                "fatfs",
+                "littlefs",
+                "lwip",
+                "musl"
+            ]
+        },
+        "build": {
+            "sub_component": [
+                "//kernel/liteos_m:kernel",
+                "//kernel/liteos_m:build_kernel_image"
+            ],
+            "inner_kits": [],
+            "test": [
+                "//kernel/liteos_m/testsuites:testsuites"
+            ]
+        }
+    }
+}

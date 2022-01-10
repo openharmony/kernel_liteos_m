@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import("//kernel/liteos_m/liteos.gni")
+import("//third_party/musl/porting/liteos_m/kernel/musl.gni")
 
 module_switch = defined(LOSCFG_LIBC_MUSL)
 module_name = get_path_info(rebase_path("."), "name")
@@ -43,5 +44,5 @@ kernel_module(module_name) {
 }
 
 config("public") {
-  include_dirs = [ "//third_party/musl/porting/liteos_m/kernel/include" ]
+  include_dirs = MUSL_INCLUDE_DIRS
 }
