@@ -28,6 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import("//kernel/liteos_m/liteos.gni")
+import("//third_party/cmsis/cmsis.gni")
 
 module_switch = defined(LOSCFG_KAL_CMSIS)
 module_name = get_path_info(rebase_path("."), "name")
@@ -37,9 +38,5 @@ kernel_module(module_name) {
 }
 
 config("public") {
-  include_dirs = [
-    ".",
-    "$LITEOSTHIRDPARTY/cmsis/CMSIS/RTOS2/Include",
-    "$LITEOSTHIRDPARTY/cmsis/CMSIS/Core/Include",
-  ]
+  include_dirs = CMSIS_INCLUDE_DIRS + [ "." ]
 }
