@@ -386,7 +386,7 @@ STATIC INT32 OsShellCmdDoCp(const CHAR *srcFilePath, const CHAR *dstFileName)
     CHAR *dstFilePath = NULL;
     CHAR *buf = NULL;
     const CHAR *filename = NULL;
-    size_t rdSize, wrSize;
+    ssize_t rdSize, wrSize;
     INT32 srcFd = -1;
     INT32 dstFd = -1;
     struct stat statBuf;
@@ -646,7 +646,7 @@ STATIC INT32 OsWildcardDeleteFileOrDir(const CHAR *fullpath, wildcard_type mark)
             ret = rmdir(fullpath);
             break;
         default:
-            return VFS_ERROR;
+            return (INT32)VFS_ERROR;
     }
     if (ret == -1) {
         PRINTK("%s  ", fullpath);
@@ -787,7 +787,7 @@ STATIC INT32 OsWildcardExtractDirectory(CHAR *fullpath, VOID *dst, wildcard_type
     return ret;
 closedir_out:
     (VOID)closedir(d);
-    return VFS_ERROR;
+    return (INT32)VFS_ERROR;
 }
 
 INT32 OsShellCmdCp(INT32 argc, const CHAR **argv)
@@ -873,7 +873,7 @@ errout_with_path:
     free(drcFullPath);
 errout_with_srcpath:
     free(srcFullPath);
-    return VFS_ERROR;
+    return (INT32)VFS_ERROR;
 }
 
 STATIC INLINE VOID PrintRmUsage(VOID)
