@@ -749,6 +749,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S
     if (retVal != LOS_OK) {
         return retVal;
     }
+    
+    LOSCFG_TASK_CREATE_EXTENSION_HOOK(taskCB);
+    
 #if (LOSCFG_BASE_CORE_CPUP == 1)
     intSave = LOS_IntLock();
     g_cpup[taskCB->taskID].cpupID = taskCB->taskID;
@@ -1084,6 +1087,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
     // Ignore the return code when matching CSEC rule 6.6(4).
     (VOID)memset_s((VOID *)&g_cpup[taskCB->taskID], sizeof(OsCpupCB), 0, sizeof(OsCpupCB));
 #endif
+    
+    LOSCFG_TASK_DELETE_EXTENSION_HOOK(taskCB);
+    
     if (taskCB->taskStatus & OS_TASK_STATUS_RUNNING) {
         if (!(taskCB->taskStatus & OS_TASK_STATUS_EXIT)) {
             taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
