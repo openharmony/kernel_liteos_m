@@ -1480,6 +1480,7 @@ typedef struct {
     UINT32                      eventMode;                /**< Event mode */
     VOID                        *msg;                     /**< Memory allocated to queues */
     INT32                       errorNo;
+    LOSCFG_TASK_STRUCT_EXTENSION                          /**< Task extension field */
 } LosTaskCB;
 
 typedef struct {
