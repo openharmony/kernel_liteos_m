@@ -79,8 +79,8 @@ static UINT32 Testcase(VOID)
     ret = LOS_SwtmrTimeGet(g_swtmrId1, &tick);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    // 2, assert that uwTick is equal to this.
-    ICUNIT_GOTO_EQUAL(tick, 2, tick, EXIT);
+    // 1, assert that uwTick is equal to this.
+    ICUNIT_GOTO_EQUAL(tick, 1, tick, EXIT);
 
     // 2, Here, assert that g_testCount is equal to this .
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT);

@@ -30,8 +30,9 @@
  */
 
 #include "osTest.h"
-#include "It_los_mux.h"
 
+#if (LOS_KERNEL_MULTI_HWI_TEST == 1)
+#include "It_los_mux.h"
 
 static VOID HwiF02(void)
 {
@@ -94,4 +95,5 @@ VOID ItLosMux020(void)
 {
     TEST_ADD_CASE("ItLosMux020", Testcase, TEST_LOS, TEST_MUX, TEST_LEVEL2, TEST_FUNCTION);
 }
+#endif
 

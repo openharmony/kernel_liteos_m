@@ -56,15 +56,13 @@ static VOID HwiF01(VOID)
     TestHwiClear(HWI_NUM_TEST);
 
     if (LOSCFG_BASE_CORE_SWTMR == 1) {
-        startIndex = 3; // 3, init the index  according to LOSCFG_BASE_CORE_SWTMR.
         pro = 1;
     } else {
-        startIndex = 0;
         pro = 0;
     }
+    startIndex = TaskUsedCountGet() + 1;
 
     g_testCount = 0;
-    g_index = startIndex;
 
     for (g_index = startIndex; g_index < LOSCFG_BASE_CORE_TSK_LIMIT + 1; pro++, g_testCount++, g_index++) {
         task1.usTaskPrio = pro;

@@ -61,7 +61,6 @@ VOID ItLosMux016(void);
 VOID ItLosMux017(void);
 VOID ItLosMux018(void);
 VOID ItLosMux019(void);
-VOID ItLosMux020(void);
 VOID ItLosMux021(void);
 VOID ItLosMux022(void);
 VOID ItLosMux023(void);
@@ -78,6 +77,9 @@ VOID ItLosMux034(void);
 
 VOID ItSuiteLosMux(void);
 
+#if (LOS_KERNEL_MULTI_HWI_TEST == 1)
+VOID ItLosMux020(void);
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

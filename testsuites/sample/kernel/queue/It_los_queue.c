@@ -156,7 +156,9 @@ VOID ItSuiteLosQueue(VOID)
 #if (LOS_KERNEL_HWI_TEST == 1)
     ItLosQueue044();
     ItLosQueue045();
+#if (LOS_KERNEL_MULTI_HWI_TEST == 1)
     ItLosQueue046();
+#endif
     ItLosQueue047();
     ItLosQueue048();
     ItLosQueue050();

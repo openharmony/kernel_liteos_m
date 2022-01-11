@@ -245,7 +245,7 @@ UINT32 los_TestInit(VOID)
     return ret;
 }
 
-UINT32 LosAppInit()
+UINT32 LosAppInit(VOID)
 {
     UINT32 ret;
 
@@ -299,7 +299,11 @@ UINT64 LosCpuCycleGet(VOID)
 #define HWI_BIT 2
 VOID TestHwiTrigger(UINT32 hwiNum)
 {
+#if defined(__CSKY_V2__) || defined(__XTENSA_LX6__)
+    HalIrqPending(hwiNum);
+#else
     *(volatile UINT32 *)(OS_NVIC_SETPEND + ((hwiNum >> HWI_SHIFT_NUM) << HWI_BIT)) = 1 << (hwiNum & 0x1F);
+#endif
 }
 
 VOID TestHwiUnTrigger(UINT32 hwiNum)

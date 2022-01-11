@@ -72,7 +72,9 @@ VOID ItSuiteLosMux(void)
     ItLosMux017();
     ItLosMux019();
 #ifndef __RISC_V__
+#if (LOS_KERNEL_MULTI_HWI_TEST == 1)
     ItLosMux020();
+#endif
 #endif
 #endif
 #endif
