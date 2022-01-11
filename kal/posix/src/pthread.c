@@ -38,6 +38,8 @@
 #include "los_config.h"
 #include "los_task.h"
 
+#define PTHREAD_DEFAULT_NAME     "pthread"
+#define PTHREAD_DEFAULT_NAME_LEN 8
 #define PTHREAD_NAMELEN 16
 #define PTHREAD_KEY_UNUSED 0
 #define PTHREAD_KEY_USED   1
@@ -113,6 +115,12 @@ static int PthreadCreateAttrInit(const pthread_attr_t *attr, void *(*startRoutin
         return ENOMEM;
     }
 
+    errno_t error = memcpy_s(pthreadData->name, PTHREAD_NAMELEN, PTHREAD_DEFAULT_NAME, PTHREAD_DEFAULT_NAME_LEN);
+    if (error != EOK) {
+        free(pthreadData);
+        return error;
+    }
+
     pthreadData->startRoutine   = startRoutine;
     pthreadData->param          = arg;
     pthreadData->key            = NULL;
@@ -141,9 +149,6 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     if (ret != 0) {
         return ret;
     }
-
-    /* set pthread default name */
-    (void)sprintf_s(taskInitParam.pcName, PTHREAD_NAMELEN, "pthread%u", taskID);
 
     if (LOS_TaskCreateOnly(&taskID, &taskInitParam) != LOS_OK) {
         free((VOID *)(UINTPTR)taskInitParam.uwArg);
@@ -258,9 +263,9 @@ void pthread_exit(void *retVal)
 
     intSave = LOS_IntLock();
     LOS_ListDelete(&pthreadData->threadList);
+    tcb->taskName = PTHREAD_DEFAULT_NAME;
     LOS_IntRestore(intSave);
     free(pthreadData);
-
     (void)LOS_TaskDelete(tcb->taskID);
 }
 
@@ -279,6 +284,11 @@ int pthread_setname_np(pthread_t thread, const char *name)
 
     taskCB = OS_TCB_FROM_TID((UINT32)thread);
     intSave = LOS_IntLock();
+    if (taskCB->taskStatus & OS_TASK_STATUS_EXIT) {
+        LOS_IntRestore(intSave);
+        return EINVAL;
+    }
+
     if (taskCB->taskEntry == PthreadEntry) {
         (void)strcpy_s(taskName, PTHREAD_NAMELEN, name);
     } else {

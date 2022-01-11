@@ -52,7 +52,7 @@ INT32 OsShellCmdDumpTask(INT32 argc, const CHAR **argv)
         return OsShellCmdTskInfoGet((UINT32)taskId);
     } else {
         PRINTK("\nUsage: task\n");
-        return OS_ERROR;
+        return (INT32)OS_ERROR;
     }
 }
 
