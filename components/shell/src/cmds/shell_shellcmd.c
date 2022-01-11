@@ -44,7 +44,7 @@ INT32 OsShellCmdHelp(INT32 argc, const CHAR **argv)
     (VOID)argv;
     if (argc > 0) {
         PRINTK("\nUsage: help\n");
-        return OS_ERROR;
+        return (INT32)OS_ERROR;
     }
 
     PRINTK("*******************shell commands:*************************\n");
