@@ -36,6 +36,7 @@ kernel_module(module_name) {
     "porting/src/fs.c",
     "porting/src/malloc.c",
     "porting/src/other_adapt.c",
+    "porting/src/pthread.c",
     "porting/src/time.c",
   ]
 
