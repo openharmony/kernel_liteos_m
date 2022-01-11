@@ -82,7 +82,7 @@ static UINT32 Testcase(VOID)
     task.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
     task.usTaskPrio = (TASK_PRIO_TEST - 1); // 1, set new task priority, it is higher than the current task.
     task.pcName = "VMuteB2_1";
-    task.uwStackSize = 0x900;
+    task.uwStackSize = LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE;
     task.uwResved = 0;
 
     ret = LOS_MuxCreate(&g_mutexTest);
@@ -94,7 +94,7 @@ static UINT32 Testcase(VOID)
     task2.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
     task2.usTaskPrio = (TASK_PRIO_TEST - 2); // 2, set new task priority, it is higher than the current task.
     task2.pcName = "VMuteB2_2";
-    task2.uwStackSize = 0x900;
+    task2.uwStackSize = LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE;
     task2.uwResved = 0;
 
     ret = LOS_TaskCreate(&g_testTaskID02, &task2);

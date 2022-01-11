@@ -38,8 +38,11 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-
+#if defined(__XTENSA_LX6__) || defined(__CSKY_V2__) // system ram is low, reduce memory usage
+#define ICUNIT_CASE_SIZE 200
+#else
 #define ICUNIT_CASE_SIZE 1500
+#endif
 #define ICUNIT_SUIT_SIZE 200
 
 

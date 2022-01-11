@@ -30,8 +30,9 @@
  */
  
 #include "osTest.h"
-#include "it_los_hwi.h"
 
+#if (LOS_KERNEL_MULTI_HWI_TEST == 1)
+#include "it_los_hwi.h"
 
 static int g_uwIndex;
 #ifdef __RISC_V__
@@ -60,7 +61,7 @@ static VOID HwiF01(VOID)
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
-    HWI_PRIOR_T hwiPrio = 7;
+    HWI_PRIOR_T hwiPrio = OS_HWI_PRIO_LOWEST;
     HWI_MODE_T mode = 0;
     HWI_ARG_T arg = 0;
 
@@ -96,3 +97,4 @@ VOID ItLosHwi032(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosHwi032", Testcase, TEST_LOS, TEST_HWI, TEST_LEVEL3, TEST_PRESSURE);
 }
+#endif

@@ -224,6 +224,8 @@ extern EVENT_CB_S g_exampleEvent;
 
 #ifdef __RISC_V__
 #define OS_TSK_TEST_STACK_SIZE 0x9000
+#elif  __XTENSA_LX6__
+#define OS_TSK_TEST_STACK_SIZE 0x800
 #else
 #define OS_TSK_TEST_STACK_SIZE 0x1000
 #endif
@@ -285,12 +287,20 @@ extern UINT32 TaskUsedCountGet(VOID);
 #define HWI_NUM_TEST1 34
 #define HWI_NUM_TEST2 35
 #define HWI_NUM_TEST3 36
+#define LOS_KERNEL_MULTI_HWI_TEST 1 // default enable multiple hwi number test case
+#elif __CSKY_V2__
+#define HWI_NUM_TEST 31 // csky_v2 only suppport one software interrupt number
+#define LOS_KERNEL_MULTI_HWI_TEST 0 // csky_v2 not support multiple hwi number test case
+#elif __XTENSA_LX6__
+#define HWI_NUM_TEST 7 // xtensa_lx6 only suppport one software interrupt number
+#define LOS_KERNEL_MULTI_HWI_TEST 0 // xtensa_lx6 not support multiple hwi number test case
 #else
+#define HWI_NUM_TEST  HWI_NUM_INT7
 #define HWI_NUM_TEST0 HWI_NUM_INT1
-#define HWI_NUM_TEST HWI_NUM_INT7
 #define HWI_NUM_TEST1 HWI_NUM_INT11
 #define HWI_NUM_TEST2 HWI_NUM_INT12
 #define HWI_NUM_TEST3 HWI_NUM_INT14
+#define LOS_KERNEL_MULTI_HWI_TEST 1 // default enable multiple hwi number test case
 #endif
 
 #define LOSCFG_BASE_IPC_QUEUE_CONFIG LOSCFG_BASE_IPC_QUEUE_LIMIT

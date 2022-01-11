@@ -51,18 +51,11 @@ extern "C" {
 
 extern VOID ItLosHwi001(VOID);
 extern VOID ItLosHwi002(VOID);
-extern VOID ItLosHwi003(VOID);
 extern VOID ItLosHwi004(VOID);
-extern VOID ItLosHwi005(VOID);
 extern VOID ItLosHwi006(VOID);
 extern VOID ItLosHwi007(VOID);
 extern VOID ItLosHwi008(VOID);
-extern VOID ItLosHwi009(VOID);
 extern VOID ItLosHwi010(VOID);
-extern VOID ItLosHwi011(VOID);
-extern VOID ItLosHwi012(VOID);
-extern VOID ItLosHwi013(VOID);
-extern VOID ItLosHwi014(VOID);
 extern VOID ItLosHwi015(VOID);
 extern VOID ItLosHwi016(VOID);
 extern VOID ItLosHwi017(VOID);
@@ -76,14 +69,24 @@ extern VOID ItLosHwi024(VOID);
 extern VOID ItLosHwi025(VOID);
 extern VOID ItLosHwi026(VOID);
 extern VOID ItLosHwi027(VOID);
-extern VOID ItLosHwi028(VOID);
-extern VOID ItLosHwi029(VOID);
 extern VOID ItLosHwi030(VOID);
 extern VOID ItLosHwi031(VOID);
-extern VOID ItLosHwi032(VOID);
-extern VOID ItLosHwi033(VOID);
 extern VOID ItLosHwi034(VOID);
 extern VOID LltLosHwi035(VOID);
+
+#if (LOS_KERNEL_MULTI_HWI_TEST == 1)
+extern VOID ItLosHwi003(VOID);
+extern VOID ItLosHwi005(VOID);
+extern VOID ItLosHwi009(VOID);
+extern VOID ItLosHwi011(VOID);
+extern VOID ItLosHwi012(VOID);
+extern VOID ItLosHwi013(VOID);
+extern VOID ItLosHwi014(VOID);
+extern VOID ItLosHwi028(VOID);
+extern VOID ItLosHwi029(VOID);
+extern VOID ItLosHwi032(VOID);
+extern VOID ItLosHwi033(VOID);
+#endif
 
 
 #ifdef __cplusplus
