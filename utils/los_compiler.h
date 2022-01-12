@@ -418,6 +418,108 @@ static inline UINT32 LOS_Align(UINT32 addr, UINT32 boundary)
 #define UNUSED(X) (void)X
 #endif
 
+#if defined(__GNUC__)
+static inline void maybe_release_fence(int model)
+{
+    switch (model) {
+        case __ATOMIC_RELEASE:
+            __atomic_thread_fence (__ATOMIC_RELEASE);
+            break;
+        case __ATOMIC_ACQ_REL:
+            __atomic_thread_fence (__ATOMIC_ACQ_REL);
+            break;
+        case __ATOMIC_SEQ_CST:
+            __atomic_thread_fence (__ATOMIC_SEQ_CST);
+            break;
+        default:
+            break;
+    }
+}
+
+static inline void maybe_acquire_fence(int model)
+{
+    switch (model) {
+        case __ATOMIC_ACQUIRE:
+            __atomic_thread_fence (__ATOMIC_ACQUIRE);
+            break;
+        case __ATOMIC_ACQ_REL:
+            __atomic_thread_fence (__ATOMIC_ACQ_REL);
+            break;
+        case __ATOMIC_SEQ_CST:
+            __atomic_thread_fence (__ATOMIC_SEQ_CST);
+            break;
+        default:
+            break;
+    }
+}
+
+#define __LIBATOMIC_N_LOCKS	(1 << 4) /* 4, 1<<4 locks num */
+static inline BOOL *__libatomic_flag_for_address(void *addr)
+{
+    static BOOL flag_table[__LIBATOMIC_N_LOCKS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    UINTPTR p = (UINTPTR)(UINTPTR *)addr;
+    p += (p >> 2) + (p << 4); /* 2, 4, hash data */
+    p += (p >> 7) + (p << 5); /* 7, 5, hash data */
+    p += (p >> 17) + (p << 13); /* 17, 13, hash data */
+
+    if (sizeof(void *) > 4) { /* 4, sizeof int in 32bit system */
+        p += (p >> 31); /* 31, for hash high bits data */
+    }
+
+    p &= (__LIBATOMIC_N_LOCKS - 1);
+    return flag_table + p;
+}
+
+static inline void get_lock(void *addr, int model)
+{
+    BOOL *lock_ptr = __libatomic_flag_for_address (addr);
+
+    maybe_release_fence (model);
+    while (__atomic_test_and_set (lock_ptr, __ATOMIC_ACQUIRE) == 1) {
+        ;
+    }
+}
+
+static inline void free_lock(void *addr, int model)
+{
+    BOOL *lock_ptr = __libatomic_flag_for_address (addr);
+
+    __atomic_clear (lock_ptr, __ATOMIC_RELEASE);
+    maybe_acquire_fence (model);
+}
+
+static inline UINT64  __atomic_load_8(const volatile void *mem, int model)
+{
+    UINT64 ret;
+
+    void *memP = (void *)mem;
+    get_lock (memP, model);
+    ret = *(UINT64 *)mem;
+    free_lock (memP, model);
+    return ret;
+}  
+
+static inline void __atomic_store_8(volatile void *mem, UINT64 val, int model)
+{
+    void *memP = (void *)mem;
+    get_lock (memP, model);
+    *(UINT64 *)mem = val;
+    free_lock (memP, model);
+}
+
+static inline UINT64 __atomic_exchange_8(volatile void *mem, UINT64 val, int model)
+{
+    UINT64 ret;
+    
+    void *memP = (void *)mem;
+    get_lock (memP, model);
+    ret = *(UINT64 *)mem;
+    *(UINT64 *)mem = val;
+    free_lock (memP, model);
+    return ret;
+}
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }
