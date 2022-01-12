@@ -61,7 +61,7 @@ static VOID TaskF01(VOID)
     UINT32 ret;
     TSK_INIT_PARAM_S task1 = { 0 };
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
-    task1.uwStackSize = 0x400; // Set reasonable stack space
+    task1.uwStackSize = TASK_STACK_SIZE_TEST; // Set reasonable stack space
     task1.pcName = "Tsk080B";
     task1.usTaskPrio = TASK_PRIO_TEST - 1;
     task1.uwResved = LOS_TASK_STATUS_DETACHED;
@@ -95,7 +95,7 @@ static UINT32 TestCase(VOID)
     UINT32 ret;
     TSK_INIT_PARAM_S task1 = { 0 };
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
-    task1.uwStackSize = 0x400; // Set reasonable stack space
+    task1.uwStackSize = TASK_STACK_SIZE_TEST; // Set reasonable stack space
     task1.pcName = "Tsk080A";
     task1.usTaskPrio = TASK_PRIO_TEST - 2; // 2, set new task priority, it is higher than the current task.
     task1.uwResved = LOS_TASK_STATUS_DETACHED;

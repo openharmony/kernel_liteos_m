@@ -30,8 +30,9 @@
  */
 
 #include "osTest.h"
-#include "it_los_hwi.h"
 
+#if (LOS_KERNEL_MULTI_HWI_TEST == 1)
+#include "it_los_hwi.h"
 
 static VOID HwiF03(VOID)
 {
@@ -116,3 +117,4 @@ VOID ItLosHwi013(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosHwi013", Testcase, TEST_LOS, TEST_HWI, TEST_LEVEL1, TEST_FUNCTION);
 }
+#endif

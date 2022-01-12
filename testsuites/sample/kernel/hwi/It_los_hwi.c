@@ -35,18 +35,11 @@ VOID ItSuiteLosHwi()
 {
     ItLosHwi001();
     ItLosHwi002();
-    ItLosHwi003();
     ItLosHwi004();
-    ItLosHwi005();
     ItLosHwi006();
     ItLosHwi007();
     ItLosHwi008();
-    ItLosHwi009();
     ItLosHwi010();
-    ItLosHwi011();
-    ItLosHwi012();
-    ItLosHwi013();
-    ItLosHwi014();
     ItLosHwi015();
     ItLosHwi016();
     ItLosHwi017();
@@ -61,11 +54,20 @@ VOID ItSuiteLosHwi()
     ItLosHwi026();
 #endif
     ItLosHwi027();
-    ItLosHwi028();
-    ItLosHwi029();
     ItLosHwi030();
     ItLosHwi031();
+    ItLosHwi034();
+#if (LOS_KERNEL_MULTI_HWI_TEST == 1)
+    ItLosHwi003();
+    ItLosHwi005();
+    ItLosHwi009();
+    ItLosHwi011();
+    ItLosHwi012();
+    ItLosHwi013();
+    ItLosHwi014();
+    ItLosHwi028();
+    ItLosHwi029();
     ItLosHwi032();
     ItLosHwi033();
-    ItLosHwi034();
+#endif
 }

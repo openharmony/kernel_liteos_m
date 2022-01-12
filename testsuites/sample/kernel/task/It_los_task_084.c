@@ -30,8 +30,9 @@
  */
 
 #include "osTest.h"
-#include "It_los_task.h"
 
+#if (LOS_KERNEL_MULTI_HWI_TEST == 1)
+#include "It_los_task.h"
 
 static VOID TaskF01(VOID)
 {
@@ -146,4 +147,5 @@ VOID ItLosTask084(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosTask084", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL2, TEST_PRESSURE);
 }
+#endif
 
