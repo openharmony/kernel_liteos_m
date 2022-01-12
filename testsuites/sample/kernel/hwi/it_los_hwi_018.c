@@ -67,7 +67,7 @@ EXIT:
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
-    HWI_PRIOR_T hwiPrio = 7;
+    HWI_PRIOR_T hwiPrio = OS_HWI_PRIO_LOWEST;
     HWI_MODE_T mode = 0;
     HWI_ARG_T arg = 0;
     TSK_INIT_PARAM_S task;

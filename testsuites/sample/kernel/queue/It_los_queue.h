@@ -94,7 +94,6 @@ extern VOID ItLosQueue042(VOID);
 extern VOID ItLosQueue043(VOID);
 extern VOID ItLosQueue044(VOID);
 extern VOID ItLosQueue045(VOID);
-extern VOID ItLosQueue046(VOID);
 extern VOID ItLosQueue047(VOID);
 extern VOID ItLosQueue048(VOID);
 extern VOID ItLosQueue050(VOID);
@@ -184,6 +183,10 @@ extern VOID ItLosQueueHead039(VOID);
 extern VOID ItLosQueueHead040(VOID);
 extern VOID ItLosQueueHead041(VOID);
 extern VOID ItLosQueueHead042(VOID);
+
+#if (LOS_KERNEL_MULTI_HWI_TEST == 1)
+extern VOID ItLosQueue046(VOID);
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

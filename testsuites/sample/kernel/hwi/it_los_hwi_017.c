@@ -84,7 +84,7 @@ static VOID HwiF01(VOID)
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
-    HWI_PRIOR_T hwiPrio = 7;
+    HWI_PRIOR_T hwiPrio = OS_HWI_PRIO_LOWEST;
     HWI_MODE_T mode = 0;
     HWI_ARG_T arg = 0;
 
@@ -97,7 +97,6 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // Compare wiht the expected value 2.
 
 EXIT:
-    TestHwiDelete(HWI_NUM_TEST3);
     TestHwiDelete(HWI_NUM_TEST);
 
     return LOS_OK;

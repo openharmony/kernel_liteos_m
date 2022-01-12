@@ -29,8 +29,10 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "It_los_queue.h"
+#include "osTest.h"
 
+#if (LOS_KERNEL_MULTI_HWI_TEST == 1)
+#include "It_los_queue.h"
 
 static VOID HwiF01(VOID)
 {
@@ -103,4 +105,5 @@ VOID ItLosQueue046(VOID)
 {
     TEST_ADD_CASE("ItLosQueue046", Testcase, TEST_LOS, TEST_QUE, TEST_LEVEL1, TEST_FUNCTION);
 }
+#endif
 

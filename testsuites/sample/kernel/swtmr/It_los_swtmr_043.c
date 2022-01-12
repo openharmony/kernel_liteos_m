@@ -33,7 +33,7 @@
 #include "It_los_swtmr.h"
 
 
-#ifdef __RISC_V__
+#if defined(__RISC_V__) || defined(__XTENSA_LX6__) || defined(__CSKY_V2__)
 #define HWI_NUM_INT12 HWI_NUM_TEST
 #endif
 
