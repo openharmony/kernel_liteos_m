@@ -142,6 +142,11 @@ extern "C" {
 #else
 #define CONTEXT_SIZE                                         112
 #endif
+#define LEVEL1_TINRERRUPT_CAUSE                              4
+#define ALLOC_CAUSE                                          5
+#define LOWBIT_CALLNMODE                                     30
+#define HIGHBIT_CALLNMODE                                    31
+#define PS_OWB_SHIFT                                         8
 #define EXCCAUSE_LEVEL1INTERRUPT                             4
 #define XTENSA_LOGREG_NUM                                    16
 #define INDEX_OF_SP                                          1
