@@ -56,6 +56,22 @@ static UINT32 TestCase(VOID)
     ICUNIT_ASSERT_EQUAL(value, ret, value);
     ICUNIT_ASSERT_EQUAL(value, 0x7ffffffe, value);
 
+    value = -1;
+    LOS_AtomicInc(&value);
+    ICUNIT_ASSERT_EQUAL(value, 0, value);
+
+    value = 0x7ffffffe;
+    LOS_AtomicInc(&value);
+    ICUNIT_ASSERT_EQUAL(value, 0x7fffffff, value);
+
+    value = 0;
+    LOS_AtomicDec(&value);
+    ICUNIT_ASSERT_EQUAL(value, -1, value);
+
+    value = 0x7fffffff;
+    LOS_AtomicDec(&value);
+    ICUNIT_ASSERT_EQUAL(value, 0x7ffffffe, value);
+
     return LOS_OK;
 }
 
