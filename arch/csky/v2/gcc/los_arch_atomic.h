@@ -60,9 +60,9 @@ STATIC INLINE VOID ArchAtomicSet(Atomic *v, INT32 setVal)
     UINT32 intSave;
 
     intSave = LOS_IntLock();
-    __asm__ __volatile__("stw %0, (%1, 0)"
-                         : "=&r"(setVal)
-                         : "r"(v)
+    __asm__ __volatile__("stw %1, (%0, 0)"
+                         :
+                         : "r"(v), "r"(setVal)
                          : "cc");
     LOS_IntRestore(intSave);
 }

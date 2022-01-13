@@ -63,11 +63,11 @@ STATIC INLINE VOID ArchAtomicSet(Atomic *v, INT32 setVal)
 
     intSave = LOS_IntLock();
 
-    __asm__ __volatile__("1:ldrex   %0, [%2]\n"
-                         "  strex   %0, %3, [%2]\n"
+    __asm__ __volatile__("1:ldrex   %0, [%1]\n"
+                         "  strex   %0, %2, [%1]\n"
                          "  teq %0, #0\n"
-                         "  beq 1b"
-                         : "=&r"(status), "+m"(*v)
+                         "  bne 1b"
+                         : "=&r"(status)
                          : "r"(v), "r"(setVal)
                          : "cc");
     LOS_IntRestore(intSave);

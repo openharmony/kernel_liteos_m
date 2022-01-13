@@ -39,6 +39,8 @@ static_library("test_atomic") {
     "it_los_atomic_007.c",
     "it_los_atomic_008.c",
     "it_los_atomic_009.c",
+    "it_los_atomic_010.c",
+    "it_los_atomic_011.c",
   ]
   include_dirs = [ "." ]
   configs += [ "//kernel/liteos_m/testsuites:include" ]
