@@ -38,22 +38,45 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-Atomic g_testAtomicID03 = 0;
-Atomic64 g_testAtomicID05 = 0;
+#define TEST_LOOP 10
 
-VOID ItSuiteLosAtomic(VOID)
+static VOID TaskF01(VOID)
 {
-    ItLosAtomic001();
-    ItLosAtomic002();
-    ItLosAtomic003();
-    ItLosAtomic004();
-    ItLosAtomic005();
-    ItLosAtomic006();
-    ItLosAtomic007();
-    ItLosAtomic008();
-    ItLosAtomic009();
-    ItLosAtomic010();
-    ItLosAtomic011();
+    INT64 i;
+
+    for (i = 0; i < TEST_LOOP; ++i) {
+        LOS_Atomic64Inc(&g_testAtomicID05);
+    }
+
+    ++g_testCount;
+}
+
+static UINT32 TestCase(VOID)
+{
+    UINT32 ret;
+    g_testAtomicID05 = 0;
+    g_testCount = 0;
+
+    TSK_INIT_PARAM_S stTask1 = {0};
+    stTask1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
+    stTask1.pcName       = "Atomic_010";
+    stTask1.uwStackSize  = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+    stTask1.usTaskPrio   = TASK_PRIO_TEST - 2; // TASK_PRIO_TEST - 2 has higher priority than TASK_PRIO_TEST
+    stTask1.uwResved     = LOS_TASK_STATUS_DETACHED;
+
+    ret = LOS_TaskCreate(&g_testTaskID01, &stTask1);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    LOS_TaskDelay(20); // delay 20 ticks.
+
+    ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
+    ICUNIT_GOTO_EQUAL(g_testAtomicID05, TEST_LOOP, g_testAtomicID05, EXIT);
+EXIT:
+    return LOS_OK;
+}
+
+VOID ItLosAtomic010(VOID)
+{
+    TEST_ADD_CASE("ItLosAtomic010", TestCase, TEST_LOS, TEST_ATO, TEST_LEVEL0, TEST_FUNCTION);
 }
 
 #ifdef __cplusplus
@@ -61,3 +84,4 @@ VOID ItSuiteLosAtomic(VOID)
 }
 #endif /* __cplusplus */
 #endif /* __cplusplus */
+
