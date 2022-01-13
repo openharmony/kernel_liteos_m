@@ -42,10 +42,6 @@ extern "C" {
 
 STATIC INLINE INT32 ArchAtomicRead(const Atomic *v)
 {
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
-    LOS_IntRestore(intSave);
     return *v;
 }
 
