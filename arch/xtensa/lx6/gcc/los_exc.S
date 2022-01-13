@@ -98,9 +98,6 @@ NMIExceptionHandler:
 .literal_position
 DoubleExceptionHandler:
 
-    movi    a0, INT_MASK | USER_VECTOR_MODE | WOE_ENABLE
-    wsr     a0, PS
-    rsr     a2, EXCCAUSE
     call0   UserException
 
 .end        literal_prefix
@@ -145,10 +142,17 @@ UserExceptionHandler:
 UserException:
 
     rsr     a0, EXCCAUSE
-    beqi    a0, 4, InterruptEntry1
+    beqi    a0, LEVEL1_TINRERRUPT_CAUSE, InterruptEntry1
+    beqi    a0, ALLOC_CAUSE, AllocHandel
     call0   HandleEntry
 1:
     j 1b
+
+.section    .iram,"ax"
+.type       AllocHandel,@function
+.align      4
+AllocHandel:
+    call0 AllocHandelEntry
 
 .section    .iram,"ax"
 .type       InterruptEntry1,@function
@@ -360,6 +364,36 @@ UnderFlowGroup3:
     l32i    a5, a4, 4
     l32i    a4, a4, 0
     rfwu
+
+.section    .userVector,"ax"
+.type       AllocHandelEntry,@function
+.align      4
+AllocHandelEntry:
+
+    addi    a1, a1, -(CONTEXT_OFF_A4 - CONTEXT_OFF_A0)
+    s32i    a2, a1, (CONTEXT_OFF_A2 - CONTEXT_OFF_A0)
+    s32i    a3, a1, (CONTEXT_OFF_A3 - CONTEXT_OFF_A0)
+
+    rsr     a0, PS
+    rsr     a2, WINDOWBASE
+    extui   a3, a0, PS_OWB_SHIFT, WINDOWBASEBITS
+    xor     a3, a3, a2
+    slli    a3, a3, PS_OWB_SHIFT
+    xor     a0, a0, a3
+    wsr     a0, PS
+    rsr     a0, EXCSAVE1
+
+    l32i    a2, a1, (CONTEXT_OFF_A2 - CONTEXT_OFF_A0)
+    l32i    a3, a1, (CONTEXT_OFF_A3 - CONTEXT_OFF_A0)
+    addi    a1, a1, (CONTEXT_OFF_A4 - CONTEXT_OFF_A0)
+    rsync
+
+    rotw -1
+    bbci    a4, HIGHBIT_CALLNMODE, UnderFlowGroup1
+    rotw -1
+    bbci    a8, LOWBIT_CALLNMODE, UnderFlowGroup2
+    rotw -1
+    j       UnderFlowGroup3
 
 .global EnableExceptionInterface
 .section    .iram,"ax"
