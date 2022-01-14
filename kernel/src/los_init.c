@@ -74,6 +74,10 @@
 #include "los_lmk.h"
 #endif
 
+#if (LOSCFG_POSIX_PIPE_API == 1)
+#include "pipe_impl.h"
+#endif
+
 /*****************************************************************************
  Function    : LOS_Reboot
  Description : system exception, die in here, wait for watchdog.
@@ -234,6 +238,14 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
 #if (LOSCFG_DYNLINK == 1)
     ret = LOS_DynlinkInit();
     if (ret != LOS_OK) {
+        return ret;
+    }
+#endif
+
+#if (LOSCFG_POSIX_PIPE_API == 1)
+    ret = OsPipeInit();
+    if (ret != LOS_OK) {
+        PRINT_ERR("Pipe init failed!\n");
         return ret;
     }
 #endif
