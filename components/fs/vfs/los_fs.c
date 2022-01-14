@@ -60,6 +60,24 @@
 #define RANDOM_DEV_PATH  "/dev/random"
 #endif
 
+#if (LOSCFG_POSIX_PIPE_API == 1)
+#include "pipe_impl.h"
+#ifdef LOSCFG_RANDOM_DEV
+#define PIPE_DEV_FD (RANDOM_DEV_FD + 1)
+#else
+#define PIPE_DEV_FD (CONFIG_NFILE_DESCRIPTORS + CONFIG_NSOCKET_DESCRIPTORS)
+#endif
+
+int PollQueryFd(int fd, struct PollTable *table)
+{
+    if (fd >= PIPE_DEV_FD) {
+        return PipePoll(fd, table);
+    }
+
+    return -ENODEV;
+}
+#endif
+
 #define FREE_AND_SET_NULL(ptr) do { \
     free(ptr);                      \
     ptr = NULL;                     \
@@ -285,6 +303,13 @@ int LOS_Open(const char *path, int oflag, ...)
     }
     FREE_AND_SET_NULL(canonicalPath);
 #endif
+
+#if (LOSCFG_POSIX_PIPE_API == 1)
+    if ((path != NULL) && !strncmp(path, PIPE_DEV_PATH, strlen(PIPE_DEV_PATH))) {
+        return PipeOpen(path, oflag, PIPE_DEV_FD);
+    }
+#endif
+
     if (g_fs == NULL) {
         errno = ENODEV;
         return FS_FAILURE;
@@ -308,6 +333,13 @@ int LOS_Close(int fd)
         return closesocket(fd);
     }
 #endif
+
+#if (LOSCFG_POSIX_PIPE_API == 1)
+    if (fd >= PIPE_DEV_FD) {
+        return PipeClose(fd);
+    }
+#endif
+
     if (g_fs == NULL) {
         errno = ENODEV;
         return FS_FAILURE;
@@ -346,6 +378,13 @@ ssize_t LOS_Read(int fd, void *buf, size_t nbyte)
         return recv(fd, buf, nbyte, 0);
     }
 #endif
+
+#if (LOSCFG_POSIX_PIPE_API == 1)
+    if (fd >= PIPE_DEV_FD) {
+        return PipeRead(fd, buf, nbyte);
+    }
+#endif
+
     if (g_fs == NULL) {
         errno = ENODEV;
         return FS_FAILURE;
@@ -370,6 +409,13 @@ ssize_t LOS_Write(int fd, const void *buf, size_t nbyte)
         return send(fd, buf, nbyte, 0);
     }
 #endif
+
+#if (LOSCFG_POSIX_PIPE_API == 1)
+    if (fd >= PIPE_DEV_FD) {
+        return PipeWrite(fd, buf, nbyte);
+    }
+#endif
+
     if (g_fs == NULL) {
         errno = ENODEV;
         return FS_FAILURE;
