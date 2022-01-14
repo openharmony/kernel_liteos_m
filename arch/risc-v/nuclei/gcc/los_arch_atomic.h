@@ -187,10 +187,10 @@ STATIC INLINE BOOL ArchAtomicCmpXchg32bits(volatile INT32 *v, INT32 val, INT32 o
     UINT32 intSave;
 
     intSave = LOS_IntLock();
-    __asm__ __volatile__("1: lw %0, 0(%1)\n"
-                         "   bne %0, %2, 2f\n"
-                         "   amoswap.w %0, %3, (%1)\n"
-                         "2:"
+    __asm__ __volatile__("lw %0, 0(%1)\n"
+                         "bne %0, %2, 1f\n"
+                         "amoswap.w %0, %3, (%1)\n"
+                         "1:"
                          : "=&r"(prevVal)
                          : "r"(v), "r"(oldVal), "r"(val)
                          : "memory");
