@@ -43,15 +43,11 @@ extern "C" {
 STATIC INLINE INT32 ArchAtomicRead(const Atomic *v)
 {
     INT32 val;
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
 
     __asm__ __volatile__("l32ai %0, %1, 0\n"
                          : "=&a"(val)
                          : "a"(v)
                          : "memory");
-    LOS_IntRestore(intSave);
 
     return val;
 }
@@ -59,34 +55,30 @@ STATIC INLINE INT32 ArchAtomicRead(const Atomic *v)
 STATIC INLINE VOID ArchAtomicSet(Atomic *v, INT32 setVal)
 {
     INT32 val;
-    UINT32 intSave;
 
-    intSave = LOS_IntLock();
-
-    __asm__ __volatile__("l32ai %0, %2, 0\n"
-                         "wsr %0, SCOMPARE1\n"
-                         "s32c1i %3, %1"
+    __asm__ __volatile__("1:l32ai %0, %2, 0\n"
+                         "  wsr %0, SCOMPARE1\n"
+                         "  s32c1i %3, %1\n"
+                         "  bne %3, %0, 1b"
                          : "=&a"(val), "+m"(*v)
                          :  "a"(v), "a"(setVal)
                          : "memory");
-    LOS_IntRestore(intSave);
 }
 
 STATIC INLINE INT32 ArchAtomicAdd(Atomic *v, INT32 addVal)
 {
     INT32 val;
-    UINT32 intSave;
+    INT32 tmp;
 
-    intSave = LOS_IntLock();
-
-    __asm__ __volatile__("l32ai %0, %2, 0\n"
-                         "wsr %0, SCOMPARE1\n"
-                         "add   %0, %0, %3\n"
-                         "s32c1i %0, %1\n"
-                         : "=&a"(val), "+m"(*v)
+    __asm__ __volatile__("1:l32ai %0, %3, 0\n"
+                         "  wsr %0, SCOMPARE1\n"
+                         "  mov %1, %0\n"
+                         "  add %0, %0, %4\n"
+                         "  s32c1i %0, %2\n"
+                         "  bne %0, %1, 1b"
+                         : "=&a"(val), "=&a"(tmp), "+m"(*v)
                          : "a"(v), "a"(addVal)
                          : "memory");
-    LOS_IntRestore(intSave);
 
     return *v;
 }
@@ -94,18 +86,17 @@ STATIC INLINE INT32 ArchAtomicAdd(Atomic *v, INT32 addVal)
 STATIC INLINE INT32 ArchAtomicSub(Atomic *v, INT32 subVal)
 {
     INT32 val;
-    UINT32 intSave;
+    INT32 tmp;
 
-    intSave = LOS_IntLock();
-
-    __asm__ __volatile__("l32ai %0, %2, 0\n"
-                         "wsr %0, SCOMPARE1\n"
-                         "sub   %0, %0, %3\n"
-                         "s32c1i %0, %1\n"
-                         : "=&a"(val), "+m"(*v)
+    __asm__ __volatile__("1:l32ai %0, %3, 0\n"
+                         "  wsr %0, SCOMPARE1\n"
+                         "  mov %1, %0\n"
+                         "  sub %0, %0, %4\n"
+                         "  s32c1i %0, %2\n"
+                         "  bne %0, %1, 1b"
+                         : "=&a"(val), "=&a"(tmp), "+m"(*v)
                          : "a"(v), "a"(subVal)
                          : "memory");
-    LOS_IntRestore(intSave);
     return *v;
 }
 
@@ -150,17 +141,16 @@ STATIC INLINE INT32 ArchAtomicDecRet(Atomic *v)
 STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
 {
     INT32 prevVal = 0;
-    UINT32 intSave;
+    INT32 tmp;
 
-    intSave = LOS_IntLock();
-
-    __asm__ __volatile__("l32ai %0, %2, 0\n"
-                         "wsr %0, SCOMPARE1\n"
-                         "s32c1i %3, %1\n"
-                         : "=&a"(prevVal), "+m"(*v)
+    __asm__ __volatile__("1:l32ai %0, %3, 0\n"
+                         "  wsr %0, SCOMPARE1\n"
+                         "  mov %1, %0\n"
+                         "  s32c1i %4, %2\n"
+                         "  bne %4, %1, 1b"
+                         : "=&a"(prevVal), "=&a"(tmp), "+m"(*v)
                          : "a"(v), "a"(val)
                          : "memory");
-    LOS_IntRestore(intSave);
 
     return prevVal;
 }
@@ -187,19 +177,15 @@ STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
 STATIC INLINE BOOL ArchAtomicCmpXchg32bits(volatile INT32 *v, INT32 val, INT32 oldVal)
 {
     INT32 prevVal = 0;
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
 
     __asm__ __volatile__("l32ai %0, %2, 0\n"
                          "wsr %0, SCOMPARE1\n"
-                         "bne %0, %3, 2f\n"
+                         "bne %0, %3, 1f\n"
                          "s32c1i %4, %1\n"
-                         "2:\n"
+                         "1:"
                          : "=&a"(prevVal), "+m"(*v)
                          : "a"(v), "a"(oldVal), "a"(val)
                          : "cc");
-    LOS_IntRestore(intSave);
 
     return prevVal != oldVal;
 }
