@@ -182,6 +182,7 @@ struct linger {
 #ifndef SOL_SOCKET
 #define SOL_SOCKET      1
 #endif
+#define SOL_IP          0
 
 #define MSG_OOB       0x0001
 #define MSG_PEEK      0x0002
