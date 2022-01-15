@@ -291,17 +291,17 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskCpupInfo(CPUP_INFO_S **cpuLessOneSec,
 
 LITE_OS_SEC_TEXT_MINOR VOID OsPrintAllTskInfoHeader()
 {
-    PRINTK("\r\n TID  Priority Status   StackSize WaterLine StackPoint TopOfStack EventMask  SemID");
+    PRINTK("\r\n TID  Priority   Status StackSize WaterLine StackPoint TopOfStack EventMask  SemID");
 #if (LOSCFG_BASE_CORE_CPUP == 1)
-    PRINTK(" CPUUSE  CPUUSE10s CPUUSE1s  ");
+    PRINTK("  CPUUSE CPUUSE10s CPUUSE1s ");
 #endif /* LOSCFG_BASE_CORE_CPUP */
-    PRINTK("name\n");
+    PRINTK("  TaskEntry name\n");
     PRINTK(" ---  -------- -------- ");
     PRINTK("--------- --------- ---------- ---------- --------- ------ ");
 #if (LOSCFG_BASE_CORE_CPUP == 1)
     PRINTK("------- --------- --------  ");
 #endif /* LOSCFG_BASE_CORE_CPUP */
-    PRINTK("----\n");
+    PRINTK("---------- ----\n");
 }
 
 /*****************************************************************************
@@ -352,7 +352,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
                cpuOneSec[taskCB->taskID].uwUsage / LOS_CPUP_PRECISION_MULT,
                cpuOneSec[taskCB->taskID].uwUsage % LOS_CPUP_PRECISION_MULT);
 #endif /* LOSCFG_BASE_CORE_CPUP */
-        PRINTK("%-32s\n", taskCB->taskName);
+        PRINTK("%#10x %-32s\n", (UINT32)(UINTPTR)taskCB->taskEntry, taskCB->taskName);
     }
 
 #if (LOSCFG_BASE_CORE_CPUP == 1)
@@ -749,9 +749,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S
     if (retVal != LOS_OK) {
         return retVal;
     }
-    
+
     LOSCFG_TASK_CREATE_EXTENSION_HOOK(taskCB);
-    
+
 #if (LOSCFG_BASE_CORE_CPUP == 1)
     intSave = LOS_IntLock();
     g_cpup[taskCB->taskID].cpupID = taskCB->taskID;
@@ -1087,9 +1087,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
     // Ignore the return code when matching CSEC rule 6.6(4).
     (VOID)memset_s((VOID *)&g_cpup[taskCB->taskID], sizeof(OsCpupCB), 0, sizeof(OsCpupCB));
 #endif
-    
+
     LOSCFG_TASK_DELETE_EXTENSION_HOOK(taskCB);
-    
+
     if (taskCB->taskStatus & OS_TASK_STATUS_RUNNING) {
         if (!(taskCB->taskStatus & OS_TASK_STATUS_EXIT)) {
             taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
