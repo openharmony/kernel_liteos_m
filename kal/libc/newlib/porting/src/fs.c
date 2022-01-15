@@ -32,6 +32,7 @@
 #include "los_fs.h"
 #include "stdio.h"
 #include "stdarg.h"
+#include <sys/ioctl.h>
 
 #ifdef LOSCFG_LIBC_NEWLIB_FS
 int mount(const char *source, const char *target,
@@ -139,6 +140,11 @@ int statfs(const char *path, struct statfs *buf)
 int ftruncate(int fd, off_t length)
 {
     return LOS_Ftruncate(fd, length);
+}
+
+int ioctl(int fd, int req, ...)
+{
+	return -1;
 }
 
 #else /* #ifdef LOSCFG_FS_VFS */
