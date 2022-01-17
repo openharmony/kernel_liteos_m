@@ -368,6 +368,7 @@ STATIC VOID OsExcRegInfo(const ExcInfo *excInfo)
     PRINTK("xPSR      = 0x%x\n", excInfo->context->uwxPSR);
 }
 
+#if (LOSCFG_KERNEL_BACKTRACE == 1)
 STATIC VOID OsExcBackTraceInfo(const ExcInfo *excInfo)
 {
     UINTPTR LR[LOSCFG_BACKTRACE_DEPTH] = {0};
@@ -384,6 +385,7 @@ STATIC VOID OsExcBackTraceInfo(const ExcInfo *excInfo)
     }
     PRINTK("----- backtrace end -----\n");
 }
+#endif
 
 STATIC VOID OsExcMemPoolCheckInfo(VOID)
 {
@@ -433,7 +435,9 @@ STATIC VOID OsExcInfoDisplay(const ExcInfo *excInfo)
     OsExcTypeInfo(excInfo);
     OsExcCurTaskInfo(excInfo);
     OsExcRegInfo(excInfo);
+#if (LOSCFG_KERNEL_BACKTRACE == 1)
     OsExcBackTraceInfo(excInfo);
+#endif
     OsGetAllTskInfo();
     OsExcNvicDump();
     OsExcMemPoolCheckInfo();
