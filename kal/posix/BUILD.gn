@@ -57,6 +57,11 @@ kernel_module(module_name) {
   if (defined(LOSCFG_POSIX_MQUEUE_API)) {
     sources += [ "src/mqueue.c" ]
   }
+
+  if (defined(LOSCFG_POSIX_PIPE_API)) {
+    sources += [ "src/pipe.c" ]
+    sources += [ "src/poll.c" ]
+  }
 }
 
 config("public") {

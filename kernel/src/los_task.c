@@ -721,8 +721,8 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S
 
     intSave = LOS_IntLock();
     if (LOS_ListEmpty(&g_losFreeTask)) {
-        retVal = LOS_ERRNO_TSK_TCB_UNAVAILABLE;
-        OS_GOTO_ERREND();
+        LOS_IntRestore(intSave);
+        return LOS_ERRNO_TSK_TCB_UNAVAILABLE;
     }
 
     taskCB = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&g_losFreeTask));
@@ -760,10 +760,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S
 #endif
     *taskID = taskCB->taskID;
     OsHookCall(LOS_HOOK_TYPE_TASK_CREATE, taskCB);
-    return retVal;
-
-LOS_ERREND:
-    LOS_IntRestore(intSave);
     return retVal;
 }
 

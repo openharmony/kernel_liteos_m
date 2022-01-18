@@ -649,6 +649,14 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_TASK_DELETE_EXTENSION_HOOK(taskCB)
 #endif
 
+/**
+ * @ingroup los_config
+ * Configuration item to enable pipe device.
+ */
+#ifndef LOSCFG_PIPE_DEV
+#define LOSCFG_POSIX_PIPE_API                         0
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }
