@@ -246,8 +246,8 @@ int timer_getoverrun(timer_t timerID)
 STATIC VOID OsGetHwTime(struct timespec *hwTime)
 {
     UINT64 cycle = LOS_SysCycleGet();
-    UINT64 nowNsec = (cycle / OS_SYS_CLOCK) * OS_SYS_NS_PER_SECOND +
-                     (cycle % OS_SYS_CLOCK) * OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK;
+    UINT64 nowNsec = (cycle / g_sysClock) * OS_SYS_NS_PER_SECOND +
+                     (cycle % g_sysClock) * OS_SYS_NS_PER_SECOND / g_sysClock;
 
     hwTime->tv_sec = nowNsec / OS_SYS_NS_PER_SECOND;
     hwTime->tv_nsec = nowNsec % OS_SYS_NS_PER_SECOND;
@@ -369,7 +369,7 @@ int clock_getres(clockid_t clockID, struct timespec *tp)
         case CLOCK_REALTIME:
         case CLOCK_MONOTONIC_COARSE:
         case CLOCK_REALTIME_COARSE:
-            tp->tv_nsec = OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK;
+            tp->tv_nsec = OS_SYS_NS_PER_SECOND / g_sysClock;
             tp->tv_sec = 0;
             return 0;
         case CLOCK_THREAD_CPUTIME_ID:

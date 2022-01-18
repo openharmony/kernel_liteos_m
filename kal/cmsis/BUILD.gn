@@ -33,6 +33,7 @@ module_switch = defined(LOSCFG_KAL_CMSIS)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
   sources = [ "cmsis_liteos2.c" ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 
 config("public") {

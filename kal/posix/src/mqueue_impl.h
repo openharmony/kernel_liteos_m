@@ -79,8 +79,9 @@
 #define MQ_USE_MAGIC  0x89abcdef
 #define MQ_PRIO_MAX 1
 
-
+#ifndef FNONBLOCK
 #define FNONBLOCK   O_NONBLOCK
+#endif
 
 #define QUEUE_SPLIT_BIT        16
 

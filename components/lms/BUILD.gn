@@ -36,6 +36,7 @@ kernel_module(module_name) {
     "lms_libc.c",
     "los_lms.c",
   ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 
 config("public") {

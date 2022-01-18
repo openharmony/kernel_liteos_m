@@ -36,6 +36,7 @@ kernel_module(module_name) {
     "cnv/trace_cnv.c",
     "los_trace.c",
   ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 
   include_dirs = [
     ".",

@@ -164,7 +164,7 @@ UINT32 OsSortLinkGetTargetExpireTime(UINT64 currTime, const SortLinkList *target
         return 0;
     }
 
-    return (UINT32)(((targetSortList->responseTime - currTime) * LOSCFG_BASE_CORE_TICK_PER_SECOND) / OS_SYS_CLOCK);
+    return (UINT32)(((targetSortList->responseTime - currTime) * LOSCFG_BASE_CORE_TICK_PER_SECOND) / g_sysClock);
 }
 
 UINT32 OsSortLinkGetNextExpireTime(const SortLinkAttribute *sortLinkHeader)

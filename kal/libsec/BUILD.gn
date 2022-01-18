@@ -33,6 +33,7 @@ import("//third_party/bounds_checking_function/libsec_src.gni")
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
   sources = libsec_sources
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
   if (defined(LOSCFG_KERNEL_LMS)) {
     if ("$ohos_build_compiler" == "gcc") {
       cflags_c = [ "-fsanitize=kernel-address" ]

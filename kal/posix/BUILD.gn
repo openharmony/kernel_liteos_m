@@ -36,6 +36,7 @@ kernel_module(module_name) {
     "src/errno.c",
     "src/libc.c",
   ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 
   if (defined(LOSCFG_POSIX_THREAD_API)) {
     sources += [

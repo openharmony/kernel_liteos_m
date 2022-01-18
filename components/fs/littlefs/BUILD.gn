@@ -38,6 +38,7 @@ kernel_module(module_name) {
     "$LITEOSTHIRDPARTY/littlefs/lfs_util.c",
     "lfs_api.c",
   ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 
 config("public") {
