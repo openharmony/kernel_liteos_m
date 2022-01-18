@@ -317,6 +317,11 @@ int mq_close(mqd_t personal)
     struct mqpersonal *privateMqPersonal = NULL;
     struct mqpersonal *tmp = NULL;
 
+    if ((personal == (mqd_t)NULL) || (personal == (mqd_t)-1)) {
+        errno = EBADF;
+        return -1;
+    }
+
     (VOID)pthread_mutex_lock(&g_mqueueMutex);
     privateMqPersonal = (struct mqpersonal *)personal;
     if (privateMqPersonal->mq_status != MQ_USE_MAGIC) {
@@ -430,11 +435,23 @@ int mq_getsetattr(mqd_t mqd, const struct mq_attr *new, struct mq_attr *old)
 
 int mq_getattr(mqd_t mqd, struct mq_attr *attr)
 {
+    if ((mqd == (mqd_t)NULL) || (mqd == (mqd_t)-1)) {
+        errno = EBADF;
+        return -1;
+    }
     return mq_getsetattr(mqd, 0, attr);
 }
 
 int mq_setattr(mqd_t mqd, const struct mq_attr *new, struct mq_attr *old)
 {
+    if ((mqd == (mqd_t)NULL) || (mqd == (mqd_t)-1)) {
+        errno = EBADF;
+        return -1;
+    }
+    if (new == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
     return mq_getsetattr(mqd, new, old);
 }
 
@@ -491,7 +508,10 @@ STATIC INT32 ConvertTimeout(long flags, const struct timespec *absTimeout, UINT6
 
 STATIC INLINE BOOL MqParamCheck(mqd_t personal, const char *msg, size_t msgLen)
 {
-    (void)personal;
+    if ((personal == (mqd_t)NULL) || (personal == (mqd_t)-1)) {
+        errno = EBADF;
+        return FALSE;
+    }
     if ((msg == NULL) || (msgLen == 0)) {
         errno = EINVAL;
         return FALSE;
