@@ -38,6 +38,8 @@
 #include "los_config.h"
 #include "los_task.h"
 
+#define PTHREAD_DEFAULT_NAME     "pthread"
+#define PTHREAD_DEFAULT_NAME_LEN 8
 #define PTHREAD_NAMELEN 16
 
 typedef struct {
@@ -51,7 +53,7 @@ static void *PthreadEntry(UINT32 param)
     PthreadData *pthreadData = (PthreadData *)(UINTPTR)param;
     void *(*startRoutine)(void *) = pthreadData->startRoutine;
     void *ret = startRoutine(pthreadData->param);
-    free(pthreadData);
+    pthread_exit(ret);
     return ret;
 }
 
@@ -69,7 +71,8 @@ static int PthreadCreateAttrInit(const pthread_attr_t *attr, void *(*startRoutin
     INT32 policy = 0;
     pthread_attr_t attrTmp;
     INT32 ret;
-
+    errno_t error;
+    
     if (!attr) {
         (VOID)pthread_attr_init(&attrTmp);
         threadAttr = &attrTmp;
@@ -97,6 +100,11 @@ static int PthreadCreateAttrInit(const pthread_attr_t *attr, void *(*startRoutin
         return ENOMEM;
     }
 
+    error = memcpy_s(pthreadData->name, PTHREAD_NAMELEN, PTHREAD_DEFAULT_NAME, PTHREAD_DEFAULT_NAME_LEN);
+    if (error != EOK) {
+        free(pthreadData);
+        return error;
+    }
     pthreadData->startRoutine   = startRoutine;
     pthreadData->param          = arg;
     taskInitParam->pcName       = pthreadData->name;
@@ -128,9 +136,6 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         free((VOID *)(UINTPTR)taskInitParam.uwArg);
         return EINVAL;
     }
-
-    /* set pthread default name */
-    (void)sprintf_s(taskInitParam.pcName, PTHREAD_NAMELEN, "pthread%u", taskID);
 
     (void)LOS_TaskResume(taskID);
 
@@ -219,9 +224,16 @@ int pthread_detach(pthread_t thread)
 
 void pthread_exit(void *retVal)
 {
+    UINT32 intSave;
+
     LosTaskCB *tcb = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
     tcb->joinRetval = (UINTPTR)retVal;
-    free((PthreadData *)(UINTPTR)tcb->arg);
+    PthreadData *pthreadData = (PthreadData *)(UINTPTR)tcb->arg;
+
+    intSave = LOS_IntLock();
+    tcb->taskName = PTHREAD_DEFAULT_NAME;
+    LOS_IntRestore(intSave);
+    free(pthreadData);
     (void)LOS_TaskDelete(tcb->taskID);
 }
 
@@ -240,6 +252,11 @@ int pthread_setname_np(pthread_t thread, const char *name)
 
     taskCB = OS_TCB_FROM_TID((UINT32)thread);
     intSave = LOS_IntLock();
+    if (taskCB->taskStatus & OS_TASK_STATUS_EXIT) {
+        LOS_IntRestore(intSave);
+        return EINVAL;
+    }
+
     if (taskCB->taskEntry == PthreadEntry) {
         (void)strcpy_s(taskName, PTHREAD_NAMELEN, name);
     } else {
