@@ -33,6 +33,7 @@ module_switch = defined(LOSCFG_BASE_CORE_CPUP)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
   sources = [ "los_cpup.c" ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 
 config("public") {

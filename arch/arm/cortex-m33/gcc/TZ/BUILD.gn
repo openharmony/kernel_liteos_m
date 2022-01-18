@@ -39,6 +39,7 @@ kernel_module(module_name) {
     "non_secure/los_timer.c",
     "non_secure/los_trustzone.c",
   ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 
   include_dirs = [
     "non_secure",

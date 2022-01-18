@@ -39,6 +39,7 @@ kernel_module(module_name) {
     "los_timer.c",
     "los_window.S",
   ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 
 config("public") {

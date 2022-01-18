@@ -267,6 +267,8 @@ void pthread_exit(void *retVal)
     LOS_IntRestore(intSave);
     free(pthreadData);
     (void)LOS_TaskDelete(tcb->taskID);
+    while (1) {
+    }
 }
 
 int pthread_setname_np(pthread_t thread, const char *name)

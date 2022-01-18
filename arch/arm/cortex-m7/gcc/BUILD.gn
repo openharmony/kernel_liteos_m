@@ -39,6 +39,7 @@ kernel_module(module_name) {
     "los_mpu.c",
     "los_timer.c",
   ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 
 config("public") {

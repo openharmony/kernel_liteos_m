@@ -68,7 +68,7 @@ UINT32 OsTraceBufInit(UINT32 size)
     g_traceRecoder.head = (OfflineHead *)buf;
     g_traceRecoder.head->baseInfo.bigLittleEndian = TRACE_BIGLITTLE_WORD;
     g_traceRecoder.head->baseInfo.version         = TRACE_VERSION(TRACE_MODE_OFFLINE);
-    g_traceRecoder.head->baseInfo.clockFreq       = OS_SYS_CLOCK;
+    g_traceRecoder.head->baseInfo.clockFreq       = g_sysClock;
     g_traceRecoder.head->objSize                  = sizeof(ObjData);
     g_traceRecoder.head->frameSize                = sizeof(TraceEventFrame);
     g_traceRecoder.head->objOffset                = sizeof(OfflineHead);

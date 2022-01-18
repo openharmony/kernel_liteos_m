@@ -34,6 +34,7 @@
 #include "lwip/priv/sockets_priv.h"
 #include "lwip/prot/dhcp.h"
 #include "lwip/dhcp.h"
+#include "lwip/if_api.h"
 
 #if !LWIP_COMPAT_SOCKETS
 #if LWIP_SOCKET
