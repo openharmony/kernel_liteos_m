@@ -229,7 +229,7 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
                            const struct timespec *ts)
 {
     INT32 ret;
-    UINT32 absTicks;
+    UINT64 absTicks;
     const UINT32 nsPerTick = OS_SYS_NS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND;
     struct timespec tp;
     UINT64 nseconds;
@@ -269,7 +269,8 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
         PRINT_ERR("%s: %d failed\n", __FUNCTION__, __LINE__);
     }
 
-    ret = (INT32)LOS_EventRead(&(cond->event), 0x0f, LOS_WAITMODE_OR | LOS_WAITMODE_CLR, absTicks);
+    (VOID)LOS_EventClear(&(cond->event), 0);
+    ret = (INT32)LOS_EventRead(&(cond->event), 0x0f, LOS_WAITMODE_OR | LOS_WAITMODE_CLR, (UINT32)absTicks);
 
     if (pthread_mutex_lock(mutex) != 0) {
         PRINT_ERR("%s: %d failed\n", __FUNCTION__, __LINE__);
