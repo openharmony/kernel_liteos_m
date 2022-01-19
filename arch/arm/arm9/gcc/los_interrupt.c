@@ -48,9 +48,6 @@
 #define OS_INT_ENABLE_ADDR          (OS_INT_REG_BASE)
 #define OS_INT_STATUS_ADDR          (OS_INT_REG_BASE + 12)
 
-#define OS_INT_ENABLE(num)          (*((volatile UINT32 *)OS_INT_ENABLE_ADDR) |= (1U << (num)))
-#define OS_INT_DISABLE(num)         (*((volatile UINT32 *)OS_INT_ENABLE_ADDR ) &= ~(1U << (num)))
-
 #define OS_INSTR_SET_MASK           0x01000020U
 #define OS_ARM_INSTR_LEN            4
 #define OS_THUMB_INSTR_LEN          2
@@ -112,19 +109,48 @@ VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector)
 
 
 /* ****************************************************************************
- Function    : HalIntNumGet
+ Function    : HwiNumGet
  Description : Get an interrupt number
  Input       : None
  Output      : None
  Return      : Interrupt Indexes number
  **************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR UINT32 HalIntNumGet(VOID)
+STATIC UINT32 HwiNumGet(VOID)
 {
     UINT32 status;
 
     READ_UINT32(status, OS_INT_STATUS_ADDR);
+
     return (31 - CLZ(status));
 }
+
+STATIC UINT32 HwiUnmask(HWI_HANDLE_T hwiNum)
+{
+    if (hwiNum >= OS_HWI_MAX_NUM) {
+        return OS_ERRNO_HWI_NUM_INVALID;
+    }
+
+    *((volatile UINT32 *)OS_INT_ENABLE_ADDR) |= (1U << (hwiNum));
+
+    return LOS_OK;
+}
+
+STATIC UINT32 HwiMask(HWI_HANDLE_T hwiNum)
+{
+    if (hwiNum >= OS_HWI_MAX_NUM) {
+        return OS_ERRNO_HWI_NUM_INVALID;
+    }
+
+    *((volatile UINT32 *)OS_INT_ENABLE_ADDR) &= ~(1U << (hwiNum));
+
+    return LOS_OK;
+}
+
+HwiControllerOps g_archHwiOps = {
+    .enableIrq      = HwiUnmask,
+    .disableIrq     = HwiMask,
+    .getCurIrqNum   = HwiNumGet,
+};
 
 inline UINT32 ArchIsIntActive(VOID)
 {
@@ -140,8 +166,8 @@ inline UINT32 ArchIsIntActive(VOID)
 /*lint -e529*/
 LITE_OS_SEC_TEXT_MINOR VOID HalHwiDefaultHandler(VOID)
 {
-    UINT32 irqNum = HalIntNumGet();
-    PRINT_ERR("%s irqnum:%d\n", __FUNCTION__, irqNum);
+    UINT32 irqNum = HwiNumGet();
+    PRINT_ERR("%s irqnum:%u\n", __FUNCTION__, irqNum);
     while (1) {}
 }
 
@@ -175,7 +201,7 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
     OsSchedUpdateSleepTime();
 #endif
 
-    hwiIndex = HalIntNumGet();
+    hwiIndex = HwiNumGet();
 
     OsHookCall(LOS_HOOK_TYPE_ISR_ENTER, hwiIndex);
 
@@ -237,7 +263,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
 #else
     OsSetVector(hwiNum, handler);
 #endif
-    OS_INT_ENABLE(hwiNum);
+    HwiUnmask(hwiNum);
     LOS_IntRestore(intSave);
 
     return LOS_OK;
@@ -258,7 +284,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum)
         return OS_ERRNO_HWI_NUM_INVALID;
     }
 
-    OS_INT_DISABLE(hwiNum);
+    HwiMask(hwiNum);
 
     intSave = LOS_IntLock();
     g_hwiForm[hwiNum + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalHwiDefaultHandler;

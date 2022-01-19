@@ -73,7 +73,7 @@ STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
     __asm__ __volatile__("wsr %0, ccompare1; rsync" : : "a"(0));
     __asm__ __volatile__("wsr %0, ccompare2; rsync" : : "a"(0));
 
-    HalIrqUnmask(tick->irqNum);
+    HwiUnmask(tick->irqNum);
     return LOS_OK;
 }
 
@@ -109,12 +109,12 @@ STATIC UINT64 SysTickCycleGet(UINT32 *period)
 
 STATIC VOID SysTickLock(VOID)
 {
-    HalIrqMask(OS_TICK_INT_NUM);
+    HwiMask(OS_TICK_INT_NUM);
 }
 
 STATIC VOID SysTickUnlock(VOID)
 {
-    HalIrqUnmask(OS_TICK_INT_NUM);
+    HwiUnmask(OS_TICK_INT_NUM);
 }
 
 ArchTickTimer *ArchSysTickTimerGet(VOID)
