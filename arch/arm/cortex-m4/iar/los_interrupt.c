@@ -109,16 +109,84 @@ WEAK VOID SysTick_Handler(VOID)
 }
 
 /* ****************************************************************************
- Function    : HalIntNumGet
+ Function    : HwiNumGet
  Description : Get an interrupt number
  Input       : None
  Output      : None
  Return      : Interrupt Indexes number
  **************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR UINT32 HalIntNumGet(VOID)
+STATIC UINT32 HwiNumGet(VOID)
 {
     return __get_IPSR();
 }
+
+STATIC UINT32 HwiUnmask(HWI_HANDLE_T hwiNum)
+{
+    if (hwiNum >= OS_HWI_MAX_NUM) {
+        return OS_ERRNO_HWI_NUM_INVALID;
+    }
+
+    NVIC_EnableIRQ((IRQn_Type)hwiNum);
+
+    return LOS_OK;
+}
+
+STATIC UINT32 HwiMask(HWI_HANDLE_T hwiNum)
+{
+    if (hwiNum >= OS_HWI_MAX_NUM) {
+        return OS_ERRNO_HWI_NUM_INVALID;
+    }
+
+    NVIC_DisableIRQ((IRQn_Type)hwiNum);
+
+    return LOS_OK;
+}
+
+STATIC UINT32 HwiSetPriority(HWI_HANDLE_T hwiNum, UINT8 priority)
+{
+    if (hwiNum >= OS_HWI_MAX_NUM) {
+        return OS_ERRNO_HWI_NUM_INVALID;
+    }
+
+    if (priority > OS_HWI_PRIO_LOWEST) {
+        return OS_ERRNO_HWI_PRIO_INVALID;
+    }
+
+    NVIC_SetPriority((IRQn_Type)hwiNum, priority);
+
+    return LOS_OK;
+}
+
+STATIC UINT32 HwiPending(HWI_HANDLE_T hwiNum)
+{
+    if (hwiNum >= OS_HWI_MAX_NUM) {
+        return OS_ERRNO_HWI_NUM_INVALID;
+    }
+
+    NVIC_SetPendingIRQ((IRQn_Type)hwiNum);
+
+    return LOS_OK;
+}
+
+STATIC UINT32 HwiClear(HWI_HANDLE_T hwiNum)
+{
+    if (hwiNum >= OS_HWI_MAX_NUM) {
+        return OS_ERRNO_HWI_NUM_INVALID;
+    }
+
+    NVIC_ClearPendingIRQ((IRQn_Type)hwiNum);
+
+    return LOS_OK;
+}
+
+HwiControllerOps g_archHwiOps = {
+    .enableIrq      = HwiUnmask,
+    .disableIrq     = HwiMask,
+    .setIrqPriority = HwiSetPriority,
+    .getCurIrqNum   = HwiNumGet,
+    .triggerIrq     = HwiPending,
+    .clearIrq       = HwiClear,
+};
 
 inline UINT32 ArchIsIntActive(VOID)
 {
@@ -134,8 +202,8 @@ inline UINT32 ArchIsIntActive(VOID)
 /*lint -e529*/
 LITE_OS_SEC_TEXT_MINOR VOID HalHwiDefaultHandler(VOID)
 {
-    UINT32 irqNum = HalIntNumGet();
-    PRINT_ERR("%s irqnum:%d\n", __FUNCTION__, irqNum);
+    UINT32 irqNum = HwiNumGet();
+    PRINT_ERR("%s irqnum:%u\n", __FUNCTION__, irqNum);
     while (1) {}
 }
 
@@ -169,7 +237,7 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
     g_intCount++;
     LOS_IntRestore(intSave);
 
-    hwiIndex = HalIntNumGet();
+    hwiIndex = HwiNumGet();
 
     OsHookCall(LOS_HOOK_TYPE_ISR_ENTER, hwiIndex);
 
@@ -235,8 +303,8 @@ LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
 #else
     OsSetVector(hwiNum, handler);
 #endif
-    NVIC_EnableIRQ((IRQn_Type)hwiNum);
-    NVIC_SetPriority((IRQn_Type)hwiNum, hwiPrio);
+    HwiUnmask((IRQn_Type)hwiNum);
+    HwiSetPriority((IRQn_Type)hwiNum, hwiPrio);
 
     LOS_IntRestore(intSave);
 
