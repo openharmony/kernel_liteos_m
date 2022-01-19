@@ -39,6 +39,7 @@ kernel_module(module_name) {
     "$LITEOSTHIRDPARTY/FatFs/source/ffunicode.c",
     "fatfs.c",
   ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 
 config("public") {

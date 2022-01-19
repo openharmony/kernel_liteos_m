@@ -289,7 +289,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskCpupInfo(CPUP_INFO_S **cpuLessOneSec,
 }
 #endif
 
-LITE_OS_SEC_TEXT_MINOR VOID OsPrintAllTskInfoHeader()
+LITE_OS_SEC_TEXT_MINOR VOID OsPrintAllTskInfoHeader(VOID)
 {
     PRINTK("\r\n TID  Priority   Status StackSize WaterLine StackPoint TopOfStack EventMask  SemID");
 #if (LOSCFG_BASE_CORE_CPUP == 1)
@@ -1472,8 +1472,8 @@ VOID LOS_UDelay(UINT64 microseconds)
         return;
     }
 
-    endTime = (microseconds / OS_SYS_US_PER_SECOND) * OS_SYS_CLOCK +
-            (microseconds % OS_SYS_US_PER_SECOND) * OS_SYS_CLOCK / OS_SYS_US_PER_SECOND;
+    endTime = (microseconds / OS_SYS_US_PER_SECOND) * g_sysClock +
+            (microseconds % OS_SYS_US_PER_SECOND) * g_sysClock / OS_SYS_US_PER_SECOND;
     endTime = LOS_SysCycleGet() + endTime;
     while (LOS_SysCycleGet() < endTime) {
     }

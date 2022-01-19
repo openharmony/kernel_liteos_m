@@ -105,7 +105,7 @@ STATIC VOID OsPmTickTimerStart(LosPmCB *pm)
         tickTimer->timerStop();
 
         realSleepTime = OS_SYS_CYCLE_TO_NS(sleepTime, tickTimer->freq);
-        realSleepTime = OS_SYS_NS_TO_CYCLE(realSleepTime, OS_SYS_CLOCK);
+        realSleepTime = OS_SYS_NS_TO_CYCLE(realSleepTime, g_sysClock);
         currTime = pm->enterSleepTime + realSleepTime;
         pm->enterSleepTime = 0;
 
@@ -136,7 +136,7 @@ STATIC BOOL OsPmTickTimerStop(LosPmCB *pm)
             return FALSE;
         }
 
-        sleepCycle = OS_SYS_CYCLE_TO_NS(realSleepTime, OS_SYS_CLOCK);
+        sleepCycle = OS_SYS_CYCLE_TO_NS(realSleepTime, g_sysClock);
         sleepCycle = OS_SYS_NS_TO_CYCLE(sleepCycle, tickTimer->freq);
 
         /* The main CPU reduces the frequency */

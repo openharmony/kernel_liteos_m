@@ -32,6 +32,7 @@ module_switch = defined(LOSCFG_KERNEL_DYNLINK)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
   sources = [ "los_dynlink.c" ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 
 config("public") {

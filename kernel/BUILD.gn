@@ -45,6 +45,7 @@ kernel_module(module_name) {
     "src/mm/los_membox.c",
     "src/mm/los_memory.c",
   ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 
 config("public") {

@@ -100,7 +100,7 @@ int LfsRmdir(const char *dirName);
 DIR *LfsOpendir(const char *dirName);
 struct dirent *LfsReaddir(DIR *dir);
 int LfsClosedir(DIR *dir);
-int LfsOpen(const char *pathName, int openFlag, int mode);
+int LfsOpen(const char *pathName, int openFlag, ...);
 int LfsRead(int fd, void *buf, unsigned int len);
 int LfsWrite(int fd, const void *buf, unsigned int len);
 off_t LfsSeek(int fd, off_t offset, int whence);

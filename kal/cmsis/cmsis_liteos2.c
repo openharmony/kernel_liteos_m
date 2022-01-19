@@ -270,7 +270,7 @@ uint32_t osKernelGetSysTimerCount(void)
 
 uint32_t osKernelGetSysTimerFreq(void)
 {
-    return OS_SYS_CLOCK;
+    return g_sysClock;
 }
 
 

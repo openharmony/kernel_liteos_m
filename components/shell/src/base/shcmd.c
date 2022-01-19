@@ -309,7 +309,6 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdExec(CmdParsed *cmdParsed)
         ret = (cmdHook)(cmdParsed->paramCnt, (const CHAR **)cmdParsed->paramArray);
     }
 
-OUT:
     for (i = 0; i < cmdParsed->paramCnt; i++) {
         if (cmdParsed->paramArray[i] != NULL) {
             (VOID)LOS_MemFree(m_aucSysMem0, cmdParsed->paramArray[i]);

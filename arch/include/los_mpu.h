@@ -80,7 +80,7 @@ typedef struct {
 } MPU_CFG_PARA;
 
 VOID ArchMpuEnable(UINT32 defaultRegionEnable);
-VOID ArchMpuDisable();
+VOID ArchMpuDisable(VOID);
 UINT32 ArchMpuSetRegion(UINT32 regionId, MPU_CFG_PARA *para);
 UINT32 ArchMpuDisableRegion(UINT32 regionId);
 INT32 ArchMpuUnusedRegionGet(VOID);
