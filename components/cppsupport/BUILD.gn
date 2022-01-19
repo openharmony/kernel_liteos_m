@@ -33,6 +33,7 @@ module_switch = defined(LOSCFG_KERNEL_CPPSUPPORT)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
   sources = [ "los_cppsupport.c" ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 
 config("public") {

@@ -49,7 +49,7 @@ VOID OsTraceSendHead(VOID)
     TraceBaseHeaderInfo head = {
         .bigLittleEndian = TRACE_BIGLITTLE_WORD,
         .version         = TRACE_VERSION(TRACE_MODE_ONLINE),
-        .clockFreq       = OS_SYS_CLOCK,
+        .clockFreq       = g_sysClock,
     };
 
     OsTraceDataSend(HEAD, sizeof(TraceBaseHeaderInfo), (UINT8 *)&head);

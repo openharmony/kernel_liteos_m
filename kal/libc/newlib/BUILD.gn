@@ -39,6 +39,7 @@ kernel_module(module_name) {
     "porting/src/pthread.c",
     "porting/src/time.c",
   ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 
   if (defined(LOSCFG_LIBC_NEWLIB_FS)) {
     sources +=

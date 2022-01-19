@@ -54,7 +54,7 @@ extern "C" {
  * System clock (unit: HZ)
  */
 #ifndef OS_SYS_CLOCK
-    #error "OS_SYS_CLOCK is system clock rate which should be defined in target_config.h"
+#define OS_SYS_CLOCK 1000000
 #endif
 
 /**
@@ -653,8 +653,10 @@ extern UINT8 *m_aucSysMem0;
  * @ingroup los_config
  * Configuration item to enable pipe device.
  */
+#ifndef LOSCFG_POSIX_PIPE_API
 #ifndef LOSCFG_PIPE_DEV
 #define LOSCFG_POSIX_PIPE_API                         0
+#endif
 #endif
 
 #ifdef __cplusplus

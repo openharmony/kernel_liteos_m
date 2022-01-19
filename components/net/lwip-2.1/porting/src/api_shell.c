@@ -39,9 +39,12 @@
 #include "lwip/err.h"
 #include "lwip/ip_addr.h"
 #include "lwip/icmp.h"
+#include "lwip/tcpip.h"
+#include "lwip/inet_chksum.h"
 #include "los_config.h"
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 #include "los_debug.h"
 #include "los_task.h"
 

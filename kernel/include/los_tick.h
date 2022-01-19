@@ -107,6 +107,30 @@ extern UINT64 LOS_SysCycleGet(VOID);
 
 /**
  * @ingroup los_tick
+ * Ticks per second
+ */
+extern UINT32    g_ticksPerSec;
+
+/**
+ * @ingroup los_tick
+ * Cycles per Second
+ */
+extern UINT32    g_uwCyclePerSec;
+
+/**
+ * @ingroup los_tick
+ * Cycles per Tick
+ */
+extern UINT32    g_cyclesPerTick;
+
+/**
+ * @ingroup los_tick
+ * System Clock
+ */
+extern UINT32    g_sysClock;
+
+/**
+ * @ingroup los_tick
  * Number of microseconds in one second.
  */
 #define OS_SYS_US_PER_SECOND   1000000
@@ -115,9 +139,9 @@ extern UINT64 LOS_SysCycleGet(VOID);
 
 #define OS_SYS_NS_PER_US       1000
 
-#define OS_CYCLE_PER_TICK      (OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND)
+#define OS_CYCLE_PER_TICK      (g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
-#define OS_NS_PER_CYCLE        (OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK)
+#define OS_NS_PER_CYCLE        (OS_SYS_NS_PER_SECOND / g_sysClock)
 
 #define OS_MS_PER_TICK         (OS_SYS_MS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
@@ -125,8 +149,8 @@ extern UINT64 LOS_SysCycleGet(VOID);
 
 #define OS_NS_PER_TICK         (OS_SYS_NS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
-#define OS_SYS_CYCLE_TO_NS(cycle, freq)  (((cycle) / (freq)) * OS_SYS_NS_PER_SECOND + \
-    ((cycle) % OS_SYS_CLOCK) * OS_SYS_NS_PER_SECOND / (freq))
+#define OS_SYS_CYCLE_TO_NS(cycle, freq)  ((cycle) / (freq)) * OS_SYS_NS_PER_SECOND + \
+    ((cycle) % (freq) * OS_SYS_NS_PER_SECOND / (freq))
 
 #define OS_SYS_NS_TO_CYCLE(time, freq) (((time) / OS_SYS_NS_PER_SECOND) * (freq) +     \
     ((time) % OS_SYS_NS_PER_SECOND) * (freq) / OS_SYS_NS_PER_SECOND)
@@ -332,30 +356,6 @@ extern UINT32 LOS_MS2Tick(UINT32 millisec);
  * @see
  */
 extern UINT32 LOS_TickTimerRegister(const ArchTickTimer *timer, const HWI_PROC_FUNC tickHandler);
-
-/**
- * @ingroup los_tick
- * Ticks per second
- */
-extern UINT32    g_ticksPerSec;
-
-/**
- * @ingroup los_tick
- * Cycles per Second
- */
-extern UINT32    g_uwCyclePerSec;
-
-/**
- * @ingroup los_tick
- * Cycles per Tick
- */
-extern UINT32    g_cyclesPerTick;
-
-/**
- * @ingroup los_tick
- * System Clock
- */
-extern UINT32    g_sysClock;
 
 /**
  * @ingroup  los_tick

@@ -585,7 +585,7 @@ UINT64 LOS_SchedTickTimeoutNsGet(VOID)
         responseTime = 0; /* Tick interrupt already timeout */
     }
 
-    return OS_SYS_CYCLE_TO_NS(responseTime, OS_SYS_CLOCK);
+    return OS_SYS_CYCLE_TO_NS(responseTime, g_sysClock);
 }
 
 VOID LOS_SchedTickHandler(VOID)

@@ -62,7 +62,7 @@ config POSIX_MQUEUE_API
 
 config POSIX_PIPE_API
     bool "Enable POSIX Pipe API"
-    default y
+    default n
     help
       Answer Y to enable LiteOS support POSIX Pipe API.
 

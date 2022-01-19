@@ -42,8 +42,6 @@ typedef struct {
     UINT32 CALIB;
 } CORE_TIM_TYPE;
 
-#define OS_CYCLE_PER_TICK    (OS_SYS_CLOCK / LOSCFG_BASE_CORE_TICK_PER_SECOND)
-
 #define CORE_TIM_BASE        (0xE000E010UL)
 #define SysTick              ((CORE_TIM_TYPE *)CORE_TIM_BASE)
 

@@ -36,6 +36,7 @@ kernel_module(module_name) {
     "los_exc_info.c",
     "los_exchook.c",
   ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 
 config("public") {
