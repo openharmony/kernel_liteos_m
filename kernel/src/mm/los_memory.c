@@ -1915,7 +1915,7 @@ STATIC VOID OsMemIntegrityCheckError(struct OsMemPoolHead *pool,
     }
     MEM_UNLOCK(pool, intSave);
     PRINT_ERR("cur node: 0x%x, pre node: 0x%x, pre node was allocated by task: %d, %s\n",
-              tmpNode, preNode, taskCB->taskID, taskCB->taskName);
+              (unsigned int)tmpNode, (unsigned int)preNode, taskCB->taskID, taskCB->taskName);
     LOS_Panic("Memory integrity check error!\n");
 #else
     MEM_UNLOCK(pool, intSave);
