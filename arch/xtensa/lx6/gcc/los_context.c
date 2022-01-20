@@ -110,6 +110,7 @@ LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
 
 LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
 {
+    errno_t result;
     TaskContext *context = (TaskContext *)((UINTPTR)topStack + stackSize - sizeof(TaskContext));
 
     /* initialize the task context */
