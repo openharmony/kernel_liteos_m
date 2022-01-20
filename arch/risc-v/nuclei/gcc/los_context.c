@@ -45,10 +45,7 @@ LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VO
 {
     UINT32 index;
     UINT8 *stk = 0;
-    TaskContext  *context = NULL;
-
-    /* initialize the task stack, write magic num to stack top */
-    *((UINT32 *)(topStack)) = OS_TASK_MAGIC_WORD;
+    TaskContext *context = NULL;
 
     stk = ((UINT8 *)topStack) + stackSize + sizeof(STACK_TYPE);
     stk = (UINT8 *)ALIGN_DOWN((uintptr_t)stk, REGBYTES);

@@ -432,6 +432,16 @@ extern "C" {
 
 /**
  * @ingroup los_task
+ * Task error code: The task is processing signals.
+ *
+ * Value: 0x02000229
+ *
+ * Solution: Check and Stop the trigger signal so that the task is not processing the signal.
+ */
+#define LOS_ERRNO_TSK_PROCESS_SIGNAL                LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x29)
+
+/**
+ * @ingroup los_task
  * Define the type of the task entry function.
  *
  */
@@ -1295,6 +1305,13 @@ extern UINT32 LOS_TaskDetach(UINT32 taskID);
 
 /**
  * @ingroup los_task
+ * Flag that indicates the task is processing signal.
+ *
+ */
+#define OS_TASK_FLAG_SIGNAL                         0x2000
+
+/**
+ * @ingroup los_task
  * Flag that indicates the task or task control block status.
  *
  * The delayed operation of this task is frozen.
@@ -1480,6 +1497,9 @@ typedef struct {
     UINT32                      eventMode;                /**< Event mode */
     VOID                        *msg;                     /**< Memory allocated to queues */
     INT32                       errorNo;
+#if (LOSCFG_KERNEL_SIGNAL == 1)
+    VOID                        *sig;                     /**< Task signal */
+#endif
     LOSCFG_TASK_STRUCT_EXTENSION                          /**< Task extension field */
 } LosTaskCB;
 
@@ -1753,6 +1773,11 @@ extern UINT32 OsGetAllTskInfo(VOID);
 extern VOID *OsTskUserStackInit(VOID* stackPtr, VOID* userSP, UINT32 userStackSize);
 
 extern UINT32 OsPmEnterHandlerSet(VOID (*func)(VOID));
+
+STATIC INLINE LosTaskCB *OsCurrTaskGet(VOID)
+{
+    return g_losTask.runTask;
+}
 
 #ifdef __cplusplus
 #if __cplusplus

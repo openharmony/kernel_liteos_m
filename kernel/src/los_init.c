@@ -78,6 +78,10 @@
 #include "pipe_impl.h"
 #endif
 
+#if (LOSCFG_KERNEL_SIGNAL == 1)
+#include "los_signal.h"
+#endif
+
 /*****************************************************************************
  Function    : LOS_Reboot
  Description : system exception, die in here, wait for watchdog.
@@ -246,6 +250,14 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     ret = OsPipeInit();
     if (ret != LOS_OK) {
         PRINT_ERR("Pipe init failed!\n");
+        return ret;
+    }
+#endif
+
+#if (LOSCFG_KERNEL_SIGNAL == 1)
+    ret = OsSignalInit();
+    if (ret != LOS_OK) {
+        PRINT_ERR("Signal init failed!\n");
         return ret;
     }
 #endif

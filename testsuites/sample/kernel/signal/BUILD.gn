@@ -1,5 +1,4 @@
-# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -27,48 +26,15 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/liteos.gni")
-
-module_switch = defined(LOSCFG_POSIX_API)
-module_name = get_path_info(rebase_path("."), "name")
-kernel_module(module_name) {
+static_library("test_signal") {
   sources = [
-    "src/errno.c",
-    "src/libc.c",
+    "It_los_signal.c",
+    "It_los_signal_001.c",
+    "It_los_signal_002.c",
+    "It_los_signal_003.c",
+    "It_los_signal_004.c",
+    "It_los_signal_005.c",
   ]
-  configs += [ "$LITEOSTOPDIR:warn_config" ]
 
-  if (defined(LOSCFG_POSIX_THREAD_API)) {
-    sources += [
-      "src/pthread.c",
-      "src/pthread_attr.c",
-      "src/pthread_cond.c",
-      "src/pthread_mutex.c",
-    ]
-  }
-
-  if (defined(LOSCFG_POSIX_CLOCK_API)) {
-    sources += [ "src/time.c" ]
-  }
-
-  if (defined(LOSCFG_POSIX_SEM_API)) {
-    sources += [ "src/semaphore.c" ]
-  }
-
-  if (defined(LOSCFG_POSIX_MQUEUE_API)) {
-    sources += [ "src/mqueue.c" ]
-  }
-
-  if (defined(LOSCFG_POSIX_PIPE_API)) {
-    sources += [ "src/pipe.c" ]
-    sources += [ "src/poll.c" ]
-  }
-
-  if (defined(LOSCFG_POSIX_SIGNAL_API)) {
-    sources += [ "src/signal.c" ]
-  }
-}
-
-config("public") {
-  include_dirs = [ "include" ]
+  configs += [ "//kernel/liteos_m/testsuites:include" ]
 }

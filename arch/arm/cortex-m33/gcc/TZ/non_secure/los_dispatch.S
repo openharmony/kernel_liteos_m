@@ -45,6 +45,15 @@
     .section .text
     .thumb
 
+.macro SIGNAL_CONTEXT_RESTORE
+    PUSH    {R12, LR}
+    BLX     OsSignalTaskContextRestore
+    POP     {R12, LR}
+    CMP     R0, #0
+    MOV     R1, R0
+    BNE     SignalContextRestore
+.endm
+
     .type HalStartFirstTask, %function
     .global HalStartFirstTask
 HalStartFirstTask:
@@ -132,6 +141,8 @@ HalPendSV:
     cpsid   I
 
 HalTaskSwitch:
+    SIGNAL_CONTEXT_RESTORE
+
     push    {r12, lr}
     blx     OsSchedTaskSwitch
     pop     {r12, lr}
@@ -175,8 +186,9 @@ __DisabledFPU2:
 
     LDR     R0, [R5, #4]
     STR     R0, [R5]
-
     LDR     R1, [R0]
+
+SignalContextRestore:
     LDMIA   R1!, {R0, R2-R3}                  /* Restore secureContext, PSPLIM and LR from the current task stack. */
     MSR     PSPLIM, R2
     MOV     LR, R3
@@ -205,7 +217,7 @@ __DisabledFPU3:
     .fnend
 
     .type HalSVCStartSchedule, %function
-    .global HalSVCStartSchedule    
+    .global HalSVCStartSchedule
 HalSVCStartSchedule:
     .fnstart
     .cantunwind
@@ -219,7 +231,7 @@ HalSVCStartSchedule:
     .fnend
 
     .type HalSVCSecureContextAlloc, %function
-    .global HalSVCSecureContextAlloc  
+    .global HalSVCSecureContextAlloc
 HalSVCSecureContextAlloc:
     .fnstart
     .cantunwind
@@ -228,7 +240,7 @@ HalSVCSecureContextAlloc:
     .fnend
 
     .type HalSVCSecureContextFree, %function
-    .global HalSVCSecureContextFree  
+    .global HalSVCSecureContextFree
 HalSVCSecureContextFree:
     .fnstart
     .cantunwind
@@ -237,7 +249,7 @@ HalSVCSecureContextFree:
     .fnend
 
     .type HalSVCHandler, %function
-    .global HalSVCHandler  
+    .global HalSVCHandler
 HalSVCHandler:
     .fnstart
     .cantunwind

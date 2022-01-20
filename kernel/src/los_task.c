@@ -683,7 +683,10 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *
     taskCB->eventMask       = 0;
     taskCB->taskName        = taskInitParam->pcName;
     taskCB->msg             = NULL;
-    taskCB->stackPointer    = ArchTskStackInit(taskCB->taskID, taskInitParam->uwStackSize, topOfStack);
+#if (LOSCFG_KERNEL_SIGNAL == 1)
+    taskCB->sig             = NULL;
+#endif
+
     SET_SORTLIST_VALUE(&taskCB->sortList, OS_SORT_LINK_INVALID_TIME);
     LOS_EventInit(&(taskCB->event));
 
@@ -691,6 +694,10 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *
         taskCB->taskStatus |= OS_TASK_FLAG_JOINABLE;
         LOS_ListInit(&taskCB->joinList);
     }
+
+    *((UINT32 *)taskCB->topOfStack) = OS_TASK_MAGIC_WORD;
+    taskCB->stackPointer = ArchTskStackInit(taskCB->taskID, taskCB->stackSize, (VOID *)taskCB->topOfStack);
+
     return LOS_OK;
 }
 
@@ -744,6 +751,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S
         LOS_IntRestore(intSave);
         return LOS_ERRNO_TSK_NO_MEMORY;
     }
+    /* initialize the task stack, write magic num to stack top */
+    (VOID)memset_s(topOfStack, taskInitParam->uwStackSize,
+                   (INT32)(OS_TASK_STACK_INIT & 0xFF), taskInitParam->uwStackSize);
 
     retVal = OsNewTaskInit(taskCB, taskInitParam, topOfStack);
     if (retVal != LOS_OK) {
@@ -1066,6 +1076,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
         return LOS_ERRNO_TSK_ALREADY_EXIT;
     }
 
+    if (taskCB->taskStatus & OS_TASK_FLAG_SIGNAL) {
+        LOS_IntRestore(intSave);
+        return LOS_ERRNO_TSK_PROCESS_SIGNAL;
+    }
+
     /* If the task is running and scheduler is locked then you can not delete it */
     if (((taskCB->taskStatus) & OS_TASK_STATUS_RUNNING) && (g_losTaskLock != 0)) {
         PRINT_INFO("In case of task lock, task deletion is not recommended\n");
@@ -1082,6 +1097,13 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
 #if (LOSCFG_BASE_CORE_CPUP == 1)
     // Ignore the return code when matching CSEC rule 6.6(4).
     (VOID)memset_s((VOID *)&g_cpup[taskCB->taskID], sizeof(OsCpupCB), 0, sizeof(OsCpupCB));
+#endif
+
+#if (LOSCFG_KERNEL_SIGNAL == 1)
+    if (taskCB->sig != NULL) {
+        LOS_MemFree(OS_SYS_MEM_ADDR, taskCB->sig);
+        taskCB->sig = NULL;
+    }
 #endif
 
     LOSCFG_TASK_DELETE_EXTENSION_HOOK(taskCB);
