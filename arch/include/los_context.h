@@ -106,6 +106,7 @@ LITE_OS_SEC_TEXT_MINOR NORETURN VOID ArchSysExit(VOID);
 VOID ArchTaskSchedule(VOID);
 
 UINT32 ArchStartSchedule(VOID);
+VOID *ArchSignalContextInit(VOID *stackPointer, VOID *stackTop, UINTPTR sigHandler, UINT32 param);
 
 #ifdef __cplusplus
 #if __cplusplus

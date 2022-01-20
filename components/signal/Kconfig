@@ -1,0 +1,6 @@
+config KERNEL_SIGNAL
+    bool "Enable Signal"
+    default n
+    depends on KERNEL_EXTKERNEL
+    help
+      Select y to build LiteOS with signal.

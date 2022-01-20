@@ -28,6 +28,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sys/fcntl.h>
+#include <poll.h>
 #include "securec.h"
 #include "los_fs.h"
 #include "los_list.h"
@@ -262,7 +264,7 @@ STATIC INT32 PipeDevRegister(CHAR *devName, UINT32 len)
     LOS_ListAdd(&g_devList, &dev->list);
     (VOID)LOS_MuxPost(g_devListMutex);
 
-    return ENOERR;
+    return 0;
 ERROR:
     if (dev != NULL) {
         (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, dev);
@@ -303,7 +305,7 @@ STATIC INT32 PipeDevUnregister(struct PipeDev *dev)
     dev->ringBuffer = NULL;
     (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, dev);
 
-    return ENOERR;
+    return 0;
 }
 
 STATIC INT32 PipeDevFdAlloc(VOID)
@@ -469,7 +471,7 @@ INT32 PipeClose(INT32 fd)
         PIPE_DEV_UNLOCK(dev->mutex);
     }
 
-    return ENOERR;
+    return 0;
 ERROR:
     (VOID)LOS_MuxPost(g_devFdMutex);
     return -1;
@@ -677,7 +679,7 @@ int pipe(int filedes[2])
     filedes[0] = open(devName, O_RDONLY);
     filedes[1] = open(devName, O_WRONLY);
 
-    return ENOERR;
+    return 0;
 }
 
 UINT32 OsPipeInit(VOID)

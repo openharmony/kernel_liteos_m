@@ -41,7 +41,7 @@
     EXPORT  HalSVCStartSchedule
     EXPORT  HalSVCSecureContextAlloc
     EXPORT  HalSVCSecureContextFree
-
+    IMPORT  OsSignalTaskContextRestore
     IMPORT  OsSchedTaskSwitch
     IMPORT  g_losTask
 
@@ -61,6 +61,15 @@ OS_TASK_STATUS_RUNNING      EQU     0x0010
     SECTION    .text:CODE(2)
     THUMB
     REQUIRE8
+
+    MACRO SIGNAL_CONTEXT_RESTORE
+    PUSH    {R12, LR}
+    BLX     OsSignalTaskContextRestore
+    POP     {R12, LR}
+    CMP     R0, #0
+    MOV     R1, R0
+    BNE     SignalContextRestore
+    ENDM
 
 HalStartFirstTask
     MOV     R0, #2
@@ -118,6 +127,8 @@ HalPendSV
     CPSID   I
 
 HalTaskSwitch
+    SIGNAL_CONTEXT_RESTORE
+
     PUSH    {R12, LR}
     BLX     OsSchedTaskSwitch
     POP     {R12, LR}
@@ -161,8 +172,9 @@ __DisabledFPU2
 
     LDR     R0, [R5, #4]
     STR     R0, [R5]
-
     LDR     R1, [R0]
+
+SignalContextRestore
     LDMIA   R1!, {R0, R2-R3}                  /* Restore secureContext, PSPLIM and LR from the current task stack. */
     MSR     PSPLIM, R2
     MOV     LR, R3

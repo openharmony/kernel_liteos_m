@@ -178,8 +178,11 @@ void TestKernel(void)
 #if (LOS_KERNEL_LMK_TEST == 1)
     ItSuiteLosLmk();
 #endif
-}
 
+#if (LOS_KERNEL_SIGNAL_TEST == 1)
+    ItSuiteLosSignal();
+#endif
+}
 
 #if (CMSIS_OS_VER == 2)
 void TestCmsis2(void)

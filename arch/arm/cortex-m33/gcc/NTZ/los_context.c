@@ -75,17 +75,7 @@ LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
  **************************************************************************** */
 LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
 {
-    TaskContext *context = NULL;
-    errno_t result;
-
-    /* initialize the task stack, write magic num to stack top */
-    result = memset_s(topStack, stackSize, (INT32)(OS_TASK_STACK_INIT & 0xFF), stackSize);
-    if (result != EOK) {
-        printf("memset_s is failed:%s[%d]\r\n", __FUNCTION__, __LINE__);
-    }
-    *((UINT32 *)(topStack)) = OS_TASK_MAGIC_WORD;
-
-    context = (TaskContext *)(((UINTPTR)topStack + stackSize) - sizeof(TaskContext));
+    TaskContext *context = (TaskContext *)((UINTPTR)topStack + stackSize - sizeof(TaskContext));
 
 #if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
      (defined(__FPU_USED) && (__FPU_USED == 1U)))
@@ -145,6 +135,21 @@ LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VO
 
     return (VOID *)context;
 }
+
+#if (LOSCFG_KERNEL_SIGNAL == 1)
+VOID *ArchSignalContextInit(VOID *stackPointer, VOID *stackTop, UINTPTR sigHandler, UINT32 param)
+{
+    UNUSED(stackTop);
+    TaskContext *context = (TaskContext *)((UINTPTR)stackPointer - sizeof(TaskContext));
+    (VOID)memset_s((VOID *)context, sizeof(TaskContext), 0, sizeof(TaskContext));
+
+    context->uwR0 = param;
+    context->uwPC = sigHandler;
+    context->uwxPSR = 0x01000000L; /* Thumb flag, always set 1 */
+
+    return (VOID *)context;
+}
+#endif
 
 LITE_OS_SEC_TEXT_INIT UINT32 ArchStartSchedule(VOID)
 {

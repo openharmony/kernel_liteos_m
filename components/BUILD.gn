@@ -42,6 +42,7 @@ group("components") {
     "net",
     "power",
     "shell",
+    "signal",
     "trace",
   ]
 }
@@ -60,5 +61,6 @@ config("public") {
     "trace:public",
     "lmk:public",
     "lms:public",
+    "signal:public",
   ]
 }
