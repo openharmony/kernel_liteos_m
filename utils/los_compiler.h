@@ -419,6 +419,7 @@ static inline UINT32 LOS_Align(UINT32 addr, UINT32 boundary)
 #endif
 
 #if defined(__GNUC__)
+#ifndef __XTENSA_LX6__
 static inline void maybe_release_fence(int model)
 {
     switch (model) {
@@ -518,6 +519,7 @@ static inline UINT64 __atomic_exchange_8(volatile void *mem, UINT64 val, int mod
     free_lock (memP, model);
     return ret;
 }
+#endif
 #endif
 
 #ifdef __cplusplus
