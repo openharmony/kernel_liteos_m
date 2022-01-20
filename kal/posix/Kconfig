@@ -66,4 +66,11 @@ config POSIX_PIPE_API
     help
       Answer Y to enable LiteOS support POSIX Pipe API.
 
+config POSIX_SIGNAL_API
+    bool "Enable POSIX Signal API"
+    default n
+    depends on KERNEL_SIGNAL
+    help
+      Answer Y to enable LiteOS support POSIX Signal API.
+
 endif # POSIX_API

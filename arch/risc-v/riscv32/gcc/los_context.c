@@ -81,16 +81,7 @@ LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
 
 LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
 {
-    UINT32 index;
-    TaskContext  *context = NULL;
-
-    /* initialize the task stack, write magic num to stack top */
-    for (index = 1; index < (stackSize / sizeof(UINT32)); index++) {
-        *((UINT32 *)topStack + index) = OS_TASK_STACK_INIT;
-    }
-    *((UINT32 *)(topStack)) = OS_TASK_MAGIC_WORD;
-
-    context = (TaskContext *)(((UINTPTR)topStack + stackSize) - sizeof(TaskContext));
+    TaskContext *context = (TaskContext *)((UINTPTR)topStack + stackSize - sizeof(TaskContext));
 
     context->mstatus = RISCV_MSTATUS_MPP | RISCV_MSTATUS_MPIE;
     context->mepc = (UINT32)(UINTPTR)OsTaskEntry;

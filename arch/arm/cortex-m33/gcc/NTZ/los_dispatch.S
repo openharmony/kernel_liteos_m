@@ -47,6 +47,15 @@
     .section .text
     .thumb
 
+.macro SIGNAL_CONTEXT_RESTORE
+    push    {r12, lr}
+    blx     OsSignalTaskContextRestore
+    pop     {r12, lr}
+    cmp     r0, #0
+    mov     r1, r0
+    bne     SignalContextRestore
+.endm
+
     .type HalStartToRun, %function
     .global HalStartToRun
 HalStartToRun:
@@ -90,9 +99,7 @@ __DisabledFPU:
     MOV     lr, r5
     cpsie   I
     BX      r6
-
     .fnend
-
 
     .type ArchIntLock, %function
     .global ArchIntLock
@@ -140,9 +147,6 @@ ArchTaskSchedule:
     bx      lr
    .fnend
 
-
-
-
     .type HalPendSV, %function
     .global HalPendSV
 HalPendSV:
@@ -153,6 +157,8 @@ HalPendSV:
     cpsid   I
 
 HalTaskSwitch:
+    SIGNAL_CONTEXT_RESTORE
+
     push    {r12, lr}
     blx     OsSchedTaskSwitch
     pop     {r12, lr}
@@ -182,9 +188,11 @@ __DisabledFPU1:
 
     ldr     r0, [r5, #4]
     str     r0, [r5]
-
     ldr     r1,   [r0]
 
+SignalContextRestore:
+    ldr.w   r3, =OS_FPU_CPACR
+    ldr     r3, [r3]
     and     r3, r3, #OS_FPU_CPACR_ENABLE
     cmp     r3, #OS_FPU_CPACR_ENABLE
     bne     __DisabledFPU2
@@ -193,9 +201,7 @@ __DisabledFPU1:
 __DisabledFPU2:
     ldmfd   r1!, {r4-r12}
     msr     psp,  r1
-
     msr     PRIMASK, r12
-
-
     bx      lr
+
     .fnend

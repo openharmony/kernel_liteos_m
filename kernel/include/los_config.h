@@ -651,12 +651,10 @@ extern UINT8 *m_aucSysMem0;
 
 /**
  * @ingroup los_config
- * Configuration item to enable pipe device.
+ * Configuration item to enable kernel signal.
  */
-#ifndef LOSCFG_POSIX_PIPE_API
-#ifndef LOSCFG_PIPE_DEV
-#define LOSCFG_POSIX_PIPE_API                         0
-#endif
+#ifndef LOSCFG_KERNEL_SIGNAL
+#define LOSCFG_KERNEL_SIGNAL                          0
 #endif
 
 #ifdef __cplusplus

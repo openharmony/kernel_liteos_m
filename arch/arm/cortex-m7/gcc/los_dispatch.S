@@ -35,8 +35,6 @@
  .fpu fpv5-d16
 //;.arch_extension sec
 
-
-
 .equ    OS_NVIC_INT_CTRL,            0xE000ED04
 .equ    OS_NVIC_SYSPRI2,             0xE000ED20
 .equ    OS_NVIC_PENDSV_PRI,          0xF0F00000
@@ -45,6 +43,15 @@
 
     .section .text
     .thumb
+
+.macro SIGNAL_CONTEXT_RESTORE
+    push    {r12, lr}
+    blx     OsSignalTaskContextRestore
+    pop     {r12, lr}
+    cmp     r0, #0
+    mov     r1, r0
+    bne     SignalContextRestore
+.endm
 
     .type HalStartToRun, %function
     .global HalStartToRun
@@ -142,6 +149,8 @@ HalPendSV:
     cpsid   I
 
 HalTaskSwitch:
+    SIGNAL_CONTEXT_RESTORE
+
     push    {r12, lr}
     blx     OsSchedTaskSwitch
     pop     {r12, lr}
@@ -167,9 +176,9 @@ TaskContextSwitch:
 
     ldr     r0, [r5, #4]
     str     r0, [r5]
-
     ldr     r1, [r0]
 
+ SignalContextRestore:
 #if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
      (defined(__FPU_USED) && (__FPU_USED == 1U)))
     vldmia   r1!, {d8-d15}
