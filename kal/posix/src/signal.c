@@ -77,60 +77,6 @@ void (*signal(int sig, void (*func)(int)))(int)
     return h;
 }
 
-int sigemptyset(sigset_t *set)
-{
-    if (set == NULL) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    *set = 0;
-    return 0;
-}
-
-int sigfillset(sigset_t *set)
-{
-    if (set == NULL) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    *set = ~0;
-    return 0;
-}
-
-int sigaddset(sigset_t *set, int sig)
-{
-    if ((set == NULL) || !OS_SIGNAL_VALID(sig)) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    *set |= LOS_SIGNAL_MASK(sig);
-    return 0;
-}
-
-int sigdelset(sigset_t *set, int sig)
-{
-    if ((set == NULL) || !OS_SIGNAL_VALID(sig)) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    *set &= ~LOS_SIGNAL_MASK(sig);
-    return 0;
-}
-
-int sigismember(const sigset_t *set, int sig)
-{
-    if ((set == NULL) || !OS_SIGNAL_VALID(sig)) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    return ((*set & LOS_SIGNAL_MASK(sig)) != 0);
-}
-
 int sigprocmask(int how, const sigset_t *set, sigset_t *oset)
 {
     unsigned int ret = LOS_SignalMask(how, set, oset);
