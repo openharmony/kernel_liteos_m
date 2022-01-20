@@ -110,17 +110,7 @@ LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
 
 LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
 {
-    TaskContext *context = NULL;
-    errno_t result;
-
-    /* initialize the task stack, write magic num to stack top */
-    result = memset_s(topStack, stackSize, (INT32)(OS_TASK_STACK_INIT & 0xFF), stackSize);
-    if (result != EOK) {
-        printf("memset_s is failed:%s[%d]\r\n", __FUNCTION__, __LINE__);
-    }
-    *((UINT32 *)(topStack)) = OS_TASK_MAGIC_WORD;
-
-    context = (TaskContext *)((((UINTPTR)topStack + stackSize) - sizeof(TaskContext)));
+    TaskContext *context = (TaskContext *)((UINTPTR)topStack + stackSize - sizeof(TaskContext));
 
     /* initialize the task context */
     result = memcpy_s(context, sizeof(TaskContext), g_stackDefault, sizeof(TaskContext));

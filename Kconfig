@@ -286,6 +286,8 @@ config KERNEL_CPPSUPPORT
     help
       If you wish to build LiteOS with support for C++.
 
+rsource "components/signal/Kconfig"
+
 config BASE_CORE_CPUP
     bool
     default n

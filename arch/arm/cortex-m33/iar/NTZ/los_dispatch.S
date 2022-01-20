@@ -38,6 +38,7 @@
     EXPORT  ArchTaskSchedule
     EXPORT  HalPendSV
     IMPORT  OsSchedTaskSwitch
+    IMPORT  OsSignalTaskContextRestore
     IMPORT  g_losTask
 
 OS_FPU_CPACR                EQU     0xE000ED88
@@ -51,6 +52,15 @@ OS_TASK_STATUS_RUNNING      EQU     0x0010
     SECTION    .text:CODE(2)
     THUMB
     REQUIRE8
+
+    MACRO SIGNAL_CONTEXT_RESTORE
+    PUSH    {R12, LR}
+    BLX     OsSignalTaskContextRestore
+    POP     {R12, LR}
+    CMP     R0, #0
+    MOV     R1, R0
+    BNE     SignalContextRestore
+    ENDM
 
 HalStartToRun
     LDR     R4, =OS_NVIC_SYSPRI2
@@ -145,8 +155,11 @@ __DisabledFPU1
 
     LDR     R0, [R5, #4]
     STR     R0, [R5]
-
     LDR     R1, [R0]
+
+SignalContextRestore
+    LDR.W   R3, =OS_FPU_CPACR
+    LDR     R3, [R3]
     AND     R3, R3, #OS_FPU_CPACR_ENABLE
     CMP     R3, #OS_FPU_CPACR_ENABLE
     BNE     __DisabledFPU2
