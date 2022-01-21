@@ -42,35 +42,35 @@ static UINT32 TestCase(VOID)
 {
     volatile INT64 value = 0;
     UINT64 ret;
-    UINT64 uwNewVal;
+    UINT64 newVal;
 
-    uwNewVal = 0xff;
-    ret = LOS_AtomicXchg64bits(&value, uwNewVal);
+    newVal = 0xff;
+    ret = LOS_AtomicXchg64bits(&value, newVal);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     ICUNIT_ASSERT_EQUAL(value, 0xff, value);
 
-    uwNewVal = 0xffff;
-    ret = LOS_AtomicXchg64bits(&value, uwNewVal);
+    newVal = 0xffff;
+    ret = LOS_AtomicXchg64bits(&value, newVal);
     ICUNIT_ASSERT_EQUAL(ret, 0xff, ret);
     ICUNIT_ASSERT_EQUAL(value, 0xffff, value);
 
-    uwNewVal = 0xffffff;
-    ret = LOS_AtomicXchg64bits(&value, uwNewVal);
+    newVal = 0xffffff;
+    ret = LOS_AtomicXchg64bits(&value, newVal);
     ICUNIT_ASSERT_EQUAL(ret, 0xffff, ret);
     ICUNIT_ASSERT_EQUAL(value, 0xffffff, value);
 
-    uwNewVal = 0xffffffff;
-    ret = LOS_AtomicXchg64bits(&value, uwNewVal);
+    newVal = 0xffffffff;
+    ret = LOS_AtomicXchg64bits(&value, newVal);
     ICUNIT_ASSERT_EQUAL(ret, 0xffffff, ret);
     ICUNIT_ASSERT_EQUAL(value, 0xffffffff, value);
 
-    uwNewVal = 0xffffffffffff;
-    ret = LOS_AtomicXchg64bits(&value, uwNewVal);
+    newVal = 0xffffffffffff;
+    ret = LOS_AtomicXchg64bits(&value, newVal);
     ICUNIT_ASSERT_EQUAL(ret, 0xffffffff, ret);
     ICUNIT_ASSERT_EQUAL(value, 0xffffffffffff, value);
 
-    uwNewVal = 0xffffffffffffffff;
-    ret = LOS_AtomicXchg64bits(&value, uwNewVal);
+    newVal = 0xffffffffffffffff;
+    ret = LOS_AtomicXchg64bits(&value, newVal);
     ICUNIT_ASSERT_EQUAL(ret, 0xffffffffffff, ret);
     ICUNIT_ASSERT_EQUAL(value, 0xffffffffffffffff, value);
 
