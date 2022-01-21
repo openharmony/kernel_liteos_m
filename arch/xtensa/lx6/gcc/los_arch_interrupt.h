@@ -214,7 +214,6 @@ extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector);
 #endif
 
 VOID HalInterrupt(VOID);
-UINT32 HalIntNumGet(VOID);
 VOID HalHwiDefaultHandler(VOID);
 VOID HalExcHandleEntry(UINTPTR faultAddr, EXC_CONTEXT_S *excBufAddr, UINT32 type);
 VOID HalHwiInit(VOID);
