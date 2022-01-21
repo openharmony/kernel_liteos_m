@@ -302,16 +302,12 @@ UINT64 LosCpuCycleGet(VOID)
 #define HWI_BIT 2
 VOID TestHwiTrigger(UINT32 hwiNum)
 {
-#if defined(__CSKY_V2__) || defined(__XTENSA_LX6__)
-    HalIrqPending(hwiNum);
-#else
-    *(volatile UINT32 *)(OS_NVIC_SETPEND + ((hwiNum >> HWI_SHIFT_NUM) << HWI_BIT)) = 1 << (hwiNum & 0x1F);
-#endif
+    LOS_HwiTrigger(hwiNum);
 }
 
 VOID TestHwiUnTrigger(UINT32 hwiNum)
 {
-    *(volatile UINT32 *)(OS_NVIC_CLRPEND + ((hwiNum >> HWI_SHIFT_NUM) << HWI_BIT)) = 1 << (hwiNum & 0x1F);
+    LOS_HwiClear(hwiNum);
 }
 #define OS_NVIC_CLRENA_BASE 0xE000E180
 #define NVIC_CLR_IRQ(uwHwiNum)                                                                       \

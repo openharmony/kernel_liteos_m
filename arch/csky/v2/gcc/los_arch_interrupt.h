@@ -253,25 +253,6 @@ extern VOID HalInterrupt(VOID);
 
 /* *
  * @ingroup  los_arch_interrupt
- * @brief: Get an interrupt number.
- *
- * @par Description:
- * This API is used to get the current interrupt number.
- *
- * @attention:
- * <ul><li>None.</li></ul>
- *
- * @param: None.
- *
- * @retval: Interrupt Indexes number.
- * @par Dependency:
- * <ul><li>los_arch_interrupt.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-extern UINT32 HalIntNumGet(VOID);
-
-/* *
- * @ingroup  los_arch_interrupt
  * @brief: Default vector handling function.
  *
  * @par Description:
