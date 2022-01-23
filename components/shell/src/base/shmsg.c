@@ -216,6 +216,11 @@ VOID ShellTaskEntry(VOID)
                 ptr = buf;
                 break;
             }
+            if (*ptr == '\b' && ptr != buf) { /* support backspace */
+                PRINTK("\b \b");
+                ptr--;
+                break;
+            }
             if (!VISIABLE_CHAR(*ptr)) {
                 break;
             }
