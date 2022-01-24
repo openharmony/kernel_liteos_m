@@ -134,10 +134,6 @@
 #define LWIP_NETIF_LOOPBACK             1
 #define LWIP_POSIX_SOCKETS_IO_NAMES     0
 #define LWIP_RAW                        1
-#ifdef LOSCFG_FS_VFS
-#include "vfs_config.h"
-#define LWIP_SOCKET_OFFSET              CONFIG_NFILE_DESCRIPTORS
-#endif
 #define LWIP_SO_RCVBUF                  1
 #define LWIP_SO_RCVTIMEO                1
 #define LWIP_SO_SNDTIMEO                1
@@ -233,5 +229,10 @@
 
 // use PBUF_RAM instead of PBUF_POOL in udp_input
 #define USE_PBUF_RAM_UDP_INPUT          1
+
+#ifdef LOSCFG_FS_VFS
+#include "vfs_config.h"
+#define LWIP_SOCKET_OFFSET              CONFIG_NFILE_DESCRIPTORS
+#endif
 
 #endif /* _LWIP_PORTING_LWIPOPTS_H_ */
