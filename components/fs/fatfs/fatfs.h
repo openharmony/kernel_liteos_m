@@ -32,27 +32,20 @@
 #ifndef _FATFS_H
 #define _FATFS_H
 
-#include "fcntl.h"
 #include "dirent.h"
-#include "unistd.h"
+#include "fatfs_conf.h"
+#include "fcntl.h"
+#include "fs_config.h"
 #include "sys/mount.h"
 #include "sys/stat.h"
 #include "sys/statfs.h"
-#include "fs_config.h"
+#include "unistd.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-
-#ifndef FAT_MAX_OPEN_FILES
-#define FAT_MAX_OPEN_FILES    50
-#endif /* FAT_MAX_OPEN_FILES */
-
-/* Format options */
-#define FMT_FAT      0x01
-#define FMT_FAT32    0x02
-#define FMT_ANY      0x07
 
 int fatfs_mount(const char *source, const char *target,
           const char *filesystemtype, unsigned long mountflags,
