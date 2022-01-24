@@ -55,9 +55,7 @@
                 "//kernel/liteos_m:build_kernel_image"
             ],
             "inner_kits": [],
-            "test": [
-                "//kernel/liteos_m/testsuites:testsuites"
-            ]
+            "test": []
         }
     }
 }
