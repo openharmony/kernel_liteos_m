@@ -39,6 +39,7 @@
 #include "errno.h"
 #include "fs_operations.h"
 #include "lfs.h"
+#include "lfs_conf.h"
 #include "lfs_util.h"
 #include "memory.h"
 #include "pthread.h"
@@ -73,20 +74,6 @@ typedef struct {
     lfs_t *lfsHandle;
     lfs_dir_t dir;
 } FileDirInfo;
-
-#define LITTLE_FS_MAX_OPEN_FILES 100
-#define LITTLE_FS_STANDARD_NAME_LENGTH 50
-#define LITTLE_FS_MAX_NAME_LEN 255
-
-#define MAX_DEF_BUF_NUM 21
-#define MAX_BUFFER_LEN 100
-#define MAX_WRITE_FILE_LEN 500
-#define MAX_READ_FILE_LEN 500
-#define LITTLEFS_MAX_LFN_LEN 255
-
-#ifndef LFS_MAX_OPEN_DIRS
-#define LFS_MAX_OPEN_DIRS 10
-#endif
 
 LittleFsHandleStruct *GetFreeFd(int *fd);
 

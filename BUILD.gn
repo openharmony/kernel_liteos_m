@@ -143,6 +143,7 @@ config("kconfig_config") {
     "$LITEOS_MENUCONFIG_H",
   ]
   asmflags = cflags
+  cflags_cc = cflags
 }
 
 config("warn_config") {

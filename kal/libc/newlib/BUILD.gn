@@ -37,6 +37,7 @@ kernel_module(module_name) {
     "porting/src/malloc.c",
     "porting/src/network/htonl.c",
     "porting/src/network/htons.c",
+    "porting/src/network/ntohl.c",
     "porting/src/network/ntohs.c",
     "porting/src/other_adapt.c",
     "porting/src/pthread.c",
