@@ -91,19 +91,20 @@ menu "Platform"
 ######################### config options of bsp #####################
 config PLATFORM
     string
-    default "virt"            if PLATFORM_QEMU_ARM_VIRT_CM7 || PLATFORM_QEMU_ARM_VIRT_CM4 || PRODUCT_QEMU_RISCV32_VIRT || PLATFORM_QEMU_CSKY_SMARTL || PLATFORM_QEMU_XTENSA_ESP32
+    default "virt"            if PLATFORM_QEMU_ARM_VIRT_CM7 || PLATFORM_QEMU_ARM_VIRT_CM4 || PLATFORM_QEMU_ARM_VIRT_CM55 || PRODUCT_QEMU_RISCV32_VIRT || PLATFORM_QEMU_CSKY_SMARTL || PLATFORM_QEMU_XTENSA_ESP32
 
 config PRODUCT_NAME
     string
     default "arm_virt" if PRODUCT_QEMU_ARM
     default "arm_mps2_an386" if PRODUCT_QEMU_ARM_MPS2_AN386
+    default "arm_mps3_an547" if PRODUCT_QEMU_ARM_MPS3_AN547
     default "riscv32_virt" if PRODUCT_QEMU_RISCV32_VIRT
     default "csky_smartl_e802" if PRODUCT_QEMU_CSKY_SMARTL_E802
     default "xtensa_esp32" if PRODUCT_QEMU_XTENSA_ESP32
 
 config DEVICE_COMPANY
     string
-    default "qemu" if PLATFORM_QEMU_ARM_VIRT_CM7 || PLATFORM_QEMU_ARM_VIRT_CM4 || PRODUCT_QEMU_RISCV32_VIRT || PLATFORM_QEMU_CSKY_SMARTL || PLATFORM_QEMU_XTENSA_ESP32
+    default "qemu" if PLATFORM_QEMU_ARM_VIRT_CM7 || PLATFORM_QEMU_ARM_VIRT_CM4 || PLATFORM_QEMU_ARM_VIRT_CM55 || PRODUCT_QEMU_RISCV32_VIRT || PLATFORM_QEMU_CSKY_SMARTL || PLATFORM_QEMU_XTENSA_ESP32
 
 choice
     prompt "Chip"
@@ -127,6 +128,12 @@ config PLATFORM_QEMU_ARM_VIRT_CM4
     select ARCH_CORTEX_M4
     help
         QEMU ARM Virtual Platform using Cortex-M4 CPU.
+
+config PLATFORM_QEMU_ARM_VIRT_CM55
+    bool "qemu_arm_virt_cm55"
+    select ARCH_CORTEX_M55
+    help
+        QEMU ARM Virtual Platform using Cortex-M55 CPU.
 
 config PLATFORM_QEMU_RISCV32_VIRT
     bool "qemu_riscv32_virt"
@@ -158,6 +165,9 @@ config PRODUCT_QEMU_ARM
 
 config PRODUCT_QEMU_ARM_MPS2_AN386
     bool "arm_mps2_an386" if PLATFORM_QEMU_ARM_VIRT_CM4
+
+config PRODUCT_QEMU_ARM_MPS3_AN547
+    bool "arm_mps3_an547" if PLATFORM_QEMU_ARM_VIRT_CM55
 
 config PRODUCT_QEMU_RISCV32_VIRT
     bool "riscv32_virt" if PLATFORM_QEMU_RISCV32_VIRT
