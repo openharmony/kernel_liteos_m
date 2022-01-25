@@ -94,6 +94,14 @@ config ARCH_CORTEX_M33
     select ARCH_FPU_VFP_D32
     select ARCH_FPU_VFP_NEON
 
+config ARCH_CORTEX_M55
+    bool
+    select ARCH_ARM_V7M
+    select ARCH_ARM_AARCH32
+    select ARCH_FPU_VFP_V4
+    select ARCH_FPU_VFP_D32
+    select ARCH_FPU_VFP_NEON
+
 config ARCH_ARM9
     bool
     select ARCH_ARM_V5TE
@@ -105,4 +113,5 @@ config ARCH_CPU
     default "cortex-m4" if ARCH_CORTEX_M4
     default "cortex-m7" if ARCH_CORTEX_M7
     default "cortex-m33" if ARCH_CORTEX_M33
+    default "cortex-m55" if ARCH_CORTEX_M55
     default "arm9" if ARCH_ARM9
