@@ -239,11 +239,11 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeLocaltime001, Function | MediumTe
 
     struct tm *tmStart = localtime(&tStart);
     strftime(cTime, sizeof(cTime), "%H:%M:%S", tmStart);
-    TEST_ASSERT_EQUAL_STRING("23:59:59", cTime);
+    TEST_ASSERT_EQUAL_STRING("07:59:59", cTime);
     LOG("\n time_t=%lld, first time:%s", tStart, cTime);
     struct tm *tmEnd = localtime(&tEnd);
     strftime(cTime, sizeof(cTime), "%H:%M:%S", tmEnd);
-    TEST_ASSERT_EQUAL_STRING("00:00:01", cTime);
+    TEST_ASSERT_EQUAL_STRING("08:00:01", cTime);
     LOG("\n time_t=%lld, first time:%s", tEnd, cTime);
 }
 
@@ -307,13 +307,13 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeLocaltimer001, Function | MediumT
     struct tm *tmrEndPtr = localtime_r(&tEnd, &tmrEnd);
 
     strftime(cTime, sizeof(cTime), "%H:%M:%S", &tmrStart);
-    TEST_ASSERT_EQUAL_STRING("23:59:59", cTime);
+    TEST_ASSERT_EQUAL_STRING("07:59:59", cTime);
     strftime(cTime, sizeof(cTime), "%H:%M:%S", tmrStartPtr);
-    TEST_ASSERT_EQUAL_STRING("23:59:59", cTime);
+    TEST_ASSERT_EQUAL_STRING("07:59:59", cTime);
     strftime(cTime, sizeof(cTime), "%H:%M:%S", &tmrEnd);
-    TEST_ASSERT_EQUAL_STRING("00:00:01", cTime);
+    TEST_ASSERT_EQUAL_STRING("08:00:01", cTime);
     strftime(cTime, sizeof(cTime), "%H:%M:%S", tmrEndPtr);
-    TEST_ASSERT_EQUAL_STRING("00:00:01", cTime);
+    TEST_ASSERT_EQUAL_STRING("08:00:01", cTime);
 }
 
 /* *
@@ -366,12 +366,12 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeMktime001, Function | MediumTest 
     INIT_TM(timeptr, 2020, 7, 9, 18, 10, 0, 7);
     time_t timeRet = mktime(&timeptr);
     LOG("\n 2020-7-9 18:10:00, mktime Ret = %lld", timeRet);
-    TEST_ASSERT_EQUAL_INT(1596967800, timeRet);
+    TEST_ASSERT_EQUAL_INT(1596996600, timeRet);
 
     INIT_TM(timeptr, 1970, 0, 1, 8, 0, 0, 0);
     timeRet = mktime(&timeptr);
     LOG("\n 1970-1-1 08:00:00, mktime Ret = %lld", timeRet);
-    TEST_ASSERT_EQUAL_INT(0, timeRet);
+    TEST_ASSERT_EQUAL_INT(28800, timeRet);
 
     struct tm *stm = localtime(&testTime);
     LOG("\n testTime 18880, tm : %s", TmToStr(stm, timeStr, TIME_STR_LEN));
@@ -406,7 +406,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeMktime002, Function | MediumTest 
     INIT_TM(timeptr, 1969, 7, 9, 10, 10, 0, 7);
     time_t timeRet = mktime(&timeptr);
     LOG("\n 1800-8-9 10:10:00, mktime Ret lld = %lld", timeRet);
-    TEST_ASSERT_EQUAL_INT(0, timeRet);
+    TEST_ASSERT_EQUAL_INT(-1, timeRet);
 }
 
 
@@ -503,8 +503,9 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeStrftime003, Function | MediumTes
     TEST_ASSERT_EQUAL_STRING("1970-01-01 13:14:40", buffer);
     LOG("\nresult: %s, expected : %s", buffer, "1970-01-01 13:14:40");
 
+    tmTime->__tm_zone = "UTC+8";
     ftime = strftime(buffer, 80, "%F %T %Z", tmTime);
-    TEST_ASSERT_EQUAL_INT(0, ftime);
+    TEST_ASSERT_EQUAL_INT(20, ftime);
     LOG("\nresult: %s, expected : %s", buffer, "1970-01-01 13:14:40");
 };
 
@@ -546,7 +547,7 @@ RUN_TEST_SUITE(PosixTimeFuncTestSuite);
 
 void PosixTimeFuncTest()
 {
-    LOG("begin PosixTimeFuncTest....");
+    LOG("begin PosixTimeFuncTest....\n");
 
     RUN_ONE_TESTCASE(testTimeUSleep001);
     RUN_ONE_TESTCASE(testTimeUSleep002);

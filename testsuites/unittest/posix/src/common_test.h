@@ -29,8 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef KERNEL_TEST_H
-#define KERNEL_TEST_H
+#ifndef COMMON_TEST_H
+#define COMMON_TEST_H
 
 #define TESTCOUNT_NUM_1 1
 #define TESTCOUNT_NUM_2 2
@@ -81,6 +81,14 @@
             TEST_ASSERT_EQUAL(param, value);            \
             return;                                     \
         }                                               \
+    } while (0)
+
+#define ICUNIT_ASSERT_NOT_EQUAL_VOID(param, value, retcode) \
+    do {                                                    \
+        if ((param) == (value)) {                           \
+            TEST_ASSERT_EQUAL(param, value);                \
+            return;                                         \
+        }                                                   \
     } while (0)
 
 #define ICUNIT_TRACK_EQUAL(param, value, retcode)              \
