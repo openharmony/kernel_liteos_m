@@ -35,7 +35,12 @@
 #include "los_config.h"
 #include "cmsis_os2.h"
 #include "common_test.h"
+#include "kernel_test.h"
+#include "pthread.h"
+#include "log.h"
 
+#define TASK_PRIO_TEST           LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO
+#define OS_TSK_TEST_STACK_SIZE   0x1000
 static UINT32 g_testCount;
 
 /**

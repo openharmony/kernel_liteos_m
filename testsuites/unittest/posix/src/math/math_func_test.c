@@ -276,8 +276,8 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow002, Function | MediumTest | L
 LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow003, Function | MediumTest | Level1)
 {
     double testValues[][TEST_EXPECTED + 1] = {
-        {0.0, -7, -HUGE_VAL},
-        {-0.0, -6.22, -HUGE_VAL},
+        {0.0, -7, HUGE_VAL},
+        {-0.0, -6.22, HUGE_VAL},
         {-7.23, 3.57, NAN},
         {121223, 5674343, HUGE_VAL}
     };
