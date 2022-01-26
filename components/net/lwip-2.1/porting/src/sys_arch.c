@@ -67,7 +67,7 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
     task.pfnTaskEntry = (TSK_ENTRY_FUNC)thread;
     task.uwStackSize = stackSize;
     task.pcName = (char *)name;
-    task.usTaskPrio = prio;
+    task.usTaskPrio = (UINT16)prio;
     task.uwArg = (UINTPTR)arg;
     task.uwResved = LOS_TASK_STATUS_DETACHED;
     ret = LOS_TaskCreate(&taskID, &task);
