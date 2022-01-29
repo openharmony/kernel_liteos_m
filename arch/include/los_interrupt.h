@@ -54,6 +54,17 @@ typedef VOID (*HWI_PROC_FUNC)(VOID *parm);
 typedef VOID (*HWI_PROC_FUNC)(void);
 #endif
 
+typedef struct {
+    UINT32 (*triggerIrq)(HWI_HANDLE_T hwiNum);
+    UINT32 (*clearIrq)(HWI_HANDLE_T hwiNum);
+    UINT32 (*enableIrq)(HWI_HANDLE_T hwiNum);
+    UINT32 (*disableIrq)(HWI_HANDLE_T hwiNum);
+    UINT32 (*setIrqPriority)(HWI_HANDLE_T hwiNum, UINT8 priority);
+    UINT32 (*getCurIrqNum)(VOID);
+} HwiControllerOps;
+
+extern HwiControllerOps g_archHwiOps;
+
 /* stack protector */
 extern UINT32 __stack_chk_guard;
 
@@ -64,6 +75,11 @@ UINT32 ArchIsIntActive(VOID);
 #define OS_INT_INACTIVE  (!(OS_INT_ACTIVE))
 #define LOS_HwiCreate ArchHwiCreate
 #define LOS_HwiDelete ArchHwiDelete
+#define LOS_HwiTrigger ArchIntTrigger
+#define LOS_HwiEnable ArchIntEnable
+#define LOS_HwiDisable ArchIntDisable
+#define LOS_HwiClear ArchIntClear
+#define LOS_HwiSetPriority ArchIntSetPriority
 
 UINT32 ArchIntLock(VOID);
 #define LOS_IntLock ArchIntLock
@@ -73,6 +89,8 @@ VOID ArchIntRestore(UINT32 intSave);
 
 UINT32 ArchIntUnLock(VOID);
 #define LOS_IntUnLock ArchIntUnLock
+
+#define LOS_HwiOpsGet ArchIntOpsGet
 
 /**
  * @ingroup  los_interrupt
@@ -134,6 +152,51 @@ UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
                      HWI_MODE_T mode,
                      HWI_PROC_FUNC handler,
                      HWI_ARG_T arg);
+
+STATIC INLINE UINT32 ArchIntTrigger(HWI_HANDLE_T hwiNum)
+{
+    if (g_archHwiOps.triggerIrq == NULL) {
+        return LOS_NOK;
+    }
+    return g_archHwiOps.triggerIrq(hwiNum);
+}
+
+STATIC INLINE UINT32 ArchIntEnable(HWI_HANDLE_T hwiNum)
+{
+    if (g_archHwiOps.enableIrq == NULL) {
+        return LOS_NOK;
+    }
+    return g_archHwiOps.enableIrq(hwiNum);
+}
+
+STATIC INLINE UINT32 ArchIntDisable(HWI_HANDLE_T hwiNum)
+{
+    if (g_archHwiOps.disableIrq == NULL) {
+        return LOS_NOK;
+    }
+    return g_archHwiOps.disableIrq(hwiNum);
+}
+
+STATIC INLINE UINT32 ArchIntClear(HWI_HANDLE_T hwiNum)
+{
+    if (g_archHwiOps.clearIrq == NULL) {
+        return LOS_NOK;
+    }
+    return g_archHwiOps.clearIrq(hwiNum);
+}
+
+STATIC INLINE UINT32 ArchIntSetPriority(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priority)
+{
+    if (g_archHwiOps.setIrqPriority == NULL) {
+        return LOS_NOK;
+    }
+    return g_archHwiOps.setIrqPriority(hwiNum, priority);
+}
+
+STATIC INLINE HwiControllerOps *ArchIntOpsGet(VOID)
+{
+    return &g_archHwiOps;
+}
 
 #ifdef __cplusplus
 #if __cplusplus

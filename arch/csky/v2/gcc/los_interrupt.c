@@ -117,64 +117,79 @@ UINT32 ArchIntLocked(VOID)
     return !(intSave & (1 << INT_OFFSET));
 }
 
-UINT32 HalIrqUnmask(UINT32 hwiNum)
+STATIC UINT32 HwiUnmask(HWI_HANDLE_T hwiNum)
 {
     UINT32 intSave;
+
     if (!HwiNumValid(hwiNum)) {
         return LOS_ERRNO_HWI_NUM_INVALID;
     }
+
     intSave = LOS_IntLock();
     VIC_REG->ISER[hwiNum / OS_SYS_VECTOR_CNT] = (UINT32)(1UL << (hwiNum % OS_SYS_VECTOR_CNT));
     VIC_REG->ISSR[hwiNum / OS_SYS_VECTOR_CNT] = (UINT32)(1UL << (hwiNum % OS_SYS_VECTOR_CNT));
     LOS_IntRestore(intSave);
+
     return LOS_OK;
 }
 
-UINT32 HalIrqSetPriority(UINT32 hwiNum, UINT8 priority)
+STATIC UINT32 HwiSetPriority(HWI_HANDLE_T hwiNum, UINT8 priority)
 {
     UINT32 intSave;
+
     if (!HwiNumValid(hwiNum)) {
         return LOS_ERRNO_HWI_NUM_INVALID;
     }
+
     if (!HWI_PRI_VALID(priority)) {
         return OS_ERRNO_HWI_PRIO_INVALID;
     }
+
     intSave = LOS_IntLock();
     VIC_REG->IPR[hwiNum / PRI_PER_REG] |= (((priority << PRI_OFF_IN_REG) << (hwiNum % PRI_PER_REG)) * PRI_OFF_PER_INT);
     LOS_IntRestore(intSave);
+
     return LOS_OK;
 }
 
-UINT32 HalIrqMask(HWI_HANDLE_T hwiNum)
+STATIC UINT32 HwiMask(HWI_HANDLE_T hwiNum)
 {
     UINT32 intSave;
+
     if (!HwiNumValid(hwiNum)) {
         return LOS_ERRNO_HWI_NUM_INVALID;
     }
+
     intSave = LOS_IntLock();
     VIC_REG->ICER[hwiNum / OS_SYS_VECTOR_CNT] = (UINT32)(1UL << (hwiNum % OS_SYS_VECTOR_CNT));
     LOS_IntRestore(intSave);
+
     return LOS_OK;
 }
 
-UINT32 HalIrqPending(UINT32 hwiNum)
+STATIC UINT32 HwiPending(HWI_HANDLE_T hwiNum)
 {
     UINT32 intSave;
+
     if (!HwiNumValid(hwiNum)) {
         return LOS_ERRNO_HWI_NUM_INVALID;
     }
+
     intSave = LOS_IntLock();
     VIC_REG->ISPR[hwiNum / OS_SYS_VECTOR_CNT] = (UINT32)(1UL << (hwiNum % OS_SYS_VECTOR_CNT));
     LOS_IntRestore(intSave);
+
     return LOS_OK;
 }
 
-UINT32 HalIrqClear(UINT32 hwiNum)
+STATIC UINT32 HwiClear(HWI_HANDLE_T hwiNum)
 {
     if (!HwiNumValid(hwiNum)) {
         return LOS_ERRNO_HWI_NUM_INVALID;
     }
+
     VIC_REG->ICPR[hwiNum / OS_SYS_VECTOR_CNT] = (UINT32)(1UL << (hwiNum % OS_SYS_VECTOR_CNT));
+
     return LOS_OK;
 }
 
@@ -207,7 +222,7 @@ VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector, VOID *arg)
         g_hwiForm[num + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)IrqEntry;
         g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT].pfnHandler = vector;
         g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT].pParm = arg;
-        HalIrqUnmask(num);
+        HwiUnmask(num);
     }
 }
 
@@ -227,22 +242,31 @@ VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector)
     if ((num + OS_SYS_VECTOR_CNT) < OS_VECTOR_CNT) {
         g_hwiForm[num + OS_SYS_VECTOR_CNT] = IrqEntry;
         g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT] = vector;
-        HalIrqUnmask(num);
+        HwiUnmask(num);
     }
 }
 #endif
 
 /* ****************************************************************************
- Function    : HalIntNumGet
+ Function    : HwiNumGet
  Description : Get an interrupt number
  Input       : None
  Output      : None
  Return      : Interrupt Indexes number
  **************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR UINT32 HalIntNumGet(VOID)
+STATIC UINT32 HwiNumGet(VOID)
 {
     return HalGetPsr();
 }
+
+HwiControllerOps g_archHwiOps = {
+    .triggerIrq     = HwiPending,
+    .enableIrq      = HwiUnmask,
+    .disableIrq     = HwiMask,
+    .setIrqPriority = HwiSetPriority,
+    .getCurIrqNum   = HwiNumGet,
+    .clearIrq       = HwiClear,
+};
 
 inline UINT32 ArchIsIntActive(VOID)
 {
@@ -258,7 +282,7 @@ inline UINT32 ArchIsIntActive(VOID)
  **************************************************************************** */
 LITE_OS_SEC_TEXT_MINOR VOID HalHwiDefaultHandler(VOID)
 {
-    UINT32 irqNum = HalIntNumGet();
+    UINT32 irqNum = HwiNumGet();
     irqNum = (irqNum >> PSR_VEC_OFFSET) & MASK_8_BITS;
     PRINT_ERR("%s irqnum:%x\n", __FUNCTION__, irqNum);
     while (1) {}
@@ -290,7 +314,7 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
     g_intCount++;
     LOS_IntRestore(intSave);
 
-    hwiIndex = HalIntNumGet();
+    hwiIndex = HwiNumGet();
     hwiIndex = (hwiIndex >> PSR_VEC_OFFSET) & MASK_8_BITS;
     OsHookCall(LOS_HOOK_TYPE_ISR_ENTER, hwiIndex);
 
@@ -355,8 +379,8 @@ LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
 #else
     OsSetVector(hwiNum, handler);
 #endif
-    HalIrqUnmask(hwiNum);
-    (VOID)HalIrqSetPriority(hwiNum, (UINT8)hwiPrio);
+    HwiUnmask(hwiNum);
+    (VOID)HwiSetPriority(hwiNum, (UINT8)hwiPrio);
     LOS_IntRestore(intSave);
 
     return LOS_OK;
@@ -376,7 +400,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum)
     if (hwiNum >= OS_HWI_MAX_NUM) {
         return OS_ERRNO_HWI_NUM_INVALID;
     }
-    HalIrqMask(hwiNum);
+    HwiMask(hwiNum);
     intSave = LOS_IntLock();
     g_hwiHandlerForm[hwiNum + OS_SYS_VECTOR_CNT] = 0;
     LOS_IntRestore(intSave);

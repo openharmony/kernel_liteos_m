@@ -28,21 +28,15 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import("//kernel/liteos_m/liteos.gni")
+import("//third_party/littlefs/littlefs.gni")
 
 module_switch = defined(LOSCFG_FS_LITTLEFS)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
-  sources = [
-    "$LITEOSTHIRDPARTY/littlefs/bd/lfs_rambd.c",
-    "$LITEOSTHIRDPARTY/littlefs/lfs.c",
-    "$LITEOSTHIRDPARTY/littlefs/lfs_util.c",
-    "lfs_api.c",
-  ]
   configs += [ "$LITEOSTOPDIR:warn_config" ]
+  sources = LITTLEFS_SRC_FILES_FOR_KERNEL_MODULE + [ "lfs_api.c" ]
 }
 
 config("public") {
-  include_dirs = [ "." ]
-  include_dirs += [ "$LITEOSTHIRDPARTY/littlefs" ]
-  include_dirs += [ "$LITEOSTHIRDPARTY/littlefs/bd" ]
+  include_dirs = LITTLEFS_INCLUDE_DIRS + [ "." ]
 }

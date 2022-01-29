@@ -62,13 +62,13 @@ config POSIX_MQUEUE_API
 
 config POSIX_PIPE_API
     bool "Enable POSIX Pipe API"
-    default n
+    default y
     help
       Answer Y to enable LiteOS support POSIX Pipe API.
 
 config POSIX_SIGNAL_API
     bool "Enable POSIX Signal API"
-    default n
+    default y
     depends on KERNEL_SIGNAL
     help
       Answer Y to enable LiteOS support POSIX Signal API.

@@ -142,6 +142,7 @@ UINT32 ArchIntUnLock(VOID)
 STATIC INLINE UINT32 ArchIntLocked(VOID)
 {
     UINT32 intSave;
+
     __asm__ volatile("rsr %0, ps " : "=r"(intSave) : : "memory");
 
     return (intSave & SPREG_PS_DI_MASK);
@@ -151,7 +152,7 @@ STATIC INLINE UINT32 ArchIntLocked(VOID)
  * @ingroup los_hwi
  * Trigger the interrupt
  */
-UINT32 HalIrqPending(HWI_HANDLE_T hwiNum)
+STATIC UINT32 HwiPending(HWI_HANDLE_T hwiNum)
 {
     if (!HwiNumValid(hwiNum)) {
         return OS_ERRNO_HWI_NUM_INVALID;
@@ -162,11 +163,7 @@ UINT32 HalIrqPending(HWI_HANDLE_T hwiNum)
     return LOS_OK;
 }
 
-/* *
- * @ingroup los_hwi
- * Unmask the interrupt
- */
-UINT32 HalIrqUnmask(HWI_HANDLE_T hwiNum)
+UINT32 HwiUnmask(HWI_HANDLE_T hwiNum)
 {
     UINT32 ier;
 
@@ -180,11 +177,7 @@ UINT32 HalIrqUnmask(HWI_HANDLE_T hwiNum)
     return LOS_OK;
 }
 
-/* *
- * @ingroup los_hwi
- * Mask the interrupt
- */
-UINT32 HalIrqMask(HWI_HANDLE_T hwiNum)
+UINT32 HwiMask(HWI_HANDLE_T hwiNum)
 {
     UINT32 ier;
 
@@ -199,13 +192,13 @@ UINT32 HalIrqMask(HWI_HANDLE_T hwiNum)
 }
 
 /* ****************************************************************************
- Function    : HalIntNumGet
+ Function    : HwiNumGet
  Description : Get an interrupt number
  Input       : None
  Output      : None
  Return      : Interrupt Indexes number
  **************************************************************************** */
-UINT32 HalIntNumGet(VOID)
+STATIC UINT32 HwiNumGet(VOID)
 {
     UINT32 ier;
     UINT32 intenable;
@@ -223,7 +216,7 @@ UINT32 HalIntNumGet(VOID)
  * @ingroup los_hwi
  * Clear the interrupt
  */
-UINT32 HalIrqClear(HWI_HANDLE_T vector)
+STATIC UINT32 HwiClear(HWI_HANDLE_T vector)
 {
     if (!HwiNumValid(vector)) {
         return OS_ERRNO_HWI_NUM_INVALID;
@@ -233,6 +226,14 @@ UINT32 HalIrqClear(HWI_HANDLE_T vector)
 
     return LOS_OK;
 }
+
+HwiControllerOps g_archHwiOps = {
+    .triggerIrq     = HwiPending,
+    .enableIrq      = HwiUnmask,
+    .disableIrq     = HwiMask,
+    .getCurIrqNum   = HwiNumGet,
+    .clearIrq       = HwiClear,
+};
 
 INLINE UINT32 ArchIsIntActive(VOID)
 {
@@ -248,8 +249,8 @@ INLINE UINT32 ArchIsIntActive(VOID)
  **************************************************************************** */
 VOID HalHwiDefaultHandler(VOID)
 {
-    UINT32 irqNum = HalIntNumGet();
-    PRINT_ERR("%s irqnum:%d\n", __FUNCTION__, irqNum);
+    UINT32 irqNum = HwiNumGet();
+    PRINT_ERR("%s irqnum:%u\n", __FUNCTION__, irqNum);
     while (1) {}
 }
 
@@ -279,8 +280,8 @@ VOID HalInterrupt(VOID)
     g_intCount++;
     LOS_IntRestore(intSave);
 
-    hwiIndex = HalIntNumGet();
-    HalIrqClear(hwiIndex);
+    hwiIndex = HwiNumGet();
+    HwiClear(hwiIndex);
 
     OsHookCall(LOS_HOOK_TYPE_ISR_ENTER, hwiIndex);
 
@@ -347,7 +348,7 @@ UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
 #else
     OsSetVector(hwiNum, handler);
 #endif
-    HalIrqUnmask(hwiNum);
+    HwiUnmask(hwiNum);
 
     LOS_IntRestore(intSave);
 
@@ -369,7 +370,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum)
         return OS_ERRNO_HWI_NUM_INVALID;
     }
 
-    HalIrqMask(hwiNum);
+    HwiMask(hwiNum);
 
     intSave = LOS_IntLock();
 
@@ -514,9 +515,9 @@ VOID HalExcHandleEntry(UINTPTR faultAddr, EXC_CONTEXT_S *excBufAddr, UINT32 type
     if ((taskCB == NULL) || (taskCB == OS_TCB_FROM_TID(g_taskMaxNum))) {
         g_excInfo.phase = OS_EXC_IN_INIT;
         g_excInfo.thrdPid = OS_NULL_INT;
-    } else if (HalIntNumGet() != OS_NULL_INT) {
+    } else if (HwiNumGet() != OS_NULL_INT) {
         g_excInfo.phase = OS_EXC_IN_HWI;
-        g_excInfo.thrdPid = HalIntNumGet();
+        g_excInfo.thrdPid = HwiNumGet();
     } else {
         g_excInfo.phase = OS_EXC_IN_TASK;
         g_excInfo.thrdPid = g_losTask.runTask->taskID;
@@ -551,7 +552,7 @@ VOID HalHwiInit(VOID)
     EnableExceptionInterface();
     for (UINT32 i = 0; i < OS_HWI_MAX_NUM; i++) {
         g_hwiForm[i + OS_SYS_VECTOR_CNT] = HalHwiDefaultHandler;
-        HalIrqMask(i);
+        HwiMask(i);
     }
     asm volatile ("wsr %0, vecbase" : : "r"(INIT_VECTOR_START));
     return;

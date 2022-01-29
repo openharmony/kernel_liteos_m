@@ -54,7 +54,7 @@
 LITE_TEST_SUIT(Posix, PosixFs, PosixFsFuncTestSuite);
 
 /* Corresponding to different platforms, only need to modify TEST_ROOT  */
-#define TEST_ROOT            "/ram"
+#define TEST_ROOT            "/littlefs"
 
 #define TEST_FILE_PTAH_RIGHT    TEST_ROOT"/FILE0"   /* file path, to open/rd/close */
 
@@ -1459,6 +1459,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat003, Function | MediumTest | Leve
     ssize_t size;
     char writeBuf[TEST_BUF_SIZE] = "write test";
 
+    (void)memset_s(&buf, sizeof(buf), 0, sizeof(buf));
     fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
     TEST_ASSERT_TRUE(ret != -1);
 

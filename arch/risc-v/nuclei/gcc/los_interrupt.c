@@ -39,7 +39,43 @@
 
 UINT32 g_intCount = 0;
 
-// LosExcInfo g_excInfo;
+STATIC UINT32 HwiUnmask(HWI_HANDLE_T hwiNum)
+{
+    if (hwiNum >= OS_HWI_MAX_NUM) {
+        return OS_ERRNO_HWI_NUM_INVALID;
+    }
+
+    ECLIC_EnableIRQ(hwiNum);
+
+    return LOS_OK;
+}
+
+STATIC UINT32 HwiMask(HWI_HANDLE_T hwiNum)
+{
+    if (hwiNum >= OS_HWI_MAX_NUM) {
+        return OS_ERRNO_HWI_NUM_INVALID;
+    }
+
+    ECLIC_DisableIRQ(hwiNum);
+
+    return LOS_OK;
+}
+
+STATIC UINT32 HwiSetPriority(HWI_HANDLE_T hwiNum, UINT8 priority)
+{
+    if (hwiNum >= OS_HWI_MAX_NUM) {
+        return OS_ERRNO_HWI_NUM_INVALID;
+    }
+
+    if (priority > OS_HWI_PRIO_HIGHEST || priority < OS_HWI_PRIO_LOWEST) {
+        return OS_ERRNO_HWI_PRIO_INVALID;
+    }
+
+    ECLIC_SetPriorityIRQ(hwiNum, (hwiPrio & 0xffff));
+
+    return LOS_OK;
+}
+
 LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
 {
     // already setup interrupt vectors
@@ -59,11 +95,11 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
  Output      : None
  Return      : LOS_OK on success or error code on failure
  *****************************************************************************/
- UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
-                      HWI_PRIOR_T hwiPrio,
-                      HWI_MODE_T mode,
-                      HWI_PROC_FUNC handler,
-                      HWI_ARG_T arg)
+UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
+                     HWI_PRIOR_T hwiPrio,
+                     HWI_MODE_T mode,
+                     HWI_PROC_FUNC handler,
+                     HWI_ARG_T arg)
 {
     if (hwiNum > SOC_INT_MAX) {
         return OS_ERRNO_HWI_NUM_INVALID;
@@ -93,7 +129,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
         ECLIC_SetVector(hwiNum, (rv_csr_t)handler);
     }
     /* enable interrupt */
-    ECLIC_EnableIRQ(hwiNum);
+    HwiUnmask(hwiNum);
     return LOS_OK;
 }
 
@@ -108,7 +144,7 @@ LITE_OS_SEC_TEXT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum)
     // change func to default func
     ECLIC_SetVector(hwiNum, (rv_csr_t)HalHwiDefaultHandler);
     // disable interrupt
-    ECLIC_DisableIRQ(hwiNum);
+    HwiMask(hwiNum);
     return LOS_OK;
 }
 
@@ -182,3 +218,8 @@ __attribute__((always_inline)) inline UINT32 ArchIsIntActive(VOID)
     return (g_intCount > 0);
 }
 
+const HwiControllerOps g_archHwiOps = {
+    .enableIrq      = HwiUnmask,
+    .disableIrq     = HwiMask,
+    .setIrqPriority = HwiSetPriority,
+};

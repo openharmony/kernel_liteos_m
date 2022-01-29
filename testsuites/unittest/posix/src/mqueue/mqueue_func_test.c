@@ -34,8 +34,10 @@
 #include <mqueue.h>
 #include <fcntl.h>
 #include "common_test.h"
+#include "kernel_test.h"
+#include "log.h"
 
-#define MQUEUE_STANDARD_NAME_LENGTH 50
+#define MQUEUE_STANDARD_NAME_LENGTH 52
 #define MQUEUE_NO_ERROR 0
 #define MQUEUE_SEND_STRING_TEST "mq_test"
 #define MQUEUE_SHORT_ARRAY_LENGTH strlen(MQUEUE_SEND_STRING_TEST)
@@ -49,7 +51,7 @@ const int MQ_MAX_MSG  = 16;	 // mqueue message number
 const char MQ_MSG[] = "MessageToSend";  // mqueue message to send
 const int MQ_MSG_LEN = sizeof(MQ_MSG);  // mqueue message len to send
 
-const int MAX_MQ_NUMBER   = 1024;   // max mqueue number
+const int MAX_MQ_NUMBER   = LOSCFG_BASE_IPC_QUEUE_LIMIT - 1;   // max mqueue number
 const int MAX_MQ_NAME_LEN = 256;    // max mqueue name length
 const int MAX_MQ_MSG_SIZE = 65530;  // max mqueue message size
 
@@ -289,6 +291,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENFILE, Function | MediumTest | Le
     mqd_t queue[MAX_MQ_NUMBER + 1];
     int flag = 0;
     int i;
+    (void)memset_s(queue, sizeof(queue), 0, sizeof(queue));
     for (i=0; i<MAX_MQ_NUMBER + 1; i++) {
         sprintf_s(qName[i], MQ_NAME_LEN, "testMqOpenENFILE_%d", i);
     }
@@ -301,7 +304,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENFILE, Function | MediumTest | Le
             printf("break: i = %d", i);
             break;
         }
-        ICUNIT_TRACK_EQUAL(queue[i], (mqd_t)-1, queue[i]);
+        ICUNIT_TRACK_NOT_EQUAL(queue[i], (mqd_t)-1, queue[i]);
     }
 
     printf("func: i = %d", i);
@@ -368,7 +371,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEAGAIN, Function | MediumTest | Le
     attr.mq_msgsize = MQ_MSG_SIZE;
     attr.mq_maxmsg = 1;
     queue = mq_open(qName, O_CREAT | O_RDWR | O_NONBLOCK, S_IRUSR | S_IWUSR, &attr);
-    ICUNIT_ASSERT_EQUAL_VOID(queue, (mqd_t)-1, queue);
+    ICUNIT_ASSERT_NOT_EQUAL_VOID(queue, (mqd_t)-1, queue);
 
     ret = mq_send(queue, MQ_MSG, MQ_MSG_LEN, 0);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
@@ -400,7 +403,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEBADFEMSGSIZE, Function | MediumTe
     attr.mq_msgsize = 1;
     attr.mq_maxmsg = MQ_MAX_MSG;
     queue = mq_open(qName, O_CREAT | O_RDWR | O_NONBLOCK, S_IRUSR | S_IWUSR, &attr);
-    ICUNIT_ASSERT_EQUAL_VOID(queue, (mqd_t)-1, queue);
+    ICUNIT_ASSERT_NOT_EQUAL_VOID(queue, (mqd_t)-1, queue);
 
     ret = mq_send(NULL, MQ_MSG, 1, MQ_MSG_PRIO);
     ICUNIT_TRACK_EQUAL(ret, -1, ret);
@@ -419,7 +422,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEBADFEMSGSIZE, Function | MediumTe
     attr.mq_msgsize = MQ_MSG_SIZE;
     attr.mq_maxmsg = MQ_MAX_MSG;
     queue = mq_open(qName, O_CREAT | O_RDONLY | O_NONBLOCK, S_IRUSR | S_IWUSR, &attr);
-    ICUNIT_ASSERT_EQUAL_VOID(queue, (mqd_t)-1, queue);
+    ICUNIT_ASSERT_NOT_EQUAL_VOID(queue, (mqd_t)-1, queue);
 
     ret = mq_send(queue, MQ_MSG, MQ_MSG_LEN, MQ_MSG_PRIO);
     ICUNIT_TRACK_EQUAL(ret, -1, ret);
@@ -456,7 +459,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEINVAL, Function | MediumTest | Le
     attr.mq_msgsize = MQ_MSG_SIZE;
     attr.mq_maxmsg = MQ_MAX_MSG;
     queue = mq_open(qName, O_CREAT | O_RDWR | O_NONBLOCK, S_IRUSR | S_IWUSR, &attr);
-    ICUNIT_ASSERT_EQUAL_VOID(queue, (mqd_t)-1, queue);
+    ICUNIT_ASSERT_NOT_EQUAL_VOID(queue, (mqd_t)-1, queue);
 
     ret = mq_send(queue, MQ_MSG, 0, MQ_MSG_PRIO);
     ICUNIT_TRACK_EQUAL(ret, -1, ret);
@@ -487,7 +490,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqReceiveEAGAIN, Function | MediumTest |
     attr.mq_msgsize = MQ_MSG_SIZE;
     attr.mq_maxmsg = MQ_MAX_MSG;
     queue = mq_open(qName, O_CREAT | O_RDWR | O_NONBLOCK, S_IRUSR | S_IWUSR, &attr);
-    ICUNIT_ASSERT_EQUAL_VOID(queue, (mqd_t)-1, queue);
+    ICUNIT_ASSERT_NOT_EQUAL_VOID(queue, (mqd_t)-1, queue);
 
     ret = mq_send(queue, MQ_MSG, MQ_MSG_LEN, MQ_MSG_PRIO);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);

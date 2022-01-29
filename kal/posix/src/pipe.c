@@ -28,7 +28,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/fcntl.h>
+#include <fcntl.h>
 #include <poll.h>
 #include "securec.h"
 #include "los_fs.h"
