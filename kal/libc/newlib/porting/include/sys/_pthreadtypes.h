@@ -76,14 +76,16 @@ typedef struct {
 } pthread_attr_t;
 
 #include "los_list.h"
-typedef struct { unsigned int magic; unsigned int handle; } pthread_mutex_t;
-
 typedef struct { unsigned type; } pthread_mutexattr_t;
+typedef struct { unsigned int magic; unsigned int handle; pthread_mutexattr_t stAttr;} pthread_mutex_t;
 
 #define _MUX_MAGIC 0xEBCFDEA0
 #define _MUX_INVALID_HANDLE 0xEEEEEEEF
+#define PTHREAD_MUTEXATTR_INITIALIZER { PTHREAD_MUTEX_DEFAULT }
+#define _PTHREAD_MUTEX_INITIALIZER  { _MUX_MAGIC, _MUX_INVALID_HANDLE, PTHREAD_MUTEXATTR_INITIALIZER }
 
-#define _PTHREAD_MUTEX_INITIALIZER  { _MUX_MAGIC, _MUX_INVALID_HANDLE }
+#define PTHREAD_PROCESS_PRIVATE 0
+#define PTHREAD_PROCESS_SHARED 1
 
 #ifdef _GNU_SOURCE
 #define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP { _MUX_MAGIC, _MUX_INVALID_HANDLE }
