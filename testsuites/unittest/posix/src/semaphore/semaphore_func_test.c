@@ -214,6 +214,33 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait003, Function | 
     TEST_ASSERT_EQUAL_INT(errno, EINVAL);
 }
 
+/* *
+ * @tc.number   SUB_KERNEL_IPC_SEM_TIMEDWAIT_004
+ * @tc.name     sem_trywait get semaphore success
+ * @tc.desc     [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Trywait004, Function | MediumTest | Level3)
+{
+    sem_t sem;
+    int val;
+    int ret;
+
+    ret = sem_init(&sem, 0, 1);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+
+    ret = sem_trywait(&sem);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+
+    ret = sem_getvalue(&sem, &val);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+
+    if (val <= 0) {
+        sem_destroy(&sem);
+        return LOS_OK;
+    } else {
+        TEST_ASSERT_EQUAL_INT(0, ret);
+    }
+}
 
 RUN_TEST_SUITE(PosixSemaphoreFuncTestSuite);
 
@@ -223,6 +250,7 @@ void PosixSemaphoreFuncTest()
     RUN_ONE_TESTCASE(testIpcSem_Timedwait001);
     RUN_ONE_TESTCASE(testIpcSem_Timedwait002);
     RUN_ONE_TESTCASE(testIpcSem_Timedwait003);
+    RUN_ONE_TESTCASE(testIpcSem_Timedwait004);
 
     return;
 }

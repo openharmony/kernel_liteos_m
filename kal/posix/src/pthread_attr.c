@@ -29,10 +29,12 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "pthread.h"
 #include <errno.h>
+#include <securec.h>
 #include <limits.h>
+#include "pthread.h"
 #include "los_config.h"
+#include "los_debug.h"
 
 int pthread_attr_init(pthread_attr_t *attr)
 {
@@ -44,7 +46,7 @@ int pthread_attr_init(pthread_attr_t *attr)
     attr->schedpolicy                 = SCHED_RR;
     attr->schedparam.sched_priority   = LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO;
     attr->inheritsched                = PTHREAD_INHERIT_SCHED;
-    attr->scope                       = PTHREAD_SCOPE_PROCESS;
+    attr->scope                       = PTHREAD_SCOPE_SYSTEM;
     attr->stackaddr_set               = 0;
     attr->stackaddr                   = NULL;
     attr->stacksize_set               = 1;
@@ -59,7 +61,8 @@ int pthread_attr_destroy(pthread_attr_t *attr)
         return EINVAL;
     }
 
-    /* Nothing to do here... */
+    (void)memset_s(attr, sizeof(pthread_attr_t), 0, sizeof(pthread_attr_t));
+
     return 0;
 }
 
@@ -90,12 +93,12 @@ int pthread_attr_setscope(pthread_attr_t *attr, int scope)
         return EINVAL;
     }
 
-    if (scope == PTHREAD_SCOPE_PROCESS) {
+    if (scope == PTHREAD_SCOPE_SYSTEM) {
         attr->scope = (unsigned int)scope;
         return 0;
     }
 
-    if (scope == PTHREAD_SCOPE_SYSTEM) {
+    if (scope == PTHREAD_SCOPE_PROCESS) {
         return ENOTSUP;
     }
 
@@ -218,6 +221,28 @@ int pthread_attr_setstacksize(pthread_attr_t *attr, size_t stackSize)
     attr->stacksize     = stackSize;
 
     return 0;
+}
+
+int pthread_attr_setstack(pthread_attr_t *attr, void *stackAddr, size_t stackSize)
+{
+    (void)attr;
+    (void)stackAddr;
+    (void)stackSize;
+    PRINT_ERR("%s: Don't support the pthread stack func currently!\n", __FUNCTION__);
+    errno = ENOSYS;
+
+    return -1;
+}
+
+int pthread_attr_getstack(const pthread_attr_t *attr, void **stackAddr, size_t *stackSize)
+{
+    (void)attr;
+    (void)stackAddr;
+    (void)stackSize;
+    PRINT_ERR("%s: Don't support the pthread stack func currently!\n", __FUNCTION__);
+    errno = ENOSYS;
+
+    return -1;
 }
 
 int pthread_attr_getstacksize(const pthread_attr_t *attr, size_t *stackSize)
