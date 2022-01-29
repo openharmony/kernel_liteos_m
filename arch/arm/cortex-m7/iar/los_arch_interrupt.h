@@ -109,7 +109,8 @@ extern UINT32 _BootVectors[];
  *
  * Value: 0x02000900
  *
- * Solution: Ensure that the interrupt number is valid. The value range of the interrupt number applicable for a Cortex-A7 platform is [OS_USER_HWI_MIN,OS_USER_HWI_MAX].
+ * Solution: Ensure that the interrupt number is valid.
+ * The value range of the interrupt number applicable for a Cortex-M7 platform is [OS_USER_HWI_MIN,OS_USER_HWI_MAX].
  */
 #define OS_ERRNO_HWI_NUM_INVALID              LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x00)
 
@@ -159,7 +160,8 @@ extern UINT32 _BootVectors[];
  *
  * Value: 0x02000905
  *
- * Solution: Ensure that the interrupt priority is valid. The value range of the interrupt priority applicable for a Cortex-A7 platform is [0,15].
+ * Solution: Ensure that the interrupt priority is valid.
+ * The value range of the interrupt priority applicable for a Cortex-M7 platform is [0,15].
  */
 #define OS_ERRNO_HWI_PRIO_INVALID             LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x05)
 
@@ -169,7 +171,8 @@ extern UINT32 _BootVectors[];
  *
  * Value: 0x02000906
  *
- * Solution: The interrupt creation mode can be only set to OS_HWI_MODE_COMM or OS_HWI_MODE_FAST of which the value can be 0 or 1.
+ * Solution: The interrupt creation mode can be only set to OS_HWI_MODE_COMM or
+ * OS_HWI_MODE_FAST of which the value can be 0 or 1.
  */
 #define OS_ERRNO_HWI_MODE_INVALID             LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x06)
 
@@ -341,25 +344,6 @@ extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector);
  * @see None.
  */
 extern VOID HalInterrupt(VOID);
-
-/* *
- * @ingroup  los_arch_interrupt
- * @brief: Get an interrupt number.
- *
- * @par Description:
- * This API is used to get the current interrupt number.
- *
- * @attention:
- * <ul><li>None.</li></ul>
- *
- * @param: None.
- *
- * @retval: Interrupt Indexes number.
- * @par Dependency:
- * <ul><li>los_arch_interrupt.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-extern UINT32 HalIntNumGet(VOID);
 
 /* *
  * @ingroup  los_arch_interrupt

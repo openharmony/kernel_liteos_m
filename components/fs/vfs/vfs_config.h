@@ -98,14 +98,14 @@
 /* max numbers of other descriptors except socket descriptors */
 
 #ifdef LOSCFG_FS_FAT
-#include "fatfs.h"
+#include "fatfs_conf.h"
 #define __FAT_NFILE FAT_MAX_OPEN_FILES
 #else
 #define __FAT_NFILE 0
 #endif
 
 #ifdef LOSCFG_FS_LITTLEFS
-#include "lfs_api.h"
+#include "lfs_conf.h"
 #define __LFS_NFILE LITTLE_FS_MAX_OPEN_FILES
 #else
 #define __LFS_NFILE 0
@@ -123,12 +123,10 @@
 
 #define CONFIG_NQUEUE_DESCRIPTORS    256
 
-#undef FD_SETSIZE
-#define FD_SETSIZE                      (CONFIG_NFILE_DESCRIPTORS + CONFIG_NSOCKET_DESCRIPTORS)
+#define TIMER_FD_OFFSET                 (CONFIG_NFILE_DESCRIPTORS + CONFIG_NSOCKET_DESCRIPTORS)
 #define CONFIG_NEXPANED_DESCRIPTORS     (CONFIG_NTIME_DESCRIPTORS + CONFIG_NQUEUE_DESCRIPTORS)
-#define FD_SET_TOTAL_SIZE               (FD_SETSIZE + CONFIG_NEXPANED_DESCRIPTORS)
-#define TIMER_FD_OFFSET                 FD_SETSIZE
-#define MQUEUE_FD_OFFSET                (FD_SETSIZE + CONFIG_NTIME_DESCRIPTORS)
+#define FD_SET_TOTAL_SIZE               (TIMER_FD_OFFSET + CONFIG_NEXPANED_DESCRIPTORS)
+#define MQUEUE_FD_OFFSET                (TIMER_FD_OFFSET + CONFIG_NTIME_DESCRIPTORS)
 
 /* directory configure */
 

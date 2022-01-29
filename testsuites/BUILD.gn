@@ -31,12 +31,7 @@ import("//kernel/liteos_m/liteos.gni")
 
 config("include") {
   defines = []
-  include_dirs = [
-    "include",
-    "//kernel/liteos_m/kernel/include",
-    "//kernel/liteos_m/kernel/arch/include",
-    "//kernel/liteos_m/components/cpup",
-  ]
+  include_dirs = [ "include" ]
 
   if (defined(LOSCFG_KERNEL_TEST_FULL)) {
     defines += [ "LOS_KERNEL_TEST_FULL=1" ]

@@ -28,21 +28,15 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import("//kernel/liteos_m/liteos.gni")
+import("//third_party/FatFs/FatFs.gni")
 
 module_switch = defined(LOSCFG_FS_FAT)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
-  sources = [
-    "$LITEOSTHIRDPARTY/FatFs/source/diskio.c",
-    "$LITEOSTHIRDPARTY/FatFs/source/ff.c",
-    "$LITEOSTHIRDPARTY/FatFs/source/ffsystem.c",
-    "$LITEOSTHIRDPARTY/FatFs/source/ffunicode.c",
-    "fatfs.c",
-  ]
   configs += [ "$LITEOSTOPDIR:warn_config" ]
+  sources = FATFS_SRC_FILES + [ "fatfs.c" ]
 }
 
 config("public") {
-  include_dirs = [ "." ]
-  include_dirs += [ "$LITEOSTHIRDPARTY/FatFs/source" ]
+  include_dirs = FATFS_INCLUDE_DIRS + [ "." ]
 }
