@@ -250,7 +250,7 @@ STATIC VOID OsGetHwTime(struct timespec *hwTime)
     UINT64 nowNsec = (cycle / OS_SYS_CLOCK) * OS_SYS_NS_PER_SECOND +
                      (cycle % OS_SYS_CLOCK) * OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK;
 
-    hwTime->tv_sec = nowNsec / OS_SYS_NS_PER_SECOND;
+    hwTime->tv_sec = (time_t)(nowNsec / OS_SYS_NS_PER_SECOND);
     hwTime->tv_nsec = nowNsec % OS_SYS_NS_PER_SECOND;
 }
 
@@ -354,7 +354,7 @@ int clock_getres(clockid_t clockID, struct timespec *tp)
         case CLOCK_REALTIME:
         case CLOCK_MONOTONIC_COARSE:
         case CLOCK_REALTIME_COARSE:
-            tp->tv_nsec = OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK;
+            tp->tv_nsec = (long)(OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK);
             tp->tv_sec = 0;
             return 0;
         case CLOCK_THREAD_CPUTIME_ID:
@@ -660,5 +660,5 @@ unsigned sleep(unsigned seconds)
 
     specTime.tv_sec = (time_t)(nanoseconds / OS_SYS_NS_PER_SECOND);
     specTime.tv_nsec = (long)(nanoseconds % OS_SYS_NS_PER_SECOND);
-    return nanosleep(&specTime, NULL);
+    return (unsigned)nanosleep(&specTime, NULL);
 }
