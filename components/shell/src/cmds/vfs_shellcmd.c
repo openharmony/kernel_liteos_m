@@ -385,7 +385,7 @@ static int OsShellCmdDoCp(const char *srcFilePath, const char *dstFileName)
     char *dstFilePath = NULL;
     char *buf = NULL;
     const char *filename = NULL;
-    size_t rdSize, wrSize;
+    ssize_t rdSize, wrSize;
     int srcFd = -1;
     int dstFd = -1;
     struct stat statBuf;

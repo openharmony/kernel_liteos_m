@@ -144,7 +144,7 @@ int pthread_getschedparam(pthread_t thread, int *policy, struct sched_param *par
     }
 
     *policy = SCHED_RR;
-    param->sched_priority = prio;
+    param->sched_priority = (int)prio;
     return 0;
 }
 
@@ -205,6 +205,7 @@ void pthread_exit(void *retVal)
 
 int pthread_setname_np(pthread_t thread, const char *name)
 {
+    errno_t ret;
     char *taskName = LOS_TaskNameGet((UINT32)thread);
     if (taskName == NULL || !IsPthread(thread)) {
         return EINVAL;
@@ -212,13 +213,16 @@ int pthread_setname_np(pthread_t thread, const char *name)
     if (strnlen(name, PTHREAD_NAMELEN) >= PTHREAD_NAMELEN) {
         return ERANGE;
     }
-    (void)strcpy_s(taskName, PTHREAD_NAMELEN, name);
+    ret = strcpy_s(taskName, PTHREAD_NAMELEN, name);
+    if (ret != EOK) {
+        return ret;
+    }
     return 0;
 }
 
 int pthread_getname_np(pthread_t thread, char *buf, size_t buflen)
 {
-    int ret;
+    errno_t ret;
 
     const char *name = LOS_TaskNameGet((UINT32)thread);
     if (name == NULL || !IsPthread(thread)) {
@@ -226,7 +230,7 @@ int pthread_getname_np(pthread_t thread, char *buf, size_t buflen)
     }
     if (buflen > strlen(name)) {
         ret = strcpy_s(buf, buflen, name);
-        if (ret == 0) {
+        if (ret == EOK) {
             return 0;
         }
     }

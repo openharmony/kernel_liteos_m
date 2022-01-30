@@ -231,7 +231,7 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
     }
 
     clock_gettime(CLOCK_REALTIME, &tp);
-    currTime = (UINT64)tp.tv_sec * OS_SYS_NS_PER_SECOND + tp.tv_nsec;
+    currTime = (UINT64)tp.tv_sec * OS_SYS_NS_PER_SECOND + (UINT64)tp.tv_nsec;
     nseconds = (UINT64)ts->tv_sec * OS_SYS_NS_PER_SECOND + ts->tv_nsec;
     if (currTime >= nseconds) {
         return ETIMEDOUT;
