@@ -29,7 +29,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "time_internal.h"
 #include <errno.h>
 #include <pthread.h>
 #include <stdlib.h>
@@ -37,9 +36,11 @@
 #include <securec.h>
 #include "los_config.h"
 #include "los_task.h"
-#include <los_swtmr.h>
+#include "los_swtmr.h"
+#include "time_internal.h"
 #include "los_atomic.h"
 #include "los_event.h"
+#include "los_mux.h"
 
 typedef struct {
     volatile INT32 *realValue;
@@ -54,6 +55,31 @@ typedef struct {
 #define COND_FLAGS_MASK     0x0003U
 #define COND_COUNTER_MASK   (~COND_FLAGS_MASK)
 
+int pthread_condattr_getpshared(const pthread_condattr_t *attr, int *shared)
+{
+    if ((attr == NULL) || (shared == NULL)) {
+        return EINVAL;
+    }
+
+    *shared = PTHREAD_PROCESS_PRIVATE;
+
+    return 0;
+}
+
+int pthread_condattr_setpshared(pthread_condattr_t *attr, int shared)
+{
+    (VOID)attr;
+    if ((shared != PTHREAD_PROCESS_PRIVATE) && (shared != PTHREAD_PROCESS_SHARED)) {
+        return EINVAL;
+    }
+
+    if (shared != PTHREAD_PROCESS_PRIVATE) {
+        return ENOSYS;
+    }
+
+    return 0;
+}
+
 int pthread_condattr_destroy(pthread_condattr_t *attr)
 {
     if (attr == NULL) {
@@ -61,6 +87,19 @@ int pthread_condattr_destroy(pthread_condattr_t *attr)
     }
 
     (VOID)memset_s(attr, sizeof(pthread_condattr_t), 0, sizeof(pthread_condattr_t));
+    attr->clock = INT32_MAX;
+
+    return 0;
+}
+
+int pthread_condattr_getclock(const pthread_condattr_t *attr, clockid_t *clock)
+{
+    if ((attr == NULL) || (clock == NULL)) {
+        return -1;
+    }
+
+    *clock = attr->clock;
+
     return 0;
 }
 
@@ -71,6 +110,7 @@ int pthread_condattr_init(pthread_condattr_t *attr)
     }
 
     attr->clock = CLOCK_REALTIME;
+
     return 0;
 }
 
@@ -86,6 +126,7 @@ int pthread_condattr_setclock(pthread_condattr_t *attr, clockid_t clk)
     }
 
     attr->clock = clk;
+
     return 0;
 }
 
@@ -95,6 +136,7 @@ STATIC INLINE INT32 CondInitCheck(const pthread_cond_t *cond)
         (cond->event.stEventList.pstNext == NULL)) {
         return 1;
     }
+
     return 0;
 }
 
@@ -149,6 +191,7 @@ int pthread_cond_destroy(pthread_cond_t *cond)
     }
     free(cond->mutex);
     cond->mutex = NULL;
+
     return 0;
 }
 
@@ -222,6 +265,7 @@ STATIC INT32 ProcessReturnVal(pthread_cond_t *cond, INT32 val)
             ret = EINVAL;
             break;
     }
+
     return ret;
 }
 
@@ -234,9 +278,15 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
     struct timespec tp;
     UINT64 nseconds;
     UINT64 currTime;
-
-    if ((cond == NULL) || (mutex == NULL) || (ts == NULL)) {
+    LosMuxCB *muxPosted = NULL;
+    pthread_testcancel();
+    if ((cond == NULL) || (mutex == NULL) || (ts == NULL) || (mutex->magic != _MUX_MAGIC)) {
         return EINVAL;
+    }
+
+    muxPosted = GET_MUX(mutex->handle);
+    if ((mutex->stAttr.type == PTHREAD_MUTEX_ERRORCHECK) && (g_losTask.runTask != muxPosted->owner)) {
+        return EPERM;
     }
 
     if (CondInitCheck(cond)) {
@@ -277,6 +327,8 @@ int pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
     }
 
     ret = ProcessReturnVal(cond, ret);
+    pthread_testcancel();
+
     return ret;
 }
 

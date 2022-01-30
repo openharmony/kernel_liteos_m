@@ -29,6 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <stdint.h>
 #include "securec.h"
 #include "los_config.h"
 #include "los_memory.h"
@@ -39,7 +40,7 @@ void *calloc(size_t nitems, size_t size)
     size_t real_size;
     void *ptr = NULL;
 
-    if (nitems == 0 || size == 0) {
+    if ((nitems == 0) || (size == 0) || (nitems > (UINT32_MAX / size))) {
         return NULL;
     }
 
