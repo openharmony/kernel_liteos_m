@@ -39,6 +39,7 @@
 #include "pthread.h"
 #include "log.h"
 
+#define PTHREAD_TASK_DELAY       10
 #define TASK_PRIO_TEST           LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO
 #define OS_TSK_TEST_STACK_SIZE   0x1000
 static UINT32 g_testCount;
@@ -251,7 +252,7 @@ LITE_TEST_CASE(PthreadFuncTestSuite, testPthread004, Function | MediumTest | Lev
     ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
 
     ret = pthread_join(newTh, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, EINVAL, ret);
+    ICUNIT_ASSERT_EQUAL(ret, ESRCH, ret);
 
     return LOS_OK;
 };
@@ -645,4 +646,343 @@ LITE_TEST_CASE(PthreadFuncTestSuite, testPthread008, Function | MediumTest | Lev
     return LOS_OK;
 };
 
+static VOID *pthread_prio_f01(void *argument)
+{
+    g_testCount++;
+    ICUNIT_ASSERT_EQUAL(g_testCount, (UINT32)argument, g_testCount);
+    return NULL;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_009
+ * @tc.name      : event operation for set priority
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread009, Function | MediumTest | Level1)
+{
+    pthread_attr_t attr;
+    pthread_t thread[TEST_THREAD_COUNT];
+    struct sched_param schedParam = { 0 };
+    UINT32 ret;
+    UINT32 i = 0;
+    g_testCount = 0;
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    schedParam.sched_priority = TASK_PRIO_TEST + 1;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    
+    for (i = 0; i < TEST_THREAD_COUNT; i++) {
+        ret = pthread_create(&thread[i], &attr, pthread_prio_f01, TEST_THREAD_COUNT - i);
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    }
+
+    for (i = 0; i < TEST_THREAD_COUNT; i++) {
+        ret = pthread_setschedprio(thread[i], TASK_PRIO_TEST + TEST_THREAD_COUNT - i);
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    }
+
+    for (i = 0; i < TEST_THREAD_COUNT; i++) {
+        ret = pthread_join(thread[i], NULL);
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    }
+
+    return LOS_OK;
+};
+
+static VOID pthread_once_f01(void)
+{
+    g_testCount++;
+    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_010
+ * @tc.name      : event operation for pthread_once
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread010, Function | MediumTest | Level1)
+{
+    pthread_attr_t attr;
+    pthread_t thread[TEST_THREAD_COUNT];
+    struct sched_param schedParam = { 0 };
+    UINT32 ret;
+    UINT32 i = 0;
+    pthread_once_t onceControl = 0;
+    g_testCount = 0;
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    schedParam.sched_priority = TASK_PRIO_TEST + 1;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    
+    for (i = 0; i < TEST_THREAD_COUNT; i++) {
+        ret = pthread_once(&onceControl, pthread_once_f01);
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    }
+    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+
+    return LOS_OK;
+};
+
+static VOID *pthread_cancel_f01(void *argument)
+{
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+    while (1) {
+        g_testCount++;
+        ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+        LOS_TaskDelay(PTHREAD_TASK_DELAY);
+    }
+
+    return NULL;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_011
+ * @tc.name      : event operation for pthread_cancel
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread011, Function | MediumTest | Level1)
+{
+    pthread_attr_t attr;
+    pthread_t thread;
+    struct sched_param schedParam = { 0 };
+    UINT32 ret;
+    pthread_once_t onceControl = 0;
+    g_testCount = 0;
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    schedParam.sched_priority = TASK_PRIO_TEST - 1;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+ 
+    ret = pthread_create(&thread, &attr, pthread_cancel_f01, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_cancel(thread);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+
+    return LOS_OK;
+};
+
+static VOID *pthread_testcancel_f01(void *argument)
+{
+    INT32 ret = 0;
+
+    ret = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    ICUNIT_TRACK_EQUAL(ret, 0, ret);
+
+    ret = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    g_testCount = 1;
+    g_pthreadSem = 1;
+    while (g_pthreadSem == 1) {
+        LOS_TaskDelay(PTHREAD_TASK_DELAY);
+    }
+
+    LOS_TaskDelay(PTHREAD_TASK_DELAY);
+    pthread_testcancel();
+    g_testCount = -1;
+
+    return NULL;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_012
+ * @tc.name      : event operation for testcancel
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread012, Function | MediumTest | Level1)
+{
+    pthread_attr_t attr;
+    pthread_t thread;
+    struct sched_param schedParam = { 0 };
+    UINT32 ret;
+    pthread_once_t onceControl = 0;
+
+    g_testCount = 0;
+    g_pthreadSem = 0;
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    schedParam.sched_priority = TASK_PRIO_TEST - 1;
+    ret = pthread_attr_setschedparam(&attr, &schedParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    
+    ret = pthread_create(&thread, &attr, pthread_testcancel_f01, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    while (g_pthreadSem == 0) {
+        LOS_TaskDelay(PTHREAD_TASK_DELAY);
+    }
+
+    ret = pthread_cancel(thread);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    g_pthreadSem = 0;
+
+    ret = pthread_join(thread, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+
+    return LOS_OK;
+};
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_013
+ * @tc.name      : event operation for set/get clock
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread013, Function | MediumTest | Level1)
+{
+    INT32 ret;
+    clockid_t clk;
+    const int invalidClock = -100;
+    pthread_condattr_t condattr;
+    ret = pthread_condattr_init(&condattr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_condattr_getclock(&condattr, &clk);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(clk, 0, clk);
+
+    ret = pthread_condattr_setclock(&condattr, 0);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ret = pthread_condattr_getclock(&condattr, &clk);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(clk, 0, clk);
+
+    struct timespec ts = {0};
+    ret = clock_getres(CLOCK_MONOTONIC, &ts);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ret = pthread_condattr_setclock(&condattr, CLOCK_MONOTONIC);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ret = pthread_condattr_getclock(&condattr, &clk);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(clk, CLOCK_MONOTONIC, clk);
+
+    ret = pthread_condattr_setclock(&condattr, invalidClock);
+    ICUNIT_ASSERT_EQUAL(ret, EINVAL, ret);
+
+    return 0;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_014
+ * @tc.name      : event operation for setpshared
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread014, Function | MediumTest | Level1)
+{
+    INT32 ret;
+    pthread_condattr_t attr;
+
+    /* Initialize a cond attributes object */
+    ret = pthread_condattr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    /* Set 'pshared' to INVALID_PSHARED_VALUE. */
+    ret = pthread_condattr_setpshared(&attr, (-100));
+    ICUNIT_ASSERT_EQUAL(ret, EINVAL, ret);
+
+    /* Destroy the cond attributes object */
+    ret = pthread_condattr_destroy(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    return 0;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_015
+ * @tc.name      : event operation for getpshared
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread015, Function | MediumTest | Level1)
+{
+    INT32 ret;
+    INT32 pshared;
+    pthread_condattr_t attr;
+
+    /* Initialize a cond attributes object */
+    ret = pthread_condattr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    /* Set 'pshared' to INVALID_PSHARED_VALUE. */
+    ret = pthread_condattr_getpshared(&attr, &pshared);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(pshared, PTHREAD_PROCESS_PRIVATE, pshared);
+
+    /* Destroy the cond attributes object */
+    ret = pthread_condattr_destroy(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    return 0;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_016
+ * @tc.name      : event operation for get/set mutex attr
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PthreadFuncTestSuite, testPthread016, Function | MediumTest | Level1)
+{
+    pthread_mutexattr_t mutex_attr;
+    int mutex_type;
+    int ret;
+    pthread_mutexattr_init(&mutex_attr);
+    ret = pthread_mutexattr_settype(NULL, PTHREAD_MUTEX_ERRORCHECK);
+    if (ret == 0)
+    {
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    }
+    pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_ERRORCHECK);
+    pthread_mutexattr_gettype(&mutex_attr, &mutex_type);
+    if (mutex_type != PTHREAD_MUTEX_ERRORCHECK) {
+        ICUNIT_ASSERT_EQUAL(mutex_type, 0, mutex_type);
+    }
+    ret = pthread_mutexattr_gettype(NULL, &mutex_type);
+    if (ret == 0) {
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    }
+    mutex_attr.type = 3;
+    ret = pthread_mutexattr_gettype(&mutex_attr, &mutex_type);
+    if (ret == 0) {
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    }
+    return LOS_OK;
+}
+
 RUN_TEST_SUITE(PthreadFuncTestSuite);
+
