@@ -1,5 +1,4 @@
-# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -29,24 +28,10 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-config("arch_config") {
-  include_dirs = [ "include" ]
-}
-
-module_group("arch") {
-  modules = []
-  if ("$board_cpu" == "arm9" || "$board_cpu" == "cortex-m3" ||
-      "$board_cpu" == "cortex-m4" || "$board_cpu" == "cortex-m7" ||
-      "$board_cpu" == "cortex-m33" || "$board_cpu" == "cortex-m55") {
-    modules += [ "arm" ]
-  } else if ("$board_cpu" == "ck802" || "$board_cpu" == "e802") {
-    modules += [ "csky" ]
-  } else if ("$board_cpu" == "") {
-    if ("$board_arch" == "rv32imac" || "$board_arch" == "rv32imafdc") {
-      modules += [ "risc-v" ]
-    } else if ("$board" == "esp32") {
-      modules += [ "xtensa" ]
-    }
+module_group("gcc") {
+  if (defined(LOSCFG_SECURE_TRUSTZONE)) {
+    modules = [ "TZ" ]
+  } else {
+    modules = [ "NTZ" ]
   }
-  configs = [ ":arch_config" ]
 }
