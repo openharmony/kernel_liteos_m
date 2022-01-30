@@ -35,10 +35,8 @@
 #include "los_compiler.h"
 #include "los_mux.h"
 #include "errno.h"
-#include "los_mux.h"
-#include "los_debug.h"
 
-#define MUTEXATTR_TYPE_MASK   0x0FU
+
 #define OS_SYS_NS_PER_MSECOND 1000000
 #define OS_SYS_NS_PER_SECOND  1000000000
 
@@ -70,26 +68,7 @@ int pthread_mutexattr_init(pthread_mutexattr_t *mutexAttr)
         return EINVAL;
     }
 
-    mutexAttr->type = PTHREAD_MUTEX_DEFAULT;
-
-    return 0;
-}
-
-int pthread_mutexattr_gettype(const pthread_mutexattr_t *attr, int *outType)
-{
-    INT32 type;
-
-    if ((attr == NULL) || (outType == NULL)) {
-        return EINVAL;
-    }
-
-    type = (INT32)(attr->type & MUTEXATTR_TYPE_MASK);
-    if ((type < PTHREAD_MUTEX_NORMAL) || (type > PTHREAD_MUTEX_ERRORCHECK)) {
-        return EINVAL;
-    }
-
-    *outType = type;
-
+    mutexAttr->type = PTHREAD_MUTEX_RECURSIVE;
     return 0;
 }
 
@@ -104,8 +83,12 @@ int pthread_mutexattr_settype(pthread_mutexattr_t *mutexAttr, int type)
         ((unsigned)type != PTHREAD_MUTEX_ERRORCHECK)) {
         return EINVAL;
     }
-    mutexAttr->type = (UINT8)((mutexAttr->type & ~MUTEXATTR_TYPE_MASK) | (UINT32)type);
 
+    if ((unsigned)type != PTHREAD_MUTEX_RECURSIVE) {
+        return EOPNOTSUPP;
+    }
+
+    mutexAttr->type = PTHREAD_MUTEX_RECURSIVE;
     return 0;
 }
 
@@ -116,25 +99,17 @@ int pthread_mutexattr_destroy(pthread_mutexattr_t *mutexAttr)
     }
 
     (VOID)memset_s(mutexAttr, sizeof(pthread_mutexattr_t), 0, sizeof(pthread_mutexattr_t));
-
     return 0;
 }
 
 /* Initialize mutex. If mutexAttr is NULL, use default attributes. */
 int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexAttr)
 {
-    pthread_mutexattr_t useAttr;
     UINT32 muxHandle;
     UINT32 ret;
 
-    if (mutex == NULL) {
-        return EINVAL;
-    }
-    
-    if (mutexAttr == NULL) {
-        (VOID)pthread_mutexattr_init(&useAttr);
-    } else {
-        useAttr = *mutexAttr;
+    if ((mutexAttr != NULL) && (mutexAttr->type != PTHREAD_MUTEX_RECURSIVE)) {
+        return EOPNOTSUPP;
     }
 
     ret = LOS_MuxCreate(&muxHandle);
@@ -142,7 +117,6 @@ int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexA
         return MapError(ret);
     }
 
-    mutex->stAttr = useAttr;
     mutex->magic = _MUX_MAGIC;
     mutex->handle = muxHandle;
 
@@ -152,7 +126,7 @@ int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexA
 int pthread_mutex_destroy(pthread_mutex_t *mutex)
 {
     UINT32 ret;
-    if ((mutex == NULL) || (mutex->magic != _MUX_MAGIC)) {
+    if (mutex->magic != _MUX_MAGIC) {
         return EINVAL;
     }
     ret = LOS_MuxDelete(mutex->handle);
@@ -161,38 +135,6 @@ int pthread_mutex_destroy(pthread_mutex_t *mutex)
     }
     mutex->handle = _MUX_INVALID_HANDLE;
     mutex->magic = 0;
-
-    return 0;
-}
-
-STATIC UINT32 CheckMutexAttr(const pthread_mutexattr_t *attr)
-{
-    if (((INT8)(attr->type) < PTHREAD_MUTEX_NORMAL) ||
-        (attr->type > PTHREAD_MUTEX_ERRORCHECK)) {
-        return LOS_NOK;
-    }
-
-    return LOS_OK;
-}
-
-STATIC UINT32 OsMuxPreCheck(const pthread_mutex_t *mutex, const LosTaskCB *runTask)
-{
-    if ((mutex == NULL) || (mutex->magic != _MUX_MAGIC)) {
-        return EINVAL;
-    }
-
-    if (OS_INT_ACTIVE) {
-        return EPERM;
-    }
-    /* DO NOT recommend to use blocking API in system tasks */
-    if ((runTask != NULL) && (runTask->taskStatus & OS_TASK_FLAG_SYSTEM_TASK)) {
-        PRINT_DEBUG("Warning: DO NOT recommend to use %s in system tasks.\n", __FUNCTION__);
-    }
-
-    if (CheckMutexAttr(&mutex->stAttr) != LOS_OK) {
-        return EINVAL;
-    }
-
     return 0;
 }
 
@@ -202,27 +144,13 @@ int pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct timespec *absTi
     UINT32 timeout;
     UINT64 timeoutNs;
     struct timespec curTime = {0};
-    LosMuxCB *muxPended = NULL;
-    
-    ret = OsMuxPreCheck(mutex, OS_TCB_FROM_TID(LOS_CurTaskIDGet()));
-    if (ret != 0) {
-        return (INT32)ret;
-    }
-
-    if ((absTimeout == NULL) || (absTimeout->tv_nsec < 0) || (absTimeout->tv_nsec >= OS_SYS_NS_PER_SECOND)) {
+    if ((mutex->magic != _MUX_MAGIC) || (absTimeout->tv_nsec < 0) || (absTimeout->tv_nsec >= OS_SYS_NS_PER_SECOND)) {
         return EINVAL;
     }
     if (mutex->handle == _MUX_INVALID_HANDLE) {
         ret = LOS_MuxCreate(&mutex->handle);
         if (ret != LOS_OK) {
             return MapError(ret);
-        }
-    } else {
-        muxPended = GET_MUX(mutex->handle);
-        if ((mutex->stAttr.type == PTHREAD_MUTEX_ERRORCHECK) &&
-            (muxPended->muxCount != 0) &&
-            (muxPended->owner == OS_TCB_FROM_TID(LOS_CurTaskIDGet()))) {
-            return EDEADLK;
         }
     }
     ret = clock_gettime(CLOCK_REALTIME, &curTime);
@@ -235,7 +163,6 @@ int pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct timespec *absTi
     }
     timeout = (timeoutNs + (OS_SYS_NS_PER_MSECOND - 1)) / OS_SYS_NS_PER_MSECOND;
     ret = LOS_MuxPend(mutex->handle, timeout);
-
     return MapError(ret);
 }
 
@@ -243,67 +170,42 @@ int pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct timespec *absTi
 int pthread_mutex_lock(pthread_mutex_t *mutex)
 {
     UINT32 ret;
-    LosMuxCB *muxPended = NULL;
-    LosTaskCB *runTask = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
-
-    ret = OsMuxPreCheck(mutex, runTask);
-    if (ret != 0) {
-        return (INT32)ret;
+    if (mutex->magic != _MUX_MAGIC) {
+        return EINVAL;
     }
-
     if (mutex->handle == _MUX_INVALID_HANDLE) {
         ret = LOS_MuxCreate(&mutex->handle);
         if (ret != LOS_OK) {
             return MapError(ret);
         }
-    } else {
-        muxPended = GET_MUX(mutex->handle);
-        if ((mutex->stAttr.type == PTHREAD_MUTEX_ERRORCHECK) &&
-            (muxPended->muxCount != 0) &&
-            (muxPended->owner == runTask)) {
-            return EDEADLK;
-        }
     }
     ret = LOS_MuxPend(mutex->handle, LOS_WAIT_FOREVER);
-
     return MapError(ret);
 }
 
 int pthread_mutex_trylock(pthread_mutex_t *mutex)
 {
     UINT32 ret;
-    LosMuxCB *muxPended = NULL;
-
-    ret = OsMuxPreCheck(mutex, OS_TCB_FROM_TID(LOS_CurTaskIDGet()));
-    if (ret != 0) {
-        return (INT32)ret;
+    if (mutex->magic != _MUX_MAGIC) {
+        return EINVAL;
     }
-
     if (mutex->handle == _MUX_INVALID_HANDLE) {
         ret = LOS_MuxCreate(&mutex->handle);
         if (ret != LOS_OK) {
             return MapError(ret);
         }
-    } else {
-        muxPended = GET_MUX(mutex->handle);
-        if ((mutex->stAttr.type != PTHREAD_MUTEX_RECURSIVE) && (muxPended->muxCount != 0)) {
-            return EBUSY;
-        }
     }
     ret = LOS_MuxPend(mutex->handle, 0);
-
     return MapError(ret);
 }
 
 int pthread_mutex_unlock(pthread_mutex_t *mutex)
 {
     UINT32 ret;
-    ret = OsMuxPreCheck(mutex, OS_TCB_FROM_TID(LOS_CurTaskIDGet()));
-    if (ret != 0) {
-        return (INT32)ret;
+    if (mutex->magic != _MUX_MAGIC) {
+        return EINVAL;
     }
     ret = LOS_MuxPost(mutex->handle);
-
     return MapError(ret);
 }
 
