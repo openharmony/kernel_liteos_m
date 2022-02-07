@@ -33,13 +33,10 @@
  .fpu vfpv3-d16-fp16
  .thumb
 
-.equ    OS_FPU_CPACR,                0xE000ED88
-.equ    OS_FPU_CPACR_ENABLE,         0x00F00000
 .equ    OS_NVIC_INT_CTRL,            0xE000ED04
 .equ    OS_NVIC_SYSPRI3,             0xE000ED20
 .equ    OS_NVIC_PENDSV_PRI,          0xF0F00000
 .equ    OS_NVIC_PENDSVSET,           0x10000000
-.equ    OS_TASK_STATUS_RUNNING,      0x0010
 
     .section .text
     .thumb
@@ -70,13 +67,12 @@ HalStartToRun:
     ldr     r0, [r1, #4]
     ldr     r12, [r0]
 
-    ldr.w   r1, =OS_FPU_CPACR
-    ldr     r1, [r1]
-    and     r1, r1, #OS_FPU_CPACR_ENABLE
-    cmp     r1, #OS_FPU_CPACR_ENABLE
+    ldr     r2, [r12]
+    tst     r2, #0x10
+    it      ne
     bne     __DisabledFPU
 
-    add     r12, r12, #100
+    add     r12, r12, #104
     ldmfd   r12!, {r0-r7}
     add     r12, r12, #72
     msr     psp, r12
@@ -88,7 +84,7 @@ HalStartToRun:
     bx      r6
 
 __DisabledFPU:
-    add     r12, r12, #36
+    add     r12, r12, #40
 
     ldmfd   r12!, {r0-r7}
     msr     psp, r12
@@ -165,38 +161,29 @@ HalTaskSwitch:
     bx      lr
 
 TaskContextSwitch:
-    mov     lr, r0
-    mrs     r0, psp
-    stmfd   r0!, {r4-r12}
+    mov      lr, r0
+    mrs      r0, psp
+    tst      lr, #0x10
+    it       eq
+    vstmdbeq r0!, {d8-d15}
+    mov      r3, lr
+    stmfd    r0!, {r3-r12}
 
-    ldr.w   r3, =OS_FPU_CPACR
-    ldr     r3, [r3]
-    and     r3, r3, #OS_FPU_CPACR_ENABLE
-    cmp     r3, #OS_FPU_CPACR_ENABLE
-    bne     __DisabledFPU1
-    vstmdb   r0!, {d8-d15}
+    ldr      r5, =g_losTask
+    ldr      r6, [r5]
+    str      r0, [r6]
 
-__DisabledFPU1:
-    ldr     r5, =g_losTask
-    ldr     r6, [r5]
-    str     r0, [r6]
-
-    ldr     r0, [r5, #4]
-    str     r0, [r5]
-    ldr     r1, [r0]
+    ldr      r0, [r5, #4]
+    str      r0, [r5]
+    ldr      r1, [r0]
 
 SignalContextRestore:
-    ldr.w   r3, =OS_FPU_CPACR
-    ldr     r3, [r3]
-    and     r3, r3, #OS_FPU_CPACR_ENABLE
-    cmp     r3, #OS_FPU_CPACR_ENABLE
-    bne     __DisabledFPU2
-    VLDMIA  r1!, {d8-d15}
+    ldmfd    r1!, {r3-r12}
+    tst      r3, #0x10
+    it       eq
+    vldmiaeq r1!, {d8-d15}
+    msr      psp, r1
+    msr      PRIMASK, r12
 
-__DisabledFPU2:
-    ldmfd   r1!, {r4-r12}
-    msr     psp,  r1
-    msr     PRIMASK, r12
-
-    bx      lr
+    bx       lr
     .fnend
