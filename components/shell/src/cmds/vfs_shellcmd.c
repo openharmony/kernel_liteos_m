@@ -259,7 +259,7 @@ int OsShellCmdCat(int argc, const char **argv)
     char *fullpath = NULL;
     int ret;
     CHAR buf[CAT_BUF_SIZE];
-    size_t size;
+    ssize_t size;
 
     char *shellWorkingDirectory = OsShellGetWorkingDirtectory();
 
@@ -283,7 +283,7 @@ int OsShellCmdCat(int argc, const char **argv)
     do {
         (void)memset_s(buf, sizeof(buf), 0, CAT_BUF_SIZE);
         size = read(fd, buf, CAT_BUF_SIZE - 1);
-        if ((int)size < 0) {
+        if (size < 0) {
             free(fullpath);
             close(fd);
             return -1;
