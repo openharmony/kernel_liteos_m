@@ -41,6 +41,16 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct TagTskContext {
+    UINT32 uwEXCLR;
+    UINT32 uwR4;
+    UINT32 uwR5;
+    UINT32 uwR6;
+    UINT32 uwR7;
+    UINT32 uwR8;
+    UINT32 uwR9;
+    UINT32 uwR10;
+    UINT32 uwR11;
+    UINT32 uwPriMask;
 #if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
      (defined(__FPU_USED) && (__FPU_USED == 1U)))
     UINT32 S16;
@@ -60,15 +70,6 @@ typedef struct TagTskContext {
     UINT32 S30;
     UINT32 S31;
 #endif
-    UINT32 uwR4;
-    UINT32 uwR5;
-    UINT32 uwR6;
-    UINT32 uwR7;
-    UINT32 uwR8;
-    UINT32 uwR9;
-    UINT32 uwR10;
-    UINT32 uwR11;
-    UINT32 uwPriMask;
     UINT32 uwR0;
     UINT32 uwR1;
     UINT32 uwR2;
