@@ -251,7 +251,7 @@ STATIC VOID OsGetHwTime(struct timespec *hwTime)
                      (cycle % OS_SYS_CLOCK) * OS_SYS_NS_PER_SECOND / OS_SYS_CLOCK;
 
     hwTime->tv_sec = (time_t)(nowNsec / OS_SYS_NS_PER_SECOND);
-    hwTime->tv_nsec = nowNsec % OS_SYS_NS_PER_SECOND;
+    hwTime->tv_nsec = (long)(nowNsec % OS_SYS_NS_PER_SECOND);
 }
 
 STATIC VOID OsGetRealTime(struct timespec *realTime)
