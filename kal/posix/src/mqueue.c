@@ -384,7 +384,7 @@ int OsMqGetAttr(mqd_t personal, struct mq_attr *mqAttr)
 
     mqueueCB = privateMqPersonal->mq_posixdes;
     mqAttr->mq_maxmsg = mqueueCB->mqcb->queueLen;
-    mqAttr->mq_msgsize = mqueueCB->mqcb->queueSize - sizeof(UINT32);
+    mqAttr->mq_msgsize = (long)(mqueueCB->mqcb->queueSize - sizeof(UINT32));
     mqAttr->mq_curmsgs = mqueueCB->mqcb->readWriteableCnt[OS_QUEUE_READ];
     mqAttr->mq_flags = privateMqPersonal->mq_flags;
     (VOID)pthread_mutex_unlock(&g_mqueueMutex);
