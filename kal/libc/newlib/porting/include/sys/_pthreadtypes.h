@@ -57,6 +57,7 @@
 #undef _PTHREAD_ONCE_INIT
 
 #undef PTHREAD_STACK_MIN
+#undef PTHREAD_MUTEX_DEFAULT
 
 #include "los_config.h"
 #define PTHREAD_STACK_MIN LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE
@@ -76,17 +77,18 @@ typedef struct {
 } pthread_attr_t;
 
 #include "los_list.h"
-typedef struct { unsigned int magic; unsigned int handle; } pthread_mutex_t;
-
 typedef struct { unsigned type; } pthread_mutexattr_t;
+typedef struct { unsigned int magic; unsigned int handle; pthread_mutexattr_t stAttr;} pthread_mutex_t;
 
 #define _MUX_MAGIC 0xEBCFDEA0
 #define _MUX_INVALID_HANDLE 0xEEEEEEEF
+#define PTHREAD_MUTEX_DEFAULT 0
 
-#define _PTHREAD_MUTEX_INITIALIZER  { _MUX_MAGIC, _MUX_INVALID_HANDLE }
+#define PTHREAD_MUTEXATTR_INITIALIZER { PTHREAD_MUTEX_RECURSIVE }
+#define _PTHREAD_MUTEX_INITIALIZER  { _MUX_MAGIC, _MUX_INVALID_HANDLE, PTHREAD_MUTEXATTR_INITIALIZER }
 
 #ifdef _GNU_SOURCE
-#define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP { _MUX_MAGIC, _MUX_INVALID_HANDLE }
+#define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP { _MUX_MAGIC, _MUX_INVALID_HANDLE, PTHREAD_MUTEXATTR_INITIALIZER }
 #endif
 
 #include "los_event.h"
