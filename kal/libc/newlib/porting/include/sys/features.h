@@ -49,6 +49,7 @@
 #define _POSIX_TIMEOUTS
 #define _POSIX_THREAD_PRIORITY_SCHEDULING
 #define _UNIX98_THREAD_MUTEX_ATTRIBUTES
+#define _POSIX_THREAD_PROCESS_SHARED
 
 #include_next <sys/features.h>
 

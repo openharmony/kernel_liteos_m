@@ -265,13 +265,13 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol011, Function | MediumTest
     char nPtr[] = "12 1.5";
     char *endPtr = NULL;
     long ret = strtol(nPtr, &endPtr, 65);
-    if (ret == 67) {
+    if (ret == 0) {
         LOG("[DEMO] posix stdlib test case 11:strtol(base=65) ret:%ld, %s, endPtr:%s ok.\n", ret, endPtr, endPtr);
     } else {
         LOG("[DEMO] posix stdlib test case 11:strtol(base=65) ret:%ld, %s fail.\n", ret, endPtr);
     }
-    TEST_ASSERT_EQUAL_INT32(67, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr, " 1.5");
+    TEST_ASSERT_EQUAL_INT32(0, ret);
+    TEST_ASSERT_EQUAL_STRING(endPtr, "12 1.5");
 }
 
 LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol012, Function | MediumTest | Level1)

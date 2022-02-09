@@ -111,5 +111,27 @@ STATIC INLINE VOID OsTick2TimeSpec(struct timespec *tp, UINT32 tick)
     tp->tv_sec = (time_t)(ns / OS_SYS_NS_PER_SECOND);
     tp->tv_nsec = (long)(ns % OS_SYS_NS_PER_SECOND);
 }
+
+STATIC INLINE INT32 OsGetTickTimeFromNow(const struct timespec *ts, clockid_t clockId, UINT64 *absTicks)
+{
+    struct timespec tp;
+    UINT64 nseconds;
+    UINT64 currTime;
+    const UINT32 nsPerTick = OS_SYS_NS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND;
+
+    if (!ValidTimeSpec(ts)) {
+        return EINVAL;
+    }
+
+    clock_gettime(clockId, &tp);
+    currTime = (UINT64)tp.tv_sec * OS_SYS_NS_PER_SECOND + tp.tv_nsec;
+    nseconds = (UINT64)ts->tv_sec * OS_SYS_NS_PER_SECOND + ts->tv_nsec;
+    if (currTime >= nseconds) {
+        return ETIMEDOUT;
+    }
+    *absTicks = ((nseconds - currTime) + nsPerTick - 1) / nsPerTick + 1;
+
+    return 0;
+}
 #endif
 
