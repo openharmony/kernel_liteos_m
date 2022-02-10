@@ -212,7 +212,7 @@ VOID ShellTaskEntry(VOID)
         (VOID)LOS_EventRead(&g_shellInputEvent, 0x1, LOS_WAITMODE_AND | LOS_WAITMODE_CLR, LOS_WAIT_FOREVER);
         while ((*ptr = (UINT8)UartGetc()) != 0 && *ptr != 13) {
             if (*ptr == '\x03') { /* ctrl + c */
-                PRINTK("^C\n\rOHOS # ", *ptr);
+                PRINTK("^C\n\rOHOS # ");
                 ptr = buf;
                 break;
             }
