@@ -47,7 +47,7 @@ STATIC HWI_PROC_FUNC g_sysTickHandler = (HWI_PROC_FUNC)NULL;
 extern UINT32 g_intCount;
 
 STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler);
-STATIC VOID SysTickReload(UINT64 nextResponseTime);
+STATIC UINT64 SysTickReload(UINT64 nextResponseTime);
 STATIC UINT64 SysTickCycleGet(UINT32 *period);
 STATIC VOID SysTickLock(VOID);
 STATIC VOID SysTickUnlock(VOID);
@@ -55,6 +55,7 @@ STATIC VOID SysTickUnlock(VOID);
 STATIC ArchTickTimer g_archTickTimer = {
     .freq = 0,
     .irqNum = SysTimer_IRQn,
+    .periodMax = LOSCFG_BASE_CORE_TICK_RESPONSE_MAX,
     .init = SysTickStart,
     .getCycle = SysTickCycleGet,
     .reload = SysTickReload,
@@ -95,9 +96,10 @@ void ArchTickSysTickHandler(void)
     }
 }
 
-STATIC VOID SysTickReload(UINT64 nextResponseTime)
+STATIC UINT64 SysTickReload(UINT64 nextResponseTime)
 {
     SysTick_Reload(nextResponseTime);
+    return nextResponseTime;
 }
 
 STATIC UINT64 SysTickCycleGet(UINT32 *period)

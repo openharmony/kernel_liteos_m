@@ -249,13 +249,15 @@ typedef struct TagSysTime {
     UINT8   ucWeek;    /**< value 0 - 6  */
 } SYS_TIME_S;
 
-VOID OsTickTimerReload(UINT64 responseTime);
+UINT64 OsTickTimerReload(UINT64 period);
 
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
 VOID OsTickTimerBaseReset(UINT64 currTime);
 #endif
 
 UINT32 OsTickTimerInit(VOID);
+
+VOID OsTickSysTimerStartTimeSet(UINT64 currTime);
 
 /**
  * @ingroup los_tick

@@ -42,7 +42,8 @@ LITE_OS_SEC_BSS UINT32 g_ticksPerSec;
 LITE_OS_SEC_BSS UINT32 g_uwCyclePerSec;
 LITE_OS_SEC_BSS UINT32 g_cyclesPerTick;
 LITE_OS_SEC_BSS UINT32 g_sysClock;
-LITE_OS_SEC_BSS BOOL g_sysTimerIsInit = FALSE;
+LITE_OS_SEC_BSS STATIC BOOL g_sysTimerIsInit = FALSE;
+LITE_OS_SEC_BSS STATIC UINT64 g_tickTimerStartTime;
 
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
 STATIC UINT64 g_tickTimerBase;
@@ -72,12 +73,12 @@ LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)
     LOS_SchedTickHandler();
 }
 
-LITE_OS_SEC_TEXT VOID OsTickTimerReload(UINT64 responseTime)
+LITE_OS_SEC_TEXT UINT64 OsTickTimerReload(UINT64 period)
 {
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
     g_tickTimerBase = LOS_SysCycleGet();
 #endif
-    g_sysTickTimer->reload(responseTime);
+    return g_sysTickTimer->reload(period);
 }
 
 LITE_OS_SEC_TEXT UINT64 LOS_SysCycleGet(VOID)
@@ -117,6 +118,10 @@ STATIC UINT32 TickTimerCheck(const ArchTickTimer *tick)
     }
 
     if (tick->irqNum > (INT32)LOSCFG_PLATFORM_HWI_LIMIT) {
+        return LOS_ERRNO_TICK_CFG_INVALID;
+    }
+
+    if (tick->periodMax == 0) {
         return LOS_ERRNO_TICK_CFG_INVALID;
     }
 
@@ -172,6 +177,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsTickTimerInit(VOID)
     g_sysTimerIsInit = TRUE;
 
     LOS_IntRestore(intSave);
+
     return LOS_OK;
 }
 
@@ -223,6 +229,11 @@ LITE_OS_SEC_TEXT UINT32 LOS_TickTimerRegister(const ArchTickTimer *timer, const 
     return LOS_OK;
 }
 
+LITE_OS_SEC_TEXT_MINOR VOID OsTickSysTimerStartTimeSet(UINT64 currTime)
+{
+    g_tickTimerStartTime = currTime;
+}
+
 /*****************************************************************************
 Function    : LOS_TickCountGet
 Description : get current tick
@@ -232,7 +243,7 @@ Return      : current tick
 *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT64 LOS_TickCountGet(VOID)
 {
-    return LOS_SysCycleGet() / OS_CYCLE_PER_TICK;
+    return (LOS_SysCycleGet() - g_tickTimerStartTime) / OS_CYCLE_PER_TICK;
 }
 
 /*****************************************************************************

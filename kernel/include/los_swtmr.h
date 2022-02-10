@@ -500,27 +500,7 @@ extern UINT32 OsSwtmrInit(VOID);
  */
 extern UINT32 OsSwtmrGetNextTimeout(VOID);
 
-/**
- * @ingroup los_swtmr
- * @brief Adjust software timer list.
- *
- * @par Description:
- * <ul>
- * <li>This API is used to adjust software timer list.</li>
- * </ul>
- * @attention
- * <ul>
- * <li>None.</li>
- * </ul>
- *
- * @param  sleepTime    [IN]    UINT32 Sleep time.
- *
- * @retval UINT32    Sleep time.
- * @par Dependency:
- * <ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-extern VOID OsSwtmrAdjust(UINT32 sleepTime);
+extern VOID OsSwtmrResponseTimeReset(UINT64 startTime);
 
 #ifdef __cplusplus
 #if __cplusplus

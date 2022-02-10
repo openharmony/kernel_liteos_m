@@ -238,7 +238,7 @@ LITE_OS_SEC_TEXT VOID OsSwtmrStart(UINT64 currTime, SWTMR_CTRL_S *swtmr)
     }
 #endif
     OsAdd2SortLink(&swtmr->stSortList, swtmr->startTime, swtmr->uwInterval, OS_SORT_LINK_SWTMR);
-    OsSchedUpdateExpireTime(currTime);
+    OsSchedUpdateExpireTime();
 }
 
 /*****************************************************************************
@@ -274,7 +274,7 @@ LITE_OS_SEC_TEXT VOID OsSwtmrStop(SWTMR_CTRL_S *swtmr)
     swtmr->ucState = OS_SWTMR_STATUS_CREATED;
 
     swtmr->ucOverrun = 0;
-    OsSchedUpdateExpireTime(OsGetCurrSchedTimeCycle());
+    OsSchedUpdateExpireTime();
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT].isAligned = 0;
 #endif
@@ -327,6 +327,24 @@ STATIC BOOL OsSwtmrScan(VOID)
     return needSchedule;
 }
 
+LITE_OS_SEC_TEXT VOID OsSwtmrResponseTimeReset(UINT64 startTime)
+{
+    LOS_DL_LIST *listHead = &g_swtmrSortLinkList->sortLink;
+    LOS_DL_LIST *listNext = listHead->pstNext;
+
+    while (listNext != listHead) {
+        SortLinkList *sortList = LOS_DL_LIST_ENTRY(listNext, SortLinkList, sortLinkNode);
+        SWTMR_CTRL_S *swtmr = LOS_DL_LIST_ENTRY(sortList, SWTMR_CTRL_S, stSortList);
+        OsDeleteNodeSortLink(sortList);
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
+        g_swtmrAlignID[swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT].isAligned = 0;
+#endif
+        swtmr->startTime = startTime;
+        OsSwtmrStart(startTime, swtmr);
+        listNext = listNext->pstNext;
+    }
+}
+
 /*****************************************************************************
 Function    : OsSwtmrGetNextTimeout
 Description : Get next timeout
@@ -337,14 +355,23 @@ Return      : Count of the Timer list
 LITE_OS_SEC_TEXT UINT32 OsSwtmrGetNextTimeout(VOID)
 {
     UINT32 intSave = LOS_IntLock();
-    UINT32 ticks = OsSortLinkGetNextExpireTime(g_swtmrSortLinkList);
+    UINT64 time = OsSortLinkGetNextExpireTime(g_swtmrSortLinkList);
     LOS_IntRestore(intSave);
-    return ticks;
+    time = time / OS_CYCLE_PER_TICK;
+    if (time > OS_NULL_INT) {
+        time = OS_NULL_INT;
+    }
+    return time;
 }
 
 LITE_OS_SEC_TEXT UINT32 OsSwtmrTimeGet(const SWTMR_CTRL_S *swtmr)
 {
-    return OsSortLinkGetTargetExpireTime(OsGetCurrSchedTimeCycle(), &swtmr->stSortList);
+    UINT64 time = OsSortLinkGetTargetExpireTime(OsGetCurrSchedTimeCycle(), &swtmr->stSortList);
+    time = time / OS_CYCLE_PER_TICK;
+    if (time > OS_NULL_INT) {
+        time = OS_NULL_INT;
+    }
+    return (UINT32)time;
 }
 
 /*****************************************************************************
