@@ -43,6 +43,9 @@
 #include "los_tick.h"
 #include "los_context.h"
 #include "los_interrupt.h"
+#include "sys/times.h"
+
+#define DELAYTIMER_MAX 0x7FFFFFFFF
 
 /* accumulative time delta from discontinuous modify */
 STATIC struct timespec g_accDeltaFromSet;
@@ -96,7 +99,7 @@ int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
     }
 
     /* sleep in interrupt context or in task sched lock state */
-    errno = EPERM;
+    errno = EINTR;
     return -1;
 }
 
@@ -105,12 +108,12 @@ int timer_create(clockid_t clockID, struct sigevent *restrict evp, timer_t *rest
     UINT32 ret;
     UINT32 swtmrID;
 
-    if (!timerID || (clockID != CLOCK_REALTIME)) {
+    if (!timerID || (clockID != CLOCK_REALTIME) || !evp) {
         errno = EINVAL;
         return -1;
     }
 
-    if (!evp || evp->sigev_notify != SIGEV_THREAD || evp->sigev_notify_attributes) {
+    if ((evp->sigev_notify != SIGEV_THREAD) || evp->sigev_notify_attributes) {
         errno = ENOTSUP;
         return -1;
     }
@@ -152,7 +155,7 @@ int timer_settime(timer_t timerID, int flags,
 
     if (flags != 0) {
         /* flags not supported currently */
-        errno = ENOSYS;
+        errno = ENOTSUP;
         return -1;
     }
 
@@ -190,6 +193,7 @@ int timer_settime(timer_t timerID, int flags,
     swtmr->ucMode = (interval ? LOS_SWTMR_MODE_PERIOD : LOS_SWTMR_MODE_NO_SELFDELETE);
     swtmr->uwInterval = (interval ? interval : expiry);
 
+    swtmr->ucOverrun = 0;
     LOS_IntRestore(intSave);
 
     if ((value->it_value.tv_sec == 0) && (value->it_value.tv_nsec == 0)) {
@@ -229,7 +233,9 @@ int timer_gettime(timer_t timerID, struct itimerspec *value)
         errno = EINVAL;
         return -1;
     }
-
+    if (ret == LOS_ERRNO_SWTMR_NOT_STARTED) {
+        tick = 0;
+    }
     OsTick2TimeSpec(&value->it_value, tick);
     OsTick2TimeSpec(&value->it_interval, (swtmr->ucMode == LOS_SWTMR_MODE_ONCE) ? 0 : swtmr->uwInterval);
     return 0;
@@ -237,10 +243,13 @@ int timer_gettime(timer_t timerID, struct itimerspec *value)
 
 int timer_getoverrun(timer_t timerID)
 {
-    (void)timerID;
+    SWTMR_CTRL_S *swtmr = NULL;
+    swtmr = OS_SWT_FROM_SID((UINT32)(UINTPTR)timerID);
 
-    errno = ENOSYS;
-    return -1;
+    if ((swtmr->ucOverrun) >= (UINT8)DELAYTIMER_MAX) {
+        return (INT32)DELAYTIMER_MAX;
+    }
+    return (int)swtmr->ucOverrun;
 }
 
 STATIC VOID OsGetHwTime(struct timespec *hwTime)
@@ -696,3 +705,17 @@ unsigned sleep(unsigned seconds)
     specTime.tv_nsec = (long)(nanoseconds % OS_SYS_NS_PER_SECOND);
     return nanosleep(&specTime, NULL);
 }
+
+clock_t times(struct tms *tms)
+{
+    clock_t clockTick = (clock_t)LOS_TickCountGet();
+
+    if (tms != NULL) {
+        tms->tms_cstime = clockTick;
+        tms->tms_cutime = clockTick;
+        tms->tms_stime  = clockTick;
+        tms->tms_utime  = clockTick;
+    }
+    return clockTick;
+}
+

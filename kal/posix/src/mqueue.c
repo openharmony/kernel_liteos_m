@@ -312,7 +312,7 @@ OUT:
 
 int mq_close(mqd_t personal)
 {
-    INT32 ret = 0;
+    INT32 ret = -1;
     struct mqarray *mqueueCB = NULL;
     struct mqpersonal *privateMqPersonal = NULL;
     struct mqpersonal *tmp = NULL;
@@ -425,7 +425,7 @@ int OsMqSetAttr(mqd_t personal, const struct mq_attr *mqSetAttr, struct mq_attr 
     return 0;
 }
 
-int mq_getsetattr(mqd_t mqd, const struct mq_attr *new, struct mq_attr *old)
+static int MqGetSetAttr(mqd_t mqd, const struct mq_attr *new, struct mq_attr *old)
 {
     if (new == NULL) {
         return OsMqGetAttr(mqd, old);
@@ -439,7 +439,7 @@ int mq_getattr(mqd_t mqd, struct mq_attr *attr)
         errno = EBADF;
         return -1;
     }
-    return mq_getsetattr(mqd, 0, attr);
+    return MqGetSetAttr(mqd, NULL, attr);
 }
 
 int mq_setattr(mqd_t mqd, const struct mq_attr *new, struct mq_attr *old)
@@ -452,7 +452,7 @@ int mq_setattr(mqd_t mqd, const struct mq_attr *new, struct mq_attr *old)
         errno = EINVAL;
         return -1;
     }
-    return mq_getsetattr(mqd, new, old);
+    return MqGetSetAttr(mqd, new, old);
 }
 
 int mq_unlink(const char *mqName)
@@ -472,7 +472,9 @@ int mq_unlink(const char *mqName)
     }
 
     if (mqueueCB->mq_personal != NULL) {
+        errno = EINTR;
         mqueueCB->unlinkflag = TRUE;
+        goto ERROUT_UNLOCK;
     } else {
         ret = DoMqueueDelete(mqueueCB);
     }
