@@ -191,13 +191,13 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul007, Function | MediumTe
     char nPtr[] = " 12.34";
     char *endPtr = NULL;
     unsigned long ret = strtoul(nPtr, &endPtr, 65);
-    if (ret == 67UL) {
+    if (ret == 0UL) {
         LOG("[DEMO] posix stdlib test case 7:strtoul(base=65) ret:%lu,%s, endPtr:%s ok.\n", ret, nPtr, endPtr);
     } else {
         LOG("[DEMO] posix stdlib test case 7:strtoul(base=65) ret:%lu,%s fail.\n", ret, endPtr);
     }
-    TEST_ASSERT_EQUAL_UINT32(67UL, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr, ".34");
+    TEST_ASSERT_EQUAL_UINT32(0UL, ret);
+    TEST_ASSERT_EQUAL_STRING(endPtr, " 12.34");
 }
 
 /* *
