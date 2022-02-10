@@ -31,8 +31,11 @@
 
 #include "los_pm.h"
 #include "securec.h"
-#include "los_sched.h"
 #include "los_timer.h"
+#include "los_task.h"
+#include "los_tick.h"
+#include "los_event.h"
+#include "los_sched.h"
 #include "los_memory.h"
 #include "los_swtmr.h"
 
@@ -70,7 +73,6 @@ typedef struct {
 STATIC EVENT_CB_S g_pmEvent;
 STATIC LosPmCB g_pmCB;
 STATIC LosPmSysctrl g_sysctrl;
-STATIC UINT64 g_pmSleepTime;
 
 STATIC VOID OsPmSysctrlInit(VOID)
 {
@@ -122,7 +124,7 @@ STATIC BOOL OsPmTickTimerStop(LosPmCB *pm)
 {
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
     UINT64 sleepCycle;
-    UINT64 realSleepTime = g_pmSleepTime;
+    UINT64 realSleepTime = OsSchedGetNextExpireTime(OsGetCurrSchedTimeCycle());
 #endif
     LosPmTickTimer *tickTimer = pm->tickTimer;
 
@@ -239,7 +241,6 @@ STATIC UINT32 OsPmSuspendSleep(LosPmCB *pm)
     LOS_SysSleepEnum mode;
     UINT32 prepare = 0;
     BOOL tickTimerStop = FALSE;
-    UINT64 currTime;
 
     ret = OsPmSuspendCheck(pm, &sysSuspendEarly, &deviceSuspend, &mode);
     if (ret != LOS_OK) {
@@ -261,9 +262,8 @@ STATIC UINT32 OsPmSuspendSleep(LosPmCB *pm)
 
     tickTimerStop = OsPmTickTimerStop(pm);
     if (!tickTimerStop) {
-        currTime = OsGetCurrSchedTimeCycle();
         OsSchedResetSchedResponseTime(0);
-        OsSchedUpdateExpireTime(currTime);
+        OsSchedUpdateExpireTime();
     }
 
     OsPmCpuSuspend(pm);
@@ -723,11 +723,6 @@ UINT32 LOS_PmSuspend(UINT32 wakeCount)
     return OsPmSuspendSleep(&g_pmCB);
 }
 
-STATIC VOID OsPmSleepTimeSet(UINT64 sleepTime)
-{
-    g_pmSleepTime = sleepTime;
-}
-
 BOOL OsIsPmMode(VOID)
 {
     LosPmCB *pm = &g_pmCB;
@@ -751,11 +746,6 @@ UINT32 OsPmInit(VOID)
     pm->pmMode = LOS_SYS_NORMAL_SLEEP;
     LOS_ListInit(&pm->lockList);
     (VOID)LOS_EventInit(&g_pmEvent);
-
-    ret = OsSchedRealSleepTimeSet(OsPmSleepTimeSet);
-    if (ret != LOS_OK) {
-        return ret;
-    }
 
     ret = OsPmEnterHandlerSet(OsPmNormalSleep);
     if (ret != LOS_OK) {

@@ -43,13 +43,10 @@ extern "C" {
 #endif /* __cplusplus */
 
 #define OS_SCHED_MINI_PERIOD       (g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND_MINI)
-#define OS_TICK_RESPONSE_PRECISION (UINT32)((OS_SCHED_MINI_PERIOD * 75) / 100)
 #define OS_SCHED_MAX_RESPONSE_TIME (UINT64)(((UINT64)-1) - 1U)
 
 extern UINT32 g_taskScheduled;
 typedef BOOL (*SchedScan)(VOID);
-
-extern UINT64 g_sysSchedStartTime;
 
 VOID OsSchedResetSchedResponseTime(UINT64 responseTime);
 
@@ -57,7 +54,9 @@ VOID OsSchedSetIdleTaskSchedParam(LosTaskCB *idleTask);
 
 UINT32 OsSchedSwtmrScanRegister(SchedScan func);
 
-VOID OsSchedUpdateExpireTime(UINT64 startTime);
+VOID OsSchedUpdateExpireTime(VOID);
+
+UINT64 OsSchedGetNextExpireTime(UINT64 startTime);
 
 VOID OsSchedTaskDeQueue(LosTaskCB *taskCB);
 
@@ -89,15 +88,9 @@ BOOL OsSchedTaskSwitch(VOID);
 
 LosTaskCB *OsGetTopTask(VOID);
 
-UINT32 OsSchedRealSleepTimeSet(VOID (*func)(UINT64));
-
 STATIC INLINE UINT64 OsGetCurrSchedTimeCycle(VOID)
 {
-    if (g_sysSchedStartTime != OS_64BIT_MAX) {
-        return (LOS_SysCycleGet() - g_sysSchedStartTime);
-    }
-
-    return 0;
+    return LOS_SysCycleGet();
 }
 
 /**

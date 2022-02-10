@@ -37,7 +37,7 @@
 #include "los_debug.h"
 
 STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler);
-STATIC VOID SysTickReload(UINT64 nextResponseTime);
+STATIC UINT64 SysTickReload(UINT64 nextResponseTime);
 STATIC UINT64 SysTickCycleGet(UINT32 *period);
 STATIC VOID SysTickLock(VOID);
 STATIC VOID SysTickUnlock(VOID);
@@ -45,6 +45,7 @@ STATIC VOID SysTickUnlock(VOID);
 STATIC ArchTickTimer g_archTickTimer = {
     .freq = 0,
     .irqNum = OS_TICK_INT_NUM,
+    .periodMax = LOSCFG_BASE_CORE_TICK_RESPONSE_MAX,
     .init = SysTickStart,
     .getCycle = SysTickCycleGet,
     .reload = SysTickReload,
@@ -77,12 +78,17 @@ STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
     return LOS_OK;
 }
 
-STATIC VOID SysTickReload(UINT64 nextResponseTime)
+STATIC UINT64 SysTickReload(UINT64 nextResponseTime)
 {
     UINT32 timerL;
+    if (nextResponseTime > g_archTickTimer.periodMax) {
+        nextResponseTime = g_archTickTimer.periodMax;
+    }
+
     timerL = GetCcount();
     timerL += nextResponseTime;
     SetCcompare(timerL);
+    return nextResponseTime;
 }
 
 STATIC UINT64 SysTickCycleGet(UINT32 *period)
