@@ -41,7 +41,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct TagTskContext {
-    UINT32 uwEXCLR;
+    UINT32 uwPspLim;
+    UINT32 uwExcLR;
     UINT32 uwR4;
     UINT32 uwR5;
     UINT32 uwR6;
