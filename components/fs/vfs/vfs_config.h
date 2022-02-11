@@ -106,7 +106,7 @@
 
 #ifdef LOSCFG_FS_LITTLEFS
 #include "lfs_conf.h"
-#define __LFS_NFILE LITTLE_FS_MAX_OPEN_FILES
+#define __LFS_NFILE LOSCFG_LFS_MAX_OPEN_FILES
 #else
 #define __LFS_NFILE 0
 #endif
