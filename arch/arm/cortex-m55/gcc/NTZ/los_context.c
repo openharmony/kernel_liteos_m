@@ -112,10 +112,11 @@ LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VO
     context->S15 = 0xAA00000F;
     context->FPSCR = 0x00000000;
     context->NO_NAME = 0xAA000011;
-    context->uwEXCLR = 0xFFFFFFEDL;
+    context->uwExcLR = 0xFFFFFFEDL;
 #else
-    context->uwEXCLR = 0xFFFFFFFDL;
+    context->uwExcLR = 0xFFFFFFFDL;
 #endif
+    context->uwPspLim = (UINT32)topStack;
     context->uwR4 = 0x04040404L;
     context->uwR5 = 0x05050505L;
     context->uwR6 = 0x06060606L;

@@ -46,11 +46,11 @@
     .extern  g_taskScheduled
 
 .equ OS_FLG_BGD_ACTIVE,        0x0002
-.equ OS_EXC_CAUSE_NMI,         16
-.equ OS_EXC_CAUSE_HARDFAULT,   17
+.equ OS_EXC_CAUSE_NMI,         19
+.equ OS_EXC_CAUSE_HARDFAULT,   20
 
-.equ HF_DEBUGEVT,              20
-.equ HF_VECTBL,                21
+.equ HF_DEBUGEVT,              23
+.equ HF_VECTBL,                24
 
 .equ FLAG_ADDR_VALID,          0x10000
 .equ FLAG_HWI_ACTIVE,          0x20000
@@ -222,7 +222,7 @@ HalExcUsageFault:
     LDR  R0, =OS_NVIC_FSR
     LDR  R0, [R0]
 
-    MOVW R1, #0x030F
+    MOVW R1, #0x031F
     LSL  R1, R1, #16
     AND  R0, R0, R1
     MOV  R12, #0

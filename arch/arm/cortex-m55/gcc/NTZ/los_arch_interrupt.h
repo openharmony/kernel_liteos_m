@@ -507,131 +507,148 @@ VOID HalHwiInit(VOID);
 
 /**
  * @ingroup los_exc
+ * Cortex-M exception types: Record whether a precise BusFault occurred during floating-point lazy state preservation.
+ */
+#define OS_EXC_BF_LSPERR           1
+
+/**
+ * @ingroup los_exc
  * Cortex-M exception types: An error occurred while the bus status register was being pushed.
  */
-#define OS_EXC_BF_STKERR           1
+#define OS_EXC_BF_STKERR           2
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: An error occurred while the bus status register was out of the stack.
  */
-#define OS_EXC_BF_UNSTKERR         2
+#define OS_EXC_BF_UNSTKERR         3
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: Bus status register imprecise data access violation.
  */
-#define OS_EXC_BF_IMPRECISERR      3
+#define OS_EXC_BF_IMPRECISERR      4
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: Bus status register exact data access violation.
  */
-#define OS_EXC_BF_PRECISERR        4
+#define OS_EXC_BF_PRECISERR        5
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: Bus status register access violation while pointing.
  */
-#define OS_EXC_BF_IBUSERR          5
+#define OS_EXC_BF_IBUSERR          6
+
+/**
+ * @ingroup los_exc
+ * Cortex-M exception types: Record whether a MemManage fault occurred during floating-point lazy state preservation.
+ */
+#define OS_EXC_MF_MLSPERR          7
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: An error occurred while the memory management status register was being pushed.
  */
-#define OS_EXC_MF_MSTKERR          6
+#define OS_EXC_MF_MSTKERR          8
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: An error occurred while the memory management status register was out of the stack.
  */
-#define OS_EXC_MF_MUNSTKERR        7
+#define OS_EXC_MF_MUNSTKERR        9
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: Memory management status register data access violation.
  */
-#define OS_EXC_MF_DACCVIOL         8
+#define OS_EXC_MF_DACCVIOL         10
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: Memory management status register access violation.
  */
-#define OS_EXC_MF_IACCVIOL         9
-
+#define OS_EXC_MF_IACCVIOL         11
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: Incorrect usage indicating that the divisor is zero during the division operation.
  */
-#define OS_EXC_UF_DIVBYZERO        10
+#define OS_EXC_UF_DIVBYZERO        12
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: Usage error, error caused by unaligned access.
  */
-#define OS_EXC_UF_UNALIGNED        11
+#define OS_EXC_UF_UNALIGNED        13
+
+/**
+ * @ingroup los_exc
+ * Cortex-M exception types: Sticky flag indicating whether a stack overflow error has occurred.
+ */
+#define OS_EXC_UF_STKOF            14
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: Incorrect usage attempting to execute coprocessor related instruction.
  */
-#define OS_EXC_UF_NOCP             12
+#define OS_EXC_UF_NOCP             15
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: Usage error attempting to load EXC_RETURN to PC illegally on exception return.
  */
-#define OS_EXC_UF_INVPC            13
+#define OS_EXC_UF_INVPC            16
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: Incorrect usage, attempting to cut to ARM state.
  */
-#define OS_EXC_UF_INVSTATE         14
+#define OS_EXC_UF_INVSTATE         17
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: Incorrect usage. Executed instruction whose code is undefined.
  */
-#define OS_EXC_UF_UNDEFINSTR       15
+#define OS_EXC_UF_UNDEFINSTR       18
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: NMI
  */
 
-#define OS_EXC_CAUSE_NMI           16
+#define OS_EXC_CAUSE_NMI           19
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: hard fault
  */
-#define OS_EXC_CAUSE_HARDFAULT     17
+#define OS_EXC_CAUSE_HARDFAULT     20
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: The task handler exits.
  */
-#define OS_EXC_CAUSE_TASK_EXIT     18
+#define OS_EXC_CAUSE_TASK_EXIT     21
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: A fatal error.
  */
-#define OS_EXC_CAUSE_FATAL_ERR     19
+#define OS_EXC_CAUSE_FATAL_ERR     22
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: Hard Fault caused by a debug event.
  */
-#define OS_EXC_CAUSE_DEBUGEVT      20
+#define OS_EXC_CAUSE_DEBUGEVT      23
 
 /**
  * @ingroup los_exc
  * Cortex-M exception types: A hard fault that occurs when a quantity is oriented.
  */
-#define OS_EXC_CAUSE_VECTBL        21
+#define OS_EXC_CAUSE_VECTBL        24
 
 /**
  * @ingroup los_exc

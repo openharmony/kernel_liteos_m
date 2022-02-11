@@ -67,12 +67,12 @@ HalStartToRun:
     ldr     r0, [r1, #4]
     ldr     r12, [r0]
 
-    ldr     r2, [r12]
+    ldr     r2, [r12, #4]
     tst     r2, #0x10
     it      ne
     bne     __DisabledFPU
 
-    add     r12, r12, #104
+    add     r12, r12, #108
     ldmfd   r12!, {r0-r7}
     add     r12, r12, #72
     msr     psp, r12
@@ -84,7 +84,7 @@ HalStartToRun:
     bx      r6
 
 __DisabledFPU:
-    add     r12, r12, #40
+    add     r12, r12, #44
 
     ldmfd   r12!, {r0-r7}
     msr     psp, r12
@@ -166,8 +166,9 @@ TaskContextSwitch:
     tst      lr, #0x10
     it       eq
     vstmdbeq r0!, {d8-d15}
+    mrs      r2, psplim
     mov      r3, lr
-    stmfd    r0!, {r3-r12}
+    stmfd    r0!, {r2-r12}
 
     ldr      r5, =g_losTask
     ldr      r6, [r5]
@@ -178,7 +179,8 @@ TaskContextSwitch:
     ldr      r1, [r0]
 
 SignalContextRestore:
-    ldmfd    r1!, {r3-r12}
+    ldmfd    r1!, {r2-r12}
+    msr      psplim, r2
     tst      r3, #0x10
     it       eq
     vldmiaeq r1!, {d8-d15}
