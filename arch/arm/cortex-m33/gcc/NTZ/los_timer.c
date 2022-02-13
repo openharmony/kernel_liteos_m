@@ -36,7 +36,7 @@
 #include "los_debug.h"
 
 STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler);
-STATIC VOID SysTickReload(UINT64 nextResponseTime);
+STATIC UINT64 SysTickReload(UINT64 nextResponseTime);
 STATIC UINT64 SysTickCycleGet(UINT32 *period);
 STATIC VOID SysTickLock(VOID);
 STATIC VOID SysTickUnlock(VOID);
@@ -44,6 +44,7 @@ STATIC VOID SysTickUnlock(VOID);
 STATIC ArchTickTimer g_archTickTimer = {
     .freq = 0,
     .irqNum = SysTick_IRQn,
+    .periodMax = LOSCFG_BASE_CORE_TICK_RESPONSE_MAX,
     .init = SysTickStart,
     .getCycle = SysTickCycleGet,
     .reload = SysTickReload,
@@ -75,13 +76,18 @@ STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
     return LOS_OK;
 }
 
-STATIC VOID SysTickReload(UINT64 nextResponseTime)
+STATIC UINT64 SysTickReload(UINT64 nextResponseTime)
 {
+    if (nextResponseTime > g_archTickTimer.periodMax) {
+        nextResponseTime = g_archTickTimer.periodMax;
+    }
+
     SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
     SysTick->LOAD = (UINT32)(nextResponseTime - 1UL); /* set reload register */
     SysTick->VAL = 0UL; /* Load the SysTick Counter Value */
     NVIC_ClearPendingIRQ(SysTick_IRQn);
     SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
+    return nextResponseTime;
 }
 
 STATIC UINT64 SysTickCycleGet(UINT32 *period)

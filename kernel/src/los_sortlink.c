@@ -39,8 +39,8 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
-STATIC SortLinkAttribute g_taskSortLink;
-STATIC SortLinkAttribute g_swtmrSortLink;
+SortLinkAttribute g_taskSortLink;
+SortLinkAttribute g_swtmrSortLink;
 
 UINT32 OsSortLinkInit(SortLinkAttribute *sortLinkHeader)
 {
@@ -76,29 +76,6 @@ STATIC INLINE VOID OsAddNode2SortLink(SortLinkAttribute *sortLinkHeader, SortLin
 
         prevNode = prevNode->pstPrev;
     } while (1);
-}
-
-VOID OsDeleteNodeSortLink(SortLinkList *sortList)
-{
-    LOS_ListDelete(&sortList->sortLinkNode);
-    SET_SORTLIST_VALUE(sortList, OS_SORT_LINK_INVALID_TIME);
-}
-
-STATIC INLINE UINT64 OsGetSortLinkNextExpireTime(SortLinkAttribute *sortHeader, UINT64 startTime)
-{
-    LOS_DL_LIST *head = &sortHeader->sortLink;
-    LOS_DL_LIST *list = head->pstNext;
-
-    if (LOS_ListEmpty(head)) {
-        return OS_SCHED_MAX_RESPONSE_TIME - OS_TICK_RESPONSE_PRECISION;
-    }
-
-    SortLinkList *listSorted = LOS_DL_LIST_ENTRY(list, SortLinkList, sortLinkNode);
-    if (listSorted->responseTime <= (startTime + OS_TICK_RESPONSE_PRECISION)) {
-        return startTime + OS_TICK_RESPONSE_PRECISION;
-    }
-
-    return listSorted->responseTime;
 }
 
 VOID OsAdd2SortLink(SortLinkList *node, UINT64 startTime, UINT32 waitTicks, SortLinkType type)
@@ -144,30 +121,16 @@ SortLinkAttribute *OsGetSortLinkAttribute(SortLinkType type)
     return NULL;
 }
 
-UINT64 OsGetNextExpireTime(UINT64 startTime)
-{
-    UINT32 intSave;
-    SortLinkAttribute *taskHeader = &g_taskSortLink;
-    SortLinkAttribute *swtmrHeader = &g_swtmrSortLink;
-
-    intSave = LOS_IntLock();
-    UINT64 taskExpirTime = OsGetSortLinkNextExpireTime(taskHeader, startTime);
-    UINT64 swtmrExpirTime = OsGetSortLinkNextExpireTime(swtmrHeader, startTime);
-    LOS_IntRestore(intSave);
-
-    return (taskExpirTime < swtmrExpirTime) ? taskExpirTime : swtmrExpirTime;
-}
-
-UINT32 OsSortLinkGetTargetExpireTime(UINT64 currTime, const SortLinkList *targetSortList)
+UINT64 OsSortLinkGetTargetExpireTime(UINT64 currTime, const SortLinkList *targetSortList)
 {
     if (currTime >= targetSortList->responseTime) {
         return 0;
     }
 
-    return (UINT32)(((targetSortList->responseTime - currTime) * LOSCFG_BASE_CORE_TICK_PER_SECOND) / g_sysClock);
+    return (targetSortList->responseTime - currTime);
 }
 
-UINT32 OsSortLinkGetNextExpireTime(const SortLinkAttribute *sortLinkHeader)
+UINT64 OsSortLinkGetNextExpireTime(const SortLinkAttribute *sortLinkHeader)
 {
     LOS_DL_LIST *head = (LOS_DL_LIST *)&sortLinkHeader->sortLink;
 
