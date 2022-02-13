@@ -52,7 +52,7 @@
 #define OS_TIMER_READ_VAL_ADDR      (OS_TIMER_REG_BASE + 20)
 
 STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler);
-STATIC VOID SysTickReload(UINT64 nextResponseTime);
+STATIC UINT64 SysTickReload(UINT64 nextResponseTime);
 STATIC UINT64 SysTickCycleGet(UINT32 *period);
 STATIC VOID SysTickLock(VOID);
 STATIC VOID SysTickUnlock(VOID);
@@ -60,6 +60,7 @@ STATIC VOID SysTickUnlock(VOID);
 STATIC ArchTickTimer g_archTickTimer = {
     .freq = 0,
     .irqNum = OS_TIMER_IRQ_NUM,
+    .periodMax = LOSCFG_BASE_CORE_TICK_RESPONSE_MAX,
     .init = SysTickStart,
     .getCycle = SysTickCycleGet,
     .reload = SysTickReload,
@@ -107,12 +108,17 @@ STATIC VOID SysTickClockIrqClear(VOID)
     } while (status & mask);
 }
 
-STATIC VOID SysTickReload(UINT64 nextResponseTime)
+STATIC UINT64 SysTickReload(UINT64 nextResponseTime)
 {
+    if (nextResponseTime > g_archTickTimer.periodMax) {
+        nextResponseTime = g_archTickTimer.periodMax;
+    }
+
     SysTickLock();
-    WRITE_UINT32(nextResponseTime, OS_TIMER_PERIOD_REG_ADDR);
+    WRITE_UINT32((UINT32)nextResponseTime, OS_TIMER_PERIOD_REG_ADDR);
     SysTickClockIrqClear();
     SysTickUnlock();
+    return nextResponseTime;
 }
 
 STATIC UINT64 SysTickCycleGet(UINT32 *period)
