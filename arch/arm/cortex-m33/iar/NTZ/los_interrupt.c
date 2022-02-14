@@ -205,11 +205,13 @@ LITE_OS_SEC_TEXT_MINOR VOID HalHwiDefaultHandler(VOID)
 
 WEAK VOID HalPreInterruptHandler(UINT32 arg)
 {
+    (VOID)arg;
     return;
 }
 
 WEAK VOID HalAftInterruptHandler(UINT32 arg)
 {
+    (VOID)arg;
     return;
 }
 
@@ -277,6 +279,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
                                            HWI_PROC_FUNC handler,
                                            HWI_ARG_T arg)
 {
+    (VOID)mode;
     UINTPTR intSave;
 
     if (handler == NULL) {
@@ -299,6 +302,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
     OsSetVector(hwiNum, handler, arg);
 #else
+    (VOID)arg;
     OsSetVector(hwiNum, handler);
 #endif
     HwiUnmask((IRQn_Type)hwiNum);
