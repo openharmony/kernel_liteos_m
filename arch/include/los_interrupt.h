@@ -80,6 +80,7 @@ UINT32 ArchIsIntActive(VOID);
 #define LOS_HwiDisable ArchIntDisable
 #define LOS_HwiClear ArchIntClear
 #define LOS_HwiSetPriority ArchIntSetPriority
+#define LOS_HwiCurIrqNum ArchIntCurIrqNum
 
 UINT32 ArchIntLock(VOID);
 #define LOS_IntLock ArchIntLock
@@ -191,6 +192,14 @@ STATIC INLINE UINT32 ArchIntSetPriority(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priorit
         return LOS_NOK;
     }
     return g_archHwiOps.setIrqPriority(hwiNum, priority);
+}
+
+STATIC INLINE UINT32 ArchIntCurIrqNum(VOID)
+{
+    if (g_archHwiOps.getCurIrqNum == NULL) {
+        return LOS_NOK;
+    }
+    return g_archHwiOps.getCurIrqNum();
 }
 
 STATIC INLINE HwiControllerOps *ArchIntOpsGet(VOID)

@@ -333,7 +333,17 @@ extern "C" {
 
 /**
  * @ingroup los_queue
- * In struct QUEUE_INFO_S, the length of each waitReadTask/waitWriteTask/waitMemTask array depends on the value
+ * Queue error code: The buffer size passed in during queue readding or writting is bigger than the biggest size.
+ *
+ * Value: 0x02000620
+ *
+ * Solution: Decrease the buffer size.
+ */
+#define LOS_ERRNO_QUEUE_BUFFER_SIZE_TOO_BIG LOS_ERRNO_OS_ERROR(LOS_MOD_QUE, 0x20)
+
+/**
+ * @ingroup los_queue
+ * In struct QueueInfo, the length of each waitReadTask/waitWriteTask/waitMemTask array depends on the value
  * LOSCFG_BASE_CORE_TSK_LIMIT. The type of each array element is UINT32, which means that each element could mark 32(=2^5) tasks.
  * OS_WAIT_TASK_ARRAY_LEN is used to calculate the array length.
  * OS_WAIT_TASK_ID_TO_ARRAY_IDX is used to transfer task ID to array index.
@@ -387,7 +397,7 @@ typedef struct tagQueueInfo {
  * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_QueueDelete
  */
-extern UINT32 LOS_QueueCreate(CHAR *queueName,
+extern UINT32 LOS_QueueCreate(const CHAR *queueName,
                               UINT16 len,
                               UINT32 *queueID,
                               UINT32 flags,

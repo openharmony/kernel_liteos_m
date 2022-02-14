@@ -35,7 +35,7 @@
 #include "los_debug.h"
 
 STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler);
-STATIC VOID SysTickReload(UINT64 nextResponseTime);
+STATIC UINT64 SysTickReload(UINT64 nextResponseTime);
 STATIC UINT64 SysTickCycleGet(UINT32 *period);
 STATIC VOID SysTickLock(VOID);
 STATIC VOID SysTickUnlock(VOID);

@@ -64,6 +64,11 @@ static_library("test_hwi") {
     "it_los_hwi_032.c",
     "it_los_hwi_033.c",
     "it_los_hwi_034.c",
+    "it_los_hwi_036.c",
+    "it_los_hwi_037.c",
+    "it_los_hwi_038.c",
+    "it_los_hwi_039.c",
+    "it_los_hwi_040.c",
     "llt_los_hwi_035.c",
   ]
 

@@ -29,45 +29,66 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "It_los_queue.h"
+#include "osTest.h"
+#include "It_los_task.h"
 
-
-static UINT32 Testcase(VOID)
+static UINT32 GetfreeMemSize(void *pool)
 {
-    UINT32 ret;
-    UINT32 index;
-    UINT32 queueID[LOSCFG_BASE_IPC_QUEUE_LIMIT + 1];
-    CHAR buff1[8] = "UniDSP";
-    CHAR buff2[8] = "";
+    return LOS_MemPoolSizeGet(pool) - LOS_MemTotalUsedGet(pool);
+}
 
-    UINT32 limit = LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM;
-    for (index = 0; index < limit; index++) {
-        ret = LOS_QueueCreate(NULL, QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-        ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    }
-
-    ret = LOS_QueueWriteHead(queueID[limit - 1], &buff1, QUEUE_BASE_MSGSIZE, 0);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-
-    ret = LOS_QueueRead(queueID[limit - 1], &buff2, QUEUE_BASE_MSGSIZE, 0);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-    ICUNIT_GOTO_NOT_EQUAL(ret, LOS_OK, ret, EXIT);
+static VOID TaskF01(UINT32 arg)
+{
+    ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT);
+    g_testCount++;
 
 EXIT:
-    for (index = 0; index < limit; index++) {
-        ret = LOS_QueueDelete(queueID[index]);
-        ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
-    }
+    LOS_TaskDelete(g_testTaskID01);
+}
+
+static UINT32 TestCase(VOID)
+{
+    UINT32 freeMem;
+    UINT32 freeMem1;
+    UINT32 freeMem2;
+    UINT32 freeMem3;
+    UINT32 ret;
+
+    TSK_INIT_PARAM_S task1 = { 0 };
+    task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
+    task1.uwStackSize = TASK_STACK_SIZE_TEST;
+    task1.pcName = "Tsk127A";
+    task1.usTaskPrio = 8; // 8, set task priortiy value.
+    task1.uwResved = LOS_TASK_ATTR_JOINABLE;
+    g_testCount = 0;
+
+    freeMem = GetfreeMemSize(m_aucSysMem0);
+    ret = LOS_TaskCreate(&g_testTaskID01, &task1);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+
+    freeMem1 = GetfreeMemSize(m_aucSysMem0);
+
+    LOS_TaskResRecycle();
+    freeMem2 = GetfreeMemSize(m_aucSysMem0);
+    ICUNIT_ASSERT_EQUAL(freeMem2, freeMem1, freeMem2);
+
+    ret = LOS_TaskJoin(g_testTaskID01, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+
+    ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
+
+    freeMem3 = GetfreeMemSize(m_aucSysMem0);
+    ICUNIT_ASSERT_EQUAL(freeMem3, freeMem, freeMem3);
+
+    return LOS_OK;
+EXIT:
+    LOS_TaskDelete(g_testTaskID01);
 
     return LOS_OK;
 }
 
-VOID ItLosQueueHead015(VOID)
+VOID ItLosTask127(VOID) // IT_Layer_ModuleORFeature_No
 {
-    TEST_ADD_CASE("ItLosQueueHead015", Testcase, TEST_LOS, TEST_QUE, TEST_LEVEL1, TEST_FUNCTION);
+    TEST_ADD_CASE("ItLosTask127", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
 }
 

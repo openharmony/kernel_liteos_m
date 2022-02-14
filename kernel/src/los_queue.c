@@ -90,7 +90,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsQueueInit(VOID)
  Output      : queueID    --- Queue ID
  Return      : LOS_OK on success or error code on failure
  *****************************************************************************/
-LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(CHAR *queueName,
+LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(const CHAR *queueName,
                                              UINT16 len,
                                              UINT32 *queueID,
                                              UINT32 flags,
@@ -234,9 +234,9 @@ static INLINE VOID OsQueueBufferOperate(LosQueueCB *queueCB, UINT32 operateType,
 
     if (OS_QUEUE_IS_POINT(operateType)) {
         if (OS_QUEUE_IS_READ(operateType)) {
-            *(UINT32 *)bufferAddr = *(UINT32 *)(VOID *)queueNode;
+            *(UINTPTR *)bufferAddr = *(UINTPTR *)(VOID *)queueNode;
         } else {
-            *(UINT32 *)(VOID *)queueNode = *(UINT32 *)bufferAddr;  // change to pp when calling OsQueueOperate
+            *(UINTPTR *)(VOID *)queueNode = *(UINTPTR *)bufferAddr;
         }
     } else {
         if (OS_QUEUE_IS_READ(operateType)) {
@@ -269,6 +269,10 @@ static INLINE UINT32 OsQueueOperateParamCheck(const LosQueueCB *queueCB, UINT32 
         return LOS_ERRNO_QUEUE_READ_SIZE_TOO_SMALL;
     } else if (OS_QUEUE_IS_WRITE(operateType) && (*bufferSize > (queueCB->queueSize - sizeof(UINT32)))) {
         return LOS_ERRNO_QUEUE_WRITE_SIZE_TOO_BIG;
+    }
+
+    if (*bufferSize >= SECUREC_MEM_MAX_LEN) {
+        return LOS_ERRNO_QUEUE_BUFFER_SIZE_TOO_BIG;
     }
 
     return LOS_OK;

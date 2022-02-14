@@ -38,10 +38,10 @@ static UINT32 TestCase(VOID)
     UINT32 ret;
 
     ret = LOS_MemInit(NULL, TEST_MEM_SIZE);
-    ICUNIT_ASSERT_EQUAL(ret, OS_ERROR, ret);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_NOK, ret);
 
     ret = LOS_MemInit(g_memPool, MIN_MEM_POOL_SIZE - 1);
-    ICUNIT_ASSERT_EQUAL(ret, OS_ERROR, ret);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_NOK, ret);
 
     return LOS_OK;
 }

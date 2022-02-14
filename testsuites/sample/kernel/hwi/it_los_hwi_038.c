@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,45 +28,33 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "It_los_queue.h"
-
+#include "osTest.h"
+#include "it_los_hwi.h"
 
 static UINT32 Testcase(VOID)
 {
-    UINT32 ret;
-    UINT32 index;
-    UINT32 queueID[LOSCFG_BASE_IPC_QUEUE_LIMIT + 1];
-    CHAR buff1[8] = "UniDSP";
-    CHAR buff2[8] = "";
+    UINT32 deltaTicks;
+    UINT64 timeRecordNS;
+    UINT64 timeUpdateNS;
+    UINT64 tickRecord;
+    UINT64 tickUpdate;
+    UINT32 loop = 10; // loop 10 time.
 
-    UINT32 limit = LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM;
-    for (index = 0; index < limit; index++) {
-        ret = LOS_QueueCreate(NULL, QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-        ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    }
-
-    ret = LOS_QueueWriteHead(queueID[limit - 1], &buff1, QUEUE_BASE_MSGSIZE, 0);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-
-    ret = LOS_QueueRead(queueID[limit - 1], &buff2, QUEUE_BASE_MSGSIZE, 0);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-    ICUNIT_GOTO_NOT_EQUAL(ret, LOS_OK, ret, EXIT);
-
-EXIT:
-    for (index = 0; index < limit; index++) {
-        ret = LOS_QueueDelete(queueID[index]);
-        ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    timeRecordNS = LOS_CurrNanosec();
+    tickRecord = LOS_TickCountGet();
+    LOS_TaskDelay(1);
+    for (int i = 1; i <= loop; i++) {
+        LOS_MDelay(i * 10); // i * 10, Set delay time.
+        timeUpdateNS = LOS_CurrNanosec();
+        tickUpdate = LOS_TickCountGet();
+        deltaTicks = (UINT32)((timeUpdateNS - timeRecordNS) * LOSCFG_BASE_CORE_TICK_PER_SECOND / OS_SYS_NS_PER_SECOND);
+        ICUNIT_ASSERT_WITHIN_EQUAL(deltaTicks, tickUpdate - tickRecord - 1, tickUpdate - tickRecord + 1, deltaTicks);
     }
 
     return LOS_OK;
 }
 
-VOID ItLosQueueHead015(VOID)
+VOID ItLosHwi038(VOID) // IT_Layer_ModuleORFeature_No
 {
-    TEST_ADD_CASE("ItLosQueueHead015", Testcase, TEST_LOS, TEST_QUE, TEST_LEVEL1, TEST_FUNCTION);
+    TEST_ADD_CASE("ItLosHwi038", Testcase, TEST_LOS, TEST_HWI, TEST_LEVEL3, TEST_PRESSURE);
 }
-
