@@ -73,7 +73,11 @@ static uint32_t RegexFuzz(void)
         heartbeatPrint(i);
 
         string1 = DT_SetGetString(&g_element[NUM_0_INDEX], initStrLen, maxStrLen, "CHN");
-        (void)strncpy_s(str1, MAX_STR_BUF_LEN, string1, maxStrLen);
+        ret = strncpy_s(str1, MAX_STR_BUF_LEN, string1, maxStrLen);
+        if (ret != 0) {
+            printf("strncpy_s failure in %s[%d], i = %d\n", __FUCTION__, __LINE__, i);
+            return 1;
+        }
         str1[MAX_STR_BUF_LEN - 1] = '\0';
         string2 = DT_SetGetString(&g_element[NUM_1_INDEX], initStrLen, maxStrLen, "CHN");
         (void)strncpy_s(str2, MAX_STR_BUF_LEN, string2, maxStrLen);
