@@ -1486,19 +1486,7 @@ LITE_OS_SEC_TEXT_MINOR VOID LOS_Msleep(UINT32 mSecs)
     (VOID)LOS_TaskDelay(interval);
 }
 
-VOID LOS_UDelay(UINT64 microseconds)
+VOID LOS_TaskResRecycle(VOID)
 {
-    UINT64 endTime;
-
-    if (microseconds == 0) {
-        return;
-    }
-
-    endTime = (microseconds / OS_SYS_US_PER_SECOND) * g_sysClock +
-            (microseconds % OS_SYS_US_PER_SECOND) * g_sysClock / OS_SYS_US_PER_SECOND;
-    endTime = LOS_SysCycleGet() + endTime;
-    while (LOS_SysCycleGet() < endTime) {
-    }
-
-    return;
+    OsRecyleFinishedTask();
 }

@@ -104,7 +104,7 @@ extern "C" {
 *
 * Solution: Check whether the mutex is being locked during an interrupt.
 */
-#define LOS_ERRNO_MUX_PEND_INTERR   LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x05)
+#define LOS_ERRNO_MUX_IN_INTERR   LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x05)
 
 /**
 * @ingroup los_mux
@@ -256,7 +256,7 @@ extern UINT32 LOS_MuxDelete(UINT32 muxHandle);
  *                                           is not applicable for the current operation.
  * @retval #LOS_ERRNO_MUX_UNAVAILABLE        The mutex fails to be locked because it is locked by another thread and
  * a period of time is not set for waiting for the mutex to become available.
- * @retval #LOS_ERRNO_MUX_PEND_INTERR        The mutex is being locked during an interrupt.
+ * @retval #LOS_ERRNO_MUX_IN_INTERR        The mutex is being locked during an interrupt.
  * @retval #LOS_ERRNO_MUX_PEND_IN_LOCK       The mutex is waited on when the task scheduling is disabled.
  * @retval #LOS_ERRNO_MUX_TIMEOUT            The mutex waiting times out.
  * @retval #LOS_OK                           The mutex is successfully locked.
@@ -284,7 +284,7 @@ extern UINT32 LOS_MuxPend(UINT32 muxHandle, UINT32 timeout);
  *
  * @retval #LOS_ERRNO_MUX_INVALID            The mutex state (for example, the mutex does not exist or is not in use
  * or owned by other thread) is not applicable for the current operation.
- * @retval #LOS_ERRNO_MUX_PEND_INTERR        The mutex is being released during an interrupt.
+ * @retval #LOS_ERRNO_MUX_IN_INTERR        The mutex is being released during an interrupt.
  * @retval #LOS_OK                           The mutex is successfully released.
  * @par Dependency:
  * <ul><li>los_mux.h: the header file that contains the API declaration.</li></ul>

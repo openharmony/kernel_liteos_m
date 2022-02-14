@@ -1037,24 +1037,24 @@ STATIC UINT32 OsMemPoolDelete(VOID *pool)
 UINT32 LOS_MemInit(VOID *pool, UINT32 size)
 {
     if ((pool == NULL) || (size <= OS_MEM_MIN_POOL_SIZE)) {
-        return OS_ERROR;
+        return LOS_NOK;
     }
 
     if (((UINTPTR)pool & (OS_MEM_ALIGN_SIZE - 1)) || \
         (size & (OS_MEM_ALIGN_SIZE - 1))) {
         PRINT_ERR("LiteOS heap memory address or size configured not aligned:address:0x%x,size:0x%x, alignsize:%d\n", \
                   (UINTPTR)pool, size, OS_MEM_ALIGN_SIZE);
-        return OS_ERROR;
+        return LOS_NOK;
     }
 
     if (OsMemPoolInit(pool, size)) {
-        return OS_ERROR;
+        return LOS_NOK;
     }
 
 #if (LOSCFG_MEM_MUL_POOL == 1)
     if (OsMemPoolAdd(pool, size)) {
         (VOID)OsMemPoolDeinit(pool);
-        return OS_ERROR;
+        return LOS_NOK;
     }
 #endif
 
@@ -1067,11 +1067,11 @@ UINT32 LOS_MemInit(VOID *pool, UINT32 size)
 UINT32 LOS_MemDeInit(VOID *pool)
 {
     if (pool == NULL) {
-        return OS_ERROR;
+        return LOS_NOK;
     }
 
     if (OsMemPoolDelete(pool)) {
-        return OS_ERROR;
+        return LOS_NOK;
     }
 
     OsMemPoolDeinit(pool);
@@ -1593,11 +1593,11 @@ UINT32 LOS_MemFreeByTaskID(VOID *pool, UINT32 taskID)
 {
     UINT32 args[2] = { taskID, (UINT32)(UINTPTR)pool };
     if (pool == NULL) {
-        return OS_ERROR;
+        return LOS_NOK;
     }
 
     if (taskID >= LOSCFG_BASE_CORE_TSK_LIMIT) {
-        return OS_ERROR;
+        return LOS_NOK;
     }
 
     OsAllMemNodeDoHandle(pool, MemNodeFreeByTaskIDHandle, (VOID *)args);

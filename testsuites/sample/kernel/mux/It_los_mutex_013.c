@@ -43,14 +43,14 @@ static VOID HwiF01(void)
 
     ret = LOS_MuxPend(g_mutexTest, 0);
 
-    ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_ERRNO_MUX_PEND_INTERR, ret);
+    ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_ERRNO_MUX_IN_INTERR, ret);
 
     ret = LOS_MuxPend(g_mutexTest, LOS_WAIT_FOREVER);
 
-    ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_ERRNO_MUX_PEND_INTERR, ret);
+    ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_ERRNO_MUX_IN_INTERR, ret);
 
     ret = LOS_MuxPost(g_mutexTest);
-    ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_ERRNO_MUX_INVALID, ret);
+    ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_ERRNO_MUX_IN_INTERR, ret);
 
     ret = LOS_MuxDelete(g_mutexTest);
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);

@@ -137,6 +137,8 @@ extern UINT32    g_sysClock;
 
 #define OS_SYS_NS_PER_SECOND   1000000000
 
+#define OS_SYS_NS_PER_MS       1000000
+
 #define OS_SYS_NS_PER_US       1000
 
 #define OS_CYCLE_PER_TICK      (g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND)
@@ -359,6 +361,63 @@ extern UINT32 LOS_MS2Tick(UINT32 millisec);
  */
 extern UINT32 LOS_TickTimerRegister(const ArchTickTimer *timer, const HWI_PROC_FUNC tickHandler);
 
+/* *
+ * @ingroup  los_task
+ * @brief: cpu delay.
+ *
+ * @par Description:
+ * This API is used to cpu delay, no task switching.
+ *
+ * @attention:
+ * <ul><li>None.</li></ul>
+ *
+ * @param  UINT64  [IN] delay times, microseconds.
+ *
+ * @retval: None.
+ * @par Dependency:
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern VOID LOS_UDelay(UINT64 microseconds);
+
+/* *
+ * @ingroup  los_task
+ * @brief: cpu delay.
+ *
+ * @par Description:
+ * This API is used to cpu delay, no task switching.
+ *
+ * @attention:
+ * <ul><li>None.</li></ul>
+ *
+ * @param  UINT32  [IN] delay times, millisecond.
+ *
+ * @retval: None.
+ * @par Dependency:
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern VOID LOS_MDelay(UINT32 millisec);
+
+/* *
+ * @ingroup  los_task
+ * @brief: cpu nanosecond get.
+ *
+ * @par Description:
+ * This API is used to get the current number of nanoseconds.
+ *
+ * @attention:
+ * <ul><li>None.</li></ul>
+ *
+ * @param  none.
+ *
+ * @retval: None.
+ * @par Dependency:
+ * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern UINT64 LOS_CurrNanosec(VOID);
+
 /**
  * @ingroup  los_tick
  * @brief Handle the system tick timeout.
@@ -406,6 +465,8 @@ typedef struct TagCpuTick {
  * Number of microseconds in one second.
  */
 #define OS_SYS_US_PER_SECOND   1000000
+
+#define OS_SYS_US_PER_MS       1000
 
 /**
  * @ingroup los_tick

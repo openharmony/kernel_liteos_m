@@ -148,6 +148,8 @@ extern VOID ItLosSwtmr076(VOID);
 extern VOID ItLosSwtmr077(VOID);
 extern VOID ItLosSwtmr078(VOID);
 extern VOID ItLosSwtmr079(VOID);
+extern VOID ItLosSwtmr080(VOID);
+extern VOID ItLosSwtmr081(VOID);
 
 extern VOID ItLosSwtmrAlign001(VOID);
 extern VOID ItLosSwtmrAlign002(VOID);
