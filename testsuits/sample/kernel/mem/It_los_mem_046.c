@@ -34,6 +34,7 @@
 
 #if (LOSCFG_MEM_MUL_REGIONS == 1)
 
+#define MEMGAP_SIZE 16
 // simulate two non-continuous memory regions
 STATIC UINT8 g_memPool_TC46_01[0x200];
 STATIC UINT8 g_memGap_TC46[0x10];
@@ -57,7 +58,7 @@ static UINT32 TestCase(VOID)
 
     // p points to the start address of the gap node between g_memPool_TC46_01 and g_memPool_TC46_02
     p = g_memPool_TC46_01 + 0x200;
-    (void)memset_s(g_memGap_TC46, 0x10, 1, 0x10);
+    (void)memset_s(g_memGap_TC46, MEMGAP_SIZE, 1, MEMGAP_SIZE);
 
     ret = LOS_MemFree(m_aucSysMem0, p);
     ICUNIT_GOTO_EQUAL(ret, LOS_NOK, ret, EXIT);

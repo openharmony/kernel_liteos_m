@@ -523,7 +523,10 @@ static int OsShellCmdDoRmdir(const char *pathname)
     char *fullpath = NULL;
     int ret;
 
-    (void)memset_s(&statInfo, sizeof(statInfo), 0, sizeof(struct stat));
+    ret = memset_s(&statInfo, sizeof(struct stat), 0, sizeof(struct stat));
+    if (ret != 0) {
+        return -1;
+    }
     if (stat(pathname, &statInfo) != 0) {
         return -1;
     }

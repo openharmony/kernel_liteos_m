@@ -138,6 +138,9 @@ UINT32 PreHandleCmdline(const CHAR *input, CHAR **output, UINT32 *outputlen)
     UINT32 ret;
     const CHAR *cmdBuf = input;
     UINT32 cmdBufLen = strlen(cmdBuf);
+    if ((cmdBufLen + 1) > SHELL_CMD_MAX_SIZE) {
+        return SH_NOK;
+    }
     CHAR *shiftStr = (CHAR *)malloc(cmdBufLen + 1);
 
     if (shiftStr == NULL) {
