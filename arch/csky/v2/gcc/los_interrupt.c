@@ -256,7 +256,7 @@ VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector)
  **************************************************************************** */
 STATIC UINT32 HwiNumGet(VOID)
 {
-    return HalGetPsr();
+    return (HalGetPsr() >> PSR_VEC_OFFSET) & MASK_8_BITS;
 }
 
 HwiControllerOps g_archHwiOps = {
@@ -283,7 +283,6 @@ inline UINT32 ArchIsIntActive(VOID)
 LITE_OS_SEC_TEXT_MINOR VOID HalHwiDefaultHandler(VOID)
 {
     UINT32 irqNum = HwiNumGet();
-    irqNum = (irqNum >> PSR_VEC_OFFSET) & MASK_8_BITS;
     PRINT_ERR("%s irqnum:%x\n", __FUNCTION__, irqNum);
     while (1) {}
 }
@@ -317,7 +316,6 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
     LOS_IntRestore(intSave);
 
     hwiIndex = HwiNumGet();
-    hwiIndex = (hwiIndex >> PSR_VEC_OFFSET) & MASK_8_BITS;
     OsHookCall(LOS_HOOK_TYPE_ISR_ENTER, hwiIndex);
 
     HalPreInterruptHandler(hwiIndex);

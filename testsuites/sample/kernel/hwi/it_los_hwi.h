@@ -73,6 +73,12 @@ extern VOID ItLosHwi030(VOID);
 extern VOID ItLosHwi031(VOID);
 extern VOID ItLosHwi034(VOID);
 extern VOID LltLosHwi035(VOID);
+extern VOID ItLosHwi036(VOID);
+extern VOID ItLosHwi037(VOID);
+extern VOID ItLosHwi038(VOID);
+extern VOID ItLosHwi039(VOID);
+extern VOID ItLosHwi040(VOID);
+
 
 #if (LOS_KERNEL_MULTI_HWI_TEST == 1)
 extern VOID ItLosHwi003(VOID);

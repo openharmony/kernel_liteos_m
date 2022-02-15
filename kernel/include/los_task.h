@@ -1147,25 +1147,6 @@ extern CHAR* LOS_TaskNameGet(UINT32 taskID);
  * @brief: cpu delay.
  *
  * @par Description:
- * This API is used to cpu delay, no task switching.
- *
- * @attention:
- * <ul><li>None.</li></ul>
- *
- * @param  UINT64  [IN] delay times, microseconds.
- *
- * @retval: None.
- * @par Dependency:
- * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-extern VOID LOS_UDelay(UINT64 microseconds);
-
-/* *
- * @ingroup  los_task
- * @brief: cpu delay.
- *
- * @par Description:
  * This API is used to wait for the subtask to finish and reclaim the resource.
  *
  * @attention:
@@ -1778,6 +1759,8 @@ STATIC INLINE LosTaskCB *OsCurrTaskGet(VOID)
 {
     return g_losTask.runTask;
 }
+
+extern VOID LOS_TaskResRecycle(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

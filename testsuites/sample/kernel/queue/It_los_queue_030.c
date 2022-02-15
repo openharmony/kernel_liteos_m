@@ -46,11 +46,11 @@ static UINT32 Testcase(VOID)
         ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     }
     // 2, is test for LOSCFG_BASE_IPC_QUEUE_LIMIT - 2
-    ret = LOS_QueueWrite(LOSCFG_BASE_IPC_QUEUE_LIMIT - 2, &buff1, QUEUE_BASE_MSGSIZE, 0);
+    ret = LOS_QueueWrite(queueID[limit - 1], &buff1, QUEUE_BASE_MSGSIZE, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     // 2, is test for LOSCFG_BASE_IPC_QUEUE_LIMIT - 2
-    ret = LOS_QueueRead(LOSCFG_BASE_IPC_QUEUE_LIMIT - 2, &buff2, QUEUE_BASE_MSGSIZE, 0);
+    ret = LOS_QueueRead(queueID[limit - 1], &buff2, QUEUE_BASE_MSGSIZE, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
 EXIT:

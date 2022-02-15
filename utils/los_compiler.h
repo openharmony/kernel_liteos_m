@@ -351,7 +351,7 @@ typedef volatile INT64 Atomic64;
 #endif
 
 #ifndef LOS_NOK
-#define LOS_NOK       1U
+#define LOS_NOK       (UINT32)(-1)
 #endif
 
 #define OS_FAIL       1

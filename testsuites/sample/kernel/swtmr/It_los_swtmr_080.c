@@ -29,45 +29,59 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "It_los_queue.h"
+#include "osTest.h"
+#include "It_los_swtmr.h"
 
+static UINT32 g_testCount1 = 0;
+static VOID Case1(UINT32 arg)
+{
+    g_testCount1++;
+    return;
+}
 
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
-    UINT32 index;
-    UINT32 queueID[LOSCFG_BASE_IPC_QUEUE_LIMIT + 1];
-    CHAR buff1[8] = "UniDSP";
-    CHAR buff2[8] = "";
+    g_testCount1 = 0;
+    UINT64 tickRecord;
+    UINT64 tickUpdate;
+    UINT64 delayTicks;
+    const UINT64 delayMs = 10; // delay 10 MS
 
-    UINT32 limit = LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM;
-    for (index = 0; index < limit; index++) {
-        ret = LOS_QueueCreate(NULL, QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-        ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    }
+    // 4, Timeout interval of a periodic software timer.
+    ret = LOS_SwtmrCreate(4, LOS_SWTMR_MODE_PERIOD, Case1, &g_swtmrId1, 0xffff
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
+    , OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_INSENSITIVE
+#endif
+    );
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    ret = LOS_QueueWriteHead(queueID[limit - 1], &buff1, QUEUE_BASE_MSGSIZE, 0);
+    ret = LOS_SwtmrStart(g_swtmrId1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_QueueRead(queueID[limit - 1], &buff2, QUEUE_BASE_MSGSIZE, 0);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+    tickRecord = LOS_TickCountGet();
+    LOS_MDelay(delayMs);
+    tickUpdate = LOS_TickCountGet();
 
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
+    // 0, Here, assert that g_testCount is equal to this.
+    ICUNIT_ASSERT_EQUAL(g_testCount1, 0, g_testCount);
 
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-    ICUNIT_GOTO_NOT_EQUAL(ret, LOS_OK, ret, EXIT);
+    delayTicks = delayMs * LOSCFG_BASE_CORE_TICK_PER_SECOND / OS_SYS_MS_PER_SECOND;
+    ICUNIT_ASSERT_WITHIN_EQUAL(delayTicks, tickUpdate - tickRecord - 1, tickUpdate - tickRecord + 1, delayTicks);
+
+    // 10, set task delay time.
+    LOS_TaskDelay(10);
+
+    // 2, Here, assert that g_testCount is equal to this.
+    ICUNIT_ASSERT_EQUAL(g_testCount1, 2, g_testCount);
 
 EXIT:
-    for (index = 0; index < limit; index++) {
-        ret = LOS_QueueDelete(queueID[index]);
-        ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
-    }
-
+    LOS_SwtmrDelete(g_swtmrId1);
     return LOS_OK;
 }
 
-VOID ItLosQueueHead015(VOID)
+VOID ItLosSwtmr080() // IT_Layer_ModuleORFeature_No
 {
-    TEST_ADD_CASE("ItLosQueueHead015", Testcase, TEST_LOS, TEST_QUE, TEST_LEVEL1, TEST_FUNCTION);
+    TEST_ADD_CASE("ItLosSwtmr080", Testcase, TEST_LOS, TEST_SWTMR, TEST_LEVEL1, TEST_FUNCTION);
 }
 

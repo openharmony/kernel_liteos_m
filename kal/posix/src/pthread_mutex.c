@@ -49,7 +49,7 @@ static inline int MapError(UINT32 err)
     switch (err) {
         case LOS_OK:
             return 0;
-        case LOS_ERRNO_MUX_PEND_INTERR:
+        case LOS_ERRNO_MUX_IN_INTERR:
             return EPERM;
         case LOS_ERRNO_MUX_PEND_IN_LOCK:
             return EDEADLK;
@@ -134,7 +134,7 @@ int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexA
     if (mutex == NULL) {
         return EINVAL;
     }
-    
+
     if (mutexAttr == NULL) {
         (VOID)pthread_mutexattr_init(&useAttr);
     } else {
@@ -324,7 +324,7 @@ int pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct timespec *absTi
     UINT64 timeoutNs;
     struct timespec curTime = {0};
     LosMuxCB *muxPended = NULL;
-    
+
     ret = MuxPreCheck(mutex, OS_TCB_FROM_TID(LOS_CurTaskIDGet()));
     if (ret != 0) {
         return (INT32)ret;

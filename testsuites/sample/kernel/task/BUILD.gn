@@ -150,6 +150,11 @@ static_library("test_task") {
     "It_los_task_121.c",
     "It_los_task_122.c",
     "It_los_task_123.c",
+    "It_los_task_124.c",
+    "It_los_task_125.c",
+    "It_los_task_126.c",
+    "It_los_task_127.c",
+    "It_los_task_128.c",
   ]
 
   configs += [ "//kernel/liteos_m/testsuites:include" ]

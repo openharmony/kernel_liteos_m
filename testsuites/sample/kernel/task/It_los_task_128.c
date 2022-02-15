@@ -29,45 +29,75 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "It_los_queue.h"
+#include "osTest.h"
+#include "It_los_task.h"
 
+static UINT32 g_freeMem1 = 0;
+static UINT32 g_freeMem2 = 0;
 
-static UINT32 Testcase(VOID)
+static UINT32 GetfreeMemSize(void *pool)
 {
+    return LOS_MemPoolSizeGet(pool) - LOS_MemTotalUsedGet(pool);
+}
+
+static VOID TaskF02(VOID)
+{
+    g_testCount++;
+    return;
+}
+
+static VOID TaskF01(VOID)
+{
+    g_testCount++;
+    return;
+}
+
+static UINT32 TestCase(VOID)
+{
+    UINT32 freeMem;
+    UINT32 freeMem1;
+    UINT32 freeMem2;
     UINT32 ret;
-    UINT32 index;
-    UINT32 queueID[LOSCFG_BASE_IPC_QUEUE_LIMIT + 1];
-    CHAR buff1[8] = "UniDSP";
-    CHAR buff2[8] = "";
+    TSK_INIT_PARAM_S task1 = { 0 };
+    task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
+    task1.uwStackSize = TASK_STACK_SIZE_TEST;
+    task1.pcName = "Tsk128A";
+    task1.usTaskPrio = TASK_PRIO_TEST - 1;
+    task1.uwResved = LOS_TASK_STATUS_DETACHED;
 
-    UINT32 limit = LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM;
-    for (index = 0; index < limit; index++) {
-        ret = LOS_QueueCreate(NULL, QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-        ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    }
+    g_testCount = 0;
 
-    ret = LOS_QueueWriteHead(queueID[limit - 1], &buff1, QUEUE_BASE_MSGSIZE, 0);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+    freeMem = GetfreeMemSize(m_aucSysMem0);
 
-    ret = LOS_QueueRead(queueID[limit - 1], &buff2, QUEUE_BASE_MSGSIZE, 0);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+    LOS_TaskLock();
 
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
+    ret = LOS_TaskCreate(&g_testTaskID01, &task1);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-    ICUNIT_GOTO_NOT_EQUAL(ret, LOS_OK, ret, EXIT);
+    ICUNIT_ASSERT_EQUAL(g_testCount, 0, g_testCount);
+    
+    task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
+    task1.pcName = "Tsk128B";
+    task1.usTaskPrio = TASK_PRIO_TEST - 3; // TASK_PRIO_TEST - 3, Set task prio.
+    ret = LOS_TaskCreate(&g_testTaskID01, &task1);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-EXIT:
-    for (index = 0; index < limit; index++) {
-        ret = LOS_QueueDelete(queueID[index]);
-        ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
-    }
+    ICUNIT_ASSERT_EQUAL(g_testCount, 0, g_testCount);
+
+    LOS_TaskUnlock();
+
+    ICUNIT_ASSERT_EQUAL(g_testCount, 2, g_testCount); // 2, Here, assert that g_testCount is equal to 2.
+
+    LOS_TaskResRecycle();
+    
+    freeMem2 = GetfreeMemSize(m_aucSysMem0);
+    ICUNIT_ASSERT_EQUAL(freeMem2, freeMem, freeMem2);
 
     return LOS_OK;
 }
 
-VOID ItLosQueueHead015(VOID)
+VOID ItLosTask128(VOID) // IT_Layer_ModuleORFeature_No
 {
-    TEST_ADD_CASE("ItLosQueueHead015", Testcase, TEST_LOS, TEST_QUE, TEST_LEVEL1, TEST_FUNCTION);
+    TEST_ADD_CASE("ItLosTask128", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
 }
 
