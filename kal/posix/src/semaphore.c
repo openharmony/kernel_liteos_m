@@ -82,8 +82,8 @@ int sem_init(sem_t *sem, int shared, unsigned int value)
         return -1;
     }
 
-    sem->s_magic = (int)_SEM_MAGIC;
-    sem->s_handle = (int)semHandle;
+    sem->s_magic = (INT32)_SEM_MAGIC;
+    sem->s_handle = (INT32)semHandle;
 
     return 0;
 }
@@ -92,7 +92,7 @@ int sem_destroy(sem_t *sem)
 {
     UINT32 ret;
 
-    if ((sem == NULL) || (sem->s_magic != (int)_SEM_MAGIC)) {
+    if ((sem == NULL) || (sem->s_magic != (INT32)_SEM_MAGIC)) {
         errno = EINVAL;
         return -1;
     }
@@ -110,7 +110,7 @@ int sem_wait(sem_t *sem)
 {
     UINT32 ret;
 
-    if ((sem == NULL) || (sem->s_magic != (int)_SEM_MAGIC)) {
+    if ((sem == NULL) || (sem->s_magic != (INT32)_SEM_MAGIC)) {
         errno = EINVAL;
         return -1;
     }
@@ -128,7 +128,7 @@ int sem_post(sem_t *sem)
 {
     UINT32 ret;
 
-    if ((sem == NULL) || (sem->s_magic != (int)_SEM_MAGIC)) {
+    if ((sem == NULL) || (sem->s_magic != (INT32)_SEM_MAGIC)) {
         errno = EINVAL;
         return -1;
     }
@@ -146,7 +146,7 @@ int sem_trywait(sem_t *sem)
 {
     UINT32 ret;
 
-    if ((sem == NULL) || (sem->s_magic != _SEM_MAGIC)) {
+    if ((sem == NULL) || (sem->s_magic != (INT32)_SEM_MAGIC)) {
         errno = EINVAL;
         return -1;
     }
@@ -165,7 +165,7 @@ int sem_timedwait(sem_t *sem, const struct timespec *timeout)
     UINT32 ret;
     UINT64 tickCnt;
 
-    if ((sem == NULL) || (sem->s_magic != (int)_SEM_MAGIC)) {
+    if ((sem == NULL) || (sem->s_magic != (INT32)_SEM_MAGIC)) {
         errno = EINVAL;
         return -1;
     }
@@ -193,7 +193,7 @@ int sem_getvalue(sem_t *sem, int *currVal)
 {
     UINT32 ret;
 
-    if ((sem == NULL) || (sem->s_magic != _SEM_MAGIC)|| (currVal == NULL)) {
+    if ((sem == NULL) || (sem->s_magic != (INT32)_SEM_MAGIC)|| (currVal == NULL)) {
         errno = EINVAL;
         return -1;
     }

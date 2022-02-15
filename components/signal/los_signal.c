@@ -144,6 +144,7 @@ STATIC VOID SignalHandle(LosTaskCB *task, BOOL cleanStatus)
 
 STATIC VOID SignalEntry(INT32 sigNo)
 {
+    (void)sigNo;
     LosTaskCB *task = OsCurrTaskGet();
     OsSigCB *sigCB = (OsSigCB *)task->sig;
 
