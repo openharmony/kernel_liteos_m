@@ -79,19 +79,21 @@ static UINT32 Testcase(VOID)
     UINT32 ret;
     HWI_PRIOR_T hwiPrio = 1;
     HWI_MODE_T mode = 0;
-    HWI_ARG_T arg = 0;
+    HwiIrqParam irqParam;
+    (void)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
+    irqParam.pDevId = 0;
 
     g_testCount = 0;
 
-    ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
+    ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, &irqParam);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     hwiPrio = 2; // set new hwi priority is 2
-    ret = LOS_HwiCreate(HWI_NUM_TEST3, hwiPrio, mode, (HWI_PROC_FUNC)HwiF02, arg);
+    ret = LOS_HwiCreate(HWI_NUM_TEST3, hwiPrio, mode, (HWI_PROC_FUNC)HwiF02, &irqParam);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT1);
 
     hwiPrio = 3; // set new hwi priority is 3
-    ret = LOS_HwiCreate(HWI_NUM_TEST1, hwiPrio, mode, (HWI_PROC_FUNC)HwiF03, arg);
+    ret = LOS_HwiCreate(HWI_NUM_TEST1, hwiPrio, mode, (HWI_PROC_FUNC)HwiF03, &irqParam);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT2);
 
     TestHwiTrigger(HWI_NUM_TEST);

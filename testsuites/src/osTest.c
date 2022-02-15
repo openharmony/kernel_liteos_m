@@ -317,7 +317,7 @@ VOID TestHwiUnTrigger(UINT32 hwiNum)
 
 UINT32 TestHwiDelete(UINT32 hwiNum)
 {
-    UINT32 ret = LOS_HwiDelete(hwiNum);
+    UINT32 ret = LOS_HwiDelete(hwiNum, NULL);
     if (ret != LOS_OK) {
         return LOS_NOK;
     }

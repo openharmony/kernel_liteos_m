@@ -44,8 +44,13 @@ static UINT32 Testcase(VOID)
     ret = LOS_QueueCreate("Q1", 1, &g_testQueueID01, 0, 0xFFFE);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_SIZE_TOO_BIG, ret, EXIT);
 
+#ifdef __CSKY_V2__
+    // CB2201 Board is low memory device, set max message size 0x4000.
+    ret = LOS_QueueCreate("Q1", 1, &g_testQueueID01, 0, 0x4000);
+#else
     // 0x8000, is the middle number.
     ret = LOS_QueueCreate("Q1", 1, &g_testQueueID01, 0, 0x8000);
+#endif
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ret = LOS_QueueWrite(g_testQueueID01 + 1, &buff1, QUEUE_BASE_MSGSIZE, 0);

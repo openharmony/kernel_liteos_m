@@ -61,7 +61,10 @@ STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
     ArchTickTimer *tick = &g_archTickTimer;
 
     UINT32 period = (UINT32)LOSCFG_BASE_CORE_TICK_RESPONSE_MAX;
-    UINT32 ret = LOS_HwiCreate(RISCV_MACH_TIMER_IRQ, 0x1, 0, handler, period);
+    HwiIrqParam irqParam;
+    irqParam.pDevId = (VOID *)period;
+
+    UINT32 ret = LOS_HwiCreate(RISCV_MACH_TIMER_IRQ, 0x1, 0, handler, &irqParam);
     if (ret != LOS_OK) {
         return ret;
     }

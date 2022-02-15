@@ -86,7 +86,10 @@ static UINT32 Testcase(VOID)
     UINT32 irqNum = 0;
     HWI_PRIOR_T hwiPrio = 2;  // 2, Set hwi priority.
     HWI_MODE_T mode = 0;
-    HWI_ARG_T arg = 0;
+    HwiIrqParam irqParam;
+    (void)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
+    irqParam.pDevId = 0;
+
     HwiControllerOps *ops = NULL;
     HwiControllerOps *opsBac = (HwiControllerOps *)malloc(sizeof(HwiControllerOps));
     if (opsBac == NULL) {
@@ -97,19 +100,19 @@ static UINT32 Testcase(VOID)
     (VOID)memset_s(opsBac, sizeof(HwiControllerOps), 0, sizeof(HwiControllerOps));
 
     g_testCount = 0;
-    ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
+    ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, &irqParam);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     ret = LOS_HwiTrigger(LOSCFG_PLATFORM_HWI_LIMIT + 1);
     ICUNIT_ASSERT_EQUAL(ret, OS_ERRNO_HWI_NUM_INVALID, ret);
-    ret = LOS_HwiEnable(LOSCFG_PLATFORM_HWI_LIMIT + 1);
+    ret = LOS_HwiEnable(OS_HWI_MAX_NUM + 1);
     ICUNIT_ASSERT_EQUAL(ret, OS_ERRNO_HWI_NUM_INVALID, ret);
-    ret = LOS_HwiDisable(LOSCFG_PLATFORM_HWI_LIMIT + 1);
+    ret = LOS_HwiDisable(OS_HWI_MAX_NUM + 1);
     ICUNIT_ASSERT_EQUAL(ret, OS_ERRNO_HWI_NUM_INVALID, ret);
-    ret = LOS_HwiClear(LOSCFG_PLATFORM_HWI_LIMIT + 1);
+    ret = LOS_HwiClear(OS_HWI_MAX_NUM + 1);
     ICUNIT_ASSERT_EQUAL(ret, OS_ERRNO_HWI_NUM_INVALID, ret);
     hwiPrio = 3; // 3, Set hwi priority.
-    ret = LOS_HwiSetPriority(LOSCFG_PLATFORM_HWI_LIMIT + 1, hwiPrio);
+    ret = LOS_HwiSetPriority(OS_HWI_MAX_NUM + 1, hwiPrio);
     ICUNIT_ASSERT_NOT_EQUAL(ret, LOS_OK, ret);
 
     ops = LOS_HwiOpsGet();

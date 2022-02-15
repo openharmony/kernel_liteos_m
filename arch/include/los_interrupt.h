@@ -53,6 +53,11 @@ typedef VOID (*HWI_PROC_FUNC)(VOID *parm);
 #else
 typedef VOID (*HWI_PROC_FUNC)(void);
 #endif
+typedef struct tagIrqParam {
+    int swIrq;         /**< The interrupt number */
+    VOID *pDevId;      /**< The pointer to the device ID that launches the interrupt */
+    const CHAR *pName; /**< The interrupt name */
+} HwiIrqParam;
 
 typedef struct {
     UINT32 (*triggerIrq)(HWI_HANDLE_T hwiNum);
@@ -109,14 +114,15 @@ UINT32 ArchIntUnLock(VOID);
  * </ul>
  *
  * @param  hwiNum   [IN] Type#HWI_HANDLE_T: hardware interrupt number. The value range applicable for a Cortex-A7 platform is [32,95].
- *
+ * @param  irqParam [IN] Type #HwiIrqParam *. ID of hardware interrupt which will base on
+ *                                                when delete the hardware interrupt.
  * @retval #OS_ERRNO_HWI_NUM_INVALID              0x02000900: Invalid interrupt number.
  * @retval #LOS_OK                                0         : The interrupt is successfully delete.
  * @par Dependency:
  * <ul><li>los_interrupt.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
-UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum);
+UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam);
 
 /**
  * @ingroup  los_interrupt
@@ -137,7 +143,8 @@ UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum);
  * @param  hwiPrio  [IN] Type#HWI_PRIOR_T: hardware interrupt priority. Ignore this parameter temporarily.
  * @param  mode     [IN] Type#HWI_MODE_T: hardware interrupt mode. Ignore this parameter temporarily.
  * @param  handler  [IN] Type#HWI_PROC_FUNC: interrupt handler used when a hardware interrupt is triggered.
- * @param  arg      [IN] Type#HWI_ARG_T: input parameter of the interrupt handler used when a hardware interrupt is triggered.
+ * @param  irqParam [IN] Type#HwiIrqParam: input parameter of the interrupt
+ *                                         handler used when a hardware interrupt is triggered.
  *
  * @retval #OS_ERRNO_HWI_PROC_FUNC_NULL               0x02000901: Null hardware interrupt handling function.
  * @retval #OS_ERRNO_HWI_NUM_INVALID                  0x02000900: Invalid interrupt number.
@@ -152,7 +159,7 @@ UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
                      HWI_PRIOR_T hwiPrio,
                      HWI_MODE_T mode,
                      HWI_PROC_FUNC handler,
-                     HWI_ARG_T arg);
+                     HwiIrqParam *irqParam);
 
 STATIC INLINE UINT32 ArchIntTrigger(HWI_HANDLE_T hwiNum)
 {

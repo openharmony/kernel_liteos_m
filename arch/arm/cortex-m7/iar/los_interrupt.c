@@ -265,22 +265,22 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
  Description : create hardware interrupt
  Input       : hwiNum   --- hwi num to create
                hwiPrio  --- priority of the hwi
-               mode     --- unused
-               handler --- hwi handler
-               arg      --- param of the hwi handler
+               hwiMode  --- unused
+               hwiHandler --- hwi handler
+               irqParam --- param of the hwi handler
  Output      : None
  Return      : LOS_OK on success or error code on failure
  **************************************************************************** */
 LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
                                            HWI_PRIOR_T hwiPrio,
-                                           HWI_MODE_T mode,
-                                           HWI_PROC_FUNC handler,
-                                           HWI_ARG_T arg)
+                                           HWI_MODE_T hwiMode,
+                                           HWI_PROC_FUNC hwiHandler,
+                                           HwiIrqParam *irqParam)
 {
-    (VOID)mode;
+    (VOID)hwiMode;
     UINT32 intSave;
 
-    if (handler == NULL) {
+    if (hwiHandler == NULL) {
         return OS_ERRNO_HWI_PROC_FUNC_NULL;
     }
 
@@ -298,10 +298,14 @@ LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
 
     intSave = LOS_IntLock();
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
-    OsSetVector(hwiNum, handler, arg);
+    if (irqParam != NULL) {
+        OsSetVector(hwiNum, hwiHandler, irqParam->pDevId);
+    } else {
+        OsSetVector(hwiNum, hwiHandler, NULL);
+    }
 #else
-    (VOID)arg;
-    OsSetVector(hwiNum, handler);
+    (VOID)irqParam;
+    OsSetVector(hwiNum, hwiHandler);
 #endif
     HwiUnmask((IRQn_Type)hwiNum);
     HwiSetPriority((IRQn_Type)hwiNum, hwiPrio);
@@ -315,11 +319,13 @@ LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
  Function    : ArchHwiDelete
  Description : Delete hardware interrupt
  Input       : hwiNum   --- hwi num to delete
+               irqParam --- param of the hwi handler
  Output      : None
  Return      : LOS_OK on success or error code on failure
  **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum)
+LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam)
 {
+    (VOID)irqParam;
     UINT32 intSave;
 
     if (hwiNum >= OS_HWI_MAX_NUM) {

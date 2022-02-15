@@ -330,7 +330,7 @@ typedef struct tagHwiHandleForm {
     UINT32 uwPrioMask;
 } HWI_HANDLE_FORM_S;
 #endif
-#define TEST_HwiCreate(ID, prio, mode, Func, arg) LOS_HwiCreate(ID, prio, mode, Func, arg)
+#define TEST_HwiCreate(ID, prio, mode, Func, irqParam) LOS_HwiCreate(ID, prio, mode, Func, irqParam)
 #define uart_printf_func printf
 
 extern VOID ItSuiteLosTask(void);
