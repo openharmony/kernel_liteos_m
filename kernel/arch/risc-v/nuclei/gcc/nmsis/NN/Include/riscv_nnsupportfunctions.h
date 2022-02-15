@@ -338,8 +338,12 @@ __STATIC_FORCEINLINE q31_t riscv_nn_requantize(const q31_t val, const q31_t mult
 __STATIC_FORCEINLINE q31_t riscv_nn_read_q15x2_ia(const q15_t **in_q15)
 {
   q31_t val;
+  int ret;
 
-  memcpy(&val, *in_q15, 4);
+  ret = memcpy_s(&val, sizeof(q31_t), *in_q15, 4); // 4: data offset
+  if (ret != 0) {
+      return 0;
+  }
   *in_q15 += 2;
 
   return (val);
@@ -353,7 +357,10 @@ __STATIC_FORCEINLINE q31_t riscv_nn_read_q15x2_ia(const q15_t **in_q15)
 __STATIC_FORCEINLINE q31_t riscv_nn_read_q7x4_ia(const q7_t **in_q7)
 {
   q31_t val;
-  memcpy(&val, *in_q7, 4);
+  int ret = memcpy_s(&val, sizeof(q31_t), *in_q7, 4); // 4: data offset
+  if (ret != 0) {
+      return 0;
+  }
   *in_q7 += 4;
 
   return (val);
