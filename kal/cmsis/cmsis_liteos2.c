@@ -841,6 +841,7 @@ osEventFlagsId_t osEventFlagsNew(const osEventFlagsAttr_t *attr)
 
 const char *osEventFlagsGetName(osEventFlagsId_t ef_id)
 {
+    (void)ef_id;
     if (OS_INT_ACTIVE) {
         return NULL;
     }
