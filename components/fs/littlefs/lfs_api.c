@@ -38,7 +38,7 @@ lfs_t g_lfs;
 FileDirInfo g_lfsDir[LFS_MAX_OPEN_DIRS] = {0};
 
 struct FileOpInfo g_fsOp[LOSCFG_LFS_MAX_MOUNT_SIZE] = {0};
-static LittleFsHandleStruct g_handle[LITTLE_FS_MAX_OPEN_FILES] = {0};
+static LittleFsHandleStruct g_handle[LOSCFG_LFS_MAX_OPEN_FILES] = {0};
 struct dirent g_nameValue;
 static pthread_mutex_t g_FslocalMutex = PTHREAD_MUTEX_INITIALIZER;
 static const char *g_littlefsMntName[LOSCFG_LFS_MAX_MOUNT_SIZE] = {"/a"};
@@ -46,7 +46,7 @@ static const char *g_littlefsMntName[LOSCFG_LFS_MAX_MOUNT_SIZE] = {"/a"};
 LittleFsHandleStruct *LfsAllocFd(const char *fileName, int *fd)
 {
     pthread_mutex_lock(&g_FslocalMutex);
-    for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
+    for (int i = 0; i < LOSCFG_LFS_MAX_OPEN_FILES; i++) {
         if (g_handle[i].useFlag == 0) {
             *fd = i;
             g_handle[i].useFlag = 1;
@@ -78,7 +78,7 @@ static void LfsFreeFd(int fd)
 BOOL CheckFileIsOpen(const char *fileName)
 {
     pthread_mutex_lock(&g_FslocalMutex);
-    for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
+    for (int i = 0; i < LOSCFG_LFS_MAX_OPEN_FILES; i++) {
         if (g_handle[i].useFlag == 1) {
             if (strcmp(g_handle[i].pathName, fileName) == 0) {
                 pthread_mutex_unlock(&g_FslocalMutex);
@@ -92,7 +92,7 @@ BOOL CheckFileIsOpen(const char *fileName)
 
 static BOOL LfsFdIsValid(int fd)
 {
-    if (fd >= LITTLE_FS_MAX_OPEN_FILES || fd < 0) {
+    if (fd >= LOSCFG_LFS_MAX_OPEN_FILES || fd < 0) {
         return FALSE;
     }
     if (g_handle[fd].lfsHandle == NULL) {
