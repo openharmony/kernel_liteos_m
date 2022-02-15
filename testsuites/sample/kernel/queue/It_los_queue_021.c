@@ -45,10 +45,10 @@ static UINT32 Testcase(VOID)
         ret = LOS_QueueCreate(NULL, QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
         ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     }
-    ret = LOS_QueueWrite(LOSCFG_BASE_IPC_QUEUE_LIMIT - 1, &buff1, QUEUE_BASE_MSGSIZE, 0);
+    ret = LOS_QueueWrite(queueID[limit - 1], &buff1, QUEUE_BASE_MSGSIZE, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_QueueRead(LOSCFG_BASE_IPC_QUEUE_LIMIT - 1, &buff2, QUEUE_BASE_MSGSIZE, 0);
+    ret = LOS_QueueRead(queueID[limit - 1], &buff2, QUEUE_BASE_MSGSIZE, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);

@@ -29,45 +29,56 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "It_los_queue.h"
+#include "osTest.h"
+#include "It_los_swtmr.h"
 
+static UINT32 g_testCount1 = 0;
+static UINT64 g_timeRecordNS = 0;
+static UINT64 g_timeUpdateNS = 0;
+
+#define SWTMR_PERIODIC 4
+
+static VOID Case1(UINT32 arg)
+{
+    g_testCount1++;
+    g_timeUpdateNS = LOS_CurrNanosec();
+    return;
+}
 
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
-    UINT32 index;
-    UINT32 queueID[LOSCFG_BASE_IPC_QUEUE_LIMIT + 1];
-    CHAR buff1[8] = "UniDSP";
-    CHAR buff2[8] = "";
+    g_testCount1 = 0;
+    UINT64 tickRecord;
+    UINT64 tickUpdate;
+    UINT64 deltaTicks;
 
-    UINT32 limit = LOSCFG_BASE_IPC_QUEUE_LIMIT - QUEUE_EXISTED_NUM;
-    for (index = 0; index < limit; index++) {
-        ret = LOS_QueueCreate(NULL, QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-        ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    }
+    // 4, Timeout interval of a periodic software timer.
+    ret = LOS_SwtmrCreate(SWTMR_PERIODIC, LOS_SWTMR_MODE_ONCE, Case1, &g_swtmrId1, 0xffff
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
+    , OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_INSENSITIVE
+#endif
+    );
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    ret = LOS_QueueWriteHead(queueID[limit - 1], &buff1, QUEUE_BASE_MSGSIZE, 0);
+    g_timeRecordNS = LOS_CurrNanosec();
+
+    ret = LOS_SwtmrStart(g_swtmrId1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_QueueRead(queueID[limit - 1], &buff2, QUEUE_BASE_MSGSIZE, 0);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+    // 10, SSet task delay time.
+    LOS_TaskDelay(10);
 
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-    ICUNIT_GOTO_NOT_EQUAL(ret, LOS_OK, ret, EXIT);
+    deltaTicks = (g_timeUpdateNS - g_timeRecordNS) * LOSCFG_BASE_CORE_TICK_PER_SECOND / OS_SYS_NS_PER_SECOND;
+    ICUNIT_ASSERT_EQUAL(deltaTicks, SWTMR_PERIODIC, deltaTicks);
 
 EXIT:
-    for (index = 0; index < limit; index++) {
-        ret = LOS_QueueDelete(queueID[index]);
-        ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
-    }
-
+    LOS_SwtmrDelete(g_swtmrId1);
     return LOS_OK;
 }
 
-VOID ItLosQueueHead015(VOID)
+VOID ItLosSwtmr081() // IT_Layer_ModuleORFeature_No
 {
-    TEST_ADD_CASE("ItLosQueueHead015", Testcase, TEST_LOS, TEST_QUE, TEST_LEVEL1, TEST_FUNCTION);
+    TEST_ADD_CASE("ItLosSwtmr081", Testcase, TEST_LOS, TEST_SWTMR, TEST_LEVEL1, TEST_FUNCTION);
 }
 

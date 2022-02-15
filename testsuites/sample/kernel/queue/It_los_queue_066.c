@@ -45,8 +45,7 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ret = LOS_QueueRead(g_testQueueID01, &buff2, (0xffffffff - 1), 0);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    ICUNIT_GOTO_EQUAL(*((char *)(intptr_t)buff2 + 7), buff1[7], *((char *)(intptr_t)buff2 + 7), EXIT); // 7, Verify that the data is correct
+    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_BUFFER_SIZE_TOO_BIG, ret, EXIT);
 
     ret = LOS_QueueDelete(g_testQueueID01);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);

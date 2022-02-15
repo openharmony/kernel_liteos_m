@@ -36,6 +36,7 @@
 #include "los_swtmr.h"
 #include "los_sched.h"
 #include "los_debug.h"
+#include "stdint.h"
 
 LITE_OS_SEC_BSS STATIC ArchTickTimer *g_sysTickTimer = NULL;
 LITE_OS_SEC_BSS UINT32 g_ticksPerSec;
@@ -346,4 +347,59 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsCpuTick2US(CpuTick *cpuTick, UINT32 *usHi, UINT32
     *usHi = (UINT32)(tmpCpuTick >> OS_SYS_MV_32_BIT);
 
     return LOS_OK;
+}
+
+/*****************************************************************************
+Function    : LOS_MS2Tick
+Description : get current nanoseconds
+Input       : None
+Output      : None
+Return      : nanoseconds
+*****************************************************************************/
+UINT64 LOS_CurrNanosec(VOID)
+{
+    UINT64 nanos;
+    nanos = LOS_SysCycleGet() * (OS_SYS_NS_PER_SECOND / OS_SYS_NS_PER_MS) / (g_sysClock / OS_SYS_NS_PER_MS);
+    return nanos;
+}
+
+/*****************************************************************************
+Function    : LOS_UDelay
+Description : cpu delay function
+Input       : microseconds ---------- microseconds
+Output      : None
+Return      : None
+*****************************************************************************/
+VOID LOS_UDelay(UINT64 microseconds)
+{
+    UINT64 endTime;
+
+    if (microseconds == 0) {
+        return;
+    }
+
+    endTime = (microseconds / OS_SYS_US_PER_SECOND) * g_sysClock +
+            (microseconds % OS_SYS_US_PER_SECOND) * g_sysClock / OS_SYS_US_PER_SECOND;
+    endTime = LOS_SysCycleGet() + endTime;
+    while (LOS_SysCycleGet() < endTime) {
+    }
+    return;
+}
+
+/*****************************************************************************
+Function    : LOS_MDelay
+Description : cpu delay function
+Input       : millisec ---------- milliseconds
+Output      : None
+Return      : None
+*****************************************************************************/
+VOID LOS_MDelay(UINT32 millisec)
+{
+    UINT32 delayUs = (UINT32_MAX / OS_SYS_US_PER_MS) * OS_SYS_US_PER_MS;
+    while (millisec > UINT32_MAX / OS_SYS_US_PER_MS) {
+        LOS_UDelay(delayUs);
+        millisec -= (UINT32_MAX / OS_SYS_US_PER_MS);
+    }
+    LOS_UDelay(millisec * OS_SYS_US_PER_MS);
+    return;
 }

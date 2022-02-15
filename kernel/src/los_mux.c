@@ -165,7 +165,7 @@ STATIC_INLINE UINT32 OsMuxValidCheck(LosMuxCB *muxPended)
     }
 
     if (OS_INT_ACTIVE) {
-        return LOS_ERRNO_MUX_PEND_INTERR;
+        return LOS_ERRNO_MUX_IN_INTERR;
     }
 
     if (g_losTaskLock) {
@@ -277,6 +277,11 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
         (muxPosted->muxStat == OS_MUX_UNUSED)) {
         LOS_IntRestore(intSave);
         OS_RETURN_ERROR(LOS_ERRNO_MUX_INVALID);
+    }
+
+    if (OS_INT_ACTIVE) {
+        LOS_IntRestore(intSave);
+        OS_RETURN_ERROR(LOS_ERRNO_MUX_IN_INTERR);
     }
 
     runningTask = (LosTaskCB *)g_losTask.runTask;
