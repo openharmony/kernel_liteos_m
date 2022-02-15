@@ -165,7 +165,7 @@ LITE_OS_SEC_TEXT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
                                       HWI_PRIOR_T hwiPrio,
                                       HWI_MODE_T hwiMode,
                                       HWI_PROC_FUNC hwiHandler,
-                                      HWI_ARG_T irqParam)
+                                      HwiIrqParam *irqParam)
 {
     UINT32 intSave;
 
@@ -186,8 +186,11 @@ LITE_OS_SEC_TEXT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
 
     intSave = LOS_IntLock();
     g_hwiForm[hwiNum].pfnHook = hwiHandler;
-    g_hwiForm[hwiNum].uwParam = (VOID *)irqParam;
-
+    if (irqParam != NULL) {
+        g_hwiForm[hwiNum].uwParam = (VOID *)irqParam->pDevId;
+    } else {
+        g_hwiForm[hwiNum].uwParam = NULL;
+    }
     if (hwiNum >= OS_RISCV_SYS_VECTOR_CNT) {
         HalSetLocalInterPri(hwiNum, hwiPrio);
     }
@@ -201,10 +204,12 @@ LITE_OS_SEC_TEXT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
  Function    : ArchHwiDelete
  Description : Delete hardware interrupt
  Input       : hwiNum   --- hwi num to delete
+               irqParam --- param of the hwi handler
  Return      : LOS_OK on success or error code on failure
  *****************************************************************************/
-LITE_OS_SEC_TEXT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum)
+LITE_OS_SEC_TEXT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam)
 {
+    (VOID)irqParam;
     UINT32 intSave;
 
     if (hwiNum >= OS_HWI_MAX_NUM) {

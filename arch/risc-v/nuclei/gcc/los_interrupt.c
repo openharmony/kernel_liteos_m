@@ -86,9 +86,9 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
  Description : create hardware interrupt
  Input       : hwiNum       --- hwi num to create
                hwiPrio      --- priority of the hwi
-               mode         --- hwi interrupt mode, between vector or non-vector
-               handler      --- hwi handler
-               arg          --- set trig mode of the hwi handler
+               hwiMode      --- hwi interrupt hwiMode, between vector or non-vector
+               hwiHandler   --- hwi handler
+               irqParam     --- set trig hwiMode of the hwi handler
                                 Level Triggerred = 0
                                 Postive/Rising Edge Triggered = 1
                                 Negtive/Falling Edge Triggered = 3
@@ -97,24 +97,24 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
  *****************************************************************************/
 UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
                      HWI_PRIOR_T hwiPrio,
-                     HWI_MODE_T mode,
-                     HWI_PROC_FUNC handler,
-                     HWI_ARG_T arg)
+                     HWI_MODE_T hwiMode,
+                     HWI_PROC_FUNC hwiHandler,
+                     HwiIrqParam *irqParam)
 {
     if (hwiNum > SOC_INT_MAX) {
         return OS_ERRNO_HWI_NUM_INVALID;
     }
-    if (mode > ECLIC_VECTOR_INTERRUPT) {
+    if (hwiMode > ECLIC_VECTOR_INTERRUPT) {
         return OS_ERRNO_HWI_MODE_INVALID;
     }
-    if (arg > ECLIC_NEGTIVE_EDGE_TRIGGER) {
+    if ((irqParam == NULL) || (irqParam->pDevId > ECLIC_NEGTIVE_EDGE_TRIGGER)) {
         return OS_ERRNO_HWI_ARG_INVALID;
     }
 
-    /* set interrupt vector mode */
-    ECLIC_SetShvIRQ(hwiNum, mode);
-    /* set interrupt trigger mode and polarity */
-    ECLIC_SetTrigIRQ(hwiNum, arg);
+    /* set interrupt vector hwiMode */
+    ECLIC_SetShvIRQ(hwiNum, hwiMode);
+    /* set interrupt trigger hwiMode and polarity */
+    ECLIC_SetTrigIRQ(hwiNum, irqParam->pDevId);
     /* set interrupt level */
     // default to 0
     ECLIC_SetLevelIRQ(hwiNum, 0);
@@ -124,9 +124,9 @@ UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
     /* set interrupt priority */
     // low 16 bit for priority
     ECLIC_SetPriorityIRQ(hwiNum, (hwiPrio & 0xffff));
-    if (handler != NULL) {
+    if (hwiHandler != NULL) {
         /* set interrupt handler entry to vector table */
-        ECLIC_SetVector(hwiNum, (rv_csr_t)handler);
+        ECLIC_SetVector(hwiNum, (rv_csr_t)hwiHandler);
     }
     /* enable interrupt */
     HwiUnmask(hwiNum);
@@ -137,10 +137,12 @@ UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
  Function    : ArchHwiDelete
  Description : Delete hardware interrupt
  Input       : hwiNum   --- hwi num to delete
+               irqParam --- param of the hwi handler
  Return      : LOS_OK on success or error code on failure
  *****************************************************************************/
-LITE_OS_SEC_TEXT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum)
+LITE_OS_SEC_TEXT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam)
 {
+    (VOID)irqParam;
     // change func to default func
     ECLIC_SetVector(hwiNum, (rv_csr_t)HalHwiDefaultHandler);
     // disable interrupt
