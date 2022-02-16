@@ -131,7 +131,7 @@ VOID OsSchedUpdateExpireTime(VOID)
     isPmMode = OsIsPmMode();
 #endif
     if ((runTask->taskID != g_idleTaskID) && !isPmMode) {
-        INT32 timeSlice = (runTask->timeSlice <= OS_TIME_SLICE_MIN) ? OS_SCHED_TIME_SLICES : runTask->timeSlice;
+        INT32 timeSlice = (runTask->timeSlice <= OS_TIME_SLICE_MIN) ? (INT32)OS_SCHED_TIME_SLICES : runTask->timeSlice;
         endTime = runTask->startTime + timeSlice;
     } else {
         endTime = OS_SCHED_MAX_RESPONSE_TIME - OS_TICK_RESPONSE_PRECISION;
