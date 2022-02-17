@@ -159,7 +159,7 @@ static int CheckForCancel(void)
 
     pthread_t thread = pthread_self();
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return 0;
     }
 
@@ -215,7 +215,7 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
 int pthread_setschedparam(pthread_t thread, int policy, const struct sched_param *param)
 {
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
 
@@ -239,7 +239,7 @@ int pthread_setschedparam(pthread_t thread, int policy, const struct sched_param
 int pthread_setschedprio(pthread_t thread, int prio)
 {
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
 
@@ -257,7 +257,7 @@ int pthread_once(pthread_once_t *onceControl, void (*initRoutine)(void))
 
     pthread_t thread = pthread_self();
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
 
@@ -288,7 +288,7 @@ int pthread_setcancelstate(int state, int *oldState)
     PthreadData *pthreadData = NULL;
     pthread_t thread = pthread_self();
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
 
@@ -321,7 +321,7 @@ int pthread_setcanceltype(int type, int *oldType)
 
     pthread_t thread = pthread_self();
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
 
@@ -352,7 +352,7 @@ int pthread_getschedparam(pthread_t thread, int *policy, struct sched_param *par
     UINT32 prio;
 
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
 
@@ -403,7 +403,7 @@ int pthread_cancel(pthread_t thread)
     LosTaskCB *tcb = NULL;
     PthreadData *pthreadData = NULL;
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
     intSave = LOS_IntLock();
@@ -445,7 +445,7 @@ int pthread_join(pthread_t thread, void **retval)
     UINTPTR result;
     UINT32 ret;
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
 
@@ -472,7 +472,7 @@ int pthread_detach(pthread_t thread)
 {
     UINT32 ret;
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
 
@@ -492,7 +492,7 @@ void pthread_exit(void *retVal)
 
     pthread_t thread = pthread_self();
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         goto EXIT;
     }
 
@@ -525,7 +525,7 @@ int pthread_setname_np(pthread_t thread, const char *name)
     char *taskName = NULL;
 
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
 
@@ -562,7 +562,7 @@ int pthread_getname_np(pthread_t thread, char *buf, size_t buflen)
     const char *name = NULL;
 
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
 
@@ -613,7 +613,7 @@ int pthread_key_create(pthread_key_t *k, void (*dtor)(void *))
 
     pthread_t thread = pthread_self();
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
 
@@ -651,7 +651,7 @@ int pthread_key_delete(pthread_key_t k)
 
     pthread_t thread = pthread_self();
     if (!IsPthread(thread)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, thread);
         return EINVAL;
     }
 
@@ -692,7 +692,7 @@ int pthread_setspecific(pthread_key_t k, const void *x)
 
     pthread_t self = pthread_self();
     if (!IsPthread(self)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, self);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, self);
         return EINVAL;
     }
 
@@ -733,7 +733,7 @@ void *pthread_getspecific(pthread_key_t k)
     void *key = NULL;
     pthread_t self = pthread_self();
     if (!IsPthread(self)) {
-        PRINT_ERR("[%s:%d] This task %d is not a posix thread!!!\n", __FUNCTION__, __LINE__, self);
+        PRINT_ERR("[%s:%d] This task %lu is not a posix thread!!!\n", __FUNCTION__, __LINE__, self);
         return NULL;
     }
 
