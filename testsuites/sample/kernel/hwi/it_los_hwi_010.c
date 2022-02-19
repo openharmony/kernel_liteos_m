@@ -44,13 +44,15 @@ static UINT32 Testcase(VOID)
     UINT32 ret;
     HWI_PRIOR_T hwiPrio = 1;
     HWI_MODE_T mode = 0;
-    HWI_ARG_T arg = 0;
+    HwiIrqParam irqParam;
+    (void)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
+    irqParam.pDevId = 0;
     UINT32 intSave1;
     UINT32 intSave2;
 
     g_testCount = 0;
 
-    ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
+    ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, &irqParam);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     intSave1 = LOS_IntLock();

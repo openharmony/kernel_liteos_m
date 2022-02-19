@@ -28,7 +28,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 #include "osTest.h"
 
 #if (LOS_KERNEL_MULTI_HWI_TEST == 1)
@@ -63,13 +63,15 @@ static UINT32 Testcase(VOID)
     UINT32 ret;
     HWI_PRIOR_T hwiPrio = OS_HWI_PRIO_LOWEST;
     HWI_MODE_T mode = 0;
-    HWI_ARG_T arg = 0;
+    HwiIrqParam irqParam;
+    (void)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
+    irqParam.pDevId = 0;
 
     g_testCount = 0;
 
     /* Creates 3 interrupts in a row with interrupt number */
     for (g_uwIndex = 0; g_uwIndex < 3; g_uwIndex++) {
-        ret = LOS_HwiCreate(HWI_NUM_INT0 + g_uwIndex, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
+        ret = LOS_HwiCreate(HWI_NUM_INT0 + g_uwIndex, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, &irqParam);
         ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
         TestHwiTrigger(HWI_NUM_INT0 + g_uwIndex);
     }
@@ -78,7 +80,7 @@ static UINT32 Testcase(VOID)
     for (g_uwIndex = 4; g_uwIndex < TEST_MAX_NUMBER_HWI; g_uwIndex++) {
         /* if interrupt number is not HWI_NUM_INT0 + 5 */
         if (g_uwIndex != 5) {
-            ret = LOS_HwiCreate(HWI_NUM_INT0 + g_uwIndex, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
+            ret = LOS_HwiCreate(HWI_NUM_INT0 + g_uwIndex, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, &irqParam);
             ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
             TestHwiTrigger(HWI_NUM_INT0 + g_uwIndex);
         }

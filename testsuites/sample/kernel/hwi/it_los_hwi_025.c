@@ -29,7 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "osTest.h" 
+#include "osTest.h"
 #include "it_los_hwi.h"
 
 
@@ -59,12 +59,14 @@ static UINT32 Testcase(VOID)
     UINT32           semCount  = 1;
     HWI_PRIOR_T      hwiPrio = 7;
     HWI_MODE_T       mode    = 0;
-    HWI_ARG_T        arg     = 0;
+    HwiIrqParam irqParam;
+    (void)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
+    irqParam.pDevId = 0;
 
     ret = LOS_SemCreate(semCount, &g_usSemID);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
+    ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, &irqParam);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     TestHwiTrigger(HWI_NUM_TEST);
@@ -86,5 +88,5 @@ Testcase brief in English
 VOID ItLosHwi025(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosHwi025", Testcase, TEST_LOS, TEST_HWI, TEST_LEVEL2, TEST_FUNCTION);
-} 
-        
+}
+

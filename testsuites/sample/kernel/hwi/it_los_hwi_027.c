@@ -45,14 +45,16 @@ static UINT32 Testcase(VOID)
     UINT32 loop;
     HWI_PRIOR_T hwiPrio = OS_HWI_PRIO_LOWEST;
     HWI_MODE_T mode = 0;
-    HWI_ARG_T arg = 0;
+    HwiIrqParam irqParam;
+    (void)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
+    irqParam.pDevId = 0;
 
     for (loop = 0; loop < HWI_LOOP_NUM; loop++) {
-        ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
+        ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, &irqParam);
         ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
         for (index = 0; index < HWI_LOOP_NUM; index++) {
-            ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
+            ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, &irqParam);
             ICUNIT_GOTO_EQUAL(ret, OS_ERRNO_HWI_ALREADY_CREATED, ret, EXIT);
         }
         TestHwiDelete(HWI_NUM_TEST);

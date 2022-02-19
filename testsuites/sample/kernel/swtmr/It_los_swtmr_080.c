@@ -32,6 +32,8 @@
 #include "osTest.h"
 #include "It_los_swtmr.h"
 
+#define SWTMR_PERIOD 4 // 4, Timeout interval of a periodic software timer ticks.
+
 static UINT32 g_testCount1 = 0;
 static VOID Case1(UINT32 arg)
 {
@@ -41,15 +43,15 @@ static VOID Case1(UINT32 arg)
 
 static UINT32 Testcase(VOID)
 {
-    UINT32 ret;
+    UINT32 ret = LOS_NOK;
     g_testCount1 = 0;
     UINT64 tickRecord;
     UINT64 tickUpdate;
     UINT64 delayTicks;
-    const UINT64 delayMs = 10; // delay 10 MS
+    const UINT64 delayMs = 80; // delay 80 ms.
+    delayTicks = delayMs * LOSCFG_BASE_CORE_TICK_PER_SECOND / OS_SYS_MS_PER_SECOND;
 
-    // 4, Timeout interval of a periodic software timer.
-    ret = LOS_SwtmrCreate(4, LOS_SWTMR_MODE_PERIOD, Case1, &g_swtmrId1, 0xffff
+    ret = LOS_SwtmrCreate(SWTMR_PERIOD, LOS_SWTMR_MODE_PERIOD, Case1, &g_swtmrId1, 0xffff
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     , OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_INSENSITIVE
 #endif
@@ -63,18 +65,21 @@ static UINT32 Testcase(VOID)
     LOS_MDelay(delayMs);
     tickUpdate = LOS_TickCountGet();
 
-    // 0, Here, assert that g_testCount is equal to this.
-    ICUNIT_ASSERT_EQUAL(g_testCount1, 0, g_testCount);
+    if ((g_testCount1 >= delayTicks / SWTMR_PERIOD - 1)
+        || (g_testCount1 <= delayTicks / SWTMR_PERIOD + 1)) {
+        ret = LOS_OK;
+    }
 
-    delayTicks = delayMs * LOSCFG_BASE_CORE_TICK_PER_SECOND / OS_SYS_MS_PER_SECOND;
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+
     ICUNIT_ASSERT_WITHIN_EQUAL(delayTicks, tickUpdate - tickRecord - 1, tickUpdate - tickRecord + 1, delayTicks);
 
     // 10, set task delay time.
     LOS_TaskDelay(10);
-
-    // 2, Here, assert that g_testCount is equal to this.
-    ICUNIT_ASSERT_EQUAL(g_testCount1, 2, g_testCount);
-
+    
+    // delayTicks / SWTMR_PERIOD + 2, Here, g_testCount1 is equal to this.
+    ICUNIT_GOTO_EQUAL(g_testCount1, delayTicks / SWTMR_PERIOD + 2, g_testCount1, EXIT);
+    
 EXIT:
     LOS_SwtmrDelete(g_swtmrId1);
     return LOS_OK;

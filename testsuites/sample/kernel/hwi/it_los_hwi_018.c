@@ -69,7 +69,10 @@ static UINT32 Testcase(VOID)
     UINT32 ret;
     HWI_PRIOR_T hwiPrio = OS_HWI_PRIO_LOWEST;
     HWI_MODE_T mode = 0;
-    HWI_ARG_T arg = 0;
+    HwiIrqParam irqParam;
+    (void)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
+    irqParam.pDevId = 0;
+
     TSK_INIT_PARAM_S task;
 
     task.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
@@ -80,7 +83,7 @@ static UINT32 Testcase(VOID)
 
     g_testCount = 0;
 
-    ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, arg);
+    ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, &irqParam);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     ret = LOS_TaskCreate(&g_testTaskID01, &task);
