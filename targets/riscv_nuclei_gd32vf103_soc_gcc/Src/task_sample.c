@@ -47,6 +47,8 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#define EXIT0_IRQ  9
+
 UINT8 __attribute__ ((aligned (8))) g_memStart[OS_SYS_MEM_SIZE];
 
 VOID TaskSampleEntry2(VOID)
@@ -81,6 +83,9 @@ VOID TaskSample(VOID)
     UINT32 taskID1;
     UINT32 taskID2;
     TSK_INIT_PARAM_S stTask = {0};
+    HwiIrqParam irqParam;
+    (void)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
+    irqParam.pDevId = (VOID *)ECLIC_LEVEL_TRIGGER;
 
     stTask.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskSampleEntry1;
     stTask.uwStackSize = 0x0800;
@@ -101,7 +106,7 @@ VOID TaskSample(VOID)
     }
 
     LOS_HwiInit();
-    LOS_HwiCreate(EXTI0_IRQn, 9, ECLIC_NON_VECTOR_INTERRUPT, EXTI0_IRQHandler, ECLIC_LEVEL_TRIGGER);
+    LOS_HwiCreate(EXTI0_IRQn, EXIT0_IRQ, ECLIC_NON_VECTOR_INTERRUPT, EXTI0_IRQHandler, &irqParam);
 }
 
 VOID RunTaskSample(VOID)
