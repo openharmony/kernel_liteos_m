@@ -48,7 +48,9 @@
 #include "los_event.h"
 #include "los_memory.h"
 #include "los_queue.h"
+#if (LOSCFG_BASE_CORE_CPUP == 1)
 #include "los_cpup.h"
+#endif
 #include "los_tick.h"
 #include "los_swtmr.h"
 #include "los_mux.h"
