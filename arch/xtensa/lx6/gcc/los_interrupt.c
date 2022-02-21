@@ -249,8 +249,7 @@ INLINE UINT32 ArchIsIntActive(VOID)
  **************************************************************************** */
 VOID HalHwiDefaultHandler(VOID)
 {
-    UINT32 irqNum = HwiNumGet();
-    PRINT_ERR("%s irqnum:%u\n", __FUNCTION__, irqNum);
+    PRINT_ERR("%s irqnum:%u\n", __FUNCTION__, HwiNumGet());
     while (1) {}
 }
 
