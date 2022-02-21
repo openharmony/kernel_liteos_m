@@ -457,6 +457,7 @@ typedef struct tagTskInitParam {
     TSK_ENTRY_FUNC       pfnTaskEntry;              /**< Task entrance function                 */
     UINT16               usTaskPrio;                /**< Task priority                          */
     UINT32               uwArg;                     /**< Task parameters                        */
+    UINTPTR              stackAddr;                 /**< Task satck memory                      */
     UINT32               uwStackSize;               /**< Task stack size                        */
     CHAR                 *pcName;                   /**< Task name                              */
     UINT32               uwResved;                  /**< Reserved                               */
@@ -1275,6 +1276,14 @@ extern UINT32 LOS_TaskDetach(UINT32 taskID);
  * The task exits and waits for the parent thread to reclaim the resource.
  */
 #define OS_TASK_STATUS_EXIT                         0x0100
+
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * Task stack allocated by the system.
+ */
+#define OS_TASK_FLAG_STACK_FREE                     0x0800
 
 /**
  * @ingroup los_task

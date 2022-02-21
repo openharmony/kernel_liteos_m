@@ -57,7 +57,7 @@ static VOID TaskF01(void)
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
-    TSK_INIT_PARAM_S task;
+    TSK_INIT_PARAM_S task = {0};
 
     g_testCount = 0;
 

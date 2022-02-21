@@ -219,30 +219,32 @@ int pthread_attr_setstacksize(pthread_attr_t *attr, size_t stackSize)
 
     attr->stacksize_set = 1;
     attr->stacksize     = stackSize;
-
     return 0;
 }
 
 int pthread_attr_setstack(pthread_attr_t *attr, void *stackAddr, size_t stackSize)
 {
-    (void)attr;
-    (void)stackAddr;
-    (void)stackSize;
-    PRINT_ERR("%s: Don't support the pthread stack func currently!\n", __FUNCTION__);
-    errno = ENOSYS;
+    if ((attr == NULL) || (stackAddr == NULL) || (stackSize < PTHREAD_STACK_MIN)) {
+        return EINVAL;
+    }
 
-    return -1;
+    attr->stacksize_set = 1;
+    attr->stacksize     = stackSize;
+    attr->stackaddr_set = 1;
+    attr->stackaddr     = stackAddr;
+    return 0;
 }
 
 int pthread_attr_getstack(const pthread_attr_t *attr, void **stackAddr, size_t *stackSize)
 {
-    (void)attr;
-    (void)stackAddr;
-    (void)stackSize;
-    PRINT_ERR("%s: Don't support the pthread stack func currently!\n", __FUNCTION__);
-    errno = ENOSYS;
+    if ((attr == NULL) || (stackAddr == NULL) || (stackSize == NULL) ||
+        !attr->stacksize_set || !attr->stackaddr_set) {
+        return EINVAL;
+    }
 
-    return -1;
+    *stackAddr = attr->stackaddr;
+    *stackSize = attr->stacksize;
+    return 0;
 }
 
 int pthread_attr_getstacksize(const pthread_attr_t *attr, size_t *stackSize)
