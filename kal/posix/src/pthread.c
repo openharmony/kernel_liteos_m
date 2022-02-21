@@ -92,27 +92,23 @@ static inline bool IsPthread(pthread_t thread)
     return true;
 }
 
-static int PthreadCreateAttrInit(const pthread_attr_t *attr, void *(*startRoutine)(void *), void *arg,
-    TSK_INIT_PARAM_S *taskInitParam)
+static int PthreadAttrCheck(const pthread_attr_t *threadAttr, TSK_INIT_PARAM_S *taskInitParam)
 {
-    const pthread_attr_t *threadAttr = attr;
+    INT32 ret;
     struct sched_param schedParam = { 0 };
     INT32 policy = 0;
-    pthread_attr_t attrTmp;
-    INT32 ret;
 
-    if (!attr) {
-        (VOID)pthread_attr_init(&attrTmp);
-        threadAttr = &attrTmp;
-    }
-
-    if (threadAttr->stackaddr_set != 0) {
-        return ENOTSUP;
-    }
     if (threadAttr->stacksize < PTHREAD_STACK_MIN) {
         return EINVAL;
     }
-    taskInitParam->uwStackSize = threadAttr->stacksize;
+    if ((threadAttr->stackaddr_set != 0) && (threadAttr->stacksize_set != 0)) {
+        taskInitParam->stackAddr = (UINTPTR)threadAttr->stackaddr;
+    }
+    if (threadAttr->stacksize_set != 0) {
+        taskInitParam->uwStackSize = threadAttr->stacksize;
+    } else {
+        taskInitParam->uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+    }
     if (threadAttr->inheritsched == PTHREAD_EXPLICIT_SCHED) {
         taskInitParam->usTaskPrio = (UINT16)threadAttr->schedparam.sched_priority;
     } else if (IsPthread(pthread_self())) {
@@ -123,6 +119,25 @@ static int PthreadCreateAttrInit(const pthread_attr_t *attr, void *(*startRoutin
         taskInitParam->usTaskPrio = (UINT16)schedParam.sched_priority;
     } else {
         taskInitParam->usTaskPrio = (UINT16)threadAttr->schedparam.sched_priority;
+    }
+    return 0;
+}
+
+static int PthreadCreateAttrInit(const pthread_attr_t *attr, void *(*startRoutine)(void *), void *arg,
+    TSK_INIT_PARAM_S *taskInitParam)
+{
+    const pthread_attr_t *threadAttr = attr;
+    pthread_attr_t attrTmp;
+    INT32 ret;
+
+    if (attr == NULL) {
+        (VOID)pthread_attr_init(&attrTmp);
+        threadAttr = &attrTmp;
+    }
+
+    ret = PthreadAttrCheck(threadAttr, taskInitParam);
+    if (ret != 0) {
+        return ret;
     }
 
     PthreadData *pthreadData = (PthreadData *)malloc(sizeof(PthreadData));

@@ -85,7 +85,8 @@ static VOID TaskFuncB(VOID)
 static VOID TaskFuncA(VOID)
 {
     UINT32 ret;
-    TSK_INIT_PARAM_S task1, task2;
+    TSK_INIT_PARAM_S task1 = {0};
+    TSK_INIT_PARAM_S task2 = {0};
 
     g_testCount++;
 
@@ -144,7 +145,7 @@ static VOID TaskFuncA(VOID)
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
-    TSK_INIT_PARAM_S task;
+    TSK_INIT_PARAM_S task = {0};
 
     g_testCount = 0;
 

@@ -79,7 +79,8 @@ static VOID TaskFuncB(VOID)
 static VOID TaskFuncA(VOID)
 {
     UINT32 ret;
-    TSK_INIT_PARAM_S task1, task2;
+    TSK_INIT_PARAM_S task1 = {0};
+    TSK_INIT_PARAM_S task2 = {0};
     g_testCount++;
 
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 1, g_testCount); // 1, Here, assert that g_testCount is equal to 1.
@@ -121,7 +122,7 @@ static VOID TaskFuncA(VOID)
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
-    TSK_INIT_PARAM_S task;
+    TSK_INIT_PARAM_S task = {0};
     g_testCount = 0;
 
     ret = LOS_MuxCreate(&g_mutexTest1);

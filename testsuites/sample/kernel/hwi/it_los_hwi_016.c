@@ -102,7 +102,7 @@ static UINT32 Testcase(VOID)
     (void)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
     irqParam.pDevId = 0;
 
-    TSK_INIT_PARAM_S task;
+    TSK_INIT_PARAM_S task = {0};
 
     task.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
     task.pcName = "HwiTsk016A";

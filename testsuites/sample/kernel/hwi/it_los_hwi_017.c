@@ -66,7 +66,7 @@ EXIT:
 static VOID HwiF01(VOID)
 {
     UINT32 ret;
-    TSK_INIT_PARAM_S task;
+    TSK_INIT_PARAM_S task = {0};
 
     TestHwiClear(HWI_NUM_TEST);
 
