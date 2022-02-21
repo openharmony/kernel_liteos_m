@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2021 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -30,65 +29,50 @@
  */
 
 #include "osTest.h"
-#include "It_los_mux.h"
+#include "It_los_task.h"
 
-
-static VOID TaskF01(void)
+static VOID *TaskDeatchf01(void *argument)
 {
-    UINT32 ret;
-
     g_testCount++;
-
-    ret = LOS_MuxPend(g_mutexTest, LOS_WAIT_FOREVER);
-    ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
-
-    LOS_TaskDelay(10); // 10, set delay time.
-
-    ret = LOS_MuxPost(g_mutexTest);
-    ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
-
-    g_testCount++;
-
-    return;
+    return NULL;
 }
 
-static UINT32 Testcase(VOID)
+static UINT32 TestCase(VOID)
 {
     UINT32 ret;
-    TSK_INIT_PARAM_S task = {0};
-
-    ret = LOS_MuxCreate(&g_mutexTest);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
-
+    UINT32 taskID;
+    TSK_INIT_PARAM_S osTaskInitParam = { 0 };
+    VOID *taskStack = NULL;
     g_testCount = 0;
 
-    task.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
-    task.usTaskPrio = (TASK_PRIO_TEST - 1); // 1, set new task priority, it is higher than the current task.
-    task.pcName = "VMutexB6";
-    task.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
-    task.uwResved = 0;
+    osTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskDeatchf01;
+    osTaskInitParam.uwStackSize = OS_TSK_TEST_STACK_SIZE;
+    osTaskInitParam.pcName = "deatch";
+    osTaskInitParam.usTaskPrio = TASK_PRIO_TEST - 5; /* 5: Relatively high priority */
+    osTaskInitParam.uwResved = LOS_TASK_ATTR_JOINABLE;
 
-    ret = LOS_TaskCreate(&g_testTaskID01, &task);
+    taskStack = LOS_MemAlloc(OS_TASK_STACK_ADDR, osTaskInitParam.uwStackSize);
+    osTaskInitParam.stackAddr = (UINTPTR)taskStack;
+    ICUNIT_ASSERT_NOT_EQUAL(osTaskInitParam.stackAddr, 0, osTaskInitParam.stackAddr);
 
-    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount); // 1, Here, assert that g_testCount is equal to 1.
+    ret = LOS_TaskCreate(&taskID, &osTaskInitParam);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
-    ret = LOS_MuxDelete(g_mutexTest);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_MUX_PENDED, ret);
+    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
 
-    LOS_TaskDelay(10); // 10, set delay time.
-
-    ICUNIT_ASSERT_EQUAL(g_testCount, 2, g_testCount); // 2, Here, assert that g_testCount is equal to 2.
-
-    ret = LOS_MuxDelete(g_mutexTest);
+    ret = LOS_TaskJoin(taskID, NULL);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    ret = LOS_TaskDelete(g_testTaskID01);
+    ret = LOS_TaskDelete(taskID);
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_NOT_CREATED, ret);
+
+    ret = LOS_MemFree(OS_TASK_STACK_ADDR, taskStack);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
     return LOS_OK;
 }
 
-VOID ItLosMux011(void)
+VOID ItLosTask129(VOID) // IT_Layer_ModuleORFeature_No
 {
-    TEST_ADD_CASE("ItLosMux011", Testcase, TEST_LOS, TEST_MUX, TEST_LEVEL1, TEST_FUNCTION);
+    TEST_ADD_CASE("ItLosTask129", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION);
 }
 

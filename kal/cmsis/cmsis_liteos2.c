@@ -244,37 +244,49 @@ osThreadId_t osThreadNew(osThreadFunc_t func, void *argument, const osThreadAttr
 {
     UINT32 tid;
     UINT32 ret;
-    LosTaskCB *pstTaskCB = NULL;
-    TSK_INIT_PARAM_S stTskInitParam = {NULL};
+    osThreadAttr_t attrTemp = {0};
+    TSK_INIT_PARAM_S stTskInitParam = {0};
     UINT16 priority;
 
     if (OS_INT_ACTIVE || (func == NULL)) {
         return (osThreadId_t)NULL;
     }
 
-    priority = attr ? LOS_PRIORITY(attr->priority) : LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO;
+    if (attr == NULL) {
+        attrTemp.priority = osPriorityNormal,
+        attr = &attrTemp;
+    }
+
+    priority = LOS_PRIORITY(attr->priority);
     if (!ISVALID_LOS_PRIORITY(priority)) {
         /* unsupported priority */
         return (osThreadId_t)NULL;
     }
-
     stTskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)func;
     stTskInitParam.uwArg = (UINT32)argument;
-    stTskInitParam.uwStackSize = attr ? attr->stack_size : LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
-    stTskInitParam.pcName = (CHAR *)(attr ? attr->name : "[NULL]");
-    stTskInitParam.usTaskPrio = priority;
-    if ((attr != NULL) && (attr->attr_bits == osThreadJoinable)) {
+    if ((attr->stack_mem != NULL) && (attr->stack_size != 0)) {
+        stTskInitParam.stackAddr = (UINTPTR)attr->stack_mem;
+        stTskInitParam.uwStackSize = attr->stack_size;
+    } else if (attr->stack_size != 0) {
+        stTskInitParam.uwStackSize = attr->stack_size;
+    } else {
+        stTskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
+    }
+    if (attr->name != NULL) {
+        stTskInitParam.pcName = (char *)attr->name;
+    } else {
+        stTskInitParam.pcName = "CmsisTask";
+    }
+    if (attr->attr_bits == osThreadJoinable) {
         stTskInitParam.uwResved = LOS_TASK_ATTR_JOINABLE;
     }
+    stTskInitParam.usTaskPrio = priority;
     ret = LOS_TaskCreate(&tid, &stTskInitParam);
-
     if (ret != LOS_OK) {
         return (osThreadId_t)NULL;
     }
 
-    pstTaskCB = OS_TCB_FROM_TID(tid);
-
-    return (osThreadId_t)pstTaskCB;
+    return (osThreadId_t)OS_TCB_FROM_TID(tid);
 }
 
 const char *osThreadGetName(osThreadId_t thread_id)

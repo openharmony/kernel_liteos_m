@@ -126,19 +126,28 @@ STATIC_INLINE UINT32 OsCheckTaskIDValid(UINT32 taskID)
     return ret;
 }
 
+STATIC INLINE VOID OsInsertTCBToFreeList(LosTaskCB *taskCB)
+{
+    UINT32 taskID = taskCB->taskID;
+    (VOID)memset_s(taskCB, sizeof(LosTaskCB), 0, sizeof(LosTaskCB));
+    taskCB->taskID = taskID;
+    taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
+    LOS_ListAdd(&g_losFreeTask, &taskCB->pendList);
+}
+
 STATIC VOID OsRecycleTaskResources(LosTaskCB *taskCB, UINTPTR *stackPtr)
 {
-    if (!(taskCB->taskStatus & OS_TASK_STATUS_EXIT)) {
-        LOS_ListAdd(&g_losFreeTask, &taskCB->pendList);
-        taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
-    }
-    if (taskCB->topOfStack != 0) {
+    if ((taskCB->taskStatus & OS_TASK_FLAG_STACK_FREE) && (taskCB->topOfStack != 0)) {
 #if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1)
         *stackPtr = taskCB->topOfStack - OS_TASK_STACK_PROTECT_SIZE;
 #else
         *stackPtr = taskCB->topOfStack;
 #endif
         taskCB->topOfStack = (UINT32)NULL;
+        taskCB->taskStatus &= ~OS_TASK_FLAG_STACK_FREE;
+    }
+    if (!(taskCB->taskStatus & OS_TASK_STATUS_EXIT)) {
+        OsInsertTCBToFreeList(taskCB);
     }
 }
 
@@ -667,10 +676,9 @@ LITE_OS_SEC_TEXT_INIT STATIC_INLINE UINT32 OsTaskInitParamCheck(TSK_INIT_PARAM_S
     return LOS_OK;
 }
 
-LITE_OS_SEC_TEXT_INIT UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *taskInitParam, VOID *topOfStack)
+STATIC UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *taskInitParam)
 {
     taskCB->arg             = taskInitParam->uwArg;
-    taskCB->topOfStack      = (UINT32)(UINTPTR)topOfStack;
     taskCB->stackSize       = taskInitParam->uwStackSize;
     taskCB->taskSem         = NULL;
     taskCB->taskMux         = NULL;
@@ -695,9 +703,30 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *
         LOS_ListInit(&taskCB->joinList);
     }
 
+    if (taskInitParam->stackAddr == (UINTPTR)NULL) {
+#if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1)
+        UINT32 stackSize = taskCB->stackSize + OS_TASK_STACK_PROTECT_SIZE;
+        UINTPTR stackPtr = (UINTPTR)LOS_MemAllocAlign(OS_TASK_STACK_ADDR, stackSize, OS_TASK_STACK_PROTECT_SIZE);
+        taskCB->topOfStack = stackPtr + OS_TASK_STACK_PROTECT_SIZE;
+#else
+        taskCB->topOfStack = (UINTPTR)LOS_MemAllocAlign(OS_TASK_STACK_ADDR, taskCB->stackSize,
+                                                        LOSCFG_STACK_POINT_ALIGN_SIZE);
+#endif
+        if (taskCB->topOfStack == (UINTPTR)NULL) {
+            return LOS_ERRNO_TSK_NO_MEMORY;
+        }
+        taskCB->taskStatus |= OS_TASK_FLAG_STACK_FREE;
+    } else {
+        taskCB->topOfStack = LOS_Align(taskInitParam->stackAddr, LOSCFG_STACK_POINT_ALIGN_SIZE);
+        taskCB->stackSize = ALIGN(taskCB->stackSize, OS_TASK_STACK_ADDR_ALIGN);
+    }
+
+    /* initialize the task stack, write magic num to stack top */
+    (VOID)memset_s((VOID *)taskCB->topOfStack, taskCB->stackSize,
+                   (INT32)(OS_TASK_STACK_INIT & 0xFF), taskCB->stackSize);
+
     *((UINT32 *)taskCB->topOfStack) = OS_TASK_MAGIC_WORD;
     taskCB->stackPointer = ArchTskStackInit(taskCB->taskID, taskCB->stackSize, (VOID *)taskCB->topOfStack);
-
     return LOS_OK;
 }
 
@@ -711,7 +740,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S *taskInitParam)
 {
     UINT32 intSave;
-    VOID  *topOfStack = NULL;
     LosTaskCB *taskCB = NULL;
     UINT32 retVal;
 
@@ -734,29 +762,13 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S
 
     taskCB = OS_TCB_FROM_PENDLIST(LOS_DL_LIST_FIRST(&g_losFreeTask));
     LOS_ListDelete(LOS_DL_LIST_FIRST(&g_losFreeTask));
-
     LOS_IntRestore(intSave);
 
-#if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1)
-    UINTPTR stackPtr = (UINTPTR)LOS_MemAllocAlign(OS_TASK_STACK_ADDR, taskInitParam->uwStackSize +
-        OS_TASK_STACK_PROTECT_SIZE, OS_TASK_STACK_PROTECT_SIZE);
-    topOfStack = (VOID *)(stackPtr + OS_TASK_STACK_PROTECT_SIZE);
-#else
-    topOfStack = (VOID *)LOS_MemAllocAlign(OS_TASK_STACK_ADDR, taskInitParam->uwStackSize,
-        LOSCFG_STACK_POINT_ALIGN_SIZE);
-#endif
-    if (topOfStack == NULL) {
-        intSave = LOS_IntLock();
-        LOS_ListAdd(&g_losFreeTask, &taskCB->pendList);
-        LOS_IntRestore(intSave);
-        return LOS_ERRNO_TSK_NO_MEMORY;
-    }
-    /* initialize the task stack, write magic num to stack top */
-    (VOID)memset_s(topOfStack, taskInitParam->uwStackSize,
-                   (INT32)(OS_TASK_STACK_INIT & 0xFF), taskInitParam->uwStackSize);
-
-    retVal = OsNewTaskInit(taskCB, taskInitParam, topOfStack);
+    retVal = OsNewTaskInit(taskCB, taskInitParam);
     if (retVal != LOS_OK) {
+        intSave = LOS_IntLock();
+        OsInsertTCBToFreeList(taskCB);
+        LOS_IntRestore(intSave);
         return retVal;
     }
 
@@ -1110,7 +1122,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskDelete(UINT32 taskID)
 
     if (taskCB->taskStatus & OS_TASK_STATUS_RUNNING) {
         if (!(taskCB->taskStatus & OS_TASK_STATUS_EXIT)) {
-            taskCB->taskStatus = OS_TASK_STATUS_UNUSED;
+            taskCB->taskStatus |= OS_TASK_STATUS_UNUSED;
             OsRunningTaskDelete(taskID, taskCB);
         }
         LOS_IntRestore(intSave);
