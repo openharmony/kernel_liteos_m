@@ -128,6 +128,9 @@ VOID ItSuiteLosTask()
     ItLosTask126();
     ItLosTask127();
     ItLosTask128();
+    ItLosTask129();
+    ItLosTask130();
+
 #if (LOS_KERNEL_TEST_FULL == 1)
     ItLosTask039();
     ItLosTask040();

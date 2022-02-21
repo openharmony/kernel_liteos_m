@@ -69,7 +69,7 @@ static UINT32 Testcase(VOID)
     CHAR buff1[8] = "UniDSP";
 
     TSK_INIT_PARAM_S task1 = { 0 };
-    TSK_INIT_PARAM_S task2;
+    TSK_INIT_PARAM_S task2 = { 0 };
 
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)ItQueueHead032F01;
     task1.pcName = "TskName1";
