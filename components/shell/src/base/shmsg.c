@@ -157,6 +157,7 @@ STATIC VOID ParseAndExecCmdline(CmdParsed *cmdParsed, const CHAR *cmdline, UINT3
     ret = ShellMsgTypeGet(cmdParsed, cmdName);
     if (ret != LOS_OK) {
         PRINTK("%s:command not found\n", cmdName);
+        free(cmdName);
         return;
     }
 
