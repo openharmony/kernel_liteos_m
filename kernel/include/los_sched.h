@@ -35,6 +35,7 @@
 #include "los_task.h"
 #include "los_interrupt.h"
 #include "los_tick.h"
+#include "los_sortlink.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -43,7 +44,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #define OS_SCHED_MINI_PERIOD       (g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND_MINI)
-#define OS_SCHED_MAX_RESPONSE_TIME (UINT64)(((UINT64)-1) - 1U)
+#define OS_SCHED_MAX_RESPONSE_TIME OS_SORT_LINK_UINT64_MAX
 
 extern UINT32 g_taskScheduled;
 typedef BOOL (*SchedScan)(VOID);
