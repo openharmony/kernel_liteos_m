@@ -595,3 +595,55 @@ int LOS_Ftruncate(int fd, off_t length)
     }
     return g_fs->fsFops->Ftruncate(fd, length);
 }
+
+ssize_t LOS_Pread(int fd, void *buf, size_t nbyte, off_t offset)
+{
+#ifdef LOSCFG_RANDOM_DEV
+    if (fd == RANDOM_DEV_FD) {
+        if (nbyte == 0) {
+            return FS_SUCCESS;
+        }
+        if (buf == NULL) {
+            errno = EINVAL;
+            return FS_FAILURE;
+        }
+        if (nbyte > 1024) { /* 1024, max random_size */
+            nbyte = 1024; /* hks_generate_random: random_size must <= 1024 */
+        }
+        struct hks_blob key = {HKS_BLOB_TYPE_RAW, (uint8_t *)buf, nbyte};
+        if (hks_generate_random(&key) != 0) {
+            errno = EIO;
+            return FS_FAILURE;
+        }
+        return (ssize_t)nbyte;
+    }
+#endif
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Pread == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Pread(fd, buf, nbyte, offset);
+}
+
+ssize_t LOS_Pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
+{
+#ifdef LOSCFG_RANDOM_DEV
+    if (fd == RANDOM_DEV_FD) {
+        errno = EBADF; /* "/dev/random" is readonly */
+        return FS_FAILURE;
+    }
+#endif
+    if (g_fs == NULL) {
+        errno = ENODEV;
+        return FS_FAILURE;
+    }
+    if (g_fs->fsFops == NULL || g_fs->fsFops->Pwrite == NULL) {
+        errno = ENOSYS;
+        return FS_FAILURE;
+    }
+    return g_fs->fsFops->Pwrite(fd, buf, nbyte, offset);
+}

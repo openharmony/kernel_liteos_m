@@ -97,6 +97,8 @@ int LfsStat(const char *path, struct stat *buf);
 int LfsFsync(int fd);
 int LfsFstat(int fd, struct stat *buf);
 int SetDefaultMountPath(int pathNameIndex, const char* target);
+int LfsPread(int fd, void *buf, size_t nbyte, off_t offset);
+int LfsPwrite(int fd, const void *buf, size_t nbyte, off_t offset);
 
 #endif /* _LFS_API_H_ */
 
