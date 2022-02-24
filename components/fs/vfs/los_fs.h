@@ -92,6 +92,10 @@ int LOS_FsMount(const char *source, const char *target,
           const char *filesystemtype, unsigned long mountflags,
           const void *data);
 
+ssize_t LOS_Pread(int fd, void *buf, size_t nbyte, off_t offset);
+
+ssize_t LOS_Pwrite(int fd, const void *buf, size_t nbyte, off_t offset);
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
