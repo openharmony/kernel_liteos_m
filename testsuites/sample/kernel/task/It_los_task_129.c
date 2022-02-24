@@ -46,7 +46,7 @@ static UINT32 TestCase(VOID)
     g_testCount = 0;
 
     osTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskDeatchf01;
-    osTaskInitParam.uwStackSize = OS_TSK_TEST_STACK_SIZE;
+    osTaskInitParam.uwStackSize = 0x1003; /* 0x1003: The size is not aligned */
     osTaskInitParam.pcName = "deatch";
     osTaskInitParam.usTaskPrio = TASK_PRIO_TEST - 5; /* 5: Relatively high priority */
     osTaskInitParam.uwResved = LOS_TASK_ATTR_JOINABLE;
