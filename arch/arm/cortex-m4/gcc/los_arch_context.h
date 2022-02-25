@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -120,6 +120,29 @@ typedef struct TagTskContext {
  * @see None.
  */
 extern VOID HalStartToRun(VOID);
+
+#if (LOSCFG_SECURE == 1)
+/**
+ * @ingroup  los_config
+ * @brief: User Task Stack Initialize.
+ *
+ * @par Description:
+ * This API is used to init a user task stack.
+ *
+ * @attention:
+ * <ul><li>None.</li></ul>
+ *
+ * @param: context      [IN] Task context.
+ * @param: taskEntry    [IN] Task entry function address.
+ * @param: stack        [IN] Task stack address.
+ *
+ * @retval None.
+ *
+ * @par Dependency: <ul><li>los_config.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern VOID HalUserTaskStackInit(TaskContext *context, UINTPTR taskEntry, UINTPTR stack);
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

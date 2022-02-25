@@ -1,5 +1,5 @@
 # Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -600,7 +600,6 @@ endmenu
 
 ######################## config options os security #######################
 menu "Security"
-osource "security/Kconfig"
 config SECURE_TRUSTZONE
     bool "Enable ARM TrustZone"
     default n
@@ -615,6 +614,13 @@ config SECURE_STACK_DEFAULT_SIZE
     depends on SECURE_TRUSTZONE
     help
       The secure stack must be allocated before the task calls non-secure functions.
+config SECURE
+    bool "Enable Security"
+    default n
+    select MPU_ENABLE
+config MPU_ENABLE
+    bool "Enable MPU"
+    default n
 endmenu
 
 menu "Test"

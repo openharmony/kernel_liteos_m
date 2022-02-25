@@ -1,5 +1,4 @@
-# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -29,40 +28,11 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-group("components") {
-  deps = [
-    "backtrace",
-    "cppsupport",
-    "cpup",
-    "dynlink",
-    "exchook",
-    "fs",
-    "lmk",
-    "lms",
-    "net",
-    "power",
-    "security",
-    "shell",
-    "signal",
-    "trace",
-  ]
-}
-
-config("public") {
-  configs = [
-    "backtrace:public",
-    "cppsupport:public",
-    "cpup:public",
-    "dynlink:public",
-    "exchook:public",
-    "fs:public",
-    "net:public",
-    "power:public",
-    "security:public",
-    "shell:public",
-    "trace:public",
-    "lmk:public",
-    "lms:public",
-    "signal:public",
+module_name = get_path_info(rebase_path("."), "name")
+module_group(module_name) {
+  modules = [
+    "box",
+    "syscall",
+    "userlib",
   ]
 }

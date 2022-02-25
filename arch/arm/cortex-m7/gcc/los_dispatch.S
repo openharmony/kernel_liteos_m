@@ -137,7 +137,7 @@ ArchTaskSchedule:
     dsb
     isb
     bx      lr
-   .fnend
+    .fnend
 
     .type HalPendSV, %function
     .global HalPendSV
@@ -178,7 +178,7 @@ TaskContextSwitch:
     str     r0, [r5]
     ldr     r1, [r0]
 
- SignalContextRestore:
+SignalContextRestore:
 #if ((defined(__FPU_PRESENT) && (__FPU_PRESENT == 1U)) && \
      (defined(__FPU_USED) && (__FPU_USED == 1U)))
     vldmia   r1!, {d8-d15}
