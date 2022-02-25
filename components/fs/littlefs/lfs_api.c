@@ -323,6 +323,8 @@ const struct FileOps g_lfsFops = {
     .Getattr = LfsStat,
     .Fsync = LfsFsync,
     .Fstat = LfsFstat,
+    .Pread = LfsPread,
+    .Pwrite = LfsPwrite,
 };
 
 int LfsMount(const char *source, const char *target, const char *fileSystemType, unsigned long mountflags,
@@ -801,5 +803,89 @@ int LfsFstat(int fd, struct stat *buf)
         errno = LittlefsErrno(ret);
         ret = VFS_ERROR;
     }
+    return ret;
+}
+
+int LfsPread(int fd, void *buf, size_t nbyte, off_t offset)
+{
+    int ret;
+    off_t savepos, pos;
+
+    if (buf == NULL) {
+        errno = EFAULT;
+        return VFS_ERROR;
+    }
+
+    if (LfsFdIsValid(fd) == FALSE) {
+        errno = EBADF;
+        return VFS_ERROR;
+    }
+
+    savepos = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), 0, SEEK_CUR);
+    if (savepos == (off_t)-1) {
+        errno = LittlefsErrno(savepos);
+        return VFS_ERROR;
+    }
+
+    pos = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), offset, SEEK_SET);
+    if (pos == (off_t)-1) {
+        errno = LittlefsErrno(pos);
+        return VFS_ERROR;
+    }
+
+    ret = lfs_file_read(g_handle[fd].lfsHandle, &(g_handle[fd].file), buf, nbyte);
+    if (ret < 0) {
+        errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
+    }
+
+    pos = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), savepos, SEEK_SET);
+    if ((pos == (off_t)-1) && (ret >= 0)) {
+        errno = LittlefsErrno(pos);
+        return VFS_ERROR;
+    }
+
+    return ret;
+}
+
+int LfsPwrite(int fd, const void *buf, size_t nbyte, off_t offset)
+{
+    int ret;
+    off_t savepos, pos;
+
+    if (buf == NULL) {
+        errno = EFAULT;
+        return VFS_ERROR;
+    }
+
+    if (LfsFdIsValid(fd) == FALSE) {
+        errno = EBADF;
+        return VFS_ERROR;
+    }
+
+    savepos = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), 0, SEEK_CUR);
+    if (savepos == (off_t)-1) {
+        errno = LittlefsErrno(savepos);
+        return VFS_ERROR;
+    }
+
+    pos = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), offset, SEEK_SET);
+    if (pos == (off_t)-1) {
+        errno = LittlefsErrno(pos);
+        return VFS_ERROR;
+    }
+
+    ret = lfs_file_write(g_handle[fd].lfsHandle, &(g_handle[fd].file), buf, nbyte);
+    if (ret < 0) {
+        errno = LittlefsErrno(ret);
+        ret = VFS_ERROR;
+    }
+
+    pos = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), savepos, SEEK_SET);
+    if ((pos == (off_t)-1) && (ret >= 0)) {
+        errno = LittlefsErrno(pos);
+        return VFS_ERROR;
+    }
+
     return ret;
 }

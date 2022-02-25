@@ -147,6 +147,16 @@ int ioctl(int fd, int req, ...)
 	return -1;
 }
 
+ssize_t pread(int fd, void *buf, size_t nbyte, off_t offset)
+{
+    return LOS_Pread(fd, buf, nbyte, offset);
+}
+
+ssize_t pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
+{
+    return LOS_Pwrite(fd, buf, nbyte, offset);
+}
+
 #else /* #ifdef LOSCFG_FS_VFS */
 
 int _open(const char *path, int oflag, ...)

@@ -144,3 +144,13 @@ int ftruncate(int fd, off_t length)
 {
     return LOS_Ftruncate(fd, length);
 }
+
+ssize_t pread(int fd, void *buf, size_t nbyte, off_t offset)
+{
+    return LOS_Pread(fd, buf, nbyte, offset);
+}
+
+ssize_t pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
+{
+    return LOS_Pwrite(fd, buf, nbyte, offset);
+}

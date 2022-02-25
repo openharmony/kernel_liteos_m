@@ -1475,6 +1475,110 @@ OUT:
     return ret;
 }
 
+ssize_t fatfs_pread(int fd, void *buf, size_t nbyte, off_t offset)
+{
+    INT32 ret;
+    off_t savepos, pos;
+
+    if (buf == NULL) {
+        errno = EFAULT;
+        return FS_FAILURE;
+    }
+
+    ret = FsLock();
+    if (ret != 0) {
+        errno = ret;
+        return FS_FAILURE;
+    }
+
+    if (!IsValidFd(fd)) {
+        FsUnlock();
+        errno = EBADF;
+        return FS_FAILURE;
+    }
+
+    savepos = (off_t)fatfs_lseek(fd, 0, SEEK_CUR);
+    if (savepos == (off_t)-1) {
+        errno = FatfsErrno(savepos);
+        return FS_FAILURE;
+    }
+
+    pos = (off_t)fatfs_lseek(fd, offset, SEEK_SET);
+    if (pos == (off_t)-1) {
+        errno = FatfsErrno(pos);
+        return FS_FAILURE;
+    }
+
+    ret = fatfs_read(fd, buf, nbyte);
+    if (ret < 0) {
+        FsUnlock();
+        errno = FatfsErrno(ret);
+        return FS_FAILURE;
+    }
+
+    pos = (off_t)fatfs_lseek(fd, savepos, SEEK_SET);
+    if ((pos == (off_t)-1) && (ret >= 0)) {
+        errno = FatfsErrno(pos);
+        return FS_FAILURE;
+    }
+
+    FsUnlock();
+
+    return (ssize_t)ret;
+}
+
+ssize_t fatfs_pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
+{
+    INT32 ret;
+    off_t savepos, pos;
+
+    if (buf == NULL) {
+        errno = EFAULT;
+        return FS_FAILURE;
+    }
+
+    ret = FsLock();
+    if (ret != 0) {
+        errno = ret;
+        return FS_FAILURE;
+    }
+
+    if (!IsValidFd(fd)) {
+        FsUnlock();
+        errno = EBADF;
+        return FS_FAILURE;
+    }
+
+    savepos = (off_t)fatfs_lseek(fd, 0, SEEK_CUR);
+    if (savepos == (off_t)-1) {
+        errno = FatfsErrno(savepos);
+        return FS_FAILURE;
+    }
+
+    pos = (off_t)fatfs_lseek(fd, offset, SEEK_SET);
+    if (pos == (off_t)-1) {
+        errno = FatfsErrno(pos);
+        return FS_FAILURE;
+    }
+
+    ret = fatfs_write(fd, buf, nbyte);
+    if (ret < 0) {
+        FsUnlock();
+        errno = FatfsErrno(ret);
+        return FS_FAILURE;
+    }
+
+    pos = (off_t)fatfs_lseek(fd, savepos, SEEK_SET);
+    if ((pos == (off_t)-1) && (ret >= 0)) {
+        errno = FatfsErrno(pos);
+        return FS_FAILURE;
+    }
+
+    FsUnlock();
+
+    return (ssize_t)ret;
+}
+
 struct MountOps g_fatfsMnt = {
     .Mount = fatfs_mount,
     .Umount = fatfs_umount,
@@ -1498,4 +1602,6 @@ struct FileOps g_fatfsFops = {
     .Getattr = fatfs_stat,
     .Fsync = fatfs_fsync,
     .Fstat = fatfs_fstat,
+    .Pread = fatfs_pread,
+    .Pwrite = fatfs_pwrite,
 };
