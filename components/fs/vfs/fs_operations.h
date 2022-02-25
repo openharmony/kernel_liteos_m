@@ -75,6 +75,8 @@ struct FileOps {
     int (*Fstat)(int fd, struct stat *buf);
     int (*Stat)(const char *path, struct stat *buf);
     int (*Ftruncate)(int fd, off_t length);
+    int (*Pread)(int fd, void *buf, size_t nbyte, off_t offset);
+    int (*Pwrite)(int fd, const void *buf, size_t nbyte, off_t offset);
 };
 
 #endif /* _FS_OPERATIONS_H_ */
