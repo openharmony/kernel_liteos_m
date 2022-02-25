@@ -148,6 +148,15 @@ VOID *ArchSignalContextInit(VOID *stackPointer, VOID *stackTop, UINTPTR sigHandl
     return (VOID *)context;
 }
 
+#if (LOSCFG_SECURE == 1)
+VOID HalUserTaskStackInit(TaskContext *context, UINTPTR taskEntry, UINTPTR stack)
+{
+    context->uwR0 = stack;
+    context->uwPC = (UINT32)taskEntry;
+    context->uwxPSR = 0x01000000L; /* Thumb flag, always set 1 */
+}
+#endif
+
 LITE_OS_SEC_TEXT_INIT UINT32 ArchStartSchedule(VOID)
 {
     (VOID)LOS_IntLock();
