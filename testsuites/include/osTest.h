@@ -87,12 +87,17 @@ extern "C" {
 #define LOS_KERNEL_MEM_TEST 1
 #define LOS_KERNEL_DYNLINK_TEST 0
 #define LOS_KERNEL_TICKLESS_TEST 0
+#if (LOSCFG_KERNEL_PM == 1)
 #define LOS_KERNEL_PM_TEST 1
+#else
+#define LOS_KERNEL_PM_TEST 0
+#endif
 #define LOS_KERNEL_LMS_TEST 0
 #define LOS_KERNEL_LMK_TEST 0
 #define LOS_KERNEL_SIGNAL_TEST 0
 
-#define LITEOS_CMSIS_TEST 0
+#define LOS_POSIX_TEST 1
+#define LOS_CMSIS_TEST 1
 #define LOS_CMSIS2_CORE_TASK_TEST 0
 #define LOS_CMSIS2_IPC_MUX_TEST 0
 #define LOS_CMSIS2_IPC_SEM_TEST 0
@@ -348,6 +353,10 @@ extern VOID ItSuite_Los_FatFs(void);
 extern VOID ItSuiteLosPm(void);
 extern VOID ItSuiteLosLmk(void);
 extern VOID ItSuiteLosSignal(void);
+
+extern int PthreadFuncTestSuite(void);
+
+extern void CmsisFuncTestSuite(void);
 
 extern VOID ItSuite_Cmsis_Lostask(void);
 extern VOID ItSuite_Cmsis_Lostask_add(void);
