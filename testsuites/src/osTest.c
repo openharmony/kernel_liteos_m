@@ -214,15 +214,22 @@ void TestCmsis2(void)
 
 VOID TestTaskEntry()
 {
+    UINT32 ret;
     PRINTF("\t\n --- Test Start --- \n\n");
     ICunitInit();
 
     TestKernel();
 
-#if (CMSIS_OS_VER == 1)
-    PRINTF("\n ---  cmsis 1 unsupport--- \n\n");
-#elif (CMSIS_OS_VER == 2)
-    TestCmsis2();
+#if (LOS_POSIX_TEST == 1)
+    ret = PthreadFuncTestSuite();
+    if (ret != 0) {
+        PRINTF("PthreadFuncTestSuite start failed! errno: %u\n", ret);
+        return;
+    }
+#endif
+
+#if (LOS_CMSIS_TEST == 1)
+    CmsisFuncTestSuite();
 #endif
 
     /* The log is used for testing entrance guard, please do not make any changes. */

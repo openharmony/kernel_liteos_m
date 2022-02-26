@@ -1,5 +1,4 @@
-# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -27,56 +26,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/liteos.gni")
+static_library("test_posix") {
+  sources = [ "pthread_func_test.c" ]
 
-config("include") {
-  defines = []
-  include_dirs = [ "include" ]
-
-  if (defined(LOSCFG_KERNEL_TEST_FULL)) {
-    defines += [ "LOS_KERNEL_TEST_FULL=1" ]
-  }
-}
-
-module_switch = defined(LOSCFG_TEST)
-kernel_module("test_init") {
-  sources = [
-    "src/iCunit.c",
-    "src/osTest.c",
-  ]
-
-  configs += [ ":include" ]
-}
-
-group("testsuites") {
-  deps = [
-    ":test_init",
-    "sample/cmsis:test_cmsis",
-    "sample/kernel/atomic:test_atomic",
-    "sample/kernel/event:test_event",
-    "sample/kernel/hwi:test_hwi",
-    "sample/kernel/mem:test_mem",
-    "sample/kernel/mux:test_mux",
-    "sample/kernel/power:test_pm",
-    "sample/kernel/queue:test_queue",
-    "sample/kernel/sem:test_sem",
-    "sample/kernel/swtmr:test_swtmr",
-    "sample/kernel/task:test_task",
-    "sample/posix:test_posix",
-  ]
-  if (defined(LOSCFG_DYNLINK)) {
-    deps += [ "sample/kernel/dynlink:test_dynlink" ]
-  }
-  if (defined(LOSCFG_KERNEL_LMS)) {
-    deps += [ "sample/kernel/lms:test_lms" ]
-  }
-  if (defined(LOSCFG_KERNEL_LMK)) {
-    deps += [ "sample/kernel/lmk:test_lmk" ]
-  }
-  if (defined(LOSCFG_KERNEL_SIGNAL)) {
-    deps += [ "sample/kernel/signal:test_signal" ]
-  }
-  if (!module_switch) {
-    deps = []
-  }
+  configs += [ "//kernel/liteos_m/testsuites:include" ]
 }

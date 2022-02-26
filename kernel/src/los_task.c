@@ -668,7 +668,6 @@ LITE_OS_SEC_TEXT_INIT STATIC_INLINE UINT32 OsTaskInitParamCheck(TSK_INIT_PARAM_S
     if (taskInitParam->uwStackSize == 0) {
         taskInitParam->uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     }
-    taskInitParam->uwStackSize = ALIGN(taskInitParam->uwStackSize, OS_TASK_STACK_ADDR_ALIGN);
 
     if (taskInitParam->uwStackSize < LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE) {
         return LOS_ERRNO_TSK_STKSZ_TOO_SMALL;
@@ -704,6 +703,7 @@ STATIC UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *taskInitParam)
     }
 
     if (taskInitParam->stackAddr == (UINTPTR)NULL) {
+        taskCB->stackSize = ALIGN(taskInitParam->uwStackSize, OS_TASK_STACK_ADDR_ALIGN);
 #if (LOSCFG_EXC_HARDWARE_STACK_PROTECTION == 1)
         UINT32 stackSize = taskCB->stackSize + OS_TASK_STACK_PROTECT_SIZE;
         UINTPTR stackPtr = (UINTPTR)LOS_MemAllocAlign(OS_TASK_STACK_ADDR, stackSize, OS_TASK_STACK_PROTECT_SIZE);
@@ -718,7 +718,8 @@ STATIC UINT32 OsNewTaskInit(LosTaskCB *taskCB, TSK_INIT_PARAM_S *taskInitParam)
         taskCB->taskStatus |= OS_TASK_FLAG_STACK_FREE;
     } else {
         taskCB->topOfStack = LOS_Align(taskInitParam->stackAddr, LOSCFG_STACK_POINT_ALIGN_SIZE);
-        taskCB->stackSize = ALIGN(taskCB->stackSize, OS_TASK_STACK_ADDR_ALIGN);
+        taskCB->stackSize = taskInitParam->uwStackSize - (taskCB->topOfStack - taskInitParam->stackAddr);
+        taskCB->stackSize = TRUNCATE(taskCB->stackSize, OS_TASK_STACK_ADDR_ALIGN);
     }
 
     /* initialize the task stack, write magic num to stack top */
