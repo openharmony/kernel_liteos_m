@@ -128,6 +128,10 @@ VOID PollNotify(struct PollWaitQueue *waitQueue, PollEvent event)
     UINT32 intSave;
     struct PollWaitNode *waitNode = NULL;
 
+    if (waitQueue == NULL) {
+        return;
+    }
+
     intSave = LOS_IntLock();
     LOS_DL_LIST_FOR_EACH_ENTRY(waitNode, &waitQueue->queue, struct PollWaitNode, node) {
         if (!event || (event & waitNode->table->event)) {
