@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -40,6 +40,12 @@
 .equ    OS_NVIC_PENDSV_PRI,          0xF0F00000
 .equ    OS_NVIC_PENDSVSET,           0x10000000
 .equ    OS_TASK_STATUS_RUNNING,      0x0010
+.equ    OS_CONTROL_FPCA_ENABLE,      0x4
+.equ    OS_CONTROL_KERNEL_MODE,      0x2
+#if (LOSCFG_SECURE == 1)
+.equ    OS_CONTROL_USER_MODE,        0x3
+.equ    OS_TASK_FLAG_USER_TASK,      0x0200
+#endif
 
     .section .text
     .thumb
@@ -63,7 +69,7 @@ HalStartToRun:
     ldr     r5, =OS_NVIC_PENDSV_PRI
     str     r5, [r4]
 
-    mov     r0, #2
+    mov     r0, #OS_CONTROL_KERNEL_MODE
     msr     CONTROL, r0
 
     ldr     r1, =g_losTask
@@ -141,7 +147,7 @@ ArchTaskSchedule:
     bx      lr
     dsb
     isb
-   .fnend
+    .fnend
 
     .type HalPendSV, %function
     .global HalPendSV
@@ -194,6 +200,14 @@ SignalContextRestore:
     vldmia  r1!, {d8-d15}
 
 __DisabledFPU2:
+#if (LOSCFG_SECURE == 1)
+    ldrh    r7, [r0, #4]
+    tst     r7, #OS_TASK_FLAG_USER_TASK
+    ite     eq
+    moveq   r3, #OS_CONTROL_KERNEL_MODE
+    movne   r3, #OS_CONTROL_USER_MODE
+    msr     CONTROL, r3
+#endif
     ldmfd   r1!, {r4-r12}
     msr     psp,  r1
 

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -1276,6 +1276,16 @@ extern UINT32 LOS_TaskDetach(UINT32 taskID);
  * The task exits and waits for the parent thread to reclaim the resource.
  */
 #define OS_TASK_STATUS_EXIT                         0x0100
+
+#if (LOSCFG_SECURE == 1)
+/**
+ * @ingroup los_task
+ * Flag that indicates the task or task control block status.
+ *
+ * This task is a user mode task.
+ */
+#define OS_TASK_FLAG_USER_TASK                      0x0200
+#endif
 
 /**
  * @ingroup los_task

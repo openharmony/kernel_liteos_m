@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -80,6 +80,11 @@
 
 #if (LOSCFG_KERNEL_SIGNAL == 1)
 #include "los_signal.h"
+#endif
+
+#if (LOSCFG_SECURE == 1)
+#include "los_syscall.h"
+#include "los_box.h"
 #endif
 
 /*****************************************************************************
@@ -260,6 +265,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
         PRINT_ERR("Signal init failed!\n");
         return ret;
     }
+#endif
+
+#if (LOSCFG_SECURE == 1)
+    OsSyscallHandleInit();
+    LOS_BoxStart();
 #endif
 
     return LOS_OK;
