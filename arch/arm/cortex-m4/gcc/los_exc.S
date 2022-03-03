@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -57,15 +57,15 @@
 
 .equ FLAG_ADDR_VALID,   0x10000
 .equ FLAG_HWI_ACTIVE,   0x20000
-.equ FLAG_NO_FLOAT,   0x10000000
+.equ FLAG_NO_FLOAT,     0x10000000
 
-.equ OS_NVIC_FSR                 ,   0xE000ED28      //include BusFault/MemFault/UsageFault State Register
-.equ OS_NVIC_HFSR                ,   0xE000ED2C      //HardFault State Register
-.equ OS_NVIC_BFAR                ,   0xE000ED38
-.equ OS_NVIC_MMAR                ,   0xE000ED34
-.equ OS_NVIC_ACT_BASE            ,   0xE000E300
-.equ OS_NVIC_SHCSRS              ,   0xE000ED24
-.equ OS_NVIC_SHCSR_MASK          ,   0xC00
+.equ OS_NVIC_FSR,           0xE000ED28      //include BusFault/MemFault/UsageFault State Register
+.equ OS_NVIC_HFSR,          0xE000ED2C      //HardFault State Register
+.equ OS_NVIC_BFAR,          0xE000ED38
+.equ OS_NVIC_MMAR,          0xE000ED34
+.equ OS_NVIC_ACT_BASE,      0xE000E300
+.equ OS_NVIC_SHCSRS,        0xE000ED24
+.equ OS_NVIC_SHCSR_MASK,    0xC00
 
     .type HalExcNMI, %function
     .global HalExcNMI
@@ -155,10 +155,25 @@ HalExcSvcCall:
     .cantunwind
     TST   LR, #0x4
     ITE   EQ
-    MRSEQ R0, MSP
-    MRSNE R0, PSP
-    LDR   R1, [R0,#24]
-    LDRB  R0, [R1,#-2]
+    MRSEQ R1, MSP
+    BNE   _svcCallFromPsp
+    B     _svcCall
+_svcCallFromPsp:
+#ifdef LOSCFG_SECURE
+    PUSH  {R0-R12, LR}
+    MOV   R0, SP
+    CPSIE I
+    BL    OsSyscallHandle
+    CPSID I
+    MRS   R12, PSP
+    STM   R12, {R0-R1}
+    POP   {R0-R12, LR}
+    BX    LR
+#endif
+    MRS   R1, PSP
+_svcCall:
+    LDR   R0, [R1,#24]
+    LDRB  R0, [R0,#-2]
     MOV   R1, #0
     B     osExcDispatch
     .fnend
@@ -284,7 +299,7 @@ _ExcInMSP:
     PUSH {R4-R12}                       // store message-->exc: {R4-R12}
     VPUSH {D8-D15}                      // FPU
     B     _handleEntry
-  .fnend
+    .fnend
 
     .type _NoFloatInMsp, %function
     .global _NoFloatInMsp
@@ -298,7 +313,7 @@ _NoFloatInMsp:
     PUSH {R4-R12}                        // store message-->exc: {R4-R12}
     ORR   R0, R0, #FLAG_NO_FLOAT
     B     _handleEntry
-  .fnend
+    .fnend
 
     .type _hwiActiveCheckNext, %function
     .global _hwiActiveCheckNext
@@ -347,7 +362,7 @@ _hwiActiveCheckNext:
     VSTMDB  R2!, {D8-D15}               // FPU
     STMFD R2!, {R4-R11}
     B     _handleEntry
-  .fnend
+    .fnend
 
     .type _NoFloatInPsp, %function
     .global _NoFloatInPsp
@@ -367,7 +382,7 @@ _NoFloatInPsp:
     LDMFD R3, {R4-R11}                  // R4-R11 store PSP reg(auto push when exc in task)
     STMFD R2!, {R4-R11}
     ORR   R0, R0, #FLAG_NO_FLOAT
-  .fnend
+    .fnend
 
     .type _handleEntry, %function
     .global _handleEntry
@@ -380,4 +395,4 @@ _handleEntry:
     B  HalExcHandleEntry
 
     NOP
-  .fnend
+    .fnend

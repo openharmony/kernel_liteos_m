@@ -29,9 +29,9 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- .syntax unified
- .arch armv7e-m
- .thumb
+.syntax unified
+.arch armv7e-m
+.thumb
 .fpu fpv5-d16
 .section .text
 
@@ -284,7 +284,7 @@ _ExcInMSP:
     PUSH {R4-R12}                       // store message-->exc: {R4-R12}
     VPUSH {D8-D15}
     B     _handleEntry
-  .fnend
+    .fnend
 
     .type _NoFloatInMsp, %function
     .global _NoFloatInMsp
@@ -298,7 +298,7 @@ _NoFloatInMsp:
     PUSH {R4-R12}                       // store message-->exc: {R4-R12}
     ORR   R0, R0, #FLAG_NO_FLOAT
     B     _handleEntry
-  .fnend
+    .fnend
 
     .type _hwiActiveCheckNext, %function
     .global _hwiActiveCheckNext
@@ -347,7 +347,7 @@ _hwiActiveCheckNext:
     VSTMDB  R2!, {D8-D15}
     STMFD R2!, {R4-R11}
     B     _handleEntry
-  .fnend
+    .fnend
 
     .type _NoFloatInPsp, %function
     .global _NoFloatInPsp
@@ -367,7 +367,7 @@ _NoFloatInPsp:
     LDMFD R3, {R4-R11}                  // R4-R11 store PSP reg(auto push when exc in task)
     STMFD R2!, {R4-R11}
     ORR   R0, R0, #FLAG_NO_FLOAT
-  .fnend
+    .fnend
 
     .type _handleEntry, %function
     .global _handleEntry
@@ -380,5 +380,5 @@ _handleEntry:
     B  HalExcHandleEntry
 
     NOP
-  .fnend
+    .fnend
 

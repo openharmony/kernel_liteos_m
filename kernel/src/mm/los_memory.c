@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -2288,7 +2288,7 @@ UINT32 OsMemSystemInit(VOID)
 #endif
 
     ret = LOS_MemInit(m_aucSysMem0, LOSCFG_SYS_HEAP_SIZE);
-    PRINT_INFO("LiteOS heap memory address:%p, size:0x%lx\n", m_aucSysMem0, LOSCFG_SYS_HEAP_SIZE);
+    PRINT_INFO("LiteOS heap memory address:%p, size:0x%lx\n", m_aucSysMem0, (unsigned long int)LOSCFG_SYS_HEAP_SIZE);
     return ret;
 }
 

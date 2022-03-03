@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -164,7 +164,7 @@ STATIC VOID OsRecyleFinishedTask(VOID)
         stackPtr = 0;
         OsRecycleTaskResources(taskCB, &stackPtr);
         LOS_IntRestore(intSave);
-
+        
         (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, (VOID *)stackPtr);
         intSave = LOS_IntLock();
     }
