@@ -48,7 +48,9 @@
 │   ├── lms                                                     --- Lite memory sanitizer functions
 │   ├── net                                                     --- Networking functions
 │   ├── power                                                   --- Power management
+│   ├── security                                                --- Security isolation
 │   ├── shell                                                   --- Shell function
+│   ├── signal                                                  --- Signal support
 │   ├── fs                                                      --- File systems
 │   └── trace                                                   --- Trace tool
 ├── drivers                                                     --- driver Kconfig
@@ -71,14 +73,13 @@
 │   │   └── los_tick.h                                          --- Tick
 │   └── src
 ├── targets
-│   └── targets
-│       └── riscv_nuclei_demo_soc_gcc
-│       │   ├── GCC                                            --- Compilation config
-│       │   ├── OS_CONFIG                                      --- Board config
-│       │   ├── SoC                                            --- SOC codes
-│       │   └── Src                                            --- Application codes
-│       └── riscv_nuclei_gd32vf103_soc_gcc
-│       └── riscv_sifive_fe310_gcc
+│   └── riscv_nuclei_demo_soc_gcc
+│   │   ├── GCC                                            --- Compilation config
+│   │   ├── OS_CONFIG                                      --- Board config
+│   │   ├── SoC                                            --- SOC codes
+│   │   └── Src                                            --- Application codes
+│   └── riscv_nuclei_gd32vf103_soc_gcc
+│   └── riscv_sifive_fe310_gcc
 ├── testsuites                                                 --- Kernel testsuites
 ├── tools                                                      --- Kernel tools
 └── utils
