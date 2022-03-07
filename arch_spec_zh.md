@@ -48,7 +48,9 @@
 │   ├── lms                                                     --- Lite memory sanitizer 机制
 │   ├── net                                                     --- Network功能
 │   ├── power                                                   --- 低功耗管理
+│   ├── security                                                --- 安全隔离
 │   ├── shell                                                   --- shell功能
+│   ├── signal                                                  --- signal支持
 │   └── trace                                                   --- trace 工具
 ├── drivers                                                     --- 驱动框架Kconfig
 ├── kal                                                         --- 内核抽象层，提供内核对外接口，当前支持CMSIS接口和部分POSIX接口
@@ -70,14 +72,13 @@
 │   │   └── los_tick.h                                          --- Tick时钟
    └── src
 ├── targets
-│   └── targets
-│       └── riscv_nuclei_demo_soc_gcc
-│       │   ├── GCC                                             --- 编译相关
-│       │   ├── OS_CONFIG                                       --- 开发板配置功能开关和配置参数
-│       │   ├── SoC                                             --- SOC相关代码
-│       │   └── Src                                             --- Application相关代码
-│       └── riscv_nuclei_gd32vf103_soc_gcc
-│       └── riscv_sifive_fe310_gcc
+│   └── riscv_nuclei_demo_soc_gcc
+│   │   ├── GCC                                             --- 编译相关
+│   │   ├── OS_CONFIG                                       --- 开发板配置功能开关和配置参数
+│   │   ├── SoC                                             --- SOC相关代码
+│   │   └── Src                                             --- Application相关代码
+│   └── riscv_nuclei_gd32vf103_soc_gcc
+│   └── riscv_sifive_fe310_gcc
 ├── testsuites                                                  --- 内核测试用例
 ├── tools                                                       --- 内核工具
 └── utils
