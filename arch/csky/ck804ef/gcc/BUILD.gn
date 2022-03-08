@@ -29,25 +29,16 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-config("arch_config") {
-  include_dirs = [ "include" ]
+module_name = "arch"
+kernel_module(module_name) {
+  sources = [
+    "los_context.c",
+    "los_dispatch.S",
+    "los_interrupt.c",
+    "los_timer.c",
+  ]
 }
 
-module_group("arch") {
-  modules = []
-  if ("$board_cpu" == "arm9" || "$board_cpu" == "cortex-m3" ||
-      "$board_cpu" == "cortex-m4" || "$board_cpu" == "cortex-m7" ||
-      "$board_cpu" == "cortex-m33" || "$board_cpu" == "cortex-m55") {
-    modules += [ "arm" ]
-  } else if ("$board_cpu" == "ck802" || "$board_cpu" == "e802" ||
-             "$board_cpu" == "ck804ef") {
-    modules += [ "csky" ]
-  } else if ("$board_cpu" == "") {
-    if ("$board_arch" == "rv32imac" || "$board_arch" == "rv32imafdc") {
-      modules += [ "risc-v" ]
-    } else if ("$board" == "esp32") {
-      modules += [ "xtensa" ]
-    }
-  }
-  configs = [ ":arch_config" ]
+config("public") {
+  include_dirs = [ "." ]
 }
