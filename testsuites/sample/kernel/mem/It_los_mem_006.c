@@ -52,7 +52,6 @@ static UINT32 TestCase(VOID)
         ICUNIT_GOTO_EQUAL(1, 0, 0, EXIT);
     }
 
-    size = size;
     p0 = LOS_MemAlloc(g_memPool, size);
     ICUNIT_GOTO_EQUAL(p0, NULL, p0, EXIT);
 

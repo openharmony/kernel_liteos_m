@@ -179,7 +179,6 @@ exc_entry:
     csrr a0, mcause
     mv a1, sp
     /*
-     * TODO: Call the exception handler function
      * By default, the function template is provided in
      * system_Device.c, you can adjust it as you want
      */
