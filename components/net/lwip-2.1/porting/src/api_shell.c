@@ -605,6 +605,8 @@ u32_t OsShellPing(int argc, const char **argv)
         PRINTK("Ping cmd failed due some errors\n");
     }
 
+    free(parg);
+
     return LOS_OK;
 ping_error:
     lwip_ping_usage();

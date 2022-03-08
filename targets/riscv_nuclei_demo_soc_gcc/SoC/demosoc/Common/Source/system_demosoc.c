@@ -30,8 +30,6 @@
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
-/* ToDo: add here your necessary defines for device initialization
-         following is an example for different system frequencies */
 #ifndef SYSTEM_CLOCK
 #define SYSTEM_CLOCK    (80000000UL)
 #endif
@@ -71,9 +69,6 @@
 /*----------------------------------------------------------------------------
   System Core Clock Variable
  *----------------------------------------------------------------------------*/
-/* ToDo: initialize SystemCoreClock with the system core clock frequency value
-         achieved after system intitialization.
-         This means system core clock frequency after call to SystemInit() */
 /**
  * \brief      Variable to hold the system core clock value
  * \details
@@ -101,9 +96,7 @@ uint32_t SystemCoreClock = SYSTEM_CLOCK;  /* System Clock Frequency (Core Clock)
  */
 void SystemCoreClockUpdate(void)             /* Get Core Clock Frequency */
 {
-    /* ToDo: add code to calculate the system frequency based upon the current
-     *    register settings.
-     * Note: This function can be used to retrieve the system core clock frequeny
+    /* Note: This function can be used to retrieve the system core clock frequeny
      *    after user changed register settings.
      */
     SystemCoreClock = SYSTEM_CLOCK;
@@ -119,8 +112,7 @@ void SystemCoreClockUpdate(void)             /* Get Core Clock Frequency */
  */
 void SystemInit(void)
 {
-    /* ToDo: add code to initialize the system
-     * Warn: do not use global variables because this function is called before
+    /* Warn: do not use global variables because this function is called before
      * reaching pre-main. RW section maybe overwritten afterwards.
      */
     SystemCoreClock = SYSTEM_CLOCK;
@@ -164,7 +156,6 @@ typedef void (*EXC_HANDLER)(unsigned long mcause, unsigned long sp);
  */
 static void system_default_exception_handler(unsigned long mcause, unsigned long sp)
 {
-    /* TODO: Uncomment this if you have implement printf function */
     printf("MCAUSE : 0x%lx\r\n", mcause);
     printf("MDCAUSE: 0x%lx\r\n", __RV_CSR_READ(CSR_MDCAUSE));
     printf("MEPC   : 0x%lx\r\n", __RV_CSR_READ(CSR_MEPC));
@@ -276,7 +267,6 @@ void SystemBannerPrint(void)
 void ECLIC_Init(void)
 {
     /* Global Configuration about MTH and NLBits.
-     * TODO: Please adapt it according to your system requirement.
      * This function is called in _init function */
     ECLIC_SetMth(0);
     ECLIC_SetCfgNlbits(__ECLIC_INTCTLBITS);
@@ -333,7 +323,6 @@ int32_t ECLIC_Register_IRQ(IRQn_Type IRQn, uint8_t shv, ECLIC_TRIGGER_Type trig_
  */
 void _premain_init(void)
 {
-    /* TODO: Add your own initialization code here, called before main */
     /* __ICACHE_PRESENT and __DCACHE_PRESENT are defined in demosoc.h */
 #if defined(__ICACHE_PRESENT) && __ICACHE_PRESENT == 1
     EnableICache();
@@ -363,7 +352,6 @@ void _premain_init(void)
  */
 void _postmain_fini(int status)
 {
-    /* TODO: Add your own finishing code here, called after main */
 #ifdef SIMULATION_XLSPIKE
     extern void xlspike_exit(int status);
     xlspike_exit(status);
