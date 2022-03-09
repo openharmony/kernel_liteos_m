@@ -680,7 +680,7 @@ LITE_TEST_CASE(PthreadFuncTestSuite, testPthread009, Function | MediumTest | Lev
 
     ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
-    
+
     for (i = 0; i < TEST_THREAD_COUNT; i++) {
         ret = pthread_create(&thread[i], &attr, pthread_prio_f01, TEST_THREAD_COUNT - i);
         ICUNIT_ASSERT_EQUAL(ret, 0, ret);
@@ -731,7 +731,7 @@ LITE_TEST_CASE(PthreadFuncTestSuite, testPthread010, Function | MediumTest | Lev
 
     ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
-    
+
     for (i = 0; i < TEST_THREAD_COUNT; i++) {
         ret = pthread_once(&onceControl, pthread_once_f01);
         ICUNIT_ASSERT_EQUAL(ret, 0, ret);
@@ -779,7 +779,7 @@ LITE_TEST_CASE(PthreadFuncTestSuite, testPthread011, Function | MediumTest | Lev
 
     ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
- 
+
     ret = pthread_create(&thread, &attr, pthread_cancel_f01, NULL);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
@@ -842,7 +842,7 @@ LITE_TEST_CASE(PthreadFuncTestSuite, testPthread012, Function | MediumTest | Lev
 
     ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
-    
+
     ret = pthread_create(&thread, &attr, pthread_testcancel_f01, NULL);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
@@ -965,8 +965,7 @@ LITE_TEST_CASE(PthreadFuncTestSuite, testPthread016, Function | MediumTest | Lev
     int ret;
     pthread_mutexattr_init(&mutex_attr);
     ret = pthread_mutexattr_settype(NULL, PTHREAD_MUTEX_ERRORCHECK);
-    if (ret == 0)
-    {
+    if (ret == 0) {
         ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     }
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_ERRORCHECK);

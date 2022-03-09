@@ -336,19 +336,19 @@ int LfsMount(const char *source, const char *target, const char *fileSystemType,
     if (target == NULL || fileSystemType == NULL || data == NULL) {
         errno = EFAULT;
         ret = VFS_ERROR;
-        goto errout;
+        goto ERROUT;
     }
 
     if (strcmp(fileSystemType, "littlefs") != 0) {
         errno = ENODEV;
         ret = VFS_ERROR;
-        goto errout;
+        goto ERROUT;
     }
 
     if (CheckPathIsMounted(target, &fileOpInfo)) {
         errno = EBUSY;
         ret = VFS_ERROR;
-        goto errout;
+        goto ERROUT;
     }
 
     // select free mount resource
@@ -356,7 +356,7 @@ int LfsMount(const char *source, const char *target, const char *fileSystemType,
     if (fileOpInfo == NULL) {
         errno = ENODEV;
         ret = VFS_ERROR;
-        goto errout;
+        goto ERROUT;
     }
 
     ret = lfs_mount(&(fileOpInfo->lfsInfo), (struct lfs_config*)data);
@@ -372,7 +372,7 @@ int LfsMount(const char *source, const char *target, const char *fileSystemType,
         ret = VFS_ERROR;
     }
 
-errout:
+ERROUT:
     return ret;
 }
 
@@ -483,23 +483,23 @@ DIR *LfsOpendir(const char *dirName)
 
     if (dirName == NULL) {
         errno = EFAULT;
-        goto errout;
+        goto ERROUT;
     }
 
     if (CheckPathIsMounted(dirName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
         errno = ENOENT;
-        goto errout;
+        goto ERROUT;
     }
 
     if (CheckDirIsOpen(dirName)) {
         errno = EBUSY;
-        goto errout;
+        goto ERROUT;
     }
 
     FileDirInfo *dirInfo = GetFreeDir(dirName);
     if (dirInfo == NULL) {
         errno = ENFILE;
-        goto errout;
+        goto ERROUT;
     }
 
     ret = lfs_dir_open(&(fileOpInfo->lfsInfo), (lfs_dir_t *)(&(dirInfo->dir)), dirName);
@@ -507,14 +507,14 @@ DIR *LfsOpendir(const char *dirName)
     if (ret != 0) {
         FreeDirInfo(dirName);
         errno = LittlefsErrno(ret);
-        goto errout;
+        goto ERROUT;
     }
 
     dirInfo->lfsHandle = &(fileOpInfo->lfsInfo);
 
     return (DIR *)dirInfo;
 
-errout:
+ERROUT:
     return NULL;
 }
 
@@ -584,23 +584,23 @@ int LfsOpen(const char *pathName, int openFlag, ...)
 
     if (pathName == NULL) {
         errno = EFAULT;
-        goto errout;
+        goto ERROUT;
     }
 
     if (CheckPathIsMounted(pathName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
         errno = ENOENT;
-        goto errout;
+        goto ERROUT;
     }
     // if file is already open, return invalid fd
     if (CheckFileIsOpen(pathName)) {
         errno = EBUSY;
-        goto errout;
+        goto ERROUT;
     }
 
     LittleFsHandleStruct *fsHandle = LfsAllocFd(pathName, &fd);
     if (fd == INVALID_FD) {
         errno = ENFILE;
-        goto errout;
+        goto ERROUT;
     }
 
     int lfsOpenFlag = ConvertFlagToLfsOpenFlag(openFlag);
@@ -608,13 +608,13 @@ int LfsOpen(const char *pathName, int openFlag, ...)
     if (err != 0) {
         LfsFreeFd(fd);
         errno = LittlefsErrno(err);
-        goto errout;
+        goto ERROUT;
     }
 
     g_handle[fd].lfsHandle = &(fileOpInfo->lfsInfo);
     return fd;
 
-errout:
+ERROUT:
     return INVALID_FD;
 }
 
