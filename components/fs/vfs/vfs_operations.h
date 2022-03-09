@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,10 +28,18 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _FATFS_H
-#define _FATFS_H
+#ifndef _VFS_OPERATIONS_H_
+#define _VFS_OPERATIONS_H_
 
-#include "ff.h"
+#include "errno.h"
+#include "fcntl.h"
+#include "dirent.h"
+#include "stdint.h"
+#include "unistd.h"
+#include "sys/mount.h"
+#include "sys/stat.h"
+#include "sys/statfs.h"
+#include "los_compiler.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -40,7 +47,13 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-void FatFsInit(void);
+#define VFS_ERRNO_SET(err) (errno = (err))
+
+extern UINT32 g_fsMutex;
+
+int OsVfsInit(void);
+int VfsLock(void);
+void VfsUnlock(void);
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -48,4 +61,4 @@ void FatFsInit(void);
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* _FATFS_H */
+#endif /* _VFS_OPERATIONS_H_ */
