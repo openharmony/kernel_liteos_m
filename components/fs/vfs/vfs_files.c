@@ -27,29 +27,72 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "vfs_files.h"
+#include "errno.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
+#include "los_config.h"
+#include "vfs_config.h"
+#include "vfs_mount.h"
+#include "vfs_operations.h"
 
-#ifndef _ADAPT_SYS_UIO_H
-#define _ADAPT_SYS_UIO_H
+static struct File g_files[NR_OPEN_DEFAULT];
 
-#include <sys/features.h>
-#include <sys/types.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define UIO_MAXIOV 1024
-
-struct iovec {
-    void *iov_base;
-    size_t iov_len;
-};
-
-ssize_t readv(int, const struct iovec *, int);
-ssize_t writev(int, const struct iovec *, int);
-
-#ifdef __cplusplus
+int FileToFd(struct File *file)
+{
+    if (file == NULL) {
+        return LOS_NOK;
+    }
+    return file - g_files + MIN_START_FD;
 }
-#endif
 
-#endif
+struct File *FdToFile(int fd)
+{
+    if ((fd < MIN_START_FD) || (fd >= CONFIG_NFILE_DESCRIPTORS)) {
+        return NULL;
+    }
+    return &g_files[fd - MIN_START_FD];
+}
+
+struct File *VfsFileGet(void)
+{
+    int i;
+    /* protected by g_fsMutex */
+    for (i = 0; i < NR_OPEN_DEFAULT; i++) {
+        if (g_files[i].fStatus == FILE_STATUS_NOT_USED) {
+            g_files[i].fStatus = FILE_STATUS_INITING;
+            return &g_files[i];
+        }
+    }
+
+    return NULL;
+}
+
+struct File *VfsFileGetSpec(int fd)
+{
+    if ((fd < MIN_START_FD) || (fd >= CONFIG_NFILE_DESCRIPTORS)) {
+        return NULL;
+    }
+    if (g_files[fd - MIN_START_FD].fStatus == FILE_STATUS_NOT_USED) {
+        g_files[fd - MIN_START_FD].fStatus = FILE_STATUS_INITING;
+        return &g_files[fd - MIN_START_FD];
+    }
+
+    return NULL;
+}
+
+void VfsFilePut(struct File *file)
+{
+    if (file == NULL) {
+        return;
+    }
+    file->fFlags = 0;
+    file->fFops = NULL;
+    file->fData = NULL;
+    file->fMp = NULL;
+    file->fOffset = 0;
+    file->fOwner = -1;
+    file->fullPath = NULL;
+    file->fStatus = FILE_STATUS_NOT_USED;
+}

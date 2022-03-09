@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -41,7 +41,11 @@
 #include "los_compiler.h"
 #include "los_debug.h"
 #include "cmsis_os2.h"
-#include "fs_operations.h"
+#include "vfs_files.h"
+#include "vfs_operations.h"
+#include "vfs_partition.h"
+#include "vfs_maps.h"
+#include "vfs_mount.h"
 
 /* the max name length of different parts should not bigger than 32 */
 #define FS_DRIVE_NAME_MAX_LEN 32
@@ -54,27 +58,16 @@
 #define FS_LOCK_TIMEOUT_SEC  15
 #endif /* FS_LOCK_TIMEOUT_SEC */
 
-#define PART_NAME   0x0
-#define VOLUME_NAME 0x1
-#define PATH_NAME   0x2
-#define NAME_MASK   0x3
-
-typedef struct {
-    UINT8 useFlag;
-    FIL fil;
-} FatHandleStruct;
-
-static FatHandleStruct g_handle[FAT_MAX_OPEN_FILES] = {0};
-static DIR g_dir[FAT_MAX_OPEN_DIRS] = {0};
-static FATFS g_fatfs[FF_VOLUMES] = {0};
 static UINT8 g_workBuffer[FF_MAX_SS];
-static UINT32 g_fileNum = 0;
-static UINT32 g_dirNum = 0;
-static struct dirent g_retValue;
-static pthread_mutex_t g_fsMutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t g_fatfsMutex = PTHREAD_MUTEX_INITIALIZER;
+static char *g_volPath[FF_VOLUMES] = {FF_VOLUME_STRS};
 
-static const char * const g_volPath[FF_VOLUMES] = {FF_VOLUME_STRS};
-static BOOL g_volWriteEnable[FF_VOLUMES] = {FALSE};
+PARTITION VolToPart[] = {
+    { 0, 0, 1, 0, 0 },
+    { 0, 0, 2, 0, 0 },
+    { 0, 0, 3, 0, 0 },
+    { 0, 0, 4, 0, 0 }
+};
 
 static int FsLock(void)
 {
@@ -85,11 +78,11 @@ static int FsLock(void)
     }
     ret = clock_gettime(CLOCK_REALTIME, &absTimeout);
     if (ret != 0) {
-        PRINTK("clock gettime err 0x%x!\r\n", errno);
+        PRINT_ERR("clock gettime err 0x%x!\r\n", errno);
         return errno;
     }
     absTimeout.tv_sec += FS_LOCK_TIMEOUT_SEC;
-    ret = pthread_mutex_timedlock(&g_fsMutex, &absTimeout);
+    ret = pthread_mutex_timedlock(&g_fatfsMutex, &absTimeout);
     return ret;
 }
 
@@ -98,24 +91,17 @@ static void FsUnlock(void)
     if (osKernelGetState() != osKernelRunning) {
         return;
     }
-    (void)pthread_mutex_unlock(&g_fsMutex);
-}
-
-static bool IsValidFd(int fd)
-{
-    if ((fd < 0) || (fd >= FAT_MAX_OPEN_FILES) || (g_handle[fd].useFlag == 0)) {
-        return false;
-    }
-    return true;
+    (void)pthread_mutex_unlock(&g_fatfsMutex);
 }
 
 static int FsChangeDrive(const char *path)
 {
     INT32 res;
-    CHAR tmpPath[FS_DRIVE_NAME_MAX_LEN] = { "/" }; /* the max name length of different parts is 16 */
     errno_t retErr;
-    UINT16 pathLen;
-    pathLen = strlen((char const *)path);
+    UINT16 pathLen = strlen((char const *)path);
+    /* the max name length of different parts is 16 */
+    CHAR tmpPath[FS_DRIVE_NAME_MAX_LEN] = { "/" };
+
     /* make sure the path begin with "/", the path like /xxx/yyy/... */
     if (pathLen >= (FS_DRIVE_NAME_MAX_LEN - 1)) {
         /* 2: except first flag "/" and last end flag */
@@ -124,99 +110,29 @@ static int FsChangeDrive(const char *path)
 
     retErr = strncpy_s(tmpPath + 1, (FS_DRIVE_NAME_MAX_LEN - 1), (char const *)path, pathLen);
     if (retErr != EOK) {
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     res = f_chdrive(tmpPath);
     if (res != FR_OK) {
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    return FS_SUCCESS;
+    return LOS_OK;
 }
 
-static int FsPartitionMatch(const char *path, int flag)
+static int Remount(struct MountPoint *mp, unsigned long mountflags)
 {
-    INT32 ret;
-    UINT32 index;
-    CHAR tmpName[FF_MAX_LFN] = {0};
-
-    if (path == NULL) {
-        return FS_FAILURE;
-    }
-
-    switch ((UINT32)flag & NAME_MASK) {
-        case VOLUME_NAME:
-            ret = sscanf_s(path, "/%[^/]", tmpName, FF_MAX_LFN);
-            if (ret <= 0) {
-                return FS_FAILURE;
-            }
-            break;
-        case PATH_NAME:
-            ret = sscanf_s(path, "%[^/]", tmpName, FF_MAX_LFN);
-            if (ret <= 0) {
-                return FS_FAILURE;
-            }
-            break;
-        case PART_NAME:
-        default:
-            ret = strcpy_s(tmpName, FF_MAX_LFN, path);
-            if (ret != EOK) {
-                return FS_FAILURE;
-            }
-    }
-
-    for (index = 0; index < FF_VOLUMES; index++) {
-        if (strcmp(tmpName, g_volPath[index]) == 0) {
-            return index;
-        }
-    }
-    return FS_FAILURE;
-}
-
-static int Remount(const char *path, unsigned long mountflags)
-{
-    INT32 index;
-
-    index = FsPartitionMatch(path, PART_NAME);
-    if (index == FS_FAILURE) {
-        PRINTK("Wrong volume path!\r\n");
-        errno = ENOENT;
-        return FS_FAILURE;
-    }
+    FATFS *fatfs = (FATFS *)mp->mData;
 
     /* remount is not allowed when the device is not mounted. */
-    if (g_fatfs[index].fs_type == 0) {
+    if (fatfs->fs_type == 0) {
         errno = EINVAL;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
-    g_volWriteEnable[index] = (mountflags & MS_RDONLY) ? FALSE : TRUE;
+    mp->mWriteEnable = (mountflags & MS_RDONLY) ? FALSE : TRUE;
 
-    return FS_SUCCESS;
-}
-
-static bool FsCheckByPath(const char *path)
-{
-    INT32 index;
-
-    index = FsPartitionMatch(path, PATH_NAME);
-    if (index == FS_FAILURE) {
-        return FS_FAILURE;
-    }
-
-    return g_volWriteEnable[index];
-}
-
-static bool FsCheckByID(int id)
-{
-    INT32 index;
-
-    for (index = 0; index < FF_VOLUMES; index++) {
-        if (g_fatfs[index].id == id) {
-            return g_volWriteEnable[index];
-        }
-    }
-    return false;
+    return LOS_OK;
 }
 
 static unsigned int FatFsGetMode(int oflags)
@@ -318,430 +234,357 @@ static int FatfsErrno(int result)
     return status;
 }
 
-int fatfs_mount(const char *source, const char *target,
-                const char *filesystemtype, unsigned long mountflags,
-                const void *data)
+char * GetLdPath(const char *source)
 {
-    INT32 index;
+    int ret;
+    int partId = GetPartIdByPartName(source);
+    if ((partId < 0) || (partId >= MAX_PARTITION_NUM)) {
+        return NULL;
+    }
+
+    char *volPath = g_volPath[partId];
+    char *ldPath = (char *)malloc(strlen(volPath) + 1);
+    if (ldPath == NULL) {
+        return NULL;
+    }
+
+    (void)memset_s(ldPath, strlen(volPath) + 1, 0, strlen(volPath) + 1);
+
+    /* Convert volPath to ldpath, for example, convert "inner" to "/inner" */
+    *ldPath = '/';
+    ret = strcpy_s(ldPath + 1, strlen(volPath), volPath);
+    if (ret != EOK) {
+        free(ldPath);
+        return NULL;
+    }
+
+    return ldPath;
+}
+
+void PutLdPath(const char *ldPath)
+{
+    if (ldPath != NULL) {
+        free((void *)ldPath);
+    }
+}
+
+int FatfsMount(struct MountPoint *mp, unsigned long mountflags,
+               const void *data)
+{
     FRESULT res;
     INT32 ret;
-
-    if ((target == NULL) || (filesystemtype == NULL)) {
-        errno = EFAULT;
-        return FS_FAILURE;
-    }
+    FATFS *fs = NULL;
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
+    }
+
+    char *ldPath = GetLdPath(mp->mDev);
+    if (ldPath == NULL) {
+        errno = EFAULT;
+        ret = LOS_NOK;
+        goto ERROUT;
     }
 
     if (mountflags & MS_REMOUNT) {
-        ret = Remount(target, mountflags);
-        goto OUT;
+        ret = Remount(mp, mountflags);
+        goto ERROUT;
     }
 
-    if (strcmp(filesystemtype, "fat") != 0) {
-        errno = ENODEV;
-        ret = FS_FAILURE;
-        goto OUT;
+    fs = (FATFS *)malloc(sizeof(FATFS));
+    if (fs == NULL) {
+        errno = ENOMEM;
+        ret = LOS_NOK;
+        goto ERROUT;
     }
+    (void)memset_s(fs, sizeof(FATFS), 0, sizeof(FATFS));
+    mp->mData = (void *)fs;
 
-    index = FsPartitionMatch(target, VOLUME_NAME);
-    if (index == FS_FAILURE) {
-        errno = ENODEV;
-        ret = FS_FAILURE;
-        goto OUT;
-    }
-
-    /* If the volume has been mounted */
-    if (g_fatfs[index].fs_type != 0) {
-        errno = EBUSY;
-        ret = FS_FAILURE;
-        goto OUT;
-    }
-
-    res = f_mount(&g_fatfs[index], target, 1);
+    res = f_mount((FATFS *)mp->mData, ldPath, 1);
     if (res != FR_OK) {
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
-        goto OUT;
+        ret = LOS_NOK;
+        goto ERROUT;
     }
 
-    g_volWriteEnable[index] = (mountflags & MS_RDONLY) ? FALSE : TRUE;
-    ret = FS_SUCCESS;
+    PutLdPath(ldPath);
+    FsUnlock();
+    return LOS_OK;
 
-OUT:
+ERROUT:
+    free(fs);
+    mp->mData = NULL;
+    PutLdPath(ldPath);
     FsUnlock();
     return ret;
 }
 
-int fatfs_umount(const char *target)
+int FatfsUmount(struct MountPoint *mp)
 {
     FRESULT res;
     INT32 ret;
-    INT32 index;
-
-    if (target == NULL) {
-        errno = EFAULT;
-        return FS_FAILURE;
-    }
+    INT32 volId;
+    FATFS *fatfs = (FATFS *)mp->mData;
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    index = FsPartitionMatch(target, VOLUME_NAME);
-    if (index == FS_FAILURE) {
-        errno = ENOENT;
-        ret = FS_FAILURE;
+    char *ldPath = GetLdPath(mp->mDev);
+    if (ldPath == NULL) {
+        errno = EFAULT;
+        ret = LOS_NOK;
         goto OUT;
     }
 
     /* The volume is not mounted */
-    if (g_fatfs[index].fs_type == 0) {
+    if (fatfs->fs_type == 0) {
         errno = EINVAL;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
+    volId = GetPartIdByPartName(mp->mDev);
     /* umount is not allowed when a file or diretory is opened. */
-    if (f_checkopenlock(index) != FR_OK) {
+    if (f_checkopenlock(volId) != FR_OK) {
         errno = EBUSY;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
-    res = f_mount((FATFS *)NULL, target, 0);
+    res = f_mount((FATFS *)NULL, ldPath, 0);
     if (res != FR_OK) {
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
-    if (g_fatfs[index].win != NULL) {
-        ff_memfree(g_fatfs[index].win);
+    if (fatfs->win != NULL) {
+        ff_memfree(fatfs->win);
     }
 
-    (void)memset_s(&g_fatfs[index], sizeof(FATFS), 0x0, sizeof(FATFS));
+    free(mp->mData);
+    mp->mData = NULL;
 
-    ret = FS_SUCCESS;
+    ret = LOS_OK;
 
 OUT:
+    PutLdPath(ldPath);
     FsUnlock();
     return ret;
 }
 
-static int CloseAll(int index)
+int FatfsUmount2(struct MountPoint *mp, int flag)
 {
-    INT32 i;
-    FRESULT res;
-
-    for (i = 0; i < FAT_MAX_OPEN_FILES; i++) {
-        if (g_fileNum <= 0) {
-            break;
-        }
-        if ((g_handle[i].useFlag == 1) && (g_handle[i].fil.obj.fs == &g_fatfs[index])) {
-            res = f_close(&g_handle[i].fil);
-            if (res != FR_OK) {
-                errno = FatfsErrno(res);
-                return FS_FAILURE;
-            }
-            (void)memset_s(&g_handle[i], sizeof(FatHandleStruct), 0x0, sizeof(FatHandleStruct));
-            g_fileNum--;
-        }
-    }
-
-    for (i = 0; i < FAT_MAX_OPEN_DIRS; i++) {
-        if (g_dirNum <= 0) {
-            break;
-        }
-        if (g_dir[i].obj.fs == &g_fatfs[index]) {
-            res = f_closedir(&g_dir[i]);
-            if (res != FR_OK) {
-                errno = FatfsErrno(res);
-                return FS_FAILURE;
-            }
-            (void)memset_s(&g_dir[i], sizeof(DIR), 0x0, sizeof(DIR));
-            g_dirNum--;
-        }
-    }
-
-    return FS_SUCCESS;
-}
-
-int fatfs_umount2(const char *target, int flag)
-{
-    INT32 index;
     INT32 ret;
     UINT32 flags;
     FRESULT res;
-
-    if (target == NULL) {
-        errno = EFAULT;
-        return FS_FAILURE;
-    }
+    FATFS *fatfs = (FATFS *)mp->mData;
 
     flags = MNT_FORCE | MNT_DETACH | MNT_EXPIRE | UMOUNT_NOFOLLOW;
     if ((UINT32)flag & ~flags) {
         errno = EINVAL;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    index = FsPartitionMatch(target, VOLUME_NAME);
-    if (index == FS_FAILURE) {
-        errno = ENOENT;
-        ret =  FS_FAILURE;
+    char *ldPath = GetLdPath(mp->mDev);
+    if (ldPath == NULL) {
+        errno = EFAULT;
+        ret = LOS_NOK;
         goto OUT;
     }
 
     /* The volume is not mounted */
-    if (g_fatfs[index].fs_type == 0) {
+    if (fatfs->fs_type == 0) {
         errno = EINVAL;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
-    if ((UINT32)flag & MNT_FORCE) {
-        ret = CloseAll(index);
-        if (ret != FS_SUCCESS) {
-            goto OUT;
-        }
-    }
-
-    res = f_mount((FATFS *)NULL, target, 0);
+    res = f_mount((FATFS *)NULL, ldPath, 0);
     if (res != FR_OK) {
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
-    if (g_fatfs[index].win != NULL) {
-        ff_memfree(g_fatfs[index].win);
+    if (fatfs->win != NULL) {
+        ff_memfree(fatfs->win);
     }
 
-    (void)memset_s(&g_fatfs[index], sizeof(FATFS), 0x0, sizeof(FATFS));
-    ret = FS_SUCCESS;
+    free(mp->mData);
+    mp->mData = NULL;
+
+    ret = LOS_OK;
 
 OUT:
+    PutLdPath(ldPath);
     FsUnlock();
     return ret;
 }
 
-int fatfs_open(const char *path, int oflag, ...)
+int FatfsOpen(struct File *file, const char *path, int oflag)
 {
     FRESULT res;
-    UINT32 i;
-    UINT32 openNum = 0;
     UINT32 fmode;
     INT32 ret;
-    FILINFO fileInfo = {0};
+    FIL *fp = NULL;
 
     if (path == NULL) {
         errno = EFAULT;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     fmode = FatFsGetMode(oflag);
 
+    fp = (FIL *)malloc(sizeof(FIL));
+    if (fp == NULL) {
+        errno = ENOMEM;
+        return LOS_NOK;
+    }
+
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
-    }
-
-    if (g_fileNum >= FAT_MAX_OPEN_FILES) {
-        PRINTK("FAT g_fileNum is out of range 0x%x!\r\n", g_fileNum);
-        errno = ENFILE;
-        ret = FS_FAILURE;
-        goto OUT;
-    }
-
-    for (i = 0; i < FAT_MAX_OPEN_FILES; i++) {
-        if (g_handle[i].useFlag == 0) {
-            openNum = i;
-            break;
-        }
-    }
-
-    if (i >= FAT_MAX_OPEN_FILES) {
-        PRINTK("FAT opennum is out of range 0x%x!\r\n", openNum);
-        errno = ENFILE;
-        ret = FS_FAILURE;
-        goto OUT;
+        free(fp);
+        return LOS_NOK;
     }
 
     ret = FsChangeDrive(path);
-    if (ret != FS_SUCCESS) {
-        PRINTK("FAT open ChangeDrive err 0x%x!\r\n", ret);
+    if (ret != LOS_OK) {
+        PRINT_ERR("FAT open ChangeDrive err 0x%x!\r\n", ret);
         errno = ENOENT;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
+        free(fp);
         goto OUT;
     }
 
-    /* cannot creat a new file in the write protected part */
-    if ((((UINT32)oflag & O_CREAT) != 0) && (!FsCheckByPath(path))) {
-        res = f_stat(path, &fileInfo);
-        if ((res == FR_NO_FILE) || (res == FR_NO_PATH)) {
-            PRINTK("FAT creat err 0x%x!\r\n", res);
-            errno = EACCES;
-            ret = FS_FAILURE;
-            goto OUT;
-        }
-    }
-
-    res = f_open(&g_handle[openNum].fil, path, fmode);
+    res = f_open(fp, path, fmode);
     if (res != FR_OK) {
-        PRINTK("FAT open err 0x%x!\r\n", res);
+        PRINT_ERR("FAT open err 0x%x!\r\n", res);
+        free(fp);
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
-    g_handle[openNum].useFlag = 1;
-    g_fileNum++;
-
-    ret = openNum;
+    file->fData = (void *)fp;
 
 OUT:
     FsUnlock();
     return ret;
 }
 
-int fatfs_close(int fd)
+int FatfsClose(struct File *file)
 {
     FRESULT res;
     INT32 ret;
+    FIL *fp = (FIL *)file->fData;
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    if (!IsValidFd(fd)) {
-        FsUnlock();
-        errno = EBADF;
-        return FS_FAILURE;
-    }
-
-    if (g_handle[fd].fil.obj.fs == NULL) {
+    if ((fp == NULL) || (fp->obj.fs == NULL)) {
         FsUnlock();
         errno = ENOENT;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    res = f_close(&g_handle[fd].fil);
+    res = f_close(fp);
     if (res != FR_OK) {
-        PRINTK("FAT close err 0x%x!\r\n", res);
+        PRINT_ERR("FAT close err 0x%x!\r\n", res);
         FsUnlock();
         errno = FatfsErrno(res);
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
 #if !FF_FS_TINY
-    if (g_handle[fd].fil.buf != NULL) {
-        (void)ff_memfree(g_handle[fd].fil.buf);
+    if (fp->buf != NULL) {
+        (void)ff_memfree(fp->buf);
     }
 #endif
-
-    (void)memset_s(&g_handle[fd], sizeof(FatHandleStruct), 0x0, sizeof(FatHandleStruct));
-
-    if (g_fileNum > 0) {
-        g_fileNum--;
-    }
-
+    free(file->fData);
+    file->fData = NULL;
     FsUnlock();
 
-    return FS_SUCCESS;
+    return LOS_OK;
 }
 
-ssize_t fatfs_read(int fd, void *buf, size_t nbyte)
+ssize_t FatfsRead(struct File *file, char *buf, size_t nbyte)
 {
     FRESULT res;
     INT32 ret;
     UINT32 lenRead;
+    FIL *fp = (FIL *)file->fData;
 
     if (buf == NULL) {
         errno = EFAULT;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
-
-    if (!IsValidFd(fd)) {
-        FsUnlock();
-        errno = EBADF;
-        return FS_FAILURE;
-    }
-
-    if (g_handle[fd].fil.obj.fs == NULL) {
+    if (fp == NULL) {
         FsUnlock();
         errno = ENOENT;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    res = f_read(&g_handle[fd].fil, buf, nbyte, &lenRead);
+    res = f_read(fp, buf, nbyte, &lenRead);
     if (res != FR_OK) {
         FsUnlock();
         errno = FatfsErrno(res);
-        return FS_FAILURE;
+        return LOS_NOK;
     }
     FsUnlock();
 
     return (ssize_t)lenRead;
 }
 
-ssize_t fatfs_write(int fd, const void *buf, size_t nbyte)
+ssize_t FatfsWrite(struct File *file, const char *buf, size_t nbyte)
 {
     FRESULT res;
     INT32 ret;
     UINT32 lenWrite;
     static BOOL overFlow = FALSE;
+    FIL *fp = (FIL *)file->fData;
 
     if (buf == NULL) {
         errno = EFAULT;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    if (!IsValidFd(fd)) {
-        errno = EBADF;
-        goto ERROUT;
-    }
-
-    if (g_handle[fd].fil.obj.fs == NULL) {
+    if ((fp ==NULL) || (fp->obj.fs == NULL)) {
         errno = ENOENT;
         goto ERROUT;
     }
 
-    if (!FsCheckByID(g_handle[fd].fil.obj.fs->id)) {
-        errno = EACCES;
-        goto ERROUT;
-    }
-
-    res = f_write(&g_handle[fd].fil, buf, nbyte, &lenWrite);
+    res = f_write(fp, buf, nbyte, &lenWrite);
     if ((res == FR_OK) && (lenWrite == 0) && (nbyte != 0) && (overFlow == FALSE)) {
         overFlow = TRUE;
-        PRINTK("FAT write err 0x%x!\r\n", fd);
+        PRINT_ERR("FAT write!\r\n");
     }
 
     if ((res != FR_OK) || (nbyte != lenWrite)) {
@@ -754,27 +597,23 @@ ssize_t fatfs_write(int fd, const void *buf, size_t nbyte)
 
 ERROUT:
     FsUnlock();
-    return FS_FAILURE;
+    return LOS_NOK;
 }
 
-off_t fatfs_lseek(int fd, off_t offset, int whence)
+off_t FatfsLseek(struct File *file, off_t offset, int whence)
 {
     FRESULT res;
     INT32 ret;
     off_t pos;
+    FIL *fp = (FIL *)file->fData;
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    if (!IsValidFd(fd)) {
-        errno = EBADF;
-        goto ERROUT;
-    }
-
-    if (g_handle[fd].fil.obj.fs == NULL) {
+    if ((fp == NULL) || (fp->obj.fs == NULL)) {
         errno = ENOENT;
         goto ERROUT;
     }
@@ -782,116 +621,76 @@ off_t fatfs_lseek(int fd, off_t offset, int whence)
     if (whence == SEEK_SET) {
         pos = 0;
     } else if (whence == SEEK_CUR) {
-        pos = f_tell(&g_handle[fd].fil);
+        pos = f_tell(fp);
     } else if (whence == SEEK_END) {
-        pos = f_size(&g_handle[fd].fil);
+        pos = f_size(fp);
     } else {
         errno = EINVAL;
         goto ERROUT;
     }
 
-    res = f_lseek(&g_handle[fd].fil, offset + pos);
+    res = f_lseek(fp, offset + pos);
     if (res != FR_OK) {
         errno = FatfsErrno(res);
         goto ERROUT;
     }
 
-    pos = f_tell(&g_handle[fd].fil);
+    pos = f_tell(fp);
     FsUnlock();
     return pos;
 
 ERROUT:
     FsUnlock();
-    return FS_FAILURE;
+    return LOS_NOK;
 }
 
 /* Remove the specified FILE */
-int fatfs_unlink(const char *path)
+int FatfsUnlink(struct MountPoint *mp, const char *path)
 {
     FRESULT res;
     INT32 ret;
 
     if (path == NULL) {
         errno = EFAULT;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    if (!FsCheckByPath(path)) {
+    if (!mp->mWriteEnable) {
         errno = EACCES;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
     ret = FsChangeDrive(path);
-    if (ret != FS_SUCCESS) {
-        PRINTK("FAT ulink ChangeDrive err 0x%x!\r\n", ret);
+    if (ret != LOS_OK) {
+        PRINT_ERR("FAT unlink ChangeDrive err 0x%x!\r\n", ret);
         errno = ENOENT;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
     res = f_unlink(path);
     if (res != FR_OK) {
-        PRINTK("FAT ulink err 0x%x!\r\n", res);
+        PRINT_ERR("FAT unlink err 0x%x!\r\n", res);
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
-    ret = FS_SUCCESS;
+    ret = LOS_OK;
 
 OUT:
     FsUnlock();
     return ret;
 }
 
-/* Return information about a file */
-int fatfs_fstat(int fd, struct stat *buf)
-{
-    INT32 ret;
-
-    if (buf == NULL) {
-        errno = EFAULT;
-        return FS_FAILURE;
-    }
-
-    ret = FsLock();
-    if (ret != 0) {
-        errno = ret;
-        return FS_FAILURE;
-    }
-
-    if (!IsValidFd(fd)) {
-        FsUnlock();
-        errno = EBADF;
-        return FS_FAILURE;
-    }
-
-    if (g_handle[fd].fil.obj.fs == NULL) {
-        FsUnlock();
-        errno = ENOENT;
-        return FS_FAILURE;
-    }
-
-    buf->st_size = f_size(&g_handle[fd].fil);
-    buf->st_mode = S_IFREG | S_IRUSR | S_IRGRP | S_IROTH |
-                   S_IWUSR | S_IWGRP | S_IWOTH |
-                   S_IXUSR | S_IXGRP | S_IXOTH;
-    if (g_handle[fd].fil.obj.attr & AM_RDO) {
-        buf->st_mode &= ~(S_IWUSR | S_IWGRP | S_IWOTH);
-    }
-
-    FsUnlock();
-    return FS_SUCCESS;
-}
-
-int fatfs_stat(const char *path, struct stat *buf)
+int FatfsStat(struct MountPoint *mp, const char *path, struct stat *buf)
 {
     FRESULT res;
     FILINFO fileInfo = {0};
@@ -899,28 +698,28 @@ int fatfs_stat(const char *path, struct stat *buf)
 
     if ((path == NULL) || (buf == NULL)) {
         errno = EFAULT;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsChangeDrive(path);
-    if (ret != FS_SUCCESS) {
-        PRINTK("FAT stat ChangeDrive err 0x%x!\r\n", ret);
+    if (ret != LOS_OK) {
+        PRINT_ERR("FAT stat ChangeDrive err 0x%x!\r\n", ret);
         errno = ENOENT;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
     res = f_stat(path, &fileInfo);
     if (res != FR_OK) {
-        PRINTK("FAT stat err 0x%x!\r\n", res);
+        PRINT_ERR("FAT stat err 0x%x!\r\n", res);
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
@@ -938,7 +737,7 @@ int fatfs_stat(const char *path, struct stat *buf)
         buf->st_mode |= S_IFDIR;
     }
 
-    ret = FS_SUCCESS;
+    ret = LOS_OK;
 
 OUT:
     FsUnlock();
@@ -946,311 +745,294 @@ OUT:
 }
 
 /* Synchronize all changes to Flash */
-int fatfs_fsync(int fd)
+int FatfsSync(struct File *file)
 {
     FRESULT res;
     INT32 ret;
+    FIL *fp = (FIL *)file->fData;
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    if (!IsValidFd(fd)) {
-        errno = EBADF;
-        ret = FS_FAILURE;
-        goto OUT;
-    }
-
-    if (g_handle[fd].fil.obj.fs == NULL) {
+    if ((fp == NULL) || (fp->obj.fs == NULL)) {
         errno = ENOENT;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
-    if (!FsCheckByID(g_handle[fd].fil.obj.fs->id)) {
-        errno = EACCES;
-        ret = FS_FAILURE;
-        goto OUT;
-    }
-
-    res = f_sync(&g_handle[fd].fil);
+    res = f_sync(fp);
     if (res != FR_OK) {
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
-    ret = FS_SUCCESS;
+    ret = LOS_OK;
 
 OUT:
     FsUnlock();
     return ret;
 }
 
-int fatfs_mkdir(const char *path, mode_t mode)
+int FatfsMkdir(struct MountPoint *mp, const char *path)
 {
     FRESULT res;
     INT32 ret;
 
     if (path == NULL) {
         errno = EFAULT;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    if (!FsCheckByPath(path)) {
+    if (!mp->mWriteEnable) {
         errno = EACCES;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
     ret = FsChangeDrive(path);
-    if (ret != FS_SUCCESS) {
-        PRINTK("FAT mkdir ChangeDrive err 0x%x!\r\n", ret);
+    if (ret != LOS_OK) {
+        PRINT_ERR("FAT mkdir ChangeDrive err 0x%x!\r\n", ret);
         errno = ENOENT;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
     res = f_mkdir(path);
     if (res != FR_OK) {
-        PRINTK("FAT mkdir err 0x%x!\r\n", res);
+        PRINT_ERR("FAT mkdir err 0x%x!\r\n", res);
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
-    ret = FS_SUCCESS;
+    ret = LOS_OK;
 
 OUT:
     FsUnlock();
     return ret;
 }
 
-DIR *fatfs_opendir(const char *dirName)
+int FatfsOpendir(struct Dir *dir, const char *dirName)
 {
     FRESULT res;
-    UINT32 openNum = 0;
-    UINT32 i;
     INT32 ret;
+    DIR *dp = NULL;
 
     if (dirName == NULL) {
         errno = EFAULT;
-        return NULL;
+        goto ERROUT;
+    }
+
+    dp = (DIR *)malloc(sizeof(DIR));
+    if (dp == NULL) {
+        errno = ENOENT;
+        goto ERROUT;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return NULL;
-    }
-
-    if (g_dirNum >= FAT_MAX_OPEN_DIRS) {
-        PRINTK("FAT opendir g_dirNum err 0x%x!\r\n", g_dirNum);
-        errno = ENFILE;
-        goto ERROUT;
-    }
-
-    for (i = 0; i < FAT_MAX_OPEN_DIRS; i++) {
-        if (g_dir[i].dir == NULL) {
-            openNum = i;
-            break;
-        }
-    }
-
-    if (i >= FAT_MAX_OPEN_DIRS) {
-        PRINTK("FAT dir opennum is out of range 0x%x!\r\n", openNum);
-        errno = ENFILE;
         goto ERROUT;
     }
 
     ret = FsChangeDrive(dirName);
-    if (ret != FS_SUCCESS) {
-        PRINTK("FAT opendir ChangeDrive err 0x%x!\r\n", ret);
+    if (ret != LOS_OK) {
+        PRINT_ERR("FAT opendir ChangeDrive err 0x%x!\r\n", ret);
         errno = ENOENT;
         goto ERROUT;
     }
 
-    res = f_opendir(&g_dir[openNum], dirName);
+    res = f_opendir(dp, dirName);
     if (res != FR_OK) {
-        g_dir[openNum].dir = NULL;
-        PRINTK("FAT opendir err 0x%x!\r\n", res);
+        PRINT_ERR("FAT opendir err 0x%x!\r\n", res);
         errno = FatfsErrno(res);
         goto ERROUT;
     }
 
-    g_dirNum++;
+    dir->dData = dp;
+    dir->dOffset = 0;
 
     FsUnlock();
-    return &g_dir[openNum];
+    return LOS_OK;
 
 ERROUT:
+    if (dp != NULL) {
+        free(dp);
+    }
     FsUnlock();
-    return NULL;
+    return LOS_NOK;
 }
 
-struct dirent *fatfs_readdir(DIR *dir)
+int FatfsReaddir(struct Dir *dir, struct dirent *dent)
 {
     FRESULT res;
     INT32 ret;
     FILINFO fileInfo = {0};
+    DIR *dp = NULL;
 
-    if (dir == NULL) {
+    if ((dir == NULL) || (dir->dData == NULL)) {
         errno = EBADF;
-        return NULL;
+        return LOS_NOK;
     }
 
+    dp = (DIR *)dir->dData;
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return NULL;
+        return LOS_NOK;
     }
 
-    res = f_readdir(dir, &fileInfo);
+    res = f_readdir(dp, &fileInfo);
     /* if res not ok or fname is NULL , return NULL */
     if ((res != FR_OK) || (fileInfo.fname[0] == 0x0)) {
-        PRINTK("FAT readdir err 0x%x!\r\n", res);
+        PRINT_ERR("FAT readdir err 0x%x!\r\n", res);
         errno = FatfsErrno(res);
         FsUnlock();
-        return NULL;
+        return LOS_NOK;
     }
 
-    (void)memcpy_s(g_retValue.d_name, sizeof(g_retValue.d_name), fileInfo.fname, sizeof(g_retValue.d_name));
+    (void)memcpy_s(dent->d_name, sizeof(dent->d_name),
+            fileInfo.fname, sizeof(dent->d_name));
     if (fileInfo.fattrib & AM_DIR) {
-        g_retValue.d_type = DT_DIR;
+        dent->d_type = DT_DIR;
     } else {
-        g_retValue.d_type = DT_REG;
+        dent->d_type = DT_REG;
     }
     FsUnlock();
 
-    return &g_retValue;
+    return LOS_OK;
 }
 
-int fatfs_closedir(DIR *dir)
+int FatfsClosedir(struct Dir *dir)
 {
     FRESULT res;
     INT32 ret;
+    DIR *dp = NULL;
 
-    if (dir == NULL) {
+    if ((dir == NULL) || (dir->dData == NULL)) {
         errno = EBADF;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
+    dp = dir->dData;
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    g_dirNum--;
-
-    res = f_closedir(dir);
+    res = f_closedir(dp);
     if (res != FR_OK) {
-        PRINTK("FAT closedir err 0x%x!\r\n", res);
+        PRINT_ERR("FAT closedir err 0x%x!\r\n", res);
         FsUnlock();
         errno = FatfsErrno(res);
-        return FS_FAILURE;
+        return LOS_NOK;
     }
-    dir->dir = NULL;
+
+    free(dir->dData);
+    dir->dData = NULL;
     FsUnlock();
 
-    return FS_SUCCESS;
+    return LOS_OK;
 }
 
-int fatfs_rmdir(const char *path)
+int FatfsRmdir(struct MountPoint *mp, const char *path)
 {
     FRESULT res;
     INT32 ret;
 
-    if (path == NULL) {
+    if ((path == NULL) || (mp == NULL)) {
         errno = EFAULT;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    if (!FsCheckByPath(path)) {
+    if (!mp->mWriteEnable) {
         errno = EACCES;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
     ret = FsChangeDrive(path);
-    if (ret != FS_SUCCESS) {
-        PRINTK("FAT rmdir ChangeDrive err 0x%x!\r\n", ret);
+    if (ret != LOS_OK) {
+        PRINT_ERR("FAT rmdir ChangeDrive err 0x%x!\r\n", ret);
         errno = ENOENT;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
     res = f_rmdir(path);
     if (res != FR_OK) {
-        PRINTK("FAT rmdir err 0x%x!\r\n", res);
+        PRINT_ERR("FAT rmdir err 0x%x!\r\n", res);
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
-    ret = FS_SUCCESS;
+    ret = LOS_OK;
 
 OUT:
     FsUnlock();
     return ret;
 }
 
-int fatfs_rename(const char *oldName, const char *newName)
+int FatfsRename(struct MountPoint *mp, const char *oldName, const char *newName)
 {
     FRESULT res;
     INT32 ret;
 
     if ((oldName == NULL) || (newName == NULL)) {
         errno = EFAULT;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    if (!FsCheckByPath(oldName) || !FsCheckByPath(newName)) {
+    if (!mp->mWriteEnable) {
         errno = EACCES;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
     ret = FsChangeDrive(oldName);
-    if (ret != FS_SUCCESS) {
-        PRINTK("FAT f_getfree ChangeDrive err 0x%x!\r\n", ret);
+    if (ret != LOS_OK) {
+        PRINT_ERR("FAT f_getfree ChangeDrive err 0x%x!\r\n", ret);
         errno = ENOENT;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
     res = f_rename(oldName, newName);
     if (res != FR_OK) {
-        PRINTK("FAT frename err 0x%x!\r\n", res);
+        PRINT_ERR("FAT frename err 0x%x!\r\n", res);
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
-    ret = FS_SUCCESS;
+    ret = LOS_OK;
 
 OUT:
     FsUnlock();
     return ret;
 }
 
-int fatfs_statfs(const char *path, struct statfs *buf)
+int FatfsStatfs(const char *path, struct statfs *buf)
 {
     FATFS *fs = NULL;
     UINT32 freeClust;
@@ -1259,28 +1041,28 @@ int fatfs_statfs(const char *path, struct statfs *buf)
 
     if ((path == NULL) || (buf == NULL)) {
         errno = EFAULT;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsChangeDrive(path);
     if (ret != FR_OK) {
-        PRINTK("FAT f_getfree ChangeDrive err %d.", ret);
+        PRINT_ERR("FAT f_getfree ChangeDrive err %d.", ret);
         errno = FatfsErrno(FR_INVALID_PARAMETER);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
     res = f_getfree(path, &freeClust, &fs);
     if (res != FR_OK) {
-        PRINTK("FAT f_getfree err 0x%x.", res);
+        PRINT_ERR("FAT f_getfree err 0x%x.", res);
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
     buf->f_bfree  = freeClust;
@@ -1293,315 +1075,203 @@ int fatfs_statfs(const char *path, struct statfs *buf)
     buf->f_bsize  = FF_MIN_SS * fs->csize;
 #endif
 
-    ret = FS_SUCCESS;
+    ret = LOS_OK;
 
 OUT:
     FsUnlock();
     return ret;
 }
 
-static int do_truncate(int fd, off_t length, UINT count)
+static int DoTruncate(struct File *file, off_t length, UINT32 count)
 {
     FRESULT res = FR_OK;
-    INT32 ret = FS_SUCCESS;
+    INT32 ret = LOS_OK;
     DWORD csz;
+    FIL *fp = (FIL *)file->fData;
 
-    csz = (DWORD)(g_handle[fd].fil.obj.fs)->csize * SS(g_handle[fd].fil.obj.fs); /* Cluster size */
+    csz = (DWORD)(fp->obj.fs)->csize * SS(fp->obj.fs); /* Cluster size */
     if (length > csz * count) {
 #if FF_USE_EXPAND
-        res = f_expand(&g_handle[fd].fil, 0, (FSIZE_t)(length), FALLOC_FL_KEEP_SIZE);
+        res = f_expand(fp, 0, (FSIZE_t)(length), FALLOC_FL_KEEP_SIZE);
 #else
         errno = ENOSYS;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         return ret;
 #endif
     } else if (length < csz * count) {
-        res = f_truncate(&g_handle[fd].fil, (FSIZE_t)length);
+        res = f_truncate(fp, (FSIZE_t)length);
     }
 
     if (res != FR_OK) {
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         return ret;
     }
 
-    g_handle[fd].fil.obj.objsize = length; /* Set file size to length */
-    g_handle[fd].fil.flag |= 0x40; /* Set modified flag */
+    fp->obj.objsize = length; /* Set file size to length */
+    fp->flag |= 0x40; /* Set modified flag */
 
     return ret;
 }
 
-int fatfs_ftruncate(int fd, off_t length)
+int FatfsTruncate(struct File *file, off_t length)
 {
     FRESULT res;
     INT32 ret;
     UINT count;
     DWORD fclust;
+    FIL *fp = (FIL *)file->fData;
 
     if ((length < 0) || (length > UINT_MAX)) {
         errno = EINVAL;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
-    if (!IsValidFd(fd)) {
-        errno = EBADF;
-        ret = FS_FAILURE;
-        goto OUT;
-    }
-
-    if (g_handle[fd].fil.obj.fs == NULL) {
+    if ((fp == NULL) || (fp->obj.fs == NULL)) {
         errno = ENOENT;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
-    if (!FsCheckByID(g_handle[fd].fil.obj.fs->id)) {
-        errno = EACCES;
-        ret = FS_FAILURE;
-        goto OUT;
-    }
-
-    res = f_getclustinfo(&g_handle[fd].fil, &fclust, &count);
+    res = f_getclustinfo(fp, &fclust, &count);
     if (res != FR_OK) {
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
-    ret = do_truncate(fd, length, count);
+    ret = DoTruncate(file, length, count);
     if (ret != FR_OK) {
         goto OUT;
     }
 
-    ret = FS_SUCCESS;
+    ret = LOS_OK;
 
 OUT:
     FsUnlock();
     return ret;
 }
 
-int fatfs_fdisk(int pdrv, const unsigned int *partTbl)
+int FatfsFdisk(const char *dev, int *partTbl, int arrayNum)
 {
-    INT32 index;
+    int pdrv;
     FRESULT res;
     INT32 ret;
 
-    if (partTbl == NULL) {
+    if ((dev == NULL) || (partTbl == NULL)) {
         errno = EFAULT;
-        return FS_FAILURE;
+        return LOS_NOK;
+    }
+
+    pdrv = GetDevIdByDevName(dev);
+    if (pdrv < 0) {
+        errno = EFAULT;
+        return LOS_NOK;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
-    }
-
-    /* fdisk is not allowed when the device has been mounted. */
-    for (index = 0; index < FF_VOLUMES; index++) {
-        if ((g_fatfs[index].pdrv == pdrv) && (g_fatfs[index].fs_type != 0)) {
-            errno = EBUSY;
-            ret = FS_FAILURE;
-            goto OUT;
-        }
     }
 
     res = f_fdisk(pdrv, (DWORD const *)partTbl, g_workBuffer);
     if (res != FR_OK) {
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
-    ret = FS_SUCCESS;
+    ret = LOS_OK;
 
 OUT:
     FsUnlock();
     return ret;
 }
 
-int fatfs_format(const char *dev, int sectors, int option)
+int FatfsFormat(const char *partName, void *privData)
 {
-    INT32 index;
     FRESULT res;
     INT32 ret;
     MKFS_PARM opt = {0};
+    int option = *(int *)privData;
+    char *dev = NULL; /* logical driver */
 
+    if (partName == NULL) {
+        errno = EFAULT;
+        return LOS_NOK;
+    }
+
+    dev = GetLdPath(partName);
     if (dev == NULL) {
         errno = EFAULT;
-        return FS_FAILURE;
+        return LOS_NOK;
     }
 
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        return FS_FAILURE;
+        PutLdPath(dev);
+        return LOS_NOK;
     }
 
-    index = FsPartitionMatch(dev, VOLUME_NAME);
-    if (index == FS_FAILURE) {
-        errno = ENOENT;
-        ret = FS_FAILURE;
-        goto OUT;
-    }
-
-    /* format is not allowed when the device has been mounted. */
-    if (g_fatfs[index].fs_type != 0) {
-        errno = EBUSY;
-        ret = FS_FAILURE;
-        goto OUT;
-    }
-
-    opt.fmt = option,
-    opt.n_sect = sectors,
+    opt.fmt = option;
+    opt.n_sect = 0; /* use default allocation unit size depends on the volume
+                       size. */
     res = f_mkfs(dev, &opt, g_workBuffer, FF_MAX_SS);
     if (res != FR_OK) {
         errno = FatfsErrno(res);
-        ret = FS_FAILURE;
+        ret = LOS_NOK;
         goto OUT;
     }
 
-    ret = FS_SUCCESS;
+    ret = LOS_OK;
 
 OUT:
+    PutLdPath(dev);
     FsUnlock();
     return ret;
 }
 
-ssize_t fatfs_pread(int fd, void *buf, size_t nbyte, off_t offset)
-{
-    INT32 ret;
-    off_t savepos, pos;
-
-    if (buf == NULL) {
-        errno = EFAULT;
-        return FS_FAILURE;
-    }
-
-    ret = FsLock();
-    if (ret != 0) {
-        errno = ret;
-        return FS_FAILURE;
-    }
-
-    if (!IsValidFd(fd)) {
-        FsUnlock();
-        errno = EBADF;
-        return FS_FAILURE;
-    }
-
-    savepos = (off_t)fatfs_lseek(fd, 0, SEEK_CUR);
-    if (savepos == (off_t)-1) {
-        errno = FatfsErrno(savepos);
-        return FS_FAILURE;
-    }
-
-    pos = (off_t)fatfs_lseek(fd, offset, SEEK_SET);
-    if (pos == (off_t)-1) {
-        errno = FatfsErrno(pos);
-        return FS_FAILURE;
-    }
-
-    ret = fatfs_read(fd, buf, nbyte);
-    if (ret < 0) {
-        FsUnlock();
-        errno = FatfsErrno(ret);
-        return FS_FAILURE;
-    }
-
-    pos = (off_t)fatfs_lseek(fd, savepos, SEEK_SET);
-    if ((pos == (off_t)-1) && (ret >= 0)) {
-        errno = FatfsErrno(pos);
-        return FS_FAILURE;
-    }
-
-    FsUnlock();
-
-    return (ssize_t)ret;
-}
-
-ssize_t fatfs_pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
-{
-    INT32 ret;
-    off_t savepos, pos;
-
-    if (buf == NULL) {
-        errno = EFAULT;
-        return FS_FAILURE;
-    }
-
-    ret = FsLock();
-    if (ret != 0) {
-        errno = ret;
-        return FS_FAILURE;
-    }
-
-    if (!IsValidFd(fd)) {
-        FsUnlock();
-        errno = EBADF;
-        return FS_FAILURE;
-    }
-
-    savepos = (off_t)fatfs_lseek(fd, 0, SEEK_CUR);
-    if (savepos == (off_t)-1) {
-        errno = FatfsErrno(savepos);
-        return FS_FAILURE;
-    }
-
-    pos = (off_t)fatfs_lseek(fd, offset, SEEK_SET);
-    if (pos == (off_t)-1) {
-        errno = FatfsErrno(pos);
-        return FS_FAILURE;
-    }
-
-    ret = fatfs_write(fd, buf, nbyte);
-    if (ret < 0) {
-        FsUnlock();
-        errno = FatfsErrno(ret);
-        return FS_FAILURE;
-    }
-
-    pos = (off_t)fatfs_lseek(fd, savepos, SEEK_SET);
-    if ((pos == (off_t)-1) && (ret >= 0)) {
-        errno = FatfsErrno(pos);
-        return FS_FAILURE;
-    }
-
-    FsUnlock();
-
-    return (ssize_t)ret;
-}
-
-struct MountOps g_fatfsMnt = {
-    .Mount = fatfs_mount,
-    .Umount = fatfs_umount,
-    .Umount2 = fatfs_umount2,
-    .Statfs = fatfs_statfs,
+static struct MountOps g_fatfsMnt = {
+    .mount = FatfsMount,
+    .umount = FatfsUmount,
+    .umount2 = FatfsUmount2,
+    .statfs = FatfsStatfs,
 };
 
-struct FileOps g_fatfsFops = {
-    .Mkdir = fatfs_mkdir,
-    .Unlink = fatfs_unlink,
-    .Rmdir = fatfs_rmdir,
-    .Opendir = fatfs_opendir,
-    .Readdir = fatfs_readdir,
-    .Closedir = fatfs_closedir,
-    .Open = fatfs_open,
-    .Close = fatfs_close,
-    .Write = fatfs_write,
-    .Read = fatfs_read,
-    .Seek = fatfs_lseek,
-    .Rename = fatfs_rename,
-    .Getattr = fatfs_stat,
-    .Fsync = fatfs_fsync,
-    .Fstat = fatfs_fstat,
-    .Pread = fatfs_pread,
-    .Pwrite = fatfs_pwrite,
+static struct FileOps g_fatfsFops = {
+    .open = FatfsOpen,
+    .close = FatfsClose,
+    .read = FatfsRead,
+    .write = FatfsWrite,
+    .lseek = FatfsLseek,
+    .stat = FatfsStat,
+    .truncate = FatfsTruncate,
+    .unlink = FatfsUnlink,
+    .rename = FatfsRename,
+    .ioctl = NULL, /* not support */
+    .sync = FatfsSync,
+    .opendir = FatfsOpendir,
+    .readdir = FatfsReaddir,
+    .closedir = FatfsClosedir,
+    .mkdir = FatfsMkdir,
+    .rmdir = FatfsRmdir,
 };
+
+static struct FsManagement g_fatfsMgt = {
+    .fdisk = FatfsFdisk,
+    .format = FatfsFormat,
+};
+
+void FatFsInit(void)
+{
+    (void)OsFsRegister("vfat", &g_fatfsMnt, &g_fatfsFops, &g_fatfsMgt);
+}

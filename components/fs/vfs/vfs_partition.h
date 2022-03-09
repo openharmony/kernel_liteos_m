@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,10 +28,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _FATFS_H
-#define _FATFS_H
-
-#include "ff.h"
+#ifndef _VFS_PARTITION_H_
+#define _VFS_PARTITION_H_
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -40,7 +37,10 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-void FatFsInit(void);
+#define MAX_PARTITION_NUM 4
+
+int GetPartIdByPartName(const char *partName);
+int GetDevIdByDevName(const char *dev);
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -48,4 +48,4 @@ void FatFsInit(void);
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* _FATFS_H */
+#endif /* _VFS_PARTITION_H_ */
