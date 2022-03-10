@@ -123,7 +123,7 @@ static void *SampleUdpClient()
     clnAddr.sin_port = htons(g_udpPort);
 
     printf("c3\r\n");
-    strcpy_s(buf, sizeof(buf), UDPMSG);
+    (void)strcpy_s(buf, sizeof(buf), UDPMSG);
 
     usleep(sleepSec);
     printf("c4, %s, %d\r\n", buf, strlen(buf));
@@ -266,7 +266,7 @@ static void *SampleTcpClient()
     if (err != EOK) {
         return (void *)(intptr_t)ret;
     }
-    strcpy_s(buf, sizeof(buf), CLI_MSG);
+    (void)strcpy_s(buf, sizeof(buf), CLI_MSG);
 
     int num2 = *(int *)DT_SetGetS32(&g_element[1], 0);
     send(num1, buf, strlen(CLI_MSG), num2);
