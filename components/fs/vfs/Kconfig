@@ -33,6 +33,3 @@ config FS_VFS
 
     help
       Answer Y to enable LiteOS support VFS.
-
-source "components/fs/littlefs/Kconfig"
-source "components/fs/fatfs/Kconfig"
