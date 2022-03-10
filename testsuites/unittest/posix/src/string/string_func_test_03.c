@@ -211,7 +211,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrcspn002, Function | MediumTes
 LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrptime001, Function | MediumTest | Level1)
 {
     struct tm tmData;
-    memset_s(&tmData, sizeof(struct tm), 0, sizeof(struct tm));
+    (void)memset_s(&tmData, sizeof(struct tm), 0, sizeof(struct tm));
     char *ret = strptime("2020-10-29 21:24:00abc", "%Y-%m-%d %H:%M:%S", &tmData);
     TEST_ASSERT_EQUAL_CHAR_ARRAY(ret, "abc", 3);
     TEST_ASSERT_EQUAL_INT(tmData.tm_year, 120);
