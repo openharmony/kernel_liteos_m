@@ -36,8 +36,3 @@ config FS_FAT
     help
       Answer Y to enable LiteOS support fat filesystem.
 
-config SUPPORT_FATFS
-    bool
-    depends on FS_FAT
-    default n
-
