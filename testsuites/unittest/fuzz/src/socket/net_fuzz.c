@@ -211,7 +211,6 @@ static void *SampleTcpServer()
     struct sockaddr_in clnAddr = { 0 };
     int ret;
 
-    // socket had fuzz test in udpfun. now must create a useful fd, wwx520273
     lsfd = socket(AF_INET, SOCK_STREAM, 0);
 
     srvAddr.sin_family = AF_INET;
