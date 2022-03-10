@@ -1,6 +1,3 @@
-#ifndef _ADAPT_SYS_PRCTL_H
-#define _ADAPT_SYS_PRCTL_H
-
 /*
  * Copyright (c) 2021-2021 Huawei Device Co., Ltd. All rights reserved.
  *
@@ -30,6 +27,9 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#ifndef _ADAPT_SYS_PRCTL_H
+#define _ADAPT_SYS_PRCTL_H
 
 #ifdef __cplusplus
 extern "C" {
