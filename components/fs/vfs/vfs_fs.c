@@ -683,6 +683,7 @@ static DIR *VfsOpendir(const char *path)
         mp->mRefs++;
     } else {
         free(dir);
+        dir = NULL;
     }
 
     VfsUnlock();
