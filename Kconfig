@@ -604,6 +604,7 @@ config SECURE_TRUSTZONE
     bool "Enable ARM TrustZone"
     default n
     depends on ARCH_ARM
+    select ARCH_ARM_V8M
 config SECURE_HEAP_SIZE
     int "TrustZone Heap Size (bytes)"
     default 2048
