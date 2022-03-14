@@ -16,12 +16,16 @@ config ARCH_ARM_AARCH32
 config ARCH_ARM_V7M
     bool
 
+config ARCH_ARM_V8M
+    bool
+
 config ARCH_ARM_V5TE
     bool
 
 config ARCH_ARM_VER
     string
     default "armv7-m" if ARCH_ARM_V7M
+    default "armv8-m" if ARCH_ARM_V8M
     default "armv5te" if ARCH_ARM_V5TE
 
 #
@@ -96,7 +100,7 @@ config ARCH_CORTEX_M33
 
 config ARCH_CORTEX_M55
     bool
-    select ARCH_ARM_V7M
+    select ARCH_ARM_V8M
     select ARCH_ARM_AARCH32
     select ARCH_FPU_VFP_V4
     select ARCH_FPU_VFP_D32
