@@ -46,6 +46,7 @@ extern int g_iteration;
 void ReallocFuzzTest(void)
 {
     char *source = NULL;
+    char *buf = NULL;
     int c;
 
     printf("Fuzz test in line [%d] realloc start\n", __LINE__);
@@ -59,6 +60,7 @@ void ReallocFuzzTest(void)
     INIT_FuzzEnvironment();
     CreatPrecondForQueue();
     for (int i = 0; i < CYCLE_TOTAL_TIMES; i++) {
+        source = buf;
         hi_watchdog_feed();
         heartbeatPrint(i);
 
@@ -66,10 +68,13 @@ void ReallocFuzzTest(void)
         if ((c <= 0) || (c > TEST_MAX_BUF_LEN)) {
             c = TEST_BUF_LEN;
         }
-        source = (char *)realloc(source, c);
+        buf = (char *)realloc(source, c);
+        if (buf == NULL) {
+            break;
+        }
     }
 
-    if (source == NULL) {
+    if (buf == NULL) {
         free(source);
     }
 
