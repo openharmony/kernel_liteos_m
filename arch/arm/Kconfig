@@ -88,15 +88,13 @@ config ARCH_CORTEX_M7
     select ARCH_ARM_AARCH32
     select ARCH_FPU_VFP_V4
     select ARCH_FPU_VFP_D32
-    select ARCH_FPU_VFP_NEON
 
 config ARCH_CORTEX_M33
     bool
-    select ARCH_ARM_V7M
+    select ARCH_ARM_V8M
     select ARCH_ARM_AARCH32
     select ARCH_FPU_VFP_V4
     select ARCH_FPU_VFP_D32
-    select ARCH_FPU_VFP_NEON
 
 config ARCH_CORTEX_M55
     bool
@@ -104,7 +102,6 @@ config ARCH_CORTEX_M55
     select ARCH_ARM_AARCH32
     select ARCH_FPU_VFP_V4
     select ARCH_FPU_VFP_D32
-    select ARCH_FPU_VFP_NEON
 
 config ARCH_ARM9
     bool
