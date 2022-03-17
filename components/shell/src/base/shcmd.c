@@ -51,6 +51,7 @@ CmdItem g_shellcmdAll[] = {
     {CMD_TYPE_EX, "ifconfig", XARGS, (CmdCallBackFunc)lwip_ifconfig},
     {CMD_TYPE_EX, "ping", XARGS, (CmdCallBackFunc)OsShellPing},
 #endif
+#if LOSCFG_FS_VFS
     {CMD_TYPE_EX, "touch", XARGS, (CmdCallBackFunc)OsShellCmdTouch},
     {CMD_TYPE_EX, "ls", XARGS, (CmdCallBackFunc)OsShellCmdLs},
     {CMD_TYPE_EX, "pwd", XARGS, (CmdCallBackFunc)OsShellCmdPwd},
@@ -60,6 +61,8 @@ CmdItem g_shellcmdAll[] = {
     {CMD_TYPE_EX, "rmdir", XARGS, (CmdCallBackFunc)OsShellCmdRmdir},
     {CMD_TYPE_EX, "mkdir", XARGS, (CmdCallBackFunc)OsShellCmdMkdir},
     {CMD_TYPE_EX, "cp", XARGS, (CmdCallBackFunc)OsShellCmdCp},
+#endif
+
     {CMD_TYPE_EX, "help", 0, (CmdCallBackFunc)OsShellCmdHelp},
 };
 

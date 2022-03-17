@@ -31,7 +31,6 @@
 #include <fcntl.h>
 #include <poll.h>
 #include "securec.h"
-#include "los_fs.h"
 #include "los_list.h"
 #include "los_mux.h"
 #include "los_sem.h"
