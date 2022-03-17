@@ -30,7 +30,6 @@
  */
 
 #include "stdarg.h"
-#include "vfs_operations.h"
 #include "los_arch.h"
 #include "los_config.h"
 #include "los_debug.h"
@@ -86,6 +85,10 @@
 #if (LOSCFG_SECURE == 1)
 #include "los_syscall.h"
 #include "los_box.h"
+#endif
+
+#if (LOSCFG_FS_VFS == 1)
+#include "vfs_operations.h"
 #endif
 
 /*****************************************************************************

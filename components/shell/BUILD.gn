@@ -42,10 +42,12 @@ kernel_module(module_name) {
     "src/cmds/mempt_shellcmd.c",
     "src/cmds/shell_shellcmd.c",
     "src/cmds/task_shellcmd.c",
-    "src/cmds/vfs_shellcmd.c",
   ]
   if (defined(LOSCFG_NET_LWIP_SACK)) {
     defines = [ "LWIP_SHELLCMD_ENABLE" ]
+  }
+  if (defined(LOSCFG_FS_VFS)) {
+    sources += [ "src/cmds/vfs_shellcmd.c" ]
   }
 }
 

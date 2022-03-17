@@ -33,12 +33,11 @@ import("//third_party/musl/porting/liteos_m/kernel/musl.gni")
 module_switch = defined(LOSCFG_LIBC_MUSL)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
-  sources = [ "malloc.c" ]
+  sources = [
+    "fs.c",
+    "malloc.c",
+  ]
   configs += [ "$LITEOSTOPDIR:warn_config" ]
-
-  if (defined(LOSCFG_LIBC_MUSL_FS)) {
-    sources += [ "fs.c" ]
-  }
 
   deps = [ "//third_party/musl/porting/liteos_m/kernel" ]
 }

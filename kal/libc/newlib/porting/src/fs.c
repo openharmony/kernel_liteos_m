@@ -29,10 +29,15 @@
  */
 
 #include "los_config.h"
-#include "los_fs.h"
 #include "stdio.h"
 #include "stdarg.h"
 #include <sys/ioctl.h>
+
+#ifdef LOSCFG_LIBC_NEWLIB_FS
+#include "los_fs.h"
+#else
+#include "sys/stat.h"
+#endif
 
 #ifdef LOSCFG_LIBC_NEWLIB_FS
 int mount(const char *source, const char *target,
