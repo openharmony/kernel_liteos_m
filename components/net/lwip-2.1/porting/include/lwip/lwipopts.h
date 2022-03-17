@@ -178,6 +178,11 @@
 #define NO_SYS                          0
 #define TCP_QUEUE_OOSEQ                 LWIP_TCP
 
+#if defined LWIP_STATS_DISPLAY && !LWIP_STATS
+#undef LWIP_STATS_DISPLAY
+#define LWIP_STATS_DISPLAY              0
+#endif
+
 // Change some options for lwIP 2.1.2
 #undef TCP_MAXRTX
 #define TCP_MAXRTX                      12
