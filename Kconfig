@@ -317,7 +317,7 @@ config CPUP_INCLUDE_IRQ
     help
       If you wish to include irq usage for cpup.
 
-config DYNLINK
+config KERNEL_DYNLINK
     bool "Enable Dynamic Link Feature"
     default n
     depends on KERNEL_EXTKERNEL && ARCH_ARM
