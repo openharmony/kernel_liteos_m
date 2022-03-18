@@ -66,7 +66,7 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis001, Function | MediumTest | Level1)
 
     attr.stack_mem = stackAddr;
     attr.stack_size = OS_TSK_TEST_STACK_SIZE;
-    attr.priority = osPriorityNormal;
+    attr.priority = osPriorityNormal + 1;
     attr.attr_bits = osThreadDetached;
     threadId = osThreadNew((osThreadFunc_t)CmsisStackFunc01, NULL, &attr);
     ICUNIT_GOTO_NOT_EQUAL(threadId, 0, threadId, EXIT);
