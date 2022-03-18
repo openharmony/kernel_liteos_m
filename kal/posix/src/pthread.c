@@ -82,7 +82,7 @@ static void *PthreadEntry(UINT32 param)
 static inline bool IsPthread(pthread_t thread)
 {
     LosTaskCB *tcb = NULL;
-    if ((UINT32)thread >= LOSCFG_BASE_CORE_TSK_LIMIT) {
+    if ((UINT32)thread > LOSCFG_BASE_CORE_TSK_LIMIT) {
         return false;
     }
     tcb = OS_TCB_FROM_TID((UINT32)thread);
