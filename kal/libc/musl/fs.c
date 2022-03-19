@@ -30,7 +30,6 @@
  */
 
 #include "los_config.h"
-#include "los_fs.h"
 #include "stdarg.h"
 #include "dirent.h"
 #include "sys/mount.h"
@@ -38,9 +37,16 @@
 #include "sys/stat.h"
 #include "unistd.h"
 
+#ifdef LOSCFG_LIBC_MUSL_FS
+#include "los_fs.h"
+#else
+#include "sys/stat.h"
+#endif
+
+#ifdef LOSCFG_LIBC_MUSL_FS
 int mount(const char *source, const char *target,
-              const char *filesystemtype, unsigned long mountflags,
-              const void *data)
+          const char *filesystemtype, unsigned long mountflags,
+          const void *data)
 {
     return LOS_FsMount(source, target, filesystemtype, mountflags, data);
 }
@@ -154,3 +160,119 @@ ssize_t pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
 {
     return LOS_Pwrite(fd, buf, nbyte, offset);
 }
+
+#else /* #ifdef LOSCFG_FS_VFS */
+
+int mount(const char *source, const char *target,
+          const char *filesystemtype, unsigned long mountflags,
+          const void *data)
+{
+    return -1;
+}
+
+int umount(const char *target)
+{
+    return -1;
+}
+
+int umount2(const char *target, int flag)
+{
+    return -1;
+}
+
+int open(const char *path, int oflag, ...)
+{
+    return -1;
+}
+
+int close(int fd)
+{
+    return -1;
+}
+
+ssize_t read(int fd, void *buf, size_t nbyte)
+{
+    return -1;
+}
+
+ssize_t write(int fd, const void *buf, size_t nbyte)
+{
+    return -1;
+}
+
+off_t lseek(int fd, off_t offset, int whence)
+{
+    return -1;
+}
+
+int unlink(const char *path)
+{
+    return -1;
+}
+
+int fstat(int fd, struct stat *buf)
+{
+    return -1;
+}
+
+int stat(const char *path, struct stat *buf)
+{
+    return -1;
+}
+
+int fsync(int fd)
+{
+    return -1;
+}
+
+int mkdir(const char *path, mode_t mode)
+{
+    return -1;
+}
+
+DIR *opendir(const char *dirName)
+{
+    return NULL;
+}
+
+struct dirent *readdir(DIR *dir)
+{
+    return NULL;
+}
+
+int closedir(DIR *dir)
+{
+    return -1;
+}
+
+int rmdir(const char *path)
+{
+    return -1;
+}
+
+int rename(const char *oldName, const char *newName)
+{
+    return -1;
+}
+
+int statfs(const char *path, struct statfs *buf)
+{
+    return -1;
+}
+
+int ftruncate(int fd, off_t length)
+{
+    return -1;
+}
+
+ssize_t pread(int fd, void *buf, size_t nbyte, off_t offset)
+{
+    return -1;
+}
+
+ssize_t pwrite(int fd, const void *buf, size_t nbyte, off_t offset)
+{
+    return -1;
+}
+
+#endif
