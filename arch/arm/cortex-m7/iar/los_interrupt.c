@@ -41,12 +41,10 @@
 #include "los_memory.h"
 #include "los_membox.h"
 
-/*lint -save -e40 -e522 -e533*/
 UINT32 g_intCount = 0;
 
-/*lint -restore*/
 #pragma location = ".data.vector"
-#pragma data_alignment=LOSCFG_ARCH_HWI_VECTOR_ALIGN
+#pragma data_alignment = LOSCFG_ARCH_HWI_VECTOR_ALIGN
 /* *
  * @ingroup los_hwi
  * Hardware interrupt form mapping handling function array.
@@ -599,7 +597,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
 
     /* Enable USGFAULT, BUSFAULT, MEMFAULT */
     *(volatile UINT32 *)OS_NVIC_SHCSR |= (USGFAULT | BUSFAULT | MEMFAULT);
-	
+
     /* Enable DIV 0 and unaligned exception */
     *(volatile UINT32 *)OS_NVIC_CCR |= (DIV0FAULT | UNALIGNFAULT);
 

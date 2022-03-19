@@ -43,13 +43,13 @@ static VOID TaskF01(VOID)
     Atomic atomicTestCounter = 0;
     INT32 readCounter = 0;
     INT32 atomicRet = 0;
-    
+
     Atomic64 atomic64TestCounter = 0;
     INT64 read64Counter = 0;
     INT64 atomic64Ret = 0;
 
     ICUNIT_ASSERT_EQUAL(g_testCount, 0, g_testCount);
-    
+
     atomicTestCounter = 0x88888888;
     LOS_AtomicSet(&atomicTestCounter, 0x88888888);
     atomicRet = LOS_AtomicAdd(&atomicTestCounter, 0x33333333);

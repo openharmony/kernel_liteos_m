@@ -73,8 +73,8 @@ const SymInfo symTableEnd __attribute__((section(".table.end"))) = {
     .name = "end",
     .addr = 0
 };
-#pragma section=".TABLE.START"
-#pragma section=".table.end"
+#pragma section = ".TABLE.START"
+#pragma section = ".table.end"
 #elif defined(__CLANG_ARM) || defined(__GNUC__)
 /**
  * Place instructions below in rodata segment of .ld linker file:

@@ -57,6 +57,8 @@ void ReallocFuzzTest(void)
         return;
     }
 
+    (void)memset_s(source, TEST_BUF_LEN, 0, TEST_BUF_LEN);
+
     INIT_FuzzEnvironment();
     CreatPrecondForQueue();
     for (int i = 0; i < CYCLE_TOTAL_TIMES; i++) {

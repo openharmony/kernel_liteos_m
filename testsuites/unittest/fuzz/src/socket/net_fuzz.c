@@ -303,7 +303,7 @@ static UINT32 TcpFun(VOID)
             stTask1.uwResved = LOS_TASK_STATUS_DETACHED;
             (void)LOS_TaskCreate(&g_testTaskID01, &stTask1);
         }
-    };
+    }
 
     DT_Clear(g_element);
     CLOSE_Log();
