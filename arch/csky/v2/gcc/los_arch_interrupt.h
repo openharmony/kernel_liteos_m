@@ -82,7 +82,7 @@ typedef VOID (**HWI_VECTOR_FUNC)(VOID);
  * @ingroup los_arch_interrupt
  * Count of interrupts.
  */
-extern UINT32 g_intCount;
+extern volatile UINT32 g_intCount;
 
 /* *
  * @ingroup los_arch_interrupt

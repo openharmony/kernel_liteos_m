@@ -38,7 +38,9 @@
 #include "los_interrupt.h"
 #include "los_debug.h"
 
+#ifndef CPU_CK804
 STATIC UINT32 g_sysNeedSched = FALSE;
+#endif
 
 /* ****************************************************************************
  Function    : ArchInit
@@ -93,8 +95,29 @@ LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VO
     context->R11 = 0x11111111L;
     context->R12 = 0x12121212L;
     context->R13 = 0x13131313L;
+#ifdef CPU_CK804
+    context->R15 = (UINT32)ArchSysExit;
+    context->R16 = 0x16161616L;
+    context->R17 = 0x17171717L;
+    context->R18 = 0x18181818L;
+    context->R19 = 0x19191919L;
+    context->R20 = 0x20202020L;
+    context->R21 = 0x21212121L;
+    context->R22 = 0x22222222L;
+    context->R23 = 0x23232323L;
+    context->R24 = 0x24242424L;
+    context->R25 = 0x25252525L;
+    context->R26 = 0x26262626L;
+    context->R27 = 0x27272727L;
+    context->R28 = 0x28282828L;
+    context->R29 = 0x29292929L;
+    context->R30 = 0x30303030L;
+    context->R31 = 0x31313131L;
+    context->EPSR = 0x80000340L;
+#else
     context->R15 = (UINT32)ArchSysExit;
     context->EPSR = 0xe0000144L;
+#endif
     context->EPC = (UINT32)OsTaskEntry;
     return (VOID *)context;
 }
@@ -107,6 +130,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 ArchStartSchedule(VOID)
     return LOS_OK; /* never return */
 }
 
+#ifndef CPU_CK804
 VOID HalIrqEndCheckNeedSched(VOID)
 {
     if (g_sysNeedSched && g_taskScheduled && LOS_CHECK_SCHEDULE) {
@@ -132,3 +156,10 @@ VOID ArchTaskSchedule(VOID)
     LOS_IntRestore(intSave);
     return;
 }
+#else
+VOID ArchTaskSchedule(VOID)
+{
+    HalTaskContextSwitch();
+}
+#endif
+

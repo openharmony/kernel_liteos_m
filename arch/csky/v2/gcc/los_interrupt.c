@@ -52,13 +52,12 @@
 #define MASK_8_BITS      0xFF
 #define MASK_32_BITS     0xFFFFFFFF
 #define BYTES_OF_128_INT 4
-#define TIM_INT_NUM      1
 
 #define OS_USER_HWI_MIN                 0
 #define OS_USER_HWI_MAX                 (LOSCFG_PLATFORM_HWI_LIMIT - 1)
 #define HWI_ALIGNSIZE                   0x400
 
-UINT32 g_intCount = 0;
+UINT32 volatile g_intCount = 0;
 CHAR g_trapStackBase[OS_TRAP_STACK_SIZE];
 
 VIC_TYPE *VIC_REG = (VIC_TYPE *)VIC_REG_BASE;
@@ -334,7 +333,9 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
 
     intSave = LOS_IntLock();
     g_intCount--;
+#ifndef CPU_CK804
     HalIrqEndCheckNeedSched();
+#endif
     LOS_IntRestore(intSave);
 }
 
@@ -586,6 +587,10 @@ WEAK VOID __stack_chk_fail(VOID)
               __builtin_return_address(0));
 }
 
+WEAK void HalHwiHandleReInit(UINT32 hwiFormAddr)
+{
+}
+
 /* ****************************************************************************
  Function    : HalHwiInit
  Description : initialization of the hardware interrupt
@@ -604,6 +609,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
     for (i = OS_SYS_VECTOR_CNT; i < (LOSCFG_PLATFORM_HWI_LIMIT + OS_SYS_VECTOR_CNT); i++) {
         g_hwiForm[i] = (HWI_PROC_FUNC)IrqEntry;
     }
+    HalHwiHandleReInit((UINT32)&g_hwiForm);
 
     HalSetVbr((UINT32)&g_hwiForm);
     for (int i = 0; i < BYTES_OF_128_INT; i++) {
