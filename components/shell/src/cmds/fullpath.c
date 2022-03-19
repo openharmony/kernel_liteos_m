@@ -203,14 +203,14 @@ STATIC CHAR *VfsNormalizeFullpath(const CHAR *directory, const CHAR *filename, C
     CHAR *fullpath = NULL;
 
     if (filename[0] != '/') {
-        /* not a absolute path */
+        /* not an absolute path */
 
         fullpath = VfsNotAbsolutePath(directory, filename, pathname, namelen);
         if (fullpath == NULL) {
             return (CHAR *)NULL;
         }
     } else {
-        /* it's a absolute path, use it directly */
+        /* it's an absolute path, use it directly */
 
         fullpath = strdup(filename); /* copy string */
         if (fullpath == NULL) {

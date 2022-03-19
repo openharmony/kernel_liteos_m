@@ -87,7 +87,7 @@ STATIC INLINE VOID OsTimeSliceUpdate(LosTaskCB *taskCB, UINT64 currTime)
 
 STATIC INLINE VOID OsSchedSetNextExpireTime(UINT32 responseID, UINT64 taskEndTime)
 {
-    UINT64 nextResponseTime = 0;
+    UINT64 nextResponseTime;
     BOOL isTimeSlice = FALSE;
 
     UINT64 currTime = OsGetCurrSchedTimeCycle();

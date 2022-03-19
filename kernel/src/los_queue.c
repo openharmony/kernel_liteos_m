@@ -492,7 +492,7 @@ LITE_OS_SEC_TEXT VOID *OsQueueMailAlloc(UINT32 queueID, VOID *mailPool, UINT32 t
             runTsk->taskStatus &= (~OS_TASK_STATUS_TIMEOUT);
             goto END;
         } else {
-            /* When enters the current branch, means the current task already got a available membox,
+            /* When enters the current branch, means the current task already got an available membox,
              * so the runTsk->msg can not be NULL.
              */
             mem = runTsk->msg;
