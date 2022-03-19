@@ -82,14 +82,14 @@ static UINT32 Testcase(VOID)
 
     TestHwiClear(HWI_NUM_TEST);
     // 10, Timeout interval of a periodic software timer.
-    ret = LOS_SwtmrCreate(10, LOS_SWTMR_MODE_ONCE, (SWTMR_PROC_FUNC)Case3, &g_swtmrId1, &irqParam
+    ret = LOS_SwtmrCreate(10, LOS_SWTMR_MODE_ONCE, (SWTMR_PROC_FUNC)Case3, &g_swtmrId1, (UINT32)&irqParam
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
         , OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_INSENSITIVE
 #endif
     );
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     // 20, Timeout interval of a periodic software timer.
-    ret = LOS_SwtmrCreate(20, LOS_SWTMR_MODE_PERIOD, (SWTMR_PROC_FUNC)Case2, &g_swtmrId2, &irqParam
+    ret = LOS_SwtmrCreate(20, LOS_SWTMR_MODE_PERIOD, (SWTMR_PROC_FUNC)Case2, &g_swtmrId2, (UINT32)&irqParam
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
         , OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_INSENSITIVE
 #endif
