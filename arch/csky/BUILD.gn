@@ -30,9 +30,5 @@
 import("//kernel/liteos_m/liteos.gni")
 
 module_group("csky") {
-  if ("$board_cpu" == "ck804ef") {
-    modules = [ "$board_cpu/gcc" ]
-  } else {
-    modules = [ "v2/gcc" ]
-  }
+  modules = [ "v2/gcc" ]
 }
