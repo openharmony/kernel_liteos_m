@@ -222,13 +222,6 @@ u32_t lwip_ifconfig(int argc, const char **argv)
     static struct ifconfig_option ifconfig_cmd;
     err_t ret;
 
-#if LWIP_STATS
-    u32_t stat_err_cnt;
-    u32_t stat_drop_cnt;
-    u32_t stat_rx_or_tx_cnt;
-    u32_t stat_rx_or_tx_bytes;
-#endif
-
     (void)memset_s(&ifconfig_cmd, sizeof(ifconfig_cmd), 0, sizeof(ifconfig_cmd));
     if (sys_sem_new(&ifconfig_cmd.cb_completed, 0) != ERR_OK) {
         PRINTK("%s: sys_sem_new fail\n", __FUNCTION__);

@@ -36,7 +36,6 @@
 #include <los_queue.h>
 #include <los_sem.h>
 #include <los_mux.h>
-#include <los_tick.h>
 #include <los_config.h>
 
 #ifndef LOSCFG_KERNEL_SMP
@@ -150,7 +149,7 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int size)
     }
 
     CHAR qName[] = "lwIP";
-    UINT32 ret = LOS_QueueCreate(qName, (UINT16)size, mbox, 0, sizeof(void *));
+    UINT32 ret = LOS_QueueCreate(qName, (UINT16)size, (UINT32 *)mbox, 0, sizeof(void *));
     switch (ret) {
         case LOS_OK:
             return ERR_OK;
@@ -293,7 +292,7 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count)
         return ERR_ARG;
     }
 
-    UINT32 ret = LOS_SemCreate(count, sem);
+    UINT32 ret = LOS_SemCreate(count, (UINT32 *)(sem));
     if (ret != LOS_OK) {
         return ERR_ARG;
     }
@@ -368,7 +367,7 @@ err_t sys_mutex_new(sys_mutex_t *mutex)
         return ERR_ARG;
     }
 
-    UINT32 ret = LOS_MuxCreate(mutex);
+    UINT32 ret = LOS_MuxCreate((UINT32 *)mutex);
     if (ret != LOS_OK) {
         return ERR_ARG;
     }
