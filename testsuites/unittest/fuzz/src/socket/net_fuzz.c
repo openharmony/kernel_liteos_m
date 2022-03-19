@@ -263,6 +263,7 @@ static void *SampleTcpClient()
     /* send */
     ret = memset_s(buf, sizeof(buf), 0, BUF_SIZE);
     if (err != EOK) {
+        close(sfd);
         return (void *)(intptr_t)ret;
     }
     (void)strcpy_s(buf, sizeof(buf), CLI_MSG);
