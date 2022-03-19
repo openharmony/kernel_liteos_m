@@ -124,7 +124,7 @@ int ip6addr_aton(const char *cp, ip6_addr_t *addr)
     u16_t *a16 = (u16_t *)addr->addr;
     int squash_pos = ipv6_blocks;
     int i;
-    const char *sc = cp;
+    const unsigned char *sc = (const unsigned char *)cp;
     const char *ss = cp-1;
 
     for (; ; sc++) {

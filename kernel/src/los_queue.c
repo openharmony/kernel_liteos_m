@@ -120,7 +120,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(const CHAR *queueName,
 
     /* Memory allocation is time-consuming, to shorten the time of disable interrupt,
        move the memory allocation to here. */
-    queue = (UINT8 *)LOS_MemAlloc(m_aucSysMem0, len * msgSize);
+    queue = (UINT8 *)LOS_MemAlloc(m_aucSysMem0, (UINT32)len * msgSize);
     if (queue == NULL) {
         return LOS_ERRNO_QUEUE_CREATE_NO_MEMORY;
     }
