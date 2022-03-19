@@ -1191,7 +1191,7 @@ int LOS_Ioctl(int fd, int req, ...)
 ssize_t LOS_Readv(int fd, const struct iovec *iovBuf, int iovcnt)
 {
     int i;
-    int ret;
+    errno_t ret;
     char *buf = NULL;
     char *curBuf = NULL;
     char *readBuf = NULL;
@@ -1231,7 +1231,7 @@ ssize_t LOS_Readv(int fd, const struct iovec *iovBuf, int iovcnt)
 
         size_t lenToRead = totalLen < bytesToRead ? totalLen : bytesToRead;
         ret = memcpy_s(readBuf, bytesToRead, curBuf, lenToRead);
-        if (ret != LOS_OK) {
+        if (ret != EOK) {
             free(buf);
             return LOS_NOK;
         }
@@ -1248,7 +1248,7 @@ ssize_t LOS_Readv(int fd, const struct iovec *iovBuf, int iovcnt)
 ssize_t LOS_Writev(int fd, const struct iovec *iovBuf, int iovcnt)
 {
     int i;
-    int ret;
+    errno_t ret;
     char *buf = NULL;
     char *curBuf = NULL;
     char *writeBuf = NULL;
@@ -1285,7 +1285,7 @@ ssize_t LOS_Writev(int fd, const struct iovec *iovBuf, int iovcnt)
             continue;
         }
         ret = memcpy_s(curBuf, totalLen, writeBuf, bytesToWrite);
-        if (ret != LOS_OK) {
+        if (ret != EOK) {
             free(buf);
             return LOS_NOK;
         }

@@ -248,7 +248,7 @@ LITE_OS_SEC_ALW_INLINE STATIC_INLINE BOOL LOS_ListEmpty(LOS_DL_LIST *node)
  * <ul><li>los_list.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
-#define LOS_OFF_SET_OF(type, member) ((UINT32)&(((type *)0)->member)) /*lint -e(413) */
+#define LOS_OFF_SET_OF(type, member) ((UINT32)&(((type *)0)->member))
 
 /**
  * @ingroup los_list

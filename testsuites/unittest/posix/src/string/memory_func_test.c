@@ -268,7 +268,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc001, Function | MediumTest
         mem = malloc(mlen);
         TEST_ASSERT_NOT_NULL(mem);
 
-        memset(mem, testChar, mlen);
+        (void)memset_s(mem, mlen, testChar, mlen);
         rlen = rand() % (1024) + mlen;
         char *mem1 = realloc(mem, rlen);
         if (mem1 == NULL) {

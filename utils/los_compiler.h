@@ -498,7 +498,7 @@ static inline UINT64  __atomic_load_8(const volatile void *mem, int model)
     ret = *(UINT64 *)mem;
     free_lock (memP, model);
     return ret;
-}  
+}
 
 static inline void __atomic_store_8(volatile void *mem, UINT64 val, int model)
 {
@@ -511,7 +511,7 @@ static inline void __atomic_store_8(volatile void *mem, UINT64 val, int model)
 static inline UINT64 __atomic_exchange_8(volatile void *mem, UINT64 val, int model)
 {
     UINT64 ret;
-    
+
     void *memP = (void *)mem;
     get_lock (memP, model);
     ret = *(UINT64 *)mem;
