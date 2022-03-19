@@ -96,9 +96,9 @@ STATIC UINT32 TestCase(VOID)
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_LMK_RESTORE_NOT_NEEDED, ret);
 
     firstOpsNode.freeMem = release_OK;
-    firstOpsNode.restoreTask =restore_OK;
+    firstOpsNode.restoreTask = restore_OK;
     anotherOpsNode.freeMem = release_OK;
-    anotherOpsNode.restoreTask =restore_OK;
+    anotherOpsNode.restoreTask = restore_OK;
     ret = LOS_LmkTasksKill();
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
     ret = LOS_LmkTasksRestore();

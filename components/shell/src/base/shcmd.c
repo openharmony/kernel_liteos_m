@@ -98,6 +98,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdKeyShift(const CHAR *cmdKey, CHAR *cmdOut, UI
         PRINTK("malloc failure in %s[%d]", __FUNCTION__, __LINE__);
         return (UINT32)OS_ERROR;
     }
+    (VOID)memset_s(output, len + 1, 0, len + 1);
     /* Backup the 'output' start address */
     outputBak = output;
     /* Scan each charactor in 'cmdKey',and squeeze the overmuch space and ignore invaild charactor */

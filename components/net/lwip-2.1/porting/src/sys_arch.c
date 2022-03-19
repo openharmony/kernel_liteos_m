@@ -33,7 +33,6 @@
 #include <lwip/sys.h>
 #include <lwip/debug.h>
 #include <los_task.h>
-#include <los_tick.h>
 #include <los_queue.h>
 #include <los_sem.h>
 #include <los_mux.h>
@@ -202,6 +201,8 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg)
 
 err_t sys_mbox_trypost_fromisr(sys_mbox_t *mbox, void *msg)
 {
+    (void)mbox;
+    (void)msg;
     return ERR_ARG;
 }
 

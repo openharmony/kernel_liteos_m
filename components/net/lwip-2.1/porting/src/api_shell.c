@@ -217,7 +217,6 @@ void lwip_ifconfig_show_internal(void *arg)
     sys_sem_signal(&ifconfig_cmd->cb_completed);
 }
 
-/*lint -e838 -e438*/
 u32_t lwip_ifconfig(int argc, const char **argv)
 {
     static struct ifconfig_option ifconfig_cmd;
@@ -252,7 +251,6 @@ u32_t lwip_ifconfig(int argc, const char **argv)
 
     return 0;
 }
-/*lint +e838 +e438*/
 
 #if LWIP_DNS
 #ifndef LWIP_TESTBED
@@ -278,7 +276,7 @@ struct hostent *gethostnameinfo(const char *host, char *tmphstbuf, size_t hstbuf
 LWIP_STATIC unsigned int get_hostip(const char *hname)
 {
     unsigned int ip = 0;
-    int ret;
+    errno_t ret;
     const size_t hstbuflen = 1024;
     char *tmphstbuf = NULL;
 
@@ -292,7 +290,7 @@ LWIP_STATIC unsigned int get_hostip(const char *hname)
         return 0;
     }
     ret = memcpy_s(&ip, sizeof(ip), pent->h_addr, 4);
-    if (ret != 0) {
+    if (ret != EOK) {
         free(tmphstbuf);
         return 0;
     }
