@@ -40,7 +40,7 @@ static UINT32 TestCase(VOID)
 
     memcpy_s(p, INDEX_MAX, src, INDEX_MAX + 1);
     PRINTK("p[0] = %d\n", p[0]);
-    memcpy_s(p, INDEX_MAX + 1, 0, INDEX_MAX + 1); /* trigger overflow */
+    (void)memcpy_s(p, INDEX_MAX + 1, 0, INDEX_MAX + 1); /* trigger overflow */
 
     return LOS_OK;
 }

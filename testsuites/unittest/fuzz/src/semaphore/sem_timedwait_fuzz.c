@@ -65,7 +65,7 @@ void SemTimedWaitFuzzTest(void)
 
         absTimeout.tv_sec = (*(int *)DT_SetGetS32(&g_element[elemSecIndex], 0)) % SEC_MODE_VALUE;
         absTimeout.tv_nsec = (*(int *)DT_SetGetS32(&g_element[elemNsecIndex], 0) % NSEC_MODE_VALUE);
-        memset_s(&sem, sizeof(sem), 0, sizeof(sem_t));
+        (void)memset_s(&sem, sizeof(sem), 0, sizeof(sem_t));
         pshared = (*(int *)DT_SetGetS32(&g_element[1], DEFAULT_SHARED_VALUE));
         value = (*(unsigned int *)DT_SetGetU32(&g_element[1], 0)) % MAX_SEM_VALUE;
         sem_init(&sem, pshared, value);

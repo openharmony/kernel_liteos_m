@@ -54,7 +54,7 @@ void __DLIB_TLS_MEMORY *__iar_dlib_perthread_access(void _DLIB_TLS_MEMORY *symbp
 }
 
 #else /* IAR version 8 or above. */
-#pragma section="__iar_tls$$DATA"
+#pragma section = "__iar_tls$$DATA"
 void *__aeabi_read_tp(void)
 {
     if (!LOS_TaskIsRunning()) {

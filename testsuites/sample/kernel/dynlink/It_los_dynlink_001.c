@@ -35,7 +35,7 @@ STATIC UINT32 TestCase(VOID)
 {
     INT32 ret;
     VOID *handle = NULL;
-    INT32 (*func)(INT32 ,INT32) = NULL;
+    INT32 (*func)(INT32, INT32) = NULL;
 
     handle = (VOID *)LOS_SoLoad(NULL, NULL);
     ICUNIT_ASSERT_EQUAL(handle, NULL, handle);
