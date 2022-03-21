@@ -30,7 +30,7 @@
 #include "los_dynlink.h"
 #include "It_los_dynlink.h"
 
-/* Test invalide params */
+/* Test invalid params */
 STATIC UINT32 TestCase(VOID)
 {
     VOID *handle = NULL;

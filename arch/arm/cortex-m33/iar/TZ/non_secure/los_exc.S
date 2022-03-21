@@ -55,8 +55,8 @@ FLAG_ADDR_VALID             EQU   0x10000
 FLAG_HWI_ACTIVE             EQU   0x20000
 FLAG_NO_FLOAT               EQU   0x10000000
 
-OS_NVIC_FSR                 EQU   0xE000ED28      ;include BusFault/MemFault/UsageFault State Regeister
-OS_NVIC_HFSR                EQU   0xE000ED2C      ;HardFault State Regeister
+OS_NVIC_FSR                 EQU   0xE000ED28      ;include BusFault/MemFault/UsageFault State Register
+OS_NVIC_HFSR                EQU   0xE000ED2C      ;HardFault State Register
 OS_NVIC_BFAR                EQU   0xE000ED38
 OS_NVIC_MMAR                EQU   0xE000ED34
 OS_NVIC_ACT_BASE            EQU   0xE000E300
@@ -179,7 +179,7 @@ _hwiActiveCheck
     CMP   R3, #0
     BEQ   _hwiActiveCheckNext
 
-    ; exc occured in IRQ
+    ; exc occurred in IRQ
     ORR   R0, R0, #FLAG_HWI_ACTIVE
     RBIT  R2, R3
     CLZ   R2, R2
@@ -217,19 +217,19 @@ _hwiActiveCheckNext
     AND   R2, R2,R3
     CMP   R2,#0
     BNE   _ExcInMSP
-    ; exc occured in Task or Init or exc
+    ; exc occurred in Task or Init or exc
     ; reserved for register info from task stack
 
     LDR  R2, =g_taskScheduled
     LDR  R2, [R2]
     TST  R2, #1         ; OS_FLG_BGD_ACTIVE
-    BEQ  _ExcInMSP                      ; if exc occured in Init then branch
+    BEQ  _ExcInMSP                      ; if exc occurred in Init then branch
 
 
     CMP   LR, #0xFFFFFFED               ;auto push floating registers
     BNE   _NoFloatInPsp
 
-    ; exc occured in Task
+    ; exc occurred in Task
     MOV   R2,  R13
     SUB   R13, #96                      ; add 8 Bytes reg(for STMFD)
 

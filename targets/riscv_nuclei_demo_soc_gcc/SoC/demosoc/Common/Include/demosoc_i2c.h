@@ -32,7 +32,7 @@ extern "C" {
 #define I2C_SR_RXACK            (1 << 7)//0:received; 1:no ack resceived
 #define I2C_SR_BUSY             (1 << 6)//0:after 'STOP' detected; 1:after 'START' detected
 #define I2C_SR_AL               (1 << 5)
-#define I2C_SR_TIP              (1 << 1)//0:transfer complete; 1:transfering
+#define I2C_SR_TIP              (1 << 1)//0:transfer complete; 1:transferring
 #define I2C_SR_IF               (1 << 0)
 #if 0
 /*fileds*/
