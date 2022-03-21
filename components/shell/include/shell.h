@@ -115,7 +115,7 @@ typedef enum {
 
 /*
  * Hook for user-defined debug function
- * Unify differnt module's func for registration
+ * Unify different module's func for registration
  */
 typedef UINT32 (*CmdCallBackFunc)(UINT32 argc, const CHAR **argv);
 

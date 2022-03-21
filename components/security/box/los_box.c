@@ -50,7 +50,7 @@ VOID OsUserTaskInit(UINT32 taskID, UINTPTR entry, UINTPTR userArea, UINTPTR user
 
 VOID OsUserTaskDelete(UINT32 taskID)
 {
-    memset_s(&g_UserTaskCBArray[taskID], sizeof(UserTaskCB), 0, sizeof(UserTaskCB));
+    (VOID)memset_s(&g_UserTaskCBArray[taskID], sizeof(UserTaskCB), 0, sizeof(UserTaskCB));
 }
 
 UserTaskCB *OsGetUserTaskCB(UINT32 taskID)

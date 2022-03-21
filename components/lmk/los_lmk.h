@@ -128,7 +128,7 @@ typedef struct {
  * @param  lmkNode [IN] The LosLmkOpsNode node to be registered.
  *
  * @retval LOS_OK The LosLmkOpsNode node is registered successfully.
- * @retval LOS_ERRNO_LMK_INVALID_PARAMETER  The paramter is invalid.
+ * @retval LOS_ERRNO_LMK_INVALID_PARAMETER  The parameter is invalid.
  * @retval LOS_ERRNO_LMK_ALREADY_REGISTERED The LosLmkOpsNode node already registered.
  * @par Dependency:
  * <ul><li>los_lmk.h: the header file that contains the API declaration.</li></ul>

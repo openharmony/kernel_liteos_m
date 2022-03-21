@@ -584,7 +584,7 @@ ssize_t FatfsWrite(struct File *file, const char *buf, size_t nbyte)
     res = f_write(fp, buf, nbyte, &lenWrite);
     if ((res == FR_OK) && (lenWrite == 0) && (nbyte != 0) && (overFlow == FALSE)) {
         overFlow = TRUE;
-        PRINT_ERR("FAT write!\r\n");
+        PRINT_ERR("FAT write err!\r\n");
     }
 
     if ((res != FR_OK) || (nbyte != lenWrite)) {

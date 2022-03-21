@@ -369,7 +369,7 @@ config KERNEL_LMK
     default n
     depends on KERNEL_EXTKERNEL
     help
-      Configuration item for low momery killer tailoring.
+      Configuration item for low memory killer tailoring.
       If you wish to build LiteOS with support for low memory killer.
 
 config KERNEL_LMK_DEBUG
@@ -574,7 +574,7 @@ config MEM_LEAKCHECK
     depends on DEBUG_VERSION && MEM_DEBUG
     select KERNEL_BACKTRACE
     help
-      Answer Y to enable record the LR of Function call stack of Mem operation, it can check the mem leak through the infomations of mem node.
+      Answer Y to enable record the LR of Function call stack of Mem operation, it can check the mem leak through the informations of mem node.
 config BASE_MEM_NODE_INTEGRITY_CHECK
     bool "Enable integrity check or not"
     default n

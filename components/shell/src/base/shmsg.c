@@ -96,7 +96,7 @@ CHAR *GetCmdName(const CHAR *cmdline, UINT32 len)
             continue;
         }
         /* If detected a space which the quotes matching status is false */
-        /* which said has detected the first space for seperator, finish this scan operation */
+        /* which said has detected the first space for separator, finish this scan operation */
         if ((*tmpStr == ' ') && (QUOTES_STATUS_CLOSE(quotes))) {
             break;
         }
