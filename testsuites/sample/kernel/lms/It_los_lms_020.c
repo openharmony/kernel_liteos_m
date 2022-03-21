@@ -36,9 +36,9 @@ static UINT32 TestCase(VOID)
 {
     CHAR *p = (CHAR *)LOS_MemAlloc(g_testLmsPool, INDEX_MAX);
     ICUNIT_ASSERT_NOT_EQUAL(p, NULL, 0);
-    memset_s(p, INDEX_MAX, 0, INDEX_MAX + 1);
+    (void)memset_s(p, INDEX_MAX, 0, INDEX_MAX + 1);
     PRINTK("p[0] = %d\n", p[0]);
-    memset_s(p, INDEX_MAX + 1, 0, INDEX_MAX + 1); /* trigger overflow */
+    (void)memset_s(p, INDEX_MAX + 1, 0, INDEX_MAX + 1); /* trigger overflow */
 
     return LOS_OK;
 }

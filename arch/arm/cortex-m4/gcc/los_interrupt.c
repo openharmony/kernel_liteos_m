@@ -40,10 +40,7 @@
 #include "los_memory.h"
 #include "los_membox.h"
 
-/*lint -save -e40 -e522 -e533*/
 UINT32 g_intCount = 0;
-
-/*lint -restore*/
 
 /* *
  * @ingroup los_hwi
@@ -193,7 +190,6 @@ inline UINT32 ArchIsIntActive(VOID)
  Output      : None
  Return      : None
  **************************************************************************** */
-/*lint -e529*/
 LITE_OS_SEC_TEXT_MINOR VOID HalHwiDefaultHandler(VOID)
 {
     PRINT_ERR("%s irqnum:%u\n", __FUNCTION__, HwiNumGet());
@@ -607,7 +603,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
 
     /* Enable USGFAULT, BUSFAULT, MEMFAULT */
     *(volatile UINT32 *)OS_NVIC_SHCSR |= (USGFAULT | BUSFAULT | MEMFAULT);
-	
+
     /* Enable DIV 0 and unaligned exception */
 #ifdef LOSCFG_ARCH_UNALIGNED_EXC
     *(volatile UINT32 *)OS_NVIC_CCR |= (DIV0FAULT | UNALIGNFAULT);

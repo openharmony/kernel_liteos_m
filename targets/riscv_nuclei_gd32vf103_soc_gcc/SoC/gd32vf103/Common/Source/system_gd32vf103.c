@@ -31,8 +31,6 @@
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
-/* ToDo: add here your necessary defines for device initialization
-         following is an example for different system frequencies */
 #ifndef SYSTEM_CLOCK
 #define SYSTEM_CLOCK    __SYSTEM_CLOCK_108M_PLL_HXTAL
 #endif
@@ -66,9 +64,6 @@
 /*----------------------------------------------------------------------------
   System Core Clock Variable
  *----------------------------------------------------------------------------*/
-/* ToDo: initialize SystemCoreClock with the system core clock frequency value
-         achieved after system intitialization.
-         This means system core clock frequency after call to SystemInit() */
 /**
  * \brief      Variable to hold the system core clock value
  * \details
@@ -200,9 +195,7 @@ static void system_clock_config(void)
  */
 void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency */
 {
-    /* ToDo: add code to calculate the system frequency based upon the current
-     *    register settings.
-     * Note: This function can be used to retrieve the system core clock
+    /* Note: This function can be used to retrieve the system core clock
      * frequeny after user changed register settings.
      */
     uint32_t scss;
@@ -288,8 +281,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency */
  */
 void SystemInit (void)
 {
-    /* ToDo: add code to initialize the system
-     * Warn: do not use global variables because this function is called before
+    /* Warn: do not use global variables because this function is called before
      * reaching pre-main. RW section maybe overwritten afterwards.
      */
     /* reset the RCC clock configuration to the default reset state */
@@ -359,7 +351,6 @@ typedef void (*EXC_HANDLER) (unsigned long mcause, unsigned long sp);
  */
 static void system_default_exception_handler(unsigned long mcause, unsigned long sp)
 {
-    /* TODO: Uncomment this if you have implement printf function */
     printf("MCAUSE: 0x%lx\r\n", mcause);
     printf("MEPC  : 0x%lx\r\n", __RV_CSR_READ(CSR_MEPC));
     printf("MTVAL : 0x%lx\r\n", __RV_CSR_READ(CSR_MBADADDR));
@@ -432,10 +423,10 @@ uint32_t core_exception_handler(unsigned long mcause, unsigned long sp)
     uint32_t EXCn = (uint32_t)(mcause & 0X00000fff);
     EXC_HANDLER exc_handler;
 
-    PRINTK("----------------All Task infomation ------------\r\n");
+    PRINTK("----------------All Task information ------------\r\n");
     HalDisplayTaskInfo();
-    PRINTK("---------------exc handler infomation -----------\r\n");
-    
+    PRINTK("---------------exc handler information -----------\r\n");
+
     if ((EXCn < MAX_SYSTEM_EXCEPTION_NUM) && (EXCn >= 0)) {
         exc_handler = (EXC_HANDLER)SystemExceptionHandlers[EXCn];
     } else if (EXCn == NMI_EXCn) {
@@ -471,7 +462,6 @@ void SystemBannerPrint(void)
  */
 void ECLIC_Init(void)
 {
-    /* TODO: Add your own initialization code here. This function will be called by main */
     ECLIC_SetMth(0);
     ECLIC_SetCfgNlbits(__ECLIC_INTCTLBITS);
 }
@@ -484,7 +474,7 @@ void ECLIC_Init(void)
  * \param [in]  IRQn        NMI interrupt handler address
  * \param [in]  shv         \ref ECLIC_NON_VECTOR_INTERRUPT means non-vector mode, and \ref ECLIC_VECTOR_INTERRUPT is vector mode
  * \param [in]  trig_mode   see \ref ECLIC_TRIGGER_Type
- * \param [in]  lvl         interupt level
+ * \param [in]  lvl         interrupt level
  * \param [in]  priority    interrupt priority
  * \param [in]  handler     interrupt handler, if NULL, handler will not be installed
  * \return       -1 means invalid input parameter. 0 means successful.
@@ -527,7 +517,6 @@ int32_t ECLIC_Register_IRQ(IRQn_Type IRQn, uint8_t shv, ECLIC_TRIGGER_Type trig_
  */
 void _premain_init(void)
 {
-    /* TODO: Add your own initialization code here, called before main */
     SystemCoreClock = get_cpu_freq();
     /* configure USART */
     gd_com_init(SOC_DEBUG_UART);
@@ -550,7 +539,6 @@ void _premain_init(void)
  */
 void _postmain_fini(int status)
 {
-    /* TODO: Add your own finishing code here, called after main */
 }
 
 /**

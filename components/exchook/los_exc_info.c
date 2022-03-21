@@ -55,7 +55,7 @@ STATIC ExcInfoArray g_excArray[OS_EXC_TYPE_MAX];
 
 STATIC UINT32 OsExcSaveIntStatus(UINT32 type, VOID *arg)
 {
-    UINT32 ret;
+    errno_t ret;
     UINTPTR excContentEnd = (UINTPTR)MAX_INT_INFO_SIZE + (UINTPTR)g_excContent;
 
     (VOID)arg;

@@ -106,7 +106,7 @@ STATIC VOID OsTraceSetFrame(TraceEventFrame *frame, UINT32 eventType, UINTPTR id
 #if (LOSCFG_TRACE_FRAME_CORE_MSG == 1)
     frame->core.cpuId      = ArchCurrCpuid();
     frame->core.hwiActive  = OS_INT_ACTIVE ? TRUE : FALSE;
-    frame->core.taskLockCnt = MIN(OsPercpuGet()->taskLockCnt, 0xF); /* taskLockCnt is 4 bits, max vaule = 0xF */
+    frame->core.taskLockCnt = MIN(OsPercpuGet()->taskLockCnt, 0xF); /* taskLockCnt is 4 bits, max value = 0xF */
     frame->core.paramCount = paramCount;
 #endif
 

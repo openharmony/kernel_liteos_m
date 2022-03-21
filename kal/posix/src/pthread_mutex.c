@@ -35,7 +35,6 @@
 #include "los_compiler.h"
 #include "los_mux.h"
 #include "errno.h"
-#include "los_mux.h"
 #include "los_debug.h"
 #include "los_hook.h"
 #include "los_sched.h"

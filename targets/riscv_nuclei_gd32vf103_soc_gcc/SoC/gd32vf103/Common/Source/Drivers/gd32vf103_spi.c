@@ -98,7 +98,7 @@ void spi_struct_para_init(spi_parameter_struct* spi_struct)
 /*!
     \brief      initialize SPI parameter
     \param[in]  spi_periph: SPIx(x=0,1,2)
-    \param[in]  spi_struct: SPI parameter initialization stuct members of the structure 
+    \param[in]  spi_struct: SPI parameter initialization struct members of the structure 
                             and the member values are shown as below:
                   device_mode: SPI_MASTER, SPI_SLAVE
                   trans_mode: SPI_TRANSMODE_FULLDUPLEX, SPI_TRANSMODE_RECEIVEONLY,

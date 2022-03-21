@@ -73,8 +73,8 @@ const SymInfo symTableEnd __attribute__((section(".table.end"))) = {
     .name = "end",
     .addr = 0
 };
-#pragma section=".TABLE.START"
-#pragma section=".table.end"
+#pragma section = ".TABLE.START"
+#pragma section = ".table.end"
 #elif defined(__CLANG_ARM) || defined(__GNUC__)
 /**
  * Place instructions below in rodata segment of .ld linker file:
@@ -796,13 +796,13 @@ VOID *LOS_SoLoad(const CHAR *fileName, VOID *pool)
     return dso;
 
 ERR2:
-    LOS_MemFree(dso->pool, (VOID *)dso->loadBase);
+    (VOID)LOS_MemFree(dso->pool, (VOID *)dso->loadBase);
 ERR1:
     close(dso->fd);
     (VOID)LOS_MuxPost(g_dynlinkMux);
-    LOS_MemFree(OS_SYS_MEM_ADDR, dso->dlInfo->elfPhdr);
-    LOS_MemFree(OS_SYS_MEM_ADDR, dso->dlInfo);
-    LOS_MemFree(OS_SYS_MEM_ADDR, dso);
+    (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, dso->dlInfo->elfPhdr);
+    (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, dso->dlInfo);
+    (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, dso);
     return NULL;
 }
 
@@ -902,9 +902,12 @@ INT32 LOS_SoUnload(VOID *handle)
     LOS_ListDelete(&dso->dsoNode);
     (VOID)LOS_MuxPost(g_dynlinkMux);
 
-    LOS_MemFree(dso->pool, (VOID *)dso->loadBase);
-    LOS_MemFree(OS_SYS_MEM_ADDR, dso->dlInfo);
-    LOS_MemFree(OS_SYS_MEM_ADDR, dso);
+    (VOID)LOS_MemFree(dso->pool, (VOID *)dso->loadBase);
+    if (dso->dlInfo != NULL) {
+        (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, dso->dlInfo->elfPhdr);
+    }
+    (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, dso->dlInfo);
+    (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, dso);
 
     return LOS_OK;
 ERR:

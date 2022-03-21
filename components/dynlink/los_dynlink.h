@@ -169,7 +169,7 @@ VOID *LOS_SoLoad(const CHAR *fileName, VOID *pool);
 VOID *LOS_FindSym(VOID *handle, const CHAR *name);
 
 /*
- * @brief Decrement the reference count on the loaded shared library refered to by handle.
+ * @brief Decrement the reference count on the loaded shared library referred to by handle.
  * If the reference count drops to zero, then the library is unloaded.
  *
  * This function validates that the handle is valid.
