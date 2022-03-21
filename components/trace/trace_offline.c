@@ -186,7 +186,7 @@ STATIC VOID OsTraceInfoEventData(VOID)
         UINT32 taskLockCnt = frame->core.taskLockCnt;
 #if (LOSCFG_KERNEL_SMP == 1)
         /*
-         * For smp systems, TRACE_LOCK will requst taskLock, and this counter
+         * For smp systems, TRACE_LOCK will request taskLock, and this counter
          * will increase by 1 in that case.
          */
         taskLockCnt -= 1;

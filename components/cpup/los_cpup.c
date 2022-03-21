@@ -82,7 +82,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsCpupInit()
 
 /*****************************************************************************
 Function   : OsTskCycleStart
-Description: start task to get cycles count in current task begining
+Description: start task to get cycles count in current task beginning
 Input      : None
 Return     : None
 *****************************************************************************/

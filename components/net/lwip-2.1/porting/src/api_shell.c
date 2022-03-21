@@ -488,7 +488,7 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
                     PRINTK("\nPing: parameter problem ...");
                     break;
                 default:
-                    PRINTK("\nPing: unknow error ...");
+                    PRINTK("\nPing: unknown error ...");
                     break;
             }
             i++;
