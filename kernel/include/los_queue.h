@@ -323,7 +323,7 @@ extern "C" {
 
 /**
  * @ingroup los_queue
- * Queue error code: The buffer size passed in during queue readding is smaller than the queue size.
+ * Queue error code: The buffer size passed in during queue reading is smaller than the queue size.
  *
  * Value: 0x0200061f
  *
@@ -333,7 +333,7 @@ extern "C" {
 
 /**
  * @ingroup los_queue
- * Queue error code: The buffer size passed in during queue readding or writting is bigger than the biggest size.
+ * Queue error code: The buffer size passed in during queue reading or writing is bigger than the biggest size.
  *
  * Value: 0x02000620
  *

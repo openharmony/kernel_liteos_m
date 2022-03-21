@@ -121,7 +121,7 @@ typedef enum {
  *
  * @param type  [IN] Type LogModuleType indicates the log type.
  * @param level [IN] Type LogLevel indicates the log level.
- * @param fmt   [IN] Type char* controls the ouput as in C printf.
+ * @param fmt   [IN] Type char* controls the output as in C printf.
  *
  * @retval None
  * @par Dependency:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@
 
 int _isatty(int file)
 {
-    return file <= 2;
+    return (int)(file <= 2); // 2: stderr
 }
 
 int _kill(int i, int j)
@@ -52,7 +52,7 @@ int _getpid(void)
 
 void _exit(int status)
 {
-    write(1, "exit\n", 5);
+    write(1, "exit\n", 5); // 1: stdout; 5: string length
     (VOID)pthread_exit(&status);
     while (1) {
     }

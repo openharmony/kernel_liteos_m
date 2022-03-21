@@ -332,7 +332,7 @@ VOID HalExcEntry(const LosExcContext *excBufAddr)
     ExcInfoDisplay(excBufAddr);
 
     if (LOS_TaskIsRunning()) {
-        PRINTK("----------------All Task infomation ------------\n");
+        PRINTK("----------------All Task information ------------\n");
         OsGetAllTskInfo();
     }
 
