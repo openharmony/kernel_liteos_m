@@ -209,6 +209,7 @@ VOID OsLs(const CHAR *pathname)
             }
         } while (pdirent != NULL);
 
+        free(path);
         (VOID)closedir(d);
     }
 }

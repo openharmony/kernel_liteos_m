@@ -69,10 +69,10 @@ CmdModInfo *OsCmdInfoGet(VOID)
 }
 
 /*
- * Description: Pass in the string and clear useless space ,which inlcude:
+ * Description: Pass in the string and clear useless space ,which include:
  *                1) The overmatch space which is not be marked by Quote's area
  *                   Squeeze the overmatch space into one space
- *                2) Clear all space before first vaild charatctor
+ *                2) Clear all space before first vaild character
  * Input:       cmdKey : Pass in the buff string, which is ready to be operated
  *              cmdOut : Pass out the buffer string ,which has already been operated
  *              size : cmdKey length
@@ -98,6 +98,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdKeyShift(const CHAR *cmdKey, CHAR *cmdOut, UI
         PRINTK("malloc failure in %s[%d]", __FUNCTION__, __LINE__);
         return (UINT32)OS_ERROR;
     }
+    (VOID)memset_s(output, len + 1, 0, len + 1);
     /* Backup the 'output' start address */
     outputBak = output;
     /* Scan each charactor in 'cmdKey',and squeeze the overmuch space and ignore invaild charactor */
@@ -110,7 +111,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdKeyShift(const CHAR *cmdKey, CHAR *cmdOut, UI
         /* 1) Quotes matching status is FALSE (which said that the space is not been marked by double quotes) */
         /* 2) Current charactor is a space */
         /* 3) Next charactor is a space too, or the string is been seeked to the end already(\0) */
-        /* 4) Invaild charactor, such as single quotes */
+        /* 4) Invalid charactor, such as single quotes */
         if ((*cmdKey == ' ') && ((*(cmdKey + 1) == ' ') || (*(cmdKey + 1) == '\0')) && QUOTES_STATUS_CLOSE(quotes)) {
             continue;
         }

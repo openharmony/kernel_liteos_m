@@ -52,7 +52,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_ErrHandle(CHAR  *fileName,
                                            UINT32 paraLen,
                                            VOID  *para)
 {
-
     if (g_userErrFunc.pfnHook != NULL) {
         g_userErrFunc.pfnHook(fileName, lineNo, errorNo, paraLen, para);
     }

@@ -297,7 +297,7 @@ extern UINT32 TaskUsedCountGet(VOID);
 #define HWI_NUM_TEST3 36
 #define LOS_KERNEL_MULTI_HWI_TEST 1 // default enable multiple hwi number test case
 #elif __CSKY_V2__
-#define HWI_NUM_TEST 31 // csky_v2 only suppport one software interrupt number
+#define HWI_NUM_TEST 31 // csky_v2 only support one software interrupt number
 #define LOS_KERNEL_MULTI_HWI_TEST 0 // csky_v2 not support multiple hwi number test case
 #elif __XTENSA_LX6__
 #define HWI_NUM_TEST 7 // xtensa_lx6 only suppport one software interrupt number

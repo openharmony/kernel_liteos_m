@@ -103,11 +103,11 @@ extern UINT32 LOS_MemDeInit(VOID *pool);
 
 /**
  * @ingroup los_memory
- * @brief Print infomation about all pools.
+ * @brief Print information about all pools.
  *
  * @par Description:
  * <ul>
- * <li>This API is used to print infomation about all pools.</li>
+ * <li>This API is used to print information about all pools.</li>
  * </ul>
  *
  * @retval #UINT32   The pool number.
@@ -394,11 +394,11 @@ extern UINT32 LOS_MemTotalUsedGet(VOID *pool);
 
 /**
  * @ingroup los_memory
- * @brief Get the infomation of memory pool.
+ * @brief Get the information of memory pool.
  *
  * @par Description:
  * <ul>
- * <li>This API is used to get the infomation of memory pool.</li>
+ * <li>This API is used to get the information of memory pool.</li>
  * </ul>
  * @attention
  * <ul>
@@ -409,7 +409,7 @@ extern UINT32 LOS_MemTotalUsedGet(VOID *pool);
  * @param  poolStatus           [IN] A pointer for storage the pool status
  *
  * @retval #LOS_NOK           The incoming parameter pool is NULL or invalid.
- * @retval #LOS_OK            Success to get memory infomation.
+ * @retval #LOS_OK            Success to get memory information.
  * @par Dependency:
  * <ul><li>los_memory.h: the header file that contains the API declaration.</li></ul>
  * @see None.
