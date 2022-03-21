@@ -174,7 +174,7 @@ STATIC size_t PipeRingbufferRead(struct PipeDev *dev, VOID *buf, size_t len)
         }
     }
     nbytes = (nbytes > len) ? len : nbytes;
-    (VOID)memcpy_s((char *)buf, len, dev->ringBuffer + dev->readIndex, nbytes);
+    (VOID)memcpy_s(buf, len, dev->ringBuffer + dev->readIndex, nbytes);
     dev->readIndex += nbytes;
     if (dev->readIndex >= dev->bufferSize) {
         dev->readIndex = 0;
@@ -184,7 +184,7 @@ STATIC size_t PipeRingbufferRead(struct PipeDev *dev, VOID *buf, size_t len)
     return nbytes;
 }
 
-STATIC size_t PipeRingbufferWrite(struct PipeDev *dev, VOID *buf, size_t len)
+STATIC size_t PipeRingbufferWrite(struct PipeDev *dev, const VOID *buf, size_t len)
 {
     size_t nbytes;
 
@@ -220,7 +220,6 @@ STATIC INT32 PipeDevRegister(CHAR *devName, UINT32 len)
         return -ENODEV;
     }
 
-    struct PipeDev *devTemp = NULL;
     struct PipeDev *dev = LOS_MemAlloc(OS_SYS_MEM_ADDR, sizeof(struct PipeDev));
     if (dev == NULL) {
         ret = -ENOMEM;
@@ -230,7 +229,7 @@ STATIC INT32 PipeDevRegister(CHAR *devName, UINT32 len)
     (VOID)snprintf_s(dev->devName, PIPE_DEV_NAME_MAX, PIPE_DEV_NAME_MAX - 1, "%s%d", PIPE_DEV_PATH, num);
     (VOID)memcpy_s(devName, len, dev->devName, strlen(dev->devName));
 
-    devTemp = PipeDevFind(dev->devName);
+    struct PipeDev *devTemp = PipeDevFind(dev->devName);
     if (devTemp != NULL) {
         ret = -EEXIST;
         goto ERROR;
@@ -389,22 +388,15 @@ INT32 PipeOpen(const CHAR *path, INT32 openFlag, INT32 minFd)
         dev->ringBuffer = LOS_MemAlloc(OS_SYS_MEM_ADDR, PIPE_DEV_BUF_SIZE);
         if (dev->ringBuffer == NULL) {
             PIPE_DEV_UNLOCK(dev->mutex);
+            PipeDevFdFree(fd);
             errno = ENOMEM;
-            goto ERROR;
+            return -1;
         }
         dev->bufferSize = PIPE_DEV_BUF_SIZE;
     }
     PIPE_DEV_UNLOCK(dev->mutex);
 
     return (fd + minFd);
-ERROR:
-    if (dev->ringBuffer != NULL) {
-        (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, dev->ringBuffer);
-        dev->ringBuffer = NULL;
-    }
-
-    PipeDevFdFree(fd);
-    return -1;
 }
 
 STATIC INLINE struct PipeFdDev *PipeFdDevGet(INT32 fd)
@@ -448,9 +440,7 @@ INT32 PipeClose(INT32 fd)
     PIPE_DEV_LOCK(dev->mutex);
     if (openFlag == O_RDONLY) {
         dev->readerCnt--;
-    }
-
-    if (openFlag == O_WRONLY) {
+    } else if (openFlag == O_WRONLY) {
         dev->writerCnt--;
     }
 
@@ -676,8 +666,19 @@ int pipe(int filedes[2])
         return -1;
     }
 
+    struct PipeDev *dev = PipeDevFind(devName);
     filedes[0] = open(devName, O_RDONLY);
+    if (filedes[0] < 0) {
+        (VOID)PipeDevUnregister(dev);
+        return -1;
+    }
+
     filedes[1] = open(devName, O_WRONLY);
+    if (filedes[1] < 0) {
+        (VOID)PipeDevUnregister(dev);
+        (VOID)close(filedes[0]);
+        return -1;
+    }
 
     return 0;
 }

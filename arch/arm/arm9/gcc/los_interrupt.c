@@ -163,7 +163,6 @@ inline UINT32 ArchIsIntActive(VOID)
  Output      : None
  Return      : None
  **************************************************************************** */
-/*lint -e529*/
 LITE_OS_SEC_TEXT_MINOR VOID HalHwiDefaultHandler(VOID)
 {
     PRINT_ERR("%s irqnum:%u\n", __FUNCTION__, HwiNumGet());

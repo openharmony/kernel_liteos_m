@@ -131,4 +131,4 @@ How to contribute a chip based on Liteos-M kernel:
 
 [Kernel Subsystem](https://gitee.com/openharmony/docs/blob/HEAD/en/readme/kernel-subsystem.md)
 
-**kernel\_liteos\_m**
+[kernel\_liteos\_m](https://gitee.com/openharmony/kernel_liteos_m/blob/master/README.md)

@@ -52,8 +52,8 @@ extern "C" {
 #define CODE_SECTION_NAME    ".text"
 /* The default C stack section name is CSTACK */
 #define CSTACK_SECTION_NAME  "CSTACK"
-#pragma section=CODE_SECTION_NAME
-#pragma section=CSTACK_SECTION_NAME
+#pragma section = CODE_SECTION_NAME
+#pragma section = CSTACK_SECTION_NAME
 
 /* Default only one code section. In fact, there may be more than one.
    You can define more than one and redefine the OsStackDataIsCodeAddr function

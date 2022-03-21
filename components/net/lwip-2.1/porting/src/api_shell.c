@@ -217,18 +217,10 @@ void lwip_ifconfig_show_internal(void *arg)
     sys_sem_signal(&ifconfig_cmd->cb_completed);
 }
 
-/*lint -e838 -e438*/
 u32_t lwip_ifconfig(int argc, const char **argv)
 {
     static struct ifconfig_option ifconfig_cmd;
     err_t ret;
-
-#if LWIP_STATS
-    u32_t stat_err_cnt;
-    u32_t stat_drop_cnt;
-    u32_t stat_rx_or_tx_cnt;
-    u32_t stat_rx_or_tx_bytes;
-#endif
 
     (void)memset_s(&ifconfig_cmd, sizeof(ifconfig_cmd), 0, sizeof(ifconfig_cmd));
     if (sys_sem_new(&ifconfig_cmd.cb_completed, 0) != ERR_OK) {
@@ -252,7 +244,6 @@ u32_t lwip_ifconfig(int argc, const char **argv)
 
     return 0;
 }
-/*lint +e838 +e438*/
 
 #if LWIP_DNS
 #ifndef LWIP_TESTBED
@@ -278,7 +269,7 @@ struct hostent *gethostnameinfo(const char *host, char *tmphstbuf, size_t hstbuf
 LWIP_STATIC unsigned int get_hostip(const char *hname)
 {
     unsigned int ip = 0;
-    int ret;
+    errno_t ret;
     const size_t hstbuflen = 1024;
     char *tmphstbuf = NULL;
 
@@ -292,7 +283,7 @@ LWIP_STATIC unsigned int get_hostip(const char *hname)
         return 0;
     }
     ret = memcpy_s(&ip, sizeof(ip), pent->h_addr, 4);
-    if (ret != 0) {
+    if (ret != EOK) {
         free(tmphstbuf);
         return 0;
     }
@@ -497,7 +488,7 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
                     PRINTK("\nPing: parameter problem ...");
                     break;
                 default:
-                    PRINTK("\nPing: unknow error ...");
+                    PRINTK("\nPing: unknown error ...");
                     break;
             }
             i++;
@@ -527,7 +518,7 @@ static void ping_cmd(u32_t *parg)
     if (ret < 0) {
         PRINTK("Ping cmd failed due to some errors\n");
     }
-
+    free(parg);
     ping_taskid = -1;
 }
 
@@ -589,7 +580,6 @@ u32_t OsShellPing(int argc, const char **argv)
         stPingTask.uwArg = (UINTPTR)parg;
         ret = LOS_TaskCreate((UINT32 *)(&ping_taskid), &stPingTask);
         if (ret != LOS_OK) {
-            free(parg);
             PRINTK("ping_task create failed 0x%08x.\n", ret);
             count = LWIP_SHELL_CMD_PING_RETRY_TIMES;
         } else {
@@ -604,6 +594,8 @@ u32_t OsShellPing(int argc, const char **argv)
     if (OsPingFunc(parg) < 0) {
         PRINTK("Ping cmd failed due some errors\n");
     }
+
+    free(parg);
 
     return LOS_OK;
 ping_error:

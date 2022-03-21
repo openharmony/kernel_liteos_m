@@ -33,21 +33,23 @@
 #include "It_los_mem.h"
 
 #if (LOSCFG_MEM_MUL_REGIONS == 1)
+#define TC_POOL_SIZE_1   0x200
+#define TC_POOL_SIZE_2   0x400
+#define TC_GAP_SIZE 0x10
 
 // simulate two non-continuous memory regions
-STATIC UINT8 g_memPool_TC46_01[0x200];
-STATIC UINT8 g_memGap_TC46[0x10];
-STATIC UINT8 g_memPool_TC46_02[0x400];
+STATIC UINT8 g_memPool_TC46_01[TC_POOL_SIZE_1];
+STATIC UINT8 g_memGap_TC46[TC_GAP_SIZE];
+STATIC UINT8 g_memPool_TC46_02[TC_POOL_SIZE_2];
 
 static UINT32 TestCase(VOID)
 {
     UINT32 ret;
     void *p = NULL;
-    LosMemRegion memRegions[] =
-        {
-            {g_memPool_TC46_01, 0x200},
-            {g_memPool_TC46_02, 0x400}
-        };
+    LosMemRegion memRegions[] = {
+        {g_memPool_TC46_01, TC_POOL_SIZE_1},
+        {g_memPool_TC46_02, TC_POOL_SIZE_2}
+    };
 
     // Initialize the LOS_MemRegionsAdd
     ret = LOS_MemRegionsAdd(m_aucSysMem0, memRegions, sizeof(memRegions) / sizeof(memRegions[0]));
@@ -56,8 +58,8 @@ static UINT32 TestCase(VOID)
     }
 
     // p points to the start address of the gap node between g_memPool_TC46_01 and g_memPool_TC46_02
-    p = g_memPool_TC46_01 + 0x200;
-    (void)memset_s(g_memGap_TC46, 0x10, 1, 0x10);
+    p = g_memPool_TC46_01 + TC_POOL_SIZE_1;
+    (void)memset_s(g_memGap_TC46, TC_GAP_SIZE, 1, TC_GAP_SIZE);
 
     ret = LOS_MemFree(m_aucSysMem0, p);
     ICUNIT_GOTO_EQUAL(ret, LOS_NOK, ret, EXIT);
@@ -76,6 +78,3 @@ VOID ItLosMem046(void)
 {
     TEST_ADD_CASE("ItLosMem046", TestCase, TEST_LOS, TEST_MEM, TEST_LEVEL1, TEST_FUNCTION);
 }
-
-
-

@@ -1634,7 +1634,7 @@ uint32_t osMemoryPoolGetSpace(osMemoryPoolId_t mp_id)
     if ((mp->status & MEM_POOL_VALID) != MEM_POOL_VALID) {
         space = 0;
     } else {
-        space = mp->poolInfo.uwBlkCnt - mp->poolInfo.uwBlkCnt;
+        space = mp->poolInfo.uwBlkNum - mp->poolInfo.uwBlkCnt;
     }
     LOS_IntRestore(intSave);
 

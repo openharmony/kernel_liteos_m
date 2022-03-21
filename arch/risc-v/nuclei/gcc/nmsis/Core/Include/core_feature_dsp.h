@@ -105,7 +105,7 @@
  * Based on the types of the four 8-bit arithmetic operations, the SIMD 8-bit add/subtract instructions
  * can be classified into 2 main categories: Addition (four 8-bit addition), and Subtraction (four 8-bit
  * subtraction).
- * Based on the way of how an overflow condition is handled for singed or unsigned operation, the
+ * Based on the way of how an overflow condition is handled for signed or unsigned operation, the
  * SIMD 8-bit add/subtract instructions can be classified into 5 groups: Wrap-around (dropping
  * overflow), Signed Halving (keeping overflow by dropping 1 LSB bit), Unsigned Halving, Signed
  * Saturation (clipping overflow), and Unsigned Saturation.
