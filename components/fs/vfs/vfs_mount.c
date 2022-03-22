@@ -171,7 +171,7 @@ int LOS_FsMount(const char *source, const char *target,
     ret = mp->mFs->fsMops->mount(mp, mountflags, data);
     if (ret != 0) {
         /* errno is set */
-        PRINT_ERR("mount failed, source %s, target %s.\n", source, target);
+        PRINT_ERR("mount failed, target %s.\n", target);
         goto errout;
     }
     mp->mRefs = 0;
