@@ -226,7 +226,7 @@ static void *SampleTcpServer()
     sfd = accept(lsfd, (struct sockaddr *)&clnAddr, &num2);
 
     int num3 = *(int *)DT_SetGetS32(&g_element[NUM_2_INDEX], 0);
-    ret = recv(lsfd, buf, sizeof(buf), num3);
+    (void)recv(lsfd, buf, sizeof(buf), num3);
 
     int num4 = *(int *)DT_SetGetS32(&g_element[NUM_3_INDEX], 0);
     ret = shutdown(sfd, num4);

@@ -54,7 +54,7 @@ STATIC INLINE VOID SetErrno(INT32 errcode)
 STATIC INLINE VOID SetErr(INT32 errcode, const CHAR *errMessage)
 {
     SetErrno(errcode);
-    PRINTK(errMessage);
+    PRINTK("%s", errMessage);
 }
 
 #ifdef __cplusplus
