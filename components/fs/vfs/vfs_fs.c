@@ -910,7 +910,7 @@ int LOS_Open(const char *path, int flags, ...)
 {
 #ifdef LOSCFG_RANDOM_DEV
     unsigned flagMask = O_RDONLY | O_WRONLY | O_RDWR | O_APPEND | O_CREAT | O_LARGEFILE | O_TRUNC | O_EXCL | O_DIRECTORY;
-    if ((unsigned)flags & ~flagMask) {
+    if (((unsigned)flags & ~flagMask) || (path == NULL)) {
         errno = EINVAL;
         return LOS_NOK;
     }
@@ -952,7 +952,7 @@ int LOS_Open(const char *path, int flags, ...)
     FREE_AND_SET_NULL(canonicalPath);
 #endif
 #if (LOSCFG_POSIX_PIPE_API == 1)
-    if ((path != NULL) && !strncmp(path, PIPE_DEV_PATH, strlen(PIPE_DEV_PATH))) {
+    if (!strncmp(path, PIPE_DEV_PATH, strlen(PIPE_DEV_PATH))) {
         return PipeOpen(path, flags, PIPE_DEV_FD);
     }
 #endif

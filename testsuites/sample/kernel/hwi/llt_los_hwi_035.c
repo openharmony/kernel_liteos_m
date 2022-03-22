@@ -68,11 +68,6 @@ static UINT32 Testcase(VOID)
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     return LOS_OK;
-
-    LOS_TaskDelete(g_testTaskIdHwi);
-    TestHwiDelete(HWI_NUM_TEST);
-
-    return LOS_OK;
 }
  /*
 **********
