@@ -558,7 +558,7 @@ u32_t OsShellPing(int argc, const char **argv)
         return LOS_NOK;
     }
 
-    parg = (u32_t *)malloc(4 * sizeof(int));
+    parg = (u32_t *)malloc(4 * sizeof(int)); /* 4: number of args */
     if (parg == NULL) {
         return LOS_NOK;
     }
@@ -577,7 +577,7 @@ u32_t OsShellPing(int argc, const char **argv)
         stPingTask.pfnTaskEntry = (TSK_ENTRY_FUNC)ping_cmd;
         stPingTask.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
         stPingTask.pcName = "ping_task";
-        stPingTask.usTaskPrio = 8; /* higher than shell */
+        stPingTask.usTaskPrio = 8; /* 8: higher than shell */
         stPingTask.uwResved = LOS_TASK_STATUS_DETACHED;
         stPingTask.uwArg = (UINTPTR)parg;
         ret = LOS_TaskCreate((UINT32 *)(&ping_taskid), &stPingTask);
