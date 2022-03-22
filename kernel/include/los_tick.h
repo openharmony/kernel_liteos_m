@@ -261,6 +261,58 @@ UINT32 OsTickTimerInit(VOID);
 
 VOID OsTickSysTimerStartTimeSet(UINT64 currTime);
 
+STATIC INLINE UINT64 OsTimeConvertFreq(UINT64 time, UINT32 oldFreq, UINT32 newFreq)
+{
+    if (oldFreq >= newFreq) {
+        return (time / (oldFreq / newFreq));
+    }
+
+    return (time * (newFreq / oldFreq));
+}
+
+/**
+ * @ingroup los_tick
+ * @brief Adjust the system tick timer clock frequency function hooks.
+ *
+ * @par Description:
+ * This API is used to adjust the system tick timer clock frequency.
+ * @attention
+ * <ul>
+ * <li>None</li>
+ * </ul>
+ *
+ * @param  param  [IN] Function parameters.
+ *
+ * @retval              0: Adjust the system tick timer clock frequency failed.
+ * @retval more than zero: Adjust after the system tick timer clock frequency.
+ * @par Dependency:
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
+ * @see None
+ */
+typedef UINT32 (*SYS_TICK_FREQ_ADJUST_FUNC)(UINTPTR param);
+
+/**
+ * @ingroup los_tick
+ * @brief Adjust the system tick timer clock frequency.
+ *
+ * @par Description:
+ * This API is used to adjust the system tick timer clock frequency.
+ * @attention
+ * <ul>
+ * <li>This function needs to be invoked only when the clock frequency of the system tick timer adjust as a result of
+ * changing the CPU frequency.</li>
+ * </ul>
+ *
+ * @param  handler [IN] Adjust the system tick timer clock frequency function hooks.
+ * @param param   [IN] Function parameters.
+ *
+ * @retval LOS_OK or Error code.
+ * @par Dependency:
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
+ * @see None
+ */
+extern UINT32 LOS_SysTickClockFreqAdjust(const SYS_TICK_FREQ_ADJUST_FUNC handler, UINTPTR param);
+
 /**
  * @ingroup los_tick
  * @brief Obtain the number of Ticks.

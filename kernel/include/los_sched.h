@@ -89,6 +89,8 @@ BOOL OsSchedTaskSwitch(VOID);
 
 LosTaskCB *OsGetTopTask(VOID);
 
+VOID OsSchedTimeConvertFreq(UINT32 oldFreq);
+
 STATIC INLINE UINT64 OsGetCurrSchedTimeCycle(VOID)
 {
     return LOS_SysCycleGet();

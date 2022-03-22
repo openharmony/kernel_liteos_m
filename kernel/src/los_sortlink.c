@@ -42,15 +42,15 @@ extern "C" {
 SortLinkAttribute g_taskSortLink;
 SortLinkAttribute g_swtmrSortLink;
 
-UINT32 OsSortLinkInit(SortLinkAttribute *sortLinkHeader)
+UINT32 OsSortLinkInit(SortLinkAttribute *sortLinkHead)
 {
-    LOS_ListInit(&sortLinkHeader->sortLink);
+    LOS_ListInit(&sortLinkHead->sortLink);
     return LOS_OK;
 }
 
-STATIC INLINE VOID OsAddNode2SortLink(SortLinkAttribute *sortLinkHeader, SortLinkList *sortList)
+STATIC INLINE VOID OsAddNode2SortLink(SortLinkAttribute *sortLinkHead, SortLinkList *sortList)
 {
-    LOS_DL_LIST *head = (LOS_DL_LIST *)&sortLinkHeader->sortLink;
+    LOS_DL_LIST *head = (LOS_DL_LIST *)&sortLinkHead->sortLink;
 
     if (LOS_ListEmpty(head)) {
         LOS_ListAdd(head, &sortList->sortLinkNode);
@@ -81,19 +81,19 @@ STATIC INLINE VOID OsAddNode2SortLink(SortLinkAttribute *sortLinkHeader, SortLin
 VOID OsAdd2SortLink(SortLinkList *node, UINT64 startTime, UINT32 waitTicks, SortLinkType type)
 {
     UINT32 intSave;
-    SortLinkAttribute *sortLinkHeader = NULL;
+    SortLinkAttribute *sortLinkHead = NULL;
 
     if (type == OS_SORT_LINK_TASK) {
-        sortLinkHeader = &g_taskSortLink;
+        sortLinkHead = &g_taskSortLink;
     } else if (type == OS_SORT_LINK_SWTMR) {
-        sortLinkHeader = &g_swtmrSortLink;
+        sortLinkHead = &g_swtmrSortLink;
     } else {
         LOS_Panic("Sort link type error : %u\n", type);
     }
 
     intSave = LOS_IntLock();
     SET_SORTLIST_VALUE(node, startTime + (UINT64)waitTicks * OS_CYCLE_PER_TICK);
-    OsAddNode2SortLink(sortLinkHeader, node);
+    OsAddNode2SortLink(sortLinkHead, node);
     LOS_IntRestore(intSave);
 }
 
@@ -107,6 +107,31 @@ VOID OsDeleteSortLink(SortLinkList *node)
         OsDeleteNodeSortLink(node);
     }
     LOS_IntRestore(intSave);
+}
+
+STATIC INLINE VOID SortLinkNodeTimeUpdate(SortLinkAttribute *sortLinkHead, UINT32 oldFreq)
+{
+    LOS_DL_LIST *head = (LOS_DL_LIST *)&sortLinkHead->sortLink;
+
+    if (LOS_ListEmpty(head)) {
+        return;
+    }
+
+    LOS_DL_LIST *nextNode = head->pstNext;
+    do {
+        SortLinkList *listSorted = LOS_DL_LIST_ENTRY(nextNode, SortLinkList, sortLinkNode);
+        listSorted->responseTime = OsTimeConvertFreq(listSorted->responseTime, oldFreq, g_sysClock);
+        nextNode = nextNode->pstNext;
+    } while (nextNode != head);
+}
+
+VOID OsSortLinkResponseTimeConvertFreq(UINT32 oldFreq)
+{
+    SortLinkAttribute *taskHead = &g_taskSortLink;
+    SortLinkAttribute *swtmrHead = &g_swtmrSortLink;
+
+    SortLinkNodeTimeUpdate(taskHead, oldFreq);
+    SortLinkNodeTimeUpdate(swtmrHead, oldFreq);
 }
 
 SortLinkAttribute *OsGetSortLinkAttribute(SortLinkType type)
@@ -130,9 +155,9 @@ UINT64 OsSortLinkGetTargetExpireTime(UINT64 currTime, const SortLinkList *target
     return (targetSortList->responseTime - currTime);
 }
 
-UINT64 OsSortLinkGetNextExpireTime(const SortLinkAttribute *sortLinkHeader)
+UINT64 OsSortLinkGetNextExpireTime(const SortLinkAttribute *sortLinkHead)
 {
-    LOS_DL_LIST *head = (LOS_DL_LIST *)&sortLinkHeader->sortLink;
+    LOS_DL_LIST *head = (LOS_DL_LIST *)&sortLinkHead->sortLink;
 
     if (LOS_ListEmpty(head)) {
         return 0;
