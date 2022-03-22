@@ -53,8 +53,6 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
-
-    ret = LOS_QueueCreate("Q1", QUEUE_BASE_NUM, &queueID[index], 0, QUEUE_BASE_MSGSIZE);
     ICUNIT_GOTO_NOT_EQUAL(ret, LOS_OK, ret, EXIT);
 
 EXIT:
