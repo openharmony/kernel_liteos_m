@@ -92,6 +92,9 @@ STATIC UINT32 OsExcSaveIntStatus(UINT32 type, VOID *arg)
     /* save IRQ Priority reg group */
     ret = memcpy_s(g_excContent, excContentEnd - (UINTPTR)g_excContent,
                    (const VOID *)OS_NVIC_PRI_BASE, OS_NVIC_INT_PRI_SIZE);
+    if (ret != EOK) {
+        return LOS_NOK;
+    }
     g_excContent = (UINT8 *)g_excContent + OS_NVIC_INT_PRI_SIZE;
 
     /* save Exception Priority reg group */
@@ -294,5 +297,3 @@ VOID OsExcMsgDumpInit(VOID)
     (VOID)LOS_RegExcHook(EXC_INTERRUPT, (ExcHookFn)OsExcMsgDump);
 }
 #endif
-
-

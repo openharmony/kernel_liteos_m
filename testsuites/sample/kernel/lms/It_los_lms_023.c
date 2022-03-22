@@ -54,6 +54,7 @@ static UINT32 TestCase(VOID)
     buf[7] = '\0'; /* end index 7 */
     PRINTK("%d\n", __LINE__);
     ret = strcat_s(buf, 100, src); /* Check LMS detection information when the strcat dest max set 100 overflows. */
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     PRINTK("%d\n", __LINE__);
     ret = LOS_MemFree(g_testLmsPool, buf);
     ICUNIT_ASSERT_NOT_EQUAL(ret, LOS_NOK, ret);
