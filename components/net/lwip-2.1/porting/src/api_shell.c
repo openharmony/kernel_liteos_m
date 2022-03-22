@@ -282,7 +282,7 @@ LWIP_STATIC unsigned int get_hostip(const char *hname)
         free(tmphstbuf);
         return 0;
     }
-    ret = memcpy_s(&ip, sizeof(ip), pent->h_addr, 4);
+    ret = memcpy_s(&ip, sizeof(ip), pent->h_addr, sizeof(pent->h_addr));
     if (ret != EOK) {
         free(tmphstbuf);
         return 0;
@@ -410,7 +410,7 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
             /* Accessing ip header and icmp header */
             iphdr_resp = pbuf_resp->payload;
 
-            ip_hlen = (IPH_HL(iphdr_resp) << 2);
+            ip_hlen = (IPH_HL(iphdr_resp) << 2); /* 2: offset */
             if (pbuf_header(pbuf_resp, -ip_hlen)) {
                 /* this failure will never happen, but failure handle is written just to be in safe side */
                 PRINTK("Ping : memory management failure\n");
@@ -428,7 +428,8 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
                 ((ICMPH_TYPE(iecho_resp) == ICMP_ECHO) && (iphdr_resp->src.addr == to.sin_addr.s_addr))) {
                 /* second type timeout event */
                 (void)clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-                timout_ms = ((end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000);
+                timout_ms = ((end.tv_sec - start.tv_sec) * OS_SYS_MS_PER_SECOND + \
+                             (end.tv_nsec - start.tv_nsec) / OS_SYS_NS_PER_MS);
                 timout_ms = LWIP_SHELL_CMD_PING_TIMEOUT - timout_ms;
             } else {
                 timout_ms = 0;
@@ -445,7 +446,8 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
         }
         /* capture the end time to calculate round trip time */
         (void)clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-        rtt = ((end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000);
+        rtt = ((end.tv_sec - start.tv_sec) * OS_SYS_MS_PER_SECOND + \
+               (end.tv_nsec - start.tv_nsec) / OS_SYS_NS_PER_MS);
 
         if (iphdr_resp->src.addr == to.sin_addr.s_addr) {
             switch (ICMPH_TYPE(iecho_resp)) {
@@ -461,12 +463,12 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
                     /* delay 1s for every successful ping */
                     intrvl = interval;
                     do {
-                        if (intrvl < 1000) {
+                        if (intrvl < 1000) { /* 1000: 1000ms = 1s */
                             sys_msleep(intrvl);
                             break;
                         }
-                        intrvl -= 1000;
-                        sys_msleep(1000);
+                        intrvl -= 1000; /* 1000: 1000ms = 1s */
+                        sys_msleep(1000); /* 1000: 1000ms = 1s */
                         if (ping_kill == 1)
                             break;
                     } while (intrvl > 0);
