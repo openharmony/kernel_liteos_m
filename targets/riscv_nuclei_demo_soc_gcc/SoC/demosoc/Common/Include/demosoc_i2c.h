@@ -34,21 +34,6 @@ extern "C" {
 #define I2C_SR_AL               (1 << 5)
 #define I2C_SR_TIP              (1 << 1)//0:transfer complete; 1:transferring
 #define I2C_SR_IF               (1 << 0)
-#if 0
-/*fileds*/
-
-#define I2C_CTR_ENABLE          1
-#define I2C_CTR_DISABLE         0
-
-#define I2C_CTR_INTEN           1
-#define I2C_CTR_INTDIS          0
-
-#define I2C_TXR_RFS             1       //read from slave
-#define I2C_TXR_WTS             0       //write to slave
-
-#define I2C
-
-#endif
 
 #ifdef __cplusplus
 }
