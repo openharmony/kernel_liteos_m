@@ -130,7 +130,7 @@ STATIC CHAR *OsLsGetFullpath(const CHAR *path, struct dirent *pdirent)
             goto exit_with_nomem;
         }
 
-        ret = snprintf_s(fullpath, pathLen, pathLen, "%s/%s", path, pdirent->d_name);
+        ret = snprintf_s(fullpath, pathLen, pathLen - 1, "%s/%s", path, pdirent->d_name);
         if (ret < 0) {
             free(fullpath);
             return NULL;
