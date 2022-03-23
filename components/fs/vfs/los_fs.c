@@ -269,6 +269,10 @@ int LOS_Open(const char *path, int oflag, ...)
     }
 
     size_t pathLen = strlen(path) + 1;
+    if ((unsigned)pathLen > PATH_MAX) {
+        errno = EINVAL;
+        return FS_FAILURE;
+    }
     char *canonicalPath = (char *)malloc(pathLen);
     if (!canonicalPath) {
         errno = ENOMEM;
