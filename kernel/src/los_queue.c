@@ -39,6 +39,7 @@
 #include "los_memory.h"
 #include "los_task.h"
 #include "los_sched.h"
+#include <stdint.h>
 
 
 #if (LOSCFG_BASE_IPC_QUEUE == 1)
