@@ -45,9 +45,6 @@ static UINT32 Testcase(VOID)
     ret = LOS_QueueWrite(g_testQueueID01, buff1, QUEUE_BASE_MSGSIZE, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_QueueRead(g_testQueueID01, &buff2, 7, 0); // 7, for boundary value test
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_READ_SIZE_TOO_SMALL, ret, EXIT);
-
     ret = LOS_QueueRead(g_testQueueID01, &buff2, QUEUE_BASE_MSGSIZE, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     // 6, to verify the correct value
