@@ -45,9 +45,6 @@ static UINT32 Testcase(VOID)
     ret = LOS_QueueWriteHead(g_testQueueID01, buff1, QUEUE_BASE_MSGSIZE, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_QueueRead(g_testQueueID01, &buff2, 7, 0); // 7, read size
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_READ_SIZE_TOO_SMALL, ret, EXIT);
-
     ret = LOS_QueueRead(g_testQueueID01, &buff2, QUEUE_BASE_MSGSIZE, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     ICUNIT_GOTO_EQUAL(*((char *)(intptr_t)buff2 + 6), buff1[6], *((char *)(intptr_t)buff2 + 6), EXIT); // 6, In order to verify the content
