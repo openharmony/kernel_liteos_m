@@ -85,11 +85,11 @@ Before setting up the environment for a development board, you must set up the b
 
 For details about how to obtain the source code, see [Source Code Acquisition](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/get-code/sourcecode-acquire.md). This document assumes that the clone directory is `~/openHarmony` after the complete OpenHarmony repository code is obtained.
 
-### Example projects that are already supported
+### Example projects
 
-Qemu simulator: `arm_mps2_an386、esp32、riscv32_virt、SmartL_E802`, For details about how to compile and run, see [qemu guide](https://gitee.com/openharmony/device_qemu)
+Qemu simulator: `arm_mps2_an386、esp32、riscv32_virt、SmartL_E802`. For details about how to compile and run, see [qemu guide](https://gitee.com/openharmony/device_qemu).
 
-Bestechnic: `bes2600`, For details about how to compile and run, see [Bestechnic developer guide](https://gitee.com/openharmony/device_soc_bestechnic)
+Bestechnic: `bes2600`. For details about how to compile and run, see [Bestechnic developer guide](https://gitee.com/openharmony/device_soc_bestechnic).
 
 ### Community Porting Project Links
 
