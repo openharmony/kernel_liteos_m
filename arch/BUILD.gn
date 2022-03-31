@@ -39,7 +39,8 @@ module_group("arch") {
       "$board_cpu" == "cortex-m4" || "$board_cpu" == "cortex-m7" ||
       "$board_cpu" == "cortex-m33" || "$board_cpu" == "cortex-m55") {
     modules += [ "arm" ]
-  } else if ("$board_cpu" == "ck802" || "$board_cpu" == "e802") {
+  } else if ("$board_cpu" == "ck802" || "$board_cpu" == "e802" ||
+             "$board_cpu" == "ck804ef") {
     modules += [ "csky" ]
   } else if ("$board_cpu" == "") {
     if ("$board_arch" == "rv32imac" || "$board_arch" == "rv32imafdc") {

@@ -50,7 +50,11 @@ typedef struct {
 #define CORETIM_SOURCE       (1UL << 2)
 #define CORETIM_MODE         (1UL << 16)
 
+#ifdef CPU_CK804
+#define TIM_INT_NUM          25
+#else
 #define TIM_INT_NUM          1
+#endif
 
 STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler);
 STATIC UINT64 SysTickReload(UINT64 nextResponseTime);
