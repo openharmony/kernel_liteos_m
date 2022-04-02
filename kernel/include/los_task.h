@@ -1503,6 +1503,11 @@ typedef struct {
     LOSCFG_TASK_STRUCT_EXTENSION                          /**< Task extension field */
 } LosTaskCB;
 
+STATIC INLINE BOOL OsTaskIsExit(const LosTaskCB *taskCB)
+{
+    return ((taskCB->taskStatus & OS_TASK_STATUS_EXIT) != 0);
+}
+
 typedef struct {
     LosTaskCB   *runTask;
     LosTaskCB   *newTask;
