@@ -236,6 +236,7 @@ static int FatfsErrno(int result)
 
 char * GetLdPath(const char *source)
 {
+#define LDPATH_PAD 2  // 2 means: strlen("/") + len of '\0'
     int ret;
     int partId = GetPartIdByPartName(source);
     if ((partId < 0) || (partId >= MAX_PARTITION_NUM)) {
@@ -243,16 +244,16 @@ char * GetLdPath(const char *source)
     }
 
     char *volPath = g_volPath[partId];
-    char *ldPath = (char *)malloc(strlen(volPath) + 1);
+    char *ldPath = (char *)malloc(strlen(volPath) + LDPATH_PAD);
     if (ldPath == NULL) {
         return NULL;
     }
 
-    (void)memset_s(ldPath, strlen(volPath) + 1, 0, strlen(volPath) + 1);
+    (void)memset_s(ldPath, strlen(volPath) + LDPATH_PAD, 0, strlen(volPath) + LDPATH_PAD);
 
     /* Convert volPath to ldpath, for example, convert "inner" to "/inner" */
     *ldPath = '/';
-    ret = strcpy_s(ldPath + 1, strlen(volPath), volPath);
+    ret = strcpy_s(ldPath + 1, strlen(volPath)+1, volPath);
     if (ret != EOK) {
         free(ldPath);
         return NULL;
