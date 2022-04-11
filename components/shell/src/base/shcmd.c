@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -196,7 +196,7 @@ LITE_OS_SEC_TEXT_MINOR VOID OsCmdAscendingInsert(CmdItemNode *cmd)
     }
 
     for (cmdItem = LOS_DL_LIST_ENTRY((&cmdInfo.cmdList.list)->pstPrev, CmdItemNode, list);
-        &cmdItem->list != &(cmdInfo.cmdList.list); ) {
+        &cmdItem->list != &(cmdInfo.cmdList.list);) {
         cmdNext = LOS_DL_LIST_ENTRY(cmdItem->list.pstPrev, CmdItemNode, list);
         if (&cmdNext->list != &(cmdInfo.cmdList.list)) {
             if ((strncmp(cmdItem->cmd->cmdKey, cmd->cmd->cmdKey, strlen(cmd->cmd->cmdKey)) >= 0) &&
