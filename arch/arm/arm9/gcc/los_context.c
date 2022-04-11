@@ -76,6 +76,7 @@ LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
 LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
 {
     TaskContext *context = (TaskContext *)((UINTPTR)topStack + stackSize - sizeof(TaskContext));
+    LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
 
     context->r0 = taskID;
     context->r1 = 0x01010101L;
