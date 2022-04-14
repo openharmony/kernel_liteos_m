@@ -1487,7 +1487,7 @@ STATIC INLINE VOID OsMemMergeNodeForReAllocBigger(VOID *pool, UINT32 allocSize, 
 #endif
     }
     OS_MEM_NODE_SET_USED_FLAG(node->sizeAndFlag);
-    OsMemWaterUsedRecord((struct OsMemPoolHead *)pool, node->sizeAndFlag - nodeSize);
+    OsMemWaterUsedRecord((struct OsMemPoolHead *)pool, OS_MEM_NODE_GET_SIZE(node->sizeAndFlag) - nodeSize);
 #if (LOSCFG_MEM_LEAKCHECK == 1)
     OsMemLinkRegisterRecord(node);
 #endif
