@@ -45,6 +45,8 @@ kernel_module("test_init") {
     "src/osTest.c",
   ]
 
+  include_dirs = [ "unittest/posix/src" ]
+
   configs += [ ":include" ]
 }
 
@@ -63,6 +65,7 @@ group("testsuites") {
     "sample/kernel/swtmr:test_swtmr",
     "sample/kernel/task:test_task",
     "sample/posix:test_posix",
+    "unittest/posix:posix_test",
   ]
   if (defined(LOSCFG_DYNLINK)) {
     deps += [ "sample/kernel/dynlink:test_dynlink" ]

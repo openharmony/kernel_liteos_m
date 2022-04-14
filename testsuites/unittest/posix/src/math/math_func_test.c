@@ -32,7 +32,7 @@
 #include <float.h>
 #include <math.h>
 #include "ohos_types.h"
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include "log.h"
@@ -109,6 +109,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathAbs001, Function | MediumTest | L
         LOG("\n [POSIXTEST][abs]abs(%d) = %d, expected is %d", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_INT(expected[i], ret);
     }
+    return 0;
 };
 
 /* *
@@ -127,6 +128,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathAbs002, Function | MediumTest | L
         LOG("\n [POSIXTEST][abs]abs(%d) = %d, expected is %d", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_INT(expected[i], ret);
     }
+    return 0;
 };
 
 /* *
@@ -148,6 +150,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathLog001, Function | MediumTest | L
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
         TEST_ASSERT_TRUE(DoubleEquals(expected[i], ret));
     }
+    return 0;
 };
 
 /* *
@@ -170,6 +173,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathLog002, Function | MediumTest | L
         LOG("\n [POSIXTEST][log]log(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
     }
+    return 0;
 };
 
 /* *
@@ -189,6 +193,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathSqrt001, Function | MediumTest | 
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
         TEST_ASSERT_TRUE(DoubleEquals(expected[i], ret));
     }
+    return 0;
 };
 
 /* *
@@ -207,6 +212,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathSqrt002, Function | MediumTest | 
         LOG("\n [POSIXTEST][sqrt]sqrt(%f) = %f, expected is %f", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
     }
+    return 0;
 };
 
 /* *
@@ -232,6 +238,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow001, Function | MediumTest | L
         TEST_ASSERT_EQUAL_FLOAT(testValues[i][TEST_EXPECTED], ret);
         TEST_ASSERT_TRUE(DoubleEquals(testValues[i][TEST_EXPECTED], ret));
     }
+    return 0;
 };
 
 
@@ -266,6 +273,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow002, Function | MediumTest | L
         LOG("\n [POSIXTEST][pow]pow1(%f,%f) = %f, expected is %f", testValues[i][TEST_VALUE_X],
             testValues[i][TEST_VALUE_Y], ret, testValues[i][TEST_EXPECTED]);
     }
+    return 0;
 };
 
 /* *
@@ -291,6 +299,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow003, Function | MediumTest | L
             testValues[i][TEST_VALUE_Y], ret, testValues[i][TEST_EXPECTED]);
         TEST_ASSERT_TRUE(DoubleEquals(testValues[i][TEST_EXPECTED], ret));
     }
+    return 0;
 };
 
 /* *
@@ -311,6 +320,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathRound001, Function | MediumTest |
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
         TEST_ASSERT_TRUE(DoubleEquals(expected[i], ret));
     }
+    return 0;
 };
 
 /* *
@@ -330,6 +340,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathRound002, Function | MediumTest |
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
         TEST_ASSERT_TRUE(DoubleEquals(expected[i], ret));
     }
+    return 0;
 };
 
 RUN_TEST_SUITE(PosixMathFuncTestSuite);

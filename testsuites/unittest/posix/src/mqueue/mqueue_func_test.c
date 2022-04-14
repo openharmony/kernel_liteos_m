@@ -30,7 +30,7 @@
  */
 
 #include <securec.h>
-#include "hctest.h"
+#include "posix_test.h"
 #include <mqueue.h>
 #include <fcntl.h>
 #include "common_test.h"
@@ -96,7 +96,7 @@ static BOOL MqueueFuncTestSuiteTearDown(void)
  * @tc.name      : event operation for create
  * @tc.desc      : [C- SOFTWARE -0200]
  */
-LITE_TEST_CASE(MqueueFuncTestSuite, testMqueue001, Function | MediumTest | Level1)
+LITE_TEST_CASE(MqueueFuncTestSuite, TestMqueue001, Function | MediumTest | Level1)
 {
     unsigned int ret;
     char msgrcd[MQUEUE_STANDARD_NAME_LENGTH] = {0};
@@ -126,13 +126,13 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqueue001, Function | MediumTest | Level
     ret = mq_unlink(mqname);
     ICUNIT_GOTO_EQUAL(ret, MQUEUE_NO_ERROR, ret, EXIT);
 
-    return;
+    return 0;
 
 EXIT1:
     mq_close(mqueue);
 EXIT:
     mq_unlink(mqname);
-    return;
+    return 0;
 };
 
 /**
@@ -140,7 +140,7 @@ EXIT:
  * @tc.name   mq_open function errno for EEXIST test
  * @tc.desc   [C- SOFTWARE -0200]
  */
-LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenEEXIST, Function | MediumTest | Level2)
+LITE_TEST_CASE(MqueueFuncTestSuite, TestMqOpenEEXIST, Function | MediumTest | Level2)
 {
     char qName[MQ_NAME_LEN];
     mqd_t queue, queueOther;
@@ -160,7 +160,7 @@ EXIT1:
 EXIT:
     ret = mq_unlink(qName);
     ICUNIT_ASSERT_EQUAL_VOID(ret, 0, ret);
-    return;
+    return 0;
 }
 
 /**
@@ -168,7 +168,7 @@ EXIT:
  * @tc.name   mq_open function errno for EINVAL test
  * @tc.desc   [C- SOFTWARE -0200]
  */
-LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenEINVAL, Function | MediumTest | Level2)
+LITE_TEST_CASE(MqueueFuncTestSuite, TestMqOpenEINVAL, Function | MediumTest | Level2)
 {
     int i;
     mqd_t queue;
@@ -228,6 +228,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenEINVAL, Function | MediumTest | Le
     attr.mq_maxmsg = MQ_MAX_MSG;
     queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
     ICUNIT_TRACK_EQUAL(errno, EINVAL, errno);
+    return 0;
 }
 
 
@@ -236,7 +237,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenEINVAL, Function | MediumTest | Le
  * @tc.name   mq_open function errno for ENAMETOOLONG test
  * @tc.desc   [C- SOFTWARE -0200]
  */
-LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENAMETOOLONG, Function | MediumTest | Level2)
+LITE_TEST_CASE(MqueueFuncTestSuite, TestMqOpenENAMETOOLONG, Function | MediumTest | Level2)
 {
     char qName[MAX_MQ_NAME_LEN + 10];
     mqd_t queue;
@@ -256,6 +257,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENAMETOOLONG, Function | MediumTes
     }
 
     ICUNIT_TRACK_EQUAL(errno, ENAMETOOLONG, errno);
+    return 0;
 }
 
 
@@ -264,7 +266,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENAMETOOLONG, Function | MediumTes
  * @tc.name   mq_open function errno for ENOENT test
  * @tc.desc   [C- SOFTWARE -0200]
  */
-LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENOENT, Function | MediumTest | Level3)
+LITE_TEST_CASE(MqueueFuncTestSuite, TestMqOpenENOENT, Function | MediumTest | Level3)
 {
     mqd_t queue;
     char qName[MQ_NAME_LEN];
@@ -278,6 +280,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENOENT, Function | MediumTest | Le
         mq_unlink(qName);
     }
     ICUNIT_TRACK_EQUAL(errno, ENOENT, errno);
+    return 0;
 }
 
 /**
@@ -285,7 +288,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENOENT, Function | MediumTest | Le
  * @tc.name   mq_open function errno for ENFILE test
  * @tc.desc   [C- SOFTWARE -0200]
  */
-LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENFILE, Function | MediumTest | Level3)
+LITE_TEST_CASE(MqueueFuncTestSuite, TestMqOpenENFILE, Function | MediumTest | Level3)
 {
     char qName[MAX_MQ_NUMBER + 1][30];
     mqd_t queue[MAX_MQ_NUMBER + 1];
@@ -318,6 +321,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENFILE, Function | MediumTest | Le
         mq_close(queue[i]);
         mq_unlink(qName[i]);
     }
+    return 0;
 }
 
 /**
@@ -325,7 +329,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENFILE, Function | MediumTest | Le
  * @tc.name   mq_open function errno for ENOSPC test
  * @tc.desc   [C- SOFTWARE -0200]
  */
-LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENOSPC, Function | MediumTest | Level3)
+LITE_TEST_CASE(MqueueFuncTestSuite, TestMqOpenENOSPC, Function | MediumTest | Level3)
 {
     mqd_t queue;
     struct mq_attr setAttr = {0};
@@ -342,6 +346,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENOSPC, Function | MediumTest | Le
         mq_unlink(qName);
     }
     ICUNIT_TRACK_EQUAL(errno, ENOSPC, errno);
+    return 0;
 }
 
 /**
@@ -349,10 +354,11 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenENOSPC, Function | MediumTest | Le
  * @tc.name   mq_close function errno for EBADF test
  * @tc.desc   [C- SOFTWARE -0200]
  */
-LITE_TEST_CASE(MqueueFuncTestSuite, testMqCloseEBADF, Function | MediumTest | Level2)
+LITE_TEST_CASE(MqueueFuncTestSuite, TestMqCloseEBADF, Function | MediumTest | Level2)
 {
     ICUNIT_TRACK_EQUAL(mq_close(NULL), -1, -1);
     ICUNIT_TRACK_EQUAL(errno, EBADF, errno);
+    return 0;
 }
 
 /**
@@ -360,7 +366,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqCloseEBADF, Function | MediumTest | Le
  * @tc.name   mq_send function errno for EAGAIN test
  * @tc.desc   [C- SOFTWARE -0200]
  */
-LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEAGAIN, Function | MediumTest | Level2)
+LITE_TEST_CASE(MqueueFuncTestSuite, TestMqSendEAGAIN, Function | MediumTest | Level2)
 {
     mqd_t queue;
     struct mq_attr attr = {0};
@@ -385,6 +391,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEAGAIN, Function | MediumTest | Le
 
     ret = mq_unlink(qName);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 /**
@@ -392,7 +399,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEAGAIN, Function | MediumTest | Le
  * @tc.name   mq_send function errno for EBADF and EMSGSIZE test
  * @tc.desc   [C- SOFTWARE -0200]
  */
-LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEBADFEMSGSIZE, Function | MediumTest | Level2)
+LITE_TEST_CASE(MqueueFuncTestSuite, TestMqSendEBADFEMSGSIZE, Function | MediumTest | Level2)
 {
     mqd_t queue;
     struct mq_attr attr = {0};
@@ -441,6 +448,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEBADFEMSGSIZE, Function | MediumTe
 
     ret = mq_unlink(qName);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 /**
@@ -448,7 +456,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEBADFEMSGSIZE, Function | MediumTe
  * @tc.name   mq_send function errno for EINVAL  test
  * @tc.desc   [C- SOFTWARE -0200]
  */
-LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEINVAL, Function | MediumTest | Level3)
+LITE_TEST_CASE(MqueueFuncTestSuite, TestMqSendEINVAL, Function | MediumTest | Level3)
 {
     mqd_t queue;
     struct mq_attr attr = {0};
@@ -470,6 +478,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEINVAL, Function | MediumTest | Le
 
     ret = mq_unlink(qName);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 /**
@@ -477,7 +486,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqSendEINVAL, Function | MediumTest | Le
  * @tc.name   mq_receive function errno for EAGAIN test
  * @tc.desc   [C- SOFTWARE -0200]
  */
-LITE_TEST_CASE(MqueueFuncTestSuite, testMqReceiveEAGAIN, Function | MediumTest | Level2)
+LITE_TEST_CASE(MqueueFuncTestSuite, TestMqReceiveEAGAIN, Function | MediumTest | Level2)
 {
     mqd_t queue;
     unsigned int prio;
@@ -509,6 +518,26 @@ LITE_TEST_CASE(MqueueFuncTestSuite, testMqReceiveEAGAIN, Function | MediumTest |
 
     ret = mq_unlink(qName);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 RUN_TEST_SUITE(MqueueFuncTestSuite);
+
+void PosixMqueueFuncTest(void)
+{
+    LOG("begin PosixMqueueFuncTest....");
+    RUN_ONE_TESTCASE(TestMqueue001);
+    RUN_ONE_TESTCASE(TestMqOpenEEXIST);
+    RUN_ONE_TESTCASE(TestMqOpenEINVAL);
+    RUN_ONE_TESTCASE(TestMqOpenENAMETOOLONG);
+    RUN_ONE_TESTCASE(TestMqOpenENOENT);
+    RUN_ONE_TESTCASE(TestMqOpenENFILE);
+    RUN_ONE_TESTCASE(TestMqOpenENOSPC);
+    RUN_ONE_TESTCASE(TestMqCloseEBADF);
+    RUN_ONE_TESTCASE(TestMqSendEAGAIN);
+    RUN_ONE_TESTCASE(TestMqSendEBADFEMSGSIZE);
+    RUN_ONE_TESTCASE(TestMqSendEINVAL);
+    RUN_ONE_TESTCASE(TestMqReceiveEAGAIN);
+
+    return;
+}
