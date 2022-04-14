@@ -29,7 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include "log.h"
@@ -73,6 +73,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen001, Function | MediumT
     char src[] = "helloworld";
     int ret = strlen(src);
     TEST_ASSERT_EQUAL_INT(ret, 10);
+    return 0;
 }
 
 /* *
@@ -85,6 +86,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen002, Function | MediumT
     char src[] = "hello world";
     int ret = strlen(src);
     TEST_ASSERT_EQUAL_INT(ret, 11);
+    return 0;
 }
 
 /* *
@@ -96,6 +98,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen003, Function | MediumT
 {
     int ret = strlen("");
     TEST_ASSERT_EQUAL_INT(ret, 0);
+    return 0;
 }
 
 /* *
@@ -108,6 +111,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen004, Function | MediumT
     char src[] = "hello\0world";
     int ret = strlen(src);
     TEST_ASSERT_EQUAL_INT(ret, 5);
+    return 0;
 }
 
 /* *
@@ -120,6 +124,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen005, Function | MediumT
     char src[] = "\0helloworld";
     int ret = strlen(src);
     TEST_ASSERT_EQUAL_INT(ret, 0);
+    return 0;
 }
 
 
@@ -133,6 +138,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncasecmp001, Function | Me
     char *src[] = {"helloworld", "HElloworld"};
     int ret = strncasecmp(src[0], src[1], 2);
     TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    return 0;
 }
 
 /* *
@@ -145,6 +151,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncasecmp002, Function | Me
     char *src[] = {"helloworld", "he\0lloworld"};
     int ret = strncasecmp(src[0], src[1], 3);
     TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    return 0;
 }
 
 /* *
@@ -157,6 +164,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncasecmp003, Function | Me
     char *src[] = {"helloworld", "he lloworld"};
     int ret = strncasecmp(src[0], src[1], 3);
     TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    return 0;
 }
 
 /* *
@@ -169,6 +177,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncasecmp004, Function | Me
     char *src[] = {"helloworld", "hello World"};
     int ret = strncasecmp(src[0], src[1], 3);
     TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    return 0;
 }
 
 /* *
@@ -181,6 +190,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncasecmp005, Function | Me
     char *src[] = {"helloworld", "\0"};
     int ret = strncasecmp(src[0], src[1], 1);
     TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    return 0;
 }
 
 /* *
@@ -193,6 +203,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncmp001, Function | Medium
     char *src[] = {"helloworld", "HELloworld"};
     int ret = strncmp(src[0], src[1], 3);
     TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    return 0;
 }
 
 /* *
@@ -205,6 +216,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncmp002, Function | Medium
     char *src[] = {"helloworld", "he\0lloworld"};
     int ret = strncmp(src[0], src[1], 3);
     TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    return 0;
 }
 
 /* *
@@ -217,6 +229,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncmp003, Function | Medium
     char *src[] = {"helloworld", "he lloworld"};
     int ret = strncmp(src[0], src[1], 3);
     TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    return 0;
 }
 
 /* *
@@ -229,6 +242,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncmp004, Function | Medium
     char *src[] = {"helloworld", "hello World"};
     int ret = strncmp(src[0], src[1], 3);
     TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    return 0;
 }
 
 /* *
@@ -241,6 +255,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncmp005, Function | Medium
     char *src[] = {"helloworld", "\0"};
     int ret = strncmp(src[0], src[1], 3);
     TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    return 0;
 }
 
 
@@ -255,6 +270,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr001, Function | Medium
     char *ret = strrchr(src, '!');
     TEST_ASSERT_EQUAL_PTR(ret, NULL);
     TEST_ASSERT_NULL(ret);
+    return 0;
 }
 
 /* *
@@ -268,6 +284,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr002, Function | Medium
     char *ret = strrchr(src, '\0');
     TEST_ASSERT_EQUAL_PTR(ret, src + 11);
     TEST_ASSERT_NOT_NULL(ret);
+    return 0;
 }
 
 /* *
@@ -281,6 +298,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr003, Function | Medium
     char *ret = strrchr(src, '\0');
     TEST_ASSERT_EQUAL_PTR(ret, src + 5);
     TEST_ASSERT_NOT_NULL(ret);
+    return 0;
 }
 
 /* *
@@ -294,6 +312,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr004, Function | Medium
     char *ret = strrchr(src, ' ');
     TEST_ASSERT_EQUAL_PTR(ret, src + 5);
     TEST_ASSERT_NOT_NULL(ret);
+    return 0;
 }
 
 /* *
@@ -307,6 +326,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr005, Function | Medium
     char *ret = strrchr(src, ' ');
     TEST_ASSERT_EQUAL_PTR(ret, NULL);
     TEST_ASSERT_NULL(ret);
+    return 0;
 }
 
 RUN_TEST_SUITE(PosixStringFuncTestSuite);

@@ -29,8 +29,7 @@
 
 import("//test/xts/tools/lite/build/suite_lite.gni")
 
-hctest_suite("PosixTest") {
-  suite_name = "acts"
+static_library("posix_test") {
   sources = [
     "src/ctype/ctype_func_test.c",
     "src/ctype/isdigit_test.c",
@@ -42,7 +41,7 @@ hctest_suite("PosixTest") {
     "src/fs/posix_fs_func_test.c",
     "src/math/math_func_test.c",
     "src/mqueue/mqueue_func_test.c",
-    "src/pthread/pthread_cond_func_test.c",
+    "src/posix_test.c",
     "src/regex/regex_func_test.c",
     "src/semaphore/semaphore_func_test.c",
     "src/stdarg/stdarg_func_test.c",
@@ -65,6 +64,7 @@ hctest_suite("PosixTest") {
     "//test/xts/tools/hctest/include",
     "src",
   ]
+
   cflags = [ "-Wno-error" ]
-  deps = [ "//kernel/liteos_m/kal/posix" ]
+  configs += [ "//kernel/liteos_m/testsuites:include" ]
 }

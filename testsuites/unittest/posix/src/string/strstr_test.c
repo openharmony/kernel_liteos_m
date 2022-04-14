@@ -30,7 +30,7 @@
  */
 
 #include "ohos_types.h"
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include <ctype.h>
@@ -311,3 +311,23 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr013, Function | MediumTest
 }
 
 RUN_TEST_SUITE(PosixStringStrStrTest);
+
+void PosixStringStrstrTest(void)
+{
+    LOG("begin PosixStringStrstrTest....");
+    RUN_ONE_TESTCASE(testStringStrStr001);
+    RUN_ONE_TESTCASE(testStringStrStr002);
+    RUN_ONE_TESTCASE(testStringStrStr003);
+    RUN_ONE_TESTCASE(testStringStrStr004);
+    RUN_ONE_TESTCASE(testStringStrStr005);
+    RUN_ONE_TESTCASE(testStringStrStr006);
+    RUN_ONE_TESTCASE(testStringStrStr007);
+    RUN_ONE_TESTCASE(testStringStrStr008);
+    RUN_ONE_TESTCASE(testStringStrStr009);
+    RUN_ONE_TESTCASE(testStringStrStr010);
+    RUN_ONE_TESTCASE(testStringStrStr011);
+    RUN_ONE_TESTCASE(testStringStrStr012);
+    RUN_ONE_TESTCASE(testStringStrStr013);
+
+    return;
+}

@@ -31,7 +31,7 @@
 
 #include <ctype.h>
 #include "ohos_types.h"
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include "log.h"
@@ -80,6 +80,7 @@ LITE_TEST_CASE(PosixCTypeIsdigitTest, testCTypeIsdigit001, Function | MediumTest
         LOG("[DEMO] posix ctype test case 1:isdigit(%c) fail.\n", a);
     }
     TEST_ASSERT_EQUAL_INT(1, ret);
+    return 0;
 }
 
 /**
@@ -98,6 +99,7 @@ LITE_TEST_CASE(PosixCTypeIsdigitTest, testCTypeIsdigit002, Function | MediumTest
         LOG("[DEMO] posix ctype test case 2:isdigit(%c) fail.\n", a);
     }
     TEST_ASSERT_EQUAL_INT(1, ret);
+    return 0;
 }
 
 /**
@@ -116,6 +118,7 @@ LITE_TEST_CASE(PosixCTypeIsdigitTest, testCTypeIsdigit003, Function | MediumTest
         LOG("[DEMO] posix ctype test case 3:isdigit(%c) fail.\n", a);
     }
     TEST_ASSERT_EQUAL_INT(1, ret);
+    return 0;
 }
 
 /**
@@ -134,6 +137,7 @@ LITE_TEST_CASE(PosixCTypeIsdigitTest, testCTypeIsdigit004, Function | MediumTest
         LOG("[DEMO] posix ctype test case 4(except):isdigit(%c) fail.\n", a);
     }
     TEST_ASSERT_EQUAL_INT(0, ret);
+    return 0;
 }
 
 /**
@@ -152,6 +156,7 @@ LITE_TEST_CASE(PosixCTypeIsdigitTest, testCTypeIsdigit005, Function | MediumTest
         LOG("[DEMO] posix ctype test case 5(except):isdigit(%c) fail.\n", a);
     }
     TEST_ASSERT_EQUAL_INT(0, ret);
+    return 0;
 }
 
 RUN_TEST_SUITE(PosixCTypeIsdigitTest);

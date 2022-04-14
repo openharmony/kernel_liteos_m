@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,28 +28,35 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef COMMON_TEST_H
-#define COMMON_TEST_H
+#include "posix_test.h"
 
-#define TESTCOUNT_NUM_1 1
-#define TESTCOUNT_NUM_2 2
-#define TESTCOUNT_NUM_3 3
-#define TESTCOUNT_NUM_4 4
-#define TESTCOUNT_NUM_5 5
-
-#define DELAY_TICKS_1 1
-#define DELAY_TICKS_5 5
-#define DELAY_TICKS_10 10
-
-#define TEST_TASK_STACK_SIZE 0x600
-#define TASK_LOOP_NUM 0x10000000
-#define TEST_TIME 10
-#define THREAD_COUNT_MIN 3
-#define THREAD_COUNT_MAX 30
-#define THREAD_STACK_SPACE_MAX 4096
-
-#ifdef __cplusplus
-#if __cplusplus
+void ItSuitePosix(void)
+{
+    PRINTF("***********************BEGIN POSIX TEST**********************\n");
+    PthreadFuncTestSuite();
+    PosixCtypeFuncTest();
+    PosixIsdigitFuncTest();
+    PosixIslowerFuncTest();
+    PosixIsxdigitFuncTest();
+    PosixTolowerFuncTest();
+    PosixToupperFuncTest();
+    PosixStrerrorTest();
+    PosixMathFuncTest();
+    PosixMqueueFuncTest();
+    PosixStdargFuncTest();
+    PosixStdlibAtoiFuncTest();
+    PosixStdlibAtolFuncTest();
+    PosixStdlibAtollFuncTest();
+    PosixStdlibStrtolFuncTest();
+    PosixStdlibStrtoulFuncTest();
+    PosixStdlibStrtoullFuncTest();
+    PosixStringMemTest03();
+    PosixStringStrchrTest();
+    PosixStringFuncTest02();
+    PosixStringStrcasecmpFuncTest();
+    PosixStringFuncTest03();
+#if (LOS_KERNEL_TEST_FULL == 1)
+    PosixSemaphoreFuncTest();
+    PosixTimeFuncTest();
 #endif
-#endif /* __cplusplus */
-#endif
+}
