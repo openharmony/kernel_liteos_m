@@ -69,6 +69,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsMuxInit(VOID)
     for (index = 0; index < LOSCFG_BASE_IPC_MUX_LIMIT; index++) {
         muxNode = ((LosMuxCB *)g_allMux) + index;
         muxNode->muxID = index;
+        muxNode->owner = (LosTaskCB *)NULL;
         muxNode->muxStat = OS_MUX_UNUSED;
         LOS_ListTailInsert(&g_unusedMuxList, &muxNode->muxList);
     }
@@ -274,6 +275,11 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
         OS_RETURN_ERROR(LOS_ERRNO_MUX_INVALID);
     }
 
+    if (OS_INT_ACTIVE) {
+        LOS_IntRestore(intSave);
+        OS_RETURN_ERROR(LOS_ERRNO_MUX_PEND_INTERR);
+    }
+
     runningTask = (LosTaskCB *)g_losTask.runTask;
     if ((muxPosted->muxCount == 0) || (muxPosted->owner != runningTask)) {
         LOS_IntRestore(intSave);
@@ -304,6 +310,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
         OsHookCall(LOS_HOOK_TYPE_MUX_POST, muxPosted);
         LOS_Schedule();
     } else {
+        muxPosted->owner = NULL;
         LOS_IntRestore(intSave);
     }
 

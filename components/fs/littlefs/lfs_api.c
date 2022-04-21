@@ -40,29 +40,29 @@ FileDirInfo g_lfsDir[LFS_MAX_OPEN_DIRS] = {0};
 struct FileOpInfo g_fsOp[LOSCFG_LFS_MAX_MOUNT_SIZE] = {0};
 static LittleFsHandleStruct g_handle[LITTLE_FS_MAX_OPEN_FILES] = {0};
 struct dirent g_nameValue;
-static pthread_mutex_t g_FslocalMutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t g_fsLocalMutex = PTHREAD_MUTEX_INITIALIZER;
 static const char *g_littlefsMntName[LOSCFG_LFS_MAX_MOUNT_SIZE] = {"/a", "/b", "/c"};
 
 LittleFsHandleStruct *LfsAllocFd(const char *fileName, int *fd)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
         if (g_handle[i].useFlag == 0) {
             *fd = i;
             g_handle[i].useFlag = 1;
             g_handle[i].pathName = strdup(fileName);
-            pthread_mutex_unlock(&g_FslocalMutex);
+            pthread_mutex_unlock(&g_fsLocalMutex);
             return &(g_handle[i]);
         }
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
     *fd = INVALID_FD;
     return NULL;
 }
 
 static void LfsFreeFd(int fd)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     g_handle[fd].useFlag = 0;
     if (g_handle[fd].pathName != NULL) {
         free((void *)g_handle[fd].pathName);
@@ -72,21 +72,21 @@ static void LfsFreeFd(int fd)
     if (g_handle[fd].lfsHandle != NULL) {
         g_handle[fd].lfsHandle = NULL;
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
 }
 
 BOOL CheckFileIsOpen(const char *fileName)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     for (int i = 0; i < LITTLE_FS_MAX_OPEN_FILES; i++) {
         if (g_handle[i].useFlag == 1) {
             if (strcmp(g_handle[i].pathName, fileName) == 0) {
-                pthread_mutex_unlock(&g_FslocalMutex);
+                pthread_mutex_unlock(&g_fsLocalMutex);
                 return TRUE;
             }
         }
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
     return FALSE;
 }
 
@@ -103,22 +103,22 @@ static BOOL LfsFdIsValid(int fd)
 
 FileDirInfo *GetFreeDir(const char *dirName)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     for (int i = 0; i < LFS_MAX_OPEN_DIRS; i++) {
         if (g_lfsDir[i].useFlag == 0) {
             g_lfsDir[i].useFlag = 1;
             g_lfsDir[i].dirName = strdup(dirName);
-            pthread_mutex_unlock(&g_FslocalMutex);
+            pthread_mutex_unlock(&g_fsLocalMutex);
             return &(g_lfsDir[i]);
         }
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
     return NULL;
 }
 
 void FreeDirInfo(const char *dirName)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     for (int i = 0; i < LFS_MAX_OPEN_DIRS; i++) {
         if (g_lfsDir[i].useFlag == 1 && strcmp(g_lfsDir[i].dirName, dirName) == 0) {
             g_lfsDir[i].useFlag = 0;
@@ -126,24 +126,23 @@ void FreeDirInfo(const char *dirName)
                 free(g_lfsDir[i].dirName);
                 g_lfsDir[i].dirName = NULL;
             }
-            pthread_mutex_unlock(&g_FslocalMutex);
         }
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
 }
 
 BOOL CheckDirIsOpen(const char *dirName)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     for (int i = 0; i < LFS_MAX_OPEN_DIRS; i++) {
         if (g_lfsDir[i].useFlag == 1) {
             if (strcmp(g_lfsDir[i].dirName, dirName) == 0) {
-                pthread_mutex_unlock(&g_FslocalMutex);
+                pthread_mutex_unlock(&g_fsLocalMutex);
                 return TRUE;
             }
         }
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
     return FALSE;
 }
 
@@ -165,35 +164,35 @@ BOOL CheckPathIsMounted(const char *pathName, struct FileOpInfo **fileOpInfo)
     char tmpName[LITTLEFS_MAX_LFN_LEN] = {0};
     int len = GetFirstLevelPathLen(pathName);
 
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 1) {
             (void)strncpy_s(tmpName, LITTLEFS_MAX_LFN_LEN, pathName, len);
             if (strcmp(tmpName, g_fsOp[i].dirName) == 0) {
                 *fileOpInfo = &(g_fsOp[i]);
-                pthread_mutex_unlock(&g_FslocalMutex);
+                pthread_mutex_unlock(&g_fsLocalMutex);
                 return TRUE;
             }
         }
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
     return FALSE;
 }
 
 struct FileOpInfo *AllocMountRes(const char* target, const struct FileOps *fileOps)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 0 && strcmp(target, g_littlefsMntName[i]) == 0) {
             g_fsOp[i].useFlag = 1;
             g_fsOp[i].fsVops = fileOps;
             g_fsOp[i].dirName = strdup(target);
-            pthread_mutex_unlock(&g_FslocalMutex);
+            pthread_mutex_unlock(&g_fsLocalMutex);
             return &(g_fsOp[i]);
         }
     }
 
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
     return NULL;
 }
 
@@ -203,26 +202,26 @@ int SetDefaultMountPath(int pathNameIndex, const char* target)
         return VFS_ERROR;
     }
 
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     g_littlefsMntName[pathNameIndex] = strdup(target);
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
     return VFS_OK;
 }
 
 struct FileOpInfo *GetMountRes(const char *target, int *mountIndex)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 1) {
             if (g_fsOp[i].dirName && strcmp(target, g_fsOp[i].dirName) == 0) {
                 *mountIndex = i;
-                pthread_mutex_unlock(&g_FslocalMutex);
+                pthread_mutex_unlock(&g_fsLocalMutex);
                 return &(g_fsOp[i]);
             }
         }
     }
 
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
     return NULL;
 }
 
@@ -232,33 +231,33 @@ int FreeMountResByIndex(int mountIndex)
         return VFS_ERROR;
     }
 
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     if (g_fsOp[mountIndex].useFlag == 1 && g_fsOp[mountIndex].dirName != NULL) {
         g_fsOp[mountIndex].useFlag = 0;
         free(g_fsOp[mountIndex].dirName);
         g_fsOp[mountIndex].dirName = NULL;
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
 
     return VFS_OK;
 }
 
 int FreeMountRes(const char *target)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 1) {
             if (g_fsOp[i].dirName && strcmp(target, g_fsOp[i].dirName) == 0) {
                 g_fsOp[i].useFlag = 0;
                 free(g_fsOp[i].dirName);
                 g_fsOp[i].dirName = NULL;
-                pthread_mutex_unlock(&g_FslocalMutex);
+                pthread_mutex_unlock(&g_fsLocalMutex);
                 return VFS_OK;
             }
         }
     }
 
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
     return VFS_ERROR;
 }
 
@@ -529,7 +528,7 @@ struct dirent *LfsReaddir(DIR *dir)
 
     ret = lfs_dir_read(dirInfo->lfsHandle, (lfs_dir_t *)(&(dirInfo->dir)), &lfsInfo);
     if (ret == TRUE) {
-        pthread_mutex_lock(&g_FslocalMutex);
+        pthread_mutex_lock(&g_fsLocalMutex);
         (void)strncpy_s(g_nameValue.d_name, sizeof(g_nameValue.d_name), lfsInfo.name, strlen(lfsInfo.name) + 1);
         if (lfsInfo.type == LFS_TYPE_DIR) {
             g_nameValue.d_type = DT_DIR;
@@ -538,7 +537,7 @@ struct dirent *LfsReaddir(DIR *dir)
         }
 
         g_nameValue.d_reclen = lfsInfo.size;
-        pthread_mutex_unlock(&g_FslocalMutex);
+        pthread_mutex_unlock(&g_fsLocalMutex);
 
         return &g_nameValue;
     }
@@ -686,9 +685,9 @@ int LfsClose(int fd)
         return VFS_ERROR;
     }
 
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     ret = lfs_file_close(g_handle[fd].lfsHandle, &(g_handle[fd].file));
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
 
     LfsFreeFd(fd);
 
