@@ -343,7 +343,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
             continue;
         }
 
-        PRINTK("%d    %d    %s    0x%x    0x%x    0x%x    0x%x    0x%x    ",
+        PRINTK("%u    %u    %s    0x%x    0x%x    0x%x    0x%x    0x%x    ",
                taskCB->taskID, taskCB->priority, OsConvertTskStatus(taskCB->taskStatus),
                taskCB->stackSize, OsGetTaskWaterLine(taskCB->taskID),
                (UINT32)(UINTPTR)taskCB->stackPointer, taskCB->topOfStack, taskCB->eventMask);
@@ -352,7 +352,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
         PRINTK("0x%x    ", semID);
 
 #if (LOSCFG_BASE_CORE_CPUP == 1)
-        PRINTK("%d.%d %d.%d %d.%d ",
+        PRINTK("%u.%u %u.%u %u.%u ",
                cpuLessOneSec[taskCB->taskID].uwUsage / LOS_CPUP_PRECISION_MULT,
                cpuLessOneSec[taskCB->taskID].uwUsage % LOS_CPUP_PRECISION_MULT,
                cpuTenSec[taskCB->taskID].uwUsage / LOS_CPUP_PRECISION_MULT,
@@ -498,7 +498,7 @@ LITE_OS_SEC_TEXT CHAR *LOS_CurTaskNameGet(VOID)
  *****************************************************************************/
 LITE_OS_SEC_TEXT STATIC VOID OsHandleRunTaskStackOverflow(VOID)
 {
-    PRINT_ERR("CURRENT task ID: %s:%d stack overflow!\n",
+    PRINT_ERR("CURRENT task ID: %s:%u stack overflow!\n",
               g_losTask.runTask->taskName, g_losTask.runTask->taskID);
     OsDoExcHook(EXC_STACKOVERFLOW);
 }
@@ -514,7 +514,7 @@ LITE_OS_SEC_TEXT STATIC VOID OsHandleNewTaskStackOverflow(VOID)
 {
     LosTaskCB *tmp = NULL;
 
-    PRINT_ERR("HIGHEST task ID: %s:%d SP error!\n",
+    PRINT_ERR("HIGHEST task ID: %s:%u SP error!\n",
               g_losTask.newTask->taskName, g_losTask.newTask->taskID);
     PRINT_ERR("HIGHEST task StackPointer: 0x%x TopOfStack: 0x%x\n",
               (UINT32)(UINTPTR)(g_losTask.newTask->stackPointer), g_losTask.newTask->topOfStack);
@@ -633,7 +633,7 @@ LITE_OS_SEC_TEXT_INIT VOID OsTaskEntry(UINT32 taskID)
     taskCB->joinRetval = (UINTPTR)taskCB->taskEntry(taskCB->arg);
     retVal = LOS_TaskDelete(taskCB->taskID);
     if (retVal != LOS_OK) {
-        PRINT_ERR("Delete Task[TID: %d] Failed!\n", taskCB->taskID);
+        PRINT_ERR("Delete Task[TID: %u] Failed!\n", taskCB->taskID);
     }
 }
 
