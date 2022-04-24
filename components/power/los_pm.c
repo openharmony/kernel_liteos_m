@@ -101,7 +101,7 @@ STATIC VOID OsPmTickTimerStart(LosPmCB *pm)
     }
 
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
-    if (tickTimer->timerStop != NULL) {
+    if ((tickTimer->timerStop != NULL) && (pm->enterSleepTime != 0)) {
         /* Restore the main CPU frequency */
         sleepTime = tickTimer->timerCycleGet();
         tickTimer->timerStop();
@@ -123,8 +123,9 @@ STATIC VOID OsPmTickTimerStart(LosPmCB *pm)
 STATIC BOOL OsPmTickTimerStop(LosPmCB *pm)
 {
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
-    UINT64 sleepCycle;
-    UINT64 realSleepTime = OsSchedGetNextExpireTime(OsGetCurrSchedTimeCycle());
+    UINT64 sleepCycle, realSleepTime;
+    UINT64 currTime = OsGetCurrSchedTimeCycle();
+    UINT64 expireTime = OsSchedGetNextExpireTime(currTime);
 #endif
     LosPmTickTimer *tickTimer = pm->tickTimer;
 
@@ -134,10 +135,9 @@ STATIC BOOL OsPmTickTimerStop(LosPmCB *pm)
 
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
     if (tickTimer->timerStart != NULL) {
-        if (realSleepTime == 0) {
-            return FALSE;
-        }
+        LOS_ASSERT(expireTime > currTime);
 
+        realSleepTime = expireTime - currTime;
         sleepCycle = OS_SYS_CYCLE_TO_NS(realSleepTime, g_sysClock);
         sleepCycle = OS_SYS_NS_TO_CYCLE(sleepCycle, tickTimer->freq);
 
