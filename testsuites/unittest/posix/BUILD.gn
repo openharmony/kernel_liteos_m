@@ -63,7 +63,6 @@ hctest_suite("PosixTest") {
 
   include_dirs = [
     "//test/xts/tools/hctest/include",
-    "//third_party/unity/src",
     "src",
   ]
   cflags = [ "-Wno-error" ]
