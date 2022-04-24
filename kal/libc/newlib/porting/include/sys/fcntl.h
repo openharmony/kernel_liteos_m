@@ -35,4 +35,10 @@
 
 #define O_NDELAY    _FNDELAY
 
+#ifdef __riscv
+#ifndef O_CLOEXEC
+#define O_CLOEXEC  02000000
+#endif
+#endif /* __riscv */
+
 #endif /* !_ADAPT_SYS_FCNTL_H */
