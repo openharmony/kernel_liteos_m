@@ -952,7 +952,7 @@ UINT32 LOS_MemInit(VOID *pool, UINT32 size)
 
     if (((UINTPTR)pool & (OS_MEM_ALIGN_SIZE - 1)) || \
         (size & (OS_MEM_ALIGN_SIZE - 1))) {
-        PRINT_ERR("LiteOS heap memory address or size configured not aligned:address:0x%x,size:0x%x, alignsize:%d\n", \
+        PRINT_ERR("LiteOS heap memory address or size configured not aligned:address:0x%x,size:0x%x, alignsize:%u\n", \
                   (UINTPTR)pool, size, OS_MEM_ALIGN_SIZE);
         return OS_ERROR;
     }
@@ -1788,8 +1788,8 @@ STATIC VOID OsMemIntegrityCheckError(struct OsMemPoolHead *pool,
         PRINTK("The prev node is free\n");
     }
     MEM_UNLOCK(pool, intSave);
-    PRINT_ERR("cur node: 0x%x, pre node: 0x%x, pre node was allocated by task: %d, %s\n",
-              tmpNode, preNode, taskCB->taskID, taskCB->taskName);
+    PRINT_ERR("cur node: 0x%x, pre node: 0x%x, pre node was allocated by task: %u, %s\n",
+              (UINTPTR)tmpNode, (UINTPTR)preNode, taskCB->taskID, taskCB->taskName);
     LOS_Panic("Memory integrity check error!\n");
 #else
     MEM_UNLOCK(pool, intSave);

@@ -151,7 +151,7 @@ STATIC INLINE UINT32 OsStackAddrGet(UINTPTR *stackStart, UINTPTR *stackEnd, UINT
             LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
             *stackEnd = (UINTPTR)taskCB->topOfStack + taskCB->stackSize;
             if ((*stackStart < (UINTPTR)taskCB->topOfStack) || (*stackStart >= *stackEnd)) {
-                PRINT_ERR("psp stack [0x%x, 0x%x], cur sp(0x%x) is overflow, cur task id is %d!\n",
+                PRINT_ERR("psp stack [0x%x, 0x%x], cur sp(0x%x) is overflow, cur task id is %u!\n",
                           taskCB->topOfStack, *stackEnd, *stackStart, taskID);
                 return LOS_NOK;
             }
@@ -413,7 +413,7 @@ VOID LOS_BackTrace(VOID)
         if (LR[index] == 0) {
             break;
         }
-        PRINTK("traceback %d -- lr = 0x%x\r\n", index, LR[index]);
+        PRINTK("traceback %u -- lr = 0x%x\r\n", index, LR[index]);
     }
     PRINTK("----- traceback end -----\r\n");
 }

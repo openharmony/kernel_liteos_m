@@ -127,7 +127,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     OsRegister();
     ret = OsMemSystemInit();
     if (ret != LOS_OK) {
-        PRINT_ERR("OsMemSystemInit error %d\n", ret);
+        PRINT_ERR("OsMemSystemInit error %u\n", ret);
         return ret;
     }
 

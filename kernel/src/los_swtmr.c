@@ -88,7 +88,7 @@ LITE_OS_SEC_TEXT VOID OsSwtmrTask(VOID)
             tick = LOS_TickCountGet() - tick;
 
             if (tick >= SWTMR_MAX_RUNNING_TICKS) {
-                PRINT_WARN("timer_handler(%p) cost too many ms(%d)\n",
+                PRINT_WARN("timer_handler(%p) cost too many ms(%u)\n",
                            swtmrHandle.handler,
                            (UINT32)((tick * OS_SYS_MS_PER_SECOND) / LOSCFG_BASE_CORE_TICK_PER_SECOND));
             }

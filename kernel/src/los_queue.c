@@ -243,7 +243,7 @@ static INLINE VOID OsQueueBufferOperate(LosQueueCB *queueCB, UINT32 operateType,
             msgDataSize = *((UINT32 *)(UINTPTR)((queueNode + queueCB->queueSize) - sizeof(UINT32)));
             rc = memcpy_s((VOID *)bufferAddr, *bufferSize, (VOID *)queueNode, msgDataSize);
             if (rc != EOK) {
-                PRINT_ERR("%s[%d] memcpy failed, error type = %u\n", __FUNCTION__, __LINE__, rc);
+                PRINT_ERR("%s[%d] memcpy failed, error type = %d\n", __FUNCTION__, __LINE__, rc);
                 return;
             }
 
@@ -252,7 +252,7 @@ static INLINE VOID OsQueueBufferOperate(LosQueueCB *queueCB, UINT32 operateType,
             *((UINT32 *)(UINTPTR)((queueNode + queueCB->queueSize) - sizeof(UINT32))) = *bufferSize;
             rc = memcpy_s((VOID *)queueNode, queueCB->queueSize, (VOID *)bufferAddr, *bufferSize);
             if (rc != EOK) {
-                PRINT_ERR("%s[%d] memcpy failed, error type = %u\n", __FUNCTION__, __LINE__, rc);
+                PRINT_ERR("%s[%d] memcpy failed, error type = %d\n", __FUNCTION__, __LINE__, rc);
                 return;
             }
         }
