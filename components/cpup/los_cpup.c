@@ -481,7 +481,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E
                 PRINTK("\nSysCpuUsage in <1s: ");
             }
             ret = LOS_HistorySysCpuUsage(mode);
-            PRINTK("%d.%d", ret / LOS_CPUP_PRECISION_MULT, ret % LOS_CPUP_PRECISION_MULT);
+            PRINTK("%u.%u", ret / LOS_CPUP_PRECISION_MULT, ret % LOS_CPUP_PRECISION_MULT);
             break;
 
         case TASK_CPU_USAGE:
@@ -495,11 +495,11 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E
                 return OS_ERROR;
             }
             if (mode == CPUP_IN_10S) {
-                PRINTK("\nCPUusage of taskID %d in 10s: ", taskID);
+                PRINTK("\nCPUusage of taskID %u in 10s: ", taskID);
             } else if (mode == CPUP_IN_1S) {
-                PRINTK("\nCPUusage of taskID %d in 1s: ", taskID);
+                PRINTK("\nCPUusage of taskID %u in 1s: ", taskID);
             } else {
-                PRINTK("\nCPUusage of taskID %d in <1s: ", taskID);
+                PRINTK("\nCPUusage of taskID %u in <1s: ", taskID);
             }
             ret = LOS_HistoryTaskCpuUsage(taskID, mode);
             PRINTK("%u.%u", ret / LOS_CPUP_PRECISION_MULT, ret % LOS_CPUP_PRECISION_MULT);

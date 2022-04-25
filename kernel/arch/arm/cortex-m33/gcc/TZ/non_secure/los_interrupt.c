@@ -123,8 +123,7 @@ inline UINT32 HalIsIntActive(VOID)
 /*lint -e529*/
 LITE_OS_SEC_TEXT_MINOR VOID HalHwiDefaultHandler(VOID)
 {
-    UINT32 irqNum = HalIntNumGet();
-    PRINT_ERR("%s irqnum:%d\n", __FUNCTION__, irqNum);
+    PRINT_ERR("%s irqnum:%u\n", __FUNCTION__, HalIntNumGet());
     while (1) {}
 }
 
@@ -322,8 +321,8 @@ STATIC VOID OsExcTypeInfo(const ExcInfo *excInfo)
 {
     CHAR *phaseStr[] = {"exc in init", "exc in task", "exc in hwi"};
 
-    PRINTK("Type      = %d\n", excInfo->type);
-    PRINTK("ThrdPid   = %d\n", excInfo->thrdPid);
+    PRINTK("Type      = %u\n", excInfo->type);
+    PRINTK("ThrdPid   = %u\n", excInfo->thrdPid);
     PRINTK("Phase     = %s\n", phaseStr[excInfo->phase]);
     PRINTK("FaultAddr = 0x%x\n", excInfo->faultAddr);
 }
@@ -334,7 +333,7 @@ STATIC VOID OsExcCurTaskInfo(const ExcInfo *excInfo)
     if (excInfo->phase == OS_EXC_IN_TASK) {
         LosTaskCB *taskCB = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
         PRINTK("Task name = %s\n", taskCB->taskName);
-        PRINTK("Task ID   = %d\n", taskCB->taskID);
+        PRINTK("Task ID   = %u\n", taskCB->taskID);
         PRINTK("Task SP   = %p\n", taskCB->stackPointer);
         PRINTK("Task ST   = 0x%x\n", taskCB->topOfStack);
         PRINTK("Task SS   = 0x%x\n", taskCB->stackSize);
@@ -380,7 +379,7 @@ STATIC VOID OsExcBackTraceInfo(const ExcInfo *excInfo)
         if (LR[index] == 0) {
             break;
         }
-        PRINTK("backtrace %d -- lr = 0x%x\n", index, LR[index]);
+        PRINTK("backtrace %u -- lr = 0x%x\n", index, LR[index]);
     }
     PRINTK("----- backtrace end -----\n");
 }
@@ -406,15 +405,15 @@ STATIC VOID OsExcMemPoolCheckInfo(VOID)
     }
 
     for (i = 0; i < errCnt; i++) {
-        PRINTK("pool num    = %d\n", i);
+        PRINTK("pool num    = %u\n", i);
         PRINTK("pool type   = %d\n", memExcInfo[i].type);
         PRINTK("pool addr   = 0x%x\n", memExcInfo[i].startAddr);
         PRINTK("pool size   = 0x%x\n", memExcInfo[i].size);
         PRINTK("pool free   = 0x%x\n", memExcInfo[i].free);
-        PRINTK("pool blkNum = %d\n", memExcInfo[i].blockSize);
+        PRINTK("pool blkNum = %u\n", memExcInfo[i].blockSize);
         PRINTK("pool error node addr  = 0x%x\n", memExcInfo[i].errorAddr);
         PRINTK("pool error node len   = 0x%x\n", memExcInfo[i].errorLen);
-        PRINTK("pool error node owner = %d\n", memExcInfo[i].errorOwner);
+        PRINTK("pool error node owner = %u\n", memExcInfo[i].errorOwner);
     }
 #endif
     UINT32 ret = LOS_MemIntegrityCheck(LOSCFG_SYS_HEAP_ADDR);
@@ -489,7 +488,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit()
     UINT32 index;
     g_hwiForm[0] = 0;             /* [0] Top of Stack */
     g_hwiForm[1] = 0; /* [1] reset */
-    for (index = 2; index < OS_VECTOR_CNT; index++) {
+    for (index = 2; index < OS_VECTOR_CNT; index++) { /* 2 Default hw handler stack start from index 2 */
         g_hwiForm[index] = (HWI_PROC_FUNC)HalHwiDefaultHandler;
     }
     /* Exception handler register */
