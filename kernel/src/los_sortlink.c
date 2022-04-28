@@ -40,7 +40,10 @@ extern "C" {
 #endif /* __cplusplus */
 
 SortLinkAttribute g_taskSortLink;
+
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
 SortLinkAttribute g_swtmrSortLink;
+#endif
 
 UINT32 OsSortLinkInit(SortLinkAttribute *sortLinkHead)
 {
@@ -85,8 +88,10 @@ VOID OsAdd2SortLink(SortLinkList *node, UINT64 startTime, UINT32 waitTicks, Sort
 
     if (type == OS_SORT_LINK_TASK) {
         sortLinkHead = &g_taskSortLink;
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
     } else if (type == OS_SORT_LINK_SWTMR) {
         sortLinkHead = &g_swtmrSortLink;
+#endif
     } else {
         LOS_Panic("Sort link type error : %u\n", type);
     }
@@ -128,18 +133,22 @@ STATIC INLINE VOID SortLinkNodeTimeUpdate(SortLinkAttribute *sortLinkHead, UINT3
 VOID OsSortLinkResponseTimeConvertFreq(UINT32 oldFreq)
 {
     SortLinkAttribute *taskHead = &g_taskSortLink;
-    SortLinkAttribute *swtmrHead = &g_swtmrSortLink;
-
     SortLinkNodeTimeUpdate(taskHead, oldFreq);
+
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
+    SortLinkAttribute *swtmrHead = &g_swtmrSortLink;
     SortLinkNodeTimeUpdate(swtmrHead, oldFreq);
+#endif
 }
 
 SortLinkAttribute *OsGetSortLinkAttribute(SortLinkType type)
 {
     if (type == OS_SORT_LINK_TASK) {
         return &g_taskSortLink;
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
     } else if (type == OS_SORT_LINK_SWTMR) {
         return &g_swtmrSortLink;
+#endif
     }
 
     PRINT_ERR("Invalid sort link type!\n");
