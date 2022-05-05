@@ -32,6 +32,7 @@
 #include "los_backtrace.h"
 #include "los_task.h"
 #include "los_debug.h"
+#include "los_arch.h"
 #if (LOSCFG_BACKTRACE_TYPE == 4)
 #include "los_arch_regs.h"
 #endif
@@ -59,52 +60,6 @@ WEAK BOOL OsStackDataIsCodeAddr(UINTPTR value)
 #define OS_BL_INS_LOW      0xF000
 #define OS_BLX_INX_MASK    0xFF00
 #define OS_BLX_INX         0x4700
-
-#if defined(__ICCARM__) || defined(__CC_ARM)
-STATIC INLINE UINTPTR HalSpGet(VOID)
-{
-    UINTPTR sp;
-    __asm("mov %0, sp" : "=r" (sp));
-    return sp;
-}
-
-STATIC INLINE UINTPTR HalPspGet(VOID)
-{
-    UINTPTR psp;
-    __asm("mrs %0, psp" : "=r" (psp));
-    return psp;
-}
-
-STATIC INLINE UINTPTR HalMspGet(VOID)
-{
-    UINTPTR msp;
-    __asm("mrs %0, msp" : "=r" (msp));
-    return msp;
-}
-#elif defined(__CLANG_ARM) || defined(__GNUC__)
-STATIC INLINE UINTPTR HalSpGet(VOID)
-{
-    UINTPTR sp;
-    __asm volatile("mov %0, sp" : "=r" (sp));
-    return sp;
-}
-
-STATIC INLINE UINTPTR HalPspGet(VOID)
-{
-    UINTPTR psp;
-    __asm volatile("mrs %0, psp" : "=r" (psp));
-    return psp;
-}
-
-STATIC INLINE UINTPTR HalMspGet(VOID)
-{
-    UINTPTR msp;
-    __asm volatile("mrs %0, msp" : "=r" (msp));
-    return msp;
-}
-#else
-#error Unknown compiler.
-#endif
 
 STATIC INLINE BOOL OsInsIsBlOrBlx(UINTPTR addr)
 {
@@ -138,8 +93,8 @@ STATIC INLINE UINT32 OsStackAddrGet(UINTPTR *stackStart, UINTPTR *stackEnd, UINT
             }
         }
     } else {
-        if (HalSpGet() != HalPspGet()) {
-            *stackStart = HalMspGet();
+        if (ArchSpGet() != ArchPspGet()) {
+            *stackStart = ArchMspGet();
             *stackEnd = CSTACK_END_ADDR;
             if ((*stackStart < CSTACK_START_ADDR) || (*stackStart >= CSTACK_END_ADDR)) {
                 PRINT_ERR("msp stack [0x%x, 0x%x], cur sp(0x%x) is overflow!\n",
@@ -148,7 +103,7 @@ STATIC INLINE UINT32 OsStackAddrGet(UINTPTR *stackStart, UINTPTR *stackEnd, UINT
             }
             PRINTK("msp, start = %x, end = %x\n", *stackStart, *stackEnd);
         } else {
-            *stackStart = HalPspGet();
+            *stackStart = ArchPspGet();
             UINT32 taskID = LOS_CurTaskIDGet();
             LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
             *stackEnd = (UINTPTR)taskCB->topOfStack + taskCB->stackSize;

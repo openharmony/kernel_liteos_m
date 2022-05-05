@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,11 +28,11 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_ARCH_H
-#define _LOS_ARCH_H
+#ifndef _LOS_DEBUGTOOLS_H
+#define _LOS_DEBUGTOOLS_H
 
 #include "los_config.h"
-#include "los_timer.h"
+#include "los_task.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -41,53 +40,15 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#if defined(__ICCARM__) || defined(__CC_ARM)
-STATIC INLINE UINTPTR ArchSpGet(VOID)
-{
-    UINTPTR sp;
-    __asm("mov %0, sp" : "=r" (sp));
-    return sp;
-}
+#define PRINT_PER_ROW  4
 
-STATIC INLINE UINTPTR ArchPspGet(VOID)
-{
-    UINTPTR psp;
-    __asm("mrs %0, psp" : "=r" (psp));
-    return psp;
-}
+/* Shell Callback */
+extern UINT32 OsShellCmdStackDump(INT32 argc, const CHAR **argv);
 
-STATIC INLINE UINTPTR ArchMspGet(VOID)
-{
-    UINTPTR msp;
-    __asm("mrs %0, msp" : "=r" (msp));
-    return msp;
-}
-#elif defined(__CLANG_ARM) || defined(__GNUC__)
-STATIC INLINE UINTPTR ArchSpGet(VOID)
-{
-    UINTPTR sp;
-    __asm volatile("mov %0, sp" : "=r" (sp));
-    return sp;
-}
+/* other module Callback */
 
-STATIC INLINE UINTPTR ArchPspGet(VOID)
-{
-    UINTPTR psp;
-    __asm volatile("mrs %0, psp" : "=r" (psp));
-    return psp;
-}
-
-STATIC INLINE UINTPTR ArchMspGet(VOID)
-{
-    UINTPTR msp;
-    __asm volatile("mrs %0, msp" : "=r" (msp));
-    return msp;
-}
-#else
-/* Other platforms to be improved  */
-#endif
-
-VOID ArchInit(VOID);
+/* External Interface */
+extern VOID LOS_TaskStackDump(UINT32 taskID);
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -95,5 +56,4 @@ VOID ArchInit(VOID);
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* _LOS_ARCH_H */
-
+#endif
