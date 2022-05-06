@@ -554,6 +554,13 @@ config SHELL_CMD_DEBUG
     default n
     depends on DEBUG_VERSION && SHELL
 
+config DEBUG_TOOLS
+    bool "Enable DEBUG TOOLS"
+    default n
+    depends on DEBUG_VERSION
+    help
+      Answer Y to enable LiteOS debug tools, include stackdump, hwidump, tasktrack.
+
 config USB_DEBUG
     bool "Enable USB Debug"
     default n

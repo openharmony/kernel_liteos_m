@@ -1,5 +1,4 @@
-# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -29,42 +28,13 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-group("components") {
-  deps = [
-    "backtrace",
-    "cppsupport",
-    "cpup",
-    "debugtools",
-    "dynlink",
-    "exchook",
-    "fs",
-    "lmk",
-    "lms",
-    "net",
-    "power",
-    "security",
-    "shell",
-    "signal",
-    "trace",
-  ]
+module_switch = defined(LOSCFG_DEBUG_TOOLS)
+module_name = get_path_info(rebase_path("."), "name")
+kernel_module(module_name) {
+  sources = [ "los_stackdump.c" ]
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 
 config("public") {
-  configs = [
-    "backtrace:public",
-    "cppsupport:public",
-    "cpup:public",
-    "dynlink:public",
-    "exchook:public",
-    "fs:public",
-    "net:public",
-    "power:public",
-    "security:public",
-    "shell:public",
-    "trace:public",
-    "lmk:public",
-    "lms:public",
-    "signal:public",
-    "debugtools:public",
-  ]
+  include_dirs = [ "." ]
 }
