@@ -214,6 +214,12 @@ STATIC INLINE HwiControllerOps *ArchIntOpsGet(VOID)
     return &g_archHwiOps;
 }
 
+#if (LOSCFG_DEBUG_TOOLS == 1)
+extern UINT32 OsGetHwiFormCnt(UINT32 index);
+extern CHAR *OsGetHwiFormName(UINT32 index);
+extern BOOL OsGetHwiCreated(UINT32 index);
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }

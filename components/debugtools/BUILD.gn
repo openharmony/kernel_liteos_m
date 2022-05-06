@@ -31,7 +31,10 @@ import("//kernel/liteos_m/liteos.gni")
 module_switch = defined(LOSCFG_DEBUG_TOOLS)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
-  sources = [ "los_stackdump.c" ]
+  sources = [
+    "los_hwidump.c",
+    "los_stackdump.c",
+  ]
   configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 

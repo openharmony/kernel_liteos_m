@@ -139,6 +139,18 @@ typedef struct {
 
 extern OsCpupCB    *g_cpup;
 
+#if (LOSCFG_CPUP_INCLUDE_IRQ == 1)
+typedef struct {
+    UINT32 cpupID;                                        /**< Irq ID */
+    UINT16 status;                                        /**< Irq status */
+    UINT64 allTime;                                       /**< Total running time */
+    UINT64 startTime;                                     /**< Time before a task is invoked */
+    UINT64 timeMax;                                       /**< Irq samples count */
+    UINT64 count;                                         /**< Irq samples count */
+    UINT64 historyTime[OS_CPUP_HISTORY_RECORD_NUM];       /**< Historical running time */
+} OsIrqCpupCB;
+#endif
+
 /**
  * @ingroup los_cpup
  * @brief Initialization cpup.
@@ -356,6 +368,13 @@ extern UINT32 LOS_AllTaskCpuUsage(CPUP_INFO_S *cpupInfo, UINT16 mode);
  * @see LOS_CpupUsageMonitor
  */
 extern UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E mode, UINT32 taskID);
+
+#if (LOSCFG_CPUP_INCLUDE_IRQ == 1)
+extern VOID OsCpupIrqStart(UINT32 intNum);
+extern VOID OsCpupIrqEnd(UINT32 intNum);
+extern OsIrqCpupCB *OsGetIrqCpupArrayBase(VOID);
+extern UINT32 LOS_GetAllIrqCpuUsage(UINT16 mode, CPUP_INFO_S *cpupInfo);
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus
