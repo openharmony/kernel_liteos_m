@@ -40,6 +40,9 @@
 #include "los_sched.h"
 #include "los_memory.h"
 #include "los_membox.h"
+#if (LOSCFG_CPUP_INCLUDE_IRQ == 1)
+#include "los_cpup.h"
+#endif
 
 /*lint -save -e40 -e522 -e533*/
 UINT32 g_intCount = 0;
@@ -52,6 +55,30 @@ UINT32 g_intCount = 0;
  * hardware interrupt form mapping handling function array.
  */
 STATIC HWI_PROC_FUNC g_hwiForm[OS_VECTOR_CNT] = {0};
+
+#if (LOSCFG_DEBUG_TOOLS == 1)
+STATIC UINT32 g_hwiFormCnt[OS_HWI_MAX_NUM] = {0};
+STATIC CHAR *g_hwiFormName[OS_HWI_MAX_NUM] = {0};
+
+UINT32 OsGetHwiFormCnt(UINT32 index)
+{
+    return g_hwiFormCnt[index];
+}
+
+CHAR *OsGetHwiFormName(UINT32 index)
+{
+    return g_hwiFormName[index];
+}
+
+BOOL OsGetHwiCreated(UINT32 index)
+{
+    if (g_hwiForm[index] != (HWI_PROC_FUNC)HalHwiDefaultHandler) {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+#endif
 
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
 
@@ -239,6 +266,9 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
     hwiIndex = HwiNumGet();
 
     OsHookCall(LOS_HOOK_TYPE_ISR_ENTER, hwiIndex);
+#if (LOSCFG_CPUP_INCLUDE_IRQ == 1)
+    OsCpupIrqStart(hwiIndex);
+#endif
 
     HalPreInterruptHandler(hwiIndex);
 
@@ -252,7 +282,15 @@ LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
     }
 #endif
 
+#if (LOSCFG_DEBUG_TOOLS == 1)
+    ++g_hwiFormCnt[hwiIndex];
+#endif
+
     HalAftInterruptHandler(hwiIndex);
+
+#if (LOSCFG_CPUP_INCLUDE_IRQ == 1)
+    OsCpupIrqEnd(hwiIndex);
+#endif
 
     OsHookCall(LOS_HOOK_TYPE_ISR_EXIT, hwiIndex);
 
@@ -308,6 +346,14 @@ LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
     (VOID)irqParam;
     OsSetVector(hwiNum, hwiHandler);
 #endif
+
+#if (LOSCFG_DEBUG_TOOLS == 1)
+    if ((irqParam != NULL) && (irqParam->pName != NULL)) {
+        g_hwiFormName[hwiNum + OS_SYS_VECTOR_CNT] = (CHAR *)irqParam->pName;
+    }
+    g_hwiFormCnt[hwiNum + OS_SYS_VECTOR_CNT] = 0;
+#endif
+
     HwiUnmask((IRQn_Type)hwiNum);
     HwiSetPriority((IRQn_Type)hwiNum, hwiPrio);
 
