@@ -1584,7 +1584,9 @@ extern UINT32               g_idleTaskID;
  * Software timer task ID.
  *
  */
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
 extern UINT32               g_swtmrTaskID;
+#endif
 
 /**
  * @ingroup los_task

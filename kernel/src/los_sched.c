@@ -509,7 +509,9 @@ VOID OsSchedStart(VOID)
 
     OsTickSysTimerStartTimeSet(newTask->startTime);
 
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
     OsSwtmrResponseTimeReset(newTask->startTime);
+#endif
 
     /* Initialize the schedule timeline and enable scheduling */
     g_taskScheduled = TRUE;

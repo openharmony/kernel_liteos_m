@@ -102,7 +102,11 @@ LITE_OS_SEC_BSS  LosTask                             g_losTask;
 LITE_OS_SEC_BSS  UINT16                              g_losTaskLock;
 LITE_OS_SEC_BSS  UINT32                              g_taskMaxNum;
 LITE_OS_SEC_BSS  UINT32                              g_idleTaskID;
+
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
 LITE_OS_SEC_BSS  UINT32                              g_swtmrTaskID;
+#endif
+
 LITE_OS_SEC_DATA_INIT LOS_DL_LIST                    g_losFreeTask;
 LITE_OS_SEC_DATA_INIT LOS_DL_LIST                    g_taskRecycleList;
 LITE_OS_SEC_BSS  BOOL                                g_taskScheduled = FALSE;
@@ -118,8 +122,10 @@ STATIC_INLINE UINT32 OsCheckTaskIDValid(UINT32 taskID)
     UINT32 ret = LOS_OK;
     if (taskID == g_idleTaskID) {
         ret = LOS_ERRNO_TSK_OPERATE_IDLE;
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
     } else if (taskID == g_swtmrTaskID) {
         ret = LOS_ERRNO_TSK_SUSPEND_SWTMR_NOT_ALLOWED;
+#endif
     } else if (OS_TSK_GET_INDEX(taskID) >= g_taskMaxNum) {
         ret = LOS_ERRNO_TSK_ID_INVALID;
     }
@@ -1212,9 +1218,11 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskPriSet(UINT32 taskID, UINT16 taskPrio)
         return LOS_ERRNO_TSK_OPERATE_IDLE;
     }
 
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
     if (taskID == g_swtmrTaskID) {
         return LOS_ERRNO_TSK_OPERATE_SWTMR;
     }
+#endif
 
     if (OS_CHECK_TSK_PID_NOIDLE(taskID)) {
         return LOS_ERRNO_TSK_ID_INVALID;
