@@ -56,7 +56,10 @@ typedef struct {
 } SortLinkAttribute;
 
 extern SortLinkAttribute g_taskSortLink;
+
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
 extern SortLinkAttribute g_swtmrSortLink;
+#endif
 
 #define OS_SORT_LINK_INVALID_TIME ((UINT64)-1)
 #define SET_SORTLIST_VALUE(sortList, value) (((SortLinkList *)(sortList))->responseTime = (value))
@@ -98,7 +101,11 @@ STATIC INLINE UINT64 GetSortLinkNextExpireTime(SortLinkAttribute *sortHead, UINT
 STATIC INLINE UINT64 OsGetNextExpireTime(UINT64 startTime, UINT32 tickPrecision)
 {
     UINT64 taskExpireTime = GetSortLinkNextExpireTime(&g_taskSortLink, startTime, tickPrecision);
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
     UINT64 swtmrExpireTime = GetSortLinkNextExpireTime(&g_swtmrSortLink, startTime, tickPrecision);
+#else
+    UINT64 swtmrExpireTime = taskExpireTime;
+#endif
     return (taskExpireTime < swtmrExpireTime) ? taskExpireTime : swtmrExpireTime;
 }
 
