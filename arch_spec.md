@@ -94,6 +94,5 @@
     ├── los_hook.h
     ├── los_list.h                                             --- Doubly linked list
     └── los_reg.h                                              --- Register macros
-    └── src
 ```
 
