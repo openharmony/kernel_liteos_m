@@ -44,6 +44,7 @@ extern "C" {
 
 /* Shell Callback */
 extern UINT32 OsShellCmdStackDump(INT32 argc, const CHAR **argv);
+extern UINT32 OsShellCmdHwiDump(INT32 argc, const CHAR **argv);
 
 /* other module Callback */
 

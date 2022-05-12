@@ -68,6 +68,7 @@ CmdItem g_shellcmdAll[] = {
 #endif
 #if (LOSCFG_DEBUG_TOOLS == 1)
     {CMD_TYPE_EX, "stack", 1, (CmdCallBackFunc)OsShellCmdStackDump},
+    {CMD_TYPE_EX, "hwi", 1, (CmdCallBackFunc)OsShellCmdHwiDump},
 #endif
     {CMD_TYPE_EX, "help", 0, (CmdCallBackFunc)OsShellCmdHelp},
 };
