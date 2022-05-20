@@ -46,4 +46,11 @@
 
 #include_next <sys/select.h>
 
+#ifdef LOSCFG_ARCH_RISCV
+#ifdef FD_ISSET(d, s)
+#undef FD_ISSET(d, s)
+#define FD_ISSET(d, s) !!((s)->fds_bits[(d)/(8*sizeof(long))] & (1UL<<((d)%(8*sizeof(long)))))
+#endif
+#endif
+
 #endif //_ADAPT_SYS_SELECT_H
