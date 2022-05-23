@@ -35,9 +35,6 @@ static VOID HwiF01(VOID)
 {
     TestHwiClear(HWI_NUM_TEST);
     g_testCount++;
-
-EXIT:
-    return;
 }
 
 static UINT32 Testcase(VOID)
