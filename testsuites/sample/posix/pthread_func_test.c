@@ -49,25 +49,6 @@ static INT32 g_pthreadSem = 0;
 #define Level1     0
 #define LITE_TEST_CASE(module, function, flag) static int function(void)
 
-/**
- * @tc.setup     : setup for all testcases
- * @return       : setup result, TRUE is success, FALSE is fail
- */
-static BOOL PthreadFuncTestSuiteSetUp(void)
-{
-    return TRUE;
-}
-
-/**
- * @tc.teardown  : teardown for all testcases
- * @return       : teardown result, TRUE is success, FALSE is fail
- */
-static BOOL PthreadFuncTestSuiteTearDown(void)
-{
-    printf("+-------------------------------------------+\n");
-    return TRUE;
-}
-
 static VOID *PthreadJoinF01(void *argument)
 {
     g_testCount++;
