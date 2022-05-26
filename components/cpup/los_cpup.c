@@ -117,7 +117,24 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsCpupGuardCreator(VOID)
     return LOS_OK;
 }
 #endif
+
+/*****************************************************************************
+Function   : OsCpupDaemonInit
+Description: initialization of CPUP Daemon
+Input      : None
+Return     : LOS_OK or Error Information
+*****************************************************************************/
+LITE_OS_SEC_TEXT_INIT UINT32 OsCpupDaemonInit()
+{
+#if (LOSCFG_BASE_CORE_SWTMR == 1)
+    (VOID)OsCpupGuardCreator();
+    g_irqCpupInitFlg = 1;
 #endif
+
+    return LOS_OK;
+}
+#endif
+
 /*****************************************************************************
 Function   : OsCpupInit
 Description: initialization of CPUP
@@ -127,32 +144,25 @@ Return     : LOS_OK or Error Information
 LITE_OS_SEC_TEXT_INIT UINT32 OsCpupInit()
 {
     UINT32 size;
+    CHAR *cpupMem = NULL;
 
     size = g_taskMaxNum * sizeof(OsCpupCB);
-    g_cpup = (OsCpupCB *)LOS_MemAlloc(m_aucSysMem0, size);
-
-    if (g_cpup == NULL) {
-        return LOS_ERRNO_CPUP_NO_MEMORY;
-    }
-
-    // Ignore the return code when matching CSEC rule 6.6(3).
-    (VOID)memset_s(g_cpup, size, 0, size);
-    g_cpupInitFlg = 1;
-
 #if (LOSCFG_CPUP_INCLUDE_IRQ == 1)
-    size = LOSCFG_PLATFORM_HWI_LIMIT * sizeof(OsIrqCpupCB);
-    g_irqCpup = (OsIrqCpupCB *)LOS_MemAlloc(m_aucSysMem0, size);
-    if (g_irqCpup == NULL) {
+    size += LOSCFG_PLATFORM_HWI_LIMIT * sizeof(OsIrqCpupCB);
+#endif
+
+    cpupMem = LOS_MemAlloc(m_aucSysMem0, size);
+    if (cpupMem == NULL) {
         return LOS_ERRNO_CPUP_NO_MEMORY;
     }
+    (VOID)memset_s(cpupMem, size, 0, size);
 
-    (VOID)memset_s(g_irqCpup, size, 0, size);
-#if (LOSCFG_BASE_CORE_SWTMR == 1)
-    (VOID)OsCpupGuardCreator();
-    g_irqCpupInitFlg = 1;
+    g_cpup = (OsCpupCB *)cpupMem;
+#if (LOSCFG_CPUP_INCLUDE_IRQ == 1)
+    g_irqCpup = (OsIrqCpupCB *)(cpupMem + g_taskMaxNum * sizeof(OsCpupCB));
 #endif
 
-#endif
+    g_cpupInitFlg = 1;
 
     return LOS_OK;
 }

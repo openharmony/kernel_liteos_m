@@ -171,6 +171,7 @@ typedef struct {
  */
 extern UINT32 OsCpupInit(VOID);
 
+extern UINT32 OsCpupDaemonInit(VOID);
 /**
  * @ingroup los_cpup
  * @brief Start task to get cycles count in current task ending.
