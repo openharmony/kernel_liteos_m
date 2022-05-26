@@ -181,6 +181,14 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     OsTaskMonInit();
 #endif
 
+#if (LOSCFG_BASE_CORE_CPUP == 1)
+    ret = OsCpupInit();
+    if (ret != LOS_OK) {
+        PRINT_ERR("OsCpupInit error\n");
+        return ret;
+    }
+#endif
+
 #if (LOSCFG_BASE_IPC_SEM == 1)
     ret = OsSemInit();
     if (ret != LOS_OK) {
@@ -211,12 +219,12 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 #endif
 
-#if (LOSCFG_BASE_CORE_CPUP == 1)
-        ret = OsCpupInit();
-        if (ret != LOS_OK) {
-            PRINT_ERR("OsCpupInit error\n");
-            return ret;
-        }
+#if (LOSCFG_CPUP_INCLUDE_IRQ == 1)
+    ret = OsCpupDaemonInit();
+    if (ret != LOS_OK) {
+        PRINT_ERR("OsCpupDaemonInit error\n");
+        return ret;
+    }
 #endif
 
 #if (LOSCFG_FS_VFS == 1)
