@@ -40,16 +40,45 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+
+/* StackDump print format */
 #define PRINT_PER_ROW  4
 
-/* Shell Callback */
+/* SchedTrace records number */
+#define TRACE_NUM   200
+
+/* sched trace info, users can add their own */
+typedef struct {
+    UINT32 newTaskID;
+    CHAR newTaskName[LOS_TASK_NAMELEN];
+    UINT32 runTaskID;
+    CHAR runTaskName[LOS_TASK_NAMELEN];
+} SchedTraceInfo;
+
+/* SchedTrace record callback */
+typedef void (*SchedTraceRecordCB)(LosTaskCB *newTask, LosTaskCB *runTask);
+
+/* SchedTrace show callback, buf is overwrite ringbuf, max amount of storage is TRACE_NUM */
+typedef void (*SchedTraceShowCB)(SchedTraceInfo *ringBuf, UINT32 count);
+
+/* Shell callback */
 extern UINT32 OsShellCmdStackDump(INT32 argc, const CHAR **argv);
 extern UINT32 OsShellCmdHwiDump(INT32 argc, const CHAR **argv);
+extern UINT32 OsShellCmdSchedTrace(INT32 argc, const CHAR **argv);
 
-/* other module Callback */
+/* Other module callback */
+extern VOID OsSchedTraceRecord(LosTaskCB *newTask, LosTaskCB *runTask);
 
-/* External Interface */
+/* External interface */
+/* dump stack by task id, can be called at any time */
 extern VOID LOS_TaskStackDump(UINT32 taskID);
+
+/* register sched trace handle, If not registered, the default fun will be used */
+extern VOID LOS_SchedTraceHandleRegister(SchedTraceRecordCB recordCB, SchedTraceShowCB showCB);
+/* start sched trace, will alloc buf, and start write to buf when sched */
+extern VOID LOS_SchedTraceStart(VOID);
+/* stop sched trace, will stop record and free buf */
+extern VOID LOS_SchedTraceStop(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus
