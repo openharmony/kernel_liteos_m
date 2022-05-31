@@ -1432,6 +1432,7 @@ int fatfs_format(const char *dev, int sectors, int option)
     INT32 index;
     FRESULT res;
     INT32 ret;
+    MKFS_PARM opt = {0};
 
     if (dev == NULL) {
         errno = EFAULT;
@@ -1458,7 +1459,9 @@ int fatfs_format(const char *dev, int sectors, int option)
         goto OUT;
     }
 
-    res = f_mkfs(dev, option, sectors, g_workBuffer, FF_MAX_SS);
+    opt.n_sect = sectors;
+    opt.fmt = (BYTE)option;
+    res = f_mkfs(dev, &opt, g_workBuffer, FF_MAX_SS);
     if (res != FR_OK) {
         errno = FatfsErrno(res);
         ret = FS_FAILURE;
