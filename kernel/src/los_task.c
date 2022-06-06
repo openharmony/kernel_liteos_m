@@ -157,7 +157,7 @@ STATIC VOID OsRecycleTaskResources(LosTaskCB *taskCB, UINTPTR *stackPtr)
     }
 }
 
-STATIC VOID OsRecyleFinishedTask(VOID)
+STATIC VOID OsRecycleFinishedTask(VOID)
 {
     LosTaskCB *taskCB = NULL;
     UINT32 intSave;
@@ -197,7 +197,7 @@ UINT32 OsPmEnterHandlerSet(VOID (*func)(VOID))
 LITE_OS_SEC_TEXT VOID OsIdleTask(VOID)
 {
     while (1) {
-        OsRecyleFinishedTask();
+        OsRecycleFinishedTask();
 
         if (PmEnter != NULL) {
             PmEnter();
@@ -759,7 +759,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskCreateOnly(UINT32 *taskID, TSK_INIT_PARAM_S
         return retVal;
     }
 
-    OsRecyleFinishedTask();
+    OsRecycleFinishedTask();
 
     intSave = LOS_IntLock();
     if (LOS_ListEmpty(&g_losFreeTask)) {
@@ -1508,5 +1508,5 @@ LITE_OS_SEC_TEXT_MINOR VOID LOS_Msleep(UINT32 mSecs)
 
 VOID LOS_TaskResRecycle(VOID)
 {
-    OsRecyleFinishedTask();
+    OsRecycleFinishedTask();
 }
