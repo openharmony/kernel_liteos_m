@@ -126,8 +126,10 @@ VOID LOS_SchedTraceStop(VOID)
     ShowFormat(g_traceRingBuf, g_schedCount);
     g_schedCount = 0;
 
-    (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, g_traceRingBuf);
-    g_traceRingBuf = NULL;
+    if (g_traceRingBuf != NULL) {
+        (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, g_traceRingBuf);
+        g_traceRingBuf = NULL;
+    }
 
     return;
 }
