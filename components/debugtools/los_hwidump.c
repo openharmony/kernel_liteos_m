@@ -84,7 +84,7 @@ STATIC VOID ShellCmdHwiInfoShow(OsIrqCpupCB *irqData, CPUP_INFO_S *hwiCpup1s,
         }
         irqName = OsGetHwiFormName(i);
 
-        PRINTK(" %10u:%11u%11llu%10llu%9u.%-2u%9u.%-2u %-12s\n", i - OS_SYS_VECTOR_CNT, count, cycles, timeMax,
+        PRINTK(" %10d:%11u%11llu%10llu%9u.%-2u%9u.%-2u %-12s\n", i - OS_SYS_VECTOR_CNT, count, cycles, timeMax,
                hwiCpup1s[i].uwUsage / CPUP_PRECISION_MULT, hwiCpup1s[i].uwUsage % CPUP_PRECISION_MULT,
                hwiCpup10s[i].uwUsage / CPUP_PRECISION_MULT, hwiCpup10s[i].uwUsage % CPUP_PRECISION_MULT,
                (irqName != NULL) ? irqName : NULL);
