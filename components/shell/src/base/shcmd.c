@@ -51,6 +51,9 @@ CmdItem g_shellcmdAll[] = {
     {CMD_TYPE_STD, "date", XARGS, (CmdCallBackFunc)OsShellCmdDate},
     {CMD_TYPE_EX, "task", 1, (CmdCallBackFunc)OsShellCmdDumpTask},
     {CMD_TYPE_EX, "free", XARGS, (CmdCallBackFunc)OsShellCmdFree},
+#if (LOSCFG_MEM_WATERLINE == 1)
+    {CMD_TYPE_EX, "memusage", XARGS, (CmdCallBackFunc)OsShellCmdWaterLine},
+#endif
 #ifdef LWIP_SHELLCMD_ENABLE
     {CMD_TYPE_EX, "ifconfig", XARGS, (CmdCallBackFunc)lwip_ifconfig},
     {CMD_TYPE_EX, "ping", XARGS, (CmdCallBackFunc)OsShellPing},

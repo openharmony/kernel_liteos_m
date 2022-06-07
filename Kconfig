@@ -597,6 +597,11 @@ config VM_OVERLAP_CHECK
     depends on DEBUG_VERSION && MEM_DEBUG
     help
       Answer Y to enable vm overlap check.
+      
+config TASK_MEM_USED
+    bool "Enable show task mem used or not"
+    default n
+    depends on DEBUG_VERSION && MEM_DEBUG
 
 endmenu
 

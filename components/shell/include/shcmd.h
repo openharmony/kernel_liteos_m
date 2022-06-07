@@ -94,6 +94,7 @@ extern INT32 VfsNormalizePath(const CHAR *directory, const CHAR *filename, CHAR 
 extern INT32 OsShellCmdDate(INT32 argc, const CHAR **argv);
 extern INT32 OsShellCmdDumpTask(INT32 argc, const CHAR **argv);
 extern UINT32 OsShellCmdFree(INT32 argc, const CHAR **argv);
+extern UINT32 OsShellCmdWaterLine(INT32 argc, const CHAR **argv);
 extern UINT32 lwip_ifconfig(INT32 argc, const CHAR **argv);
 extern UINT32 OsShellPing(INT32 argc, const CHAR **argv);
 extern INT32 OsShellCmdTouch(INT32 argc, const CHAR **argv);
