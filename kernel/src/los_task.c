@@ -307,17 +307,27 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskCpupInfo(CPUP_INFO_S **cpuLessOneSec,
 LITE_OS_SEC_TEXT_MINOR VOID OsPrintAllTskInfoHeader(VOID)
 {
     PRINTK("\r\n TID  Priority   Status StackSize WaterLine StackPoint TopOfStack EventMask  SemID");
+#if (LOSCFG_TASK_MEM_USED == 1)
+    PRINTK(" AllocSize");
+#endif
 #if (LOSCFG_BASE_CORE_CPUP == 1)
     PRINTK("  CPUUSE CPUUSE10s CPUUSE1s ");
 #endif /* LOSCFG_BASE_CORE_CPUP */
     PRINTK("  TaskEntry name\n");
     PRINTK(" ---  -------- -------- ");
     PRINTK("--------- --------- ---------- ---------- --------- ------ ");
+#if (LOSCFG_TASK_MEM_USED == 1)
+    PRINTK("--------- ");
+#endif
 #if (LOSCFG_BASE_CORE_CPUP == 1)
     PRINTK("------- --------- --------  ");
 #endif /* LOSCFG_BASE_CORE_CPUP */
     PRINTK("---------- ----\n");
 }
+
+#if (LOSCFG_TASK_MEM_USED == 1)
+STATIC UINT32                              g_taskMemUsed[LOSCFG_BASE_CORE_TSK_LIMIT + 1];
+#endif
 
 /*****************************************************************************
  Function    : OsGetAllTskInfo
@@ -336,6 +346,11 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
     CPUP_INFO_S *cpuLessOneSec = (CPUP_INFO_S *)NULL;
     CPUP_INFO_S *cpuTenSec = (CPUP_INFO_S *)NULL;
     CPUP_INFO_S *cpuOneSec = (CPUP_INFO_S *)NULL;
+#endif
+
+#if (LOSCFG_TASK_MEM_USED == 1)
+    (VOID)memset_s(g_taskMemUsed, sizeof(UINT32) * g_taskMaxNum, 0, sizeof(UINT32) * g_taskMaxNum);
+    OsTaskMemUsed((VOID *)OS_SYS_MEM_ADDR, g_taskMemUsed, g_taskMaxNum);
 #endif
 
 #if (LOSCFG_BASE_CORE_CPUP == 1)
@@ -357,6 +372,9 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsGetAllTskInfo(VOID)
                taskCB->taskID, taskCB->priority, OsConvertTskStatus(taskCB->taskStatus),
                taskCB->stackSize, OsGetTaskWaterLine(taskCB->taskID),
                (UINT32)(UINTPTR)taskCB->stackPointer, taskCB->topOfStack, taskCB->eventMask, semID);
+#if (LOSCFG_TASK_MEM_USED == 1)
+        PRINTK("%#10x", g_taskMemUsed[loopNum]);
+#endif
 
 #if (LOSCFG_BASE_CORE_CPUP == 1)
         PRINTK("%6u.%-2u%7u.%-2u%6u.%-2u ",
