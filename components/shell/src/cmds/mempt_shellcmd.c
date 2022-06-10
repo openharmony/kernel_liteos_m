@@ -79,3 +79,32 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdFree(INT32 argc, const CHAR *argv[])
     return 0;
 }
 
+#if (LOSCFG_MEM_WATERLINE == 1)
+LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdWaterLine(INT32 argc, const CHAR *argv[])
+{
+    UINT32 ret;
+    LOS_MEM_POOL_STATUS poolStatus;
+
+    if (argc > 1) {
+        PRINTK("\nUsage: memusage or memusage [-k/-m]\n");
+        return OS_ERROR;
+    }
+
+    if (LOS_MemInfoGet(m_aucSysMem0, &poolStatus) != LOS_OK) {
+        return OS_ERROR;
+    }
+
+    if ((argc == 1) && (strcmp(argv[0], "-k") == 0)) {
+        PRINTK("Mem WaterLine:    %-9u\n", MEM_SIZE_TO_KB(poolStatus.usageWaterLine));
+    } else if ((argc == 1) && (strcmp(argv[0], "-m") == 0)) {
+        PRINTK("Mem WaterLine:    %-9u\n", MEM_SIZE_TO_MB(poolStatus.usageWaterLine));
+    } else if (argc == 0) {
+        PRINTK("Mem WaterLine:    %-9u\n", poolStatus.usageWaterLine);
+    } else {
+        PRINTK("\nUsage: memusage or memusage [-k/-m]\n");
+        return OS_ERROR;
+    }
+
+    return 0;
+}
+#endif
