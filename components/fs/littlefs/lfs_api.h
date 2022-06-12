@@ -42,7 +42,6 @@
 #include "lfs_conf.h"
 #include "lfs_util.h"
 #include "memory.h"
-#include "pthread.h"
 
 #define INVALID_FD (-1)
 
