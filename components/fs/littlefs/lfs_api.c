@@ -32,6 +32,8 @@
 #define _GNU_SOURCE 1
 #include "lfs_api.h"
 #include "los_config.h"
+#include "los_mux.h"
+#include "los_debug.h"
 #include "securec.h"
 
 lfs_t g_lfs;
@@ -40,29 +42,41 @@ FileDirInfo g_lfsDir[LFS_MAX_OPEN_DIRS] = {0};
 struct FileOpInfo g_fsOp[LOSCFG_LFS_MAX_MOUNT_SIZE] = {0};
 static LittleFsHandleStruct g_handle[LOSCFG_LFS_MAX_OPEN_FILES] = {0};
 struct dirent g_nameValue;
-static pthread_mutex_t g_FslocalMutex = PTHREAD_MUTEX_INITIALIZER;
 static const char *g_littlefsMntName[LOSCFG_LFS_MAX_MOUNT_SIZE] = {"/a"};
+#define LFS_MUTEX_UNINIT (-1)
+static UINT32 g_lfsMutex = LFS_MUTEX_UNINIT;
+
+static int LfsLock(void)
+{
+    if (LOS_MuxPend(g_lfsMutex, LOS_WAIT_FOREVER) != LOS_OK) {
+        PRINT_ERR("LfsLock failed!");
+        return LOS_NOK;
+    }
+
+    return LOS_OK;
+}
+
+static void LfsUnlock(void)
+{
+    (void)LOS_MuxPost(g_lfsMutex);
+}
 
 LittleFsHandleStruct *LfsAllocFd(const char *fileName, int *fd)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LOSCFG_LFS_MAX_OPEN_FILES; i++) {
         if (g_handle[i].useFlag == 0) {
             *fd = i;
             g_handle[i].useFlag = 1;
             g_handle[i].pathName = strdup(fileName);
-            pthread_mutex_unlock(&g_FslocalMutex);
             return &(g_handle[i]);
         }
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
     *fd = INVALID_FD;
     return NULL;
 }
 
 static void LfsFreeFd(int fd)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
     g_handle[fd].useFlag = 0;
     if (g_handle[fd].pathName != NULL) {
         free((void *)g_handle[fd].pathName);
@@ -72,21 +86,17 @@ static void LfsFreeFd(int fd)
     if (g_handle[fd].lfsHandle != NULL) {
         g_handle[fd].lfsHandle = NULL;
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
 }
 
 BOOL CheckFileIsOpen(const char *fileName)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LOSCFG_LFS_MAX_OPEN_FILES; i++) {
         if (g_handle[i].useFlag == 1) {
             if (strcmp(g_handle[i].pathName, fileName) == 0) {
-                pthread_mutex_unlock(&g_FslocalMutex);
                 return TRUE;
             }
         }
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
     return FALSE;
 }
 
@@ -103,22 +113,18 @@ static BOOL LfsFdIsValid(int fd)
 
 FileDirInfo *GetFreeDir(const char *dirName)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LFS_MAX_OPEN_DIRS; i++) {
         if (g_lfsDir[i].useFlag == 0) {
             g_lfsDir[i].useFlag = 1;
             g_lfsDir[i].dirName = strdup(dirName);
-            pthread_mutex_unlock(&g_FslocalMutex);
             return &(g_lfsDir[i]);
         }
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
     return NULL;
 }
 
 void FreeDirInfo(const char *dirName)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LFS_MAX_OPEN_DIRS; i++) {
         if (g_lfsDir[i].useFlag == 1 && strcmp(g_lfsDir[i].dirName, dirName) == 0) {
             g_lfsDir[i].useFlag = 0;
@@ -126,24 +132,19 @@ void FreeDirInfo(const char *dirName)
                 free(g_lfsDir[i].dirName);
                 g_lfsDir[i].dirName = NULL;
             }
-            pthread_mutex_unlock(&g_FslocalMutex);
         }
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
 }
 
 BOOL CheckDirIsOpen(const char *dirName)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LFS_MAX_OPEN_DIRS; i++) {
         if (g_lfsDir[i].useFlag == 1) {
             if (strcmp(g_lfsDir[i].dirName, dirName) == 0) {
-                pthread_mutex_unlock(&g_FslocalMutex);
                 return TRUE;
             }
         }
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
     return FALSE;
 }
 
@@ -165,35 +166,29 @@ BOOL CheckPathIsMounted(const char *pathName, struct FileOpInfo **fileOpInfo)
     char tmpName[LITTLEFS_MAX_LFN_LEN] = {0};
     int len = GetFirstLevelPathLen(pathName);
 
-    pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 1) {
             (void)strncpy_s(tmpName, LITTLEFS_MAX_LFN_LEN, pathName, len);
             if (strcmp(tmpName, g_fsOp[i].dirName) == 0) {
                 *fileOpInfo = &(g_fsOp[i]);
-                pthread_mutex_unlock(&g_FslocalMutex);
                 return TRUE;
             }
         }
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
     return FALSE;
 }
 
 struct FileOpInfo *AllocMountRes(const char* target, const struct FileOps *fileOps)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 0 && strcmp(target, g_littlefsMntName[i]) == 0) {
             g_fsOp[i].useFlag = 1;
             g_fsOp[i].fsVops = fileOps;
             g_fsOp[i].dirName = strdup(target);
-            pthread_mutex_unlock(&g_FslocalMutex);
             return &(g_fsOp[i]);
         }
     }
 
-    pthread_mutex_unlock(&g_FslocalMutex);
     return NULL;
 }
 
@@ -203,26 +198,21 @@ int SetDefaultMountPath(int pathNameIndex, const char* target)
         return VFS_ERROR;
     }
 
-    pthread_mutex_lock(&g_FslocalMutex);
     g_littlefsMntName[pathNameIndex] = strdup(target);
-    pthread_mutex_unlock(&g_FslocalMutex);
     return VFS_OK;
 }
 
 struct FileOpInfo *GetMountRes(const char *target, int *mountIndex)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 1) {
             if (g_fsOp[i].dirName && strcmp(target, g_fsOp[i].dirName) == 0) {
                 *mountIndex = i;
-                pthread_mutex_unlock(&g_FslocalMutex);
                 return &(g_fsOp[i]);
             }
         }
     }
 
-    pthread_mutex_unlock(&g_FslocalMutex);
     return NULL;
 }
 
@@ -232,33 +222,28 @@ int FreeMountResByIndex(int mountIndex)
         return VFS_ERROR;
     }
 
-    pthread_mutex_lock(&g_FslocalMutex);
     if (g_fsOp[mountIndex].useFlag == 1 && g_fsOp[mountIndex].dirName != NULL) {
         g_fsOp[mountIndex].useFlag = 0;
         free(g_fsOp[mountIndex].dirName);
         g_fsOp[mountIndex].dirName = NULL;
     }
-    pthread_mutex_unlock(&g_FslocalMutex);
 
     return VFS_OK;
 }
 
 int FreeMountRes(const char *target)
 {
-    pthread_mutex_lock(&g_FslocalMutex);
     for (int i = 0; i < LOSCFG_LFS_MAX_MOUNT_SIZE; i++) {
         if (g_fsOp[i].useFlag == 1) {
             if (g_fsOp[i].dirName && strcmp(target, g_fsOp[i].dirName) == 0) {
                 g_fsOp[i].useFlag = 0;
                 free(g_fsOp[i].dirName);
                 g_fsOp[i].dirName = NULL;
-                pthread_mutex_unlock(&g_FslocalMutex);
                 return VFS_OK;
             }
         }
     }
 
-    pthread_mutex_unlock(&g_FslocalMutex);
     return VFS_ERROR;
 }
 
@@ -335,14 +320,24 @@ int LfsMount(const char *source, const char *target, const char *fileSystemType,
 
     if (target == NULL || fileSystemType == NULL || data == NULL) {
         errno = EFAULT;
-        ret = VFS_ERROR;
-        goto ERROUT;
+        return VFS_ERROR;
     }
 
     if (strcmp(fileSystemType, "littlefs") != 0) {
         errno = ENODEV;
-        ret = VFS_ERROR;
-        goto ERROUT;
+        return VFS_ERROR;
+    }
+
+    if (g_lfsMutex == LFS_MUTEX_UNINIT) {
+        if (LOS_MuxCreate(&g_lfsMutex) != LOS_OK) {
+            errno = EBUSY;
+            return VFS_ERROR;
+        }
+    }
+
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
     }
 
     if (CheckPathIsMounted(target, &fileOpInfo)) {
@@ -373,6 +368,7 @@ int LfsMount(const char *source, const char *target, const char *fileSystemType,
     }
 
 ERROUT:
+    LfsUnlock();
     return ret;
 }
 
@@ -387,9 +383,15 @@ int LfsUmount(const char *target)
         return VFS_ERROR;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     fileOpInfo = GetMountRes(target, &mountIndex);
     if (fileOpInfo == NULL) {
         errno = ENOENT;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -400,6 +402,7 @@ int LfsUmount(const char *target)
     }
 
     (void)FreeMountResByIndex(mountIndex);
+    LfsUnlock();
     return ret;
 }
 
@@ -413,8 +416,14 @@ int LfsUnlink(const char *fileName)
         return VFS_ERROR;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     if (CheckPathIsMounted(fileName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
         errno = ENOENT;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -424,6 +433,7 @@ int LfsUnlink(const char *fileName)
         ret = VFS_ERROR;
     }
 
+    LfsUnlock();
     return ret;
 }
 
@@ -437,8 +447,14 @@ int LfsMkdir(const char *dirName, mode_t mode)
         return VFS_ERROR;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     if (CheckPathIsMounted(dirName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
         errno = ENOENT;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -448,6 +464,7 @@ int LfsMkdir(const char *dirName, mode_t mode)
         ret = VFS_ERROR;
     }
 
+    LfsUnlock();
     return ret;
 }
 
@@ -462,8 +479,14 @@ int LfsRmdir(const char *dirName)
         return VFS_ERROR;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     if (CheckPathIsMounted(dirName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
         errno = ENOENT;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -473,6 +496,7 @@ int LfsRmdir(const char *dirName)
         ret = VFS_ERROR;
     }
 
+    LfsUnlock();
     return ret;
 }
 
@@ -483,7 +507,12 @@ DIR *LfsOpendir(const char *dirName)
 
     if (dirName == NULL) {
         errno = EFAULT;
-        goto ERROUT;
+        return NULL;
+    }
+
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return NULL;
     }
 
     if (CheckPathIsMounted(dirName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
@@ -512,9 +541,11 @@ DIR *LfsOpendir(const char *dirName)
 
     dirInfo->lfsHandle = &(fileOpInfo->lfsInfo);
 
+    LfsUnlock();
     return (DIR *)dirInfo;
 
 ERROUT:
+    LfsUnlock();
     return NULL;
 }
 
@@ -530,9 +561,13 @@ struct dirent *LfsReaddir(DIR *dir)
         return NULL;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return NULL;
+    }
+
     ret = lfs_dir_read(dirInfo->lfsHandle, (lfs_dir_t *)(&(dirInfo->dir)), &lfsInfo);
     if (ret == TRUE) {
-        pthread_mutex_lock(&g_FslocalMutex);
         (void)strncpy_s(g_nameValue.d_name, sizeof(g_nameValue.d_name), lfsInfo.name, strlen(lfsInfo.name) + 1);
         if (lfsInfo.type == LFS_TYPE_DIR) {
             g_nameValue.d_type = DT_DIR;
@@ -541,8 +576,8 @@ struct dirent *LfsReaddir(DIR *dir)
         }
 
         g_nameValue.d_reclen = lfsInfo.size;
-        pthread_mutex_unlock(&g_FslocalMutex);
 
+        LfsUnlock();
         return &g_nameValue;
     }
 
@@ -550,6 +585,7 @@ struct dirent *LfsReaddir(DIR *dir)
         errno = LittlefsErrno(ret);
     }
 
+    LfsUnlock();
     return NULL;
 }
 
@@ -563,6 +599,11 @@ int LfsClosedir(DIR *dir)
         return VFS_ERROR;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     ret = lfs_dir_close(dirInfo->lfsHandle, (lfs_dir_t *)(&(dirInfo->dir)));
 
     FreeDirInfo(dirInfo->dirName);
@@ -572,6 +613,7 @@ int LfsClosedir(DIR *dir)
         ret = VFS_ERROR;
     }
 
+    LfsUnlock();
     return ret;
 }
 
@@ -584,7 +626,12 @@ int LfsOpen(const char *pathName, int openFlag, ...)
 
     if (pathName == NULL) {
         errno = EFAULT;
-        goto ERROUT;
+        return INVALID_FD;
+    }
+
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
     }
 
     if (CheckPathIsMounted(pathName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
@@ -612,9 +659,11 @@ int LfsOpen(const char *pathName, int openFlag, ...)
     }
 
     g_handle[fd].lfsHandle = &(fileOpInfo->lfsInfo);
+    LfsUnlock();
     return fd;
 
 ERROUT:
+    LfsUnlock();
     return INVALID_FD;
 }
 
@@ -627,8 +676,14 @@ int LfsRead(int fd, void *buf, unsigned int len)
         return VFS_ERROR;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     if (LfsFdIsValid(fd) == FALSE) {
         errno = EBADF;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -637,6 +692,7 @@ int LfsRead(int fd, void *buf, unsigned int len)
         errno = LittlefsErrno(ret);
         ret = VFS_ERROR;
     }
+    LfsUnlock();
     return ret;
 }
 
@@ -649,8 +705,14 @@ int LfsWrite(int fd, const void *buf, unsigned int len)
         return VFS_ERROR;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     if (LfsFdIsValid(fd) == FALSE) {
         errno = EBADF;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -659,6 +721,7 @@ int LfsWrite(int fd, const void *buf, unsigned int len)
         errno = LittlefsErrno(ret);
         ret = VFS_ERROR;
     }
+    LfsUnlock();
     return ret;
 }
 
@@ -666,8 +729,14 @@ off_t LfsSeek(int fd, off_t offset, int whence)
 {
     off_t ret;
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     if (LfsFdIsValid(fd) == FALSE) {
         errno = EBADF;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -677,6 +746,7 @@ off_t LfsSeek(int fd, off_t offset, int whence)
         ret = VFS_ERROR;
     }
 
+    LfsUnlock();
     return ret;
 }
 
@@ -684,14 +754,18 @@ int LfsClose(int fd)
 {
     int ret;
 
-    if (LfsFdIsValid(fd) == FALSE) {
-        errno = EBADF;
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
         return VFS_ERROR;
     }
 
-    pthread_mutex_lock(&g_FslocalMutex);
+    if (LfsFdIsValid(fd) == FALSE) {
+        errno = EBADF;
+        LfsUnlock();
+        return VFS_ERROR;
+    }
+
     ret = lfs_file_close(g_handle[fd].lfsHandle, &(g_handle[fd].file));
-    pthread_mutex_unlock(&g_FslocalMutex);
 
     LfsFreeFd(fd);
 
@@ -700,6 +774,7 @@ int LfsClose(int fd)
         ret = VFS_ERROR;
     }
 
+    LfsUnlock();
     return ret;
 }
 
@@ -713,8 +788,14 @@ int LfsRename(const char *oldName, const char *newName)
         return VFS_ERROR;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     if (CheckPathIsMounted(oldName, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
         errno = ENOENT;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -724,6 +805,7 @@ int LfsRename(const char *oldName, const char *newName)
         ret = VFS_ERROR;
     }
 
+    LfsUnlock();
     return ret;
 }
 
@@ -738,8 +820,14 @@ int LfsStat(const char *path, struct stat *buf)
         return VFS_ERROR;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     if (CheckPathIsMounted(path, &fileOpInfo) == FALSE || fileOpInfo == NULL) {
         errno = ENOENT;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -756,6 +844,7 @@ int LfsStat(const char *path, struct stat *buf)
         ret = VFS_ERROR;
     }
 
+    LfsUnlock();
     return ret;
 }
 
@@ -763,8 +852,14 @@ int LfsFsync(int fd)
 {
     int ret;
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     if (LfsFdIsValid(fd) == FALSE) {
         errno = EBADF;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -773,6 +868,7 @@ int LfsFsync(int fd)
         errno = LittlefsErrno(ret);
         ret = VFS_ERROR;
     }
+    LfsUnlock();
     return ret;
 }
 
@@ -786,8 +882,14 @@ int LfsFstat(int fd, struct stat *buf)
         return FS_FAILURE;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     if (LfsFdIsValid(fd) == FALSE) {
         errno = EBADF;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -803,6 +905,7 @@ int LfsFstat(int fd, struct stat *buf)
         errno = LittlefsErrno(ret);
         ret = VFS_ERROR;
     }
+    LfsUnlock();
     return ret;
 }
 
@@ -816,20 +919,28 @@ int LfsPread(int fd, void *buf, size_t nbyte, off_t offset)
         return VFS_ERROR;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     if (LfsFdIsValid(fd) == FALSE) {
         errno = EBADF;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
     savepos = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), 0, SEEK_CUR);
     if (savepos == (off_t)-1) {
         errno = LittlefsErrno(savepos);
+        LfsUnlock();
         return VFS_ERROR;
     }
 
     pos = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), offset, SEEK_SET);
     if (pos == (off_t)-1) {
         errno = LittlefsErrno(pos);
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -842,9 +953,10 @@ int LfsPread(int fd, void *buf, size_t nbyte, off_t offset)
     pos = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), savepos, SEEK_SET);
     if ((pos == (off_t)-1) && (ret >= 0)) {
         errno = LittlefsErrno(pos);
-        return VFS_ERROR;
+        ret = VFS_ERROR;
     }
 
+    LfsUnlock();
     return ret;
 }
 
@@ -858,20 +970,28 @@ int LfsPwrite(int fd, const void *buf, size_t nbyte, off_t offset)
         return VFS_ERROR;
     }
 
+    if (LfsLock() != LOS_OK) {
+        errno = EAGAIN;
+        return VFS_ERROR;
+    }
+
     if (LfsFdIsValid(fd) == FALSE) {
         errno = EBADF;
+        LfsUnlock();
         return VFS_ERROR;
     }
 
     savepos = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), 0, SEEK_CUR);
     if (savepos == (off_t)-1) {
         errno = LittlefsErrno(savepos);
+        LfsUnlock();
         return VFS_ERROR;
     }
 
     pos = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), offset, SEEK_SET);
     if (pos == (off_t)-1) {
         errno = LittlefsErrno(pos);
+        LfsUnlock();
         return VFS_ERROR;
     }
 
@@ -884,8 +1004,9 @@ int LfsPwrite(int fd, const void *buf, size_t nbyte, off_t offset)
     pos = (off_t)lfs_file_seek(g_handle[fd].lfsHandle, &(g_handle[fd].file), savepos, SEEK_SET);
     if ((pos == (off_t)-1) && (ret >= 0)) {
         errno = LittlefsErrno(pos);
-        return VFS_ERROR;
+        ret = VFS_ERROR;
     }
 
+    LfsUnlock();
     return ret;
 }
