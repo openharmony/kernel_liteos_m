@@ -1,5 +1,4 @@
-# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -27,22 +26,17 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-choice
-    prompt "Choose libc implementation"
-    default LIBC_MUSL
-    help
-      Choose libc implementation.
+import("//kernel/liteos_m/liteos.gni")
+import("//third_party/musl/porting/liteos_m_iccarm/kernel/iccarm.gni")
 
-config LIBC_MUSL
-    bool "musl libc"
-rsource "musl/Kconfig"
+module_switch = defined(LOSCFG_LIBC_ICCARM)
+module_name = get_path_info(rebase_path("."), "name")
+kernel_module(module_name) {
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
 
-config LIBC_NEWLIB
-    bool "newlibc"
-rsource "newlib/Kconfig"
+  deps = [ "//third_party/musl/porting/liteos_m_iccarm/kernel" ]
+}
 
-config LIBC_ICCARM
-    bool "iar libc"
-rsource "iccarm/Kconfig"
-
-endchoice
+config("public") {
+  include_dirs = ICCARM_ADAPT_INCLUDE_DIRS
+}
