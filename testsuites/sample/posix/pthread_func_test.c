@@ -853,13 +853,13 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread013, Function | MediumTest | Lev
 
     ret = pthread_condattr_getclock(&condattr, &clk);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
-    ICUNIT_ASSERT_EQUAL(clk, 0, clk);
+    ICUNIT_ASSERT_EQUAL(clk, CLOCK_REALTIME, clk);
 
-    ret = pthread_condattr_setclock(&condattr, 0);
+    ret = pthread_condattr_setclock(&condattr, CLOCK_REALTIME);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     ret = pthread_condattr_getclock(&condattr, &clk);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
-    ICUNIT_ASSERT_EQUAL(clk, 0, clk);
+    ICUNIT_ASSERT_EQUAL(clk, CLOCK_REALTIME, clk);
 
     struct timespec ts = {0};
     ret = clock_getres(CLOCK_MONOTONIC, &ts);
