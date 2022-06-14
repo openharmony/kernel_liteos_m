@@ -32,7 +32,7 @@
 #include "los_compiler.h"
 
 /* Using task extended field to realize IAR TLS function in target_config.h include this header file. */
-#define LOSCFG_TASK_STRUCT_EXTENSION    VOID *iarTlsArea;
+#define LOSCFG_TASK_STRUCT_EXTENSION    VOID *iarTlsArea
 
 #if (__VER__ < 8000000)
 #include <yvals.h>
