@@ -638,10 +638,8 @@ extern UINT8 *m_aucSysMem0;
 /**
  * @ingroup los_config
  * Task extension field additional functions, such as IAR TLS.
+ * Please Use the LOSCFG_TASK_STRUCT_EXTENSION macro to define your task extended fields in target_config.h
  */
-#ifndef LOSCFG_TASK_STRUCT_EXTENSION
-#define LOSCFG_TASK_STRUCT_EXTENSION
-#endif
 #ifndef LOSCFG_TASK_CREATE_EXTENSION_HOOK
 #define LOSCFG_TASK_CREATE_EXTENSION_HOOK(taskCB)
 #endif

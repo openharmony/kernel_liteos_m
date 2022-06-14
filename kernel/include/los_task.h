@@ -1500,7 +1500,9 @@ typedef struct {
 #if (LOSCFG_KERNEL_SIGNAL == 1)
     VOID                        *sig;                     /**< Task signal */
 #endif
-    LOSCFG_TASK_STRUCT_EXTENSION                          /**< Task extension field */
+#ifdef LOSCFG_TASK_STRUCT_EXTENSION
+    LOSCFG_TASK_STRUCT_EXTENSION;                         /**< Task extension field */
+#endif
 } LosTaskCB;
 
 STATIC INLINE BOOL OsTaskIsExit(const LosTaskCB *taskCB)
