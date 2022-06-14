@@ -1,5 +1,5 @@
 # Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -82,11 +82,10 @@ config("stdinc_config") {
     "-isystem",
     std_include,
   ]
-  cflags += [ "-nostdinc" ]
-  asmflags = cflags
-  if (defined(LOSCFG_LIBC_NEWLIB)) {
-    cflags -= [ "-nostdinc" ]
+  if (defined(LOSCFG_LIBC_MUSL)) {
+    cflags += [ "-nostdinc" ]
   }
+  asmflags = cflags
 }
 
 config("ssp_config") {

@@ -1,5 +1,4 @@
-# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -27,22 +26,13 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-choice
-    prompt "Choose libc implementation"
-    default LIBC_MUSL
+if LIBC_ICCARM
+
+config LIBC_ICCARM_FS
+    bool "Enable POSIX file system API support"
+    default y
+    depends on FS_VFS
     help
-      Choose libc implementation.
+        This enables POSIX style file system related APIs.
 
-config LIBC_MUSL
-    bool "musl libc"
-rsource "musl/Kconfig"
-
-config LIBC_NEWLIB
-    bool "newlibc"
-rsource "newlib/Kconfig"
-
-config LIBC_ICCARM
-    bool "iar libc"
-rsource "iccarm/Kconfig"
-
-endchoice
+endif # LIBC_ICCARM
