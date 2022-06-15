@@ -52,7 +52,7 @@ import("$root_out_dir/config.gni")
 
 LITEOSTOPDIR = "//kernel/liteos_m"
 LITEOSTHIRDPARTY = "//third_party"
-HDFTOPDIR = "//drivers/adapter/khdf/liteos_m"
+HDFTOPDIR = "//drivers/hdf_core/adapter/khdf/liteos_m"
 
 ARCH = ""
 if (defined(LOSCFG_ARCH_ARM_AARCH32)) {
