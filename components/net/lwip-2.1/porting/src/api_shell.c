@@ -586,7 +586,6 @@ u32_t OsShellPing(int argc, const char **argv)
         stPingTask.uwArg = (UINTPTR)parg;
         ret = LOS_TaskCreate((UINT32 *)(&ping_taskid), &stPingTask);
         if (ret != LOS_OK) {
-            free(parg);
             PRINTK("ping_task create failed 0x%08x.\n", ret);
             count = LWIP_SHELL_CMD_PING_RETRY_TIMES;
         } else {
@@ -601,6 +600,8 @@ u32_t OsShellPing(int argc, const char **argv)
     if (OsPingFunc(parg) < 0) {
         PRINTK("Ping cmd failed due some errors\n");
     }
+
+    free(parg);
 
     return LOS_OK;
 ping_error:
