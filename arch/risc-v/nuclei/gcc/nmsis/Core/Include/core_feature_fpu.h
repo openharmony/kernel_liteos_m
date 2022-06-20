@@ -81,7 +81,7 @@
  * \details
  * * We can save power by disable FPU Unit.
  * * When FPU Unit is disabled, any access to FPU related CSR registers
- * and FPU instructions will cause illegal Instuction Exception.
+ * and FPU instructions will cause illegal Instruction Exception.
  * */
 #define __disable_FPU()         __RV_CSR_CLEAR(CSR_MSTATUS, MSTATUS_FS)
 

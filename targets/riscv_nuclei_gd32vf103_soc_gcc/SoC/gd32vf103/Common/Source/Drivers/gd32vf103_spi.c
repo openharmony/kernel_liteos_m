@@ -80,7 +80,7 @@ void spi_i2s_deinit(uint32_t spi_periph)
 
 /*!
     \brief      initialize the parameters of SPI struct with the default values
-    \param[in]  spi_struct: SPI parameter stuct
+    \param[in]  spi_struct: SPI parameter struct
     \param[out] none
     \retval     none
 */

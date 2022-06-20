@@ -81,7 +81,7 @@ STATIC VOID DefaultRecordHandle(LosTaskCB *newTask, LosTaskCB *runTask)
 STATIC VOID ShowFormat(SchedTraceInfo *buf, UINT32 count)
 {
     if (count == 0) {
-        PRINT_ERR("none shed happend\n");
+        PRINT_ERR("none shed happened\n");
         return;
     }
 

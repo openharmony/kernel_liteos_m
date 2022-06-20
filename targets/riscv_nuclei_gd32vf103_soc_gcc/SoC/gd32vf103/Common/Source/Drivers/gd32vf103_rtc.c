@@ -244,7 +244,7 @@ void rtc_interrupt_flag_clear(uint32_t flag)
 
 /*!
     \brief      enable RTC interrupt
-    \param[in]  interrupt: specify which interrupt to enbale
+    \param[in]  interrupt: specify which interrupt to enable
                 one or more parameters can be selected which are shown as below:
       \arg        RTC_INT_SECOND: second interrupt
       \arg        RTC_INT_ALARM: alarm interrupt
@@ -259,7 +259,7 @@ void rtc_interrupt_enable(uint32_t interrupt)
 
 /*!
     \brief      disable RTC interrupt
-    \param[in]  interrupt: specify which interrupt to disbale
+    \param[in]  interrupt: specify which interrupt to disable
                 one or more parameters can be selected which are shown as below:
       \arg        RTC_INT_SECOND: second interrupt
       \arg        RTC_INT_ALARM: alarm interrupt

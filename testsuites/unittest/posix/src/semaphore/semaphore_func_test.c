@@ -154,7 +154,7 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait002, Function | 
     LOG("\n timeDiff %d", timeDiff);
     TEST_ASSERT_LESS_THAN_INT(20, timeDiff);
 
-    // try get semphore again
+    // try get semaphore again
     ts = GetDelayedTime(100);
     LOG("\n ts %d, %d", ts.tv_sec, ts.tv_nsec);
     ret = sem_timedwait((sem_t *)&sem, &ts);

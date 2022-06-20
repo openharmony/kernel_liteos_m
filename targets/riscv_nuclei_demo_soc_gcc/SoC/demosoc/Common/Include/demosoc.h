@@ -181,7 +181,7 @@ typedef enum EXCn {
 #define __ICACHE_PRESENT          0                     /*!< Set to 1 if I-Cache is present */
 #define __DCACHE_PRESENT          0                     /*!< Set to 1 if D-Cache is present */
 #define __Vendor_SysTickConfig    0                     /*!< Set to 1 if different SysTick Config is used */
-#define __Vendor_EXCEPTION        0                     /*!< Set to 1 if vendor exception hander is present */
+#define __Vendor_EXCEPTION        0                     /*!< Set to 1 if vendor exception handler is present */
 
 /** @} */ /* End of group Configuration_of_CMSIS */
 

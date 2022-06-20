@@ -325,7 +325,7 @@
  * \brief    NMSIS Core CSR Register Definitions
  * \details
  *
- * The following macros are used for CSR Register Defintions.
+ * The following macros are used for CSR Register Definitions.
  *   @{
  */
 /* === Standard RISC-V CSR Registers === */
