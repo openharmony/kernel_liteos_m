@@ -86,7 +86,7 @@ CmdModInfo *OsCmdInfoGet(VOID)
  * Description: Pass in the string and clear useless space ,which include:
  *                1) The overmatch space which is not be marked by Quote's area
  *                   Squeeze the overmatch space into one space
- *                2) Clear all space before first vaild character
+ *                2) Clear all space before first valid character
  * Input:       cmdKey : Pass in the buff string, which is ready to be operated
  *              cmdOut : Pass out the buffer string ,which has already been operated
  *              size : cmdKey length
@@ -115,7 +115,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsCmdKeyShift(const CHAR *cmdKey, CHAR *cmdOut, UI
     (VOID)memset_s(output, len + 1, 0, len + 1);
     /* Backup the 'output' start address */
     outputBak = output;
-    /* Scan each charactor in 'cmdKey',and squeeze the overmuch space and ignore invaild charactor */
+    /* Scan each charactor in 'cmdKey',and squeeze the overmuch space and ignore invalid charactor */
     for (; *cmdKey != '\0'; cmdKey++) {
         /* Detected a Double Quotes, switch the matching status */
         if (*(cmdKey) == '\"') {

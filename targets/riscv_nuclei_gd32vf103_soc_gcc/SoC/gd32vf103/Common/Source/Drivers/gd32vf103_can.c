@@ -182,7 +182,7 @@ ErrStatus can_init(uint32_t can_periph, can_parameter_struct* can_parameter_init
         }else{
             CAN_CTL(can_periph) &= ~CAN_CTL_TTC;
         }
-        /* automatic bus-off managment */
+        /* automatic bus-off management */
         if(ENABLE == can_parameter_init->auto_bus_off_recovery){
             CAN_CTL(can_periph) |= CAN_CTL_ABOR;
         }else{

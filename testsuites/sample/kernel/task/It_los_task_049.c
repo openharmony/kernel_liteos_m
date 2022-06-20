@@ -56,7 +56,7 @@ static VOID TaskF01(VOID)
     ICUNIT_GOTO_STRING_EQUAL(g_taskInfo.acName, "Tsk049A", g_taskInfo.acName, EXIT1);
     ICUNIT_GOTO_EQUAL(g_taskInfo.uwTaskID, g_testTaskID01, g_taskInfo.uwTaskID, EXIT1);
 
-    // 2, Assert that current task`s priority is equal to the priority was setted.
+    // 2, Assert that current task`s priority is equal to the priority was set.
     ICUNIT_GOTO_EQUAL(g_taskInfo.usTaskPrio, TASK_PRIO_TEST - 2, g_taskInfo.usTaskPrio, EXIT1);
     ICUNIT_GOTO_EQUAL(OS_TASK_STATUS_RUNNING & g_taskInfo.usTaskStatus, OS_TASK_STATUS_RUNNING,
         OS_TASK_STATUS_RUNNING & g_taskInfo.usTaskStatus, EXIT1);

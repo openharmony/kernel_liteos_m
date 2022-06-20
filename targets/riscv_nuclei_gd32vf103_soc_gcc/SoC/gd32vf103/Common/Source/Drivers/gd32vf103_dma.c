@@ -665,7 +665,7 @@ void dma_interrupt_flag_clear(uint32_t dma_periph, dma_channel_enum channelx, ui
     \param[in]  channelx: specify which DMA channel
                 only one parameter can be selected which is shown as below:
       \arg        DMA0: DMA_CHx(x=0..6), DMA1: DMA_CHx(x=0..4)
-    \param[in]  source: specify which interrupt to enbale
+    \param[in]  source: specify which interrupt to enable
                 one or more parameters can be selected which are shown as below
       \arg        DMA_INT_FTF: channel full transfer finish interrupt
       \arg        DMA_INT_HTF: channel half transfer finish interrupt
@@ -689,7 +689,7 @@ void dma_interrupt_enable(uint32_t dma_periph, dma_channel_enum channelx, uint32
     \param[in]  channelx: specify which DMA channel
                 only one parameter can be selected which is shown as below:
       \arg        DMA0: DMA_CHx(x=0..6), DMA1: DMA_CHx(x=0..4)
-    \param[in]  source: specify which interrupt to disbale
+    \param[in]  source: specify which interrupt to disable
                 one or more parameters can be selected which are shown as below
       \arg        DMA_INT_FTF: channel full transfer finish interrupt
       \arg        DMA_INT_HTF: channel half transfer finish interrupt

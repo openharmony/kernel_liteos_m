@@ -282,7 +282,7 @@ __STATIC_FORCEINLINE uint32_t __ECLIC_GetCfgNlbits(void)
  * This function gets the hardware version information from CLICINFO register.
  * \return   hardware version number in CLICINFO register.
  * \remarks
- * - This function gets harware version information from CLICINFO register.
+ * - This function gets hardware version information from CLICINFO register.
  * - Bit 20:17 for architecture version, bit 16:13 for implementation version.
  * \sa
  * - \ref ECLIC_GetInfoNum

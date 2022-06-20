@@ -133,7 +133,7 @@ typedef enum {
 
 /**
  * @ingroup los_trace
- * Trace event type which indicate the exactly happend events, user can define own module's event type like
+ * Trace event type which indicate the exactly happened events, user can define own module's event type like
  * TRACE_#MODULE#_FLAG | NUMBER.
  *                   28                     4
  *    0 0 0 0 0 0 0 0 X X X X X X X X 0 0 0 0 0 0
@@ -241,7 +241,7 @@ typedef struct {
 #endif
 
 #if (LOSCFG_TRACE_FRAME_EVENT_COUNT == 1)
-    UINT32  eventCount;                               /**< the sequence of happend events */
+    UINT32  eventCount;                               /**< the sequence of happened events */
 #endif
 
     UINTPTR params[LOSCFG_TRACE_FRAME_MAX_PARAMS];    /**< event frame's params */
@@ -350,8 +350,8 @@ extern TRACE_EVENT_HOOK g_traceEventHook;
 #define QUEUE_CREATE_PARAMS(queueId, queueSz, itemSz, queueAddr, memType) \
     queueId, queueSz, itemSz, queueAddr, memType
 #define QUEUE_DELETE_PARAMS(queueId, state, readable)   queueId, state, readable
-#define QUEUE_RW_PARAMS(queueId, queueSize, bufSize, operateType, readable, writeable, timeout) \
-    queueId, queueSize, bufSize, operateType, readable, writeable, timeout
+#define QUEUE_RW_PARAMS(queueId, queueSize, bufSize, operateType, readable, writable, timeout) \
+    queueId, queueSize, bufSize, operateType, readable, writable, timeout
 
 #define SEM_CREATE_PARAMS(semId, type, count)           semId, type, count
 #define SEM_DELETE_PARAMS(semId, delRetCode)            semId, delRetCode

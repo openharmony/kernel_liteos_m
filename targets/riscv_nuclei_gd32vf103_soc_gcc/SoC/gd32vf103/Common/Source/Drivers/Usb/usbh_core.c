@@ -214,7 +214,7 @@ void usbh_core_task (usb_core_driver *pudev, usbh_host *puhost)
             break;
 
         case HOST_CLASS_ENUM:
-            /* process class standard contol requests state machine */
+            /* process class standard control requests state machine */
             status = puhost->class_cb->class_requests(pudev, puhost);
 
             if (USBH_OK == status) {
