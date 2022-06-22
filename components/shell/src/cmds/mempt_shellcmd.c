@@ -49,7 +49,7 @@ LITE_OS_SEC_TEXT_MINOR STATIC UINT32 OsShellCmdFreeInfo(INT32 argc, const CHAR *
     if ((argc == 0) ||
         ((argc == 1) && (strcmp(argv[0], "-k") == 0)) ||
         ((argc == 1) && (strcmp(argv[0], "-m") == 0))) {
-        PRINTK("\r\n        total        used          free\n");
+        PRINTK("\n        total        used          free\n");
     }
 
     if ((argc == 1) && (strcmp(argv[0], "-k") == 0)) {
