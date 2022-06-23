@@ -149,7 +149,7 @@ const SymInfo sym_##func __attribute__((section(".sym."#func))) = { \
  * then the shared library will be loaded to the heap by pool.
  *
  * @note When the heap, pool, is not NULL, you should call LOS_MemInit() to initialize the
- * pool before calling LOS_SoLoad(). By the way, the system will comsume a certain amount
+ * pool before calling LOS_SoLoad(). By the way, the system will consume a certain amount
  * of memory to initialize the pool. LOS_SoLoad must not be called in interrupt callback.
  *
  * @return Return NULL if error. Return non-NULL if success.

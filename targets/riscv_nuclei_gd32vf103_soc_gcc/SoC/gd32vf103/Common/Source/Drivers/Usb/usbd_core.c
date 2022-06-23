@@ -56,7 +56,7 @@ void usbd_init (usb_core_driver *udev, usb_core_enum core, usb_class_core *class
     /* device descriptor, class and user callbacks */
     udev->dev.class_core = class_core;
 
-    /* configure USB capabilites */
+    /* configure USB capabilities */
     usb_basic_init (&udev->bp, &udev->regs, core);
 
     /* initailizes the USB core*/

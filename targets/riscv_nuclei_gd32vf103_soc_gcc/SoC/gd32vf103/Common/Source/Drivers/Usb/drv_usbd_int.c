@@ -386,11 +386,11 @@ static uint32_t usbd_int_rxfifo (usb_core_driver *udev)
             break;
 
         case RSTAT_XFER_COMP:
-            /* trigger the OUT enpoint interrupt */
+            /* trigger the OUT endpoint interrupt */
             break;
 
         case RSTAT_SETUP_COMP:
-            /* trigger the OUT enpoint interrupt */
+            /* trigger the OUT endpoint interrupt */
             break;
 
         case RSTAT_SETUP_UPDT:

@@ -282,7 +282,7 @@ __STATIC_FORCEINLINE void SysTimer_SoftwareReset(void)
  * \details Initializes the System Timer and its non-vector interrupt, and starts the System Tick Timer.
  *
  *  In our default implementation, the timer counter will be set to zero, and it will start a timer compare non-vector interrupt
- *  when it matchs the ticks user set, during the timer interrupt user should reload the system tick using \ref SysTick_Reload function
+ *  when it matches the ticks user set, during the timer interrupt user should reload the system tick using \ref SysTick_Reload function
  *  or similar function written by user, so it can produce period timer interrupt.
  * \param [in]  ticks  Number of ticks between two interrupts.
  * \return          0  Function succeeded.

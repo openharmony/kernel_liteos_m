@@ -407,7 +407,7 @@ void timer_dma_enable(uint32_t timer_periph, uint16_t dma)
 /*!
     \brief      disable the TIMER DMA
     \param[in]  timer_periph: TIMERxTIMERx(x=0..6)
-    \param[in]  dma: specify which DMA to disbale
+    \param[in]  dma: specify which DMA to disable
                 one or more parameters can be selected which are shown as below:
       \arg        TIMER_DMA_UPD:  update DMA enable, TIMERx(x=0..6)
       \arg        TIMER_DMA_CH0D: channel 0 DMA enable, TIMERx(x=0..4)
@@ -1844,7 +1844,7 @@ void timer_interrupt_enable(uint32_t timer_periph, uint32_t interrupt)
 /*!
     \brief      disable the TIMER interrupt
     \param[in]  timer_periph: TIMERx(x=0..6)
-    \param[in]  interrupt: specify which interrupt to disbale
+    \param[in]  interrupt: specify which interrupt to disable
                 one or more parameters can be selected which are shown as below:
       \arg        TIMER_INT_UP: update interrupt enable, TIMERx(x=0..6)
       \arg        TIMER_INT_CH0: channel 0 interrupt enable, TIMERx(x=0..4)

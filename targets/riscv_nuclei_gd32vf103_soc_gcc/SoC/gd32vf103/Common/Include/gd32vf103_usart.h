@@ -94,7 +94,7 @@ OF SUCH DAMAGE.
 /* USARTx_CTL1 */
 #define USART_CTL1_ADDR               BITS(0,3)                         /*!< address of USART */
 #define USART_CTL1_LBLEN              BIT(5)                            /*!< LIN break frame length */
-#define USART_CTL1_LBDIE              BIT(6)                            /*!< LIN break detected interrupt eanble */
+#define USART_CTL1_LBDIE              BIT(6)                            /*!< LIN break detected interrupt enable */
 #define USART_CTL1_CLEN               BIT(8)                            /*!< CK length */
 #define USART_CTL1_CPH                BIT(9)                            /*!< CK phase */
 #define USART_CTL1_CPL                BIT(10)                           /*!< CK polarity */

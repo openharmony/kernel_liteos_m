@@ -47,7 +47,7 @@
    * - Neural Network Support Functions
    *
    * The library has separate functions for operating on different weight and activation data
-   * types including 8-bit integers (q7_t) and 16-bit integers (q15_t). The descrition of the
+   * types including 8-bit integers (q7_t) and 16-bit integers (q15_t). The description of the
    * kernels are included in the function description. The implementation details are also
    * described in this paper [1].
    *
@@ -119,7 +119,7 @@ extern    "C"
   /**
    * @brief Basic Q7 convolution function
    * @param[in]       Im_in       pointer to input tensor
-   * @param[in]       dim_im_in   input tensor dimention
+   * @param[in]       dim_im_in   input tensor dimension
    * @param[in]       ch_im_in    number of input tensor channels
    * @param[in]       wt          pointer to kernel weights
    * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
@@ -156,8 +156,8 @@ extern    "C"
   /**
    * @brief Basic Q7 convolution function (non-sqaure shape)
    * @param[in]       Im_in        pointer to input tensor
-   * @param[in]       dim_im_in_x  input tensor dimention x
-   * @param[in]       dim_im_in_y  input tensor dimention y
+   * @param[in]       dim_im_in_x  input tensor dimension x
+   * @param[in]       dim_im_in_y  input tensor dimension y
    * @param[in]       ch_im_in     number of input tensor channels
    * @param[in]       wt           pointer to kernel weights
    * @param[in]       ch_im_out    number of filters, i.e., output tensor channels
@@ -202,7 +202,7 @@ extern    "C"
   /**
    * @brief Basic Q15 convolution function
    * @param[in]       Im_in       pointer to input tensor
-   * @param[in]       dim_im_in   input tensor dimention
+   * @param[in]       dim_im_in   input tensor dimension
    * @param[in]       ch_im_in    number of input tensor channels
    * @param[in]       wt          pointer to kernel weights
    * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
@@ -239,7 +239,7 @@ extern    "C"
   /**
    * @brief Fast Q7 convolution function
    * @param[in]       Im_in       pointer to input tensor
-   * @param[in]       dim_im_in   input tensor dimention
+   * @param[in]       dim_im_in   input tensor dimension
    * @param[in]       ch_im_in    number of input tensor channels
    * @param[in]       wt          pointer to kernel weights
    * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
@@ -257,7 +257,7 @@ extern    "C"
    * <code>RISCV_MATH_SIZE_MISMATCH</code> or <code>RISCV_MATH_SUCCESS</code> based on the outcome of size checking.
    *
    * This function is the version with full list of optimization tricks, but with
-   * some contraints:
+   * some constraints:
    *   ch_im_in is multiple of 4
    *   ch_im_out is multiple of 2
    */
@@ -281,8 +281,8 @@ extern    "C"
   /**
    * @brief Fast Q7 convolution function (non-sqaure shape)
    * @param[in]       Im_in        pointer to input tensor
-   * @param[in]       dim_im_in_x  input tensor dimention x
-   * @param[in]       dim_im_in_y  input tensor dimention y
+   * @param[in]       dim_im_in_x  input tensor dimension x
+   * @param[in]       dim_im_in_y  input tensor dimension y
    * @param[in]       ch_im_in     number of input tensor channels
    * @param[in]       wt           pointer to kernel weights
    * @param[in]       ch_im_out    number of filters, i.e., output tensor channels
@@ -304,7 +304,7 @@ extern    "C"
    * <code>RISCV_MATH_SIZE_MISMATCH</code> or <code>RISCV_MATH_SUCCESS</code> based on the outcome of size checking.
    *
    * This function is the version with full list of optimization tricks, but with
-   * some contraints:
+   * some constraints:
    *   ch_im_in is multiple of 4
    *   ch_im_out is multiple of 2
    */
@@ -333,8 +333,8 @@ extern    "C"
   /**
    * @brief Fast Q7 version of 1x1 convolution (non-sqaure shape)
    * @param[in]       Im_in        pointer to input tensor
-   * @param[in]       dim_im_in_x  input tensor dimention x
-   * @param[in]       dim_im_in_y  input tensor dimention y
+   * @param[in]       dim_im_in_x  input tensor dimension x
+   * @param[in]       dim_im_in_y  input tensor dimension y
    * @param[in]       ch_im_in     number of input tensor channels
    * @param[in]       wt           pointer to kernel weights
    * @param[in]       ch_im_out    number of filters, i.e., output tensor channels
@@ -360,7 +360,7 @@ extern    "C"
    * second half of MobileNets after depthwise separable convolution.
    *
    * This function is the version with full list of optimization tricks, but with
-   * some contraints:
+   * some constraints:
    *   ch_im_in is multiple of 4
    *   ch_im_out is multiple of 2
    */
@@ -388,7 +388,7 @@ extern    "C"
   /**
    * @brief Q7 version of convolution for RGB image
    * @param[in]       Im_in       pointer to input tensor
-   * @param[in]       dim_im_in   input tensor dimention
+   * @param[in]       dim_im_in   input tensor dimension
    * @param[in]       ch_im_in    number of input tensor channels
    * @param[in]       wt          pointer to kernel weights
    * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
@@ -429,7 +429,7 @@ extern    "C"
   /**
    * @brief Fast Q15 convolution function
    * @param[in]       Im_in       pointer to input tensor
-   * @param[in]       dim_im_in   input tensor dimention
+   * @param[in]       dim_im_in   input tensor dimension
    * @param[in]       ch_im_in    number of input tensor channels
    * @param[in]       wt          pointer to kernel weights
    * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
@@ -447,7 +447,7 @@ extern    "C"
    * <code>RISCV_MATH_SIZE_MISMATCH</code> or <code>RISCV_MATH_SUCCESS</code> based on the outcome of size checking.
    *
    * This function is the version with full list of optimization tricks, but with
-   * some contraints:
+   * some constraints:
    *   ch_im_in is multiple of 2
    *   ch_im_out is multiple of 2
    */
@@ -471,8 +471,8 @@ extern    "C"
   /**
    * @brief Fast Q15 convolution function (non-sqaure shape)
    * @param[in]       Im_in        pointer to input tensor
-   * @param[in]       dim_im_in_x  input tensor dimention x
-   * @param[in]       dim_im_in_y  input tensor dimention y
+   * @param[in]       dim_im_in_x  input tensor dimension x
+   * @param[in]       dim_im_in_y  input tensor dimension y
    * @param[in]       ch_im_in     number of input tensor channels
    * @param[in]       wt           pointer to kernel weights
    * @param[in]       ch_im_out    number of filters, i.e., output tensor channels
@@ -505,7 +505,7 @@ extern    "C"
    *
    * ch_im_in is multiple of 2
    *
-   * ch_im_out is multipe of 2
+   * ch_im_out is multiple of 2
    *
    */
 
@@ -534,7 +534,7 @@ extern    "C"
   /**
    * @brief Q7 depthwise separable convolution function
    * @param[in]       Im_in       pointer to input tensor
-   * @param[in]       dim_im_in   input tensor dimention
+   * @param[in]       dim_im_in   input tensor dimension
    * @param[in]       ch_im_in    number of input tensor channels
    * @param[in]       wt          pointer to kernel weights
    * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
@@ -552,7 +552,7 @@ extern    "C"
    * <code>RISCV_MATH_SIZE_MISMATCH</code> or <code>RISCV_MATH_SUCCESS</code> based on the outcome of size checking.
    *
    * This function is the version with full list of optimization tricks, but with
-   * some contraints:
+   * some constraints:
    *   ch_im_in is multiple of 2
    *   ch_im_out is multiple of 2
    */
@@ -576,8 +576,8 @@ extern    "C"
   /**
    * @brief Q7 depthwise separable convolution function (non-square shape)
    * @param[in]       Im_in         pointer to input tensor
-   * @param[in]       dim_im_in_x   input tensor dimention x
-   * @param[in]       dim_im_in_y   input tensor dimention y
+   * @param[in]       dim_im_in_x   input tensor dimension x
+   * @param[in]       dim_im_in_y   input tensor dimension y
    * @param[in]       ch_im_in      number of input tensor channels
    * @param[in]       wt            pointer to kernel weights
    * @param[in]       ch_im_out     number of filters, i.e., output tensor channels
@@ -599,7 +599,7 @@ extern    "C"
    * <code>RISCV_MATH_SIZE_MISMATCH</code> or <code>RISCV_MATH_SUCCESS</code> based on the outcome of size checking.
    *
    * This function is the version with full list of optimization tricks, but with
-   * some contraints:
+   * some constraints:
    *   ch_im_in is multiple of 2
    *   ch_im_out is multiple of 2
    */
@@ -986,7 +986,7 @@ extern    "C"
   /**
    * @brief Q7 max pooling function
    * @param[in]       Im_in       pointer to input tensor
-   * @param[in]       dim_im_in   input tensor dimention
+   * @param[in]       dim_im_in   input tensor dimension
    * @param[in]       ch_im_in    number of input tensor channels
    * @param[in]       dim_kernel  filter kernel size
    * @param[in]       padding     padding sizes
@@ -1011,7 +1011,7 @@ extern    "C"
   /**
    * @brief Q7 average pooling function
    * @param[in]       Im_in       pointer to input tensor
-   * @param[in]       dim_im_in   input tensor dimention
+   * @param[in]       dim_im_in   input tensor dimension
    * @param[in]       ch_im_in    number of input tensor channels
    * @param[in]       dim_kernel  filter kernel size
    * @param[in]       padding     padding sizes
@@ -1043,7 +1043,7 @@ extern    "C"
   /**
    * @brief Q7 softmax function
    * @param[in]       vec_in      pointer to input vector
-   * @param[in]       dim_vec     input vector dimention
+   * @param[in]       dim_vec     input vector dimension
    * @param[out]      p_out       pointer to output vector
    * @return none.
    *
@@ -1054,7 +1054,7 @@ extern    "C"
   /**
    * @brief Q15 softmax function
    * @param[in]       vec_in      pointer to input vector
-   * @param[in]       dim_vec     input vector dimention
+   * @param[in]       dim_vec     input vector dimension
    * @param[out]      p_out       pointer to output vector
    * @return none.
    *
@@ -1081,7 +1081,7 @@ extern    "C"
    * @param[in]     dilation_x Dilation along width. Not used and intended for future enhancement.
    * @param[in]     dilation_y Dilation along height. Not used and intended for future enhancement.
    * @param[in]     bias       Pointer to optional bias values. If no bias is
-   *                           availble, NULL is expected
+   *                           available, NULL is expected
    * @param[in]     input_offset  Input tensor zero offset
    * @param[in]     filter_offset Kernel tensor zero offset
    * @param[in]     output_offset Output tensor zero offset

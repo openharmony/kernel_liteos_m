@@ -93,7 +93,7 @@ static BOOL MqueueFuncTestSuiteTearDown(void)
 
 /**
  * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_001
- * @tc.name      : event operation for creat
+ * @tc.name      : event operation for create
  * @tc.desc      : [C- SOFTWARE -0200]
  */
 LITE_TEST_CASE(MqueueFuncTestSuite, testMqueue001, Function | MediumTest | Level1)
