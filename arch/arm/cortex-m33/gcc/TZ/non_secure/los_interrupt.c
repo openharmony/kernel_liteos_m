@@ -572,14 +572,14 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
         g_hwiForm[index] = (HWI_PROC_FUNC)HalHwiDefaultHandler;
     }
     /* Exception handler register */
-    g_hwiForm[NonMaskableInt_IRQn + OS_SYS_VECTOR_CNT]   = HalExcNMI;
-    g_hwiForm[HARDFAULT_IRQN + OS_SYS_VECTOR_CNT]        = HalExcHardFault;
-    g_hwiForm[MemoryManagement_IRQn + OS_SYS_VECTOR_CNT] = HalExcMemFault;
-    g_hwiForm[BusFault_IRQn + OS_SYS_VECTOR_CNT]         = HalExcBusFault;
-    g_hwiForm[UsageFault_IRQn + OS_SYS_VECTOR_CNT]       = HalExcUsageFault;
-    g_hwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT]           = HalSVCHandler;
-    g_hwiForm[PendSV_IRQn + OS_SYS_VECTOR_CNT]           = HalPendSV;
-    g_hwiForm[SysTick_IRQn + OS_SYS_VECTOR_CNT]          = OsTickHandler;
+    g_hwiForm[NonMaskableInt_IRQn + OS_SYS_VECTOR_CNT]   = (HWI_PROC_FUNC)HalExcNMI;
+    g_hwiForm[HARDFAULT_IRQN + OS_SYS_VECTOR_CNT]        = (HWI_PROC_FUNC)HalExcHardFault;
+    g_hwiForm[MemoryManagement_IRQn + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalExcMemFault;
+    g_hwiForm[BusFault_IRQn + OS_SYS_VECTOR_CNT]         = (HWI_PROC_FUNC)HalExcBusFault;
+    g_hwiForm[UsageFault_IRQn + OS_SYS_VECTOR_CNT]       = (HWI_PROC_FUNC)HalExcUsageFault;
+    g_hwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalSVCHandler;
+    g_hwiForm[PendSV_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalPendSV;
+    g_hwiForm[SysTick_IRQn + OS_SYS_VECTOR_CNT]          = (HWI_PROC_FUNC)OsTickHandler;
 
     /* Interrupt vector table location */
     SCB->VTOR = (UINT32)(UINTPTR)g_hwiForm;
