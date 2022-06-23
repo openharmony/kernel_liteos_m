@@ -134,7 +134,7 @@ typedef struct {
 } SymInfo;
 
 #define SYM_EXPORT(func)                                            \
-const SymInfo sym_##func __attribute__((section(".sym."#func))) = { \
+const SymInfo sym_##func __attribute__((__used__, section(".sym."#func))) = { \
     .name = #func,                                                  \
     .addr = (UINTPTR)func                                           \
 };
