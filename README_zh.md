@@ -26,6 +26,7 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 │   │   ├── cortex-m3    # cortex-m3架构代码
 │   │   ├── cortex-m33   # cortex-m33架构代码
 │   │   ├── cortex-m4    # cortex-m4架构代码
+│   │   ├── cortex-m55   # cortex-m55架构代码
 │   │   ├── cortex-m7    # cortex-m7架构代码
 │   │   └── include      # arm架构公共头文件目录
 │   ├── csky             # csky架构代码
