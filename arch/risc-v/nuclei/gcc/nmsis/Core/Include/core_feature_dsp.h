@@ -62,9 +62,9 @@
  *       - ZEm(data): Zero-Extend data to m-bit.
  *     - ABS(x): Calculate the absolute value of `x`.
  *     - CONCAT(x,y): Concatinate `x` and `y` to form a value.
- *     - u<: Unsinged less than comparison.
- *     - u<=: Unsinged less than & equal comparison.
- *     - u>: Unsinged greater than comparison.
+ *     - u<: Unsigned less than comparison.
+ *     - u<=: Unsigned less than & equal comparison.
+ *     - u>: Unsigned greater than comparison.
  *     - s*: Signed multiplication.
  *     - u*: Unsigned multiplication.
  *
@@ -2641,7 +2641,7 @@ __STATIC_FORCEINLINE long __RV_KHMTT(unsigned int a, unsigned int b)
 /* ===== Inline Function Start for 3.38.1. KMABB ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief KMABB (SIMD Saturating Signed Multiply Bottom Halfs & Add)
+ * \brief KMABB (SIMD Saturating Signed Multiply Bottom Halves & Add)
  * \details
  * **Type**: SIMD
  *
@@ -2704,7 +2704,7 @@ __STATIC_FORCEINLINE long __RV_KMABB(long t, unsigned long a, unsigned long b)
 /* ===== Inline Function Start for 3.38.2. KMABT ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief KMABT (SIMD Saturating Signed Multiply Bottom & Top Halfs & Add)
+ * \brief KMABT (SIMD Saturating Signed Multiply Bottom & Top Halves & Add)
  * \details
  * **Type**: SIMD
  *
@@ -2767,7 +2767,7 @@ __STATIC_FORCEINLINE long __RV_KMABT(long t, unsigned long a, unsigned long b)
 /* ===== Inline Function Start for 3.38.3. KMATT ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief KMATT (SIMD Saturating Signed Multiply Top Halfs & Add)
+ * \brief KMATT (SIMD Saturating Signed Multiply Top Halves & Add)
  * \details
  * **Type**: SIMD
  *
@@ -2830,7 +2830,7 @@ __STATIC_FORCEINLINE long __RV_KMATT(long t, unsigned long a, unsigned long b)
 /* ===== Inline Function Start for 3.39.1. KMADA ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief KMADA (SIMD Saturating Signed Multiply Two Halfs and Two Adds)
+ * \brief KMADA (SIMD Saturating Signed Multiply Two Halves and Two Adds)
  * \details
  * **Type**: SIMD
  *
@@ -2894,7 +2894,7 @@ __STATIC_FORCEINLINE long __RV_KMADA(long t, unsigned long a, unsigned long b)
 /* ===== Inline Function Start for 3.39.2. KMAXDA ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief KMAXDA (SIMD Saturating Signed Crossed Multiply Two Halfs and Two Adds)
+ * \brief KMAXDA (SIMD Saturating Signed Crossed Multiply Two Halves and Two Adds)
  * \details
  * **Type**: SIMD
  *
@@ -2958,7 +2958,7 @@ __STATIC_FORCEINLINE long __RV_KMAXDA(long t, unsigned long a, unsigned long b)
 /* ===== Inline Function Start for 3.40.1. KMADS ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief KMADS (SIMD Saturating Signed Multiply Two Halfs & Subtract & Add)
+ * \brief KMADS (SIMD Saturating Signed Multiply Two Halves & Subtract & Add)
  * \details
  * **Type**: SIMD
  *
@@ -3030,7 +3030,7 @@ __STATIC_FORCEINLINE long __RV_KMADS(long t, unsigned long a, unsigned long b)
 /* ===== Inline Function Start for 3.40.2. KMADRS ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief KMADRS (SIMD Saturating Signed Multiply Two Halfs & Reverse Subtract & Add)
+ * \brief KMADRS (SIMD Saturating Signed Multiply Two Halves & Reverse Subtract & Add)
  * \details
  * **Type**: SIMD
  *
@@ -3102,7 +3102,7 @@ __STATIC_FORCEINLINE long __RV_KMADRS(long t, unsigned long a, unsigned long b)
 /* ===== Inline Function Start for 3.40.3. KMAXDS ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief KMAXDS (SIMD Saturating Signed Crossed Multiply Two Halfs & Subtract & Add)
+ * \brief KMAXDS (SIMD Saturating Signed Crossed Multiply Two Halves & Subtract & Add)
  * \details
  * **Type**: SIMD
  *
@@ -3242,7 +3242,7 @@ __STATIC_FORCEINLINE long long __RV_KMAR64(long long t, long a, long b)
 /* ===== Inline Function Start for 3.42.1. KMDA ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief KMDA (SIMD Signed Multiply Two Halfs and Add)
+ * \brief KMDA (SIMD Signed Multiply Two Halves and Add)
  * \details
  * **Type**: SIMD
  *
@@ -3293,7 +3293,7 @@ __STATIC_FORCEINLINE long __RV_KMDA(unsigned long a, unsigned long b)
 /* ===== Inline Function Start for 3.42.2. KMXDA ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief KMXDA (SIMD Signed Crossed Multiply Two Halfs and Add)
+ * \brief KMXDA (SIMD Signed Crossed Multiply Two Halves and Add)
  * \details
  * **Type**: SIMD
  *
@@ -4330,7 +4330,7 @@ __STATIC_FORCEINLINE long __RV_KMMWT2_U(long a, unsigned long b)
 /* ===== Inline Function Start for 3.51.1. KMSDA ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief KMSDA (SIMD Saturating Signed Multiply Two Halfs & Add & Subtract)
+ * \brief KMSDA (SIMD Saturating Signed Multiply Two Halves & Add & Subtract)
  * \details
  * **Type**: SIMD
  *
@@ -4392,7 +4392,7 @@ __STATIC_FORCEINLINE long __RV_KMSDA(long t, unsigned long a, unsigned long b)
 /* ===== Inline Function Start for 3.51.2. KMSXDA ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief KMSXDA (SIMD Saturating Signed Crossed Multiply Two Halfs & Add & Subtract)
+ * \brief KMSXDA (SIMD Saturating Signed Crossed Multiply Two Halves & Add & Subtract)
  * \details
  * **Type**: SIMD
  *
@@ -5558,7 +5558,7 @@ __STATIC_FORCEINLINE long __RV_KSUBH(int a, int b)
  * **Description**:\n
  * The signed lower 32-bit content of Rs2 is subtracted from the signed lower 32-bit
  * content of Rs1. And the result is saturated to the 32-bit signed integer range of [-2^31, 2^31-1] and then
- * sign-extened and written to Rd. If saturation happens, this instruction sets the OV flag.
+ * sign-extended and written to Rd. If saturation happens, this instruction sets the OV flag.
  *
  * **Operations**:\n
  * ~~~
@@ -7337,7 +7337,7 @@ __STATIC_FORCEINLINE unsigned long __RV_SLL16(unsigned long a, unsigned int b)
 /* ===== Inline Function Start for 3.104. SMAL ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_64B_ADDSUB
- * \brief SMAL (Signed Multiply Halfs & Add 64-bit)
+ * \brief SMAL (Signed Multiply Halves & Add 64-bit)
  * \details
  * **Type**: Partial-SIMD
  *
@@ -7397,7 +7397,7 @@ __STATIC_FORCEINLINE long long __RV_SMAL(long long a, unsigned long b)
 /* ===== Inline Function Start for 3.105.1. SMALBB ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_64B_ADDSUB
- * \brief SMALBB (Signed Multiply Bottom Halfs & Add 64-bit)
+ * \brief SMALBB (Signed Multiply Bottom Halves & Add 64-bit)
  * \details
  * **Type**: DSP (64-bit Profile)
  *
@@ -7561,7 +7561,7 @@ __STATIC_FORCEINLINE long long __RV_SMALBT(long long t, unsigned long a, unsigne
 /* ===== Inline Function Start for 3.105.3. SMALTT ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_64B_ADDSUB
- * \brief SMALTT (Signed Multiply Top Halfs & Add 64-bit)
+ * \brief SMALTT (Signed Multiply Top Halves & Add 64-bit)
  * \details
  * **Type**: DSP (64-bit Profile)
  *
@@ -7643,7 +7643,7 @@ __STATIC_FORCEINLINE long long __RV_SMALTT(long long t, unsigned long a, unsigne
 /* ===== Inline Function Start for 3.106.1. SMALDA ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_64B_ADDSUB
- * \brief SMALDA (Signed Multiply Two Halfs and Two Adds 64-bit)
+ * \brief SMALDA (Signed Multiply Two Halves and Two Adds 64-bit)
  * \details
  * **Type**: DSP (64-bit Profile)
  *
@@ -7727,7 +7727,7 @@ __STATIC_FORCEINLINE long long __RV_SMALDA(long long t, unsigned long a, unsigne
 /* ===== Inline Function Start for 3.106.2. SMALXDA ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_64B_ADDSUB
- * \brief SMALXDA (Signed Crossed Multiply Two Halfs and Two Adds 64-bit)
+ * \brief SMALXDA (Signed Crossed Multiply Two Halves and Two Adds 64-bit)
  * \details
  * **Type**: DSP (64-bit Profile)
  *
@@ -7811,7 +7811,7 @@ __STATIC_FORCEINLINE long long __RV_SMALXDA(long long t, unsigned long a, unsign
 /* ===== Inline Function Start for 3.107.1. SMALDS ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_64B_ADDSUB
- * \brief SMALDS (Signed Multiply Two Halfs & Subtract & Add 64-bit)
+ * \brief SMALDS (Signed Multiply Two Halves & Subtract & Add 64-bit)
  * \details
  * **Type**: DSP (64-bit Profile)
  *
@@ -7902,7 +7902,7 @@ __STATIC_FORCEINLINE long long __RV_SMALDS(long long t, unsigned long a, unsigne
 /* ===== Inline Function Start for 3.107.2. SMALDRS ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_64B_ADDSUB
- * \brief SMALDRS (Signed Multiply Two Halfs & Reverse Subtract & Add 64- bit)
+ * \brief SMALDRS (Signed Multiply Two Halves & Reverse Subtract & Add 64- bit)
  * \details
  * **Type**: DSP (64-bit Profile)
  *
@@ -7993,7 +7993,7 @@ __STATIC_FORCEINLINE long long __RV_SMALDRS(long long t, unsigned long a, unsign
 /* ===== Inline Function Start for 3.107.3. SMALXDS ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_64B_ADDSUB
- * \brief SMALXDS (Signed Crossed Multiply Two Halfs & Subtract & Add 64- bit)
+ * \brief SMALXDS (Signed Crossed Multiply Two Halves & Subtract & Add 64- bit)
  * \details
  * **Type**: DSP (64-bit Profile)
  *
@@ -8459,7 +8459,7 @@ __STATIC_FORCEINLINE long __RV_SMTT16(unsigned long a, unsigned long b)
 /* ===== Inline Function Start for 3.114.1. SMDS ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief SMDS (SIMD Signed Multiply Two Halfs and Subtract)
+ * \brief SMDS (SIMD Signed Multiply Two Halves and Subtract)
  * \details
  * **Type**: SIMD
  *
@@ -8518,7 +8518,7 @@ __STATIC_FORCEINLINE long __RV_SMDS(unsigned long a, unsigned long b)
 /* ===== Inline Function Start for 3.114.2. SMDRS ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief SMDRS (SIMD Signed Multiply Two Halfs and Reverse Subtract)
+ * \brief SMDRS (SIMD Signed Multiply Two Halves and Reverse Subtract)
  * \details
  * **Type**: SIMD
  *
@@ -8577,7 +8577,7 @@ __STATIC_FORCEINLINE long __RV_SMDRS(unsigned long a, unsigned long b)
 /* ===== Inline Function Start for 3.114.3. SMXDS ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_32B_ADDSUB
- * \brief SMXDS (SIMD Signed Crossed Multiply Two Halfs and Subtract)
+ * \brief SMXDS (SIMD Signed Crossed Multiply Two Halves and Subtract)
  * \details
  * **Type**: SIMD
  *
@@ -9016,7 +9016,7 @@ __STATIC_FORCEINLINE long __RV_SMMWT_U(long a, unsigned long b)
 /* ===== Inline Function Start for 3.120.1. SMSLDA ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_64B_ADDSUB
- * \brief SMSLDA (Signed Multiply Two Halfs & Add & Subtract 64-bit)
+ * \brief SMSLDA (Signed Multiply Two Halves & Add & Subtract 64-bit)
  * \details
  * **Type**: DSP (64-bit Profile)
  *
@@ -9098,7 +9098,7 @@ __STATIC_FORCEINLINE long long __RV_SMSLDA(long long t, unsigned long a, unsigne
 /* ===== Inline Function Start for 3.120.2. SMSLXDA ===== */
 /**
  * \ingroup NMSIS_Core_DSP_Intrinsic_SIGNED_16B_MULT_64B_ADDSUB
- * \brief SMSLXDA (Signed Crossed Multiply Two Halfs & Add & Subtract 64- bit)
+ * \brief SMSLXDA (Signed Crossed Multiply Two Halves & Add & Subtract 64- bit)
  * \details
  * **Type**: DSP (64-bit Profile)
  *

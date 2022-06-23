@@ -51,7 +51,7 @@ extern "C" {
 
 /**
  * @ingroup los_hwi
- * Count of Nuclei interrupt vector maxium, which is configurable.
+ * Count of Nuclei interrupt vector maximum, which is configurable.
  */
 #define OS_RISCV_CUSTOM_IRQ_VECTOR_CNT  SOC_INT_MAX
 

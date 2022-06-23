@@ -193,15 +193,15 @@ VOID HalDisplayTaskInfo(VOID)
 
 /* ****************************************************************************
  Function    : HalUnalignedAccessFix
- Description : Unaligned acess fixes are not supported by default
+ Description : Unaligned access fixes are not supported by default
  Input       : None
  Output      : None
  Return      : None
  **************************************************************************** */
 WEAK UINT32 HalUnalignedAccessFix(UINTPTR mcause, UINTPTR mepc, UINTPTR mtval, VOID *sp)
 {
-    /* Unaligned acess fixes are not supported by default */
-    PRINTK("Unaligned acess fixes are not support by default!\r\n");
+    /* Unaligned access fixes are not supported by default */
+    PRINTK("Unaligned access fixes are not support by default!\r\n");
     return LOS_NOK;
 }
 

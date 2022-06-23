@@ -96,12 +96,12 @@ static int KeepRun(int msec)
     clock_gettime(CLOCK_MONOTONIC, &time1);
     LOG("KeepRun start : tv_sec=%ld, tv_nsec=%ld\n", time1.tv_sec, time1.tv_nsec);
     int loop = 0;
-    int runned = 0;
-    while (runned < msec) {
+    int ran = 0;
+    while (ran < msec) {
         ++loop;
         clock_gettime(CLOCK_MONOTONIC, &time2);
-        runned = (time2.tv_sec - time1.tv_sec) * MILLISECONDS_PER_SECOND;
-        runned += (time2.tv_nsec - time1.tv_nsec) / NANOSECONDS_PER_MILLISECOND;
+        ran = (time2.tv_sec - time1.tv_sec) * MILLISECONDS_PER_SECOND;
+        ran += (time2.tv_nsec - time1.tv_nsec) / NANOSECONDS_PER_MILLISECOND;
     }
 
     LOG("KeepRun end : tv_sec=%ld, tv_nsec=%ld\n", time2.tv_sec, time2.tv_nsec);
