@@ -60,6 +60,6 @@ ${READELF} -l $1 | while read line; do
 done
 
 NEED_SIZE=`tail -n 1 ${TMP_FILE}`
-echo "${NEED_SIZE} kb memory to reserve for $1!"
+echo "${NEED_SIZE} bytes memory to reserve for $1!"
 ${RM} -f ${TMP_FILE}
 
