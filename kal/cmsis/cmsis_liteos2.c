@@ -692,11 +692,6 @@ osTimerId_t osTimerNew(osTimerFunc_t func, osTimerType_t type, void *argument, c
         return NULL;
     }
 
-    if (osTimerOnce == type) {
-        mode = LOS_SWTMR_MODE_NO_SELFDELETE;
-    } else {
-        mode = LOS_SWTMR_MODE_PERIOD;
-    }
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     if (LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func, &swtmrId, (UINT32)(UINTPTR)argument,
         osTimerRousesAllow, osTimerAlignIgnore) != LOS_OK) {
