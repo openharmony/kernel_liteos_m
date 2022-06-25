@@ -49,13 +49,17 @@ LITE_OS_SEC_BSS STATIC UINT64 g_tickTimerStartTime;
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
 STATIC UINT64 g_tickTimerBase;
 STATIC UINT64 g_oldTickTimerBase;
+STATIC BOOL g_tickTimerBaseUpdate = FALSE;
 
 LITE_OS_SEC_TEXT STATIC VOID OsUpdateSysTimeBase(VOID)
 {
     UINT32 period = 0;
 
-    (VOID)g_sysTickTimer->getCycle(&period);
-    g_tickTimerBase += period;
+    if (g_tickTimerBaseUpdate == FALSE) {
+        (VOID)g_sysTickTimer->getCycle(&period);
+        g_tickTimerBase += period;
+    }
+    g_tickTimerBaseUpdate = FALSE;
 }
 
 LITE_OS_SEC_TEXT VOID OsTickTimerBaseReset(UINT64 currTime)
@@ -96,6 +100,7 @@ LITE_OS_SEC_TEXT UINT64 LOS_SysCycleGet(VOID)
         /* Turn the timer count */
         g_tickTimerBase += period;
         schedTime = g_tickTimerBase + time;
+        g_tickTimerBaseUpdate = TRUE;
     }
 
     LOS_ASSERT(schedTime >= g_oldTickTimerBase);
@@ -285,7 +290,7 @@ Return      : current tick
 *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT64 LOS_TickCountGet(VOID)
 {
-    return (LOS_SysCycleGet() - g_tickTimerStartTime) / g_cyclesPerTick;
+    return OS_SYS_CYCLE_TO_TICK(LOS_SysCycleGet() - g_tickTimerStartTime);
 }
 
 /*****************************************************************************
