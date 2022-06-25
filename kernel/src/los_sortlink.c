@@ -115,7 +115,7 @@ VOID OsAdd2SortLink(SortLinkList *node, UINT64 startTime, UINT32 waitTicks, Sort
     }
 
     intSave = LOS_IntLock();
-    SET_SORTLIST_VALUE(node, startTime + (UINT64)waitTicks * OS_CYCLE_PER_TICK);
+    SET_SORTLIST_VALUE(node, startTime + OS_SYS_TICK_TO_CYCLE(waitTicks));
     OsAddNode2SortLink(sortLinkHeader, node);
     LOS_IntRestore(intSave);
 }

@@ -72,7 +72,7 @@ Return      : current tick
 *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT64 LOS_TickCountGet(VOID)
 {
-    return OsGetCurrSchedTimeCycle() / OS_CYCLE_PER_TICK;
+    return OS_SYS_CYCLE_TO_TICK(OsGetCurrSchedTimeCycle());
 }
 
 /*****************************************************************************
