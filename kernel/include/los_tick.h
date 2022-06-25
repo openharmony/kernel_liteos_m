@@ -157,6 +157,10 @@ extern UINT32    g_sysClock;
 #define OS_SYS_NS_TO_CYCLE(time, freq) (((time) / OS_SYS_NS_PER_SECOND) * (freq) +     \
     ((time) % OS_SYS_NS_PER_SECOND) * (freq) / OS_SYS_NS_PER_SECOND)
 
+#define OS_SYS_TICK_TO_CYCLE(ticks) (((UINT64)(ticks) * g_sysClock) / LOSCFG_BASE_CORE_TICK_PER_SECOND)
+
+#define OS_SYS_CYCLE_TO_TICK(cycle) ((((UINT64)(cycle)) * LOSCFG_BASE_CORE_TICK_PER_SECOND) / g_sysClock)
+
 /**
  * @ingroup los_tick
  * System time basic function error code: Null pointer.

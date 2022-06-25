@@ -141,8 +141,8 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsSwtmrTaskCreate(VOID)
 STATIC UINT64 OsSwtmrCalcStartTime(UINT64 currTime, SWTMR_CTRL_S *swtmr, const SWTMR_CTRL_S *alignSwtmr)
 {
     UINT64 usedTime, startTime;
-    UINT64 alignEnd = (UINT64)alignSwtmr->uwInterval * OS_CYCLE_PER_TICK;
-    UINT64 swtmrTime = (UINT64)swtmr->uwInterval * OS_CYCLE_PER_TICK;
+    UINT64 alignEnd = OS_SYS_TICK_TO_CYCLE(alignSwtmr->uwInterval);
+    UINT64 swtmrTime = OS_SYS_TICK_TO_CYCLE(swtmr->uwInterval);
     UINT64 remainTime = OsSortLinkGetRemainTime(currTime, &alignSwtmr->stSortList);
     if (remainTime == 0) {
         startTime = GET_SORTLIST_VALUE(&alignSwtmr->stSortList);
@@ -357,7 +357,7 @@ LITE_OS_SEC_TEXT UINT32 OsSwtmrGetNextTimeout(VOID)
     UINT32 intSave = LOS_IntLock();
     UINT64 time = OsSortLinkGetNextExpireTime(g_swtmrSortLinkList);
     LOS_IntRestore(intSave);
-    time = time / OS_CYCLE_PER_TICK;
+    time = OS_SYS_CYCLE_TO_TICK(time);
     if (time > OS_NULL_INT) {
         time = OS_NULL_INT;
     }
@@ -367,7 +367,7 @@ LITE_OS_SEC_TEXT UINT32 OsSwtmrGetNextTimeout(VOID)
 LITE_OS_SEC_TEXT UINT32 OsSwtmrTimeGet(const SWTMR_CTRL_S *swtmr)
 {
     UINT64 time = OsSortLinkGetTargetExpireTime(OsGetCurrSchedTimeCycle(), &swtmr->stSortList);
-    time = time / OS_CYCLE_PER_TICK;
+    time = OS_SYS_CYCLE_TO_TICK(time);
     if (time > OS_NULL_INT) {
         time = OS_NULL_INT;
     }
