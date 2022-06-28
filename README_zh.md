@@ -57,7 +57,6 @@ OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系
 ├── kernel               # 内核最小功能集支持
 │   ├── include          # 对外接口存放目录
 │   └── src              # 内核最小功能集源码
-├── targets              # 板级工程目录
 ├── testsuites           # 内核测试用例
 ├── tools                # 内核工具
 ├── utils                # 通用公共目录
@@ -105,12 +104,6 @@ LiteOS-M内核移植的具体开发板的工程由社区开发者提供，可以
     - 野火挑战者STM32F429IGTb   https://gitee.com/harylee/stm32f429ig_firechallenger
 
         该仓包含OpenHarmony LiteOS-M内核移植支持`野火挑战者STM32F429IGTb`开发板的工程代码，支持Ninja、GCC、IAR等方式进行编译。
-
--   cortex-m7：
-
-    - Nucleo-F767ZI   https://gitee.com/harylee/nucleo_f767zi
-
-        该仓包含OpenHarmony LiteOS-M内核移植支持`Nucleo-F767ZI`开发板的工程代码，支持Ninja、GCC、IAR等方式进行编译。
 
 ## 贡献<a name="section1371123476307"></a>
 
