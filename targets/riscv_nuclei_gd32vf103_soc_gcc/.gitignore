@@ -1,9 +1,0 @@
-# ignore openocd logfile and build folder
-targets/*/GCC/build/
-*.log
-*.lst
-*.bin
-*.dasm
-*.elf
-*.hex
-*.map

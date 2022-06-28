@@ -72,14 +72,6 @@
 │   │   ├── los_task.h                                          --- Tasks
 │   │   └── los_tick.h                                          --- Tick
 │   └── src
-├── targets
-│   └── riscv_nuclei_demo_soc_gcc
-│   │   ├── GCC                                            --- Compilation config
-│   │   ├── OS_CONFIG                                      --- Board config
-│   │   ├── SoC                                            --- SOC codes
-│   │   └── Src                                            --- Application codes
-│   └── riscv_nuclei_gd32vf103_soc_gcc
-│   └── riscv_sifive_fe310_gcc
 ├── testsuites                                                 --- Kernel testsuites
 ├── tools                                                      --- Kernel tools
 └── utils

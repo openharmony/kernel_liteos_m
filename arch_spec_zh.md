@@ -70,15 +70,7 @@
 │   │   ├── los_swtmr.h                                         --- 定时器
 │   │   ├── los_task.h                                          --- 任务
 │   │   └── los_tick.h                                          --- Tick时钟
-   └── src
-├── targets
-│   └── riscv_nuclei_demo_soc_gcc
-│   │   ├── GCC                                             --- 编译相关
-│   │   ├── OS_CONFIG                                       --- 开发板配置功能开关和配置参数
-│   │   ├── SoC                                             --- SOC相关代码
-│   │   └── Src                                             --- Application相关代码
-│   └── riscv_nuclei_gd32vf103_soc_gcc
-│   └── riscv_sifive_fe310_gcc
+│   └── src
 ├── testsuites                                                  --- 内核测试用例
 ├── tools                                                       --- 内核工具
 └── utils
