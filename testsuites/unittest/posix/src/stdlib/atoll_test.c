@@ -30,7 +30,7 @@
  */
 
 #include "ohos_types.h"
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include "ctype.h"
@@ -80,6 +80,7 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll001, Function | MediumTest |
         LOG("[DEMO] posix stdlib test case 1:atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == 9223372036854775807LL);
+    return 0;
 }
 
 /* *
@@ -96,6 +97,7 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll002, Function | MediumTest |
         LOG("[DEMO] posix stdlib test case 2:atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == -9223372036854775808LL);
+    return 0;
 }
 
 /* *
@@ -112,6 +114,7 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll003, Function | MediumTest |
         LOG("[DEMO] posix stdlib test case 3:atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == 100LL);
+    return 0;
 }
 
 /* *
@@ -128,6 +131,7 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll004, Function | MediumTest |
         LOG("[DEMO] posix stdlib test case 4(except):atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_EQUAL_INT64(LLONG_MIN, value);
+    return 0;
 }
 
 /* *
@@ -145,6 +149,7 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll005, Function | MediumTest |
     }
 
     TEST_ASSERT_EQUAL_INT64(LLONG_MAX, value);
+    return 0;
 }
 
 /* *
@@ -161,6 +166,7 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll006, Function | MediumTest |
         LOG("[DEMO] posix stdlib test case 6:atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == 100LL);
+    return 0;
 }
 
 /* *
@@ -177,6 +183,7 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll007, Function | MediumTest |
         LOG("[DEMO] posix stdlib test case 7:atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == -100LL);
+    return 0;
 }
 
 /* *
@@ -193,6 +200,7 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll008, Function | MediumTest |
         LOG("[DEMO] posix stdlib test case 8(except):atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == 0LL);
+    return 0;
 }
 
 /* *
@@ -209,6 +217,7 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll009, Function | MediumTest |
         LOG("[DEMO] posix stdlib test case 9(except):atoll(%lld) fail.\n", value);
     }
     TEST_ASSERT_TRUE(value == 12LL);
+    return 0;
 }
 
 RUN_TEST_SUITE(PosixStdlibAtollTest);

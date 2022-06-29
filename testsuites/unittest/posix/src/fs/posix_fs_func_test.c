@@ -37,7 +37,7 @@
 #include <stdio.h>
 #include <libgen.h>
 #include "ohos_types.h"
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include "log.h"

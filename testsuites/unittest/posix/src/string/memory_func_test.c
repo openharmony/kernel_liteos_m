@@ -32,7 +32,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "ohos_types.h"
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include "log.h"
@@ -101,6 +101,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcpy001, Function | MediumTest 
             break;
         }
     }
+    return 0;
 };
 
 
@@ -142,6 +143,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcpy002, Function | MediumTest 
         }
     }
     TEST_ASSERT_EQUAL_INT(0, failure);
+    return 0;
 };
 
 
@@ -163,6 +165,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemset001, Function | MediumTest 
     for (int i = 0; i < (sizeof(source) / sizeof(source[0])); i++) {
         TEST_ASSERT_EQUAL_INT((int)source[i], (int)ch);
     }
+    return 0;
 };
 
 
@@ -202,6 +205,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp001, Function | MediumTest 
 
     ret = memcmp(gt, orign, 0);
     TEST_ASSERT_EQUAL_INT(0, ret);
+    return 0;
 };
 
 
@@ -227,6 +231,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp002, Function | MediumTest 
 
     ret = memcmp(L"ABCDEFG", L"ABCDEFG", 6);
     TEST_ASSERT_EQUAL_INT(0, ret);
+    return 0;
 };
 
 
@@ -243,6 +248,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp003, Function | MediumTest 
         "immediate use in a computer\r\n"};
     retValue = memcmp(source, dest, sizeof(source) / sizeof(source[0]));
     TEST_ASSERT_LESS_THAN(0, retValue);
+    return 0;
 };
 
 
@@ -288,6 +294,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc001, Function | MediumTest
         free(mem1);
         TEST_ASSERT_EQUAL_INT(failure, 0);
     }
+    return 0;
 };
 
 
@@ -320,6 +327,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc002, Function | MediumTest
         mem = reMem;
     }
     free(mem);
+    return 0;
 };
 
 
@@ -334,6 +342,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc003, Function | MediumTest
 
     retValue = (char *)realloc(retValue, 20);
     TEST_ASSERT_NOT_NULL(retValue);
+    return 0;
 };
 
 /* *
@@ -352,6 +361,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc004, Function | MediumTest
         source = newData;
     }
     free(source);
+    return 0;
 };
 
 

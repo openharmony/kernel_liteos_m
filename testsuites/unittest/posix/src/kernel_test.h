@@ -49,7 +49,7 @@
 #define THREAD_COUNT_MAX    30
 #define THREAD_STACK_SPACE_MAX    4096
 
-#define RUN_ONE_TESTCASE(caseName) UnityDefaultTestRun(caseName##_runTest, __FILE__, __LINE__)
+#define RUN_ONE_TESTCASE(caseName) ADD_TEST_CASE(caseName)
 #define AUTO_RUN_ONE_TESTCASEFUNC(func) UnityDefaultTestRun(func, __FILE__, __LINE__)
 
 #ifdef __cplusplus

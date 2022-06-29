@@ -31,7 +31,7 @@
 
 #include <ctype.h>
 #include "ohos_types.h"
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include "log.h"
@@ -79,6 +79,7 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper001, Function | MediumTest
         LOG("[DEMO] posix ctype test case 1:toupper(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == 'A');
+    return 0;
 }
 
 /* *
@@ -96,6 +97,7 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper002, Function | MediumTest
         LOG("[DEMO] posix ctype test case 2:toupper(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == 'A');
+    return 0;
 }
 
 /* *
@@ -113,6 +115,7 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper003, Function | MediumTest
         LOG("[DEMO] posix ctype test case 3:toupper(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == 'Z');
+    return 0;
 }
 
 /* *
@@ -130,6 +133,7 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper004, Function | MediumTest
         LOG("[DEMO] posix ctype test case 4:toupper(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == 'Z');
+    return 0;
 }
 
 /* *
@@ -147,6 +151,7 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper005, Function | MediumTest
         LOG("[DEMO] posix ctype test case 5(except):toupper(%c)!=%c  fail.\n", a);
     }
     TEST_ASSERT_TRUE(ret == '1');
+    return 0;
 }
 
 RUN_TEST_SUITE(PosixCTypeToupperTest);

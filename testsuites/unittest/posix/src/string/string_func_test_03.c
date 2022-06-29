@@ -32,7 +32,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "ohos_types.h"
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include "log.h"
@@ -86,6 +86,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrstrcmp001, Function | MediumTest
     ret = strcmp("123456", "654321");
     TEST_ASSERT_GREATER_THAN(ret, 0);
     TEST_ASSERT_EQUAL_INT(strcmp("~!@#$%^&*()_+", "~!@#$%^&*()_+"), 0);
+    return 0;
 };
 
 
@@ -102,6 +103,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrstrcmp002, Function | MediumTest
 
     retValue = strcmp(source, dest);
     TEST_ASSERT_LESS_THAN(retValue, 0);
+    return 0;
 };
 
 
@@ -118,6 +120,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrstrcmp003, Function | MediumTest
 
     retValue = strcmp(source, dest);
     TEST_ASSERT_GREATER_THAN(retValue, 0);
+    return 0;
 };
 
 
@@ -144,6 +147,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrdup001, Function | MediumTest
     ret = strdup(srcS);
     TEST_ASSERT_EQUAL_CHAR_ARRAY(ret, "This is String1", sizeof(srcS) / sizeof(srcS[0]));
     free(ret);
+    return 0;
 };
 
 
@@ -161,6 +165,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrdup002, Function | MediumTest
     TEST_ASSERT_NOT_NULL(dest);
     printf("The Result Display :%s\r\n", dest);
     TEST_ASSERT_EQUAL_CHAR_ARRAY(dest, source, sizeof(source) / sizeof(source[0]));
+    return 0;
 };
 
 
@@ -186,6 +191,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrcspn001, Function | MediumTes
     const char srcS[] = "a";
     ret = strcspn(dest, srcS);
     TEST_ASSERT_EQUAL_INT(13U, ret);
+    return 0;
 };
 
 /* *
@@ -201,6 +207,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrcspn002, Function | MediumTes
 
     retValue = strcspn(source, dest);
     TEST_ASSERT_EQUAL_INT(1, retValue);
+    return 0;
 };
 
 /* *
@@ -219,6 +226,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrptime001, Function | MediumTe
     TEST_ASSERT_EQUAL_INT(tmData.tm_mday, 29);
     TEST_ASSERT_EQUAL_INT(tmData.tm_hour, 21);
     TEST_ASSERT_EQUAL_INT(tmData.tm_min, 24);
+    return 0;
 }
 
 
