@@ -35,11 +35,12 @@
 #include <errno.h>
 #include <limits.h>
 #include "ohos_types.h"
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "securec.h"
 #include "kernel_test.h"
 #include "log.h"
+#include "los_tick.h"
 
 #define RET_OK 0
 
@@ -161,6 +162,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeUSleep001, Function | MediumTest 
         TEST_ASSERT_GREATER_OR_EQUAL(interval[j], d);
         TEST_ASSERT_INT32_WITHIN(SLEEP_ACCURACY, interval[j], d);
     }
+    return 0;
 }
 
 /* *
@@ -179,6 +181,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeUSleep002, Function | MediumTest 
     long long duration = (time2.tv_sec - time1.tv_sec) * 1000000 + (time2.tv_nsec - time1.tv_nsec) / 1000;
     LOG("\n usleep(0), actual usleep duration: %lld us\n", duration);
     TEST_ASSERT_LESS_OR_EQUAL_INT64(1000, duration);
+    return 0;
 }
 
 /* *
@@ -213,6 +216,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeGmtime001, Function | MediumTest 
     stm = gmtime(&time1);
     LOG("\n LONG_MIN + 1  = %lld, cvt result : %s", time1, TmToStr(stm, timeStr, TIME_STR_LEN));
     TEST_ASSERT_EQUAL_STRING("1901/12/13 20:45:53 WEEK(5)", TmToStr(stm, timeStr, TIME_STR_LEN));
+    return 0;
 };
 
 /* *
@@ -245,6 +249,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeLocaltime001, Function | MediumTe
     strftime(cTime, sizeof(cTime), "%H:%M:%S", tmEnd);
     TEST_ASSERT_EQUAL_STRING("08:00:01", cTime);
     LOG("\n time_t=%lld, first time:%s", tEnd, cTime);
+    return 0;
 }
 
 /* *
@@ -278,6 +283,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeLocaltime002, Function | MediumTe
     strftime(cTime, sizeof(cTime), "%y-%m-%d %H:%M:%S", tmStart);
     TEST_ASSERT_EQUAL_STRING("70-01-01 07:59:59", cTime);
     LOG("\n time_t=%lld, first time:%s", tStart, cTime);
+    return 0;
 }
 
 /* *
@@ -314,6 +320,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeLocaltimer001, Function | MediumT
     TEST_ASSERT_EQUAL_STRING("08:00:01", cTime);
     strftime(cTime, sizeof(cTime), "%H:%M:%S", tmrEndPtr);
     TEST_ASSERT_EQUAL_STRING("08:00:01", cTime);
+    return 0;
 }
 
 /* *
@@ -349,6 +356,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeLocaltimer002, Function | MediumT
     strftime(cTime, sizeof(cTime), "%y-%m-%d %H:%M:%S", tmStart);
     TEST_ASSERT_EQUAL_STRING("70-01-01 07:59:59", cTime);
     LOG("\n time_t=%lld, first time:%s", tStart, cTime);
+    return 0;
 }
 
 /* *
@@ -392,6 +400,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeMktime001, Function | MediumTest 
     timeRet = mktime(stm);
     TEST_ASSERT_EQUAL_INT(0, timeRet);
     LOG("\n input 0, mktime Ret = %lld", timeRet);
+    return 0;
 }
 
 /* *
@@ -407,6 +416,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeMktime002, Function | MediumTest 
     time_t timeRet = mktime(&timeptr);
     LOG("\n 1800-8-9 10:10:00, mktime Ret lld = %lld", timeRet);
     TEST_ASSERT_EQUAL_INT(-1, timeRet);
+    return 0;
 }
 
 
@@ -444,6 +454,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeStrftime001, Function | MediumTes
     TEST_ASSERT_GREATER_THAN_INT(0, ftime);
     TEST_ASSERT_EQUAL_STRING("01/01/70 4 13:14:40", buffer);
     LOG("\nresult: %s, expected : %s", buffer, "01/01/70 4 13:14:40");
+    return 0;
 };
 
 /* *
@@ -472,6 +483,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeStrftime002, Function | MediumTes
     TEST_ASSERT_GREATER_THAN_INT(0, ftime);
     TEST_ASSERT_EQUAL_STRING("01/01/70 Thursday 13:14:40", buffer);
     LOG("\nresult: %s, expected : %s", buffer, "01/01/70 Thursday 13:14:40");
+    return 0;
 };
 
 /* *
@@ -507,6 +519,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeStrftime003, Function | MediumTes
     ftime = strftime(buffer, 80, "%F %T %Z", tmTime);
     TEST_ASSERT_EQUAL_INT(20, ftime);
     LOG("\nresult: %s, expected : %s", buffer, "1970-01-01 13:14:40");
+    return 0;
 };
 
 /* *
@@ -541,11 +554,12 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimes, Function | MediumTest | Level1
     if (!CheckValueClose((endTime - stTime), testClockt, 0.02)) {
         TEST_FAIL();
     }
+    return 0;
 }
 
 RUN_TEST_SUITE(PosixTimeFuncTestSuite);
 
-void PosixTimeFuncTest()
+void PosixTimeFuncTest(void)
 {
     LOG("begin PosixTimeFuncTest....\n");
 

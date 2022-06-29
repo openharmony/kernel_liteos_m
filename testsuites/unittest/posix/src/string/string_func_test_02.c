@@ -30,7 +30,7 @@
  */
 
 #include "ohos_types.h"
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include "log.h"
@@ -91,6 +91,7 @@ LITE_TEST_CASE(PosixStringsFuncTestSuite, testStrCaseCmp001, Function | MediumTe
 
     ret = strcasecmp("abcdef", "abcdEFg");
     TEST_ASSERT_NOT_EQUAL(ret, EQUAL);
+    return 0;
 };
 
 RUN_TEST_SUITE(PosixStringsFuncTestSuite);

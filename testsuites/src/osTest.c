@@ -35,6 +35,9 @@
 #if (LITEOS_CMSIS_TEST == 1)
 #include "cmsis_os.h"
 #endif
+#if (LOS_POSIX_TEST == 1)
+#include "posix_test.h"
+#endif
 
 UINT32 volatile g_testCount;
 UINT32 g_testTskHandle;
@@ -221,11 +224,7 @@ VOID TestTaskEntry()
     TestKernel();
 
 #if (LOS_POSIX_TEST == 1)
-    ret = PthreadFuncTestSuite();
-    if (ret != 0) {
-        PRINTF("PthreadFuncTestSuite start failed! errno: %u\n", ret);
-        return;
-    }
+    ItSuitePosix();
 #endif
 
 #if (LOS_CMSIS_TEST == 1)

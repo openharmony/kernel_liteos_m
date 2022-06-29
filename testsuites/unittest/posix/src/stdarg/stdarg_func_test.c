@@ -30,7 +30,7 @@
  */
 
 #include "ohos_types.h"
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include <string.h>
@@ -105,6 +105,7 @@ LITE_TEST_CASE(PosixStdargFuncTestSuite, testStdarg001, Function | MediumTest | 
 {
     int ret = VaFunc(1, 10);
     TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    return 0;
 }
 
 /* *
@@ -116,6 +117,7 @@ LITE_TEST_CASE(PosixStdargFuncTestSuite, testStdarg002, Function | MediumTest | 
 {
     int ret = VaFunc(2, 10, 'A');
     TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    return 0;
 }
 
 /* *
@@ -127,6 +129,7 @@ LITE_TEST_CASE(PosixStdargFuncTestSuite, testStdarg003, Function | MediumTest | 
 {
     int ret = VaFunc(3, 10, 'A', "hello world");
     TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    return 0;
 }
 
 /* *
@@ -138,6 +141,7 @@ LITE_TEST_CASE(PosixStdargFuncTestSuite, testStdarg004, Function | MediumTest | 
 {
     int ret = VaFunc(3, 10, 'A', "hello world", '\0');
     TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    return 0;
 }
 
 RUN_TEST_SUITE(PosixStdargFuncTestSuite);

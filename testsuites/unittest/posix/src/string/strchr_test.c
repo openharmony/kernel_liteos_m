@@ -30,7 +30,7 @@
  */
 
 #include "ohos_types.h"
-#include "hctest.h"
+#include "posix_test.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include <ctype.h>
@@ -80,6 +80,7 @@ LITE_TEST_CASE(PosixStringStrchrTest, testStringStrchr001, Function | MediumTest
         LOG("[DEMO] posix string test case 1:strchr(!) %s fail.\n", src);
     }
     TEST_ASSERT_EQUAL_STRING(ret, "!! world");
+    return 0;
 }
 
 /* *
@@ -97,6 +98,7 @@ LITE_TEST_CASE(PosixStringStrchrTest, testStringStrchr002, Function | MediumTest
         LOG("[DEMO] posix string test case 2:strchr(l) %s fail.\n", src);
     }
     TEST_ASSERT_EQUAL_STRING(ret, "llo !! world");
+    return 0;
 }
 
 /* *
@@ -114,6 +116,7 @@ LITE_TEST_CASE(PosixStringStrchrTest, testStringStrchr003, Function | MediumTest
         LOG("[DEMO] posix string test case 3:strchr(\'\\0\') %s fail.\n", src);
     }
     TEST_ASSERT_NOT_NULL(ret);
+    return 0;
 }
 
 /* *
@@ -131,6 +134,7 @@ LITE_TEST_CASE(PosixStringStrchrTest, testStringStrchr004, Function | MediumTest
         LOG("[DEMO] posix string test case 4(except):strchr(?) %s fail.\n", src);
     }
     TEST_ASSERT_NULL(ret);
+    return 0;
 }
 
 /* *
@@ -148,6 +152,7 @@ LITE_TEST_CASE(PosixStringStrchrTest, testStringStrchr005, Function | MediumTest
         LOG("[DEMO] posix string test case 5(except):strchr(m) %s fail.\n", src);
     }
     TEST_ASSERT_NULL(ret);
+    return 0;
 }
 
 /* *
@@ -165,6 +170,7 @@ LITE_TEST_CASE(PosixStringStrchrTest, testStringStrchr006, Function | MediumTest
         LOG("[DEMO] posix string test case 6(except):strchr(0) %s fail.\n", src);
     }
     TEST_ASSERT_NOT_NULL(ret);
+    return 0;
 }
 
 RUN_TEST_SUITE(PosixStringStrchrTest);
