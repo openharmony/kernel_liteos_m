@@ -59,7 +59,6 @@ The directory structure is as follows. For more details, see [arch_spec.md](arch
 ├── kernel               # Minimum kernel function set
 │   ├── include          # APIs exposed externally
 │   └── src              # Source code of the minimum kernel function set
-├── targets              # Board-level projects
 ├── testsuites           # Kernel testsuites
 ├── tools                # Kernel tools
 ├── utils                # Common directory
@@ -106,12 +105,6 @@ The LiteOS-M kernel porting projects for specific development boards are provide
     - STM32F429IGTb https://gitee.com/harylee/stm32f429ig_firechallenger
 
         This repository provides the project code for porting the OpenHarmony LiteOS-M kernel to support the STM32F429IGTb development board. The code supports build in Ninja, GCC, and IAR modes.
-
--   Cortex-M7:
-
-    - Nucleo-F767ZI https://gitee.com/harylee/nucleo_f767zi
-
-        This repository provides the project code for porting the OpenHarmony LiteOS-M kernel to support the Nucleo-F767ZI development board. The code supports build in Ninja, GCC, and IAR modes.
 
 ## Contribution<a name="section1371123476307"></a>
 
