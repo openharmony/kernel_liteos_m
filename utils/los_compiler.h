@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -315,7 +315,6 @@ typedef float                  FLOAT;
 typedef double                 DOUBLE;
 typedef char                   CHAR;
 
-typedef unsigned int           BOOL;
 typedef unsigned long long     UINT64;
 typedef signed long long       INT64;
 typedef unsigned int           UINTPTR;
@@ -324,7 +323,14 @@ typedef signed int             INTPTR;
 typedef volatile INT32 Atomic;
 typedef volatile INT64 Atomic64;
 
+#ifndef DEFINED_BOOL
+typedef unsigned int           BOOL;
+#define DEFINED_BOOL
+#endif
+
+#ifndef VOID
 #define VOID          void
+#endif
 
 #ifndef FALSE
 #define FALSE         ((BOOL)0)
