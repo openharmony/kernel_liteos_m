@@ -350,7 +350,7 @@ int FatfsUmount(struct MountPoint *mp)
     }
 
     volId = GetPartIdByPartName(mp->mDev);
-    /* umount is not allowed when a file or diretory is opened. */
+    /* umount is not allowed when a file or directory is opened. */
     if (f_checkopenlock(volId) != FR_OK) {
         errno = EBUSY;
         ret = LOS_NOK;
