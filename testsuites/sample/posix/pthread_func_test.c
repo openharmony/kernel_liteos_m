@@ -439,7 +439,7 @@ static VOID *PthreadFunc07(void *argument)
     g_testCount = 0;
 
     ret = pthread_mutex_init(&g_pthread_mutex, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     ret = pthread_attr_init(&attr);
     ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
@@ -626,7 +626,7 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread008, Function | MediumTest | Lev
 static VOID *PthreadPrioFunc01(void *argument)
 {
     g_testCount++;
-    ICUNIT_ASSERT_EQUAL(g_testCount, (UINT32)argument, g_testCount);
+    ICUNIT_TRACK_EQUAL(g_testCount, (UINT32)argument, g_testCount);
     return NULL;
 }
 
@@ -677,7 +677,7 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread009, Function | MediumTest | Lev
 static VOID PthreadOnceFunc01(void)
 {
     g_testCount++;
-    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+    ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 1, g_testCount);
 }
 
 /**
@@ -722,10 +722,11 @@ static VOID *PthreadCancelFunc01(void *argument)
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
     while (1) {
         g_testCount++;
-        ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+        ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
         LOS_TaskDelay(PTHREAD_TASK_DELAY);
     }
 
+EXIT:
     return NULL;
 }
 
@@ -774,7 +775,7 @@ static VOID *PthreadTestcancelFunc01(void *argument)
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
 
     ret = pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     g_testCount = 1;
     g_pthreadSem = 1;
@@ -786,6 +787,7 @@ static VOID *PthreadTestcancelFunc01(void *argument)
     pthread_testcancel();
     g_testCount = -1;
 
+EXIT:
     return NULL;
 }
 
@@ -996,7 +998,7 @@ EXIT:
     return LOS_OK;
 };
 
-static void *PosixTestThread(void *arg)
+static void PosixTestCase(void)
 {
     ADD_TEST_CASE(TestPthread001);
     ADD_TEST_CASE(TestPthread002);
@@ -1015,9 +1017,14 @@ static void *PosixTestThread(void *arg)
     ADD_TEST_CASE(TestPthread015);
     ADD_TEST_CASE(TestPthread016);
     ADD_TEST_CASE(TestPthread017);
-    return NULL;
+    return;
 }
 
+static void *PosixTestThread(void *arg)
+{
+    PosixTestCase();
+    return NULL;
+}
 int PthreadFuncTestSuite(void)
 {
     pthread_attr_t attr;

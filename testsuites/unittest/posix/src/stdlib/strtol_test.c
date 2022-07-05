@@ -82,6 +82,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol001, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(16, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr16, "");
+    return 0;
 }
 
 /* *
@@ -101,6 +102,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol002, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(16, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr16, "");
+    return 0;
 }
 
 /* *
@@ -120,6 +122,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol003, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(10, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr10, "");
+    return 0;
 }
 
 /* *
@@ -139,6 +142,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol004, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(-10, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr10, "");
+    return 0;
 }
 
 /* *
@@ -158,6 +162,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol005, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(10, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr10_3, "");
+    return 0;
 }
 
 /* *
@@ -177,6 +182,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol006, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(8, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr8, "");
+    return 0;
 }
 
 /* *
@@ -196,6 +202,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol007, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(8, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr8_2, "");
+    return 0;
 }
 
 /* *
@@ -215,6 +222,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol008, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(8, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr8_3, "");
+    return 0;
 }
 
 /* *
@@ -234,6 +242,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol009, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(2, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr2, "");
+    return 0;
 }
 
 /* *
@@ -253,6 +262,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol010, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(12, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 0110 0XDEFE 0666 -1.6");
+    return 0;
 }
 
 /* *
@@ -272,6 +282,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol011, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(0, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, "12 1.5");
+    return 0;
 }
 
 LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol012, Function | MediumTest | Level1)
@@ -286,6 +297,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol012, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(2147483647, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, " -2147483648");
+    return 0;
 }
 
 /* *
@@ -305,6 +317,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol013, Function | MediumTest
     }
     TEST_ASSERT_EQUAL_INT32(-2147483648, ret);
     TEST_ASSERT_EQUAL_STRING(endPtr, "");
+    return 0;
 }
 
 RUN_TEST_SUITE(PosixStdlibStrtolTest);

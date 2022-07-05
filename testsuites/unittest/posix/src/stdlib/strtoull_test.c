@@ -84,6 +84,7 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull001, Function | Medium
     }
     TEST_ASSERT_TRUE(ret == 12ULL);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 0110 0XDEFE 0666 1.6");
+    return 0;
 }
 
 /* *
@@ -103,6 +104,7 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull002, Function | Medium
     }
     TEST_ASSERT_TRUE(ret == 6ULL);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 0XDEFE 0666 1.6");
+    return 0;
 }
 
 /* *
@@ -122,6 +124,7 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull003, Function | Medium
     }
     TEST_ASSERT_TRUE(ret == 0XDEFEULL);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 0666 1.6");
+    return 0;
 }
 
 /* *
@@ -141,6 +144,7 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull004, Function | Medium
     }
     TEST_ASSERT_TRUE(ret == 0666ULL);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 1.6");
+    return 0;
 }
 
 /* *
@@ -160,6 +164,7 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull005, Function | Medium
     }
     TEST_ASSERT_TRUE(ret == 0ULL);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 1.6");
+    return 0;
 }
 
 /* *
@@ -179,6 +184,7 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull006, Function | Medium
     }
     TEST_ASSERT_TRUE(ret == 0ULL);
     TEST_ASSERT_EQUAL_STRING(endPtr, ".6");
+    return 0;
 }
 
 /* *
@@ -198,6 +204,7 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull007, Function | Medium
     }
     TEST_ASSERT_TRUE(ret == 18446744073709551615ULL);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 18446744073709551616");
+    return 0;
 }
 
 /* *
@@ -219,6 +226,7 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull008, Function | Medium
     TEST_ASSERT_EQUAL_UINT64(ULLONG_MAX, ret);
     TEST_ASSERT_EQUAL_INT(errno, ERANGE);
     TEST_ASSERT_EQUAL_STRING(endPtr, "");
+    return 0;
 }
 
 /* *
@@ -238,6 +246,7 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull009, Function | Medium
     }
     TEST_ASSERT_TRUE(ret == 0XDEFEULL);
     TEST_ASSERT_EQUAL_STRING(endPtr, " 0666");
+    return 0;
 }
 
 /* *
@@ -257,6 +266,7 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull010, Function | Medium
     }
     TEST_ASSERT_TRUE(ret == 0666ULL);
     TEST_ASSERT_EQUAL_STRING(endPtr, "");
+    return 0;
 }
 
 RUN_TEST_SUITE(PosixStdlibStrtoullTest);

@@ -70,7 +70,7 @@ static BOOL PosixRegexFuncTestSuiteTearDown(void)
     return TRUE;
 }
 
-void TestRegex(int flag, const char *pattern, const char *buf, const int expectedStatus, const char *expectedRes)
+int TestRegex(int flag, const char *pattern, const char *buf, const int expectedStatus, const char *expectedRes)
 {
     regmatch_t pmatch[1];
     const size_t nmatch = 1;
@@ -94,15 +94,17 @@ void TestRegex(int flag, const char *pattern, const char *buf, const int expecte
         TEST_ASSERT_EQUAL_STRING(res, expectedRes);
     }
     regfree(&reg);
+    return 0;
 }
 
-void TestRegcomp(int flag, const char *pattern, const int expectedStatus)
+int TestRegcomp(int flag, const char *pattern, const int expectedStatus)
 {
     regex_t reg;
     int status = regcomp(&reg, pattern, flag);
     LOG("pattern : %s ,real status : %d \n", pattern, status);
     TEST_ASSERT_EQUAL_INT(status, expectedStatus);
     regfree(&reg);
+    return 0;
 }
 
 /* *
@@ -117,6 +119,7 @@ LITE_TEST_CASE(PosixRegexFuncTestSuite, testRegexExtended001, Function | MediumT
 
     TestRegex(REG_EXTENDED, "^addr=([^&]*)", "fawei123&sex=girl&age=18\r\naddr=bantian&hobby=movie", REG_NOMATCH,
         NULL);
+    return 0;
 }
 
 /* *
@@ -129,6 +132,7 @@ LITE_TEST_CASE(PosixRegexFuncTestSuite, testRegexIcase001, Function | MediumTest
     TestRegex(REG_ICASE, "HARMONY[1-9]", "harmony20000925@abcdef.com", REG_OK, "harmony2");
 
     TestRegex(REG_ICASE, "HARMONY([1-9])", "harmony20000925@abcdef.com", REG_NOMATCH, NULL);
+    return 0;
 }
 
 /* *
@@ -143,6 +147,7 @@ LITE_TEST_CASE(PosixRegexFuncTestSuite, testRegexNewline001, Function | MediumTe
 
     TestRegex(REG_EXTENDED | REG_NEWLINE, "^addr=([^&]*)", "fawei123&sex=girl&age=18&addr=bantian&hobby=movie",
         REG_NOMATCH, NULL);
+    return 0;
 }
 
 /* *
@@ -160,6 +165,7 @@ LITE_TEST_CASE(PosixRegexFuncTestSuite, testRegexNosub001, Function | MediumTest
     int status = regexec(&reg, buf, (size_t)0, NULL, 0);
     TEST_ASSERT_EQUAL_INT(status, 0);
     regfree(&reg);
+    return 0;
 }
 
 /* *
@@ -174,6 +180,7 @@ LITE_TEST_CASE(PosixRegexFuncTestSuite, testRegcomp001, Function | MediumTest | 
     TestRegcomp(REG_EXTENDED, "[abcdefg", REG_EBRACK);
     TestRegcomp(REG_EXTENDED, "\\x{4e00-\\x{9fa5}", REG_EBRACE);
     TestRegcomp(REG_EXTENDED, "*abcdefg", REG_BADRPT);
+    return 0;
 }
 
 RUN_TEST_SUITE(PosixRegexFuncTestSuite);

@@ -80,6 +80,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr001, Function | MediumTest
         LOG("[DEMO] posix string test case 1:strstr(%s) %s fail.\n", srcS, destS);
     }
     TEST_ASSERT_EQUAL_STRING(ret, destS);
+    return 0;
 }
 
 /* *
@@ -99,6 +100,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr002, Function | MediumTest
         LOG("[DEMO] posix string test case 2:strstr(%s) %s fail.\n", srcS, destS);
     }
     TEST_ASSERT_EQUAL_STRING(ret, "this is string");
+    return 0;
 }
 
 /* *
@@ -118,6 +120,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr003, Function | MediumTest
         LOG("[DEMO] posix string test case 3:strstr(%s) %s fail.\n", srcT, dest);
     }
     TEST_ASSERT_EQUAL_STRING(ret, dest);
+    return 0;
 }
 
 /* *
@@ -137,6 +140,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr004, Function | MediumTest
         LOG("[DEMO] posix string test case 4(except):strstr(%s) %s fail.\n", src, dest);
     }
     TEST_ASSERT_NULL(ret);
+    return 0;
 }
 
 /* *
@@ -156,6 +160,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr005, Function | MediumTest
         LOG("[DEMO] posix string test case 5(except):strstr(%s) %s fail.\n", src, dest);
     }
     TEST_ASSERT_NULL(ret);
+    return 0;
 }
 
 /* *
@@ -175,6 +180,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr006, Function | MediumTest
         LOG("[DEMO] posix string test case 6:strstr(%s) %s fail.\n", srcOne, destS);
     }
     TEST_ASSERT_EQUAL_STRING(ret, "tring this is string");
+    return 0;
 }
 
 /* *
@@ -194,6 +200,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr007, Function | MediumTest
         LOG("[DEMO] posix string test case 7(except):strstr(%s) %s fail.\n", srcOne, destS);
     }
     TEST_ASSERT_NULL(ret);
+    return 0;
 }
 
 /* *
@@ -213,6 +220,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr008, Function | MediumTest
         LOG("[DEMO] posix string test case 8:strstr(%s) %s fail.\n", srcTwo, destS);
     }
     TEST_ASSERT_EQUAL_STRING(ret, "this is string");
+    return 0;
 }
 
 /* *
@@ -232,6 +240,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr009, Function | MediumTest
         LOG("[DEMO] posix string test case 9(except):strstr(%s) %s fail.\n", srcTwo2, destS);
     }
     TEST_ASSERT_NULL(ret);
+    return 0;
 }
 
 /* *
@@ -251,6 +260,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr010, Function | MediumTest
         LOG("[DEMO] posix string test case 10:strstr(%s) %s fail.\n", srcThree, destS);
     }
     TEST_ASSERT_EQUAL_STRING(ret, "this is string");
+    return 0;
 }
 
 /* *
@@ -270,6 +280,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr011, Function | MediumTest
         LOG("[DEMO] posix string test case 11(except):strstr(%s) %s fail.\n", srcThree, destS);
     }
     TEST_ASSERT_NULL(ret);
+    return 0;
 }
 
 /* *
@@ -289,6 +300,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr012, Function | MediumTest
         LOG("[DEMO] posix string test case 12:strstr(%s) %s fail.\n", srcFour, destS);
     }
     TEST_ASSERT_EQUAL_STRING(ret, "this is string");
+    return 0;
 }
 
 /* *
@@ -308,6 +320,7 @@ LITE_TEST_CASE(PosixStringStrStrTest, testStringStrStr013, Function | MediumTest
         LOG("[DEMO] posix string test case 13(except):strstr(%s) %s fail.\n", srcFour, destS);
     }
     TEST_ASSERT_NULL(ret);
+    return 0;
 }
 
 RUN_TEST_SUITE(PosixStringStrStrTest);

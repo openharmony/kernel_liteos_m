@@ -159,7 +159,7 @@ EXIT1:
     ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 EXIT:
     ret = mq_unlink(qName);
-    ICUNIT_ASSERT_EQUAL_VOID(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -377,7 +377,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, TestMqSendEAGAIN, Function | MediumTest | Le
     attr.mq_msgsize = MQ_MSG_SIZE;
     attr.mq_maxmsg = 1;
     queue = mq_open(qName, O_CREAT | O_RDWR | O_NONBLOCK, S_IRUSR | S_IWUSR, &attr);
-    ICUNIT_ASSERT_NOT_EQUAL_VOID(queue, (mqd_t)-1, queue);
+    ICUNIT_ASSERT_NOT_EQUAL(queue, (mqd_t)-1, queue);
 
     ret = mq_send(queue, MQ_MSG, MQ_MSG_LEN, 0);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
@@ -410,7 +410,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, TestMqSendEBADFEMSGSIZE, Function | MediumTe
     attr.mq_msgsize = 1;
     attr.mq_maxmsg = MQ_MAX_MSG;
     queue = mq_open(qName, O_CREAT | O_RDWR | O_NONBLOCK, S_IRUSR | S_IWUSR, &attr);
-    ICUNIT_ASSERT_NOT_EQUAL_VOID(queue, (mqd_t)-1, queue);
+    ICUNIT_ASSERT_NOT_EQUAL(queue, (mqd_t)-1, queue);
 
     ret = mq_send(NULL, MQ_MSG, 1, MQ_MSG_PRIO);
     ICUNIT_TRACK_EQUAL(ret, -1, ret);
@@ -424,12 +424,12 @@ LITE_TEST_CASE(MqueueFuncTestSuite, TestMqSendEBADFEMSGSIZE, Function | MediumTe
     ret = mq_close(queue);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
     ret = mq_unlink(qName);
-    ICUNIT_ASSERT_EQUAL_VOID(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     attr.mq_msgsize = MQ_MSG_SIZE;
     attr.mq_maxmsg = MQ_MAX_MSG;
     queue = mq_open(qName, O_CREAT | O_RDONLY | O_NONBLOCK, S_IRUSR | S_IWUSR, &attr);
-    ICUNIT_ASSERT_NOT_EQUAL_VOID(queue, (mqd_t)-1, queue);
+    ICUNIT_ASSERT_NOT_EQUAL(queue, (mqd_t)-1, queue);
 
     ret = mq_send(queue, MQ_MSG, MQ_MSG_LEN, MQ_MSG_PRIO);
     ICUNIT_TRACK_EQUAL(ret, -1, ret);
@@ -467,7 +467,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, TestMqSendEINVAL, Function | MediumTest | Le
     attr.mq_msgsize = MQ_MSG_SIZE;
     attr.mq_maxmsg = MQ_MAX_MSG;
     queue = mq_open(qName, O_CREAT | O_RDWR | O_NONBLOCK, S_IRUSR | S_IWUSR, &attr);
-    ICUNIT_ASSERT_NOT_EQUAL_VOID(queue, (mqd_t)-1, queue);
+    ICUNIT_ASSERT_NOT_EQUAL(queue, (mqd_t)-1, queue);
 
     ret = mq_send(queue, MQ_MSG, 0, MQ_MSG_PRIO);
     ICUNIT_TRACK_EQUAL(ret, -1, ret);
@@ -499,7 +499,7 @@ LITE_TEST_CASE(MqueueFuncTestSuite, TestMqReceiveEAGAIN, Function | MediumTest |
     attr.mq_msgsize = MQ_MSG_SIZE;
     attr.mq_maxmsg = MQ_MAX_MSG;
     queue = mq_open(qName, O_CREAT | O_RDWR | O_NONBLOCK, S_IRUSR | S_IWUSR, &attr);
-    ICUNIT_ASSERT_NOT_EQUAL_VOID(queue, (mqd_t)-1, queue);
+    ICUNIT_ASSERT_NOT_EQUAL(queue, (mqd_t)-1, queue);
 
     ret = mq_send(queue, MQ_MSG, MQ_MSG_LEN, MQ_MSG_PRIO);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
