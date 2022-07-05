@@ -85,6 +85,7 @@ LITE_TEST_CASE(PosixSysFuncTestSuite, testOsSysStrerror001, Function | MediumTes
     TEST_ASSERT_EQUAL_STRING("No such file or directory", strerror(2));
     LOG("strerror(10) = %s\n", strerror(10));
     TEST_ASSERT_EQUAL_STRING("No child process", strerror(10));
+    return 0;
 };
 
 
