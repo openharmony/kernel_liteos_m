@@ -42,7 +42,7 @@ FileDirInfo g_lfsDir[LFS_MAX_OPEN_DIRS] = {0};
 struct FileOpInfo g_fsOp[LOSCFG_LFS_MAX_MOUNT_SIZE] = {0};
 static LittleFsHandleStruct g_handle[LOSCFG_LFS_MAX_OPEN_FILES] = {0};
 struct dirent g_nameValue;
-static const char *g_littlefsMntName[LOSCFG_LFS_MAX_MOUNT_SIZE] = {"/a"};
+static const char *g_littlefsMntName[LOSCFG_LFS_MAX_MOUNT_SIZE] = {"/a", "/littlefs"};
 #define LFS_MUTEX_UNINIT (-1)
 static UINT32 g_lfsMutex = LFS_MUTEX_UNINIT;
 
