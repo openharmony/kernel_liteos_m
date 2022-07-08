@@ -43,7 +43,7 @@ module_group("arch") {
              "$board_cpu" == "ck804ef") {
     modules += [ "csky" ]
   } else if ("$board_cpu" == "") {
-    if ("$board_arch" == "rv32imac" || "$board_arch" == "rv32imafdc") {
+    if ("$board_arch" != string_replace("$board_arch", "rv32i", "")) {
       modules += [ "risc-v" ]
     } else if ("$board" == "esp32") {
       modules += [ "xtensa" ]
