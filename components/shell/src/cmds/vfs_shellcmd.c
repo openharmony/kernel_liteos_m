@@ -724,7 +724,7 @@ STATIC INT32 OsWildcardExtractDirectory(CHAR *fullpath, VOID *dst, wildcard_type
 
     if (d == NULL) {
         perror("opendir error");
-        return VFS_ERROR;
+        return (INT32)VFS_ERROR;
     }
 
     while (1) {

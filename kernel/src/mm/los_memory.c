@@ -1901,14 +1901,12 @@ STATIC VOID OsMemIntegrityCheckError(struct OsMemPoolHead *pool,
         if (taskID >= LOSCFG_BASE_CORE_TSK_LIMIT) {
             MEM_UNLOCK(pool, intSave);
             LOS_Panic("Task ID %u in pre node is invalid!\n", taskID);
-            return;
         }
 
         taskCB = OS_TCB_FROM_TID(taskID);
         if ((taskCB->taskStatus & OS_TASK_STATUS_UNUSED) || (taskCB->taskEntry == NULL)) {
             MEM_UNLOCK(pool, intSave);
             LOS_Panic("\r\nTask ID %u in pre node is not created!\n", taskID);
-            return;
         }
     } else {
         PRINTK("The prev node is free\n");
