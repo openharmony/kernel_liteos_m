@@ -215,6 +215,7 @@ STATIC INT32 PipeDevRegister(CHAR *devName, UINT32 len)
 {
     INT32 ret;
     INT32 num = PipeDevNumAlloc();
+    struct PipeDev *devTemp = NULL;
     if (num < 0) {
         return -ENODEV;
     }
@@ -228,7 +229,7 @@ STATIC INT32 PipeDevRegister(CHAR *devName, UINT32 len)
     (VOID)snprintf_s(dev->devName, PIPE_DEV_NAME_MAX, PIPE_DEV_NAME_MAX - 1, "%s%d", PIPE_DEV_PATH, num);
     (VOID)memcpy_s(devName, len, dev->devName, strlen(dev->devName));
 
-    struct PipeDev *devTemp = PipeDevFind(dev->devName);
+    devTemp = PipeDevFind(dev->devName);
     if (devTemp != NULL) {
         ret = -EEXIST;
         goto ERROR;
