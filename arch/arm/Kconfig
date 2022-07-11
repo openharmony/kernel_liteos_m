@@ -31,43 +31,61 @@ config ARCH_ARM_VER
 #
 # VFP Hardware
 #
-config ARCH_FPU_VFP_V3
-    bool
-    help
-      An optional extension to the Arm, Thumb, and ThumbEE instruction sets in the ARMv7-A and ARMv7-R profiles.
-      VFPv3U is a variant of VFPv3 that supports the trapping of floating-point exceptions to support code.
+choice
+    prompt "Choose FPU type"
+    depends on !ARCH_FPU_DISABLE
 
-config ARCH_FPU_VFP_V4
-    bool
-    help
-      An optional extension to the Arm, Thumb, and ThumbEE instruction sets in the ARMv7-A and ARMv7-R profiles.
-      VFPv4U is a variant of VFPv4 that supports the trapping of floating-point exceptions to support code.
-      VFPv4 and VFPv4U add both the Half-precision Extension and the fused multiply-add instructions to the features of VFPv3.
+    choice
+        prompt "Choose FPU version"
+        default ARCH_FPU_VFP_V4
+        depends on !ARCH_FPU_DISABLE
+        help
+            Choose FPU version.
+        
+    config ARCH_FPU_VFP_V3
+        bool "VFP_V3"
+        help
+        An optional extension to the Arm, Thumb, and ThumbEE instruction sets in the ARMv7-A and ARMv7-R profiles.
+        VFPv3U is a variant of VFPv3 that supports the trapping of floating-point exceptions to support code.
 
-config ARCH_FPU_VFP_D16
-    bool
-    depends on ARCH_ARM_AARCH32
-    help
-      VPU implemented with 16 doubleword registers (16 x 64-bit).
+    config ARCH_FPU_VFP_V4
+        bool "VFP_V4"
+        help
+        An optional extension to the Arm, Thumb, and ThumbEE instruction sets in the ARMv7-A and ARMv7-R profiles.
+        VFPv4U is a variant of VFPv4 that supports the trapping of floating-point exceptions to support code.
+        VFPv4 and VFPv4U add both the Half-precision Extension and the fused multiply-add instructions to the features of VFPv3.
+    endchoice
 
-config ARCH_FPU_VFP_D32
-    bool
-    depends on ARCH_ARM_AARCH32
-    help
-      VPU implemented with 32 doubleword registers (32 x 64-bit).
+    choice
+        prompt "Choose num of FPU doubleword registers"
+        default ARCH_FPU_VFP_D32
+        depends on !ARCH_FPU_DISABLE
+        help
+            Choose num of FPU doubleword registers.
 
-config ARCH_FPU_VFP_NEON
-    bool
-    help
-      Advanced SIMD extension (NEON) support.
+    config ARCH_FPU_VFP_D16
+        bool "FPU_VFP_D16"
+        depends on ARCH_ARM_AARCH32
+        help
+        VPU implemented with 16 doubleword registers (16 x 64-bit).
 
+    config ARCH_FPU_VFP_D32
+        bool "FPU_VFP_D32"
+        depends on ARCH_ARM_AARCH32
+        help
+        VPU implemented with 32 doubleword registers (32 x 64-bit).
+    endchoice
+endchoice
 config ARCH_FPU
     string
-    default "vfpv3"       if ARCH_FPU_VFP_V3 && ARCH_FPU_VFP_D32
-    default "vfpv3-d16"   if ARCH_FPU_VFP_V3 && ARCH_FPU_VFP_D16
-    default "neon-vfpv4"  if ARCH_FPU_VFP_V4 && ARCH_FPU_VFP_D32 && ARCH_FPU_VFP_NEON
-    default "vfpv4"       if ARCH_FPU_VFP_V4 && ARCH_FPU_VFP_D32
-    default "vfpv4-d16"   if ARCH_FPU_VFP_V4 && ARCH_FPU_VFP_D16
+    default "vfpv3"       if ARCH_FPU_VFP_V3 && ARCH_FPU_VFP_D32 && !COMPILER_ICCARM
+    default "vfpv3-d16"   if ARCH_FPU_VFP_V3 && ARCH_FPU_VFP_D16 && !COMPILER_ICCARM
+    default "vfpv4"       if ARCH_FPU_VFP_V4 && ARCH_FPU_VFP_D32 && !COMPILER_ICCARM
+    default "vfpv4-d16"   if ARCH_FPU_VFP_V4 && ARCH_FPU_VFP_D16 && !COMPILER_ICCARM
+    default "VFPv3"       if ARCH_FPU_VFP_V3 && ARCH_FPU_VFP_D32 && COMPILER_ICCARM
+    default "VFPv3_D16"   if ARCH_FPU_VFP_V3 && ARCH_FPU_VFP_D16 && COMPILER_ICCARM
+    default "VFPv4"       if ARCH_FPU_VFP_V4 && ARCH_FPU_VFP_D32 && COMPILER_ICCARM
+    default "VFPv4_D16"   if ARCH_FPU_VFP_V4 && ARCH_FPU_VFP_D16 && COMPILER_ICCARM
 
 #
 # Supported Processor Cores
@@ -86,22 +104,16 @@ config ARCH_CORTEX_M7
     bool
     select ARCH_ARM_V7M
     select ARCH_ARM_AARCH32
-    select ARCH_FPU_VFP_V4
-    select ARCH_FPU_VFP_D32
 
 config ARCH_CORTEX_M33
     bool
     select ARCH_ARM_V8M
     select ARCH_ARM_AARCH32
-    select ARCH_FPU_VFP_V4
-    select ARCH_FPU_VFP_D32
 
 config ARCH_CORTEX_M55
     bool
     select ARCH_ARM_V8M
     select ARCH_ARM_AARCH32
-    select ARCH_FPU_VFP_V4
-    select ARCH_FPU_VFP_D32
 
 config ARCH_ARM9
     bool
@@ -110,9 +122,14 @@ config ARCH_ARM9
 
 config ARCH_CPU
     string
-    default "cortex-m3" if ARCH_CORTEX_M3
-    default "cortex-m4" if ARCH_CORTEX_M4
-    default "cortex-m7" if ARCH_CORTEX_M7
-    default "cortex-m33" if ARCH_CORTEX_M33
-    default "cortex-m55" if ARCH_CORTEX_M55
+    default "cortex-m3" if ARCH_CORTEX_M3 && !COMPILER_ICCARM
+    default "cortex-m4" if ARCH_CORTEX_M4 && !COMPILER_ICCARM
+    default "cortex-m7" if ARCH_CORTEX_M7 && !COMPILER_ICCARM
+    default "cortex-m33" if ARCH_CORTEX_M33 && !COMPILER_ICCARM
+    default "cortex-m55" if ARCH_CORTEX_M55 && !COMPILER_ICCARM
+    default "Cortex-M3" if ARCH_CORTEX_M3 && COMPILER_ICCARM
+    default "Cortex-M4" if ARCH_CORTEX_M4 && COMPILER_ICCARM
+    default "Cortex-M7" if ARCH_CORTEX_M7 && COMPILER_ICCARM
+    default "Cortex-M33" if ARCH_CORTEX_M33 && COMPILER_ICCARM
+    default "Cortex-M55" if ARCH_CORTEX_M55 && COMPILER_ICCARM
     default "arm9" if ARCH_ARM9

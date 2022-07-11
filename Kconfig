@@ -52,6 +52,9 @@ config LLVM_TARGET
     depends on COMPILER_CLANG_LLVM
     default "arm-liteos-ohos" if ARCH_ARM_AARCH32
 
+config COMPILER_ICCARM
+    bool "ICCARM"
+
 endchoice
 
 config COMPILE_DEBUG
