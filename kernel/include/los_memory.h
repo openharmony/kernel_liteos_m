@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -129,10 +129,10 @@ extern UINT32 LOS_MemPoolList(VOID);
  * <ul>
  * <li>This API is used to free all memory nodes allocated by the specified task.</li>
  * </ul>
- * 
+ *
  * @param pool           [IN] The memory pool address.
  * @param taskID         [IN] The task ID and all memory nodes allocated by this task will be freed.
- * 
+ *
  * @retval #OS_ERROR     The memory pool is NULL or the task ID is invalid.
  * @retval #LOS_OK       All memory nodes allocated by this task are freed successfully.
  * @par Dependency:
@@ -157,10 +157,10 @@ typedef struct {
  * @par Description:
  * <ul>
  * <li>This API is used to initialize multiple non-continuous memory regions. If the starting address of a pool is specified,
- *  the memory regions will be linked to the pool as free nodes. Otherwise, the first memory region will be initialized as a 
+ *  the memory regions will be linked to the pool as free nodes. Otherwise, the first memory region will be initialized as a
  *  new pool, and the rest regions will be linked as free nodes to the new pool.</li>
  * </ul>
- * 
+ *
  * @attention
  * <ul>
  * <li>If the starting address of a memory pool is specified, the start address of the non-continuous memory regions should be
@@ -168,12 +168,12 @@ typedef struct {
  * <li>The multiple non-continuous memory regions shouldn't conflict with each other.</li>
  * </ul>
  *
- * @param pool           [IN] The memory pool address. If NULL is specified, the start address of first memory region will be 
+ * @param pool           [IN] The memory pool address. If NULL is specified, the start address of first memory region will be
  *                            initialized as the memory pool address. If not NULL, it should be a valid address of a memory pool.
  * @param memRegions     [IN] The LosMemRegion array that contains multiple non-continuous memory regions. The start address
  *                           of the memory regions are placed in ascending order.
  * @param memRegionCount [IN] The count of non-continuous memory regions, and it should be the length of the LosMemRegion array.
- * 
+ *
  * @retval #LOS_NOK    The multiple non-continuous memory regions fails to be initialized.
  * @retval #LOS_OK     The multiple non-continuous memory regions is initialized successfully.
  * @par Dependency:
