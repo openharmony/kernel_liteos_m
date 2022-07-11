@@ -217,7 +217,6 @@ void TestCmsis2(void)
 
 VOID TestTaskEntry()
 {
-    UINT32 ret;
     PRINTF("\t\n --- Test Start --- \n\n");
     ICunitInit();
 
