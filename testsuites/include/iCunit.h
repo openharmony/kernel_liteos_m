@@ -245,7 +245,7 @@ extern void ICunitSaveErr(iiUINT32 line, iiUINT32 retCode);
     do {                                                \
         if ((param) != (value)) {                       \
             ICunitSaveErr(__LINE__, (iiUINT32)retcode); \
-            return;                                     \
+            return 1;                                   \
         }                                               \
     } while (0)
 
