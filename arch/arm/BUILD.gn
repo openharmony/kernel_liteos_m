@@ -1,5 +1,5 @@
 # Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -34,6 +34,10 @@ config("arm_config") {
 }
 
 module_group("arm") {
-  modules = [ "$board_cpu/gcc" ]
+  if (defined(LOSCFG_COMPILER_ICCARM)) {
+    modules = [ "$board_cpu/iar" ]
+  } else {
+    modules = [ "$board_cpu/gcc" ]
+  }
   configs = [ ":arm_config" ]
 }
