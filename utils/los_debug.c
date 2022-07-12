@@ -87,7 +87,7 @@ VOID OsDoExcHook(EXC_TYPE excType)
 INT32 OsLogLevelCheck(INT32 level)
 {
     if (level > PRINT_LEVEL) {
-        return LOS_NOK;
+        return (INT32)LOS_NOK;
     }
 
     if ((level != LOG_COMMON_LEVEL) && ((level > LOG_EMG_LEVEL) && (level <= LOG_DEBUG_LEVEL))) {
