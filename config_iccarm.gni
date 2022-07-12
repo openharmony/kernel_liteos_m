@@ -1,0 +1,140 @@
+# Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this list of
+#    conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice, this list
+#    of conditions and the following disclaimer in the documentation and/or other materials
+#    provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its contributors may be used
+#    to endorse or promote products derived from this software without specific prior written
+#    permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import("//build/lite/config/component/lite_component.gni")
+import("liteos.gni")
+
+LITEOS_MENUCONFIG_H = rebase_path("$root_out_dir/config.h")
+
+#
+# arch_config
+#
+liteos_arch_config_cflags = []
+if (defined(LOSCFG_ARCH_ARM)) {
+  mcpu = LOSCFG_ARCH_CPU
+  if (defined(LOSCFG_ARCH_ARM_AARCH64) && defined(LOSCFG_ARCH_FPU_DISABLE)) {
+    mcpu += "+nofp"
+  }
+  liteos_arch_config_cflags += [ "--cpu=$mcpu" ]
+  if (defined(LOSCFG_ARCH_ARM_AARCH32) && defined(LOSCFG_ARCH_FPU)) {
+    liteos_arch_config_cflags += [ "--fpu=$LOSCFG_ARCH_FPU" ]
+  }
+}
+
+arch_config_cflags = liteos_arch_config_cflags
+arch_config_asmflags = []
+arch_config_ldflags = liteos_arch_config_cflags
+
+if (defined(LOSCFG_THUMB)) {
+  arch_config_cflags += [ "--thumb" ]
+}
+arch_config_asmflags += arch_config_cflags
+
+#
+# stdinc_config
+#
+stdinc_config_cflags = []
+stdinc_config_asmflags = []
+
+if (defined(LOSCFG_LIBC_MUSL)) {
+  stdinc_config_cflags += [ "-nostdinc" ]
+}
+stdinc_config_asmflags += stdinc_config_cflags
+
+#
+# ssp_config
+#
+ssp_config_cflags = []
+ssp_config_asmflags = []
+
+if (!defined(LOSCFG_CC_NO_STACKPROTECTOR)) {
+  ssp_config_cflags += [ "--stack_protection" ]
+}
+
+#
+# optimize_config
+#
+optimize_config_cflags = []
+optimize_config_asmflags = []
+
+if (defined(LOSCFG_COMPILE_DEBUG)) {
+  optimize_config_cflags += [
+    "-g",
+    "-gdwarf-2",
+  ]
+  optimize_config_cflags += [ "-On" ]
+} else {
+  if (defined(LOSCFG_COMPILE_OPTIMIZE)) {
+    if (defined(LOSCFG_COMPILE_OPTIMIZE_SIZE)) {
+      optimize_config_cflags += [ "-Ohs" ]
+    } else {
+      optimize_config_cflags += [ "-Om" ]
+    }
+  }
+}
+
+#
+# kconfig_config
+#
+kconfig_config_cflags = []
+kconfig_config_asmflags = []
+
+kconfig_config_cflags += [
+  "--preinclude",
+  "$LITEOS_MENUCONFIG_H",
+]
+
+#
+# warn_config
+#
+warn_config_cflags = []
+warn_config_asmflags = []
+
+warn_config_cflags += [
+  "--warnings_affect_exit_code",
+  "--warnings_are_errors",
+  "--warn_about_c_style_casts",
+  "--warn_about_incomplete_constructors",
+]
+
+#
+# dialect_config
+#
+dialect_config_cflags = []
+dialect_config_ccflags = []
+dialect_config_asmflags = []
+
+dialect_config_ccflags += [ "-std=c++11" ]
+
+#
+# misc_config
+#
+misc_config_cflags = []
+misc_config_asmflags = []
+
+misc_config_asmflags += [ "-DCLZ=CLZ" ]
