@@ -187,6 +187,7 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul006, Function | MediumTe
     return 0;
 }
 
+#if (LOSCFG_LIBC_MUSL == 1)
 /* *
  * @tc.number    : TEST_STDLIB_STRTOUL_007
  * @tc.name      : convert string by strtoul
@@ -206,6 +207,7 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul007, Function | MediumTe
     TEST_ASSERT_EQUAL_STRING(endPtr, " 12.34");
     return 0;
 }
+#endif
 
 /* *
  * @tc.number    : TEST_STDLIB_STRTOUL_008
@@ -278,7 +280,9 @@ void PosixStdlibStrtoulFuncTest()
     RUN_ONE_TESTCASE(testStdlibStrtoul004);
     RUN_ONE_TESTCASE(testStdlibStrtoul005);
     RUN_ONE_TESTCASE(testStdlibStrtoul006);
+#if (LOSCFG_LIBC_MUSL == 1)
     RUN_ONE_TESTCASE(testStdlibStrtoul007);
+#endif
     RUN_ONE_TESTCASE(testStdlibStrtoul008);
     RUN_ONE_TESTCASE(testStdlibStrtoul009);
     RUN_ONE_TESTCASE(testStdlibStrtoul010);
