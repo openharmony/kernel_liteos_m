@@ -219,6 +219,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeGmtime001, Function | MediumTest 
     return 0;
 };
 
+#if (LOSCFG_LIBC_MUSL == 1)
 /* *
  * @tc.number     SUB_KERNEL_TIME_LOCALTIME_001
  * @tc.name       test localtime api
@@ -358,6 +359,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeLocaltimer002, Function | MediumT
     LOG("\n time_t=%lld, first time:%s", tStart, cTime);
     return 0;
 }
+#endif
 
 /* *
  * @tc.number     SUB_KERNEL_TIME_MKTIME_001
@@ -415,11 +417,16 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeMktime002, Function | MediumTest 
     INIT_TM(timeptr, 1969, 7, 9, 10, 10, 0, 7);
     time_t timeRet = mktime(&timeptr);
     LOG("\n 1800-8-9 10:10:00, mktime Ret lld = %lld", timeRet);
+#if (LOSCFG_LIBC_MUSL == 1)
     TEST_ASSERT_EQUAL_INT(-1, timeRet);
+#endif
+#if (LOSCFG_LIBC_NEWLIB == 1)
+    TEST_ASSERT_LESS_THAN_INT(0, timeRet);
+#endif
     return 0;
 }
 
-
+#if (LOSCFG_LIBC_MUSL == 1)
 /* *
  * @tc.number     SUB_KERNEL_TIME_STRFTIME_001
  * @tc.name       test strftime api
@@ -521,6 +528,7 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeStrftime003, Function | MediumTes
     LOG("\nresult: %s, expected : %s", buffer, "1970-01-01 13:14:40");
     return 0;
 };
+#endif
 
 /* *
  * @tc.number SUB_KERNEL_TIME_API_TIMES_0100
@@ -567,15 +575,19 @@ void PosixTimeFuncTest(void)
     RUN_ONE_TESTCASE(testTimeUSleep002);
 
     RUN_ONE_TESTCASE(testTimeGmtime001);
+#if (LOSCFG_LIBC_MUSL == 1)
     RUN_ONE_TESTCASE(testTimeLocaltime001);
     RUN_ONE_TESTCASE(testTimeLocaltime002);
     RUN_ONE_TESTCASE(testTimeLocaltimer001);
     RUN_ONE_TESTCASE(testTimeLocaltimer002);
+#endif
     RUN_ONE_TESTCASE(testTimeMktime001);
     RUN_ONE_TESTCASE(testTimeMktime002);
+#if (LOSCFG_LIBC_MUSL == 1)
     RUN_ONE_TESTCASE(testTimeStrftime001);
     RUN_ONE_TESTCASE(testTimeStrftime002);
     RUN_ONE_TESTCASE(testTimeStrftime003);
+#endif
     RUN_ONE_TESTCASE(testTimes);
     return;
 }

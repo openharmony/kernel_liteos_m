@@ -424,6 +424,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen003, Function | MediumTest | Le
     return 0;
 }
 
+#if (LOSCFG_LIBC_MUSL == 1)
 /* *
  * @tc.number   SUB_KERNEL_FS_FDOPEN_004
  * @tc.name     fdopen
@@ -451,7 +452,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen004, Function | MediumTest | Le
     TEST_ASSERT_EQUAL_INT(ret, 0);
     return 0;
 }
-
+#endif
 /* *
  * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_001
  * @tc.name     ftell and fseek
@@ -674,6 +675,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek009, Function | MediumTest 
     return 0;
 }
 
+#if (LOSCFG_LIBC_MUSL == 1)
 /* *
  * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_010
  * @tc.name     ftell and fseek
@@ -702,7 +704,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek010, Function | MediumTest 
     TEST_ASSERT_EQUAL_INT(ret, 0);
     return 0;
 }
-
+#endif
 /* *
  * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_011
  * @tc.name     ftell and fseek
@@ -1649,8 +1651,9 @@ void PosixFsFuncTest()
     RUN_ONE_TESTCASE(testFsFdopen001);
     RUN_ONE_TESTCASE(testFsFdopen002);
     RUN_ONE_TESTCASE(testFsFdopen003);
+#if (LOSCFG_LIBC_MUSL == 1)
     RUN_ONE_TESTCASE(testFsFdopen004);
-
+#endif
     RUN_ONE_TESTCASE(testFsFtellFseek001);
     RUN_ONE_TESTCASE(testFsFtellFseek002);
     RUN_ONE_TESTCASE(testFsFtellFseek003);
@@ -1660,7 +1663,9 @@ void PosixFsFuncTest()
     RUN_ONE_TESTCASE(testFsFtellFseek007);
     RUN_ONE_TESTCASE(testFsFtellFseek008);
     RUN_ONE_TESTCASE(testFsFtellFseek009);
+#if (LOSCFG_LIBC_MUSL == 1)
     RUN_ONE_TESTCASE(testFsFtellFseek010);
+#endif
     RUN_ONE_TESTCASE(testFsFtellFseek011);
     RUN_ONE_TESTCASE(testFsFtellFseek012);
     RUN_ONE_TESTCASE(testFsFtellFseek013);

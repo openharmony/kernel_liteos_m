@@ -79,7 +79,7 @@ LITE_TEST_CASE(PosixCTypeIsdigitTest, testCTypeIsdigit001, Function | MediumTest
     else {
         LOG("[DEMO] posix ctype test case 1:isdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(1, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
     return 0;
 }
 
@@ -98,7 +98,7 @@ LITE_TEST_CASE(PosixCTypeIsdigitTest, testCTypeIsdigit002, Function | MediumTest
     else {
         LOG("[DEMO] posix ctype test case 2:isdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(1, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
     return 0;
 }
 
@@ -117,7 +117,7 @@ LITE_TEST_CASE(PosixCTypeIsdigitTest, testCTypeIsdigit003, Function | MediumTest
     else {
         LOG("[DEMO] posix ctype test case 3:isdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(1, ret);
+    TEST_ASSERT_NOT_EQUAL(0, ret);
     return 0;
 }
 
