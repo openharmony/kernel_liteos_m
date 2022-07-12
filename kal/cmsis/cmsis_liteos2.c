@@ -788,7 +788,7 @@ osStatus_t osTimerStop(osTimerId_t timer_id)
 uint32_t osTimerIsRunning(osTimerId_t timer_id)
 {
     if (OS_INT_ACTIVE) {
-        return osErrorISR;
+        return (uint32_t)osErrorISR;
     }
     if (timer_id == NULL) {
         return 0;
