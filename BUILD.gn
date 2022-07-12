@@ -31,11 +31,6 @@ import("//build/lite/config/component/lite_component.gni")
 
 LITEOS_MENUCONFIG_H = rebase_path("$root_out_dir/config.h")
 
-declare_args() {
-  liteos_name = "OHOS_Image"
-  liteos_kernel_only = false
-}
-
 import("liteos.gni")
 
 if (defined(LOSCFG_COMPILER_ICCARM)) {
@@ -194,15 +189,7 @@ executable("liteos") {
     ":los_config",
   ]
 
-  if (defined(LOSCFG_COMPILER_ICCARM)) {
-    ldflags = [ "--map=$liteos_name.map" ]
-  } else {
-    ldflags = [
-      "-static",
-      "-Wl,--gc-sections",
-      "-Wl,-Map=$liteos_name.map",
-    ]
-  }
+  ldflags = executable_config_ldflags
 
   output_dir = target_out_dir
 
@@ -223,20 +210,5 @@ build_ext_component("build_kernel_image") {
   deps = [ ":copy_liteos" ]
   exec_path = rebase_path(root_out_dir)
 
-  if (defined(LOSCFG_COMPILER_ICCARM)) {
-    objcopy = "${compile_prefix}ielftool$toolchain_cmd_suffix"
-    objdump = "${compile_prefix}ielfdumparm$toolchain_cmd_suffix"
-
-    command = "$objcopy --bin --verbose $liteos_name $liteos_name.bin"
-    command +=
-        " && sh -c '$objdump --source --all $liteos_name -o $liteos_name.asm'"
-  } else {
-    objcopy = "${compile_prefix}objcopy$toolchain_cmd_suffix"
-    objdump = "${compile_prefix}objdump$toolchain_cmd_suffix"
-
-    command = "$objcopy -O binary $liteos_name $liteos_name.bin"
-    command +=
-        " && sh -c '$objdump -t $liteos_name | sort >$liteos_name.sym.sorted'"
-    command += " && sh -c '$objdump -d $liteos_name >$liteos_name.asm'"
-  }
+  command = toochain_config_command
 }
