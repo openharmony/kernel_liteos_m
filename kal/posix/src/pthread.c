@@ -36,6 +36,7 @@
 #include <securec.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "los_config.h"
 #include "los_task.h"
 #include "los_debug.h"
