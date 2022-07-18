@@ -116,6 +116,7 @@ LITE_TEST_CASE(PosixStdlibAtolTest, testStdlibAtol003, Function | MediumTest | L
     return 0;
 }
 
+#if (LOSCFG_LIBC_MUSL == 1)
 /* *
  * @tc.number    : TEST_STDLIB_ATOL_004
  * @tc.name      : convert string to long integer
@@ -149,6 +150,7 @@ LITE_TEST_CASE(PosixStdlibAtolTest, testStdlibAtol005, Function | MediumTest | L
     TEST_ASSERT_EQUAL_INT32(2147483647, value);
     return 0;
 }
+#endif
 
 /* *
  * @tc.number    : TEST_STDLIB_ATOL_006
@@ -226,8 +228,10 @@ void PosixStdlibAtolFuncTest()
     RUN_ONE_TESTCASE(testStdlibAtol001);
     RUN_ONE_TESTCASE(testStdlibAtol002);
     RUN_ONE_TESTCASE(testStdlibAtol003);
+#if (LOSCFG_LIBC_MUSL == 1)
     RUN_ONE_TESTCASE(testStdlibAtol004);
     RUN_ONE_TESTCASE(testStdlibAtol005);
+#endif
     RUN_ONE_TESTCASE(testStdlibAtol006);
     RUN_ONE_TESTCASE(testStdlibAtol007);
     RUN_ONE_TESTCASE(testStdlibAtol008);
