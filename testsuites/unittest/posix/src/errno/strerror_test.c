@@ -72,6 +72,7 @@ static BOOL PosixSysFuncTestSuiteTearDown(void)
  */
 LITE_TEST_CASE(PosixSysFuncTestSuite, testOsSysStrerror001, Function | MediumTest | Level1)
 {
+#if (LOSCFG_LIBC_MUSL == 1)
     for (int i = EPERM; i < EHWPOISON; i++) {
         char *s = strerror(i);
         TEST_ASSERT_NOT_NULL(s);
@@ -85,9 +86,17 @@ LITE_TEST_CASE(PosixSysFuncTestSuite, testOsSysStrerror001, Function | MediumTes
     TEST_ASSERT_EQUAL_STRING("No such file or directory", strerror(2));
     LOG("strerror(10) = %s\n", strerror(10));
     TEST_ASSERT_EQUAL_STRING("No child process", strerror(10));
-    return 0;
+#endif
+#if (LOSCFG_LIBC_NEWLIB == 1)
+    LOG("strerror(0) = %s\n", strerror(0));
+    TEST_ASSERT_EQUAL_STRING("Success", strerror(0));
+    LOG("strerror(2) = %s\n", strerror(2));
+    TEST_ASSERT_EQUAL_STRING("No such file or directory", strerror(2));
+    LOG("strerror(10) = %s\n", strerror(10));
+    TEST_ASSERT_EQUAL_STRING("No children", strerror(10));
+#endif
+    
 };
-
 
 RUN_TEST_SUITE(PosixSysFuncTestSuite);
 

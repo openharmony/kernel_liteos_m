@@ -38,6 +38,9 @@
 
 #define EQUAL 0
 
+#ifndef REG_OK
+#define REG_OK 0
+#endif
 /* *
  * @tc.desc      : register a test suite, this suite is used to test basic flow and interface dependency
  * @param        : subsystem name is utils

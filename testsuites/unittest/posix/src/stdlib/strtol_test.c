@@ -265,6 +265,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol010, Function | MediumTest
     return 0;
 }
 
+#if (LOSCFG_LIBC_MUSL == 1)
 /* *
  * @tc.number    : TEST_STDLIB_STRTOL_011
  * @tc.name      : convert string to long integer
@@ -284,6 +285,7 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol011, Function | MediumTest
     TEST_ASSERT_EQUAL_STRING(endPtr, "12 1.5");
     return 0;
 }
+#endif
 
 LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol012, Function | MediumTest | Level1)
 {
@@ -335,7 +337,9 @@ void PosixStdlibStrtolFuncTest()
     RUN_ONE_TESTCASE(testStdlibStrtol008);
     RUN_ONE_TESTCASE(testStdlibStrtol009);
     RUN_ONE_TESTCASE(testStdlibStrtol010);
+#if (LOSCFG_LIBC_MUSL == 1)
     RUN_ONE_TESTCASE(testStdlibStrtol011);
+#endif
     RUN_ONE_TESTCASE(testStdlibStrtol012);
     RUN_ONE_TESTCASE(testStdlibStrtol013);
 
