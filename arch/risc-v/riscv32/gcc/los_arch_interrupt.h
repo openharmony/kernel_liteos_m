@@ -35,6 +35,7 @@
 #include "los_config.h"
 #include "los_interrupt.h"
 #include "los_arch_context.h"
+#include "los_error.h"
 
 #ifdef __cplusplus
 #if __cplusplus
