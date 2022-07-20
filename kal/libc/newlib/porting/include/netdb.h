@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -175,7 +175,8 @@ int gethostbyname2_r(const char * __restrict name, int af, struct hostent * __re
                      int * __restrict h_errnop);
 struct hostent *gethostbyname2(const char *name, int af);
 int gethostbyaddr_r(const void * __restrict addr, __socklen_t len, int type, struct hostent * __restrict result_buf, \
-                    char * __restrict buf, size_t buflen, struct hostent ** __restrict result, int * __restrict h_errnop);
+                    char * __restrict buf, size_t buflen, struct hostent ** __restrict result, \
+                    int * __restrict h_errnop);
 int getservbyport_r(int port, const char * __restrict proto, struct servent * __restrict result_buf, \
                     char * __restrict buf, size_t buflen, struct servent ** __restrict result);
 int getservbyname_r(const char *name, const char *proto, struct servent *result_buf, char *buf, size_t buflen, \

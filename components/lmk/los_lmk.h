@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -199,7 +199,7 @@ UINT32 LOS_LmkTasksRestore(VOID);
  * @brief Kill the tasks to release the used memory.
  *
  * @par Description:
- *  This API is used to kill the tasks to release the used memory when low memory killer is triggered. 
+ *  This API is used to kill the tasks to release the used memory when low memory killer is triggered.
  *
  * @attention None.
  *
