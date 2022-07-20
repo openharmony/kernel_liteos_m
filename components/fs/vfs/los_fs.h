@@ -80,8 +80,8 @@ int LOS_Ftruncate(int fd, off_t length);
 int LOS_FsUmount(const char *target);
 int LOS_FsUmount2(const char *target, int flag);
 int LOS_FsMount(const char *source, const char *target,
-          const char *fsType, unsigned long mountflags,
-          const void *data);
+                const char *fsType, unsigned long mountflags,
+                const void *data);
 /*
  * @brief Divide the device into partitions.
  *

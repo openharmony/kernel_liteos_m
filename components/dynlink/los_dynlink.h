@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -129,8 +129,8 @@ typedef struct {
 } DynSharedObj;
 
 typedef struct {
-  CHAR    *name;
-  UINTPTR addr;
+    CHAR    *name;
+    UINTPTR addr;
 } SymInfo;
 
 #define SYM_EXPORT(func)                                            \
