@@ -631,6 +631,12 @@ void osThreadExit(void)
     UNREACHABLE;
 }
 
+/* before kernel running osDelay is implemented by HalDelay interface */
+WEAK VOID HalDelay(UINT32 ticks)
+{
+
+}
+
 osStatus_t osDelay(uint32_t ticks)
 {
     UINT32 ret;
@@ -640,6 +646,12 @@ osStatus_t osDelay(uint32_t ticks)
     if (ticks == 0) {
         return osErrorParameter;
     }
+
+    if (osKernelGetState() != osKernelRunning) {
+        HalDelay(ticks);
+        return osOK;
+    }
+
     ret = LOS_TaskDelay(ticks);
     if (ret == LOS_OK) {
         return osOK;
