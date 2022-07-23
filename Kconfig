@@ -357,15 +357,10 @@ config KERNEL_PM_DEBUG
     help
       Configuration item for low power frame debug tailoring.
 
-config DEBUG_HOOK
-    bool
-    default n
-
 config PLATFORM_EXC
-    bool "Enable Hook Feature"
+    bool "Enable Platform Exc Hook"
     default n
     depends on KERNEL_EXTKERNEL
-    select DEBUG_HOOK
 
 config KERNEL_LMK
     bool "Enable Low Memory Killer"
@@ -532,14 +527,20 @@ config DEBUG_SEMAPHORE
     help
       Answer Y to enable debug semaphore.
 
-source "components/shell/Kconfig"
 config NET_LWIP_SACK_TFTP
     bool "Enable Tftp"
     default y
     depends on SHELL && NET_LWIP_SACK && DEBUG_VERSION
     help
       Answer Y to enable LiteOS support tftp cmd and tftp tool.
-osource "net/telnet/Kconfig"
+
+config DEBUG_HOOK
+    bool "Enable Hook Framework"
+    default n
+    depends on DEBUG_VERSION
+    help
+      Enable the kernel hook framework to support customized trace information capture.
+
 config SCHED_DEBUG
     bool "Enable sched debug Feature"
     default n
@@ -605,6 +606,8 @@ config TASK_MEM_USED
     bool "Enable show task mem used or not"
     default n
     depends on DEBUG_VERSION && MEM_DEBUG
+
+source "components/shell/Kconfig"
 
 endmenu
 
