@@ -47,7 +47,7 @@ int _gettimeofday(struct timeval *__tp, void *__tzp)
         __tp->tv_usec = ts.tv_nsec / OS_SYS_NS_PER_US;
     }
     if (tz != NULL) {
-        tz->tz_minuteswest = timezone / SECS_PER_MIN;
+        tz->tz_minuteswest = _timezone / SECS_PER_MIN;
         tz->tz_dsttime = 0;
     }
     return 0;
