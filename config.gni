@@ -31,6 +31,9 @@ import("liteos.gni")
 
 LITEOS_MENUCONFIG_H = rebase_path("$root_out_dir/config.h")
 
+liteos_name = "OHOS_Image"
+liteos_kernel_only = false
+
 #
 # arch_config
 #
@@ -188,3 +191,20 @@ if (!defined(LOSCFG_COMPILER_CLANG_LLVM)) {
 }
 misc_config_asmflags += misc_config_cflags
 misc_config_asmflags += [ "-DCLZ=CLZ" ]
+
+# ldflags for generating executable bin files
+executable_config_ldflags = [
+  "-static",
+  "-Wl,--gc-sections",
+  "-Wl,-Map=$liteos_name.map",
+]
+
+# Commands to generate kernel_image
+toochain_config_objcopy = "${compile_prefix}objcopy$toolchain_cmd_suffix"
+toochain_config_objdump = "${compile_prefix}objdump$toolchain_cmd_suffix"
+
+toochain_config_command =
+    "$toochain_config_objcopy -O binary $liteos_name $liteos_name.bin"
+toochain_config_command += " && sh -c '$toochain_config_objdump -t $liteos_name | sort >$liteos_name.sym.sorted'"
+toochain_config_command +=
+    " && sh -c '$toochain_config_objdump -d $liteos_name >$liteos_name.asm'"
