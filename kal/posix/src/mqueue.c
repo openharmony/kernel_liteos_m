@@ -163,14 +163,14 @@ STATIC int SaveMqueueName(const CHAR *mqName, struct mqarray *mqueueCB)
     mqueueCB->mq_name = (char *)LOS_MemAlloc(OS_SYS_MEM_ADDR, nameLen + 1);
     if (mqueueCB->mq_name == NULL) {
         errno = ENOMEM;
-        return LOS_NOK;
+        return (int)LOS_NOK;
     }
 
     if (strncpy_s(mqueueCB->mq_name, (nameLen + 1), mqName, nameLen) != EOK) {
         LOS_MemFree(OS_SYS_MEM_ADDR, mqueueCB->mq_name);
         mqueueCB->mq_name = NULL;
         errno = EINVAL;
-        return LOS_NOK;
+        return (int)LOS_NOK;
     }
     mqueueCB->mq_name[nameLen] = '\0';
     return LOS_OK;
