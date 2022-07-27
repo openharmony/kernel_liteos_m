@@ -31,7 +31,6 @@
 #ifndef _ADAPT_TIME_H
 #define _ADAPT_TIME_H
 
-#define _timezone timezone
 #define __TM_GMTOFF __tm_gmtoff
 #define __TM_ZONE __tm_zone
 
