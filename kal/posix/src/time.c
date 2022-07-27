@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -44,6 +43,7 @@
 #include "los_context.h"
 #include "los_interrupt.h"
 #include "sys/times.h"
+#include "rtc_time_hook.h"
 
 #define DELAYTIMER_MAX 0x7FFFFFFFF
 
@@ -61,12 +61,38 @@ STATIC const UINT16 g_daysInMonth[2][13] = {
 STATIC const UINT8 g_montbl[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 #endif
 
+#ifndef __USE_NEWLIB__
+#define g_timezone timezone
+#else
+#define g_Timezone _timezone
+#endif
+
 /*
  * Time zone information, stored in seconds,
  * negative values indicate the east of UTC,
  * positive values indicate the west of UTC.
  */
-long timezone = -8 * 60 * 60; // defaults to CST: 8 hours east of the Prime Meridian
+long g_timezone = -8 * 60 * 60; // set default to CST(UTC+8)
+
+/*
+ * store register rtc func
+ */
+STATIC struct RtcTimeHook g_rtcTimeFunc;
+
+STATIC UINT64 g_rtcTimeBase = 0;
+STATIC UINT64 g_systickBase = 0;
+
+VOID LOS_RtcHookRegister(struct RtcTimeHook *cfg)
+{
+    if (cfg == NULL) {
+        return;
+    }
+    g_rtcTimeFunc.RtcGetTickHook = cfg->RtcGetTickHook;
+    g_rtcTimeFunc.RtcGetTimeHook = cfg->RtcGetTimeHook;
+    g_rtcTimeFunc.RtcSetTimeHook = cfg->RtcSetTimeHook;
+    g_rtcTimeFunc.RtcGetTimezoneHook = cfg->RtcGetTimezoneHook;
+    g_rtcTimeFunc.RtcSetTimezoneHook = cfg->RtcSetTimezoneHook;
+}
 
 int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
 {
@@ -443,6 +469,10 @@ int clock_nanosleep(clockid_t clk, int flags, const struct timespec *req, struct
 
 clock_t clock(void)
 {
+    if (g_rtcTimeFunc.RtcGetTickHook != NULL) {
+        return g_rtcTimeFunc.RtcGetTickHook();
+    }
+
     clock_t clk;
     struct timespec hwTime;
     OsGetHwTime(&hwTime);
@@ -453,19 +483,52 @@ clock_t clock(void)
     return clk;
 }
 
+STATIC UINT64 GetCurrentTime(VOID)
+{
+    UINT64 tickDelta = 0;
+    UINT64 currentTick;
+
+    if (g_rtcTimeFunc.RtcGetTickHook != NULL) {
+        currentTick = g_rtcTimeFunc.RtcGetTickHook();
+        if ((g_systickBase != 0) && (currentTick > g_systickBase)) {
+            tickDelta = currentTick - g_systickBase;
+        }
+    }
+    return g_rtcTimeBase + LOS_Tick2MS((UINT32)tickDelta);
+}
+
 time_t time(time_t *timer)
 {
-    struct timespec ts;
+    UINT64 usec = 0;
+    time_t sec;
+    INT32 rtcRet = 0;
 
-    if (-1 == clock_gettime(CLOCK_REALTIME, &ts)) {
-        return (time_t)-1;
-    }
+    if (g_rtcTimeFunc.RtcGetTimeHook != NULL) {
+        rtcRet = g_rtcTimeFunc.RtcGetTimeHook(&usec);
+        if (rtcRet != 0) {
+            UINT64 currentTime;
+            currentTime = GetCurrentTime();
+            sec = currentTime / OS_SYS_MS_PER_SECOND;
+        } else {
+            sec = usec / OS_SYS_US_PER_SECOND;
+        }
+        if (timer != NULL) {
+            *timer = sec;
+        }
+        return sec;
+    } else {
+        struct timespec ts;
+        if (-1 == clock_gettime(CLOCK_REALTIME, &ts)) {
+            return (time_t)-1;
+        }
 
-    if (timer != NULL) {
-        *timer = ts.tv_sec;
+        if (timer != NULL) {
+            *timer = ts.tv_sec;
+        }
+        return ts.tv_sec;
     }
-    return ts.tv_sec;
 }
+
 #ifndef __USE_NEWLIB__
 /*
  * Compute the `struct tm' representation of T,
@@ -558,7 +621,7 @@ struct tm *localtime_r(const time_t *timep, struct tm *result)
         errno = EFAULT;
         return NULL;
     }
-    if (!ConvertSecs2Utc(*timep, -timezone, result)) {
+    if (!ConvertSecs2Utc(*timep, -g_timezone, result)) {
         errno = EINVAL;
         return NULL;
     }
@@ -633,18 +696,42 @@ time_t mktime(struct tm *tmptr)
 
 int gettimeofday(struct timeval *tv, void *ptz)
 {
-    struct timespec ts;
     struct timezone *tz = (struct timezone *)ptz;
 
     if (tv != NULL) {
-        if (-1 == clock_gettime(CLOCK_REALTIME, &ts)) {
-            return -1;
+        INT32 rtcRet;
+        UINT64 usec = 0;
+        UINT64 currentTime;
+
+        if (g_rtcTimeFunc.RtcGetTimeHook != NULL) {
+            rtcRet = g_rtcTimeFunc.RtcGetTimeHook(&usec);
+            if (rtcRet != 0) {
+                currentTime = GetCurrentTime();
+                tv->tv_sec = currentTime / OS_SYS_MS_PER_SECOND;
+                tv->tv_usec = (currentTime % OS_SYS_MS_PER_SECOND) * OS_SYS_MS_PER_SECOND;
+            } else {
+                tv->tv_sec = usec / OS_SYS_US_PER_SECOND;
+                tv->tv_usec = usec % OS_SYS_US_PER_SECOND;
+            }
+        } else {
+            struct timespec ts;
+            if (-1 == clock_gettime(CLOCK_REALTIME, &ts)) {
+                return -1;
+            }
+            tv->tv_sec = ts.tv_sec;
+            tv->tv_usec = ts.tv_nsec / OS_SYS_NS_PER_US;
         }
-        tv->tv_sec = ts.tv_sec;
-        tv->tv_usec = ts.tv_nsec / OS_SYS_NS_PER_US;
     }
+	
     if (tz != NULL) {
-        tz->tz_minuteswest = timezone / SECS_PER_MIN;
+        INT32 timeZone = 0;
+        if (g_rtcTimeFunc.RtcGetTimezoneHook != NULL) {
+            g_rtcTimeFunc.RtcGetTimezoneHook(&timeZone);
+            tz->tz_minuteswest = timezone / SECS_PER_MIN;
+        } else {
+            tz->tz_minuteswest = g_timezone / SECS_PER_MIN;
+        }
+
         tz->tz_dsttime = 0;
     }
     return 0;
@@ -654,20 +741,10 @@ int gettimeofday(struct timeval *tv, void *ptz)
 int settimeofday(const struct timeval *tv, const struct timezone *tz)
 {
     struct timespec ts;
-    INT32 rtcTimeZone = timezone;
 
     if (tv == NULL) {
         errno = EFAULT;
         return -1;
-    }
-    if (tz != NULL) {
-        if ((tz->tz_minuteswest >= TIME_ZONE_MIN) &&
-            (tz->tz_minuteswest <= TIME_ZONE_MAX)) {
-            rtcTimeZone = tz->tz_minuteswest * SECS_PER_MIN;
-        } else {
-            errno = EINVAL;
-            return -1;
-        }
     }
 
     if (tv->tv_usec >= OS_SYS_US_PER_SECOND) {
@@ -675,13 +752,38 @@ int settimeofday(const struct timeval *tv, const struct timezone *tz)
         return -1;
     }
 
-    ts.tv_sec = tv->tv_sec;
-    ts.tv_nsec = tv->tv_usec * OS_SYS_NS_PER_US;
-    if (-1 == clock_settime(CLOCK_REALTIME, &ts)) {
-        return -1;
+    if (tz != NULL) {
+        if ((tz->tz_minuteswest >= TIME_ZONE_MIN) &&
+            (tz->tz_minuteswest <= TIME_ZONE_MAX)) {
+            g_timezone = tz->tz_minuteswest * SECS_PER_MIN;
+        } else {
+            errno = EINVAL;
+            return -1;
+        }
+
+        if (g_rtcTimeFunc.RtcSetTimezoneHook != NULL) {
+            g_rtcTimeFunc.RtcSetTimezoneHook(g_timezone);
+        }
     }
 
-    timezone = rtcTimeZone;
+    if (g_rtcTimeFunc.RtcSetTimeHook != NULL) {
+        UINT64 usec;
+        g_rtcTimeBase = tv->tv_sec * OS_SYS_MS_PER_SECOND + tv->tv_usec / OS_SYS_MS_PER_SECOND;
+        usec = tv->tv_sec * OS_SYS_US_PER_SECOND + tv->tv_usec;
+        if (-1 == g_rtcTimeFunc.RtcSetTimeHook(g_rtcTimeBase, &usec)) {
+            return -1;
+        }
+    } else {
+        ts.tv_sec = tv->tv_sec;
+        ts.tv_nsec = tv->tv_usec * OS_SYS_NS_PER_US;
+        if (-1 == clock_settime(CLOCK_REALTIME, &ts)) {
+            return -1;
+        }
+    }
+
+    if (g_rtcTimeFunc.RtcGetTickHook != NULL) {
+        g_systickBase = g_rtcTimeFunc.RtcGetTickHook();
+    }
 
     return 0;
 }
@@ -718,4 +820,3 @@ clock_t times(struct tms *tms)
     }
     return clockTick;
 }
-
