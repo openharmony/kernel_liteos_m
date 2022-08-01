@@ -57,20 +57,20 @@ int OsFsRegister(const char *fsType, struct MountOps *fsMops,
         struct FileOps *fsFops, struct FsManagement *fsMgt)
 {
     if ((fsMops == NULL) || (fsFops == NULL)) {
-        return LOS_NOK;
+        return (int)LOS_NOK;
     }
 
     struct FsMap *newfs = (struct FsMap *)malloc(sizeof(struct FsMap));
     if (newfs == NULL) {
         PRINT_ERR("Fs register malloc failed, fsType %s.\n", fsType);
-        return LOS_NOK;
+        return (int)LOS_NOK;
     }
     (void)memset_s(newfs, sizeof(struct FsMap), 0, sizeof(struct FsMap));
 
     newfs->fsType = strdup(fsType);
     if (newfs->fsType == NULL) {
         free(newfs);
-        return LOS_NOK;
+        return (int)LOS_NOK;
     }
 
     newfs->fsMops = fsMops;
