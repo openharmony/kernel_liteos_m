@@ -128,11 +128,12 @@ int LOS_FsMount(const char *source, const char *target,
 {
     int ret;
     struct MountPoint *mp = NULL;
+    struct FsMap *mFs = NULL;
     const char *pathInMp = NULL;
 
     /* target must begin with '/', for example /system, /data, etc. */
     if ((target == NULL) || (target[0] != '/')) {
-        return LOS_NOK;
+        return (int)LOS_NOK;
     }
 
     (void)VfsLock();
@@ -143,9 +144,8 @@ int LOS_FsMount(const char *source, const char *target,
     }
 
     /* Find fsMap coresponding to the fsType */
-    struct FsMap *mFs = VfsFsMapGet(fsType);
-    if ((mFs == NULL) || (mFs->fsMops == NULL) ||
-        (mFs->fsMops->mount == NULL)) {
+    mFs = VfsFsMapGet(fsType);
+    if ((mFs == NULL) || (mFs->fsMops == NULL) || (mFs->fsMops->mount == NULL)) {
         goto errout;
     }
 
@@ -187,14 +187,14 @@ errout:
     free((void *)mp->mDev);
     free(mp);
     VfsUnlock();
-    return LOS_NOK;
+    return (int)LOS_NOK;
 }
 
 int LOS_FsUmount(const char *target)
 {
     struct MountPoint *mp = NULL;
     const char *pathInMp = NULL;
-    int ret = LOS_NOK;
+    int ret = (int)LOS_NOK;
 
     (void)VfsLock();
     if (target == NULL) {
@@ -230,7 +230,7 @@ int LOS_FsUmount(const char *target)
 errout:
     PRINT_ERR("umount2 failed, target %s.\n", target);
     VfsUnlock();
-    return LOS_NOK;
+    return (int)LOS_NOK;
 }
 
 static void CloseFdsInMp(struct MountPoint *mp)
@@ -252,7 +252,7 @@ int LOS_FsUmount2(const char *target, int flag)
 {
     struct MountPoint *mp = NULL;
     const char *pathInMp = NULL;
-    int ret = LOS_NOK;
+    int ret = (int)LOS_NOK;
 
     (void)VfsLock();
     if (target == NULL) {
@@ -290,5 +290,5 @@ int LOS_FsUmount2(const char *target, int flag)
 errout:
     PRINT_ERR("umount2 failed, target %s.\n", target);
     VfsUnlock();
-    return LOS_NOK;
+    return (int)LOS_NOK;
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -209,7 +209,7 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeoutMs)
 {
     if (mbox == NULL) {
         LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_fetch: mbox is null"));
-        return ERR_ARG;
+        return  (u32_t)ERR_ARG;
     }
 
     void *ignore = 0; /* if msg==NULL, the fetched msg should be dropped */
@@ -232,7 +232,7 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
 {
     if (mbox == NULL) {
         LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_mbox_tryfetch: mbox is null"));
-        return ERR_ARG;
+        return  (u32_t)ERR_ARG;
     }
 
     void *ignore = 0; /* if msg==NULL, the fetched msg should be dropped */
@@ -313,7 +313,7 @@ u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeoutMs)
 {
     if (sem == NULL) {
         LWIP_DEBUGF(SYS_DEBUG, ("sys_arch_sem_wait: sem is null"));
-        return ERR_ARG;
+        return  (u32_t)ERR_ARG;
     }
 
     UINT64 tick = ROUND_UP_DIV((UINT64)timeoutMs * LOSCFG_BASE_CORE_TICK_PER_SECOND, OS_SYS_MS_PER_SECOND);

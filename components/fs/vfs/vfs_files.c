@@ -42,7 +42,7 @@ static struct File g_files[NR_OPEN_DEFAULT];
 int FileToFd(struct File *file)
 {
     if (file == NULL) {
-        return LOS_NOK;
+        return (int)LOS_NOK;
     }
     return file - g_files + MIN_START_FD;
 }
