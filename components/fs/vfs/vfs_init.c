@@ -41,7 +41,7 @@
 int OsVfsInit(void)
 {
     if (LOS_MuxCreate(&g_fsMutex) != LOS_OK) {
-        return LOS_NOK;
+        return (int)LOS_NOK;
     }
 #if (LOSCFG_SUPPORT_FATFS == 1)
     FatFsInit();
