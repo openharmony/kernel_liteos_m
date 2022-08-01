@@ -50,7 +50,9 @@ kernel_module(module_name) {
 
   deps = [ "//kernel/liteos_m/kal" ]
   configs += [ "$LITEOSTOPDIR:warn_config" ]
-  cflags = [ "-Wno-parentheses" ]
+  if (!defined(LOSCFG_COMPILER_ICCARM)) {
+    cflags = [ "-Wno-parentheses" ]
+  }
 }
 
 config("public") {
