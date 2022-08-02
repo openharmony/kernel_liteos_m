@@ -32,6 +32,7 @@
 #define _LOS_ARCH_ATOMIC_H
 
 #include "los_compiler.h"
+#include "los_interrupt.h"
 
 #ifdef __cplusplus
 #if __cplusplus
