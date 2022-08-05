@@ -91,6 +91,10 @@
 #include "vfs_operations.h"
 #endif
 
+#if (LOSCFG_KERNEL_TRACE == 1)
+#include "los_trace_pri.h"
+#endif
+
 /*****************************************************************************
  Function    : LOS_Reboot
  Description : system exception, die in here, wait for watchdog.
@@ -241,7 +245,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
     }
 
 #if (LOSCFG_KERNEL_TRACE == 1)
-    ret = OsTraceInit(LOSCFG_TRACE_BUFFER_SIZE);
+    ret = OsTraceInit();
     if (ret != LOS_OK) {
         PRINT_ERR("OsTraceInit error\n");
         return ret;
