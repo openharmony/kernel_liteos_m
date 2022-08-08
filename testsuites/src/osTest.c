@@ -102,18 +102,34 @@ UINT32 SwtmrCountGetTest(VOID)
 }
 
 extern LosQueueCB *g_allQueue;
+
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+extern LosQueueCB *g_staticQueue;
+#endif
+
 UINT32 QueueUsedCountGet(VOID)
 {
     UINT32 intSave;
     UINT32 count = 0;
+    UINT32 index;
 
     intSave = LOS_IntLock();
-    for (UINT32 index = 0; index < LOSCFG_BASE_IPC_QUEUE_LIMIT; index++) {
+    for (index = 0; index < LOSCFG_BASE_IPC_QUEUE_LIMIT; index++) {
         LosQueueCB *queueNode = ((LosQueueCB *)g_allQueue) + index;
         if (queueNode->queueState == OS_QUEUE_INUSED) {
             count++;
         }
     }
+
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    for (index = 0; index < LOSCFG_BASE_IPC_STATIC_QUEUE_LIMIT; index++) {
+        LosQueueCB *queueNode = ((LosQueueCB *)g_staticQueue) + index;
+        if (queueNode->queueState == OS_QUEUE_INUSED) {
+            count++;
+        }
+    }
+#endif
+
     LOS_IntRestore(intSave);
 
     return count;
