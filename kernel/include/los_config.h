@@ -350,6 +350,14 @@ extern "C" {
 #define LOSCFG_BASE_IPC_QUEUE_LIMIT                         6
 #endif
 
+/**
+ * @ingroup los_config
+ * Maximum supported number of static queues rather than the number of usable queues
+ */
+#ifndef LOSCFG_BASE_IPC_STATIC_QUEUE_LIMIT
+#define LOSCFG_BASE_IPC_STATIC_QUEUE_LIMIT                  3
+#endif
+
 
 /* =============================================================================
                                        Software timer module configuration

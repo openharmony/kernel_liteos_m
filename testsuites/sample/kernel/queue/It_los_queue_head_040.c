@@ -70,7 +70,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_QueueCreate("Q1", 1, &g_testQueueID01, 0, QUEUE_BASE_MSGSIZE);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_QueueDelete(LOSCFG_BASE_IPC_QUEUE_LIMIT + 1);
+    ret = LOS_QueueDelete(OS_ALL_IPC_QUEUE_LIMIT + 1);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_NOT_FOUND, ret, EXIT);
 
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
