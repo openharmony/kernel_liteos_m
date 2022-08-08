@@ -380,7 +380,7 @@ typedef struct tagQueueInfo {
  * <ul>
  * <li>There are LOSCFG_BASE_IPC_QUEUE_LIMIT queues available, change it's value when necessary.</li>
  * </ul>
- * @param queueName        [IN]    Message queue name. Reserved parameter, not used for now.
+ * @param queueName        [IN]    Message queue name.
  * @param len              [IN]    Queue length. The value range is [1,0xffff].
  * @param queueID          [OUT]   ID of the queue control structure that is successfully created.
  * @param flags            [IN]    Queue mode. Reserved parameter, not used for now.
@@ -402,6 +402,41 @@ extern UINT32 LOS_QueueCreate(const CHAR *queueName,
                               UINT32 *queueID,
                               UINT32 flags,
                               UINT16 maxMsgSize);
+
+/**
+ * @ingroup los_queue
+ * @brief Create a message queue.
+ *
+ * @par Description:
+ * This API is used to create a message queue.
+ * @attention
+ * <ul>
+ * <li>There are LOSCFG_BASE_IPC_QUEUE_LIMIT queues available, change it's value when necessary.</li>
+ * </ul>
+ * @param queueName        [IN]    Message queue name.
+ * @param len              [IN]    Queue length. The value range is [1,0xffff].
+ * @param queueID          [OUT]   ID of the queue control structure that is successfully created.
+ * @param staticMem        [IN]    Pointer to a static memory for the message queue data.
+ * @param flags            [IN]    Queue mode. Reserved parameter, not used for now.
+ * @param maxMsgSize       [IN]    Node size. The value range is [1,0xffff-4].
+ *
+ * @retval   #LOS_OK                               The message queue is successfully created.
+ * @retval   #LOS_ERRNO_QUEUE_CB_UNAVAILABLE       The upper limit of the number of created queues is exceeded.
+ * @retval   #LOS_ERRNO_QUEUE_CREATE_NO_MEMORY     Insufficient memory for queue creation.
+ * @retval   #LOS_ERRNO_QUEUE_CREAT_PTR_NULL       Null pointer, queueID is NULL.
+ * @retval   #LOS_ERRNO_QUEUE_PARA_ISZERO          The queue length or message node size passed in during queue
+ * creation is 0.
+ * @retval   #LOS_ERRNO_QUEUE_SIZE_TOO_BIG         The parameter maxMsgSize is larger than 0xffff - 4.
+ * @par Dependency:
+ * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_QueueDelete
+ */
+extern UINT32 LOS_QueueCreateStatic(const CHAR *queueName,
+                                    UINT16 len,
+                                    UINT32 *queueID,
+                                    UINT8 *staticMem,
+                                    UINT32 flags,
+                                    UINT16 maxMsgSize);
 
 /**
  * @ingroup los_queue
@@ -775,6 +810,7 @@ typedef enum {
   */
 typedef struct {
     UINT8 *queue;      /**< Pointer to a queue handle */
+    UINT8 *queueName;  /**< Queue name */
     UINT16 queueState; /**< Queue state */
     UINT16 queueLen;   /**< Queue length */
     UINT16 queueSize;  /**< Node size */
@@ -786,6 +822,9 @@ typedef struct {
                                                       0:readlist, 1:writelist */
     LOS_DL_LIST memList; /**< Pointer to the memory linked list */
 } LosQueueCB;
+
+
+extern LosQueueCB *OsGetQueueHandle(UINT32 queueID);
 
 /* queue state */
 /**
@@ -822,13 +861,23 @@ extern LosQueueCB *g_allQueue;
   *  @ingroup los_queue
   *  Obtain a handle of the queue that has a specified ID.
   */
-#define GET_QUEUE_HANDLE(QueueID) (((LosQueueCB *)g_allQueue) + (QueueID))
+#define GET_QUEUE_HANDLE(QueueID) OsGetQueueHandle(QueueID)
 
 /**
   *  @ingroup los_queue
-  * Obtain the head node in a queue doubly linked list.
+  *  Obtain the head node in a queue doubly linked list.
   */
 #define GET_QUEUE_LIST(ptr) LOS_DL_LIST_ENTRY(ptr, LosQueueCB, readWriteList[OS_QUEUE_WRITE])
+
+/**
+  *  @ingroup los_queue
+  *  Maximum number of queues
+  */
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+#define OS_ALL_IPC_QUEUE_LIMIT                     LOSCFG_BASE_IPC_QUEUE_LIMIT + LOSCFG_BASE_IPC_STATIC_QUEUE_LIMIT
+#else
+#define OS_ALL_IPC_QUEUE_LIMIT                     LOSCFG_BASE_IPC_QUEUE_LIMIT
+#endif
 
 /**
  * @ingroup los_queue

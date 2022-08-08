@@ -47,6 +47,11 @@
 LITE_OS_SEC_BSS LosQueueCB *g_allQueue = NULL ;
 LITE_OS_SEC_BSS LOS_DL_LIST g_freeQueueList;
 
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+LITE_OS_SEC_BSS LosQueueCB *g_staticQueue = NULL ;
+LITE_OS_SEC_BSS LOS_DL_LIST g_freeStaticQueueList;
+#endif
+
 /**************************************************************************
  Function    : OsQueueInit
  Description : queue initial
@@ -59,7 +64,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsQueueInit(VOID)
     LosQueueCB *queueNode = NULL;
     UINT16 index;
 
-    if (LOSCFG_BASE_IPC_QUEUE_LIMIT == 0) {
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    LosQueueCB *queueNodeStatic = NULL;
+#endif
+
+    if (OS_ALL_IPC_QUEUE_LIMIT == 0) {
         return LOS_ERRNO_QUEUE_MAXNUM_ZERO;
     }
 
@@ -78,24 +87,33 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsQueueInit(VOID)
         LOS_ListTailInsert(&g_freeQueueList, &queueNode->readWriteList[OS_QUEUE_WRITE]);
     }
 
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    g_staticQueue = (LosQueueCB *)LOS_MemAlloc(m_aucSysMem0, LOSCFG_BASE_IPC_STATIC_QUEUE_LIMIT * sizeof(LosQueueCB));
+    if (g_staticQueue == NULL) {
+        return LOS_ERRNO_QUEUE_NO_MEMORY;
+    }
+
+    (VOID)memset_s(g_staticQueue, LOSCFG_BASE_IPC_STATIC_QUEUE_LIMIT * sizeof(LosQueueCB),
+                   0, LOSCFG_BASE_IPC_STATIC_QUEUE_LIMIT * sizeof(LosQueueCB));
+
+    LOS_ListInit(&g_freeStaticQueueList);
+    for (index = 0; index < LOSCFG_BASE_IPC_STATIC_QUEUE_LIMIT; index++) {
+        queueNodeStatic = ((LosQueueCB *)g_staticQueue) + index;
+        queueNodeStatic->queueID = index + LOSCFG_BASE_IPC_QUEUE_LIMIT;
+        LOS_ListTailInsert(&g_freeStaticQueueList, &queueNodeStatic->readWriteList[OS_QUEUE_WRITE]);
+    }
+#endif
+
     return LOS_OK;
 }
 
-/*****************************************************************************
- Function    : LOS_QueueCreate
- Description : Create a queue
- Input       : queueName  --- Queue name, less than 4 characters
-             : len        --- Queue length
-             : flags      --- Queue type, FIFO or PRIO
-             : maxMsgSize --- Maximum message size in byte
- Output      : queueID    --- Queue ID
- Return      : LOS_OK on success or error code on failure
- *****************************************************************************/
-LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(const CHAR *queueName,
-                                             UINT16 len,
-                                             UINT32 *queueID,
-                                             UINT32 flags,
-                                             UINT16 maxMsgSize)
+
+static UINT32 OsQueueCreate(const CHAR *queueName,
+                            UINT16 len,
+                            UINT32 *queueID,
+                            UINT8 *staticMem,
+                            UINT32 flags,
+                            UINT16 maxMsgSize)
 {
     LosQueueCB *queueCB = NULL;
     UINT32 intSave;
@@ -103,7 +121,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(const CHAR *queueName,
     UINT8 *queue = NULL;
     UINT16 msgSize;
 
-    (VOID)queueName;
     (VOID)flags;
 
     if (queueID == NULL) {
@@ -124,6 +141,32 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(const CHAR *queueName,
     if ((UINT32_MAX / msgSize) < len) {
         return LOS_ERRNO_QUEUE_SIZE_TOO_BIG;
     }
+
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    if (staticMem != NULL) {
+        queue = staticMem;
+        intSave = LOS_IntLock();
+
+        if (LOS_ListEmpty(&g_freeStaticQueueList)) {
+            LOS_IntRestore(intSave);
+            return LOS_ERRNO_QUEUE_CB_UNAVAILABLE;
+        }
+        unusedQueue = LOS_DL_LIST_FIRST(&(g_freeStaticQueueList));
+    } else {
+        queue = (UINT8 *)LOS_MemAlloc(m_aucSysMem0, (UINT32)len * msgSize);
+        if (queue == NULL) {
+            return LOS_ERRNO_QUEUE_CREATE_NO_MEMORY;
+        }
+
+        intSave = LOS_IntLock();
+        if (LOS_ListEmpty(&g_freeQueueList)) {
+            LOS_IntRestore(intSave);
+            (VOID)LOS_MemFree(m_aucSysMem0, queue);
+            return LOS_ERRNO_QUEUE_CB_UNAVAILABLE;
+        }
+        unusedQueue = LOS_DL_LIST_FIRST(&(g_freeQueueList));
+    }
+#else
     queue = (UINT8 *)LOS_MemAlloc(m_aucSysMem0, (UINT32)len * msgSize);
     if (queue == NULL) {
         return LOS_ERRNO_QUEUE_CREATE_NO_MEMORY;
@@ -135,10 +178,12 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(const CHAR *queueName,
         (VOID)LOS_MemFree(m_aucSysMem0, queue);
         return LOS_ERRNO_QUEUE_CB_UNAVAILABLE;
     }
-
     unusedQueue = LOS_DL_LIST_FIRST(&(g_freeQueueList));
+#endif
+
     LOS_ListDelete(unusedQueue);
     queueCB = (GET_QUEUE_LIST(unusedQueue));
+    queueCB->queueName = (UINT8 *)queueName; // The name can be null
     queueCB->queueLen = len;
     queueCB->queueSize = msgSize;
     queueCB->queue = queue;
@@ -159,10 +204,62 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(const CHAR *queueName,
     return LOS_OK;
 }
 
+/*****************************************************************************
+ Function    : LOS_QueueCreateStatic
+ Description : Create a queue use static menory
+ Input       : queueName  --- Queue name, less than 4 characters
+             : len        --- Queue length
+             : queueMem   --- Queue static memory for data storage
+             : flags      --- Queue type, FIFO or PRIO
+             : maxMsgSize --- Maximum message size in byte
+ Output      : queueID    --- Queue ID
+ Return      : LOS_OK on success or error code on failure
+ *****************************************************************************/
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreateStatic(const CHAR *queueName,
+                                                   UINT16 len,
+                                                   UINT32 *queueID,
+                                                   UINT8 *staticMem,
+                                                   UINT32 flags,
+                                                   UINT16 maxMsgSize)
+{
+    UINT32 ret;
+
+    (VOID)flags;
+
+    ret = OsQueueCreate(queueName, len, queueID, staticMem, 0, maxMsgSize);
+    return ret;
+}
+#endif
+
+/*****************************************************************************
+ Function    : LOS_QueueCreate
+ Description : Create a queue
+ Input       : queueName  --- Queue name, less than 4 characters
+             : len        --- Queue length
+             : flags      --- Queue type, FIFO or PRIO
+             : maxMsgSize --- Maximum message size in byte
+ Output      : queueID    --- Queue ID
+ Return      : LOS_OK on success or error code on failure
+ *****************************************************************************/
+LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueCreate(const CHAR *queueName,
+                                             UINT16 len,
+                                             UINT32 *queueID,
+                                             UINT32 flags,
+                                             UINT16 maxMsgSize)
+{
+    UINT32 ret;
+
+    (VOID)flags;
+
+    ret = OsQueueCreate(queueName, len, queueID, NULL, 0, maxMsgSize);
+    return ret;
+}
+
 static INLINE LITE_OS_SEC_TEXT UINT32 OsQueueReadParameterCheck(UINT32 queueID, VOID *bufferAddr,
                                                                 UINT32 *bufferSize, UINT32 timeOut)
 {
-    if (queueID >= LOSCFG_BASE_IPC_QUEUE_LIMIT) {
+    if (queueID >= OS_ALL_IPC_QUEUE_LIMIT) {
         return LOS_ERRNO_QUEUE_INVALID;
     }
     if ((bufferAddr == NULL) || (bufferSize == NULL)) {
@@ -184,7 +281,7 @@ static INLINE LITE_OS_SEC_TEXT UINT32 OsQueueReadParameterCheck(UINT32 queueID, 
 static INLINE LITE_OS_SEC_TEXT UINT32 OsQueueWriteParameterCheck(UINT32 queueID, VOID *bufferAddr,
                                                                  UINT32 *bufferSize, UINT32 timeOut)
 {
-    if (queueID >= LOSCFG_BASE_IPC_QUEUE_LIMIT) {
+    if (queueID >= OS_ALL_IPC_QUEUE_LIMIT) {
         return LOS_ERRNO_QUEUE_INVALID;
     }
 
@@ -459,7 +556,7 @@ LITE_OS_SEC_TEXT VOID *OsQueueMailAlloc(UINT32 queueID, VOID *mailPool, UINT32 t
     LosQueueCB *queueCB = (LosQueueCB *)NULL;
     LosTaskCB *runTsk = (LosTaskCB *)NULL;
 
-    if (queueID >= LOSCFG_BASE_IPC_QUEUE_LIMIT) {
+    if (queueID >= OS_ALL_IPC_QUEUE_LIMIT) {
         return NULL;
     }
 
@@ -523,7 +620,7 @@ LITE_OS_SEC_TEXT UINT32 OsQueueMailFree(UINT32 queueID, VOID *mailPool, VOID *ma
     LosQueueCB *queueCB = (LosQueueCB *)NULL;
     LosTaskCB *resumedTask = (LosTaskCB *)NULL;
 
-    if (queueID >= LOSCFG_BASE_IPC_QUEUE_LIMIT) {
+    if (queueID >= OS_ALL_IPC_QUEUE_LIMIT) {
         return LOS_ERRNO_QUEUE_MAIL_HANDLE_INVALID;
     }
 
@@ -573,7 +670,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueDelete(UINT32 queueID)
     UINT32 intSave;
     UINT32 ret;
 
-    if (queueID >= LOSCFG_BASE_IPC_QUEUE_LIMIT) {
+    if (queueID >= OS_ALL_IPC_QUEUE_LIMIT) {
         return LOS_ERRNO_QUEUE_NOT_FOUND;
     }
 
@@ -608,6 +705,14 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueDelete(UINT32 queueID)
     queue = queueCB->queue;
     queueCB->queue = (UINT8 *)NULL;
     queueCB->queueState = OS_QUEUE_UNUSED;
+
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    if (queueID >= LOSCFG_BASE_IPC_QUEUE_LIMIT && queueID < OS_ALL_IPC_QUEUE_LIMIT) {
+        LOS_ListAdd(&g_freeStaticQueueList, &queueCB->readWriteList[OS_QUEUE_WRITE]);
+        LOS_IntRestore(intSave);
+        return LOS_OK;
+    }
+#endif
     LOS_ListAdd(&g_freeQueueList, &queueCB->readWriteList[OS_QUEUE_WRITE]);
     LOS_IntRestore(intSave);
 
@@ -632,7 +737,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_QueueInfoGet(UINT32 queueID, QUEUE_INFO_S *que
         return LOS_ERRNO_QUEUE_PTR_NULL;
     }
 
-    if (queueID >= LOSCFG_BASE_IPC_QUEUE_LIMIT) {
+    if (queueID >= OS_ALL_IPC_QUEUE_LIMIT) {
         return LOS_ERRNO_QUEUE_INVALID;
     }
 
@@ -671,6 +776,17 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_QueueInfoGet(UINT32 queueID, QUEUE_INFO_S *que
 QUEUE_END:
     LOS_IntRestore(intSave);
     return ret;
+}
+
+LosQueueCB *OsGetQueueHandle(UINT32 queueID)
+{
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    if (queueID >= LOSCFG_BASE_IPC_QUEUE_LIMIT && queueID < OS_ALL_IPC_QUEUE_LIMIT) {
+        return (((LosQueueCB *)g_staticQueue) + (queueID - LOSCFG_BASE_IPC_QUEUE_LIMIT));
+    }
+#endif
+
+    return (((LosQueueCB *)g_allQueue) + (queueID));
 }
 
 #endif /* (LOSCFG_BASE_IPC_QUEUE == 1) */
