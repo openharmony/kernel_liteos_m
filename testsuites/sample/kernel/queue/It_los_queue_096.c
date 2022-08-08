@@ -38,15 +38,15 @@ static UINT32 Testcase(VOID)
     UINT32 swTmrID;
     QUEUE_INFO_S queueInfo;
 
-    swTmrID = LOSCFG_BASE_IPC_QUEUE_LIMIT + 1;
+    swTmrID = OS_ALL_IPC_QUEUE_LIMIT + 1;
     ret = LOS_QueueInfoGet(swTmrID, &queueInfo);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_INVALID, ret, EXIT);
 
-    swTmrID = LOSCFG_BASE_IPC_QUEUE_LIMIT;
+    swTmrID = OS_ALL_IPC_QUEUE_LIMIT;
     ret = LOS_QueueInfoGet(swTmrID, &queueInfo);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_INVALID, ret, EXIT);
 
-    swTmrID = LOSCFG_BASE_IPC_QUEUE_LIMIT - 1;
+    swTmrID = OS_ALL_IPC_QUEUE_LIMIT - 1;
     ret = LOS_QueueInfoGet(swTmrID, &queueInfo);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_NOT_CREATE, ret, EXIT);
 
