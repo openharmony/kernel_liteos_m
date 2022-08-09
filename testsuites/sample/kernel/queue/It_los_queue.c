@@ -178,4 +178,12 @@ VOID ItSuiteLosQueue(VOID)
     ItLosQueue095();
     ItLosQueue110();
 #endif
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    ItLosQueueStatic001();
+    ItLosQueueStatic002();
+    ItLosQueueStatic003();
+    ItLosQueueStatic004();
+    ItLosQueueStatic005();
+    ItLosQueueStatic006();
+#endif
 }
