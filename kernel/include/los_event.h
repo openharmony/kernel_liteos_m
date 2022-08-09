@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -200,7 +200,8 @@ extern UINT32 LOS_EventInit(PEVENT_CB_S eventCB);
  *
  * @par Description:
  * This API is used to check whether an event expected by the user occurs according to the event ID, event mask,
- * and event reading mode, and process the event based on the event reading mode. The event ID must point to valid memory.
+ * and event reading mode, and process the event based on the event reading mode. The event ID must point to
+ * valid memory.
  * @attention
  * <ul>
  * <li>When the mode is LOS_WAITMODE_CLR, the eventID is passed-out.</li>
@@ -225,7 +226,8 @@ extern UINT32 LOS_EventPoll(UINT32 *eventID, UINT32 eventMask, UINT32 mode);
  * @brief Read an event.
  *
  * @par Description:
- * This API is used to block or schedule a task that reads an event of which the event control block, event mask, reading mode,
+ * This API is used to block or schedule a task that reads an event of which the event control block, event mask,
+ * reading mode,
  * and timeout information are specified.
  * </ul>
  * @attention
@@ -234,13 +236,15 @@ extern UINT32 LOS_EventPoll(UINT32 *eventID, UINT32 eventMask, UINT32 mode);
  * the event mask is forbidden to be used.</li>
  * </ul>
  *
- * @param eventCB      [IN/OUT] Pointer to the event control block to be checked. This parameter must point to valid memory.
+ * @param eventCB      [IN/OUT] Pointer to the event control block to be checked. This parameter must point to
+ *                              valid memory.
  * @param eventMask    [IN]     Mask of the event expected to occur by the user, indicating the event obtained after
  *                              it is logically processed that matches the ID pointed to by eventID.
  * @param mode         [IN]     Event reading mode.
  * @param timeOut      [IN]     Timeout interval of event reading (unit: Tick).
  *
- * @retval #LOS_ERRNO_EVENT_SETBIT_INVALID     Bit 25 of the event mask cannot be set because it is set to an error number.
+ * @retval #LOS_ERRNO_EVENT_SETBIT_INVALID     Bit 25 of the event mask cannot be set because
+ *                                             it is set to an error number.
  * @retval #LOS_ERRNO_EVENT_EVENTMASK_INVALID  The passed-in event reading mode is incorrect.
  * @retval #LOS_ERRNO_EVENT_READ_IN_INTERRUPT  The event is being read during an interrupt.
  * @retval #LOS_ERRNO_EVENT_FLAGS_INVALID      The event mode is invalid.

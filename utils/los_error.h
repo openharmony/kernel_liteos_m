@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -101,9 +101,6 @@ extern "C" {
   */
 #define LOS_ERRNO_OS_NORMAL(moduleID, errno)  \
             (LOS_ERRTYPE_NORMAL | LOS_ERRNO_OS_ID | ((UINT32)(moduleID) << 8) | (errno))
-
-
-
 
 /**
  * @ingroup los_err

@@ -156,9 +156,9 @@ typedef struct {
  *
  * @par Description:
  * <ul>
- * <li>This API is used to initialize multiple non-continuous memory regions. If the starting address of a pool is specified,
- *  the memory regions will be linked to the pool as free nodes. Otherwise, the first memory region will be initialized as a
- *  new pool, and the rest regions will be linked as free nodes to the new pool.</li>
+ * <li>This API is used to initialize multiple non-continuous memory regions. If the starting address of a pool is
+ *  specified, the memory regions will be linked to the pool as free nodes. Otherwise, the first memory region will
+ *  be initialized as a *  new pool, and the rest regions will be linked as free nodes to the new pool.</li>
  * </ul>
  *
  * @attention

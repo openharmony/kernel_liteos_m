@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -107,13 +107,16 @@ UINT32 ArchIntUnLock(VOID);
  *
  * @attention
  * <ul>
- * <li>The hardware interrupt module is usable only when the configuration item for hardware interrupt tailoring is enabled.</li>
- * <li>Hardware interrupt number value range: [OS_USER_HWI_MIN,OS_USER_HWI_MAX]. The value range applicable for a Cortex-A7 platform is [32,95].</li>
+ * <li>The hardware interrupt module is usable only when the configuration item for hardware
+ * interrupt tailoring is enabled.</li>
+ * <li>Hardware interrupt number value range: [OS_USER_HWI_MIN,OS_USER_HWI_MAX]. The value range
+ * applicable for a Cortex-A7 platform is [32,95].</li>
  * <li>OS_HWI_MAX_NUM specifies the maximum number of interrupts that can be created.</li>
  * <li>Before executing an interrupt on a platform, refer to the chip manual of the platform.</li>
  * </ul>
  *
- * @param  hwiNum   [IN] Type#HWI_HANDLE_T: hardware interrupt number. The value range applicable for a Cortex-A7 platform is [32,95].
+ * @param  hwiNum   [IN] Type#HWI_HANDLE_T: hardware interrupt number. The value range applicable
+ *                       for a Cortex-A7 platform is [32,95].
  * @param  irqParam [IN] Type #HwiIrqParam *. ID of hardware interrupt which will base on
  *                                                when delete the hardware interrupt.
  * @retval #OS_ERRNO_HWI_NUM_INVALID              0x02000900: Invalid interrupt number.
@@ -133,13 +136,16 @@ UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam);
  *
  * @attention
  * <ul>
- * <li>The hardware interrupt module is usable only when the configuration item for hardware interrupt tailoring is enabled.</li>
- * <li>Hardware interrupt number value range: [OS_USER_HWI_MIN,OS_USER_HWI_MAX]. The value range applicable for a Cortex-A7 platform is [32,95].</li>
+ * <li>The hardware interrupt module is usable only when the configuration item for hardware
+ * interrupt tailoring is enabled.</li>
+ * <li>Hardware interrupt number value range: [OS_USER_HWI_MIN,OS_USER_HWI_MAX]. The value range
+ * applicable for a Cortex-A7 platform is [32,95].</li>
  * <li>OS_HWI_MAX_NUM specifies the maximum number of interrupts that can be created.</li>
  * <li>Before executing an interrupt on a platform, refer to the chip manual of the platform.</li>
  * </ul>
  *
- * @param  hwiNum   [IN] Type#HWI_HANDLE_T: hardware interrupt number. The value range applicable for a Cortex-A7 platform is [32,95].
+ * @param  hwiNum   [IN] Type#HWI_HANDLE_T: hardware interrupt number. The value range applicable for a
+ *                       Cortex-A7 platform is [32,95].
  * @param  hwiPrio  [IN] Type#HWI_PRIOR_T: hardware interrupt priority. Ignore this parameter temporarily.
  * @param  mode     [IN] Type#HWI_MODE_T: hardware interrupt mode. Ignore this parameter temporarily.
  * @param  handler  [IN] Type#HWI_PROC_FUNC: interrupt handler used when a hardware interrupt is triggered.
@@ -149,7 +155,8 @@ UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam);
  * @retval #OS_ERRNO_HWI_PROC_FUNC_NULL               0x02000901: Null hardware interrupt handling function.
  * @retval #OS_ERRNO_HWI_NUM_INVALID                  0x02000900: Invalid interrupt number.
  * @retval #OS_ERRNO_HWI_NO_MEMORY                    0x02000903: Insufficient memory for hardware interrupt creation.
- * @retval #OS_ERRNO_HWI_ALREADY_CREATED              0x02000904: The interrupt handler being created has already been created.
+ * @retval #OS_ERRNO_HWI_ALREADY_CREATED              0x02000904: The interrupt handler being created has
+ *                                                                already been created.
  * @retval #LOS_OK                                    0         : The interrupt is successfully created.
  * @par Dependency:
  * <ul><li>los_interrupt.h: the header file that contains the API declaration.</li></ul>

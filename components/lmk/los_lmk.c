@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -191,7 +191,7 @@ VOID LOS_LmkOpsNodeInfoShow(VOID)
 
     intSave = LOS_IntLock();
     LOS_DL_LIST_FOR_EACH_ENTRY(opsNode, &g_losLmkOps.lmkOpsList, LosLmkOpsNode, node) {
-        PRINTK("Priority: %-4u Free:0x%-8x Restore:0x%-8x\n", opsNode->priority, 
+        PRINTK("Priority: %-4u Free:0x%-8x Restore:0x%-8x\n", opsNode->priority,
                (UINT32)(UINTPTR)opsNode->freeMem, (UINT32)(UINTPTR)opsNode->restoreTask);
     }
     LOS_IntRestore(intSave);

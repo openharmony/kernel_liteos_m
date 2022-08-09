@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -867,7 +867,7 @@ STATIC VOID OsDoFini(DynSharedObj *dso)
             --func;
             finiFunc = (INIT_FINI_FUNC)(*func);
             finiFunc();
-       }
+        }
     }
 
     if (initFiniTab->fini.func != 0) {

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -54,13 +54,15 @@ extern "C" {
 #endif
 
 #if (LOSCFG_BASE_CORE_EXC_TSK_SWITCH == 1)
-#define MAX_SWITCH_INFO_SIZE    (INFO_TYPE_AND_SIZE + (sizeof(UINT32) + sizeof(CHAR) * LOS_TASK_NAMELEN) * OS_TASK_SWITCH_INFO_COUNT)
+#define MAX_SWITCH_INFO_SIZE    (INFO_TYPE_AND_SIZE + (sizeof(UINT32) + sizeof(CHAR) * LOS_TASK_NAMELEN) \
+                                 * OS_TASK_SWITCH_INFO_COUNT)
 #else
 #define MAX_SWITCH_INFO_SIZE    (0)
 #endif
-
+     
 #define MAX_MEM_INFO_SIZE       (INFO_TYPE_AND_SIZE + sizeof(MemInfoCB) * OS_SYS_MEM_NUM)
-#define MAX_EXC_MEM_SIZE        (INFO_TYPE_AND_SIZE + MAX_SCENE_INFO_SIZE + MAX_TSK_INFO_SIZE + MAX_QUEUE_INFO_SIZE + MAX_INT_INFO_SIZE + MAX_SWITCH_INFO_SIZE + MAX_MEM_INFO_SIZE)
+#define MAX_EXC_MEM_SIZE        (INFO_TYPE_AND_SIZE + MAX_SCENE_INFO_SIZE + MAX_TSK_INFO_SIZE + MAX_QUEUE_INFO_SIZE \
+                                 + MAX_INT_INFO_SIZE + MAX_SWITCH_INFO_SIZE + MAX_MEM_INFO_SIZE)
 
 typedef enum {
     OS_EXC_TYPE_CONTEXT     = 0,
