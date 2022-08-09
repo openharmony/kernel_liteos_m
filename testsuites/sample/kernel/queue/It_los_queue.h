@@ -184,6 +184,15 @@ extern VOID ItLosQueueHead040(VOID);
 extern VOID ItLosQueueHead041(VOID);
 extern VOID ItLosQueueHead042(VOID);
 
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+extern VOID ItLosQueueStatic001(VOID);
+extern VOID ItLosQueueStatic002(VOID);
+extern VOID ItLosQueueStatic003(VOID);
+extern VOID ItLosQueueStatic004(VOID);
+extern VOID ItLosQueueStatic005(VOID);
+extern VOID ItLosQueueStatic006(VOID);
+#endif
+
 #if (LOS_KERNEL_MULTI_HWI_TEST == 1)
 extern VOID ItLosQueue046(VOID);
 #endif
