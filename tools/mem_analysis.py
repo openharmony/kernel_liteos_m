@@ -29,7 +29,7 @@ g_row_num = 0
 try:
     from openpyxl import Workbook
 except:
-    print ("excel output is not support, need install openpyxl")
+    print("excel output is not support, need install openpyxl")
 else:
     g_excel_support = True
     
@@ -60,21 +60,21 @@ def store_static_excel():
     wb = Workbook()
     ws = wb.active
     for base_address, values in static_map.items():
-        c = ws.cell(row = base_address + 1, column = 1)
+        c = ws.cell(row=base_address + 1, column=1)
         c.value = values.get('offsets')
-        c = ws.cell(row = base_address + 1, column = 2)
+        c = ws.cell(row=base_address + 1, column=2)
         c.value = values.get('section')
-        c = ws.cell(row = base_address + 1, column = 3)
+        c = ws.cell(row=base_address + 1, column=3)
         c.value = values.get('sizeH')
-        c = ws.cell(row = base_address + 1, column = 4)
+        c = ws.cell(row=base_address + 1, column=4)
         c.value = values.get('sizeD')
-        c = ws.cell(row = base_address + 1, column = 5)
+        c = ws.cell(row=base_address + 1, column=5)
         c.value = values.get('symbol')
-        c = ws.cell(row = base_address + 1, column = 6)
+        c = ws.cell(row=base_address + 1, column=6)
         c.value = values.get('lib')
-        c = ws.cell(row = base_address + 1, column = 7)
+        c = ws.cell(row=base_address + 1, column=7)
         c.value = values.get('obj')  
-    wb.save('static_symbol-%s.xlsx' %datetime.datetime.now().strftime('%Y-%m-%d %H_%M_%S'))
+    wb.save('static_symbol-%s.xlsx' % datetime.datetime.now().strftime('%Y-%m-%d %H_%M_%S'))
     return
 
 def format_store_static():
@@ -152,7 +152,7 @@ def store_dync_excel():
                 c = ws.cell(row, column + 3)
                 c.value = values.get('lib') 
                 column = column + 3
-    wb.save('dync_mem-%s.xlsx' %datetime.datetime.now().strftime('%Y-%m-%d %H_%M_%S'))
+    wb.save('dync_mem-%s.xlsx' % datetime.datetime.now().strftime('%Y-%m-%d %H_%M_%S'))
     return
 
 def format_store_dync():
@@ -296,7 +296,7 @@ def parse_log(log_path):
     get_valid_log = False
     for index, line in enumerate(logline):
         char_list = line.split()
-        if len (char_list) < 3:
+        if len(char_list) < 3:
             continue
         if ("node" == char_list[0]) & ("LR[0]" == char_list[2]):
             storage_dync_head(len(char_list) - 2)
@@ -318,34 +318,34 @@ def parse_log(log_path):
                 continue
 
 def main():
-    print ("memory parses tool ver.%2f\r\n" %g_version)
+    print("memory parses tool ver.%2f\r\n" % g_version)
     parser = argparse.ArgumentParser()
-    parser.add_argument('--m', help = 'map path.')
-    parser.add_argument('--l', help = 'dynamic mem log path.')    
-    parser.add_argument('--d', help = 'objdump path.')
+    parser.add_argument('--m', help='map path.')
+    parser.add_argument('--l', help='dynamic mem log path.')    
+    parser.add_argument('--d', help='objdump path.')
     args = parser.parse_args()
     
-    print ("map path: %s\r\n" %args.m)
+    print("map path: %s\r\n" % args.m)
     if args.m == None :
-        print ("arg error, input -h get the help list\r\n")
+        print("arg error, input -h get the help list\r\n")
         return
 
     parse_map(args.m)
 
-    print ("dump path: %s" %args.d)
+    print("dump path: %s" % args.d)
     if args.d != None :
         parse_dump(args.d)
         format_store_static()
     else:
-        print ("dump path unspecified, will not be static parser")
-        print ("you can enter the objdump -t command under the linux shell to obtain dump information\r\n")
+        print("dump path unspecified, will not be static parser")
+        print("you can enter the objdump -t command under the linux shell to obtain dump information\r\n")
     
-    print ("log path: %s" %args.l)
+    print("log path: %s" % args.l)
     if args.l != None :
         parse_log(args.l)
         format_store_dync()
     else:
-        print ("log path unspecified, will not be dynamic parser\r\n")
+        print("log path unspecified, will not be dynamic parser\r\n")
 
     return
 

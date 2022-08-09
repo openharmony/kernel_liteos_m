@@ -57,7 +57,7 @@ struct FsMap {
 };
 
 int OsFsRegister(const char *fsType, struct MountOps *fsMops,
-        struct FileOps *fsFops, struct FsManagement *fsMgt);
+                 struct FileOps *fsFops, struct FsManagement *fsMgt);
 struct FsMap *VfsFsMapGet(const char *fsType);
 
 #ifdef __cplusplus

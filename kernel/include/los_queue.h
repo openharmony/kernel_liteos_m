@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -344,7 +344,8 @@ extern "C" {
 /**
  * @ingroup los_queue
  * In struct QueueInfo, the length of each waitReadTask/waitWriteTask/waitMemTask array depends on the value
- * LOSCFG_BASE_CORE_TSK_LIMIT. The type of each array element is UINT32, which means that each element could mark 32(=2^5) tasks.
+ * LOSCFG_BASE_CORE_TSK_LIMIT. The type of each array element is UINT32, which means that each element could
+ * mark 32(=2^5) tasks.
  * OS_WAIT_TASK_ARRAY_LEN is used to calculate the array length.
  * OS_WAIT_TASK_ID_TO_ARRAY_IDX is used to transfer task ID to array index.
  * OS_WAIT_TASK_ARRAY_ELEMENT_MASK is the mask for each element.

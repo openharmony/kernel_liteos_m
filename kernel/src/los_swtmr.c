@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -101,7 +101,6 @@ LITE_OS_SEC_TEXT VOID OsSwtmrTask(VOID)
             tick = LOS_TickCountGet();
             swtmrHandle.handler(swtmrHandle.arg);
             tick = LOS_TickCountGet() - tick;
-
             if (tick >= SWTMR_MAX_RUNNING_TICKS) {
                 PRINT_WARN("timer_handler(%p) cost too many ms(%d)\n",
                            swtmrHandle.handler,

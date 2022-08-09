@@ -909,7 +909,8 @@ static int MapToPosixRet(int ret)
 int LOS_Open(const char *path, int flags, ...)
 {
 #ifdef LOSCFG_RANDOM_DEV
-    unsigned flagMask = O_RDONLY | O_WRONLY | O_RDWR | O_APPEND | O_CREAT | O_LARGEFILE | O_TRUNC | O_EXCL | O_DIRECTORY;
+    unsigned flagMask = O_RDONLY | O_WRONLY | O_RDWR | O_APPEND | O_CREAT | O_LARGEFILE \
+                        | O_TRUNC | O_EXCL | O_DIRECTORY;
     if ((unsigned)flags & ~flagMask) {
         errno = EINVAL;
         return (int)LOS_NOK;

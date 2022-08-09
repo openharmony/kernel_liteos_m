@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -250,7 +250,8 @@ extern UINT32 LOS_SysCpuUsage(VOID);
  * This API is used to obtain the historical CPU usage.
  * @attention
  * <ul>
- * <li>This API can be called only after the CPU usage is initialized. Otherwise, the CPU usage fails to be obtained.</li>
+ * <li>This API can be called only after the CPU usage is initialized. Otherwise, the CPU usage fails
+ * to be obtained.</li>
  * </ul>
  *
  * @param  mode     [IN] UINT16. Task mode. The parameter value 0 indicates that the CPU usage within 10s will be
@@ -273,7 +274,8 @@ extern UINT32 LOS_HistorySysCpuUsage(UINT16 mode);
  * This API is used to obtain the CPU usage of a task specified by a passed-in task ID.
  * @attention
  * <ul>
- * <li>This API can be called only after the CPU usage is initialized. Otherwise, the CPU usage fails to be obtained.</li>
+ * <li>This API can be called only after the CPU usage is initialized. Otherwise, the CPU usage fails
+ * to be obtained.</li>
  * <li>The passed-in task ID must be valid and the task specified by the task ID must be created. Otherwise,
  * the CPU usage fails to be obtained.</li>
  * </ul>
@@ -327,7 +329,8 @@ extern UINT32 LOS_HistoryTaskCpuUsage(UINT32 taskID, UINT16 mode);
  * This API is used to obtain the CPU usage of all tasks according to maximum number of threads.
  * @attention
  * <ul>
- * <li>This API can be called only after the CPU usage is initialized. Otherwise, the CPU usage fails to be obtained.</li>
+ * <li>This API can be called only after the CPU usage is initialized. Otherwise, the CPU usage fails
+ * to be obtained.</li>
  * <li>The input parameter pointer must not be NULL, Otherwise, the CPU usage fails to be obtained.</li>
  * </ul>
  *

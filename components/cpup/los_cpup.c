@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -209,7 +209,6 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleEnd(VOID)
     }
 
     cpuCycle = LOS_SysCycleGet();
-
     if (cpuCycle < g_cpup[taskID].startTime) {
         cpuCycle += g_cyclesPerTick;
     }
@@ -625,7 +624,6 @@ LITE_OS_SEC_TEXT_MINOR VOID OsCpupIrqEnd(UINT32 intNum)
     }
 
     cpuCycle = LOS_SysCycleGet();
-
     if (cpuCycle < g_irqCpup[intNum].startTime) {
         cpuCycle += g_cyclesPerTick;
     }

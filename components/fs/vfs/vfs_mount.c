@@ -123,8 +123,8 @@ struct MountPoint *VfsMpFind(const char *path, const char **pathInMp)
 }
 
 int LOS_FsMount(const char *source, const char *target,
-          const char *fsType, unsigned long mountflags,
-          const void *data)
+                const char *fsType, unsigned long mountflags,
+                const void *data)
 {
     int ret;
     struct MountPoint *mp = NULL;
