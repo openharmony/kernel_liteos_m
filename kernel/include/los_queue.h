@@ -406,10 +406,10 @@ extern UINT32 LOS_QueueCreate(const CHAR *queueName,
 
 /**
  * @ingroup los_queue
- * @brief Create a message queue.
+ * @brief Create a static message queue.
  *
  * @par Description:
- * This API is used to create a message queue.
+ * This API is used to create a message queue using static memory for data storage.
  * @attention
  * <ul>
  * <li>There are LOSCFG_BASE_IPC_QUEUE_LIMIT queues available, change it's value when necessary.</li>

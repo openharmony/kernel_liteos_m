@@ -162,6 +162,12 @@ static_library("test_queue") {
     "It_los_queue_head_040.c",
     "It_los_queue_head_041.c",
     "It_los_queue_head_042.c",
+    "It_los_queue_static_001.c",
+    "It_los_queue_static_002.c",
+    "It_los_queue_static_003.c",
+    "It_los_queue_static_004.c",
+    "It_los_queue_static_005.c",
+    "It_los_queue_static_006.c",
     "LLt_los_queue_003.c",
     "Llt_los_queue_001.c",
   ]
