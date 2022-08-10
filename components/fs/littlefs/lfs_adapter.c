@@ -32,6 +32,7 @@
 #define _GNU_SOURCE 1
 #include "lfs_adapter.h"
 #include "los_config.h"
+#include "los_fs.h"
 #include "vfs_files.h"
 #include "vfs_operations.h"
 #include "vfs_partition.h"
@@ -39,8 +40,76 @@
 #include "vfs_mount.h"
 #include "securec.h"
 
-struct dirent g_nameValue;
-static pthread_mutex_t g_FslocalMutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t g_fsLocalMutex = PTHREAD_MUTEX_INITIALIZER;
+
+static struct PartitionCfg g_partitionCfg;
+static struct lfs_config g_lfsCfg;
+static struct DeviceDesc *g_lfsDevice = NULL;
+
+static uint32_t LfsGetStartAddr(int partition)
+{
+    if (g_lfsDevice == NULL) {
+        struct DeviceDesc *device = NULL;
+        for (device = getDeviceList(); device != NULL; device = device->dNext) {
+            if (strcmp(device->dFsType, "littlefs") == 0) {
+                g_lfsDevice = device;
+                break;
+            }
+        }
+    }
+
+    if ((g_lfsDevice == NULL) || (partition >= g_lfsDevice->dPartNum)) {
+        return INVALID_DEVICE_ADDR;
+    }
+
+    return g_lfsDevice->dAddrArray[partition];
+}
+
+WEAK int littlefs_block_read(const struct lfs_config *c, lfs_block_t block,
+                             lfs_off_t off, void *dst, lfs_size_t size)
+{
+    UINT32 addr = c->block_size * block + off;
+    UINT32 startaddr = LfsGetStartAddr((int)c->context);
+    if (startaddr == INVALID_DEVICE_ADDR) {
+        return -1;
+    }
+    addr += startaddr;
+
+    return (g_partitionCfg.readFunc)((int)c->context, &addr, dst, size);
+}
+
+WEAK int littlefs_block_write(const struct lfs_config *c, lfs_block_t block,
+                              lfs_off_t off, const void *dst, lfs_size_t size)
+{
+    UINT32 addr = c->block_size * block + off;
+    UINT32 startaddr = LfsGetStartAddr((int)c->context);
+    if (startaddr == INVALID_DEVICE_ADDR) {
+        return -1;
+    }
+
+    addr += startaddr;
+
+    return (g_partitionCfg.writeFunc)((int)c->context, &addr, dst, size);
+}
+
+WEAK int littlefs_block_erase(const struct lfs_config *c, lfs_block_t block)
+{
+    UINT32 addr = c->block_size * block;
+    UINT32 startaddr = LfsGetStartAddr((int)c->context);
+    if (startaddr == INVALID_DEVICE_ADDR) {
+        return -1;
+    }
+
+    addr += startaddr;
+
+    return (g_partitionCfg.eraseFunc)((int)c->context, addr, c->block_size);
+}
+
+WEAK int littlefs_block_sync(const struct lfs_config *c)
+{
+    (void)c;
+    return 0;
+}
 
 static int ConvertFlagToLfsOpenFlag (int oflags)
 {
@@ -82,6 +151,28 @@ static int LittlefsErrno(int result)
     return (result < 0) ? -result : result;
 }
 
+void LfsConfigAdapter(struct PartitionCfg *pCfg, struct lfs_config *lfsCfg)
+{
+    lfsCfg->context = (void *)pCfg->partNo;
+
+    lfsCfg->read_size = pCfg->readSize;
+    lfsCfg->prog_size = pCfg->writeSize;
+    lfsCfg->cache_size = pCfg->cacheSize;
+    lfsCfg->block_cycles = pCfg->blockCycles;
+    lfsCfg->lookahead_size = pCfg->lookaheadSize;
+    lfsCfg->block_size = pCfg->blockSize;
+    lfsCfg->block_count = pCfg->blockCount;
+
+    lfsCfg->read = littlefs_block_read;
+    lfsCfg->prog = littlefs_block_write;
+    lfsCfg->erase = littlefs_block_erase;
+    lfsCfg->sync = littlefs_block_sync;
+
+    g_partitionCfg.readFunc = pCfg->readFunc;
+    g_partitionCfg.writeFunc = pCfg->writeFunc;
+    g_partitionCfg.eraseFunc = pCfg->eraseFunc;
+}
+
 int LfsMount(struct MountPoint *mp, unsigned long mountflags, const void *data)
 {
     int ret;
@@ -102,14 +193,15 @@ int LfsMount(struct MountPoint *mp, unsigned long mountflags, const void *data)
     (void)memset_s(mountHdl, sizeof(lfs_t), 0, sizeof(lfs_t));
     mp->mData = (void *)mountHdl;
 
-    ret = lfs_mount((lfs_t *)mp->mData, (struct lfs_config *)data);
+    LfsConfigAdapter((struct PartitionCfg *)data, &g_lfsCfg);
+
+    ret = lfs_mount((lfs_t *)mp->mData, &g_lfsCfg);
     if (ret != 0) {
-        ret = lfs_format((lfs_t *)mp->mData, (struct lfs_config*)data);
+        ret = lfs_format((lfs_t *)mp->mData, &g_lfsCfg);
         if (ret == 0) {
-            ret = lfs_mount((lfs_t *)mp->mData, (struct lfs_config*)data);
+            ret = lfs_mount((lfs_t *)mp->mData, &g_lfsCfg);
         }
     }
-
     if (ret != 0) {
         free(mountHdl);
         errno = LittlefsErrno(ret);
@@ -278,7 +370,7 @@ int LfsReaddir(struct Dir *dir, struct dirent *dent)
 
     ret = lfs_dir_read(lfs, dirInfo, &lfsInfo);
     if (ret == TRUE) {
-        pthread_mutex_lock(&g_FslocalMutex);
+        pthread_mutex_lock(&g_fsLocalMutex);
         (void)strncpy_s(dent->d_name, sizeof(dent->d_name), lfsInfo.name, strlen(lfsInfo.name) + 1);
         if (lfsInfo.type == LFS_TYPE_DIR) {
             dent->d_type = DT_DIR;
@@ -287,7 +379,7 @@ int LfsReaddir(struct Dir *dir, struct dirent *dent)
         }
 
         dent->d_reclen = lfsInfo.size;
-        pthread_mutex_unlock(&g_FslocalMutex);
+        pthread_mutex_unlock(&g_fsLocalMutex);
 
         return LOS_OK;
     }
@@ -467,9 +559,9 @@ int LfsClose(struct File *file)
         return (int)LOS_NOK;
     }
 
-    pthread_mutex_lock(&g_FslocalMutex);
+    pthread_mutex_lock(&g_fsLocalMutex);
     ret = lfs_file_close((lfs_t *)mp->mData, lfsHandle);
-    pthread_mutex_unlock(&g_FslocalMutex);
+    pthread_mutex_unlock(&g_fsLocalMutex);
 
     if (ret != 0) {
         errno = LittlefsErrno(ret);
@@ -559,6 +651,23 @@ int LfsSync(struct File *file)
     return ret;
 }
 
+int LfsFormat(const char *partName, void *privData)
+{
+    int ret;
+    lfs_t lfs = {0};
+
+    (void)partName;
+
+    LfsConfigAdapter((struct PartitionCfg *)privData, &g_lfsCfg);
+
+    ret = lfs_format(&lfs, &g_lfsCfg);
+    if (ret != 0) {
+        errno = LittlefsErrno(ret);
+        ret = LOS_NOK;
+    }
+    return ret;
+}
+
 static struct MountOps g_lfsMnt = {
     .mount = LfsMount,
     .umount = LfsUmount,
@@ -587,7 +696,7 @@ static struct FileOps g_lfsFops = {
 
 static struct FsManagement g_lfsMgt = {
     .fdisk = NULL,
-    .format = NULL,
+    .format = LfsFormat,
 };
 
 void LfsInit(void)
