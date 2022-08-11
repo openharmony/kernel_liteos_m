@@ -111,7 +111,7 @@ EXIT:
     return LOS_OK;
 }
 
-VOID ItLosTask059() // IT_Layer_ModuleORFeature_No
+VOID ItLosTask059(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosTask059", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL1, TEST_FUNCTION);
 }
