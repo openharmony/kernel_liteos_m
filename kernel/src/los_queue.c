@@ -703,6 +703,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_QueueDelete(UINT32 queueID)
 
     queue = queueCB->queue;
     queueCB->queue = (UINT8 *)NULL;
+    queueCB->queueName = (UINT8 *)NULL;
     queueCB->queueState = OS_QUEUE_UNUSED;
 
 #if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
