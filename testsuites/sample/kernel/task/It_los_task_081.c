@@ -139,7 +139,7 @@ static UINT32 TestCase(VOID)
     return LOS_OK;
 }
 
-VOID ItLosTask081() // IT_Layer_ModuleORFeature_No
+VOID ItLosTask081(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosTask081", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL1, TEST_FUNCTION);
 }

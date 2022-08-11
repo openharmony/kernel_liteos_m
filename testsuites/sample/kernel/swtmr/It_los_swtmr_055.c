@@ -72,7 +72,7 @@ EXIT:
     return LOS_OK;
 }
 
-VOID ItLosSwtmr055() // IT_Layer_ModuleORFeature_No
+VOID ItLosSwtmr055(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosSwtmr055", Testcase, TEST_LOS, TEST_SWTMR, TEST_LEVEL0, TEST_FUNCTION);
 }
