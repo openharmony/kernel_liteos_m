@@ -47,22 +47,22 @@ extern "C" {
 
 /**
  * @ingroup los_base
- * Read a UINT8 value from addr and stroed in value.
+ * Read a UINT8 value from addr and store in value.
  */
 #define READ_UINT8(value, addr)      ((value) = *((volatile UINT8 *)(addr)))
 /**
  * @ingroup los_base
- * Read a UINT16 value from addr and stroed in addr.
+ * Read a UINT16 value from addr and store in addr.
  */
 #define READ_UINT16(value, addr)     ((value) = *((volatile UINT16 *)(addr)))
 /**
  * @ingroup los_base
- * Read a UINT32 value from addr and stroed in value.
+ * Read a UINT32 value from addr and store in value.
  */
 #define READ_UINT32(value, addr)     ((value) = *((volatile UINT32 *)(addr)))
 /**
  * @ingroup los_base
- * Read a UINT64 value from addr and stroed in value.
+ * Read a UINT64 value from addr and store in value.
  */
 #define READ_UINT64(value, addr)     ((value) = *((volatile UINT64 *)(addr)))
 
