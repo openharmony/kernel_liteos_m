@@ -43,6 +43,10 @@
 #define Level1     0
 #define LITE_TEST_CASE(module, function, flag) static int function(void)
 
+#define STATCI_BUFF_SIZE   32
+#define READ_BUFFER_SIZIE  7
+#define QUEUE_WAIT_TIMEOUT 3
+
 static VOID CmsisStackFunc01(void)
 {
     g_testCount++;
@@ -77,8 +81,371 @@ EXIT:
     return LOS_OK;
 };
 
+/* set and get queue name test */
+LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis007, Function | MediumTest | Level1)
+{
+    osMessageQueueId_t msgQueueId;
+    osMessageQueueAttr_t attr;
+    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
+    CHAR strbuff[] = "hello world";
+    CHAR *name = NULL;
+    INT32 ret;
+
+    memset(&attr, 0, sizeof(attr));
+
+    attr.name = "q1";
+    /* dynamic test */
+    msgQueueId = osMessageQueueNew(1, strlen(strbuff), &attr);
+    ICUNIT_ASSERT_NOT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+    name = osMessageQueueGetName(msgQueueId);
+    ret = strcmp(name, "q1");
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    name = osMessageQueueGetName(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(name, NULL, name);
+
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    attr.mq_mem = staticBuff;
+    attr.mq_size = STATCI_BUFF_SIZE;
+    msgQueueId = osMessageQueueNew(1, STATCI_BUFF_SIZE, &attr);
+    ICUNIT_ASSERT_NOT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+    name = osMessageQueueGetName(msgQueueId);
+    ret = strcmp(name, "q1");
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    name = osMessageQueueGetName(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(name, NULL, name);
+#endif
+
+    return LOS_OK;
+
+EXIT:
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    return LOS_OK;
+}
+
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+static osMessageQueueId_t g_msgQueueId1;
+static osMessageQueueId_t g_msgQueueId2;
+
+static osThreadId_t threadId1;
+static osThreadId_t threadId2;
+
+static CHAR g_strbuff1[] = "hello";
+static CHAR g_strbuff2[] = "world";
+static CHAR g_staticBuff[STATCI_BUFF_SIZE] = {0};
+
+static VOID CmsisQueueTestThread1(VOID)
+{
+    CHAR data[READ_BUFFER_SIZIE] = {0};
+    INT32 ret;
+    osStatus_t status;
+
+    ret = osMessageQueuePut(g_msgQueueId1, &g_strbuff1, 0U, 0U);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    status = osMessageQueueGet(g_msgQueueId2, &data, NULL, QUEUE_WAIT_TIMEOUT);
+    ICUNIT_ASSERT_EQUAL(status, osOK, status);
+
+    ret = strcmp(data, "world");
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+}
+
+static VOID CmsisQueueTestThread2(VOID)
+{
+    CHAR data[READ_BUFFER_SIZIE] = {0};
+    INT32 ret;
+    osStatus_t status;
+
+    status = osMessageQueueGet(g_msgQueueId1, &data, NULL, QUEUE_WAIT_TIMEOUT);
+    ICUNIT_ASSERT_EQUAL(status, osOK, status);
+
+    ret = strcmp(data, "hello");
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = osMessageQueuePut(g_msgQueueId2, &g_strbuff2, 0U, 0U);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+}
+
+static INT32 ThreadReadWriteTest(VOID)
+{
+    osMessageQueueAttr_t attr;
+    INT32 ret;
+
+    memset(&attr, 0, sizeof(attr));
+
+    g_msgQueueId1 = osMessageQueueNew(1, strlen(g_strbuff1), NULL);
+    ICUNIT_ASSERT_NOT_EQUAL(g_msgQueueId1, NULL, g_msgQueueId1);
+
+    attr.mq_mem = g_staticBuff;
+    attr.mq_size = strlen(g_strbuff2) + 1;
+    g_msgQueueId2 = osMessageQueueNew(1, strlen(g_strbuff2), &attr);
+    ICUNIT_ASSERT_NOT_EQUAL(g_msgQueueId2, NULL, g_msgQueueId2);
+
+    threadId1 = osThreadNew(CmsisQueueTestThread1, NULL, NULL);
+    ICUNIT_ASSERT_NOT_EQUAL(threadId1, NULL, threadId1);
+
+    threadId2 = osThreadNew(CmsisQueueTestThread2, NULL, NULL);
+    ICUNIT_ASSERT_NOT_EQUAL(threadId2, NULL, threadId2);
+
+    osThreadJoin(threadId1);
+
+    ret = strcmp(g_staticBuff, "world");
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = osMessageQueueDelete(g_msgQueueId1);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    ret = osMessageQueueDelete(g_msgQueueId2);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    return 0;
+}
+
+/* mix read write */
+LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis006, Function | MediumTest | Level1)
+{
+    INT32 ret;
+
+    ret = ThreadReadWriteTest();
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    return LOS_OK;
+}
+#endif
+
+/* read-write exception */
+LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis005, Function | MediumTest | Level1)
+{
+    osMessageQueueId_t msgQueueId;
+    osMessageQueueAttr_t attr;
+    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
+    CHAR strbuff[] = "hello world";
+    CHAR data[STATCI_BUFF_SIZE] = {0};
+    INT32 ret;
+
+    memset(&attr, 0, sizeof(attr));
+
+    ret = osMessageQueuePut(NULL, &strbuff, 0U, 0U);
+    ICUNIT_ASSERT_EQUAL(ret, osErrorParameter, ret);
+
+    ret = osMessageQueueGet(NULL, &data, NULL, 0U);
+    ICUNIT_ASSERT_EQUAL(ret, osErrorParameter, ret);
+
+    /* dynmic test */
+    msgQueueId = osMessageQueueNew(1, strlen(strbuff), NULL);
+    ICUNIT_ASSERT_NOT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+    ret = osMessageQueuePut(msgQueueId, NULL, 0U, 0U);
+    ICUNIT_GOTO_EQUAL(ret, osErrorParameter, ret, EXIT);
+
+    ret = osMessageQueueGet(msgQueueId, NULL, NULL, 0U);
+    ICUNIT_GOTO_EQUAL(ret, osErrorParameter, ret, EXIT);
+
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    ret = osMessageQueuePut(msgQueueId, &strbuff, 0U, 0U);
+    ICUNIT_GOTO_EQUAL(ret, osErrorParameter, ret, EXIT);
+
+    ret = osMessageQueueGet(msgQueueId, &data, NULL, 0U);
+    ICUNIT_GOTO_EQUAL(ret, osErrorParameter, ret, EXIT);
+
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    /* static test */
+    attr.mq_mem = staticBuff;
+    attr.mq_size = STATCI_BUFF_SIZE;
+    msgQueueId = osMessageQueueNew(1, STATCI_BUFF_SIZE, &attr);
+    ICUNIT_ASSERT_NOT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+    ret = osMessageQueuePut(msgQueueId, NULL, 0U, 0U);
+    ICUNIT_GOTO_EQUAL(ret, osErrorParameter, ret, EXIT);
+
+    ret = osMessageQueueGet(msgQueueId, NULL, NULL, 0U);
+    ICUNIT_GOTO_EQUAL(ret, osErrorParameter, ret, EXIT);
+
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    ret = osMessageQueuePut(msgQueueId, &strbuff, 0U, 0U);
+    ICUNIT_GOTO_EQUAL(ret, osErrorParameter, ret, EXIT);
+
+    ret = osMessageQueueGet(msgQueueId, &data, NULL, 0U);
+    ICUNIT_GOTO_EQUAL(ret, osErrorParameter, ret, EXIT);
+#endif
+
+    return LOS_OK;
+
+EXIT:
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    return LOS_OK;
+}
+
+/* read write test */
+LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis004, Function | MediumTest | Level1)
+{
+    osMessageQueueId_t msgQueueId;
+    osMessageQueueAttr_t attr;
+    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
+    CHAR strbuff[] = "hello world";
+    CHAR data[STATCI_BUFF_SIZE] = {0};
+    INT32 ret;
+
+    memset(&attr, 0, sizeof(attr));
+
+    /* dynamic test */
+    msgQueueId = osMessageQueueNew(1, strlen(strbuff), NULL);
+    ICUNIT_ASSERT_NOT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+    ret = osMessageQueuePut(msgQueueId, &strbuff, 0U, 0U);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    ret = osMessageQueueGet(msgQueueId, &data, NULL, 0U);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    ret = strcmp(data, strbuff);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    /* static test */
+    attr.mq_mem = staticBuff;
+    attr.mq_size = strlen(strbuff) + 1;
+    msgQueueId = osMessageQueueNew(1, strlen(strbuff), &attr);
+    ICUNIT_ASSERT_NOT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+    ret = osMessageQueuePut(msgQueueId, &strbuff, 0U, 0U);
+    ICUNIT_GOTO_EQUAL(ret, osOK, ret, EXIT);
+
+    ret = osMessageQueueGet(msgQueueId, &data, NULL, 0U);
+    ICUNIT_GOTO_EQUAL(ret, osOK, ret, EXIT);
+
+    ret = strcmp(data, strbuff);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = strcmp(staticBuff, strbuff);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+#endif
+    return LOS_OK;
+
+EXIT:
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    return LOS_OK;
+}
+
+/* create exception parameters test */
+LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis003, Function | MediumTest | Level1)
+{
+    osMessageQueueId_t msgQueueId;
+    osMessageQueueAttr_t attr;
+    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
+    CHAR strbuff[] = "hello world";
+
+    memset(&attr, 0, sizeof(attr));
+
+    /* dynmic test */
+    msgQueueId = osMessageQueueNew(0, strlen(strbuff), NULL);
+    ICUNIT_ASSERT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+    msgQueueId = osMessageQueueNew(1, 0xFFFFFFFF, NULL);
+    ICUNIT_ASSERT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    /* static test */
+    attr.mq_mem = staticBuff;
+    attr.mq_size = STATCI_BUFF_SIZE;
+    msgQueueId = osMessageQueueNew(0, strlen(strbuff), &attr);
+    ICUNIT_ASSERT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+    msgQueueId = osMessageQueueNew(0xFFFFFFFF, strlen(strbuff), &attr);
+    ICUNIT_ASSERT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+    attr.mq_mem = staticBuff;
+    attr.mq_size = 0;
+    msgQueueId = osMessageQueueNew(1, strlen(strbuff), &attr);
+    ICUNIT_ASSERT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+    attr.mq_mem = NULL;
+    attr.mq_size = STATCI_BUFF_SIZE;
+    msgQueueId = osMessageQueueNew(1, strlen(strbuff), &attr);
+    ICUNIT_ASSERT_EQUAL(msgQueueId, NULL, msgQueueId);
+#endif
+
+    return LOS_OK;
+};
+
+/* create and delete test */
+LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis002, Function | MediumTest | Level1)
+{
+    osMessageQueueId_t msgQueueId;
+    osMessageQueueAttr_t attr;
+    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
+    CHAR strbuff[] = "hello world";
+    INT32 ret;
+
+    memset(&attr, 0, sizeof(attr));
+
+    /* dynamic test */
+    msgQueueId = osMessageQueueNew(1, strlen(strbuff), NULL);
+    ICUNIT_ASSERT_NOT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osErrorParameter, ret);
+
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    /* static test */
+    attr.mq_mem = staticBuff;
+    attr.mq_size = STATCI_BUFF_SIZE;
+    msgQueueId = osMessageQueueNew(1, STATCI_BUFF_SIZE, &attr);
+    ICUNIT_ASSERT_NOT_EQUAL(msgQueueId, NULL, msgQueueId);
+
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+
+    ret = osMessageQueueDelete(msgQueueId);
+    ICUNIT_ASSERT_EQUAL(ret, osErrorParameter, ret);
+#endif
+
+    return LOS_OK;
+};
+
+
 void CmsisFuncTestSuite(void)
 {
+    PRINTF("***********************BEGIN CMSIS TEST**********************\n");
+
     ADD_TEST_CASE(TestCmsis001);
+    ADD_TEST_CASE(TestCmsis002);
+    ADD_TEST_CASE(TestCmsis003);
+    ADD_TEST_CASE(TestCmsis004);
+    ADD_TEST_CASE(TestCmsis005);
+
+#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    ADD_TEST_CASE(TestCmsis006);
+#endif
+
+    ADD_TEST_CASE(TestCmsis007);
 }
 

@@ -1255,7 +1255,7 @@ osMessageQueueId_t osMessageQueueNew(uint32_t msg_count, uint32_t msg_size, cons
 #if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
         queueSize = attr->mq_size;
         staticMem = attr->mq_mem;
-        if ((queueSize == 0 || staticMem == NULL)) {
+        if (((queueSize == 0) && (staticMem != NULL)) || ((queueSize != 0) && (staticMem == NULL))) {
             return (osMessageQueueId_t)NULL;
         }
 #endif

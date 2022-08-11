@@ -30,6 +30,7 @@
  */
 
 #include "It_los_queue.h"
+
 #define QUEUW_INVALID_VALUE 1025
 
 #if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
