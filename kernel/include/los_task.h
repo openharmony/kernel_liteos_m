@@ -457,7 +457,7 @@ typedef struct tagTskInitParam {
     TSK_ENTRY_FUNC       pfnTaskEntry;              /**< Task entrance function                 */
     UINT16               usTaskPrio;                /**< Task priority                          */
     UINT32               uwArg;                     /**< Task parameters                        */
-    UINTPTR              stackAddr;                 /**< Task satck memory                      */
+    UINTPTR              stackAddr;                 /**< Task stack memory                      */
     UINT32               uwStackSize;               /**< Task stack size                        */
     CHAR                 *pcName;                   /**< Task name                              */
     UINT32               uwResved;                  /**< Reserved                               */
@@ -746,7 +746,7 @@ extern UINT32 LOS_TaskSuspend(UINT32 taskID);
  * <li>The idle task and swtmr task cannot be deleted.</li>
  * <li>If delete current task maybe cause unexpected error.</li>
  * <li>If a task get a mutex is deleted or automatically deleted before release this mutex, other tasks pended
- * this mutex maybe never be shchduled.</li>
+ * this mutex maybe never be scheduled.</li>
  * </ul>
  *
  * @param  taskID [IN] Type #UINT32 Task ID. The task id value is obtained from task creation.
