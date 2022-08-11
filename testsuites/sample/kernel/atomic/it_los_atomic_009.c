@@ -32,12 +32,6 @@
 
 #include "it_los_atomic.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 #define DB_ATOMIC_MUTI_TASK_NUM (ATOMIC_MUTI_TASK_NUM * 2) // 2 is coefficients
 
 static VOID TaskF01(VOID)
@@ -132,9 +126,3 @@ VOID ItLosAtomic009(VOID)
 {
     TEST_ADD_CASE("ItLosAtomic009", TestCase, TEST_LOS, TEST_ATO, TEST_LEVEL0, TEST_FUNCTION);
 }
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

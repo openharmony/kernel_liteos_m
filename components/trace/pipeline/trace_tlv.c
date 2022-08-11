@@ -32,12 +32,6 @@
 #include "trace_tlv.h"
 #include "securec.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 #define CRC_WIDTH  8
 #define CRC_POLY   0x1021
 #define CRC_TOPBIT 0x8000
@@ -114,9 +108,3 @@ UINT32 OsTraceDataEncode(UINT8 type, const TlvTable *table, UINT8 *src, UINT8 *d
     head->crc      = crc;
     return len + sizeof(TraceMsgTlvHead);
 }
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

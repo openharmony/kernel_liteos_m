@@ -45,12 +45,6 @@
 #include "shell.h"
 #endif
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 #if (LOSCFG_KERNEL_TRACE == 1)
 LITE_OS_SEC_BSS STATIC UINT32 g_traceEventCount;
 LITE_OS_SEC_BSS STATIC volatile enum TraceState g_traceState = TRACE_UNINIT;
@@ -426,9 +420,3 @@ SHELLCMD_ENTRY(tracedump_shellcmd,    CMD_TYPE_EX, "trace_dump", 1, (CmdCallBack
 #endif
 
 #endif /* LOSCFG_KERNEL_TRACE == 1 */
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

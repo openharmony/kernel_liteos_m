@@ -39,12 +39,6 @@
 #include "los_swtmr.h"
 #include "los_hook.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 STATIC VOID LOS_TraceMemInit(VOID *pool, UINT32 size)
 {
     LOS_TRACE(MEM_INFO_REQ, pool);
@@ -264,9 +258,3 @@ VOID OsTraceCnvInit(VOID)
     LOS_HookReg(LOS_HOOK_TYPE_SWTMR_START, LOS_TraceSwtmrStart);
     LOS_HookReg(LOS_HOOK_TYPE_SWTMR_STOP, LOS_TraceSwtmrStop);
 }
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
