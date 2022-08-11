@@ -32,12 +32,6 @@
 
 #include "it_los_atomic.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 static VOID TaskF01(VOID)
 {
     INT32 i;
@@ -104,9 +98,3 @@ VOID ItLosAtomic004(VOID)
 {
     TEST_ADD_CASE("ItLosAtomic004", TestCase, TEST_LOS, TEST_ATO, TEST_LEVEL0, TEST_FUNCTION);
 }
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

@@ -32,12 +32,6 @@
 #include "los_trace_pri.h"
 #include "trace_pipeline.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 #if (LOSCFG_RECORDER_MODE_ONLINE == 1)
 UINT32 OsTraceGetMaskTid(UINT32 taskId)
 {
@@ -105,9 +99,3 @@ OfflineHead *OsTraceRecordGet(VOID)
 }
 
 #endif /* LOSCFG_RECORDER_MODE_ONLINE == 1 */
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */

@@ -32,12 +32,6 @@
 #include "trace_pipeline_serial.h"
 #include "trace_pipeline.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 #if (LOSCFG_TRACE_CONTROL_AGENT == 1)
 UINT32 SerialPipelineInit(VOID)
 {
@@ -93,9 +87,3 @@ UINT32 OsTracePipelineInit(VOID)
     OsTracePipelineReg(&g_serialOps);
     return g_serialOps.init();
 }
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
