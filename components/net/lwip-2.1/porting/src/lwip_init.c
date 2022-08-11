@@ -33,7 +33,8 @@
 #include <stdlib.h>
 #include "lwip/tcpip.h"
 #include "ohos_init.h"
-void TcpIpPortingInit()
+
+void TcpIpPortingInit(void)
 {
     tcpip_init(NULL, NULL);
 }
