@@ -182,12 +182,12 @@ VOID LOS_LmsCheckPoolDel(const VOID *pool)
     LmsMemListNode *delNode = OsLmsGetPoolNode(pool);
     if (delNode == NULL) {
         PRINT_ERR("[LMS]pool %p is not on lms checklist !\n", pool);
-        goto REALEASE;
+        goto RELEASE;
     }
     delNode->used = LMS_POOL_UNUSED;
     LOS_ListDelete(&(delNode->node));
 
-REALEASE:
+RELEASE:
     LMS_UNLOCK(intSave);
 }
 
