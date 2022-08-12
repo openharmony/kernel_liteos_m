@@ -129,7 +129,7 @@ EXIT:
     return LOS_OK;
 }
 
-VOID ItLosSwtmrAlign026() // IT_Layer_ModuleORFeature_No
+VOID ItLosSwtmrAlign026(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosSwtmrAlign026", Testcase, TEST_LOS, TEST_SWTMR, TEST_LEVEL1, TEST_FUNCTION);
 }

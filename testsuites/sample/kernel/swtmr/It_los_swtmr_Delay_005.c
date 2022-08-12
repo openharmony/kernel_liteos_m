@@ -71,7 +71,7 @@ EXIT:
     return LOS_OK;
 }
 
-VOID ItLosSwtmrDelay005() // IT_Layer_ModuleORFeature_No
+VOID ItLosSwtmrDelay005(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosSwtmrDelay005", Testcase, TEST_LOS, TEST_SWTMR, TEST_LEVEL1, TEST_FUNCTION);
 }
