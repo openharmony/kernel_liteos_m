@@ -56,7 +56,7 @@ static UINT32 Testcase(VOID)
     return LOS_OK;
 }
 
-VOID ItLosSwtmrAlign001() // IT_Layer_ModuleORFeature_No
+VOID ItLosSwtmrAlign001(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosSwtmrAlign001", Testcase, TEST_LOS, TEST_SWTMR, TEST_LEVEL1, TEST_FUNCTION);
 }
