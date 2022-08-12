@@ -113,7 +113,7 @@ extern "C" {
 *
 * Value: 0x02001d06
 *
-* Solution: Check whether the task scheduling is disabled, or set uwtimeout to 0, which means that the
+* Solution: Check whether the task scheduling is disabled, or set timeout to 0, which means that the
 * thread will not wait for the mutex to become available.
 */
 #define LOS_ERRNO_MUX_PEND_IN_LOCK  LOS_ERRNO_OS_ERROR(LOS_MOD_MUX, 0x06)
