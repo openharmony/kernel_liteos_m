@@ -709,8 +709,6 @@ static struct dirent *VfsReaddir(DIR *d)
         (dir->dMp->mFs->fsFops->readdir != NULL)) {
         if (dir->dMp->mFs->fsFops->readdir(dir, &dir->dDent) == 0) {
             ret = &dir->dDent;
-        } else {
-            VFS_ERRNO_SET(EBADF);
         }
     } else {
         VFS_ERRNO_SET(ENOTSUP);
