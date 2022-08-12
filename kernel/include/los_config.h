@@ -460,7 +460,7 @@ extern UINT8 *m_aucSysMem0;
 
 /**
  * @ingroup los_config
- * Configuration module tailoring of more mempry pool checking
+ * Configuration module tailoring of more memory pool checking
  */
 #ifndef LOSCFG_MEM_MUL_POOL
 #define LOSCFG_MEM_MUL_POOL                                 1
