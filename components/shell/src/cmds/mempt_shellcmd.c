@@ -82,7 +82,6 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdFree(INT32 argc, const CHAR *argv[])
 #if (LOSCFG_MEM_WATERLINE == 1)
 LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdWaterLine(INT32 argc, const CHAR *argv[])
 {
-    UINT32 ret;
     LOS_MEM_POOL_STATUS poolStatus;
 
     if (argc > 1) {
