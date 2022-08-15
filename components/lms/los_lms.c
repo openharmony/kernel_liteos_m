@@ -193,7 +193,7 @@ RELEASE:
 
 VOID OsLmsInit(VOID)
 {
-    memset(g_lmsCheckPoolArray, 0, sizeof(g_lmsCheckPoolArray));
+    (VOID)memset(g_lmsCheckPoolArray, 0, sizeof(g_lmsCheckPoolArray));
     LOS_ListInit(&g_lmsCheckPoolList);
     static LmsHook hook = {
         .init = LOS_LmsCheckPoolAdd,
@@ -284,7 +284,7 @@ VOID OsLmsSetShadowValue(LmsMemListNode *node, UINTPTR startAddr, UINTPTR endAdd
         }
 
         if (shadowEnd + 1 > shadowStart) {
-            memset((VOID *)shadowStart, value & LMS_SHADOW_MASK_U8, shadowEnd + 1 - shadowStart);
+            (VOID)memset((VOID *)shadowStart, value & LMS_SHADOW_MASK_U8, shadowEnd + 1 - shadowStart);
         }
     }
 }
@@ -609,7 +609,7 @@ VOID OsLmsReportError(UINTPTR p, UINT32 size, UINT32 errMod)
 
     LMS_LOCK(intSave);
     g_checkDepth += 1;
-    memset(&info, 0, sizeof(LmsAddrInfo));
+    (VOID)memset(&info, 0, sizeof(LmsAddrInfo));
 
     PRINT_ERR("*****  Kernel Address Sanitizer Error Detected Start *****\n");
 
