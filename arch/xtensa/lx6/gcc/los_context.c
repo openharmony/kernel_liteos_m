@@ -103,7 +103,7 @@ LITE_OS_SEC_TEXT_INIT VOID ArchInit(VOID)
 
 LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
 {
-    LOS_IntLock();
+    (VOID)LOS_IntLock();
     while (1) {
     }
 }
