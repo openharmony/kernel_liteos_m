@@ -32,12 +32,6 @@
 
 #include "it_los_atomic.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 Atomic g_testAtomicID03 = 0;
 Atomic64 g_testAtomicID05 = 0;
 
@@ -55,9 +49,3 @@ VOID ItSuiteLosAtomic(VOID)
     ItLosAtomic010();
     ItLosAtomic011();
 }
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
