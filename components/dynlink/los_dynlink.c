@@ -41,12 +41,6 @@
 #include "los_debug.h"
 #include "los_mux.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 #if (LOSCFG_DYNLINK == 1)
 
 #if defined(__ICCARM__) || defined(__CC_ARM)
@@ -929,10 +923,3 @@ INT32 LOS_DynlinkInit(VOID)
 }
 
 #endif /* LOSCFG_DYNLINK */
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-

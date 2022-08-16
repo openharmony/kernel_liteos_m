@@ -33,12 +33,6 @@
 #include "trace_tlv.h"
 #include "los_trace_pri.h"
 
-#ifdef __cplusplus
-#if __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#endif /* __cplusplus */
-
 #if (LOSCFG_KERNEL_SMP == 1)
 LITE_OS_SEC_BSS SPIN_LOCK_INIT(g_pipeSpin);
 #define PIPE_LOCK(state)                   LOS_SpinLockSave(&g_pipeSpin, &(state))
@@ -154,9 +148,3 @@ UINT32 OsTraceDataWait(VOID)
 {
     return g_tracePipelineOps->wait();
 }
-
-#ifdef __cplusplus
-#if __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* __cplusplus */
