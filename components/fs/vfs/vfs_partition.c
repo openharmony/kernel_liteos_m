@@ -40,7 +40,7 @@
 int GetPartIdByPartName(const char *partName)
 {
     if (partName == NULL) {
-        return LOS_NOK;
+        return (int)LOS_NOK;
     }
 
     /* the character next to p is the partId */
@@ -49,13 +49,13 @@ int GetPartIdByPartName(const char *partName)
         return atoi(p + 1);
     }
 
-    return LOS_NOK;
+    return (int)LOS_NOK;
 }
 
 int GetDevIdByDevName(const char *dev)
 {
     if (dev == NULL) {
-        return LOS_NOK;
+        return (int)LOS_NOK;
     }
 
     /* last character is the deviceId */
@@ -64,13 +64,13 @@ int GetDevIdByDevName(const char *dev)
         return atoi(p);
     }
 
-    return LOS_NOK;
+    return (int)LOS_NOK;
 }
 
 int LOS_DiskPartition(const char *dev, const char *fsType, int *lengthArray,
                       int partnum)
 {
-    int ret = LOS_NOK;
+    int ret = (int)LOS_NOK;
     struct FsMap *fMap = VfsFsMapGet(fsType);
     if ((fMap != NULL) && (fMap->fsMgt != NULL) &&
         (fMap->fsMgt->fdisk != NULL)) {
@@ -82,7 +82,7 @@ int LOS_DiskPartition(const char *dev, const char *fsType, int *lengthArray,
 
 int LOS_PartitionFormat(const char *partName, char *fsType, void *data)
 {
-    int ret = LOS_NOK;
+    int ret = (int)LOS_NOK;
 
     /* check if the device is mounted by iterate the mp list
        format is not allowed when the device has been mounted. */
@@ -91,7 +91,7 @@ int LOS_PartitionFormat(const char *partName, char *fsType, void *data)
         if ((iter->mFs != NULL) && (iter->mFs->fsType != NULL) &&
             strcmp(iter->mFs->fsType, fsType) == 0) {
             errno = EBUSY;
-            return LOS_NOK;
+            return (int)LOS_NOK;
         }
     }
 
