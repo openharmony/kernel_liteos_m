@@ -31,6 +31,8 @@
 #ifndef _VFS_PARTITION_H_
 #define _VFS_PARTITION_H_
 
+#include "los_compiler.h"
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -41,6 +43,19 @@ extern "C" {
 
 int GetPartIdByPartName(const char *partName);
 int GetDevIdByDevName(const char *dev);
+struct DeviceDesc *getDeviceList(void);
+
+struct DeviceDesc {
+    struct FsMap      *dFs;             /* file system info */
+    struct DeviceDesc *dNext;           /* point to next mount point */
+    const char        *dPath;           /* target path, /system, /usr, etc. */
+    const char        *dDev;            /* device, "emmc0p0", "emmc0p1", etc. */
+    void              *dData;           /* specific file system handle */
+    const char        *dFsType;         /* file system type */
+    int               *dLengthArray;    /* point to device partitions length array */
+    int               *dAddrArray;      /* point to device partitions address array */
+    int                dPartNum;        /* number of device partitions */
+};
 
 #ifdef __cplusplus
 #if __cplusplus
