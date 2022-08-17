@@ -45,6 +45,6 @@
 #include "pthread.h"
 
 #define INVALID_FD (-1)
-
+#define INVALID_DEVICE_ADDR ((uint32_t)-1)
 void LfsInit(void);
 #endif /* _LFS_ADAPTER_H_ */

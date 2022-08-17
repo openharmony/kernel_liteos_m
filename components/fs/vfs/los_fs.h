@@ -82,6 +82,26 @@ int LOS_FsUmount2(const char *target, int flag);
 int LOS_FsMount(const char *source, const char *target,
                 const char *fsType, unsigned long mountflags,
                 const void *data);
+
+struct PartitionCfg {
+    /* partition low-level read func */
+    int  (*readFunc)(int partition, UINT32 *offset, void *buf, UINT32 size);
+    /* partition low-level write func */
+    int  (*writeFunc)(int partition, UINT32 *offset, const void *buf, UINT32 size);
+    /* partition low-level erase func */
+    int  (*eraseFunc)(int partition, UINT32 offset, UINT32 size);
+
+    int readSize;       /* size of a block read */
+    int writeSize;      /* size of a block write */
+    int blockSize;      /* size of an erasable block */
+    int blockCount;     /* number of partition blocks */
+    int cacheSize;      /* size of block caches */
+
+    int partNo;         /* partition number */
+    int lookaheadSize;  /* lookahead size */
+    int blockCycles;    /* block cycles */
+};
+
 /*
  * @brief Divide the device into partitions.
  *
@@ -93,6 +113,7 @@ int LOS_FsMount(const char *source, const char *target,
  * @param lengthArray List of partition size. For example:
  *     [0x10000000, 0x2000000], 256M and 512M partitions will be created and
  *     left all will not allocated.
+ * @param addrArray List of partition start addr, partition num same as lengthArray
  * @param partNum Length of 'lengthArray'.
  *
  * @return Return LOS_NOK if error. Return LOS_OK if success.
@@ -103,8 +124,8 @@ int LOS_FsMount(const char *source, const char *target,
  *         The name is a combination of: 'deviceName'+'p'+'partitionId',
  *         such as "emmc0p0", "emmc0p1", "emmc0p2"...
  */
-int LOS_DiskPartition(const char *dev, const char *fsType, int *lengthArray,
-                      int partnum);
+int LOS_DiskPartition(const char *dev, const char *fsType, int *lengthArray, int *addrArray,
+                      int partNum);
 
 /*
  * @brief Format a partition.
