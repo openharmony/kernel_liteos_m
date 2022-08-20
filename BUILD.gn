@@ -120,8 +120,11 @@ config("los_config") {
 cmd = "if [ -f $device_path/BUILD.gn ]; then echo true; else echo false; fi"
 HAVE_DEVICE_SDK = exec_script("//build/lite/run_shell_cmd.py", [ cmd ], "value")
 
-# board and soc decoupling feature, device_path should contains board
-BOARD_SOC_FEATURE = device_path != string_replace(device_path, "/board/", "")
+# If device_path points to vendor, use device_path directly,
+# otherwise board is decoupled from soc, device_path should contain board
+BOARD_SOC_FEATURE =
+    device_path == string_replace(device_path, "/vendor/", "") &&
+    device_path != string_replace(device_path, "/board/", "")
 
 config("public") {
   configs = [
