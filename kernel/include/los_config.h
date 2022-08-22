@@ -663,6 +663,22 @@ extern UINT8 *m_aucSysMem0;
 #define LOSCFG_KERNEL_SIGNAL                          0
 #endif
 
+/**
+ * @ingroup los_config
+ * Configuration item to enable kernel power module.
+ */
+#ifndef LOSCFG_KERNEL_PM
+#define LOSCFG_KERNEL_PM                              0
+#endif
+
+/**
+ * @ingroup los_config
+ * Configuration item to enable kernel power module in idle task.
+ */
+#ifndef LOSCFG_KERNEL_PM_IDLE
+#define LOSCFG_KERNEL_PM_IDLE                         0
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }
