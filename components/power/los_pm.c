@@ -129,7 +129,8 @@ STATIC BOOL OsPmTickTimerStop(LosPmCB *pm)
 #endif
     LosPmTickTimer *tickTimer = pm->tickTimer;
 
-    if ((tickTimer == NULL) || (tickTimer->tickLock == NULL)) {
+    if ((tickTimer == NULL) || (tickTimer->tickLock == NULL) ||
+        (pm->pmMode == LOS_SYS_NORMAL_SLEEP)) {
         return FALSE;
     }
 
@@ -167,7 +168,6 @@ STATIC VOID OsPmCpuResume(LosPmCB *pm)
 STATIC VOID OsPmCpuSuspend(LosPmCB *pm)
 {
     /* cpu enter low power mode */
-    LOS_ASSERT(pm->sysctrl != NULL);
 
     if (pm->sysMode == LOS_SYS_NORMAL_SLEEP) {
         pm->sysctrl->normalSuspend();
@@ -226,6 +226,8 @@ STATIC UINT32 OsPmSuspendCheck(LosPmCB *pm, Suspend *sysSuspendEarly, Suspend *d
         return LOS_NOK;
     }
 
+    LOS_ASSERT(pm->sysctrl != NULL);
+
     pm->isWake = FALSE;
     *mode = pm->sysMode;
     *sysSuspendEarly = pm->sysctrl->early;
@@ -260,6 +262,10 @@ STATIC UINT32 OsPmSuspendSleep(LosPmCB *pm)
         goto EXIT;
     }
 
+    if (pm->sysctrl->suspendCheck != NULL) {
+        pm->sysctrl->suspendCheck(mode);
+    }
+
     tickTimerStop = OsPmTickTimerStop(pm);
     if (!tickTimerStop) {
         OsSchedResetSchedResponseTime(0);
@@ -283,6 +289,9 @@ EXIT:
 
 STATIC VOID OsPmNormalSleep(VOID)
 {
+#if (LOSCFG_KERNEL_PM_IDLE == 1)
+    (VOID)LOS_PmSuspend(0);
+#else
     UINT32 intSave;
     LosPmCB *pm = &g_pmCB;
 
@@ -293,6 +302,7 @@ STATIC VOID OsPmNormalSleep(VOID)
     OsPmCpuResume(pm);
 
     LOS_IntRestore(intSave);
+#endif
 }
 
 STATIC UINT32 OsPmDeviceRegister(LosPmCB *pm, LosPmDevice *device)
@@ -342,6 +352,9 @@ STATIC UINT32 OsPmSysctrlRegister(LosPmCB *pm, LosPmSysctrl *sysctrl)
     }
     if (sysctrl->late != NULL) {
         pm->sysctrl->late = sysctrl->late;
+    }
+    if (sysctrl->suspendCheck != NULL) {
+        pm->sysctrl->suspendCheck = sysctrl->suspendCheck;
     }
     if (sysctrl->normalSuspend != NULL) {
         pm->sysctrl->normalSuspend = sysctrl->normalSuspend;
