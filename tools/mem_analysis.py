@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (c) 2020 Huawei Device Co., Ltd.
+# Copyright (c) 2020-2022 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -79,7 +79,6 @@ def store_static_excel():
 
 def format_store_static():
     global g_excel_support
-    out_fd = open("./static_symbol_out.txt", "w+")
     target_list = []
     
     for base_address, values in static_map.items():
@@ -89,8 +88,9 @@ def format_store_static():
         target_list.append('{:<10}'.format(values.get('sizeD')))
         target_list.append('{:<55s}{:<55s}{:<55s}'.format(values.get('symbol'), values.get('lib'), values.get('obj')))
         target_list.append("\r")
-        
-    out_fd.write("".join(target_list))
+
+    with open("./static_symbol_out.txt", "w+") as out_fd:
+        out_fd.write("".join(target_list))
     if g_excel_support == True:
         store_static_excel()
     return
@@ -126,13 +126,13 @@ def store_dync_excel():
             c.value = values.get('symbol')
             for i in range(values.get('lib')):
                 column = i * 3 + 2
-                addr_name = 'LR' + str(i) + '_addr'
+                addr_name = "LR%s_addr" % (str(i))
                 c = ws.cell(row, column + 1)
                 c.value = addr_name                
-                symbol_name = 'LR' + str(i) + '_symbol'
+                symbol_name = "LR%s_symbol" % (str(i))
                 c = ws.cell(row, column + 2)
                 c.value = symbol_name   
-                object_name = 'LR' + str(i) + '_object'
+                object_name = "LR%s_object" % (str(i))
                 c = ws.cell(row, column + 3)
                 c.value = object_name
         else:
@@ -157,16 +157,15 @@ def store_dync_excel():
 
 def format_store_dync():
     global g_excel_support
-    out_fd = open("./dynamic_memory_out.txt", "w+")
     target_list = []
     
     for base_address, values in dync_map.items():
         if (0 == base_address):
             target_list.append('{:<15s}{:<15s}'.format("node", "size"))
             for i in range(values.get('lib')):
-                addr_name = 'LR' + str(i) + '_addr'
-                symbol_name = 'LR' + str(i) + '_symbol'
-                object_name = 'LR' + str(i) + '_object'
+                addr_name = "LR%s_addr" % (str(i))
+                symbol_name = "LR%s_symbol" % (str(i))
+                object_name = "LR%s_object" % (str(i))
                 target_list.append('{:<15s}{:<55s}{:<55s}'.format(addr_name, symbol_name, object_name))
                 
         else:
@@ -177,8 +176,9 @@ def format_store_dync():
                 target_list.append('{:<15s}'.format(values.get('addr')))
                 target_list.append('{:<55s}'.format(values.get('symbol')))
                 target_list.append('{:<55s}'.format(values.get('lib')))
-        
-    out_fd.write("".join(target_list))
+    
+    with open("./dynamic_memory_out.txt", "w+") as out_fd:
+        out_fd.write("".join(target_list))
     if g_excel_support == True:
         store_dync_excel()
     return
