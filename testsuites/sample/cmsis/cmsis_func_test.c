@@ -81,7 +81,12 @@ EXIT:
     return LOS_OK;
 };
 
-/* set and get queue name test */
+/**
+ * @tc.name: TestCmsis007
+ * @tc.desc: set and get queue name
+ * @tc.type: FUNC
+ * @tc.require: I5LBE8
+ */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis007, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
@@ -212,7 +217,12 @@ static INT32 ThreadReadWriteTest(VOID)
     return 0;
 }
 
-/* mix read write */
+/**
+ * @tc.name: TestCmsis006
+ * @tc.desc: mix read write
+ * @tc.type: FUNC
+ * @tc.require: I5LBE8
+ */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis006, Function | MediumTest | Level1)
 {
     INT32 ret;
@@ -224,7 +234,12 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis006, Function | MediumTest | Level1)
 }
 #endif
 
-/* read-write exception */
+/**
+ * @tc.name: TestCmsis005
+ * @tc.desc: read-write exception
+ * @tc.type: FUNC
+ * @tc.require: I5LBE8
+ */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis005, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
@@ -293,7 +308,12 @@ EXIT:
     return LOS_OK;
 }
 
-/* read write test */
+/**
+ * @tc.name: TestCmsis004
+ * @tc.desc: read write test
+ * @tc.type: FUNC
+ * @tc.require: I5LBE8
+ */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis004, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
@@ -352,7 +372,12 @@ EXIT:
     return LOS_OK;
 }
 
-/* create exception parameters test */
+/**
+ * @tc.name: TestCmsis003
+ * @tc.desc: create exception parameters test
+ * @tc.type: FUNC
+ * @tc.require: I5LBE8
+ */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis003, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
@@ -393,7 +418,12 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis003, Function | MediumTest | Level1)
     return LOS_OK;
 };
 
-/* create and delete test */
+/**
+ * @tc.name: TestCmsis002
+ * @tc.desc: create and delete test
+ * @tc.type: FUNC
+ * @tc.require: I5LBE8
+ */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis002, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
