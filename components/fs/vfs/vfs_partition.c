@@ -81,19 +81,19 @@ static int AddDevice(const char *dev, const char *fsType, int *lengthArray, int 
     for (prev = g_deviceList; prev != NULL; prev = prev->dNext) {
         if (strcmp(prev->dDev, dev) == 0) {
             errno = -EEXIST;
-            return LOS_NOK;
+            return (int)LOS_NOK;
         }
     }
 
     if (addrArray == NULL) {
         errno = -EFAULT;
-        return LOS_NOK;
+        return (int)LOS_NOK;
     }
 
     prev = (struct DeviceDesc *)malloc(sizeof(struct DeviceDesc));
     if (prev == NULL) {
         errno = -ENOMEM;
-        return LOS_NOK;
+        return (int)LOS_NOK;
     }
     prev->dDev = strdup(dev);
     prev->dFsType  = strdup(fsType);
@@ -131,7 +131,7 @@ errout:
 
     free(prev);
     errno = -ENOMEM;
-    return LOS_NOK;
+    return (int)LOS_NOK;
 }
 
 
@@ -143,7 +143,7 @@ int LOS_DiskPartition(const char *dev, const char *fsType, int *lengthArray, int
     if ((fMap != NULL) && (fMap->fsMgt != NULL) &&
         (fMap->fsMgt->fdisk != NULL)) {
         ret = fMap->fsMgt->fdisk(dev, lengthArray, partNum);
-        if (ret == LOS_NOK) {
+        if (ret == (int)LOS_NOK) {
             return ret;
         }
     }
