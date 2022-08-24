@@ -85,7 +85,7 @@ EXIT:
  * @tc.name: TestCmsis007
  * @tc.desc: set and get queue name
  * @tc.type: FUNC
- * @tc.require: I5LBE8
+ * @tc.require: issueI5LBE8
  */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis007, Function | MediumTest | Level1)
 {
@@ -221,7 +221,7 @@ static INT32 ThreadReadWriteTest(VOID)
  * @tc.name: TestCmsis006
  * @tc.desc: mix read write
  * @tc.type: FUNC
- * @tc.require: I5LBE8
+ * @tc.require: issueI5LBE8
  */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis006, Function | MediumTest | Level1)
 {
@@ -238,7 +238,7 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis006, Function | MediumTest | Level1)
  * @tc.name: TestCmsis005
  * @tc.desc: read-write exception
  * @tc.type: FUNC
- * @tc.require: I5LBE8
+ * @tc.require: issueI5LBE8
  */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis005, Function | MediumTest | Level1)
 {
@@ -312,7 +312,7 @@ EXIT:
  * @tc.name: TestCmsis004
  * @tc.desc: read write test
  * @tc.type: FUNC
- * @tc.require: I5LBE8
+ * @tc.require: issueI5LBE8
  */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis004, Function | MediumTest | Level1)
 {
@@ -376,7 +376,7 @@ EXIT:
  * @tc.name: TestCmsis003
  * @tc.desc: create exception parameters test
  * @tc.type: FUNC
- * @tc.require: I5LBE8
+ * @tc.require: issueI5LBE8
  */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis003, Function | MediumTest | Level1)
 {
@@ -422,7 +422,7 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis003, Function | MediumTest | Level1)
  * @tc.name: TestCmsis002
  * @tc.desc: create and delete test
  * @tc.type: FUNC
- * @tc.require: I5LBE8
+ * @tc.require: issueI5LBE8
  */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis002, Function | MediumTest | Level1)
 {
