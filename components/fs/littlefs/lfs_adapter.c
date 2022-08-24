@@ -62,7 +62,7 @@ static uint32_t LfsGetStartAddr(int partition)
         return INVALID_DEVICE_ADDR;
     }
 
-    return g_lfsDevice->dAddrArray[partition];
+    return (uint32_t)g_lfsDevice->dAddrArray[partition];
 }
 
 WEAK int littlefs_block_read(const struct lfs_config *c, lfs_block_t block,
@@ -663,7 +663,7 @@ int LfsFormat(const char *partName, void *privData)
     ret = lfs_format(&lfs, &g_lfsCfg);
     if (ret != 0) {
         errno = LittlefsErrno(ret);
-        ret = LOS_NOK;
+        ret = (int)LOS_NOK;
     }
     return ret;
 }
