@@ -40,7 +40,7 @@ static UINT32 TestCase(VOID)
     src = LOS_MemAlloc(m_aucSysMem0, 9);
     ICUNIT_ASSERT_NOT_EQUAL(src, NULL, src);
 
-    (VOID)memset(src, 0, 9);
+    (void)memset_s(src, 9, 0, 9);
     src[0] = 49;
     src[1] = 50;
     src[2] = 51;
