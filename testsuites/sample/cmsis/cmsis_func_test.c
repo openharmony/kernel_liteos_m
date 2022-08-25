@@ -90,13 +90,11 @@ EXIT:
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis007, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
-    osMessageQueueAttr_t attr;
+    osMessageQueueAttr_t attr = {0};
     CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     CHAR strbuff[] = "hello world";
     CHAR *name = NULL;
     INT32 ret;
-
-    memset(&attr, 0, sizeof(attr));
 
     attr.name = "q1";
     /* dynamic test */
@@ -184,10 +182,8 @@ static VOID CmsisQueueTestThread2(VOID)
 
 static INT32 ThreadReadWriteTest(VOID)
 {
-    osMessageQueueAttr_t attr;
+    osMessageQueueAttr_t attr = {0};
     INT32 ret;
-
-    memset(&attr, 0, sizeof(attr));
 
     g_msgQueueId1 = osMessageQueueNew(1, strlen(g_strbuff1), NULL);
     ICUNIT_ASSERT_NOT_EQUAL(g_msgQueueId1, NULL, g_msgQueueId1);
@@ -243,13 +239,11 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis006, Function | MediumTest | Level1)
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis005, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
-    osMessageQueueAttr_t attr;
+    osMessageQueueAttr_t attr = {0};
     CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     CHAR strbuff[] = "hello world";
     CHAR data[STATCI_BUFF_SIZE] = {0};
     INT32 ret;
-
-    memset(&attr, 0, sizeof(attr));
 
     ret = osMessageQueuePut(NULL, &strbuff, 0U, 0U);
     ICUNIT_ASSERT_EQUAL(ret, osErrorParameter, ret);
@@ -317,13 +311,11 @@ EXIT:
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis004, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
-    osMessageQueueAttr_t attr;
+    osMessageQueueAttr_t attr = {0};
     CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     CHAR strbuff[] = "hello world";
     CHAR data[STATCI_BUFF_SIZE] = {0};
     INT32 ret;
-
-    memset(&attr, 0, sizeof(attr));
 
     /* dynamic test */
     msgQueueId = osMessageQueueNew(1, strlen(strbuff), NULL);
@@ -381,11 +373,9 @@ EXIT:
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis003, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
-    osMessageQueueAttr_t attr;
+    osMessageQueueAttr_t attr = {0};
     CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     CHAR strbuff[] = "hello world";
-
-    memset(&attr, 0, sizeof(attr));
 
     /* dynmic test */
     msgQueueId = osMessageQueueNew(0, strlen(strbuff), NULL);
@@ -427,12 +417,10 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis003, Function | MediumTest | Level1)
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis002, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
-    osMessageQueueAttr_t attr;
+    osMessageQueueAttr_t attr = {0};
     CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     CHAR strbuff[] = "hello world";
     INT32 ret;
-
-    memset(&attr, 0, sizeof(attr));
 
     /* dynamic test */
     msgQueueId = osMessageQueueNew(1, strlen(strbuff), NULL);
