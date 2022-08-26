@@ -55,8 +55,10 @@ static UINT32 TestCase(VOID)
     g_testAtomicID05 = 0;
 
     for (i = 0; i < ATOMIC_MUTI_TASK_NUM; i++) {
-        memset(buf, 0, 10); // max buf size is 10.
-        memset(taskName[i], 0, 20); // max taskName size is 20.
+        ret = memset_s(buf, 10, 0, 10); // max buf size is 10.
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+        ret = memset_s(taskName[i], 20, 0, 20); // max taskName size is 20.
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
         task[i].pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
         task[i].pcName       = taskName[i];
