@@ -273,7 +273,7 @@ STATIC DynSharedObj *OsLoadInit(const CHAR *fileName, VOID *pool)
         goto ERR2;
     }
 
-    strcpy(dso->buf, fileName);
+    (void)strcpy_s(dso->buf, nameLen + 1, fileName);
     dso->fileName = dso->buf;
     dso->ref = 1;
     dso->pool = (pool ? pool : OS_SYS_MEM_ADDR);
