@@ -417,12 +417,6 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsShellCmdTraceDump(INT32 argc, const CHAR **argv)
     LOS_TraceRecordDump(toClient);
     return LOS_OK;
 }
-
-SHELLCMD_ENTRY(tracestart_shellcmd,   CMD_TYPE_EX, "trace_start", 0, (CmdCallBackFunc)LOS_TraceStart);
-SHELLCMD_ENTRY(tracestop_shellcmd,    CMD_TYPE_EX, "trace_stop",  0, (CmdCallBackFunc)LOS_TraceStop);
-SHELLCMD_ENTRY(tracesetmask_shellcmd, CMD_TYPE_EX, "trace_mask",  1, (CmdCallBackFunc)OsShellCmdTraceSetMask);
-SHELLCMD_ENTRY(tracereset_shellcmd,   CMD_TYPE_EX, "trace_reset", 0, (CmdCallBackFunc)LOS_TraceReset);
-SHELLCMD_ENTRY(tracedump_shellcmd,    CMD_TYPE_EX, "trace_dump", 1, (CmdCallBackFunc)OsShellCmdTraceDump);
 #endif
 
 #endif /* LOSCFG_KERNEL_TRACE == 1 */
