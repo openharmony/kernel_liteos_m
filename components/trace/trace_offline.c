@@ -31,6 +31,8 @@
 
 #include "los_trace_pri.h"
 #include "trace_pipeline.h"
+#include "los_memory.h"
+#include "securec.h"
 
 #ifdef __cplusplus
 #if __cplusplus
