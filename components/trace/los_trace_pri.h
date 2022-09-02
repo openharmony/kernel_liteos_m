@@ -152,6 +152,11 @@ extern VOID OsTraceRecordDump(BOOL toClient);
 #define OsTraceNotifyStop()
 #endif
 
+#if (LOSCFG_SHELL == 1)
+extern UINT32 OsShellCmdTraceSetMask(INT32 argc, const CHAR **argv);
+extern UINT32 OsShellCmdTraceDump(INT32 argc, const CHAR **argv);
+#endif
+
 #ifdef __cplusplus
 #if __cplusplus
 }
