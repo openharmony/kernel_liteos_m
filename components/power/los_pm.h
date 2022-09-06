@@ -165,6 +165,8 @@ typedef struct {
      * Unlocked task scheduling.
      */
     VOID (*late)(UINT32 mode);
+    /* Final check before low-power consumption. */
+    VOID (*suspendCheck)(UINT32 mode);
     /* The system enters the Normal sleep mode.
      * In normal mode, the value cannot be NULL.
      */
