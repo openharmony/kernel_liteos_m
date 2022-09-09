@@ -55,7 +55,7 @@ static VOID TaskF01(void)
 
     g_testCount++;
 
-    LOS_TaskDelay(100);// 100, set delay time.
+    LOS_TaskDelay(100); // 100, set delay time.
 }
 
 static UINT32 Testcase(VOID)
@@ -76,7 +76,7 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
-    LOS_TaskDelay(1000);// 1000, set delay time.
+    LOS_TaskDelay(1000); // 1000, set delay time.
 
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
 
