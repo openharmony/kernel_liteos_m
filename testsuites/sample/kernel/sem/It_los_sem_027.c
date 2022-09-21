@@ -69,7 +69,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID01, &task);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    LOS_TaskDelay(100);// 100, set delay time.
+    LOS_TaskDelay(100); // 100, set delay time.
 
     ICUNIT_GOTO_NOT_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
     ICUNIT_TRACK_EQUAL(g_testCount, 1, g_testCount);
