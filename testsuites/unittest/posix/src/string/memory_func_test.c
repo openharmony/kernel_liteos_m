@@ -73,8 +73,8 @@ static BOOL PosixMemFuncTestSuiteTearDown(void)
 LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcpy001, Function | MediumTest | Level1)
 {
     void *retValue = NULL;
-    char source[]={"This File is About Memony Operation Test , Please Carefully Check Result As Below\r\n"};
-    char dest[1024]={0};
+    char source[] = {"This File is About Memony Operation Test , Please Carefully Check Result As Below\r\n"};
+    char dest[1024] = {0};
     retValue = memcpy(dest, source, sizeof(source) / sizeof(source[0]));
 
     TEST_ASSERT_NOT_NULL(retValue);
@@ -114,9 +114,9 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcpy002, Function | MediumTest 
 {
     void *retValue = NULL;
 
-    char source[]={"memory refers to the computer hardware devices used to store information for"
+    char source[] = {"memory refers to the computer hardware devices used to store information for"
         " immediate use in a computer\r\n"};
-    char dest[1024]={0};
+    char dest[1024] = {0};
     retValue = memcpy(dest, source, sizeof(source) / sizeof(source[0]));
     TEST_ASSERT_NOT_NULL(retValue);
 
@@ -155,7 +155,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcpy002, Function | MediumTest 
 LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemset001, Function | MediumTest | Level1)
 {
     void *retValue = NULL;
-    char source[1024]={"memory refers to the computer hardware devices used to store information for"
+    char source[1024] = {"memory refers to the computer hardware devices used to store information for"
         " immediate use in a computer\r\n"};
     char ch = rand() % 26 + 'A';
     retValue = memset(source, ch, sizeof(source) / sizeof(source[0]));
@@ -177,9 +177,9 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemset001, Function | MediumTest 
 LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp001, Function | MediumTest | Level1)
 {
     int retValue = 0;
-    char source[]={"memory refers to the computer hardware devices used to store information for "
+    char source[] = {"memory refers to the computer hardware devices used to store information for "
         "immediate use in a computer\r\n"};
-    char   dest[]={"memory refers to the computer hardware devices used to store information for "
+    char dest[] = {"memory refers to the computer hardware devices used to store information for "
         "immediate use in a computer\r\n"};
 
     retValue = memcmp(source, dest, sizeof(source) / sizeof(source[0]));
@@ -217,9 +217,9 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp001, Function | MediumTest 
 LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp002, Function | MediumTest | Level1)
 {
     int retValue = 0;
-    char source[]={"memory refers to the computer hardware devices used to store information for "
+    char source[] = {"memory refers to the computer hardware devices used to store information for "
         "immediate use in a computer\r\n"};
-    char dest[]={"Hello, Richard, how are you?\r\n"};
+    char dest[] = {"Hello, Richard, how are you?\r\n"};
     retValue = memcmp(source, dest, sizeof(dest) / sizeof(dest[0]));
     TEST_ASSERT_GREATER_THAN(0, retValue);
 
@@ -243,8 +243,8 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp002, Function | MediumTest 
 LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp003, Function | MediumTest | Level1)
 {
     int retValue = 0;
-    char source[]={"00000\r\n"};
-    char   dest[]={"memory refers to the computer hardware devices used to store information for "
+    char source[] = {"00000\r\n"};
+    char dest[] = {"memory refers to the computer hardware devices used to store information for "
         "immediate use in a computer\r\n"};
     retValue = memcmp(source, dest, sizeof(source) / sizeof(source[0]));
     TEST_ASSERT_LESS_THAN(0, retValue);

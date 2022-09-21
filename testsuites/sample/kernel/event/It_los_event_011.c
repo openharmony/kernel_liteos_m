@@ -99,7 +99,7 @@ static UINT32 Testcase(VOID)
 
     g_testCount++;
 
-    LOS_TaskDelay(2);// 2, set delay time.
+    LOS_TaskDelay(2); // 2, set delay time.
 
     ICUNIT_GOTO_EQUAL(g_testCount, 7, g_testCount, EXIT1); // 7, Here, assert that g_testCount is equal to 7.
 
