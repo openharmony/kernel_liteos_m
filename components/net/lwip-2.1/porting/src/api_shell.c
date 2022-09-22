@@ -469,8 +469,9 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
                         }
                         intrvl -= 1000; /* 1000: 1000ms = 1s */
                         sys_msleep(1000); /* 1000: 1000ms = 1s */
-                        if (ping_kill == 1)
+                        if (ping_kill == 1) {
                             break;
+                        }
                     } while (intrvl > 0);
                     succ_cnt++;
                     break;
