@@ -74,8 +74,8 @@ static BOOL PosixStringFuncTestSuiteTearDown(void)
 LITE_TEST_CASE(PosixStringFuncTestSuite, testStrstrcmp001, Function | MediumTest | Level1)
 {
     int retValue = 0;
-    char source[]={"Compiler exited with error"};
-    char dest[]  ={"Compiler exited with error"};
+    char source[] = {"Compiler exited with error"};
+    char dest[] = {"Compiler exited with error"};
 
     retValue = strcmp(source, dest);
     TEST_ASSERT_EQUAL_INT(retValue, 0);
@@ -98,8 +98,8 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrstrcmp001, Function | MediumTest
 LITE_TEST_CASE(PosixStringFuncTestSuite, testStrstrcmp002, Function | MediumTest | Level1)
 {
     int retValue = 0;
-    char source[]={"Compiler exited with error"};
-    char dest[]  ={"00000000000"};
+    char source[] = {"Compiler exited with error"};
+    char dest[] = {"00000000000"};
 
     retValue = strcmp(source, dest);
     TEST_ASSERT_LESS_THAN(retValue, 0);
@@ -115,8 +115,8 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrstrcmp002, Function | MediumTest
 LITE_TEST_CASE(PosixStringFuncTestSuite, testStrstrcmp003, Function | MediumTest | Level1)
 {
     int retValue = 0;
-    char source[]={"0000000"};
-    char dest[]  ={"Compiler exited with error"};
+    char source[] = {"0000000"};
+    char dest[] = {"Compiler exited with error"};
 
     retValue = strcmp(source, dest);
     TEST_ASSERT_GREATER_THAN(retValue, 0);
@@ -131,7 +131,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrstrcmp003, Function | MediumTest
  */
 LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrdup001, Function | MediumTest | Level1)
 {
-    char source[]={"Compiler exited with error"};
+    char source[] = {"Compiler exited with error"};
     char *dest;
 
     dest = strdup(source);
@@ -158,7 +158,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrdup001, Function | MediumTest
  */
 LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrdup002, Function | MediumTest | Level1)
 {
-    char source[]={"export MY_TEST_PATH=/opt/hadoop-2.6.5"};
+    char source[] = {"export MY_TEST_PATH=/opt/hadoop-2.6.5"};
     char *dest;
 
     dest = strdup(source);
@@ -177,8 +177,8 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrdup002, Function | MediumTest
 LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrcspn001, Function | MediumTest | Level1)
 {
     int retValue = 0;
-    char source[]={"export MY_TEST_PATH=/opt/hadoop-2.6.5"};
-    char dest1[]  ={"H"};
+    char source[] = {"export MY_TEST_PATH=/opt/hadoop-2.6.5"};
+    char dest1[] = {"H"};
 
     retValue = strcspn(source, dest1);
     TEST_ASSERT_EQUAL_INT(18U, retValue);
@@ -202,8 +202,8 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrcspn001, Function | MediumTes
 LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrcspn002, Function | MediumTest | Level1)
 {
     int retValue = 0;
-    char source[]={"Compiler exited with error"};
-    char dest[]  ={"or"};
+    char source[] = {"Compiler exited with error"};
+    char dest[] = {"or"};
 
     retValue = strcspn(source, dest);
     TEST_ASSERT_EQUAL_INT(1, retValue);
