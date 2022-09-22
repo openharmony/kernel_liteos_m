@@ -31,6 +31,7 @@
 
 #include "ohos_types.h"
 #include "posix_test.h"
+#include "log.h"
 #include "los_config.h"
 #include "kernel_test.h"
 #include <ctype.h>
