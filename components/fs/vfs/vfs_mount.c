@@ -122,14 +122,45 @@ struct MountPoint *VfsMpFind(const char *path, const char **pathInMp)
     return bestMp;
 }
 
+STATIC struct MountPoint *MountPointInit(const char *target, const char *fsType, unsigned long mountflags)
+{
+    struct MountPoint *mp = NULL;
+    const char *pathInMp = NULL;
+    struct FsMap *mFs = NULL;
+
+    /* find mp by target, to see if it was mounted */
+    mp = VfsMpFind(target, &pathInMp);
+    if (mp != NULL && pathInMp != NULL) {
+        return NULL;
+    }
+
+    /* Find fsMap coresponding to the fsType */
+    mFs = VfsFsMapGet(fsType);
+    if ((mFs == NULL) || (mFs->fsMops == NULL) || (mFs->fsMops->mount == NULL)) {
+        return NULL;
+    }
+
+    mp = (struct MountPoint *)malloc(sizeof(struct MountPoint));
+    if (mp == NULL) {
+        return NULL;
+    }
+
+    mp->mFs = mFs;
+    mp->mDev = NULL;
+    mp->mRefs = 0;
+    mp->mWriteEnable = (mountflags & MS_RDONLY) ? FALSE : TRUE;
+    mp->mFs->fsRefs++;
+    mp->mNext = g_mountPoints;
+
+    return mp;
+}
+
 int LOS_FsMount(const char *source, const char *target,
                 const char *fsType, unsigned long mountflags,
                 const void *data)
 {
     int ret;
     struct MountPoint *mp = NULL;
-    struct FsMap *mFs = NULL;
-    const char *pathInMp = NULL;
 
     /* target must begin with '/', for example /system, /data, etc. */
     if ((target == NULL) || (target[0] != '/')) {
@@ -137,29 +168,19 @@ int LOS_FsMount(const char *source, const char *target,
     }
 
     (void)VfsLock();
-    /* find mp by target, to see if it was mounted */
-    mp = VfsMpFind(target, &pathInMp);
-    if (mp != NULL && pathInMp != NULL) {
-        goto errout;
-    }
 
-    /* Find fsMap coresponding to the fsType */
-    mFs = VfsFsMapGet(fsType);
-    if ((mFs == NULL) || (mFs->fsMops == NULL) || (mFs->fsMops->mount == NULL)) {
-        goto errout;
-    }
-
-    mp = (struct MountPoint *)malloc(sizeof(struct MountPoint));
+    mp = MountPointInit(target, fsType, mountflags);
     if (mp == NULL) {
-        goto errout;
+        VfsUnlock();
+        return (int)LOS_NOK;
     }
 
-    mp->mFs = mFs;
-    mp->mDev = NULL;
     if (source != NULL) {
         mp->mDev = strdup(source);
         if (mp->mDev == NULL) {
-            goto errout;
+            free(mp);
+            VfsUnlock();
+            return (int)LOS_NOK;
         }
     }
 
@@ -174,10 +195,7 @@ int LOS_FsMount(const char *source, const char *target,
         PRINT_ERR("mount failed, target %s.\n", target);
         goto errout;
     }
-    mp->mRefs = 0;
-    mp->mWriteEnable = (mountflags & MS_RDONLY) ? FALSE : TRUE;
-    mp->mFs->fsRefs++;
-    mp->mNext = g_mountPoints;
+
     g_mountPoints = mp;
     VfsUnlock();
     return LOS_OK;
