@@ -43,6 +43,10 @@
 #include "los_debugtools.h"
 #endif
 
+#if (LOSCFG_KERNEL_TRACE == 1)
+#include "los_trace_pri.h"
+#endif
+
 #define SHELL_INIT_MAGIC_FLAG 0xABABABAB
 
 STATIC CmdModInfo cmdInfo;
@@ -75,6 +79,13 @@ CmdItem g_shellcmdAll[] = {
     {CMD_TYPE_EX, "st", 1, (CmdCallBackFunc)OsShellCmdSchedTrace},
 #endif
     {CMD_TYPE_EX, "help", 0, (CmdCallBackFunc)OsShellCmdHelp},
+#if (LOSCFG_KERNEL_TRACE == 1)
+    {CMD_TYPE_EX, "trace_start", 0, (CmdCallBackFunc)LOS_TraceStart},
+    {CMD_TYPE_EX, "trace_stop",  0, (CmdCallBackFunc)LOS_TraceStop},
+    {CMD_TYPE_EX, "trace_mask",  1, (CmdCallBackFunc)OsShellCmdTraceSetMask},
+    {CMD_TYPE_EX, "trace_reset", 0, (CmdCallBackFunc)LOS_TraceReset},
+    {CMD_TYPE_EX, "trace_dump", 1, (CmdCallBackFunc)OsShellCmdTraceDump},
+#endif
 };
 
 CmdModInfo *OsCmdInfoGet(VOID)
