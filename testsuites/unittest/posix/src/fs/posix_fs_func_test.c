@@ -1337,10 +1337,12 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsReaddir002, Function | MediumTest | L
 
     dResult = readdir(dirp);
     TEST_ASSERT_NOT_NULL(dirp);
+    TEST_ASSERT_NOT_NULL(dResult);
     tellDir0 = dResult->d_off;
 
     dResult = readdir(dirp);
     TEST_ASSERT_NOT_NULL(dirp);
+    TEST_ASSERT_NOT_NULL(dResult);
     tellDir1 = dResult->d_off;
 
     TEST_ASSERT_TRUE(tellDir0 == tellDir1);
@@ -1496,9 +1498,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat002, Function | MediumTest | Leve
     TEST_ASSERT_TRUE(fd != -1);
 
     size = write(fd, writeBuf, sizeof(writeBuf));
-    TEST_ASSERT_TRUE(ret != -1);
-
     (void)close(fd);
+    TEST_ASSERT_TRUE(size != -1);
 
     ret = stat(tmpFileName, &buf);
     TEST_ASSERT_TRUE(ret != -1);
@@ -1526,8 +1527,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat003, Function | MediumTest | Leve
     TEST_ASSERT_TRUE(fd != -1);
 
     size = write(fd, writeBuf, sizeof(writeBuf));
-    TEST_ASSERT_TRUE(ret != -1);
     (void)close(fd);
+    TEST_ASSERT_TRUE(size != -1);
 
     ret = stat(tmpFileName, &buf);
     TEST_ASSERT_TRUE(ret != -1);
@@ -1562,18 +1563,24 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite001, Function | MediumTest | Lev
     TEST_ASSERT_TRUE(fd != -1);
 
     ret = write(fd, writeBuf, TEST_RW_SIZE);
+    if (ret == -1) {
+        (void)close(fd);
+    }
     TEST_ASSERT_TRUE(ret != -1);
 
     reLseek = lseek(fd, 0, SEEK_CUR);
 
     ret = write(fd, writeBuf, TEST_RW_SIZE);
+    if (ret == -1) {
+        (void)close(fd);
+    }
     TEST_ASSERT_TRUE(ret != -1);
 
     reLseek = lseek(fd, 0, SEEK_CUR);
+    (void)close(fd);
 
     TEST_ASSERT_TRUE((TEST_RW_SIZE + TEST_RW_SIZE) == (unsigned int)reLseek);
 
-    (void)close(fd);
     return 0;
 }
 
@@ -1598,9 +1605,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite002, Function | MediumTest | Lev
     for (i = 0; i < TEST_LOOPUP_TIME; i++) {
         ret = write(fd, writeBuf, sizeof(writeBuf));
     }
-    TEST_ASSERT_TRUE(ret != -1);
-
     (void)close(fd);
+    TEST_ASSERT_TRUE(ret != -1);
 
     ret = stat(tmpFileName, &statbuf);
     TEST_ASSERT_TRUE(ret != -1);
