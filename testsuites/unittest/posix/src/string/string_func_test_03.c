@@ -142,6 +142,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrdup001, Function | MediumTest
     char src[] = "hello world !";
     char *ret = strdup(src);
     TEST_ASSERT_EQUAL_CHAR_ARRAY(ret, src, sizeof(src) / sizeof(src[0]));
+    free(ret);
 
     char srcS[] = "This is String1";
     ret = strdup(srcS);

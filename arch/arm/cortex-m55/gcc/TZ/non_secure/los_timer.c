@@ -91,7 +91,7 @@ STATIC UINT64 SysTickReload(UINT64 nextResponseTime)
 
 STATIC UINT64 SysTickCycleGet(UINT32 *period)
 {
-    UINT32 hwCycle = 0；
+    UINT32 hwCycle = 0;
     UINT32 intSave = LOS_IntLock();
     UINT32 val = SysTick->VAL;
     *period = SysTick->LOAD;

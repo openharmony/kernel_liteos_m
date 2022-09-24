@@ -501,7 +501,7 @@ time_t time(time_t *timer)
 {
     UINT64 usec = 0;
     time_t sec;
-    INT32 rtcRet = 0;
+    INT32 rtcRet;
 
     if (g_rtcTimeFunc.RtcGetTimeHook != NULL) {
         rtcRet = g_rtcTimeFunc.RtcGetTimeHook(&usec);
