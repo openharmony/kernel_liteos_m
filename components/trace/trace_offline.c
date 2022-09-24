@@ -31,6 +31,8 @@
 
 #include "los_trace_pri.h"
 #include "trace_pipeline.h"
+#include "los_memory.h"
+#include "securec.h"
 
 #if (LOSCFG_RECORDER_MODE_OFFLINE == 1)
 #define BITS_NUM_FOR_TASK_ID 16

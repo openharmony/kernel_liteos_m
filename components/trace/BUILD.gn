@@ -64,3 +64,11 @@ kernel_module(module_name) {
     include_dirs += [ "pipeline/serial" ]
   }
 }
+
+config("public") {
+  include_dirs = [
+    ".",
+    "cnv",
+    "pipeline",
+  ]
+}
