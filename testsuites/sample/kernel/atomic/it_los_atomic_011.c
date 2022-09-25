@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -55,7 +55,7 @@ static VOID TaskF01(VOID)
     atomicRet = LOS_AtomicAdd(&atomicTestCounter, 0x77777777);
     ICUNIT_ASSERT_EQUAL_VOID(atomicRet, 0x22222221, atomicRet);
     readCounter = LOS_AtomicRead(&atomicTestCounter);
-    ICUNIT_ASSERT_EQUAL(readCounter, 0x22222221, readCounter);
+    ICUNIT_ASSERT_EQUAL_VOID(readCounter, 0x22222221, readCounter);
 
     LOS_AtomicSet(&atomicTestCounter, 0xdddddddd);
     atomicRet = LOS_AtomicSub(&atomicTestCounter, 0x99999999);
