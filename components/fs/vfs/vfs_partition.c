@@ -47,7 +47,7 @@ int GetPartIdByPartName(const char *partName)
 
     /* the character next to p is the partId */
     char *p = strrchr(partName, 'p');
-    if (p + 1 != NULL) {
+    if (p != NULL) {
         return atoi(p + 1);
     }
 

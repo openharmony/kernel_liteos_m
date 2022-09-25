@@ -612,7 +612,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
     HalHwiHandleReInit((UINT32)&g_hwiForm);
 
     HalSetVbr((UINT32)&g_hwiForm);
-    for (int i = 0; i < BYTES_OF_128_INT; i++) {
+    for (i = 0; i < BYTES_OF_128_INT; i++) {
         VIC_REG->IABR[i] = 0x0;
         VIC_REG->ICPR[i] = MASK_32_BITS;
     }

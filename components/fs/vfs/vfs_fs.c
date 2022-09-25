@@ -902,6 +902,10 @@ static int MapToPosixRet(int ret)
 /* POSIX interface */
 int LOS_Open(const char *path, int flags, ...)
 {
+    if (path == NULL) {
+        errno = EINVAL;
+        return (int)LOS_NOK;
+    }
 #ifdef LOSCFG_RANDOM_DEV
     unsigned flagMask = O_RDONLY | O_WRONLY | O_RDWR | O_APPEND | O_CREAT | O_LARGEFILE \
                         | O_TRUNC | O_EXCL | O_DIRECTORY;
@@ -952,7 +956,7 @@ int LOS_Open(const char *path, int flags, ...)
     FREE_AND_SET_NULL(canonicalPath);
 #endif
 #if (LOSCFG_POSIX_PIPE_API == 1)
-    if ((path != NULL) && !strncmp(path, PIPE_DEV_PATH, strlen(PIPE_DEV_PATH))) {
+    if (!strncmp(path, PIPE_DEV_PATH, strlen(PIPE_DEV_PATH))) {
         return PipeOpen(path, flags, PIPE_DEV_FD);
     }
 #endif
@@ -1149,8 +1153,9 @@ int OsFcntl(int fd, int cmd, va_list ap)
         ret = VfsVfcntl(filep, cmd, ap);
         VfsDetachFile(filep);
     } else {
+#ifndef LOSCFG_NET_LWIP_SACK
         ret = -EBADF;
-#ifdef LOSCFG_NET_LWIP_SACK
+#else
         int arg = va_arg(ap, int);
         ret = lwip_fcntl(fd, (long)cmd, arg);
         return ret;
@@ -1182,8 +1187,9 @@ int OsIoctl(int fd, int req, va_list ap)
     if (fd < CONFIG_NFILE_DESCRIPTORS) {
         ret = VfsIoctl(fd, req, ap);
     } else {
+#ifndef LOSCFG_NET_LWIP_SACK
         ret = -EBADF;
-#ifdef LOSCFG_NET_LWIP_SACK
+#else
         UINTPTR arg = va_arg(ap, UINTPTR);
         ret = lwip_ioctl(fd, (long)req, (void *)arg);
 #endif /* LOSCFG_NET_LWIP_SACK */

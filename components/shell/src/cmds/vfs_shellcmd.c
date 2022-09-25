@@ -544,11 +544,6 @@ STATIC INT32 OsShellCmdDoRmdir(const CHAR *pathname)
         }
         if (strcmp(dirent->d_name, "..") && strcmp(dirent->d_name, ".")) {
             size_t fullPathBufSize = strlen(pathname) + strlen(dirent->d_name) + SEPARATOR_EOF_LEN;
-            if (fullPathBufSize <= 0) {
-                PRINTK("buffer size is invalid!\n");
-                (VOID)closedir(d);
-                return -1;
-            }
             fullpath = (CHAR *)malloc(fullPathBufSize);
             if (fullpath == NULL) {
                 PRINTK("malloc failure!\n");

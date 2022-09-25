@@ -67,7 +67,7 @@ int SysUserTaskCreate(unsigned long entry, unsigned long userArea, unsigned long
 
 int SysSchedSetScheduler(unsigned int tid, int policy, int priority)
 {
-    if ((tid <= 0) || (tid > LOSCFG_BASE_CORE_TSK_LIMIT)) {
+    if ((tid == 0) || (tid > LOSCFG_BASE_CORE_TSK_LIMIT)) {
         return EINVAL;
     }
 
@@ -92,7 +92,7 @@ int *SysSchedGetArea(unsigned int tid)
     unsigned int intSave;
     int *area = NULL;
 
-    if ((tid <= 0) || (tid > LOSCFG_BASE_CORE_TSK_LIMIT)) {
+    if ((tid == 0) || (tid > LOSCFG_BASE_CORE_TSK_LIMIT)) {
         return NULL;
     }
 
