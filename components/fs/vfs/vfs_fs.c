@@ -582,17 +582,13 @@ static int VfsRename(const char *old, const char *new)
     return ret;
 }
 
-static int VfsIoctl(int fd, int func, ...)
+static int VfsIoctl(int fd, int func, va_list ap)
 {
-    va_list ap;
     unsigned long arg;
     struct File *file = NULL;
     int ret = (int)LOS_NOK;
 
-    va_start(ap, func);
     arg = va_arg(ap, unsigned long);
-    va_end(ap);
-
     file = VfsAttachFileReady(fd);
     if (file == NULL) {
         return ret;
@@ -906,6 +902,10 @@ static int MapToPosixRet(int ret)
 /* POSIX interface */
 int LOS_Open(const char *path, int flags, ...)
 {
+    if (path == NULL) {
+        errno = EINVAL;
+        return (int)LOS_NOK;
+    }
 #ifdef LOSCFG_RANDOM_DEV
     unsigned flagMask = O_RDONLY | O_WRONLY | O_RDWR | O_APPEND | O_CREAT | O_LARGEFILE \
                         | O_TRUNC | O_EXCL | O_DIRECTORY;
@@ -956,7 +956,7 @@ int LOS_Open(const char *path, int flags, ...)
     FREE_AND_SET_NULL(canonicalPath);
 #endif
 #if (LOSCFG_POSIX_PIPE_API == 1)
-    if ((path != NULL) && !strncmp(path, PIPE_DEV_PATH, strlen(PIPE_DEV_PATH))) {
+    if (!strncmp(path, PIPE_DEV_PATH, strlen(PIPE_DEV_PATH))) {
         return PipeOpen(path, flags, PIPE_DEV_FD);
     }
 #endif
@@ -1143,28 +1143,24 @@ int LOS_Fstat(int fd, struct stat *buf)
     return ret;
 }
 
-int LOS_Fcntl(int fd, int cmd, ...)
+int OsFcntl(int fd, int cmd, va_list ap)
 {
     struct File *filep = NULL;
-    va_list ap;
     int ret;
-    va_start(ap, cmd);
 
     if (fd < CONFIG_NFILE_DESCRIPTORS) {
         filep = VfsAttachFileReady(fd);
         ret = VfsVfcntl(filep, cmd, ap);
         VfsDetachFile(filep);
     } else {
+#ifndef LOSCFG_NET_LWIP_SACK
         ret = -EBADF;
-#ifdef LOSCFG_NET_LWIP_SACK
+#else
         int arg = va_arg(ap, int);
         ret = lwip_fcntl(fd, (long)cmd, arg);
-        va_end(ap);
         return ret;
 #endif /* LOSCFG_NET_LWIP_SACK */
     }
-
-    va_end(ap);
 
     if (ret < 0) {
         VFS_ERRNO_SET(-ret);
@@ -1173,21 +1169,41 @@ int LOS_Fcntl(int fd, int cmd, ...)
     return ret;
 }
 
-int LOS_Ioctl(int fd, int req, ...)
+int LOS_Fcntl(int fd, int cmd, ...)
+{
+    va_list ap;
+    int ret;
+    va_start(ap, cmd);
+    ret = OsFcntl(fd, cmd, ap);
+    va_end(ap);
+
+    return ret;
+}
+
+int OsIoctl(int fd, int req, va_list ap)
 {
     int ret;
-    va_list ap;
-    va_start(ap, req);
+
     if (fd < CONFIG_NFILE_DESCRIPTORS) {
         ret = VfsIoctl(fd, req, ap);
     } else {
+#ifndef LOSCFG_NET_LWIP_SACK
         ret = -EBADF;
-#ifdef LOSCFG_NET_LWIP_SACK
+#else
         UINTPTR arg = va_arg(ap, UINTPTR);
         ret = lwip_ioctl(fd, (long)req, (void *)arg);
 #endif /* LOSCFG_NET_LWIP_SACK */
     }
 
+    return ret;
+}
+
+int LOS_Ioctl(int fd, int req, ...)
+{
+    int ret;
+    va_list ap;
+    va_start(ap, req);
+    ret = OsIoctl(fd, req, ap);
     va_end(ap);
     return ret;
 }

@@ -148,13 +148,25 @@ int ftruncate(int fd, off_t length)
     return LOS_Ftruncate(fd, length);
 }
 
+int fcntl(int fd, int cmd, ...)
+{
+    int ret;
+    va_list vaList;
+
+    va_start(vaList, cmd);
+    ret = OsFcntl(fd, cmd, vaList);
+    va_end(vaList);
+    return ret;
+}
+
 int ioctl(int fd, int req, ...)
 {
-    va_list ap;
-    va_start(ap, req);
     int ret;
-    ret = LOS_Ioctl(fd, req, ap);
-    va_end(ap);
+    va_list vaList;
+
+    va_start(vaList, req);
+    ret = OsIoctl(fd, req, vaList);
+    va_end(vaList);
     return ret;
 }
 
@@ -247,4 +259,13 @@ int remove(const char *filename)
     return -1;
 }
 
+int fcntl(int fd, int cmd, ...)
+{
+    return -1;
+}
+
+int ioctl(int fd, int req, ...)
+{
+    return -1;
+}
 #endif

@@ -978,21 +978,17 @@ osStatus_t osEventFlagsDelete(osEventFlagsId_t ef_id)
 {
     PEVENT_CB_S pstEventCB = (PEVENT_CB_S)ef_id;
     UINT32 intSave;
-    osStatus_t ret;
+    osStatus_t ret = osOK;
     if (OS_INT_ACTIVE) {
         return osErrorISR;
     }
     intSave = LOS_IntLock();
-    if (LOS_EventDestroy(pstEventCB) == LOS_OK) {
-        ret = osOK;
-    } else {
+    if (LOS_EventDestroy(pstEventCB) != LOS_OK) {
         ret = osErrorParameter;
     }
     LOS_IntRestore(intSave);
 
-    if (LOS_MemFree(m_aucSysMem0, (void *)pstEventCB) == LOS_OK) {
-        ret = osOK;
-    } else {
+    if (LOS_MemFree(m_aucSysMem0, (void *)pstEventCB) != LOS_OK) {
         ret = osErrorParameter;
     }
 
