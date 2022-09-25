@@ -51,6 +51,7 @@ VOID HalSecureSVCHandler(UINT32 svcID, UINTPTR arg)
             HalSecureContextLoad(g_secureContext);
             break;
         case OS_SVC_FREE_SECURE_CONTEXT:
+            LOS_ASSERT(g_secureContext != NULL);
             HalSecureContextFree(g_secureContext);
             break;
         default:
