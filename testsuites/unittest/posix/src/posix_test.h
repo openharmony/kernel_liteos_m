@@ -44,7 +44,9 @@
 #define Function   0
 #define MediumTest 0
 #define Level1     0
+#define LITE_TEST_SUIT(subsystem, module, testsuit)
 #define LITE_TEST_CASE(module, function, flag) static int function(void)
+#define RUN_TEST_SUITE(testsuit)
 
 #define TEST_ASSERT_EQUAL(expected, actual) ICUNIT_ASSERT_EQUAL(expected, actual, actual)
 #define TEST_ASSERT_EQUAL_INT(expected, actual) TEST_ASSERT_EQUAL(expected, actual)
