@@ -90,6 +90,7 @@ static BOOL PosixFsFuncTestSuiteTearDown(void)
     return TRUE;
 }
 
+#if (LOSCFG_LIBC_MUSL == 1)
 /* *
  * @tc.number   SUB_KERNEL_FS_DIRNAME_001
  * @tc.name     dirname basic function test
@@ -162,6 +163,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsDirname004, Function | MediumTest | L
     TEST_ASSERT_EQUAL_STRING(".", workDir);
     return 0;
 }
+#endif
 
 /* *
  * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_001
@@ -1335,10 +1337,12 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsReaddir002, Function | MediumTest | L
 
     dResult = readdir(dirp);
     TEST_ASSERT_NOT_NULL(dirp);
+    TEST_ASSERT_NOT_NULL(dResult);
     tellDir0 = dResult->d_off;
 
     dResult = readdir(dirp);
     TEST_ASSERT_NOT_NULL(dirp);
+    TEST_ASSERT_NOT_NULL(dResult);
     tellDir1 = dResult->d_off;
 
     TEST_ASSERT_TRUE(tellDir0 == tellDir1);
@@ -1443,7 +1447,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsUnlink001, Function | MediumTest | Le
     char tmpFileName[]= FILE1;
 
     fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
-    TEST_ASSERT_TRUE(ret != -1);
+    TEST_ASSERT_TRUE(fd != -1);
 
     (void)close(fd);
 
@@ -1454,7 +1458,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsUnlink001, Function | MediumTest | Le
 
 /* *
  * @tc.number   SUB_KERNEL_FS_STAT_001
- * @tc.name     unlink
+ * @tc.name     stat
  * @tc.desc     [C- SOFTWARE -0200]
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat001, Function | MediumTest | Level1)
@@ -1466,7 +1470,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat001, Function | MediumTest | Leve
 
     remove(FILE1);
     fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
-    TEST_ASSERT_TRUE(ret != -1);
+    TEST_ASSERT_TRUE(fd != -1);
 
     (void)close(fd);
 
@@ -1477,7 +1481,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat001, Function | MediumTest | Leve
 
 /* *
  * @tc.number   SUB_KERNEL_FS_STAT_002
- * @tc.name     unlink
+ * @tc.name     stat
  * @tc.desc     [C- SOFTWARE -0200]
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat002, Function | MediumTest | Level1)
@@ -1491,12 +1495,11 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat002, Function | MediumTest | Leve
 
     remove(FILE1);
     fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
-    TEST_ASSERT_TRUE(ret != -1);
+    TEST_ASSERT_TRUE(fd != -1);
 
     size = write(fd, writeBuf, sizeof(writeBuf));
-    TEST_ASSERT_TRUE(ret != -1);
-
     (void)close(fd);
+    TEST_ASSERT_TRUE(size != -1);
 
     ret = stat(tmpFileName, &buf);
     TEST_ASSERT_TRUE(ret != -1);
@@ -1507,7 +1510,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat002, Function | MediumTest | Leve
 
 /* *
  * @tc.number   SUB_KERNEL_FS_STAT_003
- * @tc.name     unlink
+ * @tc.name     stat
  * @tc.desc     [C- SOFTWARE -0200]
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat003, Function | MediumTest | Level1)
@@ -1521,11 +1524,11 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat003, Function | MediumTest | Leve
 
     (void)memset_s(&buf, sizeof(buf), 0, sizeof(buf));
     fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
-    TEST_ASSERT_TRUE(ret != -1);
+    TEST_ASSERT_TRUE(fd != -1);
 
     size = write(fd, writeBuf, sizeof(writeBuf));
-    TEST_ASSERT_TRUE(ret != -1);
     (void)close(fd);
+    TEST_ASSERT_TRUE(size != -1);
 
     ret = stat(tmpFileName, &buf);
     TEST_ASSERT_TRUE(ret != -1);
@@ -1541,7 +1544,7 @@ extern off_t lseek(int fd, off_t offset, int whence);
 
 /* *
  * @tc.number   SUB_KERNEL_FS_WRITE_001
- * @tc.name     unlink
+ * @tc.name     write
  * @tc.desc     [C- SOFTWARE -0200]
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite001, Function | MediumTest | Level1)
@@ -1557,27 +1560,33 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite001, Function | MediumTest | Lev
     }
 
     fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
-    TEST_ASSERT_TRUE(ret != -1);
+    TEST_ASSERT_TRUE(fd != -1);
 
     ret = write(fd, writeBuf, TEST_RW_SIZE);
+    if (ret == -1) {
+        (void)close(fd);
+    }
     TEST_ASSERT_TRUE(ret != -1);
 
     reLseek = lseek(fd, 0, SEEK_CUR);
 
     ret = write(fd, writeBuf, TEST_RW_SIZE);
+    if (ret == -1) {
+        (void)close(fd);
+    }
     TEST_ASSERT_TRUE(ret != -1);
 
     reLseek = lseek(fd, 0, SEEK_CUR);
+    (void)close(fd);
 
     TEST_ASSERT_TRUE((TEST_RW_SIZE + TEST_RW_SIZE) == (unsigned int)reLseek);
 
-    (void)close(fd);
     return 0;
 }
 
 /* *
  * @tc.number   SUB_KERNEL_FS_WRITE_002
- * @tc.name     unlink
+ * @tc.name     write
  * @tc.desc     [C- SOFTWARE -0200]
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite002, Function | MediumTest | Level1)
@@ -1591,14 +1600,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite002, Function | MediumTest | Lev
 
     remove(FILE1);
     fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
-    TEST_ASSERT_TRUE(ret != -1);
+    TEST_ASSERT_TRUE(fd != -1);
 
     for (i = 0; i < TEST_LOOPUP_TIME; i++) {
         ret = write(fd, writeBuf, sizeof(writeBuf));
     }
-    TEST_ASSERT_TRUE(ret != -1);
-
     (void)close(fd);
+    TEST_ASSERT_TRUE(ret != -1);
 
     ret = stat(tmpFileName, &statbuf);
     TEST_ASSERT_TRUE(ret != -1);
@@ -1606,6 +1614,34 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite002, Function | MediumTest | Lev
     TEST_ASSERT_TRUE(statbuf.st_size == sizeof(writeBuf) * TEST_LOOPUP_TIME);
     return 0;
 }
+
+#if (LOSCFG_LIBC_MUSL == 1)
+/* *
+ * @tc.number   SUB_KERNEL_FS_FCNTL_001
+ * @tc.name     fcntl
+ * @tc.desc     [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFcntl001, Function | MediumTest | Level1)
+{
+    int fd = 0;
+    int flags = 0;
+    char tmpFileName[]= FILE1;
+
+    fd = open(tmpFileName, O_CREAT | O_RDWR, 0777);
+    TEST_ASSERT_TRUE(fd != -1);
+
+    flags = fcntl(fd, F_GETFL);
+    TEST_ASSERT_TRUE(flags == O_CREAT | O_RDWR);
+
+    fcntl(fd, F_SETFL, flags | O_APPEND);
+    flags = fcntl(fd, F_GETFL);
+    TEST_ASSERT_TRUE(flags == O_CREAT | O_RDWR | O_APPEND);
+
+    (void)close(fd);
+
+    return 0;
+}
+#endif
 
 RUN_TEST_SUITE(PosixFsFuncTestSuite);
 
@@ -1621,12 +1657,13 @@ void PosixFsFuncTest()
 
     RUN_ONE_TESTCASE(testFsWrite001);
     RUN_ONE_TESTCASE(testFsWrite002);
-
+#if (LOSCFG_LIBC_MUSL == 1)
     RUN_ONE_TESTCASE(testFsDirname001);
     RUN_ONE_TESTCASE(testFsDirname002);
     RUN_ONE_TESTCASE(testFsDirname003);
     RUN_ONE_TESTCASE(testFsDirname004);
-
+    RUN_ONE_TESTCASE(testFsFcntl001);
+#endif
     RUN_ONE_TESTCASE(testFsReaddir001);
     RUN_ONE_TESTCASE(testFsReaddir002);
 
@@ -1688,6 +1725,5 @@ void PosixFsFuncTest()
     RUN_ONE_TESTCASE(testFsFreadFwrite007);
     RUN_ONE_TESTCASE(testFsFreadFwrite008);
     RUN_ONE_TESTCASE(testFsFreadFwrite009);
-
     return;
 }

@@ -34,7 +34,7 @@ module_switch = defined(LOSCFG_NET_LWIP_SACK)
 module_name = "lwip"
 kernel_module(module_name) {
   sources = LWIP_PORTING_FILES + LWIPNOAPPSFILES - [ "$LWIPDIR/api/sockets.c" ]
-  include_dirs = [ "//utils/native/lite/include" ]
+  include_dirs = [ "//commonlibrary/utils_lite/include" ]
 }
 
 config("public") {

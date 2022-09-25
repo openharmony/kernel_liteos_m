@@ -44,6 +44,7 @@
 #include "sys/stat.h"
 #include "sys/uio.h"
 #include "unistd.h"
+#include <stdarg.h>
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -82,6 +83,9 @@ int LOS_FsUmount2(const char *target, int flag);
 int LOS_FsMount(const char *source, const char *target,
                 const char *fsType, unsigned long mountflags,
                 const void *data);
+
+int OsFcntl(int fd, int cmd, va_list ap);
+int OsIoctl(int fd, int req, va_list ap);
 
 struct PartitionCfg {
     /* partition low-level read func */

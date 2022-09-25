@@ -35,8 +35,6 @@
 
 static VOID TaskF02(VOID)
 {
-    UINT32 ret;
-    ICUNIT_ASSERT_EQUAL_VOID(ret, 0, ret);
     g_testCount++;
     return;
 }

@@ -529,7 +529,7 @@ u32_t OsShellPing(int argc, const char **argv)
 {
     int ret;
     u32_t i = 0;
-    u32_t count = 0;
+    u32_t count;
     int count_set = 0;
     u32_t interval = 1000; /* default ping interval */
     u32_t data_len = 48; /* default data length */
