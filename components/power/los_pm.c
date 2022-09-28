@@ -130,7 +130,7 @@ STATIC BOOL OsPmTickTimerStop(LosPmCB *pm)
     LosPmTickTimer *tickTimer = pm->tickTimer;
 
     if ((tickTimer == NULL) || (tickTimer->tickLock == NULL) ||
-        (pm->pmMode == LOS_SYS_NORMAL_SLEEP)) {
+        (pm->sysMode == LOS_SYS_NORMAL_SLEEP)) {
         return FALSE;
     }
 
@@ -264,6 +264,7 @@ STATIC UINT32 OsPmSuspendSleep(LosPmCB *pm)
 
     if (pm->sysctrl->suspendCheck != NULL) {
         pm->sysctrl->suspendCheck(mode);
+        pm->sysMode = pm->pmMode;
     }
 
     tickTimerStop = OsPmTickTimerStop(pm);
