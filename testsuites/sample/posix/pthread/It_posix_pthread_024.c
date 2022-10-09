@@ -30,45 +30,53 @@
 
 #include "It_posix_pthread.h"
 
-/*
- * return value of pthread_self() is 0 when
- * pthread create from LOS_TaskCreate()
- */
-pthread_t TestPthreadSelf(void)
+static VOID *PthreadF01(VOID *arg)
 {
-    pthread_t tid = pthread_self();
-    if (tid == 0) {
-        tid = ((LosTaskCB *)(OsCurrTaskGet()))->taskID;
-    }
-    return tid;
+    return NULL;
 }
 
-VOID ItSuitePosixPthread()
+static UINT32 Testcase(VOID)
 {
-    printf("************** begin SAMPLE POSIX pthread test *************\n");
-    ItPosixPthread001();
-    ItPosixPthread002();
-    ItPosixPthread003();
-    ItPosixPthread004();
-    ItPosixPthread005();
-    ItPosixPthread006();
-    ItPosixPthread007();
-    ItPosixPthread008();
-    ItPosixPthread009();
-    ItPosixPthread010();
-    ItPosixPthread011();
-    ItPosixPthread012();
-    ItPosixPthread013();
-    ItPosixPthread014();
-    ItPosixPthread015();
-    ItPosixPthread016();
-    ItPosixPthread017();
-    ItPosixPthread018();
-    ItPosixPthread019();
-    ItPosixPthread020();
-    ItPosixPthread021();
-    ItPosixPthread022();
-    ItPosixPthread023();
-    ItPosixPthread024();
-    ItPosixPthread025();
+    pthread_t newTh;
+    pthread_attr_t attr;
+    size_t stackSize = PTHREAD_STACK_MIN;
+    size_t ssize;
+    INT32 ret;
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_getstacksize(&attr, &ssize);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(ssize, PTHREAD_DEFAULT_STACK_SIZE, ssize);
+
+    ret = pthread_attr_setstacksize(&attr, stackSize);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_getstacksize(&attr, &ssize);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(ssize, stackSize, ssize);
+
+    ret = pthread_create(&newTh, &attr, PthreadF01, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_join(newTh, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_destroy(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    return LOS_OK;
+}
+
+/**
+ * @tc.name: ItPosixPthread024
+ * @tc.desc: Test interface pthread_attr_getstacksize
+ * @tc.type: FUNC
+ * @tc.require: issueI5TIRQ
+ */
+
+VOID ItPosixPthread024(VOID)
+{
+    TEST_ADD_CASE("ItPosixPthread024", Testcase, TEST_POSIX, TEST_PTHREAD, TEST_LEVEL2, TEST_FUNCTION);
 }
