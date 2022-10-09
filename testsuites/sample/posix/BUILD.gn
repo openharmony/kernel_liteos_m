@@ -27,7 +27,18 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static_library("test_posix") {
-  sources = [ "pthread_func_test.c" ]
+  sources = [
+    "pthread/It_posix_pthread.c",
+    "pthread/It_posix_pthread_001.c",
+    "pthread/It_posix_pthread_002.c",
+    "pthread/It_posix_pthread_003.c",
+    "pthread/It_posix_pthread_004.c",
+    "pthread/It_posix_pthread_005.c",
+    "pthread/It_posix_pthread_006.c",
+    "pthread/It_posix_pthread_007.c",
+    "pthread/It_posix_pthread_008.c",
+    "pthread_func_test.c",
+  ]
 
   configs += [ "//kernel/liteos_m/testsuites:include" ]
 }

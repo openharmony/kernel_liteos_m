@@ -34,6 +34,7 @@ void ItSuitePosix(void)
 {
     PRINTF("***********************BEGIN POSIX TEST**********************\n");
     PthreadFuncTestSuite();
+    ItSuitePosixPthread();
     PosixCtypeFuncTest();
     PosixIsdigitFuncTest();
     PosixIslowerFuncTest();
