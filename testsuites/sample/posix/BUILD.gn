@@ -45,6 +45,15 @@ static_library("test_posix") {
     "pthread/It_posix_pthread_014.c",
     "pthread/It_posix_pthread_015.c",
     "pthread/It_posix_pthread_016.c",
+    "pthread/It_posix_pthread_017.c",
+    "pthread/It_posix_pthread_018.c",
+    "pthread/It_posix_pthread_019.c",
+    "pthread/It_posix_pthread_020.c",
+    "pthread/It_posix_pthread_021.c",
+    "pthread/It_posix_pthread_022.c",
+    "pthread/It_posix_pthread_023.c",
+    "pthread/It_posix_pthread_024.c",
+    "pthread/It_posix_pthread_025.c",
     "pthread_func_test.c",
   ]
 
