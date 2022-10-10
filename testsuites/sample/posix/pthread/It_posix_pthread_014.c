@@ -30,36 +30,44 @@
 
 #include "It_posix_pthread.h"
 
-/*
- * return value of pthread_self() is 0 when
- * pthread create from LOS_TaskCreate()
- */
-pthread_t TestPthreadSelf(void)
+static UINT32 Testcase(VOID)
 {
-    pthread_t tid = pthread_self();
-    if (tid == 0) {
-        tid = ((LosTaskCB *)(OsCurrTaskGet()))->taskID;
-    }
-    return tid;
+    pthread_condattr_t condattr;
+    pthread_cond_t cond1;
+    pthread_cond_t cond2;
+    int pshared;
+    int rc;
+
+    rc = pthread_condattr_init(&condattr);
+    ICUNIT_ASSERT_EQUAL(rc, 0, rc);
+
+    rc = pthread_condattr_getpshared(NULL, &pshared);
+    ICUNIT_ASSERT_EQUAL(rc, EINVAL, rc);
+
+    rc = pthread_condattr_getpshared(&condattr, NULL);
+    ICUNIT_ASSERT_EQUAL(rc, EINVAL, rc);
+
+    rc = pthread_condattr_getpshared(NULL, NULL);
+    ICUNIT_ASSERT_EQUAL(rc, EINVAL, rc);
+
+    rc = pthread_condattr_getpshared(&condattr, &pshared);
+    ICUNIT_ASSERT_EQUAL(rc, 0, rc);
+    ICUNIT_ASSERT_EQUAL(pshared, PTHREAD_PROCESS_PRIVATE, pshared);
+
+    rc = pthread_condattr_destroy(&condattr);
+    ICUNIT_ASSERT_EQUAL(rc, 0, rc);
+
+    return LOS_OK;
 }
 
-VOID ItSuitePosixPthread()
+/**
+ * @tc.name: ItPosixPthread014
+ * @tc.desc: Test interface pthread_condattr_getpshared
+ * @tc.type: FUNC
+ * @tc.require: issueI5TIRQ
+ */
+
+VOID ItPosixPthread014(VOID)
 {
-    printf("************** begin SAMPLE POSIX pthread test *************\n");
-    ItPosixPthread001();
-    ItPosixPthread002();
-    ItPosixPthread003();
-    ItPosixPthread004();
-    ItPosixPthread005();
-    ItPosixPthread006();
-    ItPosixPthread007();
-    ItPosixPthread008();
-    ItPosixPthread009();
-    ItPosixPthread010();
-    ItPosixPthread011();
-    ItPosixPthread012();
-    ItPosixPthread013();
-    ItPosixPthread014();
-    ItPosixPthread015();
-    ItPosixPthread016();
+    TEST_ADD_CASE("ItPosixPthread014", Testcase, TEST_POSIX, TEST_PTHREAD, TEST_LEVEL2, TEST_FUNCTION);
 }
