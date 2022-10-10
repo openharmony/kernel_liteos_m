@@ -625,6 +625,24 @@ STATIC INT32 OsIsContainersWildcard(const CHAR *filename)
     return 0;
 }
 
+/*  Delete a non directory file  */
+STATIC INT32 OsRmFileOnly(const CHAR *fullpath)
+{
+    struct stat statInfo = {0};
+    INT32 ret = stat(fullpath, &statInfo);
+    if (ret == 0) {
+        if (!S_ISDIR(statInfo.st_mode)) {
+            ret = unlink(fullpath);
+        } else {
+            ret = 0;
+            PRINTK("rm: cannot remove '%s': Is a directory\n", fullpath);
+        }
+    } else {
+        PRINTK("stat: get '%s' statInfo fail!\n", fullpath);
+    }
+    return ret;
+}
+
 /*  Delete a matching file or directory  */
 
 STATIC INT32 OsWildcardDeleteFileOrDir(const CHAR *fullpath, wildcard_type mark)
@@ -636,7 +654,7 @@ STATIC INT32 OsWildcardDeleteFileOrDir(const CHAR *fullpath, wildcard_type mark)
             ret = OsShellCmdDoRmdir(fullpath);
             break;
         case RM_FILE:
-            ret = unlink(fullpath);
+            ret = OsRmFileOnly(fullpath);
             break;
         case RM_DIR:
             ret = rmdir(fullpath);
@@ -649,8 +667,6 @@ STATIC INT32 OsWildcardDeleteFileOrDir(const CHAR *fullpath, wildcard_type mark)
         perror("rm/rmdir error!");
         return ret;
     }
-
-    PRINTK("%s match successful!delete!\n", fullpath);
     return 0;
 }
 
@@ -726,6 +742,10 @@ STATIC INT32 OsWildcardExtractDirectory(CHAR *fullpath, VOID *dst, wildcard_type
         dirent = readdir(d);
         if (dirent == NULL) {
             break;
+        }
+
+        if (!strcmp(dirent->d_name, ".") || !strcmp(dirent->d_name, "..")) {
+            continue;
         }
 
         ret = strcpy_s(src, PATH_MAX, f);
@@ -910,7 +930,7 @@ INT32 OsShellCmdRm(INT32 argc, const CHAR **argv)
         if (OsIsContainersWildcard(fullpath)) {
             ret = OsWildcardExtractDirectory(fullpath, NULL, RM_FILE);
         } else {
-            ret = unlink(fullpath);
+            ret = OsRmFileOnly(fullpath);
         }
     }
     if (ret == -1) {
