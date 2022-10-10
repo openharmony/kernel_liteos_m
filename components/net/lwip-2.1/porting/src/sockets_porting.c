@@ -211,6 +211,7 @@ int close(int fd)
 }
 #endif
 
+#if LWIP_SOCKET_IOCTL
 #ifdef LWIP_SOCKET_IOCTL_FUNC
 int ioctl(int fd, int req, ...)
 {
@@ -222,7 +223,9 @@ int ioctl(int fd, int req, ...)
     return lwip_ioctl(fd, (long)req, (void *)arg);
 }
 #endif
+#endif
 
+#if LWIP_SOCKET_FCNTL
 #ifdef LWIP_SOCKET_FCNTL_FUNC
 int fcntl(int fd, int cmd, ...)
 {
@@ -233,6 +236,7 @@ int fcntl(int fd, int cmd, ...)
     va_end(ap);
     return lwip_fcntl(fd, cmd, val);
 }
+#endif
 #endif
 
 #if LWIP_SOCKET_SELECT
