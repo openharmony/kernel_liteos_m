@@ -30,36 +30,46 @@
 
 #include "It_posix_pthread.h"
 
-/*
- * return value of pthread_self() is 0 when
- * pthread create from LOS_TaskCreate()
- */
-pthread_t TestPthreadSelf(void)
+static UINT32 Testcase(VOID)
 {
-    pthread_t tid = pthread_self();
-    if (tid == 0) {
-        tid = ((LosTaskCB *)(OsCurrTaskGet()))->taskID;
-    }
-    return tid;
+    INT32 ret;
+    INT32 inheritsched;
+    INT32 g_pthreadSchedInherit;
+    pthread_attr_t attr;
+
+    ret = pthread_attr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    g_pthreadSchedInherit = PTHREAD_INHERIT_SCHED;
+    ret = pthread_attr_setinheritsched(&attr, g_pthreadSchedInherit);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_getinheritsched(&attr, &inheritsched);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(inheritsched, g_pthreadSchedInherit, inheritsched);
+
+    g_pthreadSchedInherit = PTHREAD_EXPLICIT_SCHED;
+    ret = pthread_attr_setinheritsched(&attr, g_pthreadSchedInherit);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_attr_getinheritsched(&attr, &inheritsched);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(inheritsched, g_pthreadSchedInherit, inheritsched);
+
+    ret = pthread_attr_destroy(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    return LOS_OK;
 }
 
-VOID ItSuitePosixPthread()
+/**
+ * @tc.name: ItPosixPthread012
+ * @tc.desc: Test interface pthread_attr_getinheritsched
+ * @tc.type: FUNC
+ * @tc.require: issueI5TIRQ
+ */
+
+VOID ItPosixPthread012(VOID)
 {
-    printf("************** begin SAMPLE POSIX pthread test *************\n");
-    ItPosixPthread001();
-    ItPosixPthread002();
-    ItPosixPthread003();
-    ItPosixPthread004();
-    ItPosixPthread005();
-    ItPosixPthread006();
-    ItPosixPthread007();
-    ItPosixPthread008();
-    ItPosixPthread009();
-    ItPosixPthread010();
-    ItPosixPthread011();
-    ItPosixPthread012();
-    ItPosixPthread013();
-    ItPosixPthread014();
-    ItPosixPthread015();
-    ItPosixPthread016();
+    TEST_ADD_CASE("ItPosixPthread012", Testcase, TEST_POSIX, TEST_PTHREAD, TEST_LEVEL2, TEST_FUNCTION);
 }

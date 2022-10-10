@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -30,36 +30,34 @@
 
 #include "It_posix_pthread.h"
 
-/*
- * return value of pthread_self() is 0 when
- * pthread create from LOS_TaskCreate()
- */
-pthread_t TestPthreadSelf(void)
+static UINT32 Testcase(VOID)
 {
-    pthread_t tid = pthread_self();
-    if (tid == 0) {
-        tid = ((LosTaskCB *)(OsCurrTaskGet()))->taskID;
-    }
-    return tid;
+    pthread_condattr_t attr;
+    int ret;
+
+    /* Initialize a cond attributes object */
+    ret = pthread_condattr_init(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    /* Set 'pshared' to INVALID_PSHARED_VALUE. */
+    ret = pthread_condattr_setpshared(&attr, INVALID_PSHARED_VALUE);
+    ICUNIT_ASSERT_EQUAL(ret, EINVAL, ret);
+
+    /* Destroy the cond attributes object */
+    ret = pthread_condattr_destroy(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    return LOS_OK;
 }
 
-VOID ItSuitePosixPthread()
+/**
+ * @tc.name: ItPosixPthread011
+ * @tc.desc: Test interface pthread_condattr_setpshared
+ * @tc.type: FUNC
+ * @tc.require: issueI5TIRQ
+ */
+
+VOID ItPosixPthread011(VOID)
 {
-    printf("************** begin SAMPLE POSIX pthread test *************\n");
-    ItPosixPthread001();
-    ItPosixPthread002();
-    ItPosixPthread003();
-    ItPosixPthread004();
-    ItPosixPthread005();
-    ItPosixPthread006();
-    ItPosixPthread007();
-    ItPosixPthread008();
-    ItPosixPthread009();
-    ItPosixPthread010();
-    ItPosixPthread011();
-    ItPosixPthread012();
-    ItPosixPthread013();
-    ItPosixPthread014();
-    ItPosixPthread015();
-    ItPosixPthread016();
+    TEST_ADD_CASE("ItPosixPthread011", Testcase, TEST_POSIX, TEST_PTHREAD, TEST_LEVEL2, TEST_FUNCTION);
 }
