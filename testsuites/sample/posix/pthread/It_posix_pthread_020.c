@@ -30,45 +30,43 @@
 
 #include "It_posix_pthread.h"
 
-/*
- * return value of pthread_self() is 0 when
- * pthread create from LOS_TaskCreate()
- */
-pthread_t TestPthreadSelf(void)
+static VOID *PthreadF01(VOID *argument)
 {
-    pthread_t tid = pthread_self();
-    if (tid == 0) {
-        tid = ((LosTaskCB *)(OsCurrTaskGet()))->taskID;
-    }
-    return tid;
+    sleep(1);
+    return NULL;
 }
 
-VOID ItSuitePosixPthread()
+static UINT32 Testcase(VOID)
 {
-    printf("************** begin SAMPLE POSIX pthread test *************\n");
-    ItPosixPthread001();
-    ItPosixPthread002();
-    ItPosixPthread003();
-    ItPosixPthread004();
-    ItPosixPthread005();
-    ItPosixPthread006();
-    ItPosixPthread007();
-    ItPosixPthread008();
-    ItPosixPthread009();
-    ItPosixPthread010();
-    ItPosixPthread011();
-    ItPosixPthread012();
-    ItPosixPthread013();
-    ItPosixPthread014();
-    ItPosixPthread015();
-    ItPosixPthread016();
-    ItPosixPthread017();
-    ItPosixPthread018();
-    ItPosixPthread019();
-    ItPosixPthread020();
-    ItPosixPthread021();
-    ItPosixPthread022();
-    ItPosixPthread023();
-    ItPosixPthread024();
-    ItPosixPthread025();
+    pthread_t newTh1, newTh2;
+    INT32 ret;
+
+    ret = pthread_create(&newTh1, NULL, PthreadF01, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_create(&newTh2, NULL, PthreadF01, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_equal(newTh1, newTh2);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_join(newTh1, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = pthread_join(newTh2, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    return LOS_OK;
+}
+
+/**
+ * @tc.name: ItPosixPthread020
+ * @tc.desc: Test interface pthread_equal
+ * @tc.type: FUNC
+ * @tc.require: issueI5TIRQ
+ */
+
+VOID ItPosixPthread020(VOID)
+{
+    TEST_ADD_CASE("ItPosixPthread020", Testcase, TEST_POSIX, TEST_PTHREAD, TEST_LEVEL2, TEST_FUNCTION);
 }

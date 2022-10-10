@@ -30,45 +30,48 @@
 
 #include "It_posix_pthread.h"
 
-/*
- * return value of pthread_self() is 0 when
- * pthread create from LOS_TaskCreate()
- */
-pthread_t TestPthreadSelf(void)
+static int g_testCnt;
+
+static VOID *PthreadF01(VOID *num)
 {
-    pthread_t tid = pthread_self();
-    if (tid == 0) {
-        tid = ((LosTaskCB *)(OsCurrTaskGet()))->taskID;
-    }
-    return tid;
+    intptr_t i = (intptr_t)num;
+    PRINTK("Passed argument for thread: %d, g_testCnt = %d\n", (int)i, g_testCnt);
+    ICUNIT_TRACK_EQUAL(g_testCnt, i, g_testCnt);
+    g_testCnt++;
+
+    return NULL;
 }
 
-VOID ItSuitePosixPthread()
+static UINT32 Testcase(VOID)
 {
-    printf("************** begin SAMPLE POSIX pthread test *************\n");
-    ItPosixPthread001();
-    ItPosixPthread002();
-    ItPosixPthread003();
-    ItPosixPthread004();
-    ItPosixPthread005();
-    ItPosixPthread006();
-    ItPosixPthread007();
-    ItPosixPthread008();
-    ItPosixPthread009();
-    ItPosixPthread010();
-    ItPosixPthread011();
-    ItPosixPthread012();
-    ItPosixPthread013();
-    ItPosixPthread014();
-    ItPosixPthread015();
-    ItPosixPthread016();
-    ItPosixPthread017();
-    ItPosixPthread018();
-    ItPosixPthread019();
-    ItPosixPthread020();
-    ItPosixPthread021();
-    ItPosixPthread022();
-    ItPosixPthread023();
-    ItPosixPthread024();
-    ItPosixPthread025();
+    pthread_t newTh;
+    long i;
+    INT32 ret;
+
+    g_testCnt = 1;
+
+    for (i = 1; i < PTHREAD_THREADS_NUM + 1; i++) {
+        ret = pthread_create(&newTh, NULL, PthreadF01, (void *)i);
+        ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+        ret = pthread_join(newTh, NULL);
+        ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    }
+
+    return LOS_OK;
+EXIT:
+    pthread_detach(newTh);
+    return LOS_OK;
+}
+
+/**
+ * @tc.name: ItPosixPthread017
+ * @tc.desc: Test interface pthread_create
+ * @tc.type: FUNC
+ * @tc.require: issueI5TIRQ
+ */
+
+VOID ItPosixPthread017(VOID)
+{
+    TEST_ADD_CASE("ItPosixPthread017", Testcase, TEST_POSIX, TEST_PTHREAD, TEST_LEVEL2, TEST_FUNCTION);
 }
