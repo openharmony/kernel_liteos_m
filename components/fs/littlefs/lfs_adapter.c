@@ -43,7 +43,6 @@
 static pthread_mutex_t g_fsLocalMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static struct PartitionCfg g_partitionCfg;
-static struct lfs_config g_lfsCfg;
 static struct DeviceDesc *g_lfsDevice = NULL;
 
 static uint32_t LfsGetStartAddr(int partition)
@@ -177,6 +176,7 @@ int LfsMount(struct MountPoint *mp, unsigned long mountflags, const void *data)
 {
     int ret;
     lfs_t *mountHdl = NULL;
+    struct lfs_config *cfg = NULL;
 
     if ((mp == NULL) || (mp->mPath == NULL) || (data == NULL)) {
         errno = EFAULT;
@@ -184,22 +184,23 @@ int LfsMount(struct MountPoint *mp, unsigned long mountflags, const void *data)
         goto errout;
     }
 
-    mountHdl = (lfs_t *)malloc(sizeof(lfs_t));
+    mountHdl = (lfs_t *)malloc(sizeof(lfs_t) + sizeof(struct lfs_config));
     if (mountHdl == NULL) {
         errno = ENODEV;
         ret = (int)LOS_NOK;
         goto errout;
     }
-    (void)memset_s(mountHdl, sizeof(lfs_t), 0, sizeof(lfs_t));
+    (void)memset_s(mountHdl, sizeof(lfs_t) + sizeof(struct lfs_config), 0, sizeof(lfs_t) + sizeof(struct lfs_config));
     mp->mData = (void *)mountHdl;
+    cfg = (void *)((UINTPTR)mountHdl + sizeof(lfs_t));
 
-    LfsConfigAdapter((struct PartitionCfg *)data, &g_lfsCfg);
+    LfsConfigAdapter((struct PartitionCfg *)data, cfg);
 
-    ret = lfs_mount((lfs_t *)mp->mData, &g_lfsCfg);
+    ret = lfs_mount((lfs_t *)mp->mData, cfg);
     if (ret != 0) {
-        ret = lfs_format((lfs_t *)mp->mData, &g_lfsCfg);
+        ret = lfs_format((lfs_t *)mp->mData, cfg);
         if (ret == 0) {
-            ret = lfs_mount((lfs_t *)mp->mData, &g_lfsCfg);
+            ret = lfs_mount((lfs_t *)mp->mData, cfg);
         }
     }
     if (ret != 0) {
@@ -655,12 +656,13 @@ int LfsFormat(const char *partName, void *privData)
 {
     int ret;
     lfs_t lfs = {0};
+    struct lfs_config cfg = {0};
 
     (void)partName;
 
-    LfsConfigAdapter((struct PartitionCfg *)privData, &g_lfsCfg);
+    LfsConfigAdapter((struct PartitionCfg *)privData, &cfg);
 
-    ret = lfs_format(&lfs, &g_lfsCfg);
+    ret = lfs_format(&lfs, &cfg);
     if (ret != 0) {
         errno = LittlefsErrno(ret);
         ret = (int)LOS_NOK;
