@@ -240,4 +240,7 @@
 #define LWIP_SOCKET_OFFSET              CONFIG_NFILE_DESCRIPTORS
 #endif
 
+#define LWIP_SOCKET_IOCTL               0
+#define LWIP_SOCKET_FCNTL               0
+
 #endif /* _LWIP_PORTING_LWIPOPTS_H_ */
