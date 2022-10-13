@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -43,7 +43,8 @@
 #include "log.h"
 #include <fcntl.h>
 #include <dirent.h>
-#include "sys/stat.h"
+#include <sys/stat.h>
+#include <unistd.h>
 
 /* *
  * @tc.desc      : register a test suite, this suite is used to test basic flow and interface dependency
@@ -1074,7 +1075,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite003, Function | MediumTest
     fp = fopen(TEST_FILE_PTAH_RIGHT, "r");
     TEST_ASSERT_NOT_NULL(fp);
 
-    ret = fread(chr1, strlen(chr1) + 1, 1, fp);
+    ret = fread((void *)chr1, strlen(chr1) + 1, 1, fp);
     TEST_ASSERT_TRUE(ret != -1);
 
     ret = fclose(fp);

@@ -86,10 +86,6 @@ optimize_config_cflags = []
 optimize_config_asmflags = []
 
 if (defined(LOSCFG_COMPILE_DEBUG)) {
-  optimize_config_cflags += [
-    "-g",
-    "-gdwarf-2",
-  ]
   optimize_config_cflags += [ "-On" ]
 } else {
   if (defined(LOSCFG_COMPILE_OPTIMIZE)) {
@@ -118,12 +114,14 @@ kconfig_config_cflags += [
 warn_config_cflags = []
 warn_config_asmflags = []
 
-warn_config_cflags += [
-  "--warnings_affect_exit_code",
-  "--warnings_are_errors",
-  "--warn_about_c_style_casts",
-  "--warn_about_incomplete_constructors",
-]
+if (!defined(LOSCFG_TEST)) {
+  warn_config_cflags += [
+    "--warnings_affect_exit_code",
+    "--warnings_are_errors",
+    "--warn_about_c_style_casts",
+    "--warn_about_incomplete_constructors",
+  ]
+}
 
 #
 # dialect_config

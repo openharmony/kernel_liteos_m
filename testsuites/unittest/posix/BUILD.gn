@@ -1,5 +1,5 @@
 # Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -27,6 +27,7 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//kernel/liteos_m/liteos.gni")
 import("//test/xts/tools/lite/build/suite_lite.gni")
 
 static_library("posix_test") {
@@ -65,6 +66,11 @@ static_library("posix_test") {
     "src",
   ]
 
-  cflags = [ "-Wno-error" ]
+  if (!defined(LOSCFG_COMPILER_ICCARM)) {
+    cflags = [ "-Wno-error" ]
+  } else {
+    cflags = [ "--no_warnings" ]
+  }
+
   configs += [ "//kernel/liteos_m/testsuites:include" ]
 }

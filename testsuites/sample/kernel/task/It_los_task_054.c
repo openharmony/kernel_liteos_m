@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -71,7 +71,7 @@ static VOID TaskF01(VOID)
 #ifdef __RISC_V__
     ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, HwiF01, 0);
 #else
-    ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, HwiF01, 1);
+    ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, HwiF01, (HwiIrqParam *)1);
 #endif
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 

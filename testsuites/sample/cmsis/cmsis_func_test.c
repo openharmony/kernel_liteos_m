@@ -101,14 +101,14 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis007, Function | MediumTest | Level1)
     msgQueueId = osMessageQueueNew(1, strlen(strbuff), &attr);
     ICUNIT_ASSERT_NOT_EQUAL(msgQueueId, NULL, msgQueueId);
 
-    name = osMessageQueueGetName(msgQueueId);
+    name = (CHAR *)osMessageQueueGetName(msgQueueId);
     ret = strcmp(name, "q1");
     ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     ret = osMessageQueueDelete(msgQueueId);
     ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
 
-    name = osMessageQueueGetName(msgQueueId);
+    name = (CHAR *)osMessageQueueGetName(msgQueueId);
     ICUNIT_ASSERT_EQUAL(name, NULL, name);
 
 #if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)

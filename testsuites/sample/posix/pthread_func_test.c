@@ -31,7 +31,9 @@
 #include <securec.h>
 #include "osTest.h"
 #include "pthread.h"
+#include "time.h"
 
+#undef TASK_PRIO_TEST
 #define TASK_PRIO_TEST           LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO
 #define OS_TSK_TEST_STACK_SIZE   0x1000
 #define PTHREAD_TASK_DELAY       10
@@ -582,10 +584,10 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread008, Function | MediumTest | Lev
     int result = 0;
     UINT32 ret;
 
-    ret = pthread_key_create(&g_pthreadKey1, pthreadKeyFree);
+    ret = pthread_key_create((pthread_key_t *)&g_pthreadKey1, pthreadKeyFree);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
-    ret = pthread_key_create(&g_pthreadKey2, pthreadKeyFree);
+    ret = pthread_key_create((pthread_key_t *)&g_pthreadKey2, pthreadKeyFree);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = pthread_attr_init(&attr);
@@ -657,7 +659,7 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread009, Function | MediumTest | Lev
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     for (i = 0; i < TEST_THREAD_COUNT; i++) {
-        ret = pthread_create(&thread[i], &attr, PthreadPrioFunc01, TEST_THREAD_COUNT - i);
+        ret = pthread_create(&thread[i], &attr, PthreadPrioFunc01, (void *)(TEST_THREAD_COUNT - i));
         ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     }
 

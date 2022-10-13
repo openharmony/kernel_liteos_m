@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -340,6 +340,7 @@ typedef struct tagHwiHandleForm {
 #define TEST_HwiCreate(ID, prio, mode, Func, irqParam) LOS_HwiCreate(ID, prio, mode, Func, irqParam)
 #define uart_printf_func printf
 
+extern VOID ItSuiteLosAtomic(void);
 extern VOID ItSuiteLosTask(void);
 extern VOID ItSuiteLosQueue(void);
 extern VOID ItSuiteLosMux(void);
