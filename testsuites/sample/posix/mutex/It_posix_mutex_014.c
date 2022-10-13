@@ -30,73 +30,33 @@
 
 #include "It_posix_mutex.h"
 
-UINT32 PosixPthreadDestroy(pthread_attr_t *attr, pthread_t thread)
+static UINT32 Testcase(VOID)
 {
-    UINT32 uwRet = 0;
+    pthread_mutex_t mutex = TEST_MUTEX_INIT;
+    int rc;
 
-    uwRet = pthread_join(thread, NULL);
-    ICUNIT_GOTO_EQUAL(uwRet, 0, uwRet, NOK);
+    /* Initialize a mutex object */
+    rc = pthread_mutex_init(&mutex, NULL);
+    ICUNIT_ASSERT_EQUAL(rc, 0, rc);
 
-    uwRet = pthread_attr_destroy(attr);
-    ICUNIT_GOTO_EQUAL(uwRet, 0, uwRet, NOK);
+    rc = pthread_mutex_destroy(&mutex);
+    ICUNIT_GOTO_EQUAL(rc, 0, rc, EXIT);
 
     return LOS_OK;
-NOK:
-    return LOS_NOK;
-}
 
-UINT32 PosixPthreadInit(pthread_attr_t *attr, int pri)
-{
-    UINT32 uwRet = 0;
-    struct sched_param sp;
-
-    uwRet = pthread_attr_init(attr);
-    ICUNIT_GOTO_EQUAL(uwRet, 0, uwRet, NOK);
-
-    uwRet = pthread_attr_setinheritsched(attr, PTHREAD_EXPLICIT_SCHED);
-    ICUNIT_GOTO_EQUAL(uwRet, 0, uwRet, NOK);
-
-    sp.sched_priority = pri;
-    uwRet = pthread_attr_setschedparam(attr, &sp);
-    ICUNIT_GOTO_EQUAL(uwRet, 0, uwRet, NOK);
-
+EXIT:
+    pthread_mutex_destroy(&mutex);
     return LOS_OK;
-NOK:
-    return LOS_NOK;
 }
 
-VOID TestExtraTaskDelay(UINT32 uwTick)
-{
-#ifdef LOSCFG_KERNEL_SMP
-    // trigger task schedule may occor on another core
-    // needs adding delay and checking status later
-    LosTaskDelay(uwTick);
-#else
-    // do nothing
-#endif
-}
+/**
+ * @tc.name: ItPosixMux014
+ * @tc.desc: Test interface pthread_mutex_destroy
+ * @tc.type: FUNC
+ * @tc.require: issueI5WZI6
+ */
 
-VOID ItSuitePosixMutex(void)
+VOID ItPosixMux014(void)
 {
-    PRINTF("*********** Begin sample posix mutex test ************\n");
-    ItPosixMux001();
-    ItPosixMux002();
-    ItPosixMux003();
-    ItPosixMux004();
-    ItPosixMux005();
-    ItPosixMux006();
-    ItPosixMux007();
-    ItPosixMux008();
-    ItPosixMux009();
-    ItPosixMux010();
-    ItPosixMux011();
-    ItPosixMux012();
-    ItPosixMux013();
-    ItPosixMux014();
-    ItPosixMux015();
-    ItPosixMux016();
-    ItPosixMux017();
-    ItPosixMux018();
-    ItPosixMux019();
-    ItPosixMux020();
+    TEST_ADD_CASE("ItPosixMux014", Testcase, TEST_POSIX, TEST_MUX, TEST_LEVEL2, TEST_FUNCTION);
 }
