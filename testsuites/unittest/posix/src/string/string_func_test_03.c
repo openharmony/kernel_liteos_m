@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -211,6 +211,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrcspn002, Function | MediumTes
     return 0;
 };
 
+#ifndef LOSCFG_COMPILER_ICCARM
 /* *
  * @tc.number    : SUB_KERNEL_POSIX_strptime_OPERATION_001
  * @tc.name      : Memony operation for strptime test
@@ -229,6 +230,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrptime001, Function | MediumTe
     TEST_ASSERT_EQUAL_INT(tmData.tm_min, 24);
     return 0;
 }
+#endif
 
 
 RUN_TEST_SUITE(PosixStringFuncTestSuite);
@@ -243,7 +245,9 @@ void PosixStringFuncTest03()
     RUN_ONE_TESTCASE(testStrStrdup002);
     RUN_ONE_TESTCASE(testStrStrcspn001);
     RUN_ONE_TESTCASE(testStrStrcspn002);
+#ifndef LOSCFG_COMPILER_ICCARM
     RUN_ONE_TESTCASE(testStrStrptime001);
+#endif
 
     return;
 }
