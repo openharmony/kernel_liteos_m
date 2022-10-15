@@ -42,12 +42,6 @@
 #include "los_event.h"
 #include "los_mux.h"
 
-typedef struct {
-    volatile INT32 *realValue;
-    INT32 value;
-    UINT32 clearEvent;
-} EventCond;
-
 #define INLINE inline
 
 #define BROADCAST_EVENT     1
