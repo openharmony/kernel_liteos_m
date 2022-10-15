@@ -175,7 +175,7 @@ STATIC INLINE INT32 PollTimedWait(struct pollfd *fds, nfds_t nfds, struct PollTa
             }
         } else if (left <= 0) {
             break;
-        } else if (left > 0) {
+        } else {
             clock_gettime(CLOCK_REALTIME, &curTime);
             last = (INT32)((curTime.tv_sec - startTime.tv_sec) * OS_SYS_MS_PER_SECOND +
                    (curTime.tv_nsec - startTime.tv_nsec) / (OS_SYS_NS_PER_SECOND / OS_SYS_MS_PER_SECOND));
