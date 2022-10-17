@@ -89,7 +89,7 @@ struct Dir {
     void              *dData;
 };
 
-int FileToFd(struct File *file);
+int FileToFd(const struct File *file);
 struct File *FdToFile(int fd);
 struct File *VfsFileGet(void);
 struct File *VfsFileGetSpec(int fd);
