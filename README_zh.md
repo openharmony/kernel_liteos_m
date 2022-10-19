@@ -11,7 +11,7 @@
 
 OpenHarmony LiteOS-M内核是面向IoT领域构建的轻量级物联网操作系统内核，具有小体积、低功耗、高性能的特点，其代码结构简单，主要包括内核最小功能集、内核抽象层、可选组件以及工程目录等，分为硬件相关层以及硬件无关层，硬件相关层提供统一的HAL（Hardware Abstraction Layer）接口，提升硬件易适配性，不同编译工具链和芯片架构的组合分类，满足AIoT类型丰富的硬件和编译工具链的拓展。其架构图如图1所示：
 
-**图 1**  OpenHarmony LiteOS-M核内核架构图<a name="fig0865152210223"></a>  
+**图 1**  OpenHarmony LiteOS-M核内核架构图<a name="fig0865152210223"></a>
 ![](figures/OpenHarmony-LiteOS-M核内核架构图.png "OpenHarmony-LiteOS-M核内核架构图")
 
 ## 目录<a name="section161941989596"></a>
@@ -77,7 +77,7 @@ LiteOS-M内核的编译构建系统是一个基于gn和ninja的组件化构建�
 
 ### 搭建系统基础环境
 
-在搭建各个开发板环境前，需要完成OpenHarmony系统基础环境搭建。系统基础环境主要是指OpenHarmony的编译环境和开发环境，详细介绍请参考官方站点[开发环境准备](https://gitee.com/openharmony/docs/blob/HEAD/zh-cn/device-dev/quick-start/quickstart-lite-env-setup.md)。开发者需要根据环境搭建文档完成环境搭建。
+在搭建各个开发板环境前，需要完成OpenHarmony系统基础环境搭建。系统基础环境主要是指OpenHarmony的编译环境和开发环境，详细介绍请参考官方站点[开发环境准备](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/Readme-CN.md)。开发者需要根据环境搭建文档完成环境搭建。
 
 ### 获取OpenHarmony源码
 
