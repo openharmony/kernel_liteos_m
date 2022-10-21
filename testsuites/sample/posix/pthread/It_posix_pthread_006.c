@@ -47,9 +47,9 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(rc, 0, rc, EXIT);
 
     rc = pthread_cond_destroy(&cond1);
-    ICUNIT_GOTO_EQUAL(rc, ENOERR, rc, EXIT);
+    ICUNIT_GOTO_EQUAL(rc, 0, rc, EXIT);
     rc = pthread_cond_destroy(&cond2);
-    ICUNIT_GOTO_EQUAL(rc, ENOERR, rc, EXIT);
+    ICUNIT_GOTO_EQUAL(rc, 0, rc, EXIT);
 
     return LOS_OK;
 EXIT:
