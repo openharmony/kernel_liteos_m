@@ -42,7 +42,7 @@ static UINT32 Testcase(VOID)
     ret = pthread_attr_setdetachstate(NULL, PTHREAD_CREATE_DETACHED);
     ICUNIT_GOTO_EQUAL(ret, EINVAL, ret, EXIT);
 
-    ret = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE - 1);
+    ret = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE - 2);
     ICUNIT_GOTO_EQUAL(ret, EINVAL, ret, EXIT);
 
     ret = pthread_attr_setdetachstate(&attr, 3); // 3, test the param of function.
