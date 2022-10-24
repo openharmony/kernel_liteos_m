@@ -28,6 +28,16 @@
 
 static_library("test_posix") {
   sources = [
+    "mutex/It_posix_mutex.c",
+    "mutex/It_posix_mutex_001.c",
+    "mutex/It_posix_mutex_002.c",
+    "mutex/It_posix_mutex_003.c",
+    "mutex/It_posix_mutex_004.c",
+    "mutex/It_posix_mutex_005.c",
+    "mutex/It_posix_mutex_006.c",
+    "mutex/It_posix_mutex_007.c",
+    "mutex/It_posix_mutex_008.c",
+    "mutex/It_posix_mutex_009.c",
     "pthread/It_posix_pthread.c",
     "pthread/It_posix_pthread_001.c",
     "pthread/It_posix_pthread_002.c",
