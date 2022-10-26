@@ -30,73 +30,50 @@
 
 #include "It_posix_mutex.h"
 
-UINT32 PosixPthreadDestroy(pthread_attr_t *attr, pthread_t thread)
+/* pthread_mutex_destroy 4-2.c
+ * Test that when a pthread_mutex_destroy is called on a
+ *  locked mutex, it fails and returns EBUSY
+
+ * Steps:
+ * 1. Create a mutex
+ * 2. Lock the mutex
+ * 3. Try to destroy the mutex
+ * 4. Check that this may fail with EBUSY
+ */
+
+static UINT32 Testcase(VOID)
 {
-    UINT32 uwRet = 0;
+    pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+    int rc;
 
-    uwRet = pthread_join(thread, NULL);
-    ICUNIT_GOTO_EQUAL(uwRet, 0, uwRet, NOK);
+    /* Lock the mutex */
+    rc = pthread_mutex_lock(&mutex);
+    ICUNIT_ASSERT_EQUAL(rc, 0, rc);
 
-    uwRet = pthread_attr_destroy(attr);
-    ICUNIT_GOTO_EQUAL(uwRet, 0, uwRet, NOK);
+    /* Try to destroy the locked mutex */
+    rc = pthread_mutex_destroy(&mutex);
+    ICUNIT_GOTO_EQUAL(rc, EBUSY, rc, EXIT);
+
+    rc = pthread_mutex_unlock(&mutex);
+    ICUNIT_ASSERT_EQUAL(rc, 0, rc);
+
+    rc = pthread_mutex_destroy(&mutex);
+    ICUNIT_ASSERT_EQUAL(rc, 0, rc);
 
     return LOS_OK;
-NOK:
+
+EXIT:
     return LOS_NOK;
 }
 
-UINT32 PosixPthreadInit(pthread_attr_t *attr, int pri)
+/**
+ * @tc.name: ItPosixMux015
+ * @tc.desc: Test interface pthread_mutex_lock
+ * @tc.type: FUNC
+ * @tc.require: issueI5WZI6
+ */
+
+VOID ItPosixMux015(void)
 {
-    UINT32 uwRet = 0;
-    struct sched_param sp;
-
-    uwRet = pthread_attr_init(attr);
-    ICUNIT_GOTO_EQUAL(uwRet, 0, uwRet, NOK);
-
-    uwRet = pthread_attr_setinheritsched(attr, PTHREAD_EXPLICIT_SCHED);
-    ICUNIT_GOTO_EQUAL(uwRet, 0, uwRet, NOK);
-
-    sp.sched_priority = pri;
-    uwRet = pthread_attr_setschedparam(attr, &sp);
-    ICUNIT_GOTO_EQUAL(uwRet, 0, uwRet, NOK);
-
-    return LOS_OK;
-NOK:
-    return LOS_NOK;
-}
-
-VOID TestExtraTaskDelay(UINT32 uwTick)
-{
-#ifdef LOSCFG_KERNEL_SMP
-    // trigger task schedule may occor on another core
-    // needs adding delay and checking status later
-    LosTaskDelay(uwTick);
-#else
-    // do nothing
-#endif
-}
-
-VOID ItSuitePosixMutex(void)
-{
-    PRINTF("*********** Begin sample posix mutex test ************\n");
-    ItPosixMux001();
-    ItPosixMux002();
-    ItPosixMux003();
-    ItPosixMux004();
-    ItPosixMux005();
-    ItPosixMux006();
-    ItPosixMux007();
-    ItPosixMux008();
-    ItPosixMux009();
-    ItPosixMux010();
-    ItPosixMux011();
-    ItPosixMux012();
-    ItPosixMux013();
-    ItPosixMux014();
-    ItPosixMux015();
-    ItPosixMux016();
-    ItPosixMux017();
-    ItPosixMux018();
-    ItPosixMux019();
-    ItPosixMux020();
+    TEST_ADD_CASE("ItPosixMux015", Testcase, TEST_POSIX, TEST_MUX, TEST_LEVEL2, TEST_FUNCTION);
 }
