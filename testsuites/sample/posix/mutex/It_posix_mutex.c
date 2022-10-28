@@ -99,4 +99,20 @@ VOID ItSuitePosixMutex(void)
     ItPosixMux018();
     ItPosixMux019();
     ItPosixMux020();
+    ItPosixMux021();
+    ItPosixMux022();
+    ItPosixMux023();
+    ItPosixMux024();
+    ItPosixMux025();
+    ItPosixMux026();
+    ItPosixMux027();
+    ItPosixMux028();
+    ItPosixMux029();
+    ItPosixMux030();
+    ItPosixMux031();
+    ItPosixMux032();
+    ItPosixMux033();
+    ItPosixMux034();
+    ItPosixMux035();
+    ItPosixMux036();
 }
