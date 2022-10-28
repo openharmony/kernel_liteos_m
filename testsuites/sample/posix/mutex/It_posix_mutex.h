@@ -80,6 +80,22 @@ VOID ItPosixMux017(void);
 VOID ItPosixMux018(void);
 VOID ItPosixMux019(void);
 VOID ItPosixMux020(void);
+VOID ItPosixMux021(void);
+VOID ItPosixMux022(void);
+VOID ItPosixMux023(void);
+VOID ItPosixMux024(void);
+VOID ItPosixMux025(void);
+VOID ItPosixMux026(void);
+VOID ItPosixMux027(void);
+VOID ItPosixMux028(void);
+VOID ItPosixMux029(void);
+VOID ItPosixMux030(void);
+VOID ItPosixMux031(void);
+VOID ItPosixMux032(void);
+VOID ItPosixMux033(void);
+VOID ItPosixMux034(void);
+VOID ItPosixMux035(void);
+VOID ItPosixMux036(void);
 
 VOID ItSuitePosixMutex(void);
 
