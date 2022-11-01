@@ -46,10 +46,8 @@ static VOID TaskF01(UINT32 arg)
 static UINT32 TestCase(VOID)
 {
     UINT32 freeMem;
-    UINT32 freeMem1;
     UINT32 freeMem2;
     UINT32 freeMem3;
-    UINT32 freeMem4;
     UINT32 ret;
 
     TSK_INIT_PARAM_S task1 = { 0 };
@@ -66,7 +64,7 @@ static UINT32 TestCase(VOID)
 
     ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
 
-    freeMem1 = GetfreeMemSize(m_aucSysMem0);
+    (VOID)GetfreeMemSize(m_aucSysMem0);
 
     LOS_TaskDelay(10); // 10, task delay times.
 

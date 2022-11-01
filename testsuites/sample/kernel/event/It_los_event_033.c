@@ -129,14 +129,13 @@ static UINT32 Testcase(VOID)
 
     ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT2); // 3, Here, assert that g_testCount is equal to 3.
 
-    ret = LOS_EventWrite(&g_pevent, 0xF);
+    (VOID)LOS_EventWrite(&g_pevent, 0xF);
 
     LOS_TaskDelay(1);
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 6, g_testCount, EXIT3); // 6, Here, assert that g_testCount is equal to 6.
+    ICUNIT_ASSERT_EQUAL(g_testCount, 6, g_testCount); // 6, Here, assert that g_testCount is equal to 6.
 
-EXIT3:
-    ret = LOS_EventClear(&g_pevent, 0);
+    (VOID)LOS_EventClear(&g_pevent, 0);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     ret = LOS_EventDestroy(&g_pevent);

@@ -48,7 +48,7 @@ extern int g_iteration;
 
 void StrtoullFuzzTest(void)
 {
-    int base = DEFAULT_BASE_VALUE;
+    int base;
     char *str = NULL;
     char *endPtr = NULL;
 

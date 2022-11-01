@@ -91,7 +91,6 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis007, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
     osMessageQueueAttr_t attr = {0};
-    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     CHAR strbuff[] = "hello world";
     CHAR *name = NULL;
     INT32 ret;
@@ -112,6 +111,7 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis007, Function | MediumTest | Level1)
     ICUNIT_ASSERT_EQUAL(name, NULL, name);
 
 #if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     attr.mq_mem = staticBuff;
     attr.mq_size = STATCI_BUFF_SIZE;
     msgQueueId = osMessageQueueNew(1, STATCI_BUFF_SIZE, &attr);
@@ -239,8 +239,6 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis006, Function | MediumTest | Level1)
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis005, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
-    osMessageQueueAttr_t attr = {0};
-    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     CHAR strbuff[] = "hello world";
     CHAR data[STATCI_BUFF_SIZE] = {0};
     INT32 ret;
@@ -272,6 +270,8 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis005, Function | MediumTest | Level1)
 
 #if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
     /* static test */
+    osMessageQueueAttr_t attr = {0};
+    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     attr.mq_mem = staticBuff;
     attr.mq_size = STATCI_BUFF_SIZE;
     msgQueueId = osMessageQueueNew(1, STATCI_BUFF_SIZE, &attr);
@@ -311,8 +311,6 @@ EXIT:
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis004, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
-    osMessageQueueAttr_t attr = {0};
-    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     CHAR strbuff[] = "hello world";
     CHAR data[STATCI_BUFF_SIZE] = {0};
     INT32 ret;
@@ -335,6 +333,8 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis004, Function | MediumTest | Level1)
 
 #if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
     /* static test */
+    osMessageQueueAttr_t attr = {0};
+    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     attr.mq_mem = staticBuff;
     attr.mq_size = strlen(strbuff) + 1;
     msgQueueId = osMessageQueueNew(1, strlen(strbuff), &attr);
@@ -373,8 +373,6 @@ EXIT:
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis003, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
-    osMessageQueueAttr_t attr = {0};
-    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     CHAR strbuff[] = "hello world";
 
     /* dynmic test */
@@ -386,6 +384,8 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis003, Function | MediumTest | Level1)
 
 #if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
     /* static test */
+    osMessageQueueAttr_t attr = {0};
+    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     attr.mq_mem = staticBuff;
     attr.mq_size = STATCI_BUFF_SIZE;
     msgQueueId = osMessageQueueNew(0, strlen(strbuff), &attr);
@@ -417,8 +417,6 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis003, Function | MediumTest | Level1)
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis002, Function | MediumTest | Level1)
 {
     osMessageQueueId_t msgQueueId;
-    osMessageQueueAttr_t attr = {0};
-    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     CHAR strbuff[] = "hello world";
     INT32 ret;
 
@@ -434,6 +432,8 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis002, Function | MediumTest | Level1)
 
 #if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
     /* static test */
+    osMessageQueueAttr_t attr = {0};
+    CHAR staticBuff[STATCI_BUFF_SIZE] = {0};
     attr.mq_mem = staticBuff;
     attr.mq_size = STATCI_BUFF_SIZE;
     msgQueueId = osMessageQueueNew(1, STATCI_BUFF_SIZE, &attr);

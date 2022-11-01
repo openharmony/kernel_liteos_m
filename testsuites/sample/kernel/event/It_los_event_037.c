@@ -77,10 +77,9 @@ static UINT32 Testcase(VOID)
 
     LOS_EventClear(&g_pevent, (~(0x11)));
 
-    ret = LOS_TaskResume(g_testTaskID01);
-    ICUNIT_GOTO_EQUAL(g_testCount, 4, g_testCount, EXIT1); // 4, Here, assert that g_testCount is equal to 4.
+    (VOID)LOS_TaskResume(g_testTaskID01);
+    ICUNIT_ASSERT_EQUAL(g_testCount, 4, g_testCount); // 4, Here, assert that g_testCount is equal to 4.
 
-EXIT1:
     ret = LOS_EventClear(&g_pevent, 0);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 

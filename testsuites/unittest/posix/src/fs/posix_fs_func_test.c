@@ -241,7 +241,6 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose004, Function | MediumTest
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose005, Function | MediumTest | Level1)
 {
-    int ret = 0;
     FILE *fp = NULL;
     fp = fopen(TEST_FILE_PTAH_RIGHT, "c");
     TEST_ASSERT_NULL(fp);
@@ -350,7 +349,6 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose010, Function | MediumTest
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose011, Function | MediumTest | Level1)
 {
-    int ret = 0;
     FILE *fp = NULL;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, NULL);
@@ -660,7 +658,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek008, Function | MediumTest 
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek009, Function | MediumTest | Level1)
 {
-    int ret = 0;
+    int ret;
     FILE *fp = NULL;
     long off = 0;
 
@@ -884,7 +882,6 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs001, Function | MediumTest | Lev
     int ret = 0;
     FILE *fp = NULL;
     const char chr1[TEST_BUF_SIZE] = "hello";
-    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
@@ -907,7 +904,6 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs002, Function | MediumTest | Lev
     int ret = 0;
     FILE *fp = NULL;
     const char chr1[TEST_BUF_SIZE] = "hello";
-    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "a");
     TEST_ASSERT_NOT_NULL(fp);
@@ -930,7 +926,6 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs003, Function | MediumTest | Lev
     int ret = 0;
     FILE *fp = NULL;
     const char chr1[TEST_BUF_SIZE] = "hello";
-    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
     TEST_ASSERT_NOT_NULL(fp);
@@ -983,7 +978,6 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs005, Function | MediumTest | Lev
     int ret = 0;
     FILE *fp = NULL;
     const char chr1[TEST_BUF_SIZE] = "hello";
-    char str[TEST_BUF_SIZE] = {0};
     int i;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
@@ -1011,12 +1005,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite001, Function | MediumTest
 {
     int ret = 0;
     FILE *fp = NULL;
-    long off = 0;
 
     const char chr1[TEST_BUF_SIZE] = "hello";
-    const char chr2[TEST_BUF_SIZE] = "world";
-
-    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
@@ -1038,12 +1028,6 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite002, Function | MediumTest
 {
     int ret = 0;
     FILE *fp = NULL;
-    long off = 0;
-
-    const char chr1[TEST_BUF_SIZE] = "hello";
-    const char chr2[TEST_BUF_SIZE] = "world";
-
-    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     TEST_ASSERT_NOT_NULL(fp);
@@ -1065,12 +1049,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite003, Function | MediumTest
 {
     int ret = 0;
     FILE *fp = NULL;
-    long off = 0;
 
     const char chr1[TEST_BUF_SIZE] = "hello";
-    const char chr2[TEST_BUF_SIZE] = "world";
-
-    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "r");
     TEST_ASSERT_NOT_NULL(fp);
@@ -1092,12 +1072,6 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite004, Function | MediumTest
 {
     int ret = 0;
     FILE *fp = NULL;
-    long off = 0;
-
-    const char chr1[TEST_BUF_SIZE] = "hello";
-    const char chr2[TEST_BUF_SIZE] = "world";
-
-    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "r");
     TEST_ASSERT_NOT_NULL(fp);
@@ -1119,12 +1093,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite005, Function | MediumTest
 {
     int ret = 0;
     FILE *fp = NULL;
-    long off = 0;
 
     const char chr1[TEST_BUF_SIZE] = "hello";
-    const char chr2[TEST_BUF_SIZE] = "world";
-
-    char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "a");
     TEST_ASSERT_NOT_NULL(fp);
@@ -1146,7 +1116,6 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite006, Function | MediumTest
 {
     int ret = 0;
     FILE *fp = NULL;
-    long off = 0;
 
     const char chr1[TEST_BUF_SIZE] = "hello";
     const char chr2[TEST_BUF_SIZE] = "world";
@@ -1189,7 +1158,6 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite007, Function | MediumTest
 {
     int ret = 0;
     FILE *fp = NULL;
-    long off = 0;
 
     const char chr1[TEST_BUF_SIZE] = "hello";
     const char chr2[TEST_BUF_SIZE] = "world";
@@ -1330,7 +1298,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsReaddir002, Function | MediumTest | L
     struct dirent *dResult;
     off_t tellDir0;
     off_t tellDir1;
-    int ret = 0;
+    int ret;
 
     ret = mkdir(DIRA, 0777);
     dirp = opendir((DIRA));
@@ -1359,7 +1327,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsReaddir002, Function | MediumTest | L
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRemove001, Function | MediumTest | Level1)
 {
     FILE *fp = NULL;
-    int ret = 0;
+    int ret;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
     fclose(fp);
@@ -1375,7 +1343,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRemove001, Function | MediumTest | Le
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRemove002, Function | MediumTest | Level1)
 {
-    int ret = 0;
+    int ret;
 
     ret = mkdir(DIRA, 0777);
     TEST_ASSERT_EQUAL_INT(ret, 0);

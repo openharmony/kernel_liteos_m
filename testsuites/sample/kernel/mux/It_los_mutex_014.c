@@ -70,7 +70,7 @@ static UINT32 Testcase(VOID)
     task.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     task.uwResved = 0;
 
-    ret = LOS_TaskCreate(&g_testTaskID01, &task);
+    (VOID)LOS_TaskCreate(&g_testTaskID01, &task);
 
     task2.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
     task2.usTaskPrio = (TASK_PRIO_TEST - 2); // 2, set new task priority, it is higher than the current task.
