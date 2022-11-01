@@ -43,6 +43,7 @@ rsource "newlib/Kconfig"
 
 config LIBC_ICCARM
     bool "iar libc"
+    depends on COMPILER_ICCARM
 rsource "iccarm/Kconfig"
 
 endchoice

@@ -34,6 +34,7 @@
 #include "los_memory.h"
 #include <malloc.h>
 
+#ifdef LOSCFG_LIBC_NEWLIB_MALLOC
 void *zalloc(size_t size)
 {
     void *ptr = NULL;
@@ -111,3 +112,4 @@ void *__wrap__calloc_r(struct _reent *reent, size_t nitems, size_t size)
     }
     return ptr;
 }
+#endif

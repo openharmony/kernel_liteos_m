@@ -35,4 +35,10 @@ config LIBC_ICCARM_FS
     help
         This enables POSIX style file system related APIs.
 
+config LIBC_ICCARM_MALLOC
+    bool "Enable POSIX malloc/free API support"
+    default y
+    help
+        This enables POSIX malloc/free related APIs.
+
 endif # LIBC_ICCARM
