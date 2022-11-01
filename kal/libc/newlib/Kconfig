@@ -36,4 +36,10 @@ config LIBC_NEWLIB_FS
     help
         This enables POSIX style file system related APIs.
 
+config LIBC_NEWLIB_MALLOC
+    bool "Enable POSIX malloc/free API support"
+    default y
+    help
+        This enables POSIX malloc/free related APIs.
+
 endif # LIBC_NEWLIB
