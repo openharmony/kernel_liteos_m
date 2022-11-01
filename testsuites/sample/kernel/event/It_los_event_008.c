@@ -74,7 +74,7 @@ static UINT32 Testcase(VOID)
     LOS_EventInit(&g_pevent);
 
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
     ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT); // 3, Here, assert that g_testCount is equal to 3.
 
     g_testCount++;
@@ -84,7 +84,6 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(g_testCount, 4, g_testCount, EXIT1); // 4, Here, assert that g_testCount is equal to 4.
 
 EXIT1:
-
     ret = LOS_EventClear(&g_pevent, 0);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 

@@ -49,8 +49,6 @@ static UINT32 Testcase(VOID)
 {
     UINT32 ret;
     g_testCount1 = 0;
-    UINT64 tickRecord;
-    UINT64 tickUpdate;
     UINT64 deltaTicks;
 
     // 4, Timeout interval of a periodic software timer.

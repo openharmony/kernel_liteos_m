@@ -71,7 +71,6 @@ static void *SampleUdpServer()
     struct sockaddr_in clnAddr = { 0 };
     socklen_t clnAddrLen = sizeof(clnAddr);
     char buf[BUF_SIZE] = { 0 };
-    int flag;
     struct msghdr msg = { 0 };
     struct iovec iov[2] = { };
 
@@ -134,7 +133,6 @@ static void *SampleUdpClient()
     msg.msg_iov = iov;
     msg.msg_iovlen = 1;
     iov[0].iov_base = buf;
-    iov[0].iov_len = sizeof(buf);
     (void)recvmsg(fd, &msg, 0x40);
     printf("c6\r\n");
 
@@ -150,7 +148,6 @@ static UINT32 UdpFun(VOID)
     UINT8 num2;
     UINT8 num3;
     UINT8 num4;
-    UINT8 num5;
 
     INIT_FuzzEnvironment();
     printf("UDPFun starts\n");
@@ -160,7 +157,6 @@ static UINT32 UdpFun(VOID)
         num2 = *(UINT8 *)DT_SetGetU8(&g_element[NUM_1_INDEX], 1);
         num3 = *(UINT8 *)DT_SetGetU8(&g_element[NUM_2_INDEX], 1);
         num4 = *(UINT8 *)DT_SetGetU8(&g_element[NUM_3_INDEX], 1);
-        num5 = *(UINT8 *)DT_SetGetU8(&g_element[NUM_4_INDEX], 1);
 
         (void)snprintf_s(g_udpIp, sizeof(g_udpIp), sizeof(g_udpIp) - 1, "%d.%d.%d.%d", num1, num2, num3, num4);
         g_udpPort = *(UINT16 *)DT_SetGetU16(&g_element[NUM_5_INDEX], 0);
@@ -244,7 +240,6 @@ static void *SampleTcpClient()
     char buf[BUF_SIZE + 1] = { 0 };
     int sfd = -1;
     struct sockaddr_in srvAddr = { 0 };
-    struct sockaddr_in clnAddr = { 0 };
     int ret;
 
     struct sockaddr addr;

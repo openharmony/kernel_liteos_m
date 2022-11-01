@@ -45,7 +45,6 @@ extern int g_iteration;
 
 static uint32_t RegexFuzz(void)
 {
-    int fd;
     int ret;
     regex_t preg;
     regmatch_t pmatch[1];
@@ -56,7 +55,6 @@ static uint32_t RegexFuzz(void)
     const int maxStrLen = 5;
     const int maxNumRange = 6;
     const int maxNum1Range = 3;
-    int spid;
     int num;
     int num1;
     char *string1 = NULL;

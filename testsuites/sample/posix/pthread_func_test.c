@@ -743,7 +743,6 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread011, Function | MediumTest | Lev
     pthread_t thread;
     struct sched_param schedParam = { 0 };
     UINT32 ret;
-    pthread_once_t onceControl = 0;
     g_testCount = 0;
     ret = pthread_attr_init(&attr);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
@@ -804,7 +803,6 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread012, Function | MediumTest | Lev
     pthread_t thread;
     struct sched_param schedParam = { 0 };
     UINT32 ret;
-    pthread_once_t onceControl = 0;
 
     g_testCount = 0;
     g_pthreadSem = 0;
