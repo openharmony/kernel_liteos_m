@@ -115,4 +115,19 @@ VOID ItSuitePosixMutex(void)
     ItPosixMux034();
     ItPosixMux035();
     ItPosixMux036();
+    ItPosixMux037();
+    ItPosixMux038();
+    ItPosixMux039();
+    ItPosixMux040();
+    ItPosixMux041();
+    ItPosixMux042();
+    ItPosixMux043();
+    ItPosixMux044();
+    ItPosixMux045();
+    ItPosixMux046();
+    ItPosixMux047();
+    ItPosixMux048();
+#ifndef LOSCFG_KERNEL_SMP
+    ItPosixMux049();
+#endif
 }
