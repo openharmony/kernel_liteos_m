@@ -335,6 +335,14 @@ config KERNEL_PM
       Configuration item for low power frame tailoring.
       If you wish to build LiteOS with support for power management.
 
+config KERNEL_PM_IDLE
+    bool "Enable Power Management Idle"
+    default n
+    depends on KERNEL_PM
+    help
+      Configuration item for low power frame tailoring.
+      If you wish to build LiteOS with support for power management idle.
+
 config KERNEL_PM_TASK_PTIORITY
     int "Power Management Task Priority"
     default 1
