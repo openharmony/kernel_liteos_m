@@ -30,27 +30,11 @@
 
 #include "It_posix_mutex.h"
 
-#define THREAD_NUM 5
-#define LOOPS 4
+#define THREAD_NUM 6
+#define LOOPS 3
 
+static pthread_mutex_t g_mutex040 = PTHREAD_MUTEX_INITIALIZER;
 static g_value;
-static pthread_mutex_t g_mutex036 = PTHREAD_MUTEX_INITIALIZER;
-
-/* pthread_mutex_lock 1-1.c
- * Test that pthread_mutex_lock()
- *   shall lock the mutex object referenced by 'mutex'.  If the mutex is
- *   already locked, the calling thread shall block until the mutex becomes
- *   available. This operation shall return with the mutex object referenced
- *   by 'mutex' in the locked state with the calling thread as its owner.
-
- * Steps:
- *   -- Initialize a mutex to protect a global variable 'value'
- *   -- Create N threads. Each is looped M times to acquire the mutex,
- *      increase the value, and then release the mutex.
- *   -- Check if the value has increased properly (M*N); a broken mutex
- *      implementation may cause lost augments.
- *
- */
 
 static void *TaskF01(void *parm)
 {
@@ -59,18 +43,18 @@ static void *TaskF01(void *parm)
 
     /* Loopd M times to acquire the mutex, increase the value,
        and then release the mutex. */
+
     for (i = 0; i < LOOPS; ++i) {
-        rc = pthread_mutex_lock(&g_mutex036);
+        rc = pthread_mutex_lock(&g_mutex040);
         if (rc != 0) {
             return (void *)(LOS_NOK);
         }
 
-        tmp = g_value;
-        tmp = tmp + 1;
-        sleep(1);
+        tmp = g_value + 1; 
+        usleep(1000); // 1000, delay the increasement operation.
         g_value = tmp;
 
-        rc = pthread_mutex_unlock(&g_mutex036);
+        rc = pthread_mutex_unlock(&g_mutex040);
         if (rc != 0) {
             return (void *)(LOS_NOK);
         }
@@ -83,20 +67,12 @@ static void *TaskF01(void *parm)
 static UINT32 Testcase(VOID)
 {
     int i, rc;
-    pthread_attr_t pta;
     pthread_t threads[THREAD_NUM];
 
     g_value = 0;
-
-    rc = pthread_attr_init(&pta);
-    ICUNIT_ASSERT_EQUAL(rc, 0, rc);
-
-    rc = pthread_attr_setdetachstate(&pta, PTHREAD_CREATE_JOINABLE);
-    ICUNIT_ASSERT_EQUAL(rc, 0, rc);
-
     /* Create threads */
     for (i = 0; i < THREAD_NUM; ++i) {
-        rc = pthread_create(&threads[i], &pta, TaskF01, NULL);
+        rc = pthread_create(&threads[i], NULL, TaskF01, NULL);
         ICUNIT_ASSERT_EQUAL(rc, 0, rc);
     }
 
@@ -105,27 +81,22 @@ static UINT32 Testcase(VOID)
         rc = pthread_join(threads[i], NULL);
         ICUNIT_ASSERT_EQUAL(rc, 0, rc);
     }
-
-    rc = pthread_attr_destroy(&pta);
-    ICUNIT_ASSERT_EQUAL(rc, 0, rc);
-
-    rc = pthread_mutex_destroy(&g_mutex036);
-    ICUNIT_ASSERT_EQUAL(rc, 0, rc);
+    pthread_mutex_destroy(&g_mutex040);
 
     /* Check if the final value is as expected */
-    ICUNIT_ASSERT_EQUAL(g_value, (THREAD_NUM) * LOOPS, g_value);
+    ICUNIT_ASSERT_EQUAL(g_value, (THREAD_NUM) * LOOPS, LOS_NOK);
 
     return LOS_OK;
 }
 
 /**
- * @tc.name: ItPosixMux036
- * @tc.desc: Test interface pthread_mutex_unlock
+ * @tc.name: ItPosixMux038
+ * @tc.desc: Test interface pthread_mutex_lock
  * @tc.type: FUNC
- * @tc.require: issueI5WZI6
+ * @tc.require: issueI5YAEX
  */
 
-VOID ItPosixMux036(void)
+VOID ItPosixMux038(void)
 {
-    TEST_ADD_CASE("ItPosixMux036", Testcase, TEST_POSIX, TEST_MUX, TEST_LEVEL2, TEST_FUNCTION);
+    TEST_ADD_CASE("ItPosixMux038", Testcase, TEST_POSIX, TEST_MUX, TEST_LEVEL2, TEST_FUNCTION);
 }

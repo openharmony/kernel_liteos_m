@@ -56,6 +56,10 @@
     }
 #endif
 
+#define MUTEX_TEST_DEFAULT_PRIO LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO
+#define MUTEX_TEST_HIGH_PRIO    (MUTEX_TEST_DEFAULT_PRIO - 6)
+#define MUTEX_TEST_LOW_PRIO     (MUTEX_TEST_DEFAULT_PRIO + 5)
+
 UINT32 PosixPthreadDestroy(pthread_attr_t *attr, pthread_t thread);
 UINT32 PosixPthreadInit(pthread_attr_t *attr, int pri);
 void TestExtraTaskDelay(UINT32 tick);
@@ -96,6 +100,19 @@ VOID ItPosixMux033(void);
 VOID ItPosixMux034(void);
 VOID ItPosixMux035(void);
 VOID ItPosixMux036(void);
+VOID ItPosixMux037(void);
+VOID ItPosixMux038(void);
+VOID ItPosixMux039(void);
+VOID ItPosixMux040(void);
+VOID ItPosixMux041(void);
+VOID ItPosixMux042(void);
+VOID ItPosixMux043(void);
+VOID ItPosixMux044(void);
+VOID ItPosixMux045(void);
+VOID ItPosixMux046(void);
+VOID ItPosixMux047(void);
+VOID ItPosixMux048(void);
+VOID ItPosixMux049(void);
 
 VOID ItSuitePosixMutex(void);
 
