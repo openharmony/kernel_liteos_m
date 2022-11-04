@@ -694,7 +694,7 @@ UINT32 OsPipeInit(VOID)
 
     ret = LOS_MuxCreate(&g_devFdMutex);
     if (ret != LOS_OK) {
-        LOS_MuxDelete(g_devListMutex);
+        (VOID)LOS_MuxDelete(g_devListMutex);
         return ret;
     }
 
