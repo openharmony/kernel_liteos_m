@@ -120,21 +120,6 @@ LITE_OS_SEC_TEXT_INIT VOID LOS_Panic(const CHAR *fmt, ...)
     ArchSysExit();
 }
 
-
-/*****************************************************************************
- Function    : OsRegister
- Description : Configuring the maximum number of tasks
- Input       : None
- Output      : None
- Return      : None
- *****************************************************************************/
-LITE_OS_SEC_TEXT_INIT static VOID OsRegister(VOID)
-{
-    g_taskMaxNum = LOSCFG_BASE_CORE_TSK_LIMIT + 1; /* Reserved 1 for IDLE */
-
-    return;
-}
-
 LITE_OS_SEC_TEXT_INIT UINT32 LOS_Start(VOID)
 {
     return ArchStartSchedule();
@@ -155,8 +140,6 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_KernelInit(VOID)
 #if (LOSCFG_BACKTRACE_TYPE != 0)
     OsBackTraceInit();
 #endif
-
-    OsRegister();
 
 #ifdef LOSCFG_KERNEL_LMS
     OsLmsInit();
