@@ -40,7 +40,7 @@
 #include "securec.h"
 #include "los_compiler.h"
 #include "los_debug.h"
-#include "cmsis_os2.h"
+#include "los_sched.h"
 #include "vfs_files.h"
 #include "vfs_operations.h"
 #include "vfs_partition.h"
@@ -73,7 +73,7 @@ static int FsLock(void)
 {
     int ret = 0;
     struct timespec absTimeout = {0};
-    if (osKernelGetState() != osKernelRunning) {
+    if (!OsCheckKernelRunning()) {
         return ret;
     }
     ret = clock_gettime(CLOCK_REALTIME, &absTimeout);
@@ -88,7 +88,7 @@ static int FsLock(void)
 
 static void FsUnlock(void)
 {
-    if (osKernelGetState() != osKernelRunning) {
+    if (!OsCheckKernelRunning()) {
         return;
     }
     (void)pthread_mutex_unlock(&g_fatfsMutex);
