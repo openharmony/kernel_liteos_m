@@ -59,7 +59,7 @@ static UINT32 Testcase(VOID)
     task.uwStackSize = LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE;
     task.uwResved = 0;
 
-    ret = LOS_TaskCreate(&g_testTaskID01, &task);
+    (VOID)LOS_TaskCreate(&g_testTaskID01, &task);
     ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount); // 1, Here, assert that g_testCount is equal to 1.
 
     ret = LOS_MuxDelete(g_mutexTest);

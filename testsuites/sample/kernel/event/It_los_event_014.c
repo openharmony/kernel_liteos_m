@@ -87,7 +87,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_EventWrite(&g_pevent, 0x11);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT1);
 
-    ret = LOS_TaskResume(g_testTaskID01);
+    (VOID)LOS_TaskResume(g_testTaskID01);
     ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT1); // 5, Here, assert that g_testCount is equal to 5.
 
 EXIT1:

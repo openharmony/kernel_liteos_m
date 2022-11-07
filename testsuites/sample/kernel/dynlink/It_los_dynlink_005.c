@@ -36,7 +36,6 @@ STATIC UINT32 TestCase(VOID)
     VOID *handle = NULL;
     CHAR *dsoNeedOthers = DSO_FULL_PATH("Align4_dynamic_need_others.so");
     CHAR *dsoWithoutPIC = DSO_FULL_PATH("Align4_dynamic_nopic.so");
-    INT32 ret;
 
     handle = (VOID *)LOS_SoLoad(dsoNeedOthers, NULL);
     ICUNIT_ASSERT_EQUAL(handle, NULL, handle);

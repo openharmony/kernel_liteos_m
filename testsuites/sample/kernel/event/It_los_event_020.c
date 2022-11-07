@@ -88,7 +88,7 @@ static UINT32 Testcase(VOID)
     LOS_EventInit(&g_pevent);
 
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
-    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
     g_testCount++;

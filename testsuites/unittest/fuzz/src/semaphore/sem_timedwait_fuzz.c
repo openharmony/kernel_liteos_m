@@ -52,7 +52,7 @@ void SemTimedWaitFuzzTest(void)
     const int elemNsecIndex = 5;
     struct timespec absTimeout;
     sem_t sem;
-    int pshared, value, getvalue;
+    int pshared, value;
 
     printf("Fuzz test in line [%d] sem_timedwait start\n", __LINE__);
 
