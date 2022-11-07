@@ -521,6 +521,14 @@ config DEBUG_QUEUE
     help
       Answer Y to enable debug queue.
 
+config MUTEX_CREATE_TRACE
+    bool "Enable Mutex Trace Debugging"
+    default n
+    depends on ARCH_ARM
+    depends on DEBUG_KERNEL
+    help
+      Answer Y to enable debug mutex trace.
+
 config DEBUG_DEADLOCK
     bool "Enable Mutex Deadlock Debugging"
     default n
@@ -609,7 +617,7 @@ config VM_OVERLAP_CHECK
     depends on DEBUG_VERSION && MEM_DEBUG
     help
       Answer Y to enable vm overlap check.
-      
+
 config TASK_MEM_USED
     bool "Enable show task mem used or not"
     default n
