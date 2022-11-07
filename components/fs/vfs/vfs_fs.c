@@ -40,6 +40,7 @@
 #include "fcntl.h"
 #include "los_mux.h"
 #include "los_debug.h"
+#include "los_sched.h"
 #include "limits.h"
 #include "securec.h"
 #include "vfs_config.h"
@@ -96,6 +97,9 @@ UINT32 g_fsMutex;
 
 int VfsLock(void)
 {
+    if (!OsCheckKernelRunning()) {
+        return LOS_OK;
+    }
     if (LOS_MuxPend(g_fsMutex, LOS_WAIT_FOREVER) != LOS_OK) {
         PRINT_ERR("VfsLock failed!");
         return (int)LOS_NOK;
@@ -106,6 +110,9 @@ int VfsLock(void)
 
 void VfsUnlock(void)
 {
+    if (!OsCheckKernelRunning()) {
+        return;
+    }
     (void)LOS_MuxPost(g_fsMutex);
 }
 
