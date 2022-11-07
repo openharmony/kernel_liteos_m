@@ -37,7 +37,6 @@
 #include "los_memory.h"
 #include "los_sched.h"
 
-
 #if (LOSCFG_BASE_IPC_MUX == 1)
 
 LITE_OS_SEC_BSS       LosMuxCB*   g_allMux = NULL;
@@ -71,6 +70,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsMuxInit(VOID)
         muxNode->muxID = index;
         muxNode->owner = (LosTaskCB *)NULL;
         muxNode->muxStat = OS_MUX_UNUSED;
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+        muxNode->createInfo = 0;
+#endif
         LOS_ListTailInsert(&g_unusedMuxList, &muxNode->muxList);
     }
     return LOS_OK;
@@ -149,7 +151,9 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_MuxDelete(UINT32 muxHandle)
 
     LOS_ListAdd(&g_unusedMuxList, &muxDeleted->muxList);
     muxDeleted->muxStat = OS_MUX_UNUSED;
-
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+    muxDeleted->createInfo = 0;
+#endif
     LOS_IntRestore(intSave);
 
     OsHookCall(LOS_HOOK_TYPE_MUX_DELETE, muxDeleted);
@@ -320,5 +324,5 @@ LITE_OS_SEC_TEXT UINT32 LOS_MuxPost(UINT32 muxHandle)
 
     return LOS_OK;
 }
-#endif /* (LOSCFG_BASE_IPC_MUX == 1) */
 
+#endif /* (LOSCFG_BASE_IPC_MUX == 1) */
