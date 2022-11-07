@@ -55,7 +55,6 @@ static VOID TaskF01(VOID)
 static UINT32 TestCase(VOID)
 {
     UINT32 freeMem;
-    UINT32 freeMem1;
     UINT32 freeMem2;
     UINT32 ret;
     TSK_INIT_PARAM_S task1 = { 0 };

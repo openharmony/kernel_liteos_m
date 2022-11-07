@@ -50,7 +50,6 @@ static UINT32 TestCase(VOID)
 
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
     task1.uwStackSize = LOSCFG_BASE_CORE_TSK_MIN_STACK_SIZE;
-    task1.usTaskPrio = TASK_PRIO_TEST + 1;
     g_testCount = 0;
 
     LOS_TaskLock();
@@ -64,7 +63,6 @@ static UINT32 TestCase(VOID)
         ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     }
 
-    task1.usTaskPrio = index % OS_TASK_PRIORITY_LOWEST;
     task1.pcName = "TskA";
     task1.uwResved = LOS_TASK_STATUS_DETACHED;
     ret = LOS_TaskCreate(&testTaskID[index], &task1);

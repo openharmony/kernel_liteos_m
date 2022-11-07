@@ -232,8 +232,8 @@ static UINT32 TestCase(VOID)
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
     LOS_TaskDelay(20); // delay 20 ticks.
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
-EXIT:
+    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+
     return LOS_OK;
 }
 

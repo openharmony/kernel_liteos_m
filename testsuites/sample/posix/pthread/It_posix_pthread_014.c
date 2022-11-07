@@ -33,8 +33,6 @@
 static UINT32 Testcase(VOID)
 {
     pthread_condattr_t condattr;
-    pthread_cond_t cond1;
-    pthread_cond_t cond2;
     int pshared;
     int rc;
 

@@ -59,7 +59,6 @@ EXIT:
 
 static VOID *PthreadF02(void *t)
 {
-    int i;
     int rc;
 
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);

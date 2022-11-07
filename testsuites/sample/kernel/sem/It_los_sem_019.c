@@ -68,7 +68,7 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
 
 EXIT:
-    ret = LOS_TaskDelete(g_testTaskID01);
+    (VOID)LOS_TaskDelete(g_testTaskID01);
 
 EXIT2:
     ret = LOS_SemDelete(g_usSemID);

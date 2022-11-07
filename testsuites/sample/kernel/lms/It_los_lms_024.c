@@ -52,7 +52,7 @@ static UINT32 TestCase(VOID)
     ICUNIT_ASSERT_NOT_EQUAL(buf, NULL, buf);
     buf[7] = '\0'; /* end index 7 */
     PRINTK("%d\n", __LINE__);
-    ret = strcpy_s(buf, 100, src); /* Check LMS detection information when the strcpy_s dest max set 100 overflows. */
+    (VOID)strcpy_s(buf, 100, src); /* Check LMS detection information when the strcpy_s dest max set 100 overflows. */
     PRINTK("%d\n", __LINE__);
 
     ret = LOS_MemFree(g_testLmsPool, buf);

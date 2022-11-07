@@ -61,7 +61,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_SwtmrStart(swTmrID);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_TaskDelay(10); // 10, set delay time.
+    (VOID)LOS_TaskDelay(10); // 10, set delay time.
 
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
 
