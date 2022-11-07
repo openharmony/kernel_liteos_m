@@ -373,8 +373,9 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
     while (!ping_kill && (forever || (i < cnt))) {
         iecho->seqno = htons((u16_t)i);
         iecho->chksum = 0;
+#if (CHECKSUM_GEN_ICMP > 0)
         iecho->chksum = inet_chksum((void *)iecho, iecho_len);
-
+#endif
         ret = sendto(sfd, iecho, iecho_len, 0, (struct sockaddr *)&to, (socklen_t)sizeof(to));
         if (ret < 0) {
             perror("Ping: sending ICMP echo request failed\n");
