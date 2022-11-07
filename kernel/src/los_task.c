@@ -75,7 +75,7 @@
  * @ingroup los_task
  * @brief check task id's validation
  */
-#define OS_TASK_ID_CHECK(taskID)              LOS_ASSERT_COND(OS_TSK_GET_INDEX(taskID) < g_taskMaxNum)
+#define OS_TASK_ID_CHECK(taskID)              (OS_TSK_GET_INDEX(taskID) < g_taskMaxNum)
 
 /**
  * @ingroup los_task
@@ -409,6 +409,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsTaskInit(VOID)
     UINT32 size;
     UINT32 index;
 
+    g_taskMaxNum = LOSCFG_BASE_CORE_TSK_LIMIT + 1; /* Reserved 1 for IDLE */
     size = (g_taskMaxNum + 1) * sizeof(LosTaskCB);
     g_taskCBArray = (LosTaskCB *)LOS_MemAlloc(m_aucSysMem0, size);
     if (g_taskCBArray == NULL) {
@@ -856,7 +857,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 LOS_TaskResume(UINT32 taskID)
     UINT32 retErr = OS_ERROR;
     BOOL needSched = FALSE;
 
-    if (taskID > LOSCFG_BASE_CORE_TSK_LIMIT) {
+    if (!OS_TASK_ID_CHECK(taskID)) {
         return LOS_ERRNO_TSK_ID_INVALID;
     }
 

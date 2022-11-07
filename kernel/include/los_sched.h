@@ -96,6 +96,11 @@ STATIC INLINE UINT64 OsGetCurrSchedTimeCycle(VOID)
     return LOS_SysCycleGet();
 }
 
+STATIC INLINE BOOL OsCheckKernelRunning(VOID)
+{
+    return (g_taskScheduled && LOS_CHECK_SCHEDULE);
+}
+
 /**
  * @ingroup los_sched
  * @brief Get the time, in nanoseconds, remaining before the next tick interrupt response.
