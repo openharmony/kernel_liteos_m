@@ -70,7 +70,7 @@
 #define LOSCFG_BASE_IPC_QUEUE_CONFIG 1024
 
 #define LOS_AtomicInc(a) (++*(a))
-#define MqueueTaskDelay (usleep(tick * 10000))
+#define MqueueTaskDelay(tick) (usleep((tick) * 10000))
 
 #ifdef __LP64__
 #define PER_ADDED_VALUE 8
@@ -123,4 +123,21 @@ VOID ItPosixQueue015(VOID);
 VOID ItPosixQueue016(VOID);
 VOID ItPosixQueue017(VOID);
 VOID ItPosixQueue018(VOID);
+VOID ItPosixQueue019(VOID);
+VOID ItPosixQueue020(VOID);
+VOID ItPosixQueue021(VOID);
+VOID ItPosixQueue022(VOID);
+VOID ItPosixQueue023(VOID);
+VOID ItPosixQueue024(VOID);
+VOID ItPosixQueue025(VOID);
+VOID ItPosixQueue026(VOID);
+VOID ItPosixQueue027(VOID);
+VOID ItPosixQueue028(VOID);
+VOID ItPosixQueue029(VOID);
+VOID ItPosixQueue030(VOID);
+VOID ItPosixQueue031(VOID);
+VOID ItPosixQueue032(VOID);
+VOID ItPosixQueue033(VOID);
+VOID ItPosixQueue034(VOID);
+VOID ItPosixQueue035(VOID);
 #endif

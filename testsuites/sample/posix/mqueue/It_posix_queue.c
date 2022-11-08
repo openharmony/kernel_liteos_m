@@ -70,4 +70,21 @@ VOID ItSuitePosixMqueue(void)
     ItPosixQueue016();
     ItPosixQueue017();
     ItPosixQueue018();
+    ItPosixQueue019();
+    ItPosixQueue020();
+    ItPosixQueue021();
+    ItPosixQueue022();
+    ItPosixQueue023();
+    ItPosixQueue024();
+    ItPosixQueue025();
+    ItPosixQueue026();
+    ItPosixQueue027();
+    ItPosixQueue028();
+    ItPosixQueue029();
+    ItPosixQueue030();
+    ItPosixQueue031();
+    ItPosixQueue032();
+    ItPosixQueue033();
+    ItPosixQueue034();
+    ItPosixQueue035();
 }
