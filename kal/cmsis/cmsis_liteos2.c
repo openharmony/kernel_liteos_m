@@ -42,6 +42,9 @@
 #include "los_task.h"
 #include "los_timer.h"
 #include "los_debug.h"
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+#include "los_arch.h"
+#endif
 
 #include "string.h"
 #include "securec.h"
@@ -1002,6 +1005,10 @@ osMutexId_t osMutexNew(const osMutexAttr_t *attr)
     UINT32 ret;
     UINT32 muxId;
 
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+    UINTPTR regLR = ArchLRGet();
+#endif
+
     UNUSED(attr);
 
     if (OS_INT_ACTIVE) {
@@ -1010,6 +1017,9 @@ osMutexId_t osMutexNew(const osMutexAttr_t *attr)
 
     ret = LOS_MuxCreate(&muxId);
     if (ret == LOS_OK) {
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+        OsSetMutexCreateInfo(GET_MUX(muxId), regLR);
+#endif
         return (osMutexId_t)(GET_MUX(muxId));
     } else {
         return (osMutexId_t)NULL;
