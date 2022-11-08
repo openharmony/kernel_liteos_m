@@ -62,6 +62,13 @@ STATIC INLINE UINTPTR ArchMspGet(VOID)
     __asm("mrs %0, msp" : "=r" (msp));
     return msp;
 }
+
+STATIC INLINE UINTPTR ArchLRGet(VOID)
+{
+    UINTPTR lr;
+    __asm("mov %0, lr" : "=r" (lr));
+    return lr;
+}
 #elif defined(__CLANG_ARM) || defined(__GNUC__)
 STATIC INLINE UINTPTR ArchSpGet(VOID)
 {
@@ -82,6 +89,13 @@ STATIC INLINE UINTPTR ArchMspGet(VOID)
     UINTPTR msp;
     __asm volatile("mrs %0, msp" : "=r" (msp));
     return msp;
+}
+
+STATIC INLINE UINTPTR ArchLRGet(VOID)
+{
+    UINTPTR lr;
+    __asm volatile("mov %0, lr" : "=r" (lr));
+    return lr;
 }
 #else
 /* Other platforms to be improved  */
