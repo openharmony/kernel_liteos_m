@@ -38,6 +38,9 @@
 #include "los_debug.h"
 #include "los_hook.h"
 #include "los_sched.h"
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+#include "los_arch.h"
+#endif
 
 #define MUTEXATTR_TYPE_MASK   0x0FU
 #define OS_SYS_NS_PER_MSECOND 1000000
@@ -130,6 +133,10 @@ int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexA
     UINT32 muxHandle;
     UINT32 ret;
 
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+    UINTPTR regLR = ArchLRGet();
+#endif
+
     if (mutex == NULL) {
         return EINVAL;
     }
@@ -148,6 +155,9 @@ int pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *mutexA
     mutex->stAttr = useAttr;
     mutex->magic = _MUX_MAGIC;
     mutex->handle = muxHandle;
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+    OsSetMutexCreateInfo(GET_MUX(mutex->handle), regLR);
+#endif
 
     return 0;
 }
@@ -324,6 +334,10 @@ int pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct timespec *absTi
     struct timespec curTime = {0};
     LosMuxCB *muxPended = NULL;
 
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+    UINTPTR regLR = ArchLRGet();
+#endif
+
     ret = MuxPreCheck(mutex, OS_TCB_FROM_TID(LOS_CurTaskIDGet()));
     if (ret != 0) {
         return (INT32)ret;
@@ -337,6 +351,9 @@ int pthread_mutex_timedlock(pthread_mutex_t *mutex, const struct timespec *absTi
         if (ret != LOS_OK) {
             return MapError(ret);
         }
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+        OsSetMutexCreateInfo(GET_MUX(mutex->handle), regLR);
+#endif
     } else {
         muxPended = GET_MUX(mutex->handle);
         if ((mutex->stAttr.type == PTHREAD_MUTEX_ERRORCHECK) &&
@@ -364,6 +381,11 @@ int pthread_mutex_lock(pthread_mutex_t *mutex)
 {
     UINT32 ret;
     LosMuxCB *muxPended = NULL;
+
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+    UINTPTR regLR = ArchLRGet();
+#endif
+
     LosTaskCB *runTask = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
 
     ret = MuxPreCheck(mutex, runTask);
@@ -376,6 +398,9 @@ int pthread_mutex_lock(pthread_mutex_t *mutex)
         if (ret != LOS_OK) {
             return MapError(ret);
         }
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+        OsSetMutexCreateInfo(GET_MUX(mutex->handle), regLR);
+#endif
     } else {
         muxPended = GET_MUX(mutex->handle);
         if ((mutex->stAttr.type == PTHREAD_MUTEX_ERRORCHECK) &&
@@ -394,6 +419,10 @@ int pthread_mutex_trylock(pthread_mutex_t *mutex)
     UINT32 ret;
     LosMuxCB *muxPended = NULL;
 
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+    UINTPTR regLR = ArchLRGet();
+#endif
+
     ret = MuxPreCheck(mutex, OS_TCB_FROM_TID(LOS_CurTaskIDGet()));
     if (ret != 0) {
         return (INT32)ret;
@@ -404,6 +433,9 @@ int pthread_mutex_trylock(pthread_mutex_t *mutex)
         if (ret != LOS_OK) {
             return MapError(ret);
         }
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+        OsSetMutexCreateInfo(GET_MUX(mutex->handle), regLR);
+#endif
     } else {
         muxPended = GET_MUX(mutex->handle);
         if ((mutex->stAttr.type != PTHREAD_MUTEX_RECURSIVE) && (muxPended->muxCount != 0)) {
