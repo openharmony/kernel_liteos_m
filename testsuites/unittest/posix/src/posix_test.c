@@ -36,6 +36,7 @@ void ItSuitePosix(void)
     PthreadFuncTestSuite();
     ItSuitePosixPthread();
     ItSuitePosixMutex();
+    ItSuitePosixMqueue();
     PosixCtypeFuncTest();
     PosixIsdigitFuncTest();
     PosixIslowerFuncTest();
