@@ -235,7 +235,9 @@ VOID OsTraceCnvInit(VOID)
     LOS_HookReg(LOS_HOOK_TYPE_QUEUE_CREATE, LOS_TraceQueueCreate);
     LOS_HookReg(LOS_HOOK_TYPE_QUEUE_DELETE, LOS_TraceQueueDelete);
     LOS_HookReg(LOS_HOOK_TYPE_QUEUE_READ, LOS_TraceQueueRW);
+    LOS_HookReg(LOS_HOOK_TYPE_QUEUE_READ_COPY, LOS_TraceQueueRW);
     LOS_HookReg(LOS_HOOK_TYPE_QUEUE_WRITE, LOS_TraceQueueRW);
+    LOS_HookReg(LOS_HOOK_TYPE_QUEUE_WRITE_COPY, LOS_TraceQueueRW);
     LOS_HookReg(LOS_HOOK_TYPE_SEM_CREATE, LOS_TraceSemCreate);
     LOS_HookReg(LOS_HOOK_TYPE_SEM_DELETE, LOS_TraceSemDelete);
     LOS_HookReg(LOS_HOOK_TYPE_SEM_POST, LOS_TraceSemPost);
