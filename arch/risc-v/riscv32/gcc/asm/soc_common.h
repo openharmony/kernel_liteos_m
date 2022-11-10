@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2020, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -63,6 +63,9 @@
 #define RISCV_MIE_MEIE                      0x000000800
 
 /************************** mcause ***********************/
+#ifndef MCAUSE_INT_ID_MASK
+#define MCAUSE_INT_ID_MASK                  0x7FFFFFF
+#endif
 #define RISCV_MCAUSE_ECALL_U                8
 
 #define RISCV_USER_SOFT_IRQ                 0
@@ -71,7 +74,6 @@
 #define RISCV_MACH_TIMER_IRQ                7
 #define RISCV_USER_EXT_IRQ                  8
 #define RISCV_MACH_EXT_IRQ                  11
-
 
 #define READ_CSR(reg) ({                                          \
     UINT32 _tmp;                                                  \
