@@ -39,7 +39,7 @@ static VOID Case1(UINT32 arg)
     g_testCount++;
 }
 
-static VOID Case2()
+static VOID Case2(VOID)
 {
     g_testCount++;
 }
