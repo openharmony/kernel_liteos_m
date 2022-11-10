@@ -34,6 +34,8 @@
 #include "los_config.h"
 #include "kernel_test.h"
 #include "log.h"
+#include <string.h>
+#include <stdlib.h>
 
 
 #define EQUAL 0

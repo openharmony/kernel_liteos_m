@@ -32,9 +32,6 @@
 #include "osTest.h"
 #include "It_los_task.h"
 
-static UINT32 g_freeMem1 = 0;
-static UINT32 g_freeMem2 = 0;
-
 static UINT32 GetfreeMemSize(void *pool)
 {
     return LOS_MemPoolSizeGet(pool) - LOS_MemTotalUsedGet(pool);
