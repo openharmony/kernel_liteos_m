@@ -43,7 +43,7 @@ pthread_t TestPthreadSelf(void)
     return tid;
 }
 
-VOID ItSuitePosixPthread()
+void ItSuitePosixPthread(void)
 {
     printf("************** begin SAMPLE POSIX pthread test *************\n");
     ItPosixPthread001();

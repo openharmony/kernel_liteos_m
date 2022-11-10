@@ -111,7 +111,6 @@ static UINT32 Testcase(VOID)
 EXIT1:
     LOS_TaskDelete(g_testTaskID02);
 
-EXIT:
     LOS_TaskDelete(g_testTaskID01);
 
     return LOS_OK;
