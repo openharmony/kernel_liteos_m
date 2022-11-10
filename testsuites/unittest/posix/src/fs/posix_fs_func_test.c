@@ -523,7 +523,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek006, Function | MediumTest 
     TEST_ASSERT_NOT_NULL(fp);
 
     ret = fseek(fp, -1L, SEEK_SET);
-    TEST_ASSERT_EQUAL_INT(ret, -1);
+    TEST_ASSERT_EQUAL_INT(-1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, 0, (int)off, EXIT);
@@ -549,7 +549,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek007, Function | MediumTest 
     TEST_ASSERT_NOT_NULL(fp);
 
     ret = fseek(fp, -1L, SEEK_CUR);
-    TEST_ASSERT_EQUAL_INT(ret, -1);
+    TEST_ASSERT_EQUAL_INT(-1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, 0, (int)off, EXIT);
@@ -575,7 +575,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek008, Function | MediumTest 
     TEST_ASSERT_NOT_NULL(fp);
 
     ret = fseek(fp, -1L, SEEK_END);
-    TEST_ASSERT_EQUAL_INT(ret, -1);
+    TEST_ASSERT_EQUAL_INT(-1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, 0, (int)off, EXIT);
@@ -630,7 +630,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek010, Function | MediumTest 
     fp->fd = 500; /* 500 is a wrong fd */
 
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
-    TEST_ASSERT_EQUAL_INT(ret, -1);
+    TEST_ASSERT_EQUAL_INT(-1, ret);
 
     fp->fd = fd;
 
@@ -924,7 +924,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs005, Function | MediumTest | Lev
     }
 
     ret = ftell(fp);
-    TEST_ASSERT_EQUAL_INT(ret, TEST_LOOPUP_TIME * strlen(chr1));
+    TEST_ASSERT_EQUAL_INT(TEST_LOOPUP_TIME * strlen(chr1), ret);
 
     ret = fclose(fp);
     TEST_ASSERT_EQUAL_INT(0, ret);

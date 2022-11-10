@@ -679,7 +679,8 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread009, Function | MediumTest | Lev
 static VOID PthreadOnceFunc01(void)
 {
     g_testCount++;
-    ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 1, g_testCount);
+    ICUNIT_TRACK_EQUAL(g_testCount, 1, g_testCount);
+    return;
 }
 
 /**
