@@ -183,7 +183,7 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait003, Function | 
     ts.tv_nsec = 200000;
     ret = sem_timedwait((sem_t *)&sem, &ts);
     TEST_ASSERT_EQUAL_INT(-1, ret);
-    TEST_ASSERT_EQUAL_INT(errno, EINVAL);
+    TEST_ASSERT_EQUAL_INT(EINVAL, errno);
 
     ret = sem_init((sem_t *)&sem, 0, 0);
     TEST_ASSERT_EQUAL_INT(0, ret);
@@ -192,17 +192,17 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait003, Function | 
     ts.tv_nsec = -2;
     ret = sem_timedwait((sem_t *)&sem, &ts);
     TEST_ASSERT_EQUAL_INT(-1, ret);
-    TEST_ASSERT_EQUAL_INT(errno, EINVAL);
+    TEST_ASSERT_EQUAL_INT(EINVAL, errno);
 
     ts.tv_sec = time(NULL);
     ts.tv_nsec = NANO_S;
     ret = sem_timedwait((sem_t *)&sem, &ts);
     TEST_ASSERT_EQUAL_INT(-1, ret);
-    TEST_ASSERT_EQUAL_INT(errno, EINVAL);
+    TEST_ASSERT_EQUAL_INT(EINVAL, errno);
 
     ret = sem_timedwait((sem_t *)&sem, NULL);
     TEST_ASSERT_EQUAL_INT(-1, ret);
-    TEST_ASSERT_EQUAL_INT(errno, EINVAL);
+    TEST_ASSERT_EQUAL_INT(EINVAL, errno);
 
     ret = sem_destroy((sem_t *)&sem);
     TEST_ASSERT_EQUAL_INT(0, ret);
@@ -211,7 +211,7 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait003, Function | 
     ts.tv_nsec = 2000000;
     ret = sem_timedwait(NULL, &ts);
     TEST_ASSERT_EQUAL_INT(-1, ret);
-    TEST_ASSERT_EQUAL_INT(errno, EINVAL);
+    TEST_ASSERT_EQUAL_INT(EINVAL, errno);
     return 0;
 }
 
