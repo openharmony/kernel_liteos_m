@@ -50,7 +50,7 @@ static void *TaskF01(void *parm)
             return (void *)(LOS_NOK);
         }
 
-        tmp = g_value + 1; 
+        tmp = g_value + 1;
         usleep(1000); // 1000, delay the increasement operation.
         g_value = tmp;
 
