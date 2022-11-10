@@ -35,7 +35,7 @@
 
 static UINT32 g_testCount1 = 0;
 
-static VOID Case1()
+static VOID Case1(VOID)
 {
     UINT32 ret;
 
