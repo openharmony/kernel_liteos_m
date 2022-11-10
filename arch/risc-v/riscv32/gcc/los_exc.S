@@ -139,8 +139,7 @@ HalTrapEntry:
     sw    a0, 0 * REGBYTES(sp)
     csrr  t0, mtval
     sw    t0, 1 * REGBYTES(sp)
-    csrr  t0, medeleg
-    sw    t0, 2 * REGBYTES(sp)
+    sw    zero, 2 * REGBYTES(sp)
     sw    gp, 3 * REGBYTES(sp)
     mv    a0, sp
     csrw  mscratch, sp
