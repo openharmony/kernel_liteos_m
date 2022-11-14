@@ -282,15 +282,16 @@ int FatfsMount(struct MountPoint *mp, unsigned long mountflags,
         return (int)LOS_NOK;
     }
 
+    if (mountflags & MS_REMOUNT) {
+        ret = Remount(mp, mountflags);
+        FsUnlock();
+        return ret;
+    }
+
     char *ldPath = GetLdPath(mp->mDev);
     if (ldPath == NULL) {
         errno = EFAULT;
         ret = (int)LOS_NOK;
-        goto ERROUT;
-    }
-
-    if (mountflags & MS_REMOUNT) {
-        ret = Remount(mp, mountflags);
         goto ERROUT;
     }
 
