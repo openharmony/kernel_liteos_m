@@ -618,7 +618,7 @@ VOID LOS_SchedTickHandler(VOID)
 
 VOID LOS_Schedule(VOID)
 {
-    if (g_taskScheduled && LOS_CHECK_SCHEDULE) {
+    if (OsCheckKernelRunning()) {
         ArchTaskSchedule();
     }
 }
