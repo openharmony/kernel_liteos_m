@@ -226,7 +226,7 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull008, Function | Medium
     }
 
     TEST_ASSERT_EQUAL_UINT64(ULLONG_MAX, ret);
-    TEST_ASSERT_EQUAL_INT(errno, ERANGE);
+    TEST_ASSERT_EQUAL_INT(ERANGE, errno);
     TEST_ASSERT_EQUAL_STRING(endPtr, "");
     return 0;
 }

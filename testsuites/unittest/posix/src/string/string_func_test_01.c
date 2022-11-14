@@ -74,7 +74,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen001, Function | MediumT
 {
     char src[] = "helloworld";
     int ret = strlen(src);
-    TEST_ASSERT_EQUAL_INT(ret, 10);
+    TEST_ASSERT_EQUAL_INT(10, ret);
     return 0;
 }
 
@@ -87,7 +87,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen002, Function | MediumT
 {
     char src[] = "hello world";
     int ret = strlen(src);
-    TEST_ASSERT_EQUAL_INT(ret, 11);
+    TEST_ASSERT_EQUAL_INT(11, ret);
     return 0;
 }
 
@@ -99,7 +99,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen002, Function | MediumT
 LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen003, Function | MediumTest | Level1)
 {
     int ret = strlen("");
-    TEST_ASSERT_EQUAL_INT(ret, 0);
+    TEST_ASSERT_EQUAL_INT(0, ret);
     return 0;
 }
 
@@ -112,7 +112,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen004, Function | MediumT
 {
     char src[] = "hello\0world";
     int ret = strlen(src);
-    TEST_ASSERT_EQUAL_INT(ret, 5);
+    TEST_ASSERT_EQUAL_INT(5, ret);
     return 0;
 }
 
@@ -125,7 +125,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen005, Function | MediumT
 {
     char src[] = "\0helloworld";
     int ret = strlen(src);
-    TEST_ASSERT_EQUAL_INT(ret, 0);
+    TEST_ASSERT_EQUAL_INT(0, ret);
     return 0;
 }
 
@@ -270,7 +270,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr001, Function | Medium
 {
     char src[] = "hello world";
     char *ret = strrchr(src, '!');
-    TEST_ASSERT_EQUAL_PTR(ret, NULL);
+    TEST_ASSERT_EQUAL_PTR(NULL, ret);
     TEST_ASSERT_NULL(ret);
     return 0;
 }
@@ -284,7 +284,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr002, Function | Medium
 {
     char src[] = "hello world";
     char *ret = strrchr(src, '\0');
-    TEST_ASSERT_EQUAL_PTR(ret, src + 11);
+    TEST_ASSERT_EQUAL_PTR(src + 11, ret);
     TEST_ASSERT_NOT_NULL(ret);
     return 0;
 }
@@ -298,7 +298,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr003, Function | Medium
 {
     char src[] = "hello\0world";
     char *ret = strrchr(src, '\0');
-    TEST_ASSERT_EQUAL_PTR(ret, src + 5);
+    TEST_ASSERT_EQUAL_PTR(src + 5, ret);
     TEST_ASSERT_NOT_NULL(ret);
     return 0;
 }
@@ -312,7 +312,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr004, Function | Medium
 {
     char src[] = "hello world";
     char *ret = strrchr(src, ' ');
-    TEST_ASSERT_EQUAL_PTR(ret, src + 5);
+    TEST_ASSERT_EQUAL_PTR(src + 5, ret);
     TEST_ASSERT_NOT_NULL(ret);
     return 0;
 }
@@ -326,7 +326,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr005, Function | Medium
 {
     char src[] = "hello\0world";
     char *ret = strrchr(src, ' ');
-    TEST_ASSERT_EQUAL_PTR(ret, NULL);
+    TEST_ASSERT_EQUAL_PTR(NULL, ret);
     TEST_ASSERT_NULL(ret);
     return 0;
 }
