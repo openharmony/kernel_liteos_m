@@ -69,7 +69,7 @@ static UINT32 g_uwsTick2;
 static UINT32 g_uwsTick3;
 
 extern VOID LOS_GetCpuTick(UINT32 *puwCntHi, UINT32 *puwCntLo);
-extern VOID ItSuiteLosSwtmr();
+extern VOID ItSuiteLosSwtmr(VOID);
 extern VOID ItLosSwtmr001(VOID);
 extern VOID ItLosSwtmr002(VOID);
 extern VOID ItLosSwtmr003(VOID);
