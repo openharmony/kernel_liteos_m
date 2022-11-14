@@ -160,10 +160,10 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemset001, Function | MediumTest 
     char ch = rand() % 26 + 'A';
     retValue = memset(source, ch, sizeof(source) / sizeof(source[0]));
     TEST_ASSERT_NOT_NULL(retValue);
-    TEST_ASSERT_EQUAL_PTR(retValue, source);
+    TEST_ASSERT_EQUAL_PTR(source, retValue);
 
     for (int i = 0; i < (sizeof(source) / sizeof(source[0])); i++) {
-        TEST_ASSERT_EQUAL_INT((int)source[i], (int)ch);
+        TEST_ASSERT_EQUAL_INT((int)ch, (int)source[i]);
     }
     return 0;
 };
@@ -292,7 +292,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc001, Function | MediumTest
         }
 
         free(mem1);
-        TEST_ASSERT_EQUAL_INT(failure, 0);
+        TEST_ASSERT_EQUAL_INT(0, failure);
     }
     return 0;
 };
