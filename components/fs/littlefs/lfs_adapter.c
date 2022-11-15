@@ -184,6 +184,12 @@ int LfsMount(struct MountPoint *mp, unsigned long mountflags, const void *data)
         goto errout;
     }
 
+    if (mountflags & MS_REMOUNT) {
+        errno = ENOSYS;
+        ret = (int)LOS_NOK;
+        goto errout;
+    }
+
     mountHdl = (lfs_t *)malloc(sizeof(lfs_t) + sizeof(struct lfs_config));
     if (mountHdl == NULL) {
         errno = ENODEV;

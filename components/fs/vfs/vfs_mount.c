@@ -33,6 +33,7 @@
 #include "vfs_config.h"
 #include "stdlib.h"
 #include "string.h"
+#include "errno.h"
 #include "vfs_operations.h"
 #include "los_compiler.h"
 #include "los_debug.h"
@@ -122,7 +123,7 @@ struct MountPoint *VfsMpFind(const char *path, const char **pathInMp)
     return bestMp;
 }
 
-STATIC struct MountPoint *MountPointInit(const char *target, const char *fsType, unsigned long mountflags)
+STATIC struct MountPoint *VfsMountPointInit(const char *target, const char *fsType, unsigned long mountflags)
 {
     struct MountPoint *mp = NULL;
     const char *pathInMp = NULL;
@@ -155,6 +156,27 @@ STATIC struct MountPoint *MountPointInit(const char *target, const char *fsType,
     return mp;
 }
 
+STATIC int VfsRemount(const char *source ,const char *target,
+                      const char *fsType, unsigned long mountflags,
+                      const void *data)
+{
+    (VOID)source;
+    (VOID)fsType;
+    struct MountPoint *mp;
+
+    mp = VfsMpFind(target, NULL);
+    if (mp == NULL) {
+        errno = EINVAL;
+        return (int)LOS_NOK;
+    }
+
+    LOS_ASSERT(mp->mFs != NULL);
+    LOS_ASSERT(mp->mFs->fsMops != NULL);
+    LOS_ASSERT(mp->mFs->fsMops->mount != NULL);
+
+    return mp->mFs->fsMops->mount(mp, mountflags, data);
+}
+
 int LOS_FsMount(const char *source, const char *target,
                 const char *fsType, unsigned long mountflags,
                 const void *data)
@@ -169,7 +191,13 @@ int LOS_FsMount(const char *source, const char *target,
 
     (void)VfsLock();
 
-    mp = MountPointInit(target, fsType, mountflags);
+    if (mountflags & MS_REMOUNT) {
+        ret = VfsRemount(source, target, fsType, mountflags, data);
+        VfsUnlock();
+        return ret;
+    }
+
+    mp = VfsMountPointInit(target, fsType, mountflags);
     if (mp == NULL) {
         VfsUnlock();
         return (int)LOS_NOK;
