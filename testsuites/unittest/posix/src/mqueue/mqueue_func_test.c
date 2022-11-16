@@ -56,7 +56,7 @@ const int MAX_MQ_NAME_LEN = 256;    // max mqueue name length
 const int MAX_MQ_MSG_SIZE = 65530;  // max mqueue message size
 
 // return n: 0 < n <= max
-unsigned int GetRandom(unsigned int max)
+static unsigned int GetRandom(unsigned int max)
 {
     if (max == 0 || max == 1) {
         return 1;
