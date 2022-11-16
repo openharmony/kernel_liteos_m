@@ -117,14 +117,14 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis007, Function | MediumTest | Level1)
     msgQueueId = osMessageQueueNew(1, STATCI_BUFF_SIZE, &attr);
     ICUNIT_ASSERT_NOT_EQUAL(msgQueueId, NULL, msgQueueId);
 
-    name = osMessageQueueGetName(msgQueueId);
+    name = (CHAR *)osMessageQueueGetName(msgQueueId);
     ret = strcmp(name, "q1");
     ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     ret = osMessageQueueDelete(msgQueueId);
     ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
 
-    name = osMessageQueueGetName(msgQueueId);
+    name = (CHAR *)osMessageQueueGetName(msgQueueId);
     ICUNIT_ASSERT_EQUAL(name, NULL, name);
 #endif
 
@@ -155,13 +155,13 @@ static VOID CmsisQueueTestThread1(VOID)
     osStatus_t status;
 
     ret = osMessageQueuePut(g_msgQueueId1, &g_strbuff1, 0U, 0U);
-    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+    ICUNIT_ASSERT_EQUAL_VOID(ret, osOK, ret);
 
     status = osMessageQueueGet(g_msgQueueId2, &data, NULL, QUEUE_WAIT_TIMEOUT);
-    ICUNIT_ASSERT_EQUAL(status, osOK, status);
+    ICUNIT_ASSERT_EQUAL_VOID(status, osOK, status);
 
     ret = strcmp(data, "world");
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL_VOID(ret, 0, ret);
 }
 
 static VOID CmsisQueueTestThread2(VOID)
@@ -171,13 +171,13 @@ static VOID CmsisQueueTestThread2(VOID)
     osStatus_t status;
 
     status = osMessageQueueGet(g_msgQueueId1, &data, NULL, QUEUE_WAIT_TIMEOUT);
-    ICUNIT_ASSERT_EQUAL(status, osOK, status);
+    ICUNIT_ASSERT_EQUAL_VOID(status, osOK, status);
 
     ret = strcmp(data, "hello");
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL_VOID(ret, 0, ret);
 
     ret = osMessageQueuePut(g_msgQueueId2, &g_strbuff2, 0U, 0U);
-    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
+    ICUNIT_ASSERT_EQUAL_VOID(ret, osOK, ret);
 }
 
 static INT32 ThreadReadWriteTest(VOID)
@@ -193,10 +193,10 @@ static INT32 ThreadReadWriteTest(VOID)
     g_msgQueueId2 = osMessageQueueNew(1, strlen(g_strbuff2), &attr);
     ICUNIT_ASSERT_NOT_EQUAL(g_msgQueueId2, NULL, g_msgQueueId2);
 
-    threadId1 = osThreadNew(CmsisQueueTestThread1, NULL, NULL);
+    threadId1 = osThreadNew((osThreadFunc_t)CmsisQueueTestThread1, NULL, NULL);
     ICUNIT_ASSERT_NOT_EQUAL(threadId1, NULL, threadId1);
 
-    threadId2 = osThreadNew(CmsisQueueTestThread2, NULL, NULL);
+    threadId2 = osThreadNew((osThreadFunc_t)CmsisQueueTestThread2, NULL, NULL);
     ICUNIT_ASSERT_NOT_EQUAL(threadId2, NULL, threadId2);
 
     osThreadJoin(threadId1);
