@@ -41,6 +41,7 @@
 #include "kernel_test.h"
 #include "log.h"
 #include "los_tick.h"
+#include <unistd.h>
 
 #define RET_OK 0
 
