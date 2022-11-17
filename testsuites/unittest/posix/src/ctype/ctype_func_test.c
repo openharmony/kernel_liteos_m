@@ -34,6 +34,7 @@
 #include "posix_test.h"
 #include "kernel_test.h"
 #include "log.h"
+#include <ctype.h>
 
 #define RET_TRUE 1
 #define RET_FALSE 0
