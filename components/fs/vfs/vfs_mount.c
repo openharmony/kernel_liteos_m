@@ -156,7 +156,7 @@ STATIC struct MountPoint *VfsMountPointInit(const char *target, const char *fsTy
     return mp;
 }
 
-STATIC int VfsRemount(const char *source ,const char *target,
+STATIC int VfsRemount(const char *source, const char *target,
                       const char *fsType, unsigned long mountflags,
                       const void *data)
 {
