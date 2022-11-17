@@ -32,6 +32,7 @@
 #include "osTest.h"
 #include "pthread.h"
 #include "time.h"
+#include <unistd.h>
 
 #undef TASK_PRIO_TEST
 #define TASK_PRIO_TEST           LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO
@@ -690,7 +691,6 @@ static VOID PthreadOnceFunc01(void)
 LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread010, Function | MediumTest | Level1)
 {
     pthread_attr_t attr;
-    pthread_t thread[TEST_THREAD_COUNT];
     struct sched_param schedParam = { 0 };
     UINT32 ret;
     UINT32 i = 0;
