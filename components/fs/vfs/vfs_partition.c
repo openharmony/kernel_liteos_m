@@ -160,8 +160,7 @@ int LOS_PartitionFormat(const char *partName, char *fsType, void *data)
        format is not allowed when the device has been mounted. */
     struct MountPoint *iter = NULL;
     LOS_MP_FOR_EACH_ENTRY(iter) {
-        if ((iter->mFs != NULL) && (iter->mFs->fsType != NULL) &&
-            strcmp(iter->mFs->fsType, fsType) == 0) {
+        if ((iter->mPath != NULL) && (strcmp(iter->mPath, partName) == 0)) {
             errno = EBUSY;
             return (int)LOS_NOK;
         }
