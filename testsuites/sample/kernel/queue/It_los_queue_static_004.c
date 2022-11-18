@@ -35,17 +35,19 @@
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
+    UINT32 msgSize = (UINT32)QUEUE_BASE_MSGSIZE;
+
     CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
     CHAR buff2[QUEUE_SHORT_BUFFER_LENGTH] = {0};
     CHAR buff3[QUEUE_SHORT_BUFFER_LENGTH] = {0};
 
-    ret = LOS_QueueCreateStatic("Q1", QUEUE_BASE_NUM, &g_testQueueID01, buff3, 0, QUEUE_BASE_MSGSIZE);
+    ret = LOS_QueueCreateStatic("Q1", QUEUE_BASE_NUM, &g_testQueueID01, (UINT8 *)buff3, 0, QUEUE_BASE_MSGSIZE);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_QueueWriteCopy(g_testQueueID01, &buff1, QUEUE_BASE_MSGSIZE, 0);
+    ret = LOS_QueueWriteCopy(g_testQueueID01, &buff1, (UINT32)QUEUE_BASE_MSGSIZE, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_QueueReadCopy(g_testQueueID01, &buff2, QUEUE_BASE_MSGSIZE, 0);
+    ret = LOS_QueueReadCopy(g_testQueueID01, &buff2, &msgSize, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ret = strcmp((CHAR *)buff2, (CHAR *)buff3);
