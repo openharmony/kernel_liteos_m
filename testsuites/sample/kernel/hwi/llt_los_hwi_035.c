@@ -37,7 +37,7 @@ static VOID TaskF01(VOID)
 {
 }
 
-VOID ItHwiM3B001F001()
+static VOID ItHwiM3B001F001(VOID)
 {
     return;
 }
