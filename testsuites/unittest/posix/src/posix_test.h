@@ -76,7 +76,7 @@
 void ItSuitePosix(void);
 
 extern void ItSuitePosixPthread(void);
-extern void ItSuitePosixMutex(void);            
+extern void ItSuitePosixMutex(void);
 extern void PosixCtypeFuncTest(void);
 extern void PosixIsdigitFuncTest(void);
 extern void PosixIslowerFuncTest(void);
