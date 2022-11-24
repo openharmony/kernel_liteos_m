@@ -94,6 +94,7 @@ int PollQueryFd(int fd, struct PollTable *table)
 #define IOV_MAX_CNT 4
 
 UINT32 g_fsMutex;
+static UINT32 g_dirNum = 0;
 
 int VfsLock(void)
 {
@@ -666,6 +667,13 @@ static DIR *VfsOpendir(const char *path)
         return NULL;
     }
 
+    if (g_dirNum >= LOSCFG_MAX_OPEN_DIRS) {
+        VFS_ERRNO_SET(ENFILE);
+        VfsUnlock();
+        LOSCFG_FS_FREE_HOOK(dir);
+        return NULL;
+    }
+
     mp = VfsMpFind(path, &pathInMp);
     if ((mp == NULL) || (pathInMp == NULL)) {
         VFS_ERRNO_SET(ENOENT);
@@ -687,6 +695,7 @@ static DIR *VfsOpendir(const char *path)
     ret = (UINT32)mp->mFs->fsFops->opendir(dir, pathInMp);
     if (ret == 0) {
         mp->mRefs++;
+        g_dirNum++;
     } else {
         LOSCFG_FS_FREE_HOOK(dir);
         dir = NULL;
@@ -752,6 +761,7 @@ static int VfsClosedir(DIR *d)
 
     if (ret == 0) {
         mp->mRefs--;
+        g_dirNum--;
     } else {
         VFS_ERRNO_SET(EBADF);
     }
