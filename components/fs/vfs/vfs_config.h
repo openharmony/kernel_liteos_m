@@ -49,19 +49,15 @@
 
 #ifdef LOSCFG_FS_FAT
 #include "fatfs_conf.h"
-#define __FAT_NFILE FAT_MAX_OPEN_FILES
-#else
-#define __FAT_NFILE 0
 #endif
 
 #ifdef LOSCFG_FS_LITTLEFS
 #include "lfs_conf.h"
-#define __LFS_NFILE LOSCFG_LFS_MAX_OPEN_FILES
-#else
-#define __LFS_NFILE 0
 #endif
 
-#define CONFIG_NFILE_DESCRIPTORS    (__FAT_NFILE + __LFS_NFILE)
+#ifndef CONFIG_NFILE_DESCRIPTORS
+#define CONFIG_NFILE_DESCRIPTORS 256
+#endif
 
 #define NR_OPEN_DEFAULT CONFIG_NFILE_DESCRIPTORS
 
