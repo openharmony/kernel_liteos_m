@@ -38,6 +38,7 @@
 #define _LOS_FS_H_
 
 #include "los_config.h"
+#include "los_memory.h"
 #include "dirent.h"
 #include "sys/mount.h"
 #include "sys/statfs.h"
@@ -51,6 +52,14 @@
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
+
+#ifndef LOSCFG_FS_MALLOC_HOOK
+#define LOSCFG_FS_MALLOC_HOOK(size) LOS_MemAlloc((VOID *)OS_SYS_MEM_ADDR, size)
+#endif
+
+#ifndef LOSCFG_FS_FREE_HOOK
+#define LOSCFG_FS_FREE_HOOK(ptr) LOS_MemFree((VOID *)OS_SYS_MEM_ADDR, ptr)
+#endif
 
 int LOS_Open(const char *path, int flags, ...);
 int LOS_Close(int fd);
