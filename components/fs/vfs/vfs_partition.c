@@ -143,9 +143,7 @@ int LOS_DiskPartition(const char *dev, const char *fsType, int *lengthArray, int
     if ((fMap != NULL) && (fMap->fsMgt != NULL) &&
         (fMap->fsMgt->fdisk != NULL)) {
         ret = fMap->fsMgt->fdisk(dev, lengthArray, partNum);
-        if (ret == (int)LOS_NOK) {
-            return ret;
-        }
+        return ret;
     }
 
     ret = AddDevice(dev, fsType, lengthArray, addrArray, partNum);
