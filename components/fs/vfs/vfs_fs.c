@@ -86,7 +86,7 @@ int PollQueryFd(int fd, struct PollTable *table)
 #endif
 
 #define FREE_AND_SET_NULL(ptr) do { \
-    free(ptr);                      \
+    LOSCFG_FS_FREE_HOOK(ptr);       \
     ptr = NULL;                     \
 } while (0)
 
@@ -143,13 +143,13 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
 
     offset = strlen("///") + 1; // three '/' and one '\0'
     size_t tmpLen = strlen(cwd) + strlen(path) + offset;
-    char *tmpBuf = (char *)malloc(tmpLen);
+    char *tmpBuf = (char *)LOSCFG_FS_MALLOC_HOOK(tmpLen);
     if (tmpBuf == NULL) {
         return LOS_OK;
     }
 
     if (-1 == sprintf_s(tmpBuf, tmpLen, "/%s/%s/", cwd, path)) {
-        free(tmpBuf);
+        LOSCFG_FS_FREE_HOOK(tmpBuf);
         return LOS_OK;
     }
 
@@ -158,7 +158,7 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
     offset = strlen("/./") - 1;
     while ((p = strstr(tmpBuf, "/./")) != NULL) {
         if (EOK != memmove_s(p, tmpLen - (p - tmpBuf), p + offset, tmpLen - (p - tmpBuf) - offset)) {
-            free(tmpBuf);
+            LOSCFG_FS_FREE_HOOK(tmpBuf);
             return LOS_OK;
         }
     }
@@ -166,7 +166,7 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
     /* replace // to / */
     while ((p = strstr(tmpBuf, "//")) != NULL) {
         if (EOK != memmove_s(p, tmpLen - (p - tmpBuf), p + 1, tmpLen - (p - tmpBuf) - 1)) {
-            free(tmpBuf);
+            LOSCFG_FS_FREE_HOOK(tmpBuf);
             return LOS_OK;
         }
     }
@@ -179,7 +179,7 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
             --start;
         }
         if (EOK != memmove_s(start, tmpLen - (start - tmpBuf), p + offset, tmpLen - (p - tmpBuf) - offset)) {
-            free(tmpBuf);
+            LOSCFG_FS_FREE_HOOK(tmpBuf);
             return LOS_OK;
         }
     }
@@ -191,23 +191,24 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
     }
 
     if ((!buf) || (bufSize == 0)) {
-        free(tmpBuf);
+        LOSCFG_FS_FREE_HOOK(tmpBuf);
         return totalLen;
     }
 
     if (EOK != memcpy_s(buf, bufSize, tmpBuf, (((totalLen + 1) > bufSize) ? bufSize : (totalLen + 1)))) {
-        free(tmpBuf);
+        LOSCFG_FS_FREE_HOOK(tmpBuf);
         return LOS_OK;
     }
 
     buf[bufSize - 1] = 0;
-    free(tmpBuf);
+    LOSCFG_FS_FREE_HOOK(tmpBuf);
     return totalLen;
 }
 #endif
 
 static int VfsOpen(const char *path, int flags)
 {
+    size_t len;
     struct File *file = NULL;
     int fd = -1;
     const char *pathInMp = NULL;
@@ -247,13 +248,15 @@ static int VfsOpen(const char *path, int flags)
         return fd;
     }
 
-    file->fullPath = strdup(path);
+    len = strlen(path) + 1;
+    file->fullPath = LOSCFG_FS_MALLOC_HOOK(len);
     if (file->fullPath == NULL) {
         VFS_ERRNO_SET(ENOMEM);
         VfsFilePut(file);
         VfsUnlock();
         return (int)LOS_NOK;
     }
+    (void)strcpy_s((char *)file->fullPath, len, path);
 
     file->fFlags = (UINT32)flags;
     file->fOffset = 0;
@@ -344,7 +347,7 @@ static int VfsClose(int fd)
     }
 
     if (file->fullPath != NULL) {
-        free((void *)file->fullPath);
+        LOSCFG_FS_FREE_HOOK((void *)file->fullPath);
     }
 
     VfsDetachFile(file);
@@ -651,7 +654,7 @@ static DIR *VfsOpendir(const char *path)
         return NULL;
     }
 
-    dir = (struct Dir *)malloc(sizeof(struct Dir));
+    dir = (struct Dir *)LOSCFG_FS_MALLOC_HOOK(sizeof(struct Dir));
     if (dir == NULL) {
         VFS_ERRNO_SET(ENOMEM);
         return NULL;
@@ -659,7 +662,7 @@ static DIR *VfsOpendir(const char *path)
 
     if (VfsLock() != LOS_OK) {
         VFS_ERRNO_SET(EAGAIN);
-        free(dir);
+        LOSCFG_FS_FREE_HOOK(dir);
         return NULL;
     }
 
@@ -667,14 +670,14 @@ static DIR *VfsOpendir(const char *path)
     if ((mp == NULL) || (pathInMp == NULL)) {
         VFS_ERRNO_SET(ENOENT);
         VfsUnlock();
-        free(dir);
+        LOSCFG_FS_FREE_HOOK(dir);
         return NULL;
     }
 
     if (mp->mFs->fsFops->opendir == NULL) {
         VFS_ERRNO_SET(ENOTSUP);
         VfsUnlock();
-        free(dir);
+        LOSCFG_FS_FREE_HOOK(dir);
         return NULL;
     }
 
@@ -685,7 +688,7 @@ static DIR *VfsOpendir(const char *path)
     if (ret == 0) {
         mp->mRefs++;
     } else {
-        free(dir);
+        LOSCFG_FS_FREE_HOOK(dir);
         dir = NULL;
     }
 
@@ -754,7 +757,7 @@ static int VfsClosedir(DIR *d)
     }
 
     VfsUnlock();
-    free(dir);
+    LOSCFG_FS_FREE_HOOK(dir);
     dir = NULL;
     return ret;
 }
@@ -927,7 +930,7 @@ int LOS_Open(const char *path, int flags, ...)
         return (int)LOS_NOK;
     }
 
-    char *canonicalPath = (char *)malloc(pathLen);
+    char *canonicalPath = (char *)LOSCFG_FS_MALLOC_HOOK(pathLen);
     if (!canonicalPath) {
         errno = ENOMEM;
         return (int)LOS_NOK;
@@ -1242,7 +1245,7 @@ ssize_t LOS_Readv(int fd, const struct iovec *iovBuf, int iovcnt)
         return (ssize_t)LOS_NOK;
     }
     totalLen = bufLen * sizeof(char);
-    buf = (char *)malloc(totalLen);
+    buf = (char *)LOSCFG_FS_MALLOC_HOOK(totalLen);
     if (buf == NULL) {
         return (ssize_t)LOS_NOK;
     }
@@ -1259,7 +1262,7 @@ ssize_t LOS_Readv(int fd, const struct iovec *iovBuf, int iovcnt)
         size_t lenToRead = totalLen < bytesToRead ? totalLen : bytesToRead;
         ret = memcpy_s(readBuf, bytesToRead, curBuf, lenToRead);
         if (ret != EOK) {
-            free(buf);
+            LOSCFG_FS_FREE_HOOK(buf);
             return (ssize_t)LOS_NOK;
         }
         if (totalLen < (size_t)bytesToRead) {
@@ -1268,7 +1271,7 @@ ssize_t LOS_Readv(int fd, const struct iovec *iovBuf, int iovcnt)
         curBuf += bytesToRead;
         totalLen -= bytesToRead;
     }
-    free(buf);
+    LOSCFG_FS_FREE_HOOK(buf);
     return totalBytesRead;
 }
 
@@ -1300,7 +1303,7 @@ ssize_t LOS_Writev(int fd, const struct iovec *iovBuf, int iovcnt)
         return (ssize_t)LOS_NOK;
     }
     totalLen = bufLen * sizeof(char);
-    buf = (char *)malloc(totalLen);
+    buf = (char *)LOSCFG_FS_MALLOC_HOOK(totalLen);
     if (buf == NULL) {
         return (ssize_t)LOS_NOK;
     }
@@ -1313,7 +1316,7 @@ ssize_t LOS_Writev(int fd, const struct iovec *iovBuf, int iovcnt)
         }
         ret = memcpy_s(curBuf, totalLen, writeBuf, bytesToWrite);
         if (ret != EOK) {
-            free(buf);
+            LOSCFG_FS_FREE_HOOK(buf);
             return (ssize_t)LOS_NOK;
         }
         curBuf += bytesToWrite;
@@ -1321,7 +1324,7 @@ ssize_t LOS_Writev(int fd, const struct iovec *iovBuf, int iovcnt)
     }
 
     totalBytesWritten = write(fd, buf, bufLen);
-    free(buf);
+    LOSCFG_FS_FREE_HOOK(buf);
 
     return totalBytesWritten;
 }
