@@ -34,6 +34,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "errno.h"
+#include "securec.h"
 #include "vfs_operations.h"
 #include "los_compiler.h"
 #include "los_debug.h"
@@ -141,7 +142,7 @@ STATIC struct MountPoint *VfsMountPointInit(const char *target, const char *fsTy
         return NULL;
     }
 
-    mp = (struct MountPoint *)malloc(sizeof(struct MountPoint));
+    mp = (struct MountPoint *)LOSCFG_FS_MALLOC_HOOK(sizeof(struct MountPoint));
     if (mp == NULL) {
         return NULL;
     }
@@ -181,6 +182,7 @@ int LOS_FsMount(const char *source, const char *target,
                 const char *fsType, unsigned long mountflags,
                 const void *data)
 {
+    size_t len;
     int ret;
     struct MountPoint *mp = NULL;
 
@@ -204,18 +206,22 @@ int LOS_FsMount(const char *source, const char *target,
     }
 
     if (source != NULL) {
-        mp->mDev = strdup(source);
+        len = strlen(source) + 1;
+        mp->mDev = LOSCFG_FS_MALLOC_HOOK(len);
         if (mp->mDev == NULL) {
-            free(mp);
+            LOSCFG_FS_FREE_HOOK(mp);
             VfsUnlock();
             return (int)LOS_NOK;
         }
+        (void)strcpy_s((char *)mp->mDev, len, source);
     }
 
-    mp->mPath = strdup(target);
+    len = strlen(target) + 1;
+    mp->mPath = LOSCFG_FS_MALLOC_HOOK(len);
     if (mp->mPath == NULL) {
         goto errout;
     }
+    (void)strcpy_s((char *)mp->mPath, len, target);
 
     ret = mp->mFs->fsMops->mount(mp, mountflags, data);
     if (ret != 0) {
@@ -229,9 +235,9 @@ int LOS_FsMount(const char *source, const char *target,
     return LOS_OK;
 
 errout:
-    free((void *)mp->mPath);
-    free((void *)mp->mDev);
-    free(mp);
+    LOSCFG_FS_FREE_HOOK((void *)mp->mPath);
+    LOSCFG_FS_FREE_HOOK((void *)mp->mDev);
+    LOSCFG_FS_FREE_HOOK(mp);
     VfsUnlock();
     return (int)LOS_NOK;
 }
@@ -266,9 +272,9 @@ int LOS_FsUmount(const char *target)
     /* delete mp from mount list */
     MpDeleteFromList(mp);
     mp->mFs->fsRefs--;
-    free((void *)mp->mPath);
-    free((void *)mp->mDev);
-    free(mp);
+    LOSCFG_FS_FREE_HOOK((void *)mp->mPath);
+    LOSCFG_FS_FREE_HOOK((void *)mp->mDev);
+    LOSCFG_FS_FREE_HOOK(mp);
 
     VfsUnlock();
     return LOS_OK;
@@ -326,9 +332,9 @@ int LOS_FsUmount2(const char *target, int flag)
     /* delete mp from mount list */
     MpDeleteFromList(mp);
     mp->mFs->fsRefs--;
-    free((void *)mp->mPath);
-    free((void *)mp->mDev);
-    free(mp);
+    LOSCFG_FS_FREE_HOOK((void *)mp->mPath);
+    LOSCFG_FS_FREE_HOOK((void *)mp->mDev);
+    LOSCFG_FS_FREE_HOOK(mp);
 
     VfsUnlock();
     return LOS_OK;
