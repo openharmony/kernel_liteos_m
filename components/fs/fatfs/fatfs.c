@@ -46,6 +46,7 @@
 #include "vfs_partition.h"
 #include "vfs_maps.h"
 #include "vfs_mount.h"
+#include "los_fs.h"
 
 /* the max name length of different parts should not bigger than 32 */
 #define FS_DRIVE_NAME_MAX_LEN 32
@@ -244,7 +245,7 @@ char * GetLdPath(const char *source)
     }
 
     char *volPath = g_volPath[partId];
-    char *ldPath = (char *)malloc(strlen(volPath) + LDPATH_PAD);
+    char *ldPath = (char *)LOSCFG_FS_MALLOC_HOOK(strlen(volPath) + LDPATH_PAD);
     if (ldPath == NULL) {
         return NULL;
     }
@@ -255,7 +256,7 @@ char * GetLdPath(const char *source)
     *ldPath = '/';
     ret = strcpy_s(ldPath + 1, strlen(volPath)+1, volPath);
     if (ret != EOK) {
-        free(ldPath);
+        LOSCFG_FS_FREE_HOOK(ldPath);
         return NULL;
     }
 
@@ -265,7 +266,7 @@ char * GetLdPath(const char *source)
 void PutLdPath(const char *ldPath)
 {
     if (ldPath != NULL) {
-        free((void *)ldPath);
+        LOSCFG_FS_FREE_HOOK((void *)ldPath);
     }
 }
 
@@ -295,7 +296,7 @@ int FatfsMount(struct MountPoint *mp, unsigned long mountflags,
         goto ERROUT;
     }
 
-    fs = (FATFS *)malloc(sizeof(FATFS));
+    fs = (FATFS *)LOSCFG_FS_MALLOC_HOOK(sizeof(FATFS));
     if (fs == NULL) {
         errno = ENOMEM;
         ret = (int)LOS_NOK;
@@ -316,7 +317,7 @@ int FatfsMount(struct MountPoint *mp, unsigned long mountflags,
     return (int)LOS_OK;
 
 ERROUT:
-    free(fs);
+    LOSCFG_FS_FREE_HOOK(fs);
     mp->mData = NULL;
     PutLdPath(ldPath);
     FsUnlock();
@@ -369,7 +370,7 @@ int FatfsUmount(struct MountPoint *mp)
         ff_memfree(fatfs->win);
     }
 
-    free(mp->mData);
+    LOSCFG_FS_FREE_HOOK(mp->mData);
     mp->mData = NULL;
 
     ret = (int)LOS_OK;
@@ -424,7 +425,7 @@ int FatfsUmount2(struct MountPoint *mp, int flag)
         ff_memfree(fatfs->win);
     }
 
-    free(mp->mData);
+    LOSCFG_FS_FREE_HOOK(mp->mData);
     mp->mData = NULL;
 
     ret = (int)LOS_OK;
@@ -449,7 +450,7 @@ int FatfsOpen(struct File *file, const char *path, int oflag)
 
     fmode = FatFsGetMode(oflag);
 
-    fp = (FIL *)malloc(sizeof(FIL));
+    fp = (FIL *)LOSCFG_FS_MALLOC_HOOK(sizeof(FIL));
     if (fp == NULL) {
         errno = ENOMEM;
         return (int)LOS_NOK;
@@ -458,7 +459,7 @@ int FatfsOpen(struct File *file, const char *path, int oflag)
     ret = FsLock();
     if (ret != 0) {
         errno = ret;
-        free(fp);
+        LOSCFG_FS_FREE_HOOK(fp);
         return (int)LOS_NOK;
     }
 
@@ -467,14 +468,14 @@ int FatfsOpen(struct File *file, const char *path, int oflag)
         PRINT_ERR("FAT open ChangeDrive err 0x%x!\r\n", ret);
         errno = ENOENT;
         ret = (int)LOS_NOK;
-        free(fp);
+        LOSCFG_FS_FREE_HOOK(fp);
         goto OUT;
     }
 
     res = f_open(fp, path, fmode);
     if (res != FR_OK) {
         PRINT_ERR("FAT open err 0x%x!\r\n", res);
-        free(fp);
+        LOSCFG_FS_FREE_HOOK(fp);
         errno = FatfsErrno(res);
         ret = (int)LOS_NOK;
         goto OUT;
@@ -518,7 +519,7 @@ int FatfsClose(struct File *file)
         (void)ff_memfree(fp->buf);
     }
 #endif
-    free(file->fData);
+    LOSCFG_FS_FREE_HOOK(file->fData);
     file->fData = NULL;
     FsUnlock();
 
@@ -833,7 +834,7 @@ int FatfsOpendir(struct Dir *dir, const char *dirName)
         goto ERROUT;
     }
 
-    dp = (DIR *)malloc(sizeof(DIR));
+    dp = (DIR *)LOSCFG_FS_MALLOC_HOOK(sizeof(DIR));
     if (dp == NULL) {
         errno = ENOENT;
         goto ERROUT;
@@ -867,7 +868,7 @@ int FatfsOpendir(struct Dir *dir, const char *dirName)
 
 ERROUT:
     if (dp != NULL) {
-        free(dp);
+        LOSCFG_FS_FREE_HOOK(dp);
     }
     FsUnlock();
     return (int)LOS_NOK;
@@ -939,7 +940,7 @@ int FatfsClosedir(struct Dir *dir)
         return (int)LOS_NOK;
     }
 
-    free(dir->dData);
+    LOSCFG_FS_FREE_HOOK(dir->dData);
     dir->dData = NULL;
     FsUnlock();
 

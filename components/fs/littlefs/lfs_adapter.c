@@ -39,6 +39,7 @@
 #include "vfs_maps.h"
 #include "vfs_mount.h"
 #include "securec.h"
+#include "los_fs.h"
 
 static pthread_mutex_t g_fsLocalMutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -190,7 +191,7 @@ int LfsMount(struct MountPoint *mp, unsigned long mountflags, const void *data)
         goto errout;
     }
 
-    mountHdl = (lfs_t *)malloc(sizeof(lfs_t) + sizeof(struct lfs_config));
+    mountHdl = (lfs_t *)LOSCFG_FS_MALLOC_HOOK(sizeof(lfs_t) + sizeof(struct lfs_config));
     if (mountHdl == NULL) {
         errno = ENODEV;
         ret = (int)LOS_NOK;
@@ -210,7 +211,7 @@ int LfsMount(struct MountPoint *mp, unsigned long mountflags, const void *data)
         }
     }
     if (ret != 0) {
-        free(mountHdl);
+        LOSCFG_FS_FREE_HOOK(mountHdl);
         errno = LittlefsErrno(ret);
         ret = (int)LOS_NOK;
     }
@@ -239,7 +240,7 @@ int LfsUmount(struct MountPoint *mp)
         ret = (int)LOS_NOK;
     }
 
-    free(mp->mData);
+    LOSCFG_FS_FREE_HOOK(mp->mData);
     mp->mData = NULL;
     return ret;
 }
@@ -333,7 +334,7 @@ int LfsOpendir(struct Dir *dir, const char *dirName)
     }
 
     lfs_t *lfs = (lfs_t *)dir->dMp->mData;
-    lfs_dir_t *dirInfo = (lfs_dir_t *)malloc(sizeof(lfs_dir_t));
+    lfs_dir_t *dirInfo = (lfs_dir_t *)LOSCFG_FS_MALLOC_HOOK(sizeof(lfs_dir_t));
     if (dirInfo == NULL) {
         errno = ENOMEM;
         return (int)LOS_NOK;
@@ -342,7 +343,7 @@ int LfsOpendir(struct Dir *dir, const char *dirName)
     (void)memset_s(dirInfo, sizeof(lfs_dir_t), 0, sizeof(lfs_dir_t));
     ret = lfs_dir_open(lfs, dirInfo, dirName);
     if (ret != 0) {
-        free(dirInfo);
+        LOSCFG_FS_FREE_HOOK(dirInfo);
         errno = LittlefsErrno(ret);
         goto errout;
     }
@@ -421,7 +422,7 @@ int LfsClosedir(struct Dir *dir)
         ret = (int)LOS_NOK;
     }
 
-    free(dirInfo);
+    LOSCFG_FS_FREE_HOOK(dirInfo);
     dir->dData = NULL;
 
     return ret;
@@ -438,7 +439,7 @@ int LfsOpen(struct File *file, const char *pathName, int openFlag)
         return (int)LOS_NOK;
     }
 
-    lfsHandle = (lfs_file_t *)malloc(sizeof(lfs_file_t));
+    lfsHandle = (lfs_file_t *)LOSCFG_FS_MALLOC_HOOK(sizeof(lfs_file_t));
     if (lfsHandle == NULL) {
         errno = ENOMEM;
         return (int)LOS_NOK;
@@ -447,7 +448,7 @@ int LfsOpen(struct File *file, const char *pathName, int openFlag)
     int lfsOpenFlag = ConvertFlagToLfsOpenFlag(openFlag);
     ret = lfs_file_open((lfs_t *)file->fMp->mData, lfsHandle, pathName, lfsOpenFlag);
     if (ret != 0) {
-        free(lfsHandle);
+        LOSCFG_FS_FREE_HOOK(lfsHandle);
         errno = LittlefsErrno(ret);
         goto errout;
     }
@@ -575,7 +576,7 @@ int LfsClose(struct File *file)
         ret = (int)LOS_NOK;
     }
 
-    free(file->fData);
+    LOSCFG_FS_FREE_HOOK(file->fData);
     file->fData = NULL;
     return ret;
 }
