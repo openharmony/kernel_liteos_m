@@ -33,6 +33,7 @@
 #include "securec.h"
 #include "los_debug.h"
 #include "los_compiler.h"
+#include "los_fs.h"
 
 struct FsMap *g_fsMap = NULL;
 
@@ -57,22 +58,25 @@ struct FsMap *VfsFsMapGet(const char *fsType)
 int OsFsRegister(const char *fsType, struct MountOps *fsMops,
                  struct FileOps *fsFops, struct FsManagement *fsMgt)
 {
+    size_t len;
     if ((fsMops == NULL) || (fsFops == NULL)) {
         return (int)LOS_NOK;
     }
 
-    struct FsMap *newfs = (struct FsMap *)malloc(sizeof(struct FsMap));
+    struct FsMap *newfs = (struct FsMap *)LOSCFG_FS_MALLOC_HOOK(sizeof(struct FsMap));
     if (newfs == NULL) {
         PRINT_ERR("Fs register malloc failed, fsType %s.\n", fsType);
         return (int)LOS_NOK;
     }
     (void)memset_s(newfs, sizeof(struct FsMap), 0, sizeof(struct FsMap));
 
-    newfs->fsType = strdup(fsType);
+    len = strlen(fsType) + 1;
+    newfs->fsType = LOSCFG_FS_MALLOC_HOOK(len);
     if (newfs->fsType == NULL) {
-        free(newfs);
+        LOSCFG_FS_FREE_HOOK(newfs);
         return (int)LOS_NOK;
     }
+    (void)strcpy_s((char *)newfs->fsType, len, fsType);
 
     newfs->fsMops = fsMops;
     newfs->fsFops = fsFops;
