@@ -46,6 +46,7 @@
 #include "sys/uio.h"
 #include "unistd.h"
 #include <stdarg.h>
+#include "vfs_maps.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -151,6 +152,28 @@ int LOS_DiskPartition(const char *dev, const char *fsType, int *lengthArray, int
  * @return Return LOS_NOK if error. Return LOS_OK if success.
  */
 int LOS_PartitionFormat(const char *partName, char *fsType, void *data);
+
+/*
+ * @brief new file system callbacks register.
+ * These callback functions are the adaptation layer implemented by the developer,
+ * used to interconnect the vfs with the new file system.
+ *
+ * LOS_FsRegister must be called after kernel initialization is complete.
+ *
+ * @param fsType file system type, don't register the same type fs more than once.
+ * @param fsMops mount operation of the fs.
+ * @param fsFops file operation of the fs.
+ * @param fsMgt management operation of the fs.
+ *
+ * @return Return LOS_OK if success.
+ *         Return LOS_NOK if error.
+ *         errno EINVAL: input errors, such as null pointers.
+ *         errno ENOMEM: memory may malloc failed.
+ *
+ */
+int LOS_FsRegister(const char *fsType, const struct MountOps *fsMops,
+                   const struct FileOps *fsFops, const struct FsManagement *fsMgt);
+
 
 #ifdef __cplusplus
 #if __cplusplus
