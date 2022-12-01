@@ -39,7 +39,6 @@ static_library("posix_test") {
     "src/ctype/tolower_test.c",
     "src/ctype/toupper_test.c",
     "src/errno/strerror_test.c",
-    "src/fs/posix_fs_func_test.c",
     "src/math/math_func_test.c",
     "src/mqueue/mqueue_func_test.c",
     "src/posix_test.c",
@@ -65,7 +64,9 @@ static_library("posix_test") {
     "//test/xts/tools/hctest/include",
     "src",
   ]
-
+  if (defined(LOSCFG_SUPPORT_FATFS) || defined(LOSCFG_SUPPORT_LITTLEFS)) {
+    sources += [ "src/fs/posix_fs_func_test.c" ]
+  }
   if (!defined(LOSCFG_COMPILER_ICCARM)) {
     cflags = [ "-Wno-error" ]
   } else {
