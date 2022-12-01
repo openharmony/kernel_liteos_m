@@ -670,7 +670,7 @@ static DIR *VfsOpendir(const char *path)
     if (g_dirNum >= LOSCFG_MAX_OPEN_DIRS) {
         VFS_ERRNO_SET(ENFILE);
         VfsUnlock();
-        free(dir);
+        LOSCFG_FS_FREE_HOOK(dir);
         return NULL;
     }
 
