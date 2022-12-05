@@ -39,7 +39,7 @@
 
 /**
  * @ingroup los_pm
- * Pm error code: Invalid low power mode.
+ * Pm error code: Invalid low-power mode.
  *
  * Value: 0x02002001
  *
@@ -141,21 +141,33 @@ typedef enum {
 } LOS_PmNodeType;
 
 typedef struct {
-    UINT32 (*suspend)(UINT32 mode); /* The device enters low power consumption, Unlocked task scheduling. */
-    VOID   (*resume)(UINT32 mode);  /* The device exits from low power consumption, Unlocked task scheduling. */
+    UINT32 (*suspend)(UINT32 mode); /* The device enters low-power consumption, Unlocked task scheduling. */
+    VOID   (*resume)(UINT32 mode);  /* The device exits from low-power consumption, Unlocked task scheduling. */
 } LosPmDevice;
 
 typedef struct {
-    UINT32 freq;                   /* The frequency of the low power timer */
-    VOID   (*timerStart)(UINT64);  /* Start the low power timer */
-    VOID   (*timerStop)(VOID);     /* Stop the low power timer */
-    UINT64 (*timerCycleGet)(VOID); /* Gets the running time of the low power timer in unit cycle */
-    VOID   (*tickLock)(VOID);      /* Pause the system tick timer */
-    VOID   (*tickUnlock)(VOID);    /* Restore the system tick timer */
+    /* Low-power timer related implementation functions.
+     * The function is not NULL, the low-power timer is enabled.
+     */
+    UINT32 freq;                   /* The frequency of the low-power timer */
+    VOID   (*timerStart)(UINT64);  /* Start the low-power timer and set the response period */
+    VOID   (*timerStop)(VOID);     /* Turn off the low-power timer */
+    UINT64 (*timerCycleGet)(VOID); /* Gets the time the system sleeps */
+
+    /* When the low-power timer is enabled, the function of tickLock is to turn off the system tick timer and
+     * clear the timer's count value to zero.
+     * When the low-power timer is disabled, the function of tickLock is to pause the system timer.
+     */
+    VOID   (*tickLock)(VOID);
+
+    /* When the low-power timer is enabled, the function of tickUnlock is to restart the system tick timer.
+     * When the low-power timer is disabled, the function of tickUnlock is to restore the system tick timer.
+     */
+    VOID   (*tickUnlock)(VOID);
 } LosPmTickTimer;
 
 typedef struct {
-    /* Preparations before the CPU enters low power consumption.
+    /* Preparations before the CPU enters low-power consumption.
      * All modes except normal mode are invoked.
      * Unlocked task scheduling.
      */
@@ -203,10 +215,10 @@ typedef struct {
 
 /**
  * @ingroup los_pm
- * @brief Initialize system low power frame.
+ * @brief Initialize system low-power frame.
  *
  * @par Description:
- * This API is used to initialize the system low power frame.
+ * This API is used to initialize the system low-power frame.
  *
  * @attention None.
  *
@@ -221,10 +233,10 @@ UINT32 OsPmInit(VOID);
 
 /**
  * @ingroup los_pm
- * @brief Whether the low power consumption condition is met.
+ * @brief Whether the low-power consumption condition is met.
  *
  * @par Description:
- * This API is used to check whether low power consumption is met.
+ * This API is used to check whether low-power consumption is met.
  *
  * @attention None.
  *
@@ -302,10 +314,10 @@ VOID LOS_PmWakeSet(VOID);
 
 /**
  * @ingroup los_pm
- * @brief Get the low power mode of the current system.
+ * @brief Get the low-power mode of the current system.
  *
  * @par Description:
- * This API is used to get the low power mode of the current system.
+ * This API is used to get the low-power mode of the current system.
  *
  * @attention None.
  *
@@ -320,14 +332,14 @@ LOS_SysSleepEnum LOS_PmModeGet(VOID);
 
 /**
  * @ingroup los_pm
- * @brief Set low power mode.
+ * @brief Set low-power mode.
  *
  * @par Description:
- * This API is used to set low power mode.
+ * This API is used to set low-power mode.
  *
  * @attention None.
  *
- * @param  mode [IN] low power mode.
+ * @param  mode [IN] low-power mode.
  *
  * @retval error code, LOS_OK means success.
  * @par Dependency:

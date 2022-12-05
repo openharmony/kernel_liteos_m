@@ -101,21 +101,27 @@ STATIC VOID OsPmTickTimerStart(LosPmCB *pm)
     }
 
 #if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)
-    if ((tickTimer->timerStop != NULL) && (pm->enterSleepTime != 0)) {
-        /* Restore the main CPU frequency */
-        sleepTime = tickTimer->timerCycleGet();
-        tickTimer->timerStop();
+    if (tickTimer->timerStop != NULL) {
+        if (pm->enterSleepTime != 0) {
+            /* Restore the main CPU frequency */
+            sleepTime = tickTimer->timerCycleGet();
+            tickTimer->timerStop();
 
-        realSleepTime = OS_SYS_CYCLE_TO_NS(sleepTime, tickTimer->freq);
-        realSleepTime = OS_SYS_NS_TO_CYCLE(realSleepTime, g_sysClock);
-        currTime = pm->enterSleepTime + realSleepTime;
-        pm->enterSleepTime = 0;
+            realSleepTime = OS_SYS_CYCLE_TO_NS(sleepTime, tickTimer->freq);
+            realSleepTime = OS_SYS_NS_TO_CYCLE(realSleepTime, g_sysClock);
+            currTime = pm->enterSleepTime + realSleepTime;
+            pm->enterSleepTime = 0;
 
-        OsTickTimerBaseReset(currTime);
-        OsSchedResetSchedResponseTime(0);
+            OsTickTimerBaseReset(currTime);
+            OsSchedResetSchedResponseTime(0);
+            /* Restart the system tick timer */
+            tickTimer->tickUnlock();
+        }
+        return;
     }
 #endif
 
+    /* Restore the system tick timer */
     tickTimer->tickUnlock();
     return;
 }
@@ -142,14 +148,21 @@ STATIC BOOL OsPmTickTimerStop(LosPmCB *pm)
         sleepCycle = OS_SYS_CYCLE_TO_NS(realSleepTime, g_sysClock);
         sleepCycle = OS_SYS_NS_TO_CYCLE(sleepCycle, tickTimer->freq);
 
+        if (sleepCycle == 0) {
+            pm->sysMode = LOS_SYS_NORMAL_SLEEP;
+            return FALSE;
+        }
+
         /* The main CPU reduces the frequency */
         pm->enterSleepTime = LOS_SysCycleGet();
+        /* Turn off the system tick timer and clear the count value to zero */
         tickTimer->tickLock();
         tickTimer->timerStart(sleepCycle);
         return TRUE;
     }
 #endif
 
+    /* Pause the system tick timer */
     tickTimer->tickLock();
     return TRUE;
 }
@@ -167,7 +180,7 @@ STATIC VOID OsPmCpuResume(LosPmCB *pm)
 
 STATIC VOID OsPmCpuSuspend(LosPmCB *pm)
 {
-    /* cpu enter low power mode */
+    /* cpu enter low-power mode */
 
     if (pm->sysMode == LOS_SYS_NORMAL_SLEEP) {
         pm->sysctrl->normalSuspend();
