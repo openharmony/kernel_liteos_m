@@ -58,6 +58,9 @@
 
 #define OS_CPUP_RECORD_PERIOD   (g_sysClock)
 
+#define OS_SYS_CYCLE_TO_US(cycle)  ((cycle) / (g_sysClock)) * OS_SYS_US_PER_SECOND + \
+    ((cycle) % (g_sysClock) * OS_SYS_US_PER_SECOND / (g_sysClock))
+
 LITE_OS_SEC_BSS UINT16    g_cpupInitFlg = 0;
 LITE_OS_SEC_BSS OsCpupCB  *g_cpup = NULL;
 LITE_OS_SEC_BSS UINT64    g_lastRecordTime;
@@ -167,6 +170,15 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsCpupInit()
     return LOS_OK;
 }
 
+/* The calculation time unit is changed to us to decouple the influence of 
+ * system frequency modulation on CPUP
+ */
+STATIC UINT64 CpupTimeUsGet(VOID)
+{
+    UINT64 time = LOS_SysCycleGet();
+    return OS_SYS_CYCLE_TO_US(time);
+}
+
 /*****************************************************************************
 Function   : OsTskCycleStart
 Description: start task to get cycles count in current task beginning
@@ -183,10 +195,11 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleStart(VOID)
 
     taskID = g_losTask.newTask->taskID;
     g_cpup[taskID].cpupID = taskID;
-    g_cpup[taskID].startTime = LOS_SysCycleGet();
+    g_cpup[taskID].startTime = CpupTimeUsGet();
 
     return;
 }
+
 /*****************************************************************************
 Function   : OsTskCycleEnd
 Description: quit task and get cycle count
@@ -196,7 +209,7 @@ Return     : None
 LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleEnd(VOID)
 {
     UINT32 taskID;
-    UINT64 cpuCycle;
+    UINT64 cpuTime;
 
     if (g_cpupInitFlg == 0) {
         return;
@@ -208,16 +221,17 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleEnd(VOID)
         return;
     }
 
-    cpuCycle = LOS_SysCycleGet();
-    if (cpuCycle < g_cpup[taskID].startTime) {
-        cpuCycle += g_cyclesPerTick;
+    cpuTime = CpupTimeUsGet();
+    if (cpuTime < g_cpup[taskID].startTime) {
+        cpuTime += OS_US_PER_TICK;
     }
 
-    g_cpup[taskID].allTime += (cpuCycle - g_cpup[taskID].startTime);
+    g_cpup[taskID].allTime += (cpuTime - g_cpup[taskID].startTime);
     g_cpup[taskID].startTime = 0;
 
     return;
 }
+
 /*****************************************************************************
 Function   : OsTskCycleEndStart
 Description: start task to get cycles count in current task ending
@@ -227,7 +241,7 @@ Return     : None
 LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleEndStart(VOID)
 {
     UINT32 taskID;
-    UINT64 cpuCycle;
+    UINT64 cpuTime;
     UINT16 loopNum;
 
     if (g_cpupInitFlg == 0) {
@@ -235,23 +249,23 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleEndStart(VOID)
     }
 
     taskID = g_losTask.runTask->taskID;
-    cpuCycle = LOS_SysCycleGet();
+    cpuTime = CpupTimeUsGet();
 
     if (g_cpup[taskID].startTime != 0) {
-        if (cpuCycle < g_cpup[taskID].startTime) {
-            cpuCycle += g_cyclesPerTick;
+        if (cpuTime < g_cpup[taskID].startTime) {
+            cpuTime += OS_US_PER_TICK;
         }
 
-        g_cpup[taskID].allTime += (cpuCycle - g_cpup[taskID].startTime);
+        g_cpup[taskID].allTime += (cpuTime - g_cpup[taskID].startTime);
         g_cpup[taskID].startTime = 0;
     }
 
     taskID = g_losTask.newTask->taskID;
     g_cpup[taskID].cpupID = taskID;
-    g_cpup[taskID].startTime = cpuCycle;
+    g_cpup[taskID].startTime = cpuTime;
 
-    if ((cpuCycle - g_lastRecordTime) > OS_CPUP_RECORD_PERIOD) {
-        g_lastRecordTime = cpuCycle;
+    if ((cpuTime - g_lastRecordTime) > OS_CPUP_RECORD_PERIOD) {
+        g_lastRecordTime = cpuTime;
 
         for (loopNum = 0; loopNum < g_taskMaxNum; loopNum++) {
             g_cpup[loopNum].historyTime[g_hisPos] = g_cpup[loopNum].allTime;
@@ -267,12 +281,12 @@ LITE_OS_SEC_TEXT_MINOR VOID OsTskCycleEndStart(VOID)
     return;
 }
 
-LITE_OS_SEC_TEXT_MINOR static inline UINT16 OsGetPrePos(UINT16 curPos)
+LITE_OS_SEC_TEXT_MINOR STATIC INLINE UINT16 OsGetPrePos(UINT16 curPos)
 {
     return (curPos == 0) ? (OS_CPUP_HISTORY_RECORD_NUM - 1) : (curPos - 1);
 }
 
-LITE_OS_SEC_TEXT_MINOR static VOID OsGetPositions(UINT16 mode, UINT16* curPosAddr, UINT16* prePosAddr)
+LITE_OS_SEC_TEXT_MINOR STATIC VOID OsGetPositions(UINT16 mode, UINT16* curPosAddr, UINT16* prePosAddr)
 {
     UINT16 curPos;
     UINT16 prePos = 0;
@@ -298,7 +312,7 @@ Return     : cpupRet:current CPU usage
 *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_SysCpuUsage(VOID)
 {
-    UINT64  cpuCycleAll = 0;
+    UINT64  cpuTimeAll = 0;
     UINT32  cpupRet = 0;
     UINT16  loopNum;
     UINT32 intSave;
@@ -312,12 +326,12 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_SysCpuUsage(VOID)
     OsTskCycleEnd();
 
     for (loopNum = 0; loopNum < g_taskMaxNum; loopNum++) {
-        cpuCycleAll += g_cpup[loopNum].allTime;
+        cpuTimeAll += g_cpup[loopNum].allTime;
     }
 
-    if (cpuCycleAll) {
+    if (cpuTimeAll) {
         cpupRet = LOS_CPUP_PRECISION -  (UINT32)((LOS_CPUP_PRECISION *
-            g_cpup[g_idleTaskID].allTime) / cpuCycleAll);
+            g_cpup[g_idleTaskID].allTime) / cpuTimeAll);
     }
 
     OsTskCycleStart();
@@ -334,7 +348,7 @@ Return     : cpupRet:CPU usage history
 *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_HistorySysCpuUsage(UINT16 mode)
 {
-    UINT64  cpuCycleAll = 0;
+    UINT64  cpuTimeAll = 0;
     UINT64  idleCycleAll = 0;
     UINT32  cpupRet = 0;
     UINT16  loopNum;
@@ -354,9 +368,9 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_HistorySysCpuUsage(UINT16 mode)
 
     for (loopNum = 0; loopNum < g_taskMaxNum; loopNum++) {
         if (mode == CPUP_IN_1S) {
-            cpuCycleAll += g_cpup[loopNum].historyTime[curPos] - g_cpup[loopNum].historyTime[prePos];
+            cpuTimeAll += g_cpup[loopNum].historyTime[curPos] - g_cpup[loopNum].historyTime[prePos];
         } else {
-            cpuCycleAll += g_cpup[loopNum].allTime - g_cpup[loopNum].historyTime[curPos];
+            cpuTimeAll += g_cpup[loopNum].allTime - g_cpup[loopNum].historyTime[curPos];
         }
     }
 
@@ -367,8 +381,8 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_HistorySysCpuUsage(UINT16 mode)
         idleCycleAll += g_cpup[g_idleTaskID].allTime - g_cpup[g_idleTaskID].historyTime[curPos];
     }
 
-    if (cpuCycleAll) {
-        cpupRet = (LOS_CPUP_PRECISION -  (UINT32)((LOS_CPUP_PRECISION * idleCycleAll) / cpuCycleAll));
+    if (cpuTimeAll) {
+        cpupRet = (LOS_CPUP_PRECISION -  (UINT32)((LOS_CPUP_PRECISION * idleCycleAll) / cpuTimeAll));
     }
 
     OsTskCycleStart();
@@ -385,7 +399,7 @@ Return     : cpupRet:CPU usage of certain task
 *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskCpuUsage(UINT32 taskID)
 {
-    UINT64  cpuCycleAll = 0;
+    UINT64  cpuTimeAll = 0;
     UINT16  loopNum;
     UINT32 intSave;
     UINT32  cpupRet = 0;
@@ -410,11 +424,11 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_TaskCpuUsage(UINT32 taskID)
         if ((g_cpup[loopNum].status & OS_TASK_STATUS_UNUSED) || (g_cpup[loopNum].status == 0)) {
             continue;
         }
-        cpuCycleAll += g_cpup[loopNum].allTime;
+        cpuTimeAll += g_cpup[loopNum].allTime;
     }
 
-    if (cpuCycleAll) {
-        cpupRet = (UINT32)((LOS_CPUP_PRECISION * g_cpup[taskID].allTime) / cpuCycleAll);
+    if (cpuTimeAll) {
+        cpupRet = (UINT32)((LOS_CPUP_PRECISION * g_cpup[taskID].allTime) / cpuTimeAll);
     }
 
     OsTskCycleStart();
@@ -432,8 +446,8 @@ Return     : cpupRet:CPU usage history of task
 *****************************************************************************/
 LITE_OS_SEC_TEXT_MINOR UINT32 LOS_HistoryTaskCpuUsage(UINT32 taskID, UINT16 mode)
 {
-    UINT64  cpuCycleAll = 0;
-    UINT64  cpuCycleCurTsk = 0;
+    UINT64  cpuTimeAll = 0;
+    UINT64  cpuTimeCurTsk = 0;
     UINT16  loopNum, curPos;
     UINT16  prePos = 0;
     UINT32 intSave;
@@ -463,19 +477,19 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_HistoryTaskCpuUsage(UINT32 taskID, UINT16 mode
         }
 
         if (mode == CPUP_IN_1S) {
-            cpuCycleAll += g_cpup[loopNum].historyTime[curPos] - g_cpup[loopNum].historyTime[prePos];
+            cpuTimeAll += g_cpup[loopNum].historyTime[curPos] - g_cpup[loopNum].historyTime[prePos];
         } else {
-            cpuCycleAll += g_cpup[loopNum].allTime - g_cpup[loopNum].historyTime[curPos];
+            cpuTimeAll += g_cpup[loopNum].allTime - g_cpup[loopNum].historyTime[curPos];
         }
     }
 
     if (mode == CPUP_IN_1S) {
-        cpuCycleCurTsk += g_cpup[taskID].historyTime[curPos] - g_cpup[taskID].historyTime[prePos];
+        cpuTimeCurTsk += g_cpup[taskID].historyTime[curPos] - g_cpup[taskID].historyTime[prePos];
     } else {
-        cpuCycleCurTsk += g_cpup[taskID].allTime - g_cpup[taskID].historyTime[curPos];
+        cpuTimeCurTsk += g_cpup[taskID].allTime - g_cpup[taskID].historyTime[curPos];
     }
-    if (cpuCycleAll) {
-        cpupRet = (UINT32)((LOS_CPUP_PRECISION * cpuCycleCurTsk) / cpuCycleAll);
+    if (cpuTimeAll) {
+        cpupRet = (UINT32)((LOS_CPUP_PRECISION * cpuTimeCurTsk) / cpuTimeAll);
     }
 
     OsTskCycleStart();
@@ -490,8 +504,8 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_AllTaskCpuUsage(CPUP_INFO_S *cpupInfo, UINT16 
     UINT16  curPos;
     UINT16  prePos = 0;
     UINT32 intSave;
-    UINT64  cpuCycleAll = 0;
-    UINT64  cpuCycleCurTsk = 0;
+    UINT64  cpuTimeAll = 0;
+    UINT64  cpuTimeCurTsk = 0;
 
     if (g_cpupInitFlg == 0) {
         return  LOS_ERRNO_CPUP_NO_INIT;
@@ -513,9 +527,9 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_AllTaskCpuUsage(CPUP_INFO_S *cpupInfo, UINT16 
         }
 
         if (mode == CPUP_IN_1S) {
-            cpuCycleAll += g_cpup[loopNum].historyTime[curPos] - g_cpup[loopNum].historyTime[prePos];
+            cpuTimeAll += g_cpup[loopNum].historyTime[curPos] - g_cpup[loopNum].historyTime[prePos];
         } else {
-            cpuCycleAll += g_cpup[loopNum].allTime - g_cpup[loopNum].historyTime[curPos];
+            cpuTimeAll += g_cpup[loopNum].allTime - g_cpup[loopNum].historyTime[curPos];
         }
     }
 
@@ -526,16 +540,16 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_AllTaskCpuUsage(CPUP_INFO_S *cpupInfo, UINT16 
         }
 
         if (mode == CPUP_IN_1S) {
-            cpuCycleCurTsk += g_cpup[loopNum].historyTime[curPos] - g_cpup[loopNum].historyTime[prePos];
+            cpuTimeCurTsk += g_cpup[loopNum].historyTime[curPos] - g_cpup[loopNum].historyTime[prePos];
         } else {
-            cpuCycleCurTsk += g_cpup[loopNum].allTime - g_cpup[loopNum].historyTime[curPos];
+            cpuTimeCurTsk += g_cpup[loopNum].allTime - g_cpup[loopNum].historyTime[curPos];
         }
         cpupInfo[loopNum].usStatus = g_cpup[loopNum].status;
-        if (cpuCycleAll) {
-            cpupInfo[loopNum].uwUsage = (UINT32)((LOS_CPUP_PRECISION * cpuCycleCurTsk) / cpuCycleAll);
+        if (cpuTimeAll) {
+            cpupInfo[loopNum].uwUsage = (UINT32)((LOS_CPUP_PRECISION * cpuTimeCurTsk) / cpuTimeAll);
         }
 
-        cpuCycleCurTsk = 0;
+        cpuTimeCurTsk = 0;
     }
 
     OsTskCycleStart();
@@ -606,13 +620,13 @@ LITE_OS_SEC_TEXT_MINOR VOID OsCpupIrqStart(UINT32 intNum)
         return;
     }
 
-    g_irqCpup[intNum].startTime = LOS_SysCycleGet();
+    g_irqCpup[intNum].startTime = CpupTimeUsGet();
     return;
 }
 
 LITE_OS_SEC_TEXT_MINOR VOID OsCpupIrqEnd(UINT32 intNum)
 {
-    UINT64 cpuCycle;
+    UINT64 cpuTime;
     UINT64 usedTime;
 
     if (g_irqCpupInitFlg == 0) {
@@ -623,14 +637,14 @@ LITE_OS_SEC_TEXT_MINOR VOID OsCpupIrqEnd(UINT32 intNum)
         return;
     }
 
-    cpuCycle = LOS_SysCycleGet();
-    if (cpuCycle < g_irqCpup[intNum].startTime) {
-        cpuCycle += g_cyclesPerTick;
+    cpuTime = CpupTimeUsGet();
+    if (cpuTime < g_irqCpup[intNum].startTime) {
+        cpuTime += OS_US_PER_TICK;
     }
 
     g_irqCpup[intNum].cpupID = intNum;
     g_irqCpup[intNum].status = OS_CPUP_USED;
-    usedTime = cpuCycle - g_irqCpup[intNum].startTime;
+    usedTime = cpuTime - g_irqCpup[intNum].startTime;
 
     if (g_irqCpup[intNum].count <= 1000) { /* 1000, Take 1000 samples */
         g_irqCpup[intNum].allTime += usedTime;
@@ -672,12 +686,12 @@ LITE_OS_SEC_TEXT_MINOR STATIC VOID OsGetIrqPositions(UINT16 mode, UINT16* curPos
 LITE_OS_SEC_TEXT_MINOR STATIC UINT64 OsGetIrqAllTime(VOID)
 {
     INT32 i;
-    UINT64 cpuCycleAll = 0;
+    UINT64 cpuTimeAll = 0;
     for (i = 0; i < OS_CPUP_HISTORY_RECORD_NUM; i++) {
-        cpuCycleAll += g_cpuHistoryTime[i];
+        cpuTimeAll += g_cpuHistoryTime[i];
     }
 
-    return cpuCycleAll;
+    return cpuTimeAll;
 }
 
 LITE_OS_SEC_TEXT_MINOR STATIC UINT64 OsGetIrqAllHisTime(UINT32 num)
@@ -697,8 +711,8 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_GetAllIrqCpuUsage(UINT16 mode, CPUP_INFO_S *cp
     UINT16 curPos;
     UINT16 prePos = 0;
     UINT32 intSave;
-    UINT64 cpuCycleAll;
-    UINT64 cpuCycleCurIrq;
+    UINT64 cpuTimeAll;
+    UINT64 cpuTimeCurIrq;
 
     if (g_irqCpupInitFlg == 0) {
         return  LOS_ERRNO_CPUP_NO_INIT;
@@ -712,9 +726,9 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_GetAllIrqCpuUsage(UINT16 mode, CPUP_INFO_S *cp
 
     OsGetIrqPositions(mode, &curPos, &prePos);
     if (mode == CPUP_IN_10S) {
-        cpuCycleAll = OsGetIrqAllTime();
+        cpuTimeAll = OsGetIrqAllTime();
     } else {
-        cpuCycleAll = g_cpuHistoryTime[curPos] - g_cpuHistoryTime[prePos];
+        cpuTimeAll = g_cpuHistoryTime[curPos] - g_cpuHistoryTime[prePos];
     }
 
     for (loopNum = 0; loopNum < LOSCFG_PLATFORM_HWI_LIMIT; loopNum++) {
@@ -725,13 +739,13 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_GetAllIrqCpuUsage(UINT16 mode, CPUP_INFO_S *cp
         cpupInfo[loopNum].usStatus = g_irqCpup[loopNum].status;
 
         if (mode == CPUP_IN_10S) {
-            cpuCycleCurIrq = OsGetIrqAllHisTime(loopNum);
+            cpuTimeCurIrq = OsGetIrqAllHisTime(loopNum);
         } else {
-            cpuCycleCurIrq = g_irqCpup[loopNum].historyTime[curPos] - g_irqCpup[loopNum].historyTime[prePos];
+            cpuTimeCurIrq = g_irqCpup[loopNum].historyTime[curPos] - g_irqCpup[loopNum].historyTime[prePos];
         }
 
-        if (cpuCycleAll != 0) {
-            cpupInfo[loopNum].uwUsage = (UINT32)((LOS_CPUP_PRECISION * cpuCycleCurIrq) / cpuCycleAll);
+        if (cpuTimeAll != 0) {
+            cpupInfo[loopNum].uwUsage = (UINT32)((LOS_CPUP_PRECISION * cpuTimeCurIrq) / cpuTimeAll);
         }
     }
 
