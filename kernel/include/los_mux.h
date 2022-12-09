@@ -39,7 +39,6 @@
 
 #include "los_task.h"
 
-
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -302,6 +301,9 @@ typedef struct {
     UINT32 muxID;        /**< Handle ID */
     LOS_DL_LIST muxList; /**< Mutex linked list */
     LosTaskCB *owner;    /**< The current thread that is locking a mutex */
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+    UINTPTR createInfo; /**< Return address of the caller */
+#endif
     UINT16 priority;     /**< Priority of the thread that is locking a mutex */
 } LosMuxCB;
 
@@ -350,6 +352,13 @@ extern UINT32 OsMuxInit(VOID);
  * Obtain the pointer to the linked list in the mutex pointed to by a specified pointer.
  */
 #define GET_MUX_LIST(ptr) LOS_DL_LIST_ENTRY(ptr, LosMuxCB, muxList)
+
+#if (LOSCFG_MUTEX_CREATE_TRACE == 1)
+STATIC INLINE VOID OsSetMutexCreateInfo(LosMuxCB *mux, UINTPTR val)
+{
+    mux->createInfo = val;
+}
+#endif /* LOSCFG_MUTEX_CREATE_TRACE == 1 */
 
 #ifdef __cplusplus
 #if __cplusplus
