@@ -35,7 +35,6 @@ choice
 
 config LIBC_MUSL
     bool "musl libc"
-rsource "musl/Kconfig"
 
 config LIBC_NEWLIB
     bool "newlibc"

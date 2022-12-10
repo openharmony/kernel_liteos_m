@@ -30,6 +30,7 @@
 config FS_VFS
     bool "Enable FS VFS"
     default y
+    select POSIX_FS_API
 
     help
       Answer Y to enable LiteOS support VFS.
