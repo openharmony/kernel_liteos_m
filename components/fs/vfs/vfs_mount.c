@@ -178,7 +178,7 @@ STATIC int VfsRemount(const char *source, const char *target,
     return mp->mFs->fsMops->mount(mp, mountflags, data);
 }
 
-int LOS_FsMount(const char *source, const char *target,
+int mount(const char *source, const char *target,
                 const char *fsType, unsigned long mountflags,
                 const void *data)
 {
@@ -242,7 +242,7 @@ errout:
     return (int)LOS_NOK;
 }
 
-int LOS_FsUmount(const char *target)
+int umount(const char *target)
 {
     struct MountPoint *mp = NULL;
     const char *pathInMp = NULL;
@@ -300,7 +300,7 @@ static void CloseFdsInMp(const struct MountPoint *mp)
     }
 }
 
-int LOS_FsUmount2(const char *target, int flag)
+int umount2(const char *target, int flag)
 {
     struct MountPoint *mp = NULL;
     const char *pathInMp = NULL;

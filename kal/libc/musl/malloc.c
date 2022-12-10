@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -33,7 +33,6 @@
 #include "securec.h"
 #include "los_config.h"
 #include "los_memory.h"
-
 
 void *calloc(size_t nitems, size_t size)
 {
@@ -107,4 +106,3 @@ void *realloc(void *ptr, size_t size)
 
     return LOS_MemRealloc(OS_SYS_MEM_ADDR, ptr, size);
 }
-
