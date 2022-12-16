@@ -41,17 +41,17 @@ struct FsMap *VfsFsMapGet(const char *fsType)
 {
     struct FsMap *curr = g_fsMap;
 
-    (void)VfsLock();
+    (void)LOS_FsLock();
     while (curr != NULL) {
         if ((curr->fsType != NULL) && (fsType != NULL) &&
             (strcmp(curr->fsType, fsType) == 0)) {
-            (void)VfsUnlock();
+            LOS_FsUnlock();
             return curr;
         }
         curr = curr->next;
     }
 
-    VfsUnlock();
+    LOS_FsUnlock();
     return NULL;
 }
 
@@ -86,11 +86,11 @@ int OsFsRegister(const char *fsType, const struct MountOps *fsMops,
     newfs->fsMgt = fsMgt;
     newfs->fsRefs = 0;
 
-    (void)VfsLock();
+    (void)LOS_FsLock();
     newfs->next = g_fsMap;
     g_fsMap = newfs;
 
-    VfsUnlock();
+    LOS_FsUnlock();
     return LOS_OK;
 }
 
