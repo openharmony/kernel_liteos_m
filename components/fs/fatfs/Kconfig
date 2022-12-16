@@ -32,7 +32,6 @@ config FS_FAT
     default n
     depends on FS_VFS
     select SUPPORT_FATFS
-    select KAL_CMSIS
     help
       Answer Y to enable LiteOS support fat filesystem.
 
