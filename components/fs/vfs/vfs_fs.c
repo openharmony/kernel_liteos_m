@@ -288,7 +288,7 @@ static struct File *VfsAttachFile(int fd, UINT32 status)
 {
     struct File *file = NULL;
 
-    if ((fd < 0) || (fd >= CONFIG_NFILE_DESCRIPTORS)) {
+    if ((fd < MIN_START_FD) || (fd >= CONFIG_NFILE_DESCRIPTORS)) {
         VFS_ERRNO_SET(EBADF);
         return NULL;
     }
@@ -355,9 +355,9 @@ static int VfsClose(int fd)
         LOSCFG_FS_FREE_HOOK((void *)file->fullPath);
     }
 
-    VfsDetachFile(file);
-
     VfsFilePut(file);
+
+    VfsDetachFile(file);
 
     return ret;
 }
@@ -561,7 +561,7 @@ int close(int fd)
 #endif
 
     int ret = (int)LOS_NOK;
-    if (fd >= 0 && fd < CONFIG_NFILE_DESCRIPTORS) {
+    if (fd >= MIN_START_FD && fd < CONFIG_NFILE_DESCRIPTORS) {
         ret = VfsClose(fd);
     }
     return MapToPosixRet(ret);
@@ -603,7 +603,7 @@ ssize_t read(int fd, void *buff, size_t bytes)
 #endif
 
     ssize_t ret = (ssize_t)LOS_NOK;
-    if (fd >= 0 && fd < CONFIG_NFILE_DESCRIPTORS) {
+    if (fd >= MIN_START_FD && fd < CONFIG_NFILE_DESCRIPTORS) {
         ret = VfsRead(fd, buff, bytes);
     }
 
@@ -633,7 +633,7 @@ ssize_t write(int fd, const void *buff, size_t bytes)
 #endif
 
     ssize_t ret = (ssize_t)LOS_NOK;
-    if (fd >= 0 && fd < CONFIG_NFILE_DESCRIPTORS) {
+    if (fd >= MIN_START_FD && fd < CONFIG_NFILE_DESCRIPTORS) {
         ret = VfsWrite(fd, buff, bytes);
     }
 
