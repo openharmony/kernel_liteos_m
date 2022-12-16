@@ -73,4 +73,11 @@ config POSIX_SIGNAL_API
     help
       Answer Y to enable LiteOS support POSIX Signal API.
 
+config POSIX_FS_API
+    bool "Enable POSIX FS API"
+    default y
+    depends on FS_VFS
+    help
+      Answer Y to enable LiteOS support POSIX FS API.
+
 endif # POSIX_API
