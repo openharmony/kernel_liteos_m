@@ -139,6 +139,17 @@ int LOS_PartitionFormat(const char *partName, char *fsType, void *data);
 int LOS_FsRegister(const char *fsType, const struct MountOps *fsMops,
                    const struct FileOps *fsFops, const struct FsManagement *fsMgt);
 
+/*
+ * @brief Lock the whole filesystem to forbid filesystem access.
+ *
+ * @return Return LOS_NOK if error. Return LOS_OK if seccess.
+ */
+int LOS_FsLock(void);
+
+/*
+ * @brief Unlock the whole filesystem to allow filesystem access.
+ */
+void LOS_FsUnlock(void);
 
 #ifdef __cplusplus
 #if __cplusplus
