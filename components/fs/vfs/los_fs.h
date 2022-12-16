@@ -62,41 +62,6 @@ extern "C" {
 #define LOSCFG_FS_FREE_HOOK(ptr) LOS_MemFree((VOID *)OS_SYS_MEM_ADDR, ptr)
 #endif
 
-int LOS_Open(const char *path, int flags, ...);
-int LOS_Close(int fd);
-ssize_t LOS_Read(int fd, void *buff, size_t bytes);
-ssize_t LOS_Write(int fd, const void *buff, size_t bytes);
-off_t LOS_Lseek(int fd, off_t off, int whence);
-int LOS_Stat(const char *path, struct stat *stat);
-int LOS_Statfs(const char *path, struct statfs *buf);
-int LOS_Unlink(const char *path);
-int LOS_Rename(const char *oldpath, const char *newpath);
-int LOS_Fsync(int fd);
-DIR *LOS_Opendir(const char *path);
-struct dirent *LOS_Readdir(DIR *dir);
-int LOS_Closedir(DIR *dir);
-int LOS_Mkdir(const char *path, mode_t mode);
-int LOS_Rmdir(const char *path);
-int LOS_Lstat(const char *path, struct stat *buffer);
-int LOS_Fstat(int fd, struct stat *buf);
-int LOS_Fcntl(int fd, int cmd, ...);
-int LOS_Ioctl(int fd, int req, ...);
-ssize_t LOS_Readv(int fd, const struct iovec *iovBuf, int iovcnt);
-ssize_t LOS_Writev(int fd, const struct iovec *iovBuf, int iovcnt);
-ssize_t LOS_Pread(int fd, void *buff, size_t bytes, off_t off);
-ssize_t LOS_Pwrite(int fd, const void *buff, size_t bytes, off_t off);
-int LOS_Isatty(int fd);
-int LOS_Access(const char *path, int amode);
-int LOS_Ftruncate(int fd, off_t length);
-int LOS_FsUmount(const char *target);
-int LOS_FsUmount2(const char *target, int flag);
-int LOS_FsMount(const char *source, const char *target,
-                const char *fsType, unsigned long mountflags,
-                const void *data);
-
-int OsFcntl(int fd, int cmd, va_list ap);
-int OsIoctl(int fd, int req, va_list ap);
-
 struct PartitionCfg {
     /* partition low-level read func */
     int  (*readFunc)(int partition, UINT32 *offset, void *buf, UINT32 size);

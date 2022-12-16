@@ -29,13 +29,6 @@
 
 if LIBC_NEWLIB
 
-config LIBC_NEWLIB_FS
-    bool "Enable POSIX file system API support"
-    default y
-    depends on FS_VFS
-    help
-        This enables POSIX style file system related APIs.
-
 config LIBC_NEWLIB_MALLOC
     bool "Enable POSIX malloc/free API support"
     default y
