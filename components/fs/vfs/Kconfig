@@ -34,11 +34,3 @@ config FS_VFS
 
     help
       Answer Y to enable LiteOS support VFS.
-
-if FS_VFS
-config FS_LOCK_TIMEOUT
-    int "Filesystem global lock timeout value in tick. -1 for waiting forever"
-    default -1
-    help
-        The timeout value of getting filesystem lock in tick. -1 for waiting forever
-endif
