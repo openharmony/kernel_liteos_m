@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2023-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -28,41 +28,31 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "posix_test.h"
+#include "posix_fs_test.h"
 
-void ItSuitePosix(void)
+/* *
+ * @tc.number   SUB_KERNEL_FS_CLOSE_OK
+ * @tc.name     close
+ * @tc.desc     [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PosixFsFuncTestSuite, TestFsCloseOK, Function | MediumTest | Level1)
 {
-    PRINTF("***********************BEGIN POSIX TEST**********************\n");
-    PthreadFuncTestSuite();
-    ItSuitePosixPthread();
-    ItSuitePosixMutex();
-    ItSuitePosixMqueue();
-    PosixCtypeFuncTest();
-    PosixIsdigitFuncTest();
-    PosixIslowerFuncTest();
-    PosixIsxdigitFuncTest();
-    PosixTolowerFuncTest();
-    PosixToupperFuncTest();
-    PosixStrerrorTest();
-    PosixMathFuncTest();
-    PosixMqueueFuncTest();
-    PosixStdargFuncTest();
-    PosixStdlibAtoiFuncTest();
-    PosixStdlibAtolFuncTest();
-    PosixStdlibAtollFuncTest();
-    PosixStdlibStrtolFuncTest();
-    PosixStdlibStrtoulFuncTest();
-    PosixStdlibStrtoullFuncTest();
-    PosixStringMemTest03();
-    PosixStringStrchrTest();
-    PosixStringFuncTest02();
-    PosixStringStrcasecmpFuncTest();
-    PosixStringFuncTest03();
-#if (LOS_KERNEL_TEST_FULL == 1)
-    PosixSemaphoreFuncTest();
-    PosixTimeFuncTest();
-#endif
-#if (LOSCFG_SUPPORT_LITTLEFS == 1 || LOSCFG_SUPPORT_FATFS == 1)
-    PosixFsFuncTest();
-#endif
+    int32_t ret;
+    const char tmpFileName[TEST_BUF_SIZE] = FILE1;
+
+    int32_t fd = open(tmpFileName, O_CREAT | O_RDWR);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, POSIX_FS_IS_ERROR, fd);
+
+    ret = close(fd);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    ret = unlink(tmpFileName);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    return POSIX_FS_NO_ERROR;
+}
+
+void PosixFsCloseTest(void)
+{
+    RUN_ONE_TESTCASE(TestFsCloseOK);
 }
