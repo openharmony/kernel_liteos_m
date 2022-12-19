@@ -275,6 +275,7 @@ static int VfsOpen(const char *path, int flags)
         fd = FileToFd(file);
         file->fStatus = FILE_STATUS_READY; /* file now ready to use */
     } else {
+        LOSCFG_FS_FREE_HOOK((void *)file->fullPath);
         VfsFilePut(file);
     }
 
