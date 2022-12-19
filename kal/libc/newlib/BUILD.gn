@@ -1,5 +1,5 @@
 # Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -33,7 +33,6 @@ module_switch = defined(LOSCFG_LIBC_NEWLIB)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
   sources = [
-    "porting/src/fs.c",
     "porting/src/malloc.c",
     "porting/src/network/htonl.c",
     "porting/src/network/htons.c",
@@ -44,7 +43,7 @@ kernel_module(module_name) {
   ]
   configs += [ "$LITEOSTOPDIR:warn_config" ]
 
-  if (defined(LOSCFG_LIBC_NEWLIB_FS)) {
+  if (defined(LOSCFG_FS_VFS)) {
     sources +=
         [ "//third_party/musl/porting/liteos_m/kernel/src/misc/realpath.c" ]
   }
