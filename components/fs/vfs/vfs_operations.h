@@ -52,6 +52,8 @@ extern "C" {
 extern UINT32 g_fsMutex;
 
 int OsVfsInit(void);
+int VfsLock(void);
+void VfsUnlock(void);
 
 #ifdef __cplusplus
 #if __cplusplus

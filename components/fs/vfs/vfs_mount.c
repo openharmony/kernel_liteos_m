@@ -191,17 +191,17 @@ int mount(const char *source, const char *target,
         return (int)LOS_NOK;
     }
 
-    (void)LOS_FsLock();
+    (void)VfsLock();
 
     if (mountflags & MS_REMOUNT) {
         ret = VfsRemount(source, target, fsType, mountflags, data);
-        LOS_FsUnlock();
+        VfsUnlock();
         return ret;
     }
 
     mp = VfsMountPointInit(target, fsType, mountflags);
     if (mp == NULL) {
-        LOS_FsUnlock();
+        VfsUnlock();
         return (int)LOS_NOK;
     }
 
@@ -210,7 +210,7 @@ int mount(const char *source, const char *target,
         mp->mDev = LOSCFG_FS_MALLOC_HOOK(len);
         if (mp->mDev == NULL) {
             LOSCFG_FS_FREE_HOOK(mp);
-            LOS_FsUnlock();
+            VfsUnlock();
             return (int)LOS_NOK;
         }
         (void)strcpy_s((char *)mp->mDev, len, source);
@@ -231,14 +231,14 @@ int mount(const char *source, const char *target,
     }
 
     g_mountPoints = mp;
-    LOS_FsUnlock();
+    VfsUnlock();
     return LOS_OK;
 
 errout:
     LOSCFG_FS_FREE_HOOK((void *)mp->mPath);
     LOSCFG_FS_FREE_HOOK((void *)mp->mDev);
     LOSCFG_FS_FREE_HOOK(mp);
-    LOS_FsUnlock();
+    VfsUnlock();
     return (int)LOS_NOK;
 }
 
@@ -248,7 +248,7 @@ int umount(const char *target)
     const char *pathInMp = NULL;
     int ret = (int)LOS_NOK;
 
-    (void)LOS_FsLock();
+    (void)VfsLock();
     if (target == NULL) {
         goto errout;
     }
@@ -276,12 +276,12 @@ int umount(const char *target)
     LOSCFG_FS_FREE_HOOK((void *)mp->mDev);
     LOSCFG_FS_FREE_HOOK(mp);
 
-    LOS_FsUnlock();
+    VfsUnlock();
     return LOS_OK;
 
 errout:
     PRINT_ERR("umount2 failed, target %s.\n", target);
-    LOS_FsUnlock();
+    VfsUnlock();
     return (int)LOS_NOK;
 }
 
@@ -306,7 +306,7 @@ int umount2(const char *target, int flag)
     const char *pathInMp = NULL;
     int ret = (int)LOS_NOK;
 
-    (void)LOS_FsLock();
+    (void)VfsLock();
     if (target == NULL) {
         goto errout;
     }
@@ -336,11 +336,11 @@ int umount2(const char *target, int flag)
     LOSCFG_FS_FREE_HOOK((void *)mp->mDev);
     LOSCFG_FS_FREE_HOOK(mp);
 
-    LOS_FsUnlock();
+    VfsUnlock();
     return LOS_OK;
 
 errout:
     PRINT_ERR("umount2 failed, target %s.\n", target);
-    LOS_FsUnlock();
+    VfsUnlock();
     return (int)LOS_NOK;
 }
