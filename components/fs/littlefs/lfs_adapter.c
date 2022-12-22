@@ -41,8 +41,6 @@
 #include "securec.h"
 #include "los_fs.h"
 
-static pthread_mutex_t g_fsLocalMutex = PTHREAD_MUTEX_INITIALIZER;
-
 static struct PartitionCfg g_partitionCfg;
 static struct DeviceDesc *g_lfsDevice = NULL;
 
@@ -378,7 +376,6 @@ int LfsReaddir(struct Dir *dir, struct dirent *dent)
 
     ret = lfs_dir_read(lfs, dirInfo, &lfsInfo);
     if (ret == TRUE) {
-        pthread_mutex_lock(&g_fsLocalMutex);
         (void)strncpy_s(dent->d_name, sizeof(dent->d_name), lfsInfo.name, strlen(lfsInfo.name) + 1);
         if (lfsInfo.type == LFS_TYPE_DIR) {
             dent->d_type = DT_DIR;
@@ -387,7 +384,6 @@ int LfsReaddir(struct Dir *dir, struct dirent *dent)
         }
 
         dent->d_reclen = lfsInfo.size;
-        pthread_mutex_unlock(&g_fsLocalMutex);
 
         return LOS_OK;
     }
@@ -567,9 +563,7 @@ int LfsClose(struct File *file)
         return (int)LOS_NOK;
     }
 
-    pthread_mutex_lock(&g_fsLocalMutex);
     ret = lfs_file_close((lfs_t *)mp->mData, lfsHandle);
-    pthread_mutex_unlock(&g_fsLocalMutex);
 
     if (ret != 0) {
         errno = LittlefsErrno(ret);
