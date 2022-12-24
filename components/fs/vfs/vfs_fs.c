@@ -211,6 +211,28 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
 }
 #endif
 
+static inline int VfsPathCheck(const char *path, bool isFile)
+{
+    size_t len;
+    if ((path == NULL) || (path[0] == '\0')) {
+        VFS_ERRNO_SET(EINVAL);
+        return (int)LOS_NOK;
+    }
+
+    len = strlen(path);
+    if (len >= PATH_MAX) {
+        VFS_ERRNO_SET(ENAMETOOLONG);
+        return (int)LOS_NOK;
+    }
+
+    if (isFile && path[len - 1] == '/') {
+        VFS_ERRNO_SET(EINVAL);
+        return (int)LOS_NOK;
+    }
+
+    return LOS_OK;
+}
+
 static int VfsOpen(const char *path, int flags)
 {
     size_t len;
@@ -219,8 +241,7 @@ static int VfsOpen(const char *path, int flags)
     const char *pathInMp = NULL;
     struct MountPoint *mp = NULL;
 
-    if ((path == NULL) || (path[strlen(path) - 1] == '/')) {
-        VFS_ERRNO_SET(EINVAL);
+    if (VfsPathCheck(path, TRUE) != LOS_OK) {
         return fd;
     }
 
@@ -669,7 +690,11 @@ int stat(const char *path, struct stat *stat)
     const char *pathInMp = NULL;
     int ret = (int)LOS_NOK;
 
-    if ((path == NULL) || (stat == NULL)) {
+    if (VfsPathCheck(path, FALSE) != LOS_OK) {
+        return MapToPosixRet(ret);
+    }
+
+    if (stat == NULL) {
         VFS_ERRNO_SET(EINVAL);
         return MapToPosixRet(ret);
     }
@@ -703,7 +728,11 @@ int statfs(const char *path, struct statfs *buf)
     const char *pathInMp = NULL;
     int ret = (int)LOS_NOK;
 
-    if ((path == NULL) || (buf == NULL)) {
+    if (VfsPathCheck(path, FALSE) != LOS_OK) {
+        return MapToPosixRet(ret);
+    }
+
+    if (buf == NULL) {
         VFS_ERRNO_SET(EINVAL);
         return MapToPosixRet(ret);
     }
@@ -736,8 +765,7 @@ int unlink(const char *path)
     const char *pathInMp = NULL;
     int ret = (int)LOS_NOK;
 
-    if (path == NULL) {
-        VFS_ERRNO_SET(EINVAL);
+    if (VfsPathCheck(path, FALSE) != LOS_OK) {
         return MapToPosixRet(ret);
     }
 
@@ -769,8 +797,10 @@ int rename(const char *oldpath, const char *newpath)
     const char *pathInMpNew = NULL;
     int ret = (int)LOS_NOK;
 
-    if ((oldpath == NULL) || (newpath == NULL)) {
-        VFS_ERRNO_SET(EINVAL);
+    if (VfsPathCheck(oldpath, FALSE) != LOS_OK) {
+        return MapToPosixRet(ret);
+    }
+    if (VfsPathCheck(newpath, FALSE) != LOS_OK) {
         return MapToPosixRet(ret);
     }
 
@@ -850,8 +880,7 @@ DIR *opendir(const char *path)
     struct Dir *dir = NULL;
     UINT32 ret;
 
-    if (path == NULL) {
-        VFS_ERRNO_SET(EINVAL);
+    if (VfsPathCheck(path, FALSE) != LOS_OK) {
         return NULL;
     }
 
@@ -979,8 +1008,7 @@ int mkdir(const char *path, mode_t mode)
     int ret = (int)LOS_NOK;
     (void)mode;
 
-    if (path == NULL) {
-        VFS_ERRNO_SET(EINVAL);
+    if (VfsPathCheck(path, FALSE) != LOS_OK) {
         return MapToPosixRet(ret);
     }
 
