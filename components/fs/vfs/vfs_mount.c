@@ -33,6 +33,7 @@
 #include "vfs_config.h"
 #include "stdlib.h"
 #include "string.h"
+#include "limits.h"
 #include "errno.h"
 #include "securec.h"
 #include "vfs_operations.h"
@@ -62,14 +63,13 @@ static void MpDeleteFromList(struct MountPoint *mp)
     }
 }
 
+#if (LOSCFG_FS_SUPPORT_MOUNT_TARGET_RECURSIVE == 1)
 struct MountPoint *VfsMpFind(const char *path, const char **pathInMp)
 {
     struct MountPoint *mp = g_mountPoints;
     struct MountPoint *bestMp = NULL;
     int bestMatches = 0;
-    if (path == NULL) {
-        return NULL;
-    }
+
     if (pathInMp != NULL) {
         *pathInMp = NULL;
     }
@@ -121,29 +121,85 @@ struct MountPoint *VfsMpFind(const char *path, const char **pathInMp)
     next:
         mp = mp->mNext;
     }
+
     return bestMp;
 }
+#else
+struct MountPoint *VfsMpFind(const char *path, const char **pathInMp)
+{
+    struct MountPoint *mp = g_mountPoints;
+    const char *iPath = path;
+    const char *mPath = NULL;
+    const char *target = NULL;
 
-STATIC struct MountPoint *VfsMountPointInit(const char *target, const char *fsType, unsigned long mountflags)
+    if (pathInMp != NULL) {
+        *pathInMp = NULL;
+    }
+    while (*iPath == '/') {
+        ++iPath;
+    }
+
+    while ((mp != NULL) && (mp->mPath != NULL)) {
+        mPath = mp->mPath;
+        target = iPath;
+
+        while (*mPath == '/') {
+            ++mPath;
+        }
+
+        while ((*mPath != '\0') && (*mPath != '/') &&
+               (*target != '\0') && (*target != '/')) {
+            if (*mPath != *target) {
+                break;
+            }
+            ++mPath;
+            ++target;
+        }
+        if (((*mPath == '\0') || (*mPath == '/')) &&
+            ((*target == '\0') || (*target == '/'))) {
+            if (pathInMp != NULL) {
+                *pathInMp = path;
+            }
+            return mp;
+        }
+        mp = mp->mNext;
+    }
+    return NULL;
+}
+#endif
+
+STATIC struct MountPoint *VfsMountPointInit(const char *source, const char *target,
+        const char *fsType, unsigned long mountflags)
 {
     struct MountPoint *mp = NULL;
     const char *pathInMp = NULL;
     struct FsMap *mFs = NULL;
+    size_t ssize = 0;
+    size_t tsize;
 
     /* find mp by target, to see if it was mounted */
     mp = VfsMpFind(target, &pathInMp);
     if (mp != NULL && pathInMp != NULL) {
+        errno = EINVAL;
         return NULL;
     }
 
     /* Find fsMap coresponding to the fsType */
     mFs = VfsFsMapGet(fsType);
     if ((mFs == NULL) || (mFs->fsMops == NULL) || (mFs->fsMops->mount == NULL)) {
+        errno = ENODEV;
         return NULL;
     }
 
-    mp = (struct MountPoint *)LOSCFG_FS_MALLOC_HOOK(sizeof(struct MountPoint));
+    if (source != NULL) {
+        ssize = strlen(source) + 1;
+    }
+
+    tsize = strlen(target) + 1;
+
+    mp = (struct MountPoint *)LOSCFG_FS_MALLOC_HOOK(sizeof(struct MountPoint) + ssize + tsize);
     if (mp == NULL) {
+        errno = ENOMEM;
         return NULL;
     }
 
@@ -152,7 +208,20 @@ STATIC struct MountPoint *VfsMountPointInit(const char *target, const char *fsTy
     mp->mRefs = 0;
     mp->mWriteEnable = (mountflags & MS_RDONLY) ? FALSE : TRUE;
     mp->mFs->fsRefs++;
-    mp->mNext = g_mountPoints;
+
+    if (source != NULL && strcpy_s((char *)mp + sizeof(struct MountPoint), ssize, source) != EOK) {
+        LOSCFG_FS_FREE_HOOK(mp);
+        errno = ENOMEM;
+        return NULL;
+    }
+
+    if (strcpy_s((char *)mp + sizeof(struct MountPoint) + ssize, tsize, target) != EOK) {
+        LOSCFG_FS_FREE_HOOK(mp);
+        errno = ENOMEM;
+        return NULL;
+    }
+    mp->mDev = source ? (char *)mp + sizeof(struct MountPoint) : NULL;
+    mp->mPath = (char *)mp + sizeof(struct MountPoint) + ssize;
 
     return mp;
 }
@@ -178,16 +247,30 @@ STATIC int VfsRemount(const char *source, const char *target,
     return mp->mFs->fsMops->mount(mp, mountflags, data);
 }
 
+STATIC int VfsMountPathCheck(const char *target)
+{
+    /* target must begin with '/', for example /system, /data, etc. */
+    if ((target == NULL) || (target[0] != '/') || (target[0] == '\0')) {
+        errno = EINVAL;
+        return (int)LOS_NOK;
+    }
+
+    if (strlen(target) >= PATH_MAX) {
+        errno = ENAMETOOLONG;
+        return (int)LOS_NOK;
+    }
+
+    return LOS_OK;
+}
+
 int mount(const char *source, const char *target,
                 const char *fsType, unsigned long mountflags,
                 const void *data)
 {
-    size_t len;
     int ret;
     struct MountPoint *mp = NULL;
 
-    /* target must begin with '/', for example /system, /data, etc. */
-    if ((target == NULL) || (target[0] != '/')) {
+    if (VfsMountPathCheck(target) != LOS_OK) {
         return (int)LOS_NOK;
     }
 
@@ -199,29 +282,11 @@ int mount(const char *source, const char *target,
         return ret;
     }
 
-    mp = VfsMountPointInit(target, fsType, mountflags);
+    mp = VfsMountPointInit(source, target, fsType, mountflags);
     if (mp == NULL) {
         LOS_FsUnlock();
         return (int)LOS_NOK;
     }
-
-    if (source != NULL) {
-        len = strlen(source) + 1;
-        mp->mDev = LOSCFG_FS_MALLOC_HOOK(len);
-        if (mp->mDev == NULL) {
-            LOSCFG_FS_FREE_HOOK(mp);
-            LOS_FsUnlock();
-            return (int)LOS_NOK;
-        }
-        (void)strcpy_s((char *)mp->mDev, len, source);
-    }
-
-    len = strlen(target) + 1;
-    mp->mPath = LOSCFG_FS_MALLOC_HOOK(len);
-    if (mp->mPath == NULL) {
-        goto errout;
-    }
-    (void)strcpy_s((char *)mp->mPath, len, target);
 
     ret = mp->mFs->fsMops->mount(mp, mountflags, data);
     if (ret != 0) {
@@ -230,13 +295,12 @@ int mount(const char *source, const char *target,
         goto errout;
     }
 
+    mp->mNext = g_mountPoints;
     g_mountPoints = mp;
     LOS_FsUnlock();
     return LOS_OK;
 
 errout:
-    LOSCFG_FS_FREE_HOOK((void *)mp->mPath);
-    LOSCFG_FS_FREE_HOOK((void *)mp->mDev);
     LOSCFG_FS_FREE_HOOK(mp);
     LOS_FsUnlock();
     return (int)LOS_NOK;
@@ -245,15 +309,14 @@ errout:
 int umount(const char *target)
 {
     struct MountPoint *mp = NULL;
-    const char *pathInMp = NULL;
     int ret = (int)LOS_NOK;
 
     (void)LOS_FsLock();
-    if (target == NULL) {
+    if (VfsMountPathCheck(target) != LOS_OK) {
         goto errout;
     }
 
-    mp = VfsMpFind(target, &pathInMp);
+    mp = VfsMpFind(target, NULL);
     if ((mp == NULL) || (mp->mRefs != 0)) {
         goto errout;
     }
@@ -272,8 +335,6 @@ int umount(const char *target)
     /* delete mp from mount list */
     MpDeleteFromList(mp);
     mp->mFs->fsRefs--;
-    LOSCFG_FS_FREE_HOOK((void *)mp->mPath);
-    LOSCFG_FS_FREE_HOOK((void *)mp->mDev);
     LOSCFG_FS_FREE_HOOK(mp);
 
     LOS_FsUnlock();
@@ -303,15 +364,14 @@ static void CloseFdsInMp(const struct MountPoint *mp)
 int umount2(const char *target, int flag)
 {
     struct MountPoint *mp = NULL;
-    const char *pathInMp = NULL;
     int ret = (int)LOS_NOK;
 
     (void)LOS_FsLock();
-    if (target == NULL) {
+    if (VfsMountPathCheck(target) != LOS_OK) {
         goto errout;
     }
 
-    mp = VfsMpFind(target, &pathInMp);
+    mp = VfsMpFind(target, NULL);
     if ((mp == NULL) || (mp->mRefs != 0) ||
         (mp->mFs == NULL) || (mp->mFs->fsMops == NULL) ||
         (mp->mFs->fsMops->umount2 == NULL)) {
@@ -332,8 +392,6 @@ int umount2(const char *target, int flag)
     /* delete mp from mount list */
     MpDeleteFromList(mp);
     mp->mFs->fsRefs--;
-    LOSCFG_FS_FREE_HOOK((void *)mp->mPath);
-    LOSCFG_FS_FREE_HOOK((void *)mp->mDev);
     LOSCFG_FS_FREE_HOOK(mp);
 
     LOS_FsUnlock();
