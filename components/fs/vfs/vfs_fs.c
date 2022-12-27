@@ -34,6 +34,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <sys/uio.h>
 #include "errno.h"
