@@ -664,7 +664,7 @@ static time_t ConvertUtc2Secs(struct tm *tm)
     seconds += (tm->tm_mday - 1) * SECS_PER_DAY;
     seconds += tm->tm_hour * SECS_PER_HOUR + tm->tm_min * SECS_PER_MIN + tm->tm_sec;
 
-    seconds -= tm->__tm_gmtoff; // sub time zone to get UTC time
+    seconds += g_timezone;
     return seconds;
 }
 
@@ -690,7 +690,7 @@ time_t mktime(struct tm *tmptr)
     }
     timeInSeconds = ConvertUtc2Secs(tmptr);
     /* normalize tm_wday and tm_yday */
-    ConvertSecs2Utc(timeInSeconds, tmptr->__tm_gmtoff, tmptr);
+    ConvertSecs2Utc(timeInSeconds, -g_timezone, tmptr);
     return timeInSeconds;
 }
 
