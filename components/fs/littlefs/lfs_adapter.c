@@ -564,7 +564,6 @@ int LfsClose(struct File *file)
     }
 
     ret = lfs_file_close((lfs_t *)mp->mData, lfsHandle);
-
     if (ret != 0) {
         errno = LittlefsErrno(ret);
         ret = (int)LOS_NOK;

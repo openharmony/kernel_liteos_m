@@ -212,7 +212,7 @@ static size_t GetCanonicalPath(const char *cwd, const char *path, char *buf, siz
 }
 #endif
 
-static inline int VfsPathCheck(const char *path, bool isFile)
+static int VfsPathCheck(const char *path, bool isFile)
 {
     size_t len;
     if ((path == NULL) || (path[0] == '\0')) {
@@ -561,7 +561,7 @@ int open(const char *path, int flags, ...)
 #endif
 
     int ret = VfsOpen(path, flags);
-    return MapToPosixRet(ret);  
+    return MapToPosixRet(ret);
 }
 FUNC_ALIAS(open, _open, (const char *path, int flags, ...), int);
 
@@ -630,7 +630,7 @@ ssize_t read(int fd, void *buff, size_t bytes)
         ret = VfsRead(fd, buff, bytes);
     }
 
-   return MapToPosixRet(ret);
+    return MapToPosixRet(ret);
 }
 FUNC_ALIAS(read, _read, (int fd, void *buff, size_t bytes), ssize_t);
 
@@ -1093,7 +1093,7 @@ int fcntl(int fd, int cmd, ...)
     va_start(ap, cmd);
     if (fd < CONFIG_NFILE_DESCRIPTORS) {
         filep = VfsAttachFileReady(fd);
-        ret = VfsVfcntl(filep, cmd, ap);   
+        ret = VfsVfcntl(filep, cmd, ap);
         VfsDetachFile(filep);
     } else {
 #ifndef LOSCFG_NET_LWIP_SACK
