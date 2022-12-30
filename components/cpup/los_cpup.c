@@ -170,7 +170,7 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsCpupInit()
     return LOS_OK;
 }
 
-/* The calculation time unit is changed to us to decouple the influence of 
+/* The calculation time unit is changed to us to decouple the influence of
  * system frequency modulation on CPUP
  */
 STATIC UINT64 CpupTimeUsGet(VOID)
