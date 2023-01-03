@@ -377,12 +377,12 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeMktime001, Function | MediumTest 
     INIT_TM(timeptr, 2020, 7, 9, 18, 10, 0, 7);
     time_t timeRet = mktime(&timeptr);
     LOG("\n 2020-7-9 18:10:00, mktime Ret = %lld", timeRet);
-    TEST_ASSERT_EQUAL_INT(1596996600, timeRet);
+    TEST_ASSERT_EQUAL_INT(1596967800, timeRet);
 
     INIT_TM(timeptr, 1970, 0, 1, 8, 0, 0, 0);
     timeRet = mktime(&timeptr);
     LOG("\n 1970-1-1 08:00:00, mktime Ret = %lld", timeRet);
-    TEST_ASSERT_EQUAL_INT(28800, timeRet);
+    TEST_ASSERT_EQUAL_INT(0, timeRet);
 
     struct tm *stm = localtime(&testTime);
     LOG("\n testTime 18880, tm : %s", TmToStr(stm, timeStr, TIME_STR_LEN));
