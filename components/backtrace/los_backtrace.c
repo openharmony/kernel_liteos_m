@@ -43,7 +43,7 @@
    judgment condition to support multiple code sections. */
 WEAK BOOL OsStackDataIsCodeAddr(UINTPTR value)
 {
-    if ((value >= CODE_START_ADDR) && (value < CODE_END_ADDR)) {
+    if ((value > CODE_START_ADDR) && (value < CODE_END_ADDR)) {
         return TRUE;
     }
     return FALSE;
