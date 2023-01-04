@@ -50,14 +50,14 @@ static VOID Case1(UINT32 arg)
     g_testCount = 10;
 }
 
-static VOID Case2()
+static VOID Case2(VOID)
 {
     // 20, Here, assert that g_testCount is equal to this .
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 20, g_testCount);
     g_testCount++;
 }
 
-static VOID Case3()
+static VOID Case3(VOID)
 {
     UINT32 index;
 

@@ -51,7 +51,7 @@ EXIT:
     LOS_TaskDelete(g_testTaskID01);
 }
 
-static VOID Case2()
+static VOID Case2(VOID)
 {
     UINT32 ret;
 

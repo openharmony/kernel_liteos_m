@@ -231,7 +231,7 @@ void TestCmsis2(void)
 }
 #endif
 
-VOID TestTaskEntry()
+VOID TestTaskEntry(VOID)
 {
     PRINTF("\t\n --- Test Start --- \n\n");
     ICunitInit();

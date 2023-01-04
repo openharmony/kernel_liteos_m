@@ -38,23 +38,7 @@
 #include "semaphore.h"
 #include "unistd.h"
 
-#ifdef LOSCFG_DEBUG_DEADLOCK
-#define TEST_MUTEX_INIT              \
-    {                                \
-        { 0, 0, 0, 0 },              \
-        {                            \
-            { 0, 0 }, { 0, 0 }, 0, 0 \
-        }                            \
-    }
-#else
-#define TEST_MUTEX_INIT    \
-    {                      \
-        { 0, 0, 0, 0 },    \
-        {                  \
-            { 0, 0 }, 0, 0 \
-        }                  \
-    }
-#endif
+#define TEST_MUTEX_INIT {0}
 
 #define MUTEX_TEST_DEFAULT_PRIO LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO
 #define MUTEX_TEST_HIGH_PRIO    (MUTEX_TEST_DEFAULT_PRIO - 6)

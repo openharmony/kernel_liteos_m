@@ -41,7 +41,7 @@ static VOID Case1(UINT32 arg)
     g_testCount = 30;
 }
 
-static VOID Case2()
+static VOID Case2(VOID)
 {
     // 10, Here, assert that g_testCount is equal to this .
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 10, g_testCount);
@@ -49,7 +49,7 @@ static VOID Case2()
     g_testCount = 20;
 }
 
-static VOID Case3()
+static VOID Case3(VOID)
 {
     // 10, Set the number to determine whether the process is as expected.
     g_testCount = 10;

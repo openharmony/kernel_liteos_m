@@ -41,6 +41,7 @@ mqd_t g_mqueueId[LOSCFG_BASE_IPC_QUEUE_CONFIG + 1];
 SEM_HANDLE_T g_mqueueSem;
 mqd_t g_messageQId;
 mqd_t g_gqueue;
+TSK_HANDLE_T g_mqueueTaskPID;
 
 VOID TestAssertWaitDelay(UINT32 *testCount, UINT32 flag)
 {

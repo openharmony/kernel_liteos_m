@@ -57,18 +57,19 @@
 #define MQUEUE_PRIORITY_TEST 0
 #define MQUEUE_TIMEOUT_TEST 7
 #define MQUEUE_PRIORITY_NUM_TEST 3
-#define MQUEUE_MAX_NUM_TEST (LOSCFG_BASE_IPC_QUEUE_CONFIG - QUEUE_EXISTED_NUM)
 #define MQ_MAX_MSG_NUM 16
 #define MQ_MAX_MSG_LEN 64
+#undef  HWI_NUM_TEST
 #define HWI_NUM_TEST 1
+#undef  HWI_NUM_TEST1
 #define HWI_NUM_TEST1 2
 
 #if (LOSCFG_LIBC_NEWLIB == 1)
 #define MQ_PRIO_MAX 1
 #endif
 
+#undef  LOSCFG_BASE_IPC_QUEUE_CONFIG
 #define LOSCFG_BASE_IPC_QUEUE_CONFIG 1024
-
 #define LOS_AtomicInc(a) (++*(a))
 #define MqueueTaskDelay(tick) (usleep((tick) * 10000))
 
@@ -91,7 +92,7 @@ typedef UINT32 SEM_HANDLE_T ;
 
 extern SEM_HANDLE_T g_mqueueSem;
 
-static TSK_HANDLE_T g_mqueueTaskPID;
+extern TSK_HANDLE_T g_mqueueTaskPID;
 extern CHAR g_gqname[MQUEUE_STANDARD_NAME_LENGTH];
 extern CHAR g_mqueueName[LOSCFG_BASE_IPC_QUEUE_CONFIG + 1][MQUEUE_STANDARD_NAME_LENGTH];
 extern mqd_t g_mqueueId[LOSCFG_BASE_IPC_QUEUE_CONFIG + 1];
