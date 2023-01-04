@@ -29,6 +29,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define _GNU_SOURCE
 #include <sys/time.h>
 #include <sys/times.h>
 #include <time.h>
@@ -45,6 +46,7 @@
 
 #define RET_OK 0
 
+#define SECS_PER_MIN 60
 #define SLEEP_ACCURACY 21000  // 20 ms, with 1ms deviation
 #define ACCURACY_TEST_LOOPS 3 // loops for accuracy test, than count average value
 #define MILLISECONDS_PER_SECOND 1000
@@ -125,13 +127,13 @@ static int CheckValueClose(double target, double actual, double accuracy)
     return (pct <= accuracy);
 }
 
-static char *TmToStr(const struct tm *stm, char *timeStr, unsigned len)
+static char *TmToStr(const struct tm *timePtr, char *timeStr, unsigned len)
 {
-    if (stm == NULL || timeStr == NULL) {
+    if (timePtr == NULL || timeStr == NULL) {
         return "";
     }
-    sprintf_s(timeStr, len, "%ld/%d/%d %02d:%02d:%02d WEEK(%d)", stm->tm_year + TM_BASE_YEAR, stm->tm_mon + 1,
-        stm->tm_mday, stm->tm_hour, stm->tm_min, stm->tm_sec, stm->tm_wday);
+    sprintf_s(timeStr, len, "%ld/%d/%d %02d:%02d:%02d WEEK(%d)", timePtr->tm_year + TM_BASE_YEAR, timePtr->tm_mon + 1,
+        timePtr->tm_mday, timePtr->tm_hour, timePtr->tm_min, timePtr->tm_sec, timePtr->tm_wday);
     return timeStr;
 }
 
@@ -195,28 +197,28 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeGmtime001, Function | MediumTest 
     time_t time1 = 18880;
     char timeStr[TIME_STR_LEN] = {0};
     LOG("\nsizeof(time_t) = %d, sizeof(struct tm) = %d", sizeof(time_t), sizeof(struct tm));
-    struct tm *stm = gmtime(&time1);
-    TEST_ASSERT_EQUAL_STRING("1970/1/1 05:14:40 WEEK(4)", TmToStr(stm, timeStr, TIME_STR_LEN));
+    struct tm *timePtr = gmtime(&time1);
+    TEST_ASSERT_EQUAL_STRING("1970/1/1 05:14:40 WEEK(4)", TmToStr(timePtr, timeStr, TIME_STR_LEN));
 
     time1 = LONG_MAX;
-    stm = gmtime(&time1);
-    LOG("\n LONG_MAX = %lld, cvt result : %s", time1, TmToStr(stm, timeStr, TIME_STR_LEN));
-    TEST_ASSERT_EQUAL_STRING("2038/1/19 03:14:07 WEEK(2)", TmToStr(stm, timeStr, TIME_STR_LEN));
+    timePtr = gmtime(&time1);
+    LOG("\n LONG_MAX = %lld, cvt result : %s", time1, TmToStr(timePtr, timeStr, TIME_STR_LEN));
+    TEST_ASSERT_EQUAL_STRING("2038/1/19 03:14:07 WEEK(2)", TmToStr(timePtr, timeStr, TIME_STR_LEN));
 
     time1 = LONG_MAX - 1;
-    stm = gmtime(&time1);
-    LOG("\n LONG_MAX - 1 = %lld, cvt result : %s", time1, TmToStr(stm, timeStr, TIME_STR_LEN));
-    TEST_ASSERT_EQUAL_STRING("2038/1/19 03:14:06 WEEK(2)", TmToStr(stm, timeStr, TIME_STR_LEN));
+    timePtr = gmtime(&time1);
+    LOG("\n LONG_MAX - 1 = %lld, cvt result : %s", time1, TmToStr(timePtr, timeStr, TIME_STR_LEN));
+    TEST_ASSERT_EQUAL_STRING("2038/1/19 03:14:06 WEEK(2)", TmToStr(timePtr, timeStr, TIME_STR_LEN));
 
     time1 = LONG_MIN;
-    stm = gmtime(&time1);
-    LOG("\n LONG_MIN  = %lld, cvt result : %s", time1, TmToStr(stm, timeStr, TIME_STR_LEN));
-    TEST_ASSERT_EQUAL_STRING("1901/12/13 20:45:52 WEEK(5)", TmToStr(stm, timeStr, TIME_STR_LEN));
+    timePtr = gmtime(&time1);
+    LOG("\n LONG_MIN  = %lld, cvt result : %s", time1, TmToStr(timePtr, timeStr, TIME_STR_LEN));
+    TEST_ASSERT_EQUAL_STRING("1901/12/13 20:45:52 WEEK(5)", TmToStr(timePtr, timeStr, TIME_STR_LEN));
 
     time1 = LONG_MIN + 1;
-    stm = gmtime(&time1);
-    LOG("\n LONG_MIN + 1  = %lld, cvt result : %s", time1, TmToStr(stm, timeStr, TIME_STR_LEN));
-    TEST_ASSERT_EQUAL_STRING("1901/12/13 20:45:53 WEEK(5)", TmToStr(stm, timeStr, TIME_STR_LEN));
+    timePtr = gmtime(&time1);
+    LOG("\n LONG_MIN + 1  = %lld, cvt result : %s", time1, TmToStr(timePtr, timeStr, TIME_STR_LEN));
+    TEST_ASSERT_EQUAL_STRING("1901/12/13 20:45:53 WEEK(5)", TmToStr(timePtr, timeStr, TIME_STR_LEN));
     return 0;
 };
 
@@ -369,38 +371,47 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeLocaltimer002, Function | MediumT
  */
 LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeMktime001, Function | MediumTest | Level1)
 {
-    // default time zone east 8
-    struct tm timeptr = { 0 };
+    struct tm testTM = { 0 };
     time_t testTime = 18880;
     char timeStr[TIME_STR_LEN] = {0};
+    struct timeval tv;
+    struct timezone tz;
 
-    INIT_TM(timeptr, 2020, 7, 9, 18, 10, 0, 7);
-    time_t timeRet = mktime(&timeptr);
+    // get system timezone
+    int ret = gettimeofday(&tv, &tz);
+    TEST_ASSERT_EQUAL_INT(0, ret);
+    long sysTimezone = (long)(-tz.tz_minuteswest) * SECS_PER_MIN;
+    LOG("\n system timezone = %ld\n", sysTimezone);
+
+    INIT_TM(testTM, 2020, 7, 9, 18, 10, 0, 7);
+    time_t timeRet = mktime(&testTM);
     LOG("\n 2020-7-9 18:10:00, mktime Ret = %lld", timeRet);
-    TEST_ASSERT_EQUAL_INT(1596967800, timeRet);
+    TEST_ASSERT_EQUAL_INT(sysTimezone, testTM.__tm_gmtoff);
+    TEST_ASSERT_EQUAL_INT(1596996600 - testTM.__tm_gmtoff, timeRet);
 
-    INIT_TM(timeptr, 1970, 0, 1, 8, 0, 0, 0);
-    timeRet = mktime(&timeptr);
+    INIT_TM(testTM, 1970, 0, 1, 8, 0, 0, 0);
+    timeRet = mktime(&testTM);
     LOG("\n 1970-1-1 08:00:00, mktime Ret = %lld", timeRet);
-    TEST_ASSERT_EQUAL_INT(0, timeRet);
+    TEST_ASSERT_EQUAL_INT(sysTimezone, testTM.__tm_gmtoff);
+    TEST_ASSERT_EQUAL_INT(28800 - testTM.__tm_gmtoff, timeRet);
 
-    struct tm *stm = localtime(&testTime);
-    LOG("\n testTime 18880, tm : %s", TmToStr(stm, timeStr, TIME_STR_LEN));
-    timeRet = mktime(stm);
+    struct tm *timePtr = localtime(&testTime);
+    LOG("\n testTime 18880, tm : %s", TmToStr(timePtr, timeStr, TIME_STR_LEN));
+    timeRet = mktime(timePtr);
     TEST_ASSERT_EQUAL_INT(18880, timeRet);
     LOG("\n input 18880, mktime Ret = %lld", timeRet);
 
     testTime = LONG_MAX;
-    stm = localtime(&testTime);
-    LOG("\n testTime LONG_MAX, tm : %s", TmToStr(stm, timeStr, TIME_STR_LEN));
-    timeRet = mktime(stm);
+    timePtr = localtime(&testTime);
+    LOG("\n testTime LONG_MAX, tm : %s", TmToStr(timePtr, timeStr, TIME_STR_LEN));
+    timeRet = mktime(timePtr);
     TEST_ASSERT_EQUAL_INT(LONG_MAX, timeRet);
     LOG("\n input LONG_MAX, mktime Ret = %lld", timeRet);
 
     testTime = 0;
-    stm = localtime(&testTime);
-    LOG("\n testTime 0, tm : %s", TmToStr(stm, timeStr, TIME_STR_LEN));
-    timeRet = mktime(stm);
+    timePtr = localtime(&testTime);
+    LOG("\n testTime 0, tm : %s", TmToStr(timePtr, timeStr, TIME_STR_LEN));
+    timeRet = mktime(timePtr);
     TEST_ASSERT_EQUAL_INT(0, timeRet);
     LOG("\n input 0, mktime Ret = %lld", timeRet);
     return 0;
@@ -413,10 +424,10 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeMktime001, Function | MediumTest 
  */
 LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeMktime002, Function | MediumTest | Level1)
 {
-    struct tm timeptr = { 0 };
+    struct tm testTM = { 0 };
     LOG("\n sizeof(time_t) = %d", sizeof(time_t));
-    INIT_TM(timeptr, 1969, 7, 9, 10, 10, 0, 7);
-    time_t timeRet = mktime(&timeptr);
+    INIT_TM(testTM, 1969, 7, 9, 10, 10, 0, 7);
+    time_t timeRet = mktime(&testTM);
     LOG("\n 1800-8-9 10:10:00, mktime Ret lld = %lld", timeRet);
 #if (LOSCFG_LIBC_MUSL == 1)
     TEST_ASSERT_EQUAL_INT(-1, timeRet);
