@@ -33,7 +33,7 @@
 #include "It_los_swtmr.h"
 
 
-static VOID Case1()
+static VOID Case1(VOID)
 {
     UINT32 ret;
 
@@ -43,7 +43,7 @@ static VOID Case1()
     }
 }
 
-static VOID Case2()
+static VOID Case2(VOID)
 {
     UINT32 ret;
 
@@ -53,7 +53,7 @@ static VOID Case2()
     }
 }
 
-static VOID Case3()
+static VOID Case3(VOID)
 {
     UINT32 ret;
 
@@ -64,7 +64,7 @@ static VOID Case3()
     }
 }
 
-VOID Case4()
+static VOID Case4(VOID)
 {
     UINT32 ret;
 
@@ -77,7 +77,7 @@ VOID Case4()
     }
 }
 
-VOID Case5()
+static VOID Case5(VOID)
 {
     UINT32 ret;
 
@@ -90,7 +90,7 @@ VOID Case5()
     }
 }
 
-VOID Case6()
+static VOID Case6(VOID)
 {
     UINT32 ret;
 

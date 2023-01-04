@@ -42,8 +42,6 @@
 #define DELAY_TICKS_5 5
 #define DELAY_TICKS_10 10
 
-#define TEST_TASK_STACK_SIZE      0x600
-#define TASK_LOOP_NUM         0x10000000
 #define TEST_TIME 10
 #define THREAD_COUNT_MIN    3
 #define THREAD_COUNT_MAX    30

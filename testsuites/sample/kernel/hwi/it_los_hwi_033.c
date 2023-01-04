@@ -43,6 +43,7 @@ static VOID HwiF01(VOID)
 
     return;
 }
+#undef  HWI_NUM_INT0
 #define HWI_NUM_INT0 HWI_NUM_TEST1
 static UINT32 Testcase(VOID)
 {
