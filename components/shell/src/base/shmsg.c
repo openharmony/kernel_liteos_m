@@ -258,7 +258,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LosShellInit(VOID)
     }
 
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)ShellTaskEntry;
-    task1.uwStackSize  = 0x1000;
+    task1.uwStackSize  = LOSCFG_SHELL_STACK_SIZE;
     task1.pcName       = "ShellTaskEntry";
     task1.usTaskPrio   = LOSCFG_SHELL_PRIO;
     ret = LOS_TaskCreate(&taskID1, &task1);
