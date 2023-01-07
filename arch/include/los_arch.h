@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -63,12 +63,13 @@ STATIC INLINE UINTPTR ArchMspGet(VOID)
     return msp;
 }
 
-STATIC INLINE UINTPTR ArchLRGet(VOID)
-{
-    UINTPTR lr;
-    __asm("mov %0, lr" : "=r" (lr));
-    return lr;
-}
+#define ARCH_LR_GET()                           \
+({                                              \
+    UINTPTR lr;                                 \
+    __asm("mov %0, lr" : "=r" (lr));            \
+    (lr);                                       \
+})
+#define ArchLRGet ARCH_LR_GET
 #elif defined(__CLANG_ARM) || defined(__GNUC__)
 STATIC INLINE UINTPTR ArchSpGet(VOID)
 {
@@ -91,12 +92,13 @@ STATIC INLINE UINTPTR ArchMspGet(VOID)
     return msp;
 }
 
-STATIC INLINE UINTPTR ArchLRGet(VOID)
-{
-    UINTPTR lr;
-    __asm volatile("mov %0, lr" : "=r" (lr));
-    return lr;
-}
+#define ARCH_LR_GET()                           \
+({                                              \
+    UINTPTR lr;                                 \
+    __asm volatile("mov %0, lr" : "=r" (lr));   \
+    (lr);                                       \
+})
+#define ArchLRGet ARCH_LR_GET
 #else
 /* Other platforms to be improved  */
 #endif
