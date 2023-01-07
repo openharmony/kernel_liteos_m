@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -49,14 +49,6 @@
 #include "vfs_maps.h"
 #include "vfs_mount.h"
 #include "vfs_operations.h"
-
-#if (LOSCFG_LIBC_NEWLIB == 1)
-#define ALIAS_OF(of) __attribute__((alias(#of)))
-#define FUNC_ALIAS(real_func, new_alias, args_list, return_type) \
-    return_type new_alias args_list ALIAS_OF(real_func)
-#else
-#define FUNC_ALIAS(real_func, new_alias, args_list, return_type)
-#endif
 
 #ifdef LOSCFG_NET_LWIP_SACK
 #include "lwipopts.h"
