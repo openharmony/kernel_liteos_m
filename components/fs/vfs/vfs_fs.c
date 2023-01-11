@@ -742,7 +742,7 @@ int statfs(const char *path, struct statfs *buf)
         return MapToPosixRet(ret);
     }
 
-    if (mp->mFs->fsFops->stat != NULL) {
+    if (mp->mFs->fsMops->statfs != NULL) {
         ret = mp->mFs->fsMops->statfs(pathInMp, buf);
     } else {
         VFS_ERRNO_SET(ENOTSUP);
