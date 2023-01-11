@@ -33,7 +33,7 @@
 #include "los_timer.h"
 #include "los_sched.h"
 
-#define myprintf // printf
+#define myprintf printf
 #define TEST_LOOP 5
 static EVENT_CB_S g_pmTestEvent;
 static UINT32 g_taskID1, g_taskID2;

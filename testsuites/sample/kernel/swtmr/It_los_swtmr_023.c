@@ -44,7 +44,7 @@ static VOID Case1(UINT32 arg)
     return;
 }
 
-static VOID Case2()
+static VOID Case2(VOID)
 {
     UINT32 ret;
     UINT32 uwloop = 1000;

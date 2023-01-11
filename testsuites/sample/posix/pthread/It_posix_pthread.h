@@ -42,11 +42,6 @@
 #include "mqueue.h"
 #include "signal.h"
 
-/* Some routines are part of the XSI Extensions */
-#ifndef WITHOUT_XOPEN
-#define _XOPEN_SOURCE 600
-#endif
-
 #define PTHREAD_IS_ERROR (-1)
 #define PTHREAD_PRIORITY_TEST 20
 #define PTHREAD_DEFAULT_STACK_SIZE (LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE)
@@ -70,9 +65,6 @@
 
 /* We are testing conformance to IEEE Std 1003.1, 2003 Edition */
 #define _POSIX_C_SOURCE 200112L
-
-#define PTHREAD_MUTEX_RECURSIVE 0
-#define PTHREAD_MUTEX_ERRORCHECK 0
 
 #define PRIORITY_OTHER (-1)
 #define PRIORITY_FIFO 20

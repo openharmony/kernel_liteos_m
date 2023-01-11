@@ -68,7 +68,10 @@ static_library("posix_test") {
     sources += [ "src/fs/posix_fs_func_test.c" ]
   }
   if (!defined(LOSCFG_COMPILER_ICCARM)) {
-    cflags = [ "-Wno-error" ]
+    cflags = [
+      "-Wno-error",
+      "-Wno-unused-function",
+    ]
   } else {
     cflags = [ "--no_warnings" ]
   }

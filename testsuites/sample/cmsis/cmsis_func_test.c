@@ -352,15 +352,10 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis004, Function | MediumTest | Level1)
     ret = strcmp(staticBuff, strbuff);
     ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
-    ret = osMessageQueueDelete(msgQueueId);
-    ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
-#endif
-    return LOS_OK;
-
 EXIT:
     ret = osMessageQueueDelete(msgQueueId);
     ICUNIT_ASSERT_EQUAL(ret, osOK, ret);
-
+#endif
     return LOS_OK;
 }
 

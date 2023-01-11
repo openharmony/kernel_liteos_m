@@ -46,7 +46,7 @@ static VOID TaskF01(VOID)
     ICUNIT_ASSERT_EQUAL_VOID(g_testAtomicID03, i, g_testAtomicID03);
     ICUNIT_ASSERT_EQUAL_VOID(ret, g_testAtomicID03, ret);
 
-    LOS_AtomicAdd(&g_testCount, 1);
+    LOS_AtomicAdd((Atomic *)(&g_testCount), 1);
 }
 
 static UINT32 TestCase(VOID)
