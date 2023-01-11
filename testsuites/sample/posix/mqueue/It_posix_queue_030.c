@@ -34,8 +34,6 @@ static UINT32 Testcase(VOID)
     CHAR qname[MQUEUE_STANDARD_NAME_LENGTH] = "";
     const CHAR *msgptr = MQUEUE_SEND_STRING_TEST;
     mqd_t queue;
-    INT32 unresolved = 0;
-    INT32 failure = 0;
     INT32 ret = 0;
 
     ret = snprintf_s(qname, MQUEUE_STANDARD_NAME_LENGTH, MQUEUE_STANDARD_NAME_LENGTH - 1, \

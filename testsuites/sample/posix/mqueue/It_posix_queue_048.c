@@ -35,8 +35,6 @@ static UINT32 Testcase(VOID)
     mqd_t mqdes;
     struct mq_attr mqstat = {0};
     struct mq_attr nmqstat = {0};
-    INT32 unresolved = 0;
-    INT32 failure = 0;
     INT32 ret = 0;
 
     ret = snprintf_s(mqname, MQUEUE_STANDARD_NAME_LENGTH, MQUEUE_STANDARD_NAME_LENGTH - 1, \

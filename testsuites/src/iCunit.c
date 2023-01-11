@@ -102,7 +102,7 @@ char *g_strType[] = {
     "FUNCTION", "PRESSURE", "PERFORMANCE"
 };
 
-iUINT32 ICunitRunF()
+iUINT32 ICunitRunF(void)
 {
     iUINT32 idx, idx1;
     ICUNIT_CASE_S *psubCaseArray;

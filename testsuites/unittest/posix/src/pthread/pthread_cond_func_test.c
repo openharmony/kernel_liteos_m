@@ -34,7 +34,6 @@
 #include "hctest.h"
 #include "los_config.h"
 #include "cmsis_os2.h"
-#include "common_test.h"
 #include "kernel_test.h"
 #include "pthread.h"
 #include "log.h"

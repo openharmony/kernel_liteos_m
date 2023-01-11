@@ -33,7 +33,6 @@
 #include "posix_test.h"
 #include <mqueue.h>
 #include <fcntl.h>
-#include "common_test.h"
 #include "kernel_test.h"
 #include "log.h"
 

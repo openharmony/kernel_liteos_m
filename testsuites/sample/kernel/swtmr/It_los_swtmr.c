@@ -36,6 +36,15 @@ EVENT_CB_S g_eventCB0;
 EVENT_CB_S g_eventCB1;
 EVENT_CB_S g_eventCB2;
 EVENT_CB_S g_eventCB3;
+UINT32 g_swtmrId1;
+UINT32 g_swtmrId2;
+UINT32 g_swtmrId3;
+UINT32 g_swtmrCountA;
+UINT32 g_swtmrCountB;
+UINT32 g_swtmrCountC;
+UINT32 g_uwsTick1;
+UINT32 g_uwsTick2;
+UINT32 g_uwsTick3;
 
 VOID ItSuiteLosSwtmr(void)
 {

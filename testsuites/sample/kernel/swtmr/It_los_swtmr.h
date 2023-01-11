@@ -56,17 +56,17 @@ extern EVENT_CB_S g_eventCB3;
 
 extern UINT32 g_idleTaskID;
 
-static UINT32 g_swtmrId1;
-static UINT32 g_swtmrId2;
-static UINT32 g_swtmrId3;
+extern UINT32 g_swtmrId1;
+extern UINT32 g_swtmrId2;
+extern UINT32 g_swtmrId3;
 
-static UINT32 g_swtmrCountA;
-static UINT32 g_swtmrCountB;
-static UINT32 g_swtmrCountC;
+extern UINT32 g_swtmrCountA;
+extern UINT32 g_swtmrCountB;
+extern UINT32 g_swtmrCountC;
 
-static UINT32 g_uwsTick1;
-static UINT32 g_uwsTick2;
-static UINT32 g_uwsTick3;
+extern UINT32 g_uwsTick1;
+extern UINT32 g_uwsTick2;
+extern UINT32 g_uwsTick3;
 
 extern VOID LOS_GetCpuTick(UINT32 *puwCntHi, UINT32 *puwCntLo);
 extern VOID ItSuiteLosSwtmr(VOID);

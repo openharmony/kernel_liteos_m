@@ -33,7 +33,7 @@
 #include "osTest.h"
 #include "It_los_event.h"
 
-static VOID TaskF01()
+static VOID TaskF01(VOID)
 {
     UINT32 ret;
 
