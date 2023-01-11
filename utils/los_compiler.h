@@ -525,13 +525,17 @@ static inline UINT64 __atomic_exchange_8(volatile void *mem, UINT64 val, int mod
     free_lock (memP, model);
     return ret;
 }
-#endif
+#endif /* __XTENSA_LX6__ */
 
 #define ALIAS_OF(of) __attribute__((alias(#of)))
 #define FUNC_ALIAS(real_func, new_alias, args_list, return_type) \
     return_type new_alias args_list ALIAS_OF(real_func)
 
-#endif
+#else
+
+#define FUNC_ALIAS(real_func, new_alias, args_list, return_type)
+
+#endif /* __GNUC__ */
 
 #ifdef __cplusplus
 #if __cplusplus
