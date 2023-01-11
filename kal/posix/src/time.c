@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -50,7 +50,6 @@
 /* accumulative time delta from discontinuous modify */
 STATIC struct timespec g_accDeltaFromSet;
 
-#ifndef __USE_NEWLIB__
 STATIC const UINT16 g_daysInMonth[2][13] = {
     /* Normal years.  */
     { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
@@ -59,20 +58,18 @@ STATIC const UINT16 g_daysInMonth[2][13] = {
 };
 
 STATIC const UINT8 g_montbl[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-#endif
 
-#ifndef __USE_NEWLIB__
-#define g_timezone timezone
+#if (LOSCFG_LIBC_NEWLIB == 1)
+#define TIMEZONE _timezone
 #else
-#define g_Timezone _timezone
-#endif
-
+#define TIMEZONE timezone
 /*
  * Time zone information, stored in seconds,
  * negative values indicate the east of UTC,
  * positive values indicate the west of UTC.
  */
-long g_timezone = -8 * 60 * 60; // set default to CST(UTC+8)
+long TIMEZONE = -8 * 60 * 60; // set default to CST(UTC+8)
+#endif
 
 /*
  * store register rtc func
@@ -529,7 +526,6 @@ time_t time(time_t *timer)
     }
 }
 
-#ifndef __USE_NEWLIB__
 /*
  * Compute the `struct tm' representation of T,
  * offset OFFSET seconds east of UTC,
@@ -621,7 +617,7 @@ struct tm *localtime_r(const time_t *timep, struct tm *result)
         errno = EFAULT;
         return NULL;
     }
-    if (!ConvertSecs2Utc(*timep, -g_timezone, result)) {
+    if (!ConvertSecs2Utc(*timep, -TIMEZONE, result)) {
         errno = EINVAL;
         return NULL;
     }
@@ -664,7 +660,7 @@ static time_t ConvertUtc2Secs(struct tm *tm)
     seconds += (tm->tm_mday - 1) * SECS_PER_DAY;
     seconds += tm->tm_hour * SECS_PER_HOUR + tm->tm_min * SECS_PER_MIN + tm->tm_sec;
 
-    seconds += g_timezone;
+    seconds += TIMEZONE;
     return seconds;
 }
 
@@ -690,7 +686,7 @@ time_t mktime(struct tm *tmptr)
     }
     timeInSeconds = ConvertUtc2Secs(tmptr);
     /* normalize tm_wday and tm_yday */
-    ConvertSecs2Utc(timeInSeconds, -g_timezone, tmptr);
+    ConvertSecs2Utc(timeInSeconds, -TIMEZONE, tmptr);
     return timeInSeconds;
 }
 
@@ -724,19 +720,19 @@ int gettimeofday(struct timeval *tv, void *ptz)
     }
 	
     if (tz != NULL) {
-        INT32 timeZone = 0;
         if (g_rtcTimeFunc.RtcGetTimezoneHook != NULL) {
-            g_rtcTimeFunc.RtcGetTimezoneHook(&timeZone);
-            tz->tz_minuteswest = timezone / SECS_PER_MIN;
+            INT32 tempTimezone = 0;
+            g_rtcTimeFunc.RtcGetTimezoneHook(&tempTimezone);
+            tz->tz_minuteswest = tempTimezone / SECS_PER_MIN;
         } else {
-            tz->tz_minuteswest = g_timezone / SECS_PER_MIN;
+            tz->tz_minuteswest = TIMEZONE / SECS_PER_MIN;
         }
 
         tz->tz_dsttime = 0;
     }
     return 0;
 }
-#endif
+FUNC_ALIAS(gettimeofday, _gettimeofday, (struct timeval *tv, void *ptz), int);
 
 int settimeofday(const struct timeval *tv, const struct timezone *tz)
 {
@@ -755,14 +751,14 @@ int settimeofday(const struct timeval *tv, const struct timezone *tz)
     if (tz != NULL) {
         if ((tz->tz_minuteswest >= TIME_ZONE_MIN) &&
             (tz->tz_minuteswest <= TIME_ZONE_MAX)) {
-            g_timezone = tz->tz_minuteswest * SECS_PER_MIN;
+            TIMEZONE = tz->tz_minuteswest * SECS_PER_MIN;
         } else {
             errno = EINVAL;
             return -1;
         }
 
         if (g_rtcTimeFunc.RtcSetTimezoneHook != NULL) {
-            g_rtcTimeFunc.RtcSetTimezoneHook(g_timezone);
+            g_rtcTimeFunc.RtcSetTimezoneHook(TIMEZONE);
         }
     }
 
