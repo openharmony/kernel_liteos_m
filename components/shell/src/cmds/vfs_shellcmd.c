@@ -181,6 +181,7 @@ VOID OsLs(const CHAR *pathname)
     d = opendir(path);
     if (d == NULL) {
         PRINT_ERR("No such directory = %s\n", path);
+        free(path);
     } else {
         PRINTK("Directory %s:\n", path);
         do {
