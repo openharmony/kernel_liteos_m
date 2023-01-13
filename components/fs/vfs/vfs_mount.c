@@ -250,7 +250,7 @@ STATIC int VfsRemount(const char *source, const char *target,
 STATIC int VfsMountPathCheck(const char *target)
 {
     /* target must begin with '/', for example /system, /data, etc. */
-    if ((target == NULL) || (target[0] != '/') || (target[0] == '\0')) {
+    if ((target == NULL) || (target[0] != '/')) {
         errno = EINVAL;
         return (int)LOS_NOK;
     }
