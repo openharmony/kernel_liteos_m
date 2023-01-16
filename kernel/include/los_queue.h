@@ -453,7 +453,7 @@ extern UINT32 LOS_QueueCreateStatic(const CHAR *queueName,
  * first.</li>
  * <li>bufferAddr stores the obtained data.</li>
  * <li>Do not read or write a queue in unblocking modes such as an interrupt.</li>
- * <li>This API cannot be called before the Huawei LiteOS is initialized.</li>
+ * <li>This API cannot be called before the kernel is initialized.</li>
  * <li>The argument timeOut is a relative time.</li>
  * </ul>
  *
@@ -498,7 +498,7 @@ extern UINT32 LOS_QueueReadCopy(UINT32 queueID,
  * <ul>
  * <li>The specific queue should be created firstly.</li>
  * <li>Do not read or write a queue in unblocking modes such as interrupt.</li>
- * <li>This API cannot be called before the Huawei LiteOS is initialized.</li>
+ * <li>This API cannot be called before the kernel is initialized.</li>
  * <li>The data to be written is of the size specified by bufferSize and is stored at the address specified by
  * BufferAddr.</li>
  * <li>The argument timeOut is a relative time.</li>
@@ -547,7 +547,7 @@ extern UINT32 LOS_QueueWriteCopy(UINT32 queueID,
  * read first.</li>
  * <li>bufferAddr stores the obtained data address.</li>
  * <li>Do not read or write a queue in unblocking modes such as an interrupt.</li>
- * <li>This API cannot be called before the Huawei LiteOS is initialized.</li>
+ * <li>This API cannot be called before the kernel is initialized.</li>
  * <li>The argument timeOut is a relative time.</li>
  * <li>The bufferSize is not really used in LOS_QueueRead, because the interface is only used to
  * obtain the address of data.</li>
@@ -592,7 +592,7 @@ extern UINT32 LOS_QueueRead(UINT32 queueID,
  * <ul>
  * <li>The specific queue should be created firstly.</li>
  * <li>Do not read or write a queue in unblocking modes such as an interrupt.</li>
- * <li>This API cannot be called before the Huawei LiteOS is initialized.</li>
+ * <li>This API cannot be called before the kernel is initialized.</li>
  * <li>The address of the data of the size specified by bufferSize and stored at the address specified by
  * BufferAddr is to be written.</li>
  * <li>The argument timeOut is a relative time.</li>
@@ -639,7 +639,7 @@ extern UINT32 LOS_QueueWrite(UINT32 queueID,
  * @attention
  * <ul>
  * <li>Do not read or write a queue in unblocking modes such as an interrupt.</li>
- * <li>This API cannot be called before the Huawei LiteOS is initialized.</li>
+ * <li>This API cannot be called before the kernel is initialized.</li>
  * <li>The address of the data of the size specified by bufferSize and stored at the address specified by
  * BufferAddr is to be written.</li>
  * <li>The argument timeOut is a relative time.</li>
@@ -686,7 +686,7 @@ extern UINT32 LOS_QueueWriteHead(UINT32 queueID,
  * @attention
  * <ul>
  * <li>Do not read or write a queue in unblocking modes such as an interrupt.</li>
- * <li>This API cannot be called before the Huawei LiteOS is initialized.</li>
+ * <li>This API cannot be called before the kernel is initialized.</li>
  * <li>The address of the data of the size specified by bufferSize and stored at the address specified by
  * BufferAddr is to be written.</li>
  * <li>The argument timeOut is a relative time.</li>
@@ -889,7 +889,7 @@ extern LosQueueCB *g_allQueue;
  * @attention
  * <ul>
  * <li>Do not alloc memory in unblocking modes such as interrupt.</li>
- * <li>This API cannot be called before the Huawei LiteOS is initialized.</li>
+ * <li>This API cannot be called before the kernel is initialized.</li>
  * <li>The argument timeOut is a relative time.</li>
  * </ul>
  *
@@ -913,7 +913,7 @@ extern VOID *OsQueueMailAlloc(UINT32 queueID, VOID *mailPool, UINT32 timeOut);
  * This API is used to free a stationary memory for a mail according to queueID.
  * @attention
  * <ul>
- * <li>This API cannot be called before the Huawei LiteOS is initialized.</li>
+ * <li>This API cannot be called before the kernel is initialized.</li>
  * </ul>
  *
  * @param queueID         [IN]        Queue ID. The value range is [1,LOSCFG_BASE_IPC_QUEUE_LIMIT].
