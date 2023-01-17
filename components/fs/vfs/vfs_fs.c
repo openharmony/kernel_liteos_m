@@ -555,7 +555,9 @@ int open(const char *path, int flags, ...)
     int ret = VfsOpen(path, flags);
     return MapToPosixRet(ret);
 }
+#if (LOSCFG_LIBC_NEWLIB == 1)
 FUNC_ALIAS(open, _open, (const char *path, int flags, ...), int);
+#endif
 
 int close(int fd)
 {
@@ -581,7 +583,9 @@ int close(int fd)
     }
     return MapToPosixRet(ret);
 }
+#if (LOSCFG_LIBC_NEWLIB == 1)
 FUNC_ALIAS(close, _close, (int fd), int);
+#endif
 
 ssize_t read(int fd, void *buff, size_t bytes)
 {
@@ -624,7 +628,9 @@ ssize_t read(int fd, void *buff, size_t bytes)
 
     return MapToPosixRet(ret);
 }
+#if (LOSCFG_LIBC_NEWLIB == 1)
 FUNC_ALIAS(read, _read, (int fd, void *buff, size_t bytes), ssize_t);
+#endif
 
 ssize_t write(int fd, const void *buff, size_t bytes)
 {
@@ -654,7 +660,9 @@ ssize_t write(int fd, const void *buff, size_t bytes)
 
     return MapToPosixRet(ret);
 }
+#if (LOSCFG_LIBC_NEWLIB == 1)
 FUNC_ALIAS(write, _write, (int fd, const void *buff, size_t bytes), ssize_t);
+#endif
 
 off_t lseek(int fd, off_t off, int whence)
 {
@@ -675,7 +683,9 @@ off_t lseek(int fd, off_t off, int whence)
     VfsDetachFile(file);
     return ret;
 }
+#if (LOSCFG_LIBC_NEWLIB == 1)
 FUNC_ALIAS(lseek, _lseek, (int fd, off_t off, int whence), off_t);
+#endif
 
 int stat(const char *path, struct stat *stat)
 {
@@ -713,7 +723,9 @@ int stat(const char *path, struct stat *stat)
     LOS_FsUnlock();
     return MapToPosixRet(ret);
 }
+#if (LOSCFG_LIBC_NEWLIB == 1)
 FUNC_ALIAS(stat, _stat, (const char *path, struct stat *stat), int);
+#endif
 
 int statfs(const char *path, struct statfs *buf)
 {
@@ -780,7 +792,9 @@ int unlink(const char *path)
     LOS_FsUnlock();
     return MapToPosixRet(ret);
 }
+#if (LOSCFG_LIBC_NEWLIB == 1)
 FUNC_ALIAS(unlink, _unlink, (const char *path), int);
+#endif
 
 int rename(const char *oldpath, const char *newpath)
 {
@@ -1074,7 +1088,9 @@ int fstat(int fd, struct stat *buf)
     VfsDetachFile(filep);
     return ret;
 }
+#if (LOSCFG_LIBC_NEWLIB == 1)
 FUNC_ALIAS(fstat, _fstat, (int fd, struct stat *buf), int);
+#endif
 
 int fcntl(int fd, int cmd, ...)
 {

@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2021-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,80 +28,38 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
-#include "securec.h"
 #include "los_config.h"
-#include "los_memory.h"
+#include <sys/cdefs.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <pthread.h>
 
-void *calloc(size_t nitems, size_t size)
+/*
+ * fs adapter interface, such as _read, see component/fs
+ * time adapter interface, such as _gettimeofday, see posix/src/time.c
+ * malloc adapter interface, such as _malloc_r, see posix/src/malloc.c
+ */
+
+int _isatty(int file)
 {
-    size_t real_size;
-    void *ptr = NULL;
-
-    if ((nitems == 0) || (size == 0) || (nitems > (UINT32_MAX / size))) {
-        return NULL;
-    }
-
-    real_size = (size_t)(nitems * size);
-    ptr = LOS_MemAlloc(OS_SYS_MEM_ADDR, real_size);
-    if (ptr != NULL) {
-        (void)memset_s(ptr, real_size, 0, real_size);
-    }
-    return ptr;
+    return (int)(file <= 2); // 2: stderr
 }
 
-void free(void *ptr)
+int _kill(int i, int j)
 {
-    if (ptr == NULL) {
-        return;
-    }
-
-    LOS_MemFree(OS_SYS_MEM_ADDR, ptr);
+    return 0;
 }
 
-void *malloc(size_t size)
+int _getpid(void)
 {
-    if (size == 0) {
-        return NULL;
-    }
-
-    return LOS_MemAlloc(OS_SYS_MEM_ADDR, size);
+    return 0;
 }
 
-void *zalloc(size_t size)
+void _exit(int status)
 {
-    void *ptr = NULL;
-
-    if (size == 0) {
-        return NULL;
+    write(1, "exit\n", 5); // 1: stdout; 5: string length
+    (VOID)pthread_exit(&status);
+    while (1) {
     }
-
-    ptr = LOS_MemAlloc(OS_SYS_MEM_ADDR, size);
-    if (ptr != NULL) {
-        (void)memset_s(ptr, size, 0, size);
-    }
-    return ptr;
-}
-
-void *memalign(size_t boundary, size_t size)
-{
-    if (size == 0) {
-        return NULL;
-    }
-
-    return LOS_MemAllocAlign(OS_SYS_MEM_ADDR, size, boundary);
-}
-
-void *realloc(void *ptr, size_t size)
-{
-    if (ptr == NULL) {
-        return malloc(size);
-    }
-
-    if (size == 0) {
-        free(ptr);
-        return NULL;
-    }
-
-    return LOS_MemRealloc(OS_SYS_MEM_ADDR, ptr, size);
 }

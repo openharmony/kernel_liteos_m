@@ -33,12 +33,11 @@ module_switch = defined(LOSCFG_LIBC_NEWLIB)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
   sources = [
-    "porting/src/malloc.c",
+    "porting/src/hook_adapt.c",
     "porting/src/network/htonl.c",
     "porting/src/network/htons.c",
     "porting/src/network/ntohl.c",
     "porting/src/network/ntohs.c",
-    "porting/src/other_adapt.c",
   ]
   configs += [ "$LITEOSTOPDIR:warn_config" ]
 
