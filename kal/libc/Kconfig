@@ -1,5 +1,5 @@
 # Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -38,11 +38,9 @@ config LIBC_MUSL
 
 config LIBC_NEWLIB
     bool "newlibc"
-rsource "newlib/Kconfig"
 
 config LIBC_ICCARM
     bool "iar libc"
     depends on COMPILER_ICCARM
-rsource "iccarm/Kconfig"
 
 endchoice

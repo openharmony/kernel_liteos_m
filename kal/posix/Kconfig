@@ -1,5 +1,5 @@
 # Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -79,5 +79,11 @@ config POSIX_FS_API
     depends on FS_VFS
     help
       Answer Y to enable LiteOS support POSIX FS API.
+
+config POSIX_MALLOC_API
+    bool "Enable POSIX MALLOC API"
+    default y
+    help
+      Answer Y to enable LiteOS support POSIX MALLOC API.
 
 endif # POSIX_API
