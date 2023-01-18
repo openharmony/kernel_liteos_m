@@ -732,7 +732,9 @@ int gettimeofday(struct timeval *tv, void *ptz)
     }
     return 0;
 }
+#if (LOSCFG_LIBC_NEWLIB == 1)
 FUNC_ALIAS(gettimeofday, _gettimeofday, (struct timeval *tv, void *ptz), int);
+#endif
 
 int settimeofday(const struct timeval *tv, const struct timezone *tz)
 {
