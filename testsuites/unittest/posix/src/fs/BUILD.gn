@@ -1,5 +1,4 @@
-# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
-# Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
+# Copyright (c) 2023-2023 Huawei Device Co., Ltd. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -27,56 +26,36 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//kernel/liteos_m/liteos.gni")
-import("//test/xts/tools/lite/build/suite_lite.gni")
-
-static_library("posix_test") {
+static_library("fs") {
   sources = [
-    "src/ctype/ctype_func_test.c",
-    "src/ctype/isdigit_test.c",
-    "src/ctype/islower_test.c",
-    "src/ctype/isxdigit_test.c",
-    "src/ctype/tolower_test.c",
-    "src/ctype/toupper_test.c",
-    "src/errno/strerror_test.c",
-    "src/math/math_func_test.c",
-    "src/mqueue/mqueue_func_test.c",
-    "src/posix_test.c",
-    "src/regex/regex_func_test.c",
-    "src/semaphore/semaphore_func_test.c",
-    "src/stdarg/stdarg_func_test.c",
-    "src/stdlib/atoi_test.c",
-    "src/stdlib/atol_test.c",
-    "src/stdlib/atoll_test.c",
-    "src/stdlib/strtol_test.c",
-    "src/stdlib/strtoul_test.c",
-    "src/stdlib/strtoull_test.c",
-    "src/string/memory_func_test.c",
-    "src/string/strchr_test.c",
-    "src/string/string_func_test_01.c",
-    "src/string/string_func_test_02.c",
-    "src/string/string_func_test_03.c",
-    "src/string/strstr_test.c",
-    "src/time/time_func_test_01.c",
+    "api/posix_fs_access_test.c",
+    "api/posix_fs_close_test.c",
+    "api/posix_fs_closedir_test.c",
+    "api/posix_fs_fstat_test.c",
+    "api/posix_fs_fsync_test.c",
+    "api/posix_fs_ftruncate_test.c",
+    "api/posix_fs_lseek_test.c",
+    "api/posix_fs_mkdir_test.c",
+    "api/posix_fs_open_test.c",
+    "api/posix_fs_opendir_test.c",
+    "api/posix_fs_pread_test.c",
+    "api/posix_fs_pwrite_test.c",
+    "api/posix_fs_read_test.c",
+    "api/posix_fs_readdir_test.c",
+    "api/posix_fs_rename_test.c",
+    "api/posix_fs_rmdir_test.c",
+    "api/posix_fs_stat_test.c",
+    "api/posix_fs_statfs_test.c",
+    "api/posix_fs_unlink_test.c",
+    "api/posix_fs_write_test.c",
+    "full/posix_fs_full_test.c",
+    "posix_fs_func_test.c",
+    "pressure/posix_fs_pressure_test.c",
   ]
-
-  if (defined(LOSCFG_SUPPORT_FATFS) || defined(LOSCFG_SUPPORT_LITTLEFS)) {
-    deps = [ "src/fs" ]
-  }
 
   include_dirs = [
-    "//test/xts/tools/hctest/include",
-    "src",
+    ".",
+    "../",
+    "../../../../include",
   ]
-
-  if (!defined(LOSCFG_COMPILER_ICCARM)) {
-    cflags = [
-      "-Wno-error",
-      "-Wno-unused-function",
-    ]
-  } else {
-    cflags = [ "--no_warnings" ]
-  }
-
-  configs += [ "//kernel/liteos_m/testsuites:include" ]
 }

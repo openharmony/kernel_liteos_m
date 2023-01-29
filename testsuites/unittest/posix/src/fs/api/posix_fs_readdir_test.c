@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2023-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -28,41 +28,31 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "posix_test.h"
+#include "posix_fs_test.h"
 
-void ItSuitePosix(void)
+/* *
+ * @tc.number   SUB_KERNEL_FS_READDIR_OK
+ * @tc.name     readdir
+ * @tc.desc     [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PosixFsFuncTestSuite, TestFsReaddirOK, Function | MediumTest | Level1)
 {
-    PRINTF("***********************BEGIN POSIX TEST**********************\n");
-    PthreadFuncTestSuite();
-    ItSuitePosixPthread();
-    ItSuitePosixMutex();
-    ItSuitePosixMqueue();
-    PosixCtypeFuncTest();
-    PosixIsdigitFuncTest();
-    PosixIslowerFuncTest();
-    PosixIsxdigitFuncTest();
-    PosixTolowerFuncTest();
-    PosixToupperFuncTest();
-    PosixStrerrorTest();
-    PosixMathFuncTest();
-    PosixMqueueFuncTest();
-    PosixStdargFuncTest();
-    PosixStdlibAtoiFuncTest();
-    PosixStdlibAtolFuncTest();
-    PosixStdlibAtollFuncTest();
-    PosixStdlibStrtolFuncTest();
-    PosixStdlibStrtoulFuncTest();
-    PosixStdlibStrtoullFuncTest();
-    PosixStringMemTest03();
-    PosixStringStrchrTest();
-    PosixStringFuncTest02();
-    PosixStringStrcasecmpFuncTest();
-    PosixStringFuncTest03();
-#if (LOS_KERNEL_TEST_FULL == 1)
-    PosixSemaphoreFuncTest();
-    PosixTimeFuncTest();
-#endif
-#if (LOSCFG_SUPPORT_LITTLEFS == 1 || LOSCFG_SUPPORT_FATFS == 1)
-    PosixFsFuncTest();
-#endif
+    int32_t ret;
+    struct dirent *dResult = NULL;
+
+    DIR *dir = opendir(TEST_ROOT);
+    ICUNIT_ASSERT_NOT_EQUAL(dir, NULL, POSIX_FS_IS_ERROR);
+
+    dResult = readdir(dir);
+    ICUNIT_ASSERT_NOT_EQUAL(dResult, NULL, POSIX_FS_IS_ERROR);
+
+    ret = closedir(dir);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    return POSIX_FS_NO_ERROR;
+}
+
+void PosixFsReaddirTest(void)
+{
+    RUN_ONE_TESTCASE(TestFsReaddirOK);
 }
