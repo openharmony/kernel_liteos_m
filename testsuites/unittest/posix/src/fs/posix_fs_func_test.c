@@ -33,18 +33,7 @@
 #define __NEED_mode_t
 #endif
 
-#include <securec.h>
-#include <stdio.h>
-#include <libgen.h>
-#include "ohos_types.h"
-#include "posix_test.h"
-#include "los_config.h"
-#include "kernel_test.h"
-#include "log.h"
-#include <fcntl.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#include "posix_fs_test.h"
 
 /* *
  * @tc.desc      : register a test suite, this suite is used to test basic flow and interface dependency
@@ -53,31 +42,6 @@
  * @param        : test suit name is PosixFsFuncTestSuite
  */
 LITE_TEST_SUIT(Posix, PosixFs, PosixFsFuncTestSuite);
-
-#if (LOSCFG_SUPPORT_FATFS == 1)
-#define TEST_ROOT            "system"
-#endif
-
-#if (LOSCFG_SUPPORT_LITTLEFS == 1)
-#define TEST_ROOT            "/littlefs"
-#endif
-
-#define TEST_FILE_PTAH_RIGHT    TEST_ROOT"/FILE0"   /* file path, to open/rd/close */
-#define FILE0                   "FILE0"             /* common file name used for testing  */
-#define FILE1                   TEST_ROOT"/FILE1"   /* common file under test root path name used for testing */
-#define FILE2                   TEST_ROOT"/FILE2"   /* common file under test root path name used for testing */
-#define DIRA                    TEST_ROOT"/a"       /* common file under test root path name used for testing */
-#define FILE_IN_DIRA            TEST_ROOT"/a/FILE0" /* common file under test root path name used for testing */
-#define DIRAB                   TEST_ROOT"/a/b"     /* common file under test root path name used for testing */
-#define DIRAC                   TEST_ROOT"/a/c"     /* common file under test root path name used for testing */
-
-#define TEST_BUF_SIZE           40                  /* 40, common data for test, no special meaning */
-#define TEST_SEEK_SIZE          10                  /* 10, common data for test, no special meaning */
-#define TEST_RW_SIZE            20                  /* 20, common data for test, no special meaning */
-#define TEST_LOOPUP_TIME        20                  /* 100, common data for test, no special meaning */
-
-#define TEST_MODE_NORMAL        0666
-#define TEST_MODE_HIGH          0777
 
 /* *
  * @tc.setup     : setup for all testcases
@@ -2012,9 +1976,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFcntl002, Function | MediumTest | Lev
 
 RUN_TEST_SUITE(PosixFsFuncTestSuite);
 
-void PosixFsFuncTest()
+void PosixFsAPITest(void)
 {
-    LOG("begin PosixFsFuncTest....\r\n");
     RUN_ONE_TESTCASE(testFsFopenFclose001);
     RUN_ONE_TESTCASE(testFsFopenFclose002);
     RUN_ONE_TESTCASE(testFsFopenFclose003);
@@ -2103,6 +2066,34 @@ void PosixFsFuncTest()
     RUN_ONE_TESTCASE(testFsFcntl001);
     RUN_ONE_TESTCASE(testFsFcntl002);
 #endif
+}
 
+void PosixFsFuncTest()
+{
+    PosixFsAPITest();
+    PosixFsOpenTest();
+    PosixFsCloseTest();
+    PosixFsOpendirTest();
+    PosixFsClosedirTest();
+    PosixFsReadTest();
+    PosixFsWriteTest();
+    PosixFsReaddirTest();
+    PosixFsMkdirTest();
+    PosixFsRmdirTest();
+    PosixFsLseekTest();
+    PosixFsUnlinkTest();
+    PosixFsStatTest();
+    PosixFsFstatTest();
+    PosixFsFsyncTest();
+    PosixFsRenameTest();
+#if (LOSCFG_SUPPORT_FATFS == 1)
+    PosixFsStatfsTest();
+#endif
+    PosixFsFtruncateTest();
+    PosixFsPreadTest();
+    PosixFsPwriteTest();
+    PosixFsAccessTest();
+    PosixFsFullTest();
+    PosixFsPressureTest();
     return;
 }
