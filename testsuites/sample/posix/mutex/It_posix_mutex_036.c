@@ -33,7 +33,7 @@
 #define THREAD_NUM 5
 #define LOOPS 4
 
-static g_value;
+static int g_value;
 static pthread_mutex_t g_mutex036 = PTHREAD_MUTEX_INITIALIZER;
 
 /* pthread_mutex_lock 1-1.c

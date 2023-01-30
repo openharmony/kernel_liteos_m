@@ -28,13 +28,17 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#undef  _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
+
 #include "It_posix_mutex.h"
+#include "unistd.h"
 
 #define THREAD_NUM 6
 #define LOOPS 3
 
 static pthread_mutex_t g_mutex040 = PTHREAD_MUTEX_INITIALIZER;
-static g_value;
+static int g_value;
 
 static void *TaskF01(void *parm)
 {

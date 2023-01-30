@@ -35,9 +35,6 @@ static UINT32 Testcase(VOID)
     CHAR msgrv1[MQUEUE_STANDARD_NAME_LENGTH] = {0};
     struct mq_attr attr = {0};
     INT32 ret = 0;
-    INT32 i;
-    pthread_t pthread1;
-    pthread_t pthread2;
     mqd_t mqueue1;
     mqd_t mqueue2;
     struct timespec ts;
@@ -59,7 +56,6 @@ static UINT32 Testcase(VOID)
     ret = mq_timedreceive(mqueue1, msgrv1, MQUEUE_STANDARD_NAME_LENGTH, NULL, &ts);
     ICUNIT_ASSERT_EQUAL(ret, -1, ret);
 
-EXIT:
     mq_close(mqueue1);
     mq_close(mqueue2);
     mq_unlink(mqname);

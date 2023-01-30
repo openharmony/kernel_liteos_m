@@ -85,6 +85,7 @@ extern void PosixIslowerFuncTest(void);
 extern void PosixIsxdigitFuncTest(void);
 extern void PosixTolowerFuncTest(void);
 extern void PosixToupperFuncTest(void);
+extern void ItSuitePosixMqueue(void);
 
 extern void PosixStrerrorTest(void);
 

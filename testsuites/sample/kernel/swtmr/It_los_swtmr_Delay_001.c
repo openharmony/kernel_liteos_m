@@ -62,10 +62,10 @@ static UINT32 Testcase(VOID)
         OS_SWTMR_ROUSES_IGNORE, OS_SWTMR_ALIGN_SENSITIVE
 #endif
     );
+    id2 = swtmrId1;
 
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    id2 = swtmrId1;
     ICUNIT_GOTO_NOT_EQUAL(id1, id2, swtmrId1, EXIT);
 
     ret = LOS_SwtmrDelete(id1);

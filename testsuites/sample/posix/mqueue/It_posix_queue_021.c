@@ -34,7 +34,6 @@ static UINT32 Testcase(VOID)
     INT32 ret;
     CHAR mqname[MQUEUE_STANDARD_NAME_LENGTH] = {0};
     mqd_t mqueue;
-    struct sigevent se;
 
     ret = snprintf_s(mqname, MQUEUE_STANDARD_NAME_LENGTH, MQUEUE_STANDARD_NAME_LENGTH - 1,
                      "/mq021_%d", LOS_CurTaskIDGet());
