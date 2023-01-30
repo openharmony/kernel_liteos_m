@@ -38,7 +38,7 @@ pthread_t TestPthreadSelf(void)
 {
     pthread_t tid = pthread_self();
     if (tid == 0) {
-        tid = ((LosTaskCB *)(OsCurrTaskGet()))->taskID;
+        tid = (pthread_t)(((LosTaskCB *)(OsCurrTaskGet()))->taskID);
     }
     return tid;
 }
