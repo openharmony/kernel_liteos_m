@@ -138,4 +138,9 @@
 
 #define MAX_DIRENT_NUM 14 // 14 means 4096 length buffer can store 14 dirent, see struct DIR
 
+/* max number of open directories */
+#ifndef LOSCFG_MAX_OPEN_DIRS
+#define LOSCFG_MAX_OPEN_DIRS 10
+#endif
+
 #endif
