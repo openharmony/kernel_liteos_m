@@ -91,12 +91,12 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll001, Function | MediumTest |
 LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll002, Function | MediumTest | Level1)
 {
     long long value = atoll("-9223372036854775808");
-    if (value == -9223372036854775808LL) {
+    if (value == -9223372036854775808ULL) {
         LOG("[DEMO] posix stdlib test case 2:atoll(%lld) ok.\n", value);
     } else {
         LOG("[DEMO] posix stdlib test case 2:atoll(%lld) fail.\n", value);
     }
-    TEST_ASSERT_TRUE(value == -9223372036854775808LL);
+    TEST_ASSERT_TRUE(value == -9223372036854775808ULL);
     return 0;
 }
 
@@ -126,7 +126,7 @@ LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll003, Function | MediumTest |
 LITE_TEST_CASE(PosixStdlibAtollTest, testStdlibAtoll004, Function | MediumTest | Level1)
 {
     long long value = atoll("9223372036854775808");
-    if (value == -9223372036854775808LL) {
+    if (value == -9223372036854775808ULL) {
         LOG("[DEMO] posix stdlib test case 4(except):atoll(%lld) != 9223372036854775808 ok.\n", value);
     } else {
         LOG("[DEMO] posix stdlib test case 4(except):atoll(%lld) fail.\n", value);

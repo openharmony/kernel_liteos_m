@@ -58,7 +58,6 @@ static UINT32 Testcase(VOID)
     return LOS_OK;
 EXIT1:
     mq_close(mqueue);
-EXIT:
     mq_unlink(mqname);
     return LOS_OK;
 }

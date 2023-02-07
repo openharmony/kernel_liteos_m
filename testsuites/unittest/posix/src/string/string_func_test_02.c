@@ -29,6 +29,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#define _GNU_SOURCE
+
 #include "ohos_types.h"
 #include "posix_test.h"
 #include "los_config.h"

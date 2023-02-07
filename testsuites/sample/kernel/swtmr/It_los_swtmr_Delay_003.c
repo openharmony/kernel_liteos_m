@@ -69,7 +69,7 @@ static UINT32 Testcase(VOID)
     );
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     id2 = swtmrId1;
-    ICUNIT_GOTO_NOT_EQUAL(id1, id2, swtmrId1, EXIT);
+    ICUNIT_GOTO_NOT_EQUAL(id1, id2, swtmrId1, EXIT1);
 
     ret = LOS_SwtmrDelete(id1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
@@ -78,9 +78,10 @@ static UINT32 Testcase(VOID)
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     return LOS_OK;
+EXIT1:
+    LOS_SwtmrDelete(id2);
 EXIT:
     LOS_SwtmrDelete(id1);
-    LOS_SwtmrDelete(id2);
     return LOS_OK;
 }
 

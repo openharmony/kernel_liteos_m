@@ -37,7 +37,7 @@ static UINT32 Testcase(VOID)
     pthread_mutex_t mutex = TEST_MUTEX_INIT;
 
     sem_t sem;
-    int pshared;
+    int pshared = 0;
 
     ret = pthread_mutexattr_init(&mta);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);

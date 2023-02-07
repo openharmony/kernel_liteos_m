@@ -30,6 +30,9 @@
  */
 
 #define _GNU_SOURCE
+#undef  _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
+
 #include <sys/time.h>
 #include <sys/times.h>
 #include <time.h>
