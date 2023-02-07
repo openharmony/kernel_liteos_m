@@ -30,6 +30,8 @@
 
 #ifndef IT_POSIX_QUEUE_H
 #define IT_POSIX_QUEUE_H
+#undef  _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
 
 #include <stdlib.h>
 #include <mqueue.h>
@@ -40,6 +42,7 @@
 #include <signal.h>
 #include <osTest.h>
 #include "pthread.h"
+#include "unistd.h"
 
 #define MAXMSG5 5
 #define MSGLEN 10

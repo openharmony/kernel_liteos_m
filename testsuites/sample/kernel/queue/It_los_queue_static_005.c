@@ -42,7 +42,7 @@ static UINT32 Testcase(VOID)
 
     g_testQueueID01 = LOSCFG_BASE_IPC_QUEUE_LIMIT - 1;
 
-    ret = LOS_QueueCreateStatic("Q1", QUEUE_OVERSIZE_NUM, &g_testQueueID01, buff3, 0, 0xFFFF);
+    ret = LOS_QueueCreateStatic("Q1", QUEUE_OVERSIZE_NUM, &g_testQueueID01, (UINT8 *)buff3, 0, 0xFFFF);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_SIZE_TOO_BIG, ret, EXIT);
 
     ret = LOS_QueueWrite(g_testQueueID01, &buff1, QUEUE_BASE_MSGSIZE, 0);

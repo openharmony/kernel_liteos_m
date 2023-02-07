@@ -95,7 +95,8 @@ LITE_TEST_CASE(PosixSysFuncTestSuite, testOsSysStrerror001, Function | MediumTes
     LOG("strerror(10) = %s\n", strerror(10));
     TEST_ASSERT_EQUAL_STRING("No children", strerror(10));
 #endif
-    
+
+    return LOS_OK;
 };
 
 RUN_TEST_SUITE(PosixSysFuncTestSuite);

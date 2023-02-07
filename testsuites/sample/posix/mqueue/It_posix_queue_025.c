@@ -55,7 +55,7 @@ EXIT:
 
 static VOID *PthreadF02(VOID *argument)
 {
-    INT32 j, ret;
+    INT32 ret;
 
     CHAR msgrcd[MQUEUE_STANDARD_NAME_LENGTH] = "";
 
@@ -82,8 +82,6 @@ static UINT32 Testcase(VOID)
 {
     pthread_t newTh1, newTh2;
     UINT32 ret;
-    CHAR msgrcd[MQUEUE_STANDARD_NAME_LENGTH] = "";
-    const CHAR *msgptr = MQUEUE_SEND_STRING_TEST;
     struct mq_attr attr = {0};
     pthread_attr_t attr1;
 

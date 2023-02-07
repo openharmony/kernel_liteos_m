@@ -28,6 +28,9 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#undef  _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
+
 #include <securec.h>
 #include "osTest.h"
 #include "pthread.h"
