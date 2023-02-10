@@ -221,9 +221,9 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     LOS_ListAdd(&g_pthreadListHead, &pthreadData->threadList);
     LOS_IntRestore(intSave);
 
-    (void)LOS_TaskResume(taskID);
-
     *thread = (pthread_t)taskID;
+
+    (void)LOS_TaskResume(taskID);
 
     return 0;
 }
