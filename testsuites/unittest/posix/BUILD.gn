@@ -71,8 +71,8 @@ static_library("posix_test") {
 
   if (!defined(LOSCFG_COMPILER_ICCARM)) {
     cflags = [
-      "-Wno-error",
       "-Wno-unused-function",
+      "-Wno-int-conversion",
     ]
   } else {
     cflags = [ "--no_warnings" ]
