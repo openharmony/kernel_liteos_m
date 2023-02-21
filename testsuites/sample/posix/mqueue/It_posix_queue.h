@@ -108,6 +108,7 @@ extern VOID ItSuitePosixMqueue(VOID);
 extern UINT32 PosixPthreadInit(pthread_attr_t *attr, int pri);
 extern UINT32 PosixPthreadDestroy(pthread_attr_t *attr, pthread_t thread);
 extern VOID TestAssertWaitDelay(UINT32 *testCount, UINT32 flag);
+extern void TestExtraTaskDelay(UINT32 tick);
 
 VOID ItPosixQueue001(VOID);
 VOID ItPosixQueue002(VOID);
