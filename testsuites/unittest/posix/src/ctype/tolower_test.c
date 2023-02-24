@@ -76,7 +76,7 @@ LITE_TEST_CASE(PosixCTypeTolowerTest, testCTypeTolower001, Function | MediumTest
     if (ret == 'a') {
         LOG("[DEMO] posix ctype test case 1:tolower(%c)==%c ok.\n", a, ret);
     } else {
-        LOG("[DEMO] posix ctype test case 1:tolower(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 1:tolower(%c)!=%c  fail.\n", a, ret);
     }
     TEST_ASSERT_TRUE(ret == 'a');
     return 0;
@@ -94,7 +94,7 @@ LITE_TEST_CASE(PosixCTypeTolowerTest, testCTypeTolower002, Function | MediumTest
     if (ret == 'a') {
         LOG("[DEMO] posix ctype test case 2:tolower(%c)==%c ok.\n", a, ret);
     } else {
-        LOG("[DEMO] posix ctype test case 2:tolower(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 2:tolower(%c)!=%c  fail.\n", a, ret);
     }
     TEST_ASSERT_TRUE(ret == 'a');
     return 0;
@@ -112,7 +112,7 @@ LITE_TEST_CASE(PosixCTypeTolowerTest, testCTypeTolower003, Function | MediumTest
     if (ret == 'z') {
         LOG("[DEMO] posix ctype test case 3:tolower(%c)==%c ok.\n", a, ret);
     } else {
-        LOG("[DEMO] posix ctype test case 3:tolower(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 3:tolower(%c)!=%c  fail.\n", a, ret);
     }
     TEST_ASSERT_TRUE(ret == 'z');
     return 0;
@@ -130,7 +130,7 @@ LITE_TEST_CASE(PosixCTypeTolowerTest, testCTypeTolower004, Function | MediumTest
     if (ret == 'z') {
         LOG("[DEMO] posix ctype test case 4:tolower(%c)==%c ok.\n", a, ret);
     } else {
-        LOG("[DEMO] posix ctype test case 4:tolower(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 4:tolower(%c)!=%c  fail.\n", a, ret);
     }
     TEST_ASSERT_TRUE(ret == 'z');
     return 0;
@@ -148,7 +148,7 @@ LITE_TEST_CASE(PosixCTypeTolowerTest, testCTypeTolower005, Function | MediumTest
     if (ret == '1') {
         LOG("[DEMO] posix ctype test case 5(except):tolower(%c)==%c ok.\n", a, ret);
     } else {
-        LOG("[DEMO] posix ctype test case 5(except):tolower(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 5(except):tolower(%c)!=%c  fail.\n", a, ret);
     }
     TEST_ASSERT_TRUE(ret == '1');
     return 0;
