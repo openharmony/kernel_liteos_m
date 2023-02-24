@@ -76,7 +76,7 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper001, Function | MediumTest
     if (ret == 'A') {
         LOG("[DEMO] posix ctype test case 1:toupper(%c)==%c ok.\n", a, ret);
     } else {
-        LOG("[DEMO] posix ctype test case 1:toupper(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 1:toupper(%c)!=%c  fail.\n", a, ret);
     }
     TEST_ASSERT_TRUE(ret == 'A');
     return 0;
@@ -94,7 +94,7 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper002, Function | MediumTest
     if (ret == 'A') {
         LOG("[DEMO] posix ctype test case 2:toupper(%c)==%c ok.\n", a, ret);
     } else {
-        LOG("[DEMO] posix ctype test case 2:toupper(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 2:toupper(%c)!=%c  fail.\n", a, ret);
     }
     TEST_ASSERT_TRUE(ret == 'A');
     return 0;
@@ -112,7 +112,7 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper003, Function | MediumTest
     if (ret == 'Z') {
         LOG("[DEMO] posix ctype test case 3:toupper(%c)==%c ok.\n", a, ret);
     } else {
-        LOG("[DEMO] posix ctype test case 3:toupper(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 3:toupper(%c)!=%c  fail.\n", a, ret);
     }
     TEST_ASSERT_TRUE(ret == 'Z');
     return 0;
@@ -130,7 +130,7 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper004, Function | MediumTest
     if (ret == 'Z') {
         LOG("[DEMO] posix ctype test case 4:toupper(%c)==%c ok.\n", a, ret);
     } else {
-        LOG("[DEMO] posix ctype test case 4:toupper(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 4:toupper(%c)!=%c  fail.\n", a, ret);
     }
     TEST_ASSERT_TRUE(ret == 'Z');
     return 0;
@@ -148,7 +148,7 @@ LITE_TEST_CASE(PosixCTypeToupperTest, testCTypeToupper005, Function | MediumTest
     if (ret == '1') {
         LOG("[DEMO] posix ctype test case 5(except):toupper(%c)==%c ok.\n", a, ret);
     } else {
-        LOG("[DEMO] posix ctype test case 5(except):toupper(%c)!=%c  fail.\n", a);
+        LOG("[DEMO] posix ctype test case 5(except):toupper(%c)!=%c  fail.\n", a, ret);
     }
     TEST_ASSERT_TRUE(ret == '1');
     return 0;

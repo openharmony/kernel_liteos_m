@@ -64,7 +64,6 @@
 #define PTHREAD_EXISTED_SEM_NUM SEM_EXISTED_NUM
 
 /* We are testing conformance to IEEE Std 1003.1, 2003 Edition */
-#define _POSIX_C_SOURCE 200112L
 
 #define PRIORITY_OTHER (-1)
 #define PRIORITY_FIFO 20

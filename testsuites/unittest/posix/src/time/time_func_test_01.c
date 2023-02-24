@@ -101,7 +101,7 @@ static int KeepRun(int msec)
     struct timespec time1 = { 0, 0 };
     struct timespec time2 = { 0, 0 };
     clock_gettime(CLOCK_MONOTONIC, &time1);
-    LOG("KeepRun start : tv_sec=%ld, tv_nsec=%ld\n", time1.tv_sec, time1.tv_nsec);
+    LOG("KeepRun start : tv_sec=%lld, tv_nsec=%ld\n", time1.tv_sec, time1.tv_nsec);
     int loop = 0;
     int ran = 0;
     while (ran < msec) {
@@ -111,7 +111,7 @@ static int KeepRun(int msec)
         ran += (time2.tv_nsec - time1.tv_nsec) / NANOSECONDS_PER_MILLISECOND;
     }
 
-    LOG("KeepRun end : tv_sec=%ld, tv_nsec=%ld\n", time2.tv_sec, time2.tv_nsec);
+    LOG("KeepRun end : tv_sec=%lld, tv_nsec=%ld\n", time2.tv_sec, time2.tv_nsec);
     return loop;
 }
 
