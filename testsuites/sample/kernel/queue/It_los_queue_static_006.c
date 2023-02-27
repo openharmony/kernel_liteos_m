@@ -43,7 +43,7 @@ static UINT32 Testcase(VOID)
 
     g_testQueueID01 = QUEUW_INVALID_VALUE;
 
-    ret = LOS_QueueCreateStatic("Q1", QUEUE_BASE_NUM, NULL, buff3, 0, QUEUE_BASE_MSGSIZE);
+    ret = LOS_QueueCreateStatic("Q1", QUEUE_BASE_NUM, NULL, (UINT8 *)buff3, 0, QUEUE_BASE_MSGSIZE);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_CREAT_PTR_NULL, ret, EXIT);
 
     ret = LOS_QueueWrite(g_testQueueID01, &buff1, QUEUE_BASE_MSGSIZE, 0);
