@@ -125,7 +125,7 @@ int ip6addr_aton(const char *cp, ip6_addr_t *addr)
     int squash_pos = ipv6_blocks;
     int i;
     const unsigned char *sc = (const unsigned char *)cp;
-    const char *ss = cp-1;
+    const unsigned char *ss = (const unsigned char *)(cp - 1);
 
     for (; ; sc++) {
         if (current_block_index >= ipv6_blocks) {
@@ -142,7 +142,7 @@ int ip6addr_aton(const char *cp, ip6_addr_t *addr)
             break;
         } else if (*sc == ':') {
             if (sc - ss == 1) {
-                if (sc != cp || sc[1] != ':') {
+                if (sc != (const unsigned char *)cp || sc[1] != ':') {
                     return 0; // address begins with a single ':' or contains ":::"
                 } // else address begins with one valid "::"
             } else {
@@ -163,7 +163,7 @@ int ip6addr_aton(const char *cp, ip6_addr_t *addr)
 #if LWIP_IPV4
         } else if (*sc == '.' && current_block_index < ipv6_blocks - 1) {
             ip4_addr_t ip4;
-            int ret = ip4addr_aton(ss+1, &ip4);
+            int ret = ip4addr_aton((const char *)(ss + 1), &ip4);
             if (!ret) {
                 return 0;
             }
