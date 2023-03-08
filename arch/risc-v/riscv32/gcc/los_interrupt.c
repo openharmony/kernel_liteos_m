@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2020, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -167,6 +167,7 @@ LITE_OS_SEC_TEXT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
                                       HWI_PROC_FUNC hwiHandler,
                                       HwiIrqParam *irqParam)
 {
+    (VOID)hwiMode;
     UINT32 intSave;
 
     if (hwiHandler == NULL) {
@@ -283,7 +284,7 @@ STATIC VOID ExcInfoDisplayContext(const LosExcInfo *exc)
     ExcBackTrace(taskContext->s0);
 }
 
-STATIC VOID ExcInfoDisplay(const LosExcContext *excBufAddr)
+STATIC VOID ExcInfoDisplay(VOID)
 {
     PRINTK("\nException Information     \n");
 
@@ -305,6 +306,11 @@ STATIC VOID ExcInfoDisplay(const LosExcContext *excBufAddr)
 
 WEAK UINT32 HalUnalignedAccessFix(UINTPTR mcause, UINTPTR mepc, UINTPTR mtval, VOID *sp)
 {
+    (VOID)mcause;
+    (VOID)mepc;
+    (VOID)mtval;
+    (VOID)sp;
+
     /* Unaligned access fixes are not supported by default */
     PRINTK("Unaligned access fixes are not supported by default!\n");
     return LOS_NOK;
@@ -329,7 +335,7 @@ VOID HalExcEntry(const LosExcContext *excBufAddr)
         }
     }
 
-    ExcInfoDisplay(excBufAddr);
+    ExcInfoDisplay();
 
     if (LOS_TaskIsRunning()) {
         PRINTK("----------------All Task information ------------\n");
