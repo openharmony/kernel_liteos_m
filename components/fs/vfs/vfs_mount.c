@@ -184,7 +184,7 @@ STATIC struct MountPoint *VfsMountPointInit(const char *source, const char *targ
         return NULL;
     }
 
-    /* Find fsMap coresponding to the fsType */
+    /* Find fsMap corresponding to the fsType */
     mFs = VfsFsMapGet(fsType);
     if ((mFs == NULL) || (mFs->fsMops == NULL) || (mFs->fsMops->mount == NULL)) {
         errno = ENODEV;

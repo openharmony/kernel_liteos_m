@@ -78,7 +78,7 @@ struct File {
     off_t fOffset;
     INT32 fOwner;
     struct MountPoint *fMp;
-    void *fData; /* file system opreations handle, fatfs FIL, etc. */
+    void *fData; /* file system operations handle, fatfs FIL, etc. */
     const char *fullPath;
 };
 
