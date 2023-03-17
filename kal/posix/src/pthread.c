@@ -40,6 +40,7 @@
 #include "los_config.h"
 #include "los_task.h"
 #include "los_debug.h"
+#include "map_error.h"
 
 #define PTHREAD_DEFAULT_NAME     "pthread"
 #define PTHREAD_DEFAULT_NAME_LEN 8
@@ -207,9 +208,10 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
         return ret;
     }
 
-    if (LOS_TaskCreateOnly(&taskID, &taskInitParam) != LOS_OK) {
+    ret = LOS_TaskCreateOnly(&taskID, &taskInitParam);
+    if (ret != LOS_OK) {
         free((VOID *)(UINTPTR)taskInitParam.uwArg);
-        return EINVAL;
+        return map_errno(ret);
     }
 
     PthreadData *pthreadData = (PthreadData *)taskInitParam.uwArg;
