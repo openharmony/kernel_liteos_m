@@ -35,6 +35,7 @@ kernel_module(module_name) {
   sources = [
     "src/errno.c",
     "src/libc.c",
+    "src/map_error.c",
   ]
   configs += [ "$LITEOSTOPDIR:warn_config" ]
 
