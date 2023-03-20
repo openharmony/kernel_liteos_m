@@ -75,31 +75,29 @@ LITE_TEST_CASE(PosixSysFuncTestSuite, testOsSysStrerror001, Function | MediumTes
 #if (LOSCFG_LIBC_MUSL == 1)
     for (int i = EPERM; i < EHWPOISON; i++) {
         char *s = strerror(i);
-        TEST_ASSERT_NOT_NULL(s);
+        ICUNIT_ASSERT_NOT_EQUAL(s, NULL, s);
     }
 
     LOG("strerror(-1) = %s\n", strerror(-1));
-    TEST_ASSERT_EQUAL_STRING("No error information", strerror(-1));
+    ICUNIT_ASSERT_STRING_EQUAL(strerror(-1), "No error information", -1);
     LOG("strerror(0) = %s\n", strerror(0));
-    TEST_ASSERT_EQUAL_STRING("No error information", strerror(0));
+    ICUNIT_ASSERT_STRING_EQUAL(strerror(0), "No error information", 0);
     LOG("strerror(2) = %s\n", strerror(2));
-    TEST_ASSERT_EQUAL_STRING("No such file or directory", strerror(2));
+    ICUNIT_ASSERT_STRING_EQUAL(strerror(2), "No such file or directory", 2);
     LOG("strerror(10) = %s\n", strerror(10));
-    TEST_ASSERT_EQUAL_STRING("No child process", strerror(10));
+    ICUNIT_ASSERT_STRING_EQUAL(strerror(10), "No child process", 10);
 #endif
 #if (LOSCFG_LIBC_NEWLIB == 1)
     LOG("strerror(0) = %s\n", strerror(0));
-    TEST_ASSERT_EQUAL_STRING("Success", strerror(0));
+    ICUNIT_ASSERT_STRING_EQUAL(strerror(0), "Success", 0);
     LOG("strerror(2) = %s\n", strerror(2));
-    TEST_ASSERT_EQUAL_STRING("No such file or directory", strerror(2));
+    ICUNIT_ASSERT_STRING_EQUAL(strerror(2), "No such file or directory", 2);
     LOG("strerror(10) = %s\n", strerror(10));
-    TEST_ASSERT_EQUAL_STRING("No children", strerror(10));
+    ICUNIT_ASSERT_STRING_EQUAL(strerror(10), "No children", 10);
 #endif
 
     return LOS_OK;
 };
-
-RUN_TEST_SUITE(PosixSysFuncTestSuite);
 
 void PosixStrerrorTest()
 {
