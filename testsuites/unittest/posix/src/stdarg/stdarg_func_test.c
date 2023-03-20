@@ -78,15 +78,15 @@ int VaFunc(int argsNum, ...)
 
     for (int i = 0; i < argsNum; i++) {
         if (i < 1) {
-            TEST_ASSERT_EQUAL_INT(10, va_arg(vaP2, int));
+            ICUNIT_ASSERT_EQUAL(va_arg(vaP2, int), 10, 0);
         }
 
         if (i == 1) {
-            TEST_ASSERT_EQUAL_INT(65, va_arg(vaP2, int));
+            ICUNIT_ASSERT_EQUAL(va_arg(vaP2, int), 65, 0);
         }
 
         if (i > 1) {
-            TEST_ASSERT_EQUAL_STRING("hello world", va_arg(vaP2, char *));
+            ICUNIT_ASSERT_STRING_EQUAL(va_arg(vaP2, char *), "hello world", 0);
         }
     }
 
@@ -104,7 +104,7 @@ int VaFunc(int argsNum, ...)
 LITE_TEST_CASE(PosixStdargFuncTestSuite, testStdarg001, Function | MediumTest | Level1)
 {
     int ret = VaFunc(1, 10);
-    TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    ICUNIT_ASSERT_EQUAL(ret, RET_OK, ret);
     return 0;
 }
 
@@ -116,7 +116,7 @@ LITE_TEST_CASE(PosixStdargFuncTestSuite, testStdarg001, Function | MediumTest | 
 LITE_TEST_CASE(PosixStdargFuncTestSuite, testStdarg002, Function | MediumTest | Level1)
 {
     int ret = VaFunc(2, 10, 'A');
-    TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    ICUNIT_ASSERT_EQUAL(ret, RET_OK, ret);
     return 0;
 }
 
@@ -128,7 +128,7 @@ LITE_TEST_CASE(PosixStdargFuncTestSuite, testStdarg002, Function | MediumTest | 
 LITE_TEST_CASE(PosixStdargFuncTestSuite, testStdarg003, Function | MediumTest | Level1)
 {
     int ret = VaFunc(3, 10, 'A', "hello world");
-    TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    ICUNIT_ASSERT_EQUAL(ret, RET_OK, ret);
     return 0;
 }
 
@@ -140,7 +140,7 @@ LITE_TEST_CASE(PosixStdargFuncTestSuite, testStdarg003, Function | MediumTest | 
 LITE_TEST_CASE(PosixStdargFuncTestSuite, testStdarg004, Function | MediumTest | Level1)
 {
     int ret = VaFunc(3, 10, 'A', "hello world", '\0');
-    TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    ICUNIT_ASSERT_EQUAL(ret, RET_OK, ret);
     return 0;
 }
 

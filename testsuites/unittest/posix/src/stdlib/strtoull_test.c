@@ -82,8 +82,8 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull001, Function | Medium
     } else {
         LOG("[DEMO] posix stdlib test case 1:strtoull(base=10) ret:%llu,%s fail.\n", ret, nPtr);
     }
-    TEST_ASSERT_TRUE(ret == 12ULL);
-    TEST_ASSERT_EQUAL_STRING(endPtr, " 0110 0XDEFE 0666 1.6");
+    ICUNIT_ASSERT_EQUAL(ret, 12ULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, " 0110 0XDEFE 0666 1.6", 0);
     return 0;
 }
 
@@ -102,8 +102,8 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull002, Function | Medium
     } else {
         LOG("[DEMO] posix stdlib test case 2:strtoull(base=2) ret:%llu,%s fail.\n", ret, nPtr);
     }
-    TEST_ASSERT_TRUE(ret == 6ULL);
-    TEST_ASSERT_EQUAL_STRING(endPtr, " 0XDEFE 0666 1.6");
+    ICUNIT_ASSERT_EQUAL(ret, 6ULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, " 0XDEFE 0666 1.6", 0);
     return 0;
 }
 
@@ -122,8 +122,8 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull003, Function | Medium
     } else {
         LOG("[DEMO] posix stdlib test case 3:strtoull(base=16) ret:%llu,%s fail.\n", ret, nPtr);
     }
-    TEST_ASSERT_TRUE(ret == 0XDEFEULL);
-    TEST_ASSERT_EQUAL_STRING(endPtr, " 0666 1.6");
+    ICUNIT_ASSERT_EQUAL(ret, 0XDEFEULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, " 0666 1.6", 0);
     return 0;
 }
 
@@ -142,8 +142,8 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull004, Function | Medium
     } else {
         LOG("[DEMO] posix stdlib test case 4:strtoull(base=8) ret:%llu,%s fail.\n", ret, nPtr);
     }
-    TEST_ASSERT_TRUE(ret == 0666ULL);
-    TEST_ASSERT_EQUAL_STRING(endPtr, " 1.6");
+    ICUNIT_ASSERT_EQUAL(ret, 0666ULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, " 1.6", 0);
     return 0;
 }
 
@@ -163,8 +163,8 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull005, Function | Medium
     } else {
         LOG("[DEMO] posix stdlib test case 5:strtoull(base=65) ret:%llu,%s fail.\n", ret, nPtr);
     }
-    TEST_ASSERT_TRUE(ret == 0ULL);
-    TEST_ASSERT_EQUAL_STRING(endPtr, " 1.6");
+    ICUNIT_ASSERT_EQUAL(ret, 0ULL, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, " 1.6", 0);
     return 0;
 }
 #endif
@@ -184,8 +184,8 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull006, Function | Medium
     } else {
         LOG("[DEMO] posix stdlib test case 6:strtoull(base=0) ret:%llu,%s fail.\n", ret, nPtr);
     }
-    TEST_ASSERT_TRUE(ret == 0ULL);
-    TEST_ASSERT_EQUAL_STRING(endPtr, ".6");
+    ICUNIT_ASSERT_EQUAL(ret, 0ULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, ".6", 0);
     return 0;
 }
 
@@ -204,8 +204,8 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull007, Function | Medium
     } else {
         LOG("[DEMO] posix stdlib test case 7:strtoull(base=10) ret:%llu,%s fail.\n", ret, nPtr);
     }
-    TEST_ASSERT_TRUE(ret == 18446744073709551615ULL);
-    TEST_ASSERT_EQUAL_STRING(endPtr, " 18446744073709551616");
+    ICUNIT_ASSERT_EQUAL(ret, 18446744073709551615ULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, " 18446744073709551616", 0);
     return 0;
 }
 
@@ -225,9 +225,9 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull008, Function | Medium
         LOG("[DEMO] posix stdlib test case 8:strtoull(base=10) ret:%llu,%s fail.\n", ret, nPtr);
     }
 
-    TEST_ASSERT_EQUAL_UINT64(ULLONG_MAX, ret);
-    TEST_ASSERT_EQUAL_INT(ERANGE, errno);
-    TEST_ASSERT_EQUAL_STRING(endPtr, "");
+    ICUNIT_ASSERT_EQUAL(ret, ULLONG_MAX, ret);
+    ICUNIT_ASSERT_EQUAL(errno, ERANGE, errno);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, "", 0);
     return 0;
 }
 
@@ -246,8 +246,8 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull009, Function | Medium
     } else {
         LOG("[DEMO] posix stdlib test case 9:strtoull(base=0) ret:%llu,%s fail.\n", ret, nPtr);
     }
-    TEST_ASSERT_TRUE(ret == 0XDEFEULL);
-    TEST_ASSERT_EQUAL_STRING(endPtr, " 0666");
+    ICUNIT_ASSERT_EQUAL(ret, 0XDEFEULL, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, " 0666", 0);
     return 0;
 }
 
@@ -266,8 +266,8 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull010, Function | Medium
     } else {
         LOG("[DEMO] posix stdlib test case 10:strtoull(base=0) ret:%llu,%s fail.\n", ret, nPtr);
     }
-    TEST_ASSERT_TRUE(ret == 0666ULL);
-    TEST_ASSERT_EQUAL_STRING(endPtr, "");
+    ICUNIT_ASSERT_EQUAL(ret, 0666ULL, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, "", 0);
     return 0;
 }
 

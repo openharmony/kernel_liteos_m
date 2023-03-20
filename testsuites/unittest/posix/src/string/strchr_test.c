@@ -79,7 +79,7 @@ LITE_TEST_CASE(PosixStringStrchrTest, testStringStrchr001, Function | MediumTest
     } else {
         LOG("[DEMO] posix string test case 1:strchr(!) %s fail.\n", src);
     }
-    TEST_ASSERT_EQUAL_STRING(ret, "!! world");
+    ICUNIT_ASSERT_STRING_EQUAL(ret, "!! world", 0);
     return 0;
 }
 
@@ -97,7 +97,7 @@ LITE_TEST_CASE(PosixStringStrchrTest, testStringStrchr002, Function | MediumTest
     } else {
         LOG("[DEMO] posix string test case 2:strchr(l) %s fail.\n", src);
     }
-    TEST_ASSERT_EQUAL_STRING(ret, "llo !! world");
+    ICUNIT_ASSERT_STRING_EQUAL(ret, "llo !! world", 0);
     return 0;
 }
 
@@ -115,7 +115,7 @@ LITE_TEST_CASE(PosixStringStrchrTest, testStringStrchr003, Function | MediumTest
     } else {
         LOG("[DEMO] posix string test case 3:strchr(\'\\0\') %s fail.\n", src);
     }
-    TEST_ASSERT_NOT_NULL(ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, NULL, 0);
     return 0;
 }
 
@@ -133,7 +133,7 @@ LITE_TEST_CASE(PosixStringStrchrTest, testStringStrchr004, Function | MediumTest
     } else {
         LOG("[DEMO] posix string test case 4(except):strchr(?) %s fail.\n", src);
     }
-    TEST_ASSERT_NULL(ret);
+    ICUNIT_ASSERT_EQUAL(ret, NULL, 0);
     return 0;
 }
 
@@ -151,7 +151,7 @@ LITE_TEST_CASE(PosixStringStrchrTest, testStringStrchr005, Function | MediumTest
     } else {
         LOG("[DEMO] posix string test case 5(except):strchr(m) %s fail.\n", src);
     }
-    TEST_ASSERT_NULL(ret);
+    ICUNIT_ASSERT_EQUAL(ret, NULL, 0);
     return 0;
 }
 
@@ -169,7 +169,7 @@ LITE_TEST_CASE(PosixStringStrchrTest, testStringStrchr006, Function | MediumTest
     } else {
         LOG("[DEMO] posix string test case 6(except):strchr(0) %s fail.\n", src);
     }
-    TEST_ASSERT_NOT_NULL(ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, NULL, 0);
     return 0;
 }
 

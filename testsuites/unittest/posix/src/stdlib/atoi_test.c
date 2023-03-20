@@ -78,7 +78,7 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi001, Function | MediumTest | L
     } else {
         LOG("[DEMO] posix stdlib test case 1:atoi(%d) fail.\n", value);
     }
-    TEST_ASSERT_EQUAL_INT(2147483647, value);
+    ICUNIT_ASSERT_EQUAL(value, 2147483647, value);
     return 0;
 }
 
@@ -95,7 +95,7 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi002, Function | MediumTest | L
     } else {
         LOG("[DEMO] posix stdlib test case 2:atoi(%d) fail.\n", value);
     }
-    TEST_ASSERT_EQUAL_INT(-2147483648, value);
+    ICUNIT_ASSERT_EQUAL(value, -2147483648, value);
     return 0;
 }
 
@@ -112,7 +112,7 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi003, Function | MediumTest | L
     } else {
         LOG("[DEMO] posix stdlib test case 3:atoi(%d) fail.\n", value);
     }
-    TEST_ASSERT_EQUAL_INT(100, value);
+    ICUNIT_ASSERT_EQUAL(value, 100, value);
     return 0;
 }
 
@@ -130,7 +130,7 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi004, Function | MediumTest | L
     } else {
         LOG("[DEMO] posix stdlib test case 4(except):atoi(%d) fail.\n", value);
     }
-    TEST_ASSERT_EQUAL_INT(-2147483648, value);
+    ICUNIT_ASSERT_EQUAL(value, -2147483648, value);
     return 0;
 }
 
@@ -147,7 +147,7 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi005, Function | MediumTest | L
     } else {
         LOG("[DEMO] posix stdlib test case 5(except):atoi(%d) fail.\n", value);
     }
-    TEST_ASSERT_EQUAL_INT(2147483647, value);
+    ICUNIT_ASSERT_EQUAL(value, 2147483647, value);
     return 0;
 }
 #endif
@@ -165,7 +165,7 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi006, Function | MediumTest | L
     } else {
         LOG("[DEMO] posix stdlib test case 6:atoi(%d) fail.\n", value);
     }
-    TEST_ASSERT_EQUAL_INT(100, value);
+    ICUNIT_ASSERT_EQUAL(value, 100, value);
     return 0;
 }
 
@@ -182,7 +182,7 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi007, Function | MediumTest | L
     } else {
         LOG("[DEMO] posix stdlib test case 7:atoi(%d) fail.\n", value);
     }
-    TEST_ASSERT_EQUAL_INT(-100, value);
+    ICUNIT_ASSERT_EQUAL(value, -100, value);
     return 0;
 }
 
@@ -199,7 +199,7 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi008, Function | MediumTest | L
     } else {
         LOG("[DEMO] posix stdlib test case 8(except):atoi(%d) fail.\n", value);
     }
-    TEST_ASSERT_EQUAL_INT(0, value);
+    ICUNIT_ASSERT_EQUAL(value, 0, value);
     return 0;
 }
 
@@ -216,7 +216,7 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi009, Function | MediumTest | L
     } else {
         LOG("[DEMO] posix stdlib test case 9(except):atoi(%d) fail.\n", value);
     }
-    TEST_ASSERT_EQUAL_INT(12, value);
+    ICUNIT_ASSERT_EQUAL(value, 12, value);
     return 0;
 }
 
@@ -234,7 +234,7 @@ LITE_TEST_CASE(PosixStdlibAtoiTest, testStdlibAtoi010, Function | MediumTest | L
     } else {
         LOG("[DEMO] posix stdlib test case 10(except):atoi(%d) fail.\n", value);
     }
-    TEST_ASSERT_EQUAL_INT(-10, value);
+    ICUNIT_ASSERT_EQUAL(value, -10, value);
     return 0;
 }
 #endif

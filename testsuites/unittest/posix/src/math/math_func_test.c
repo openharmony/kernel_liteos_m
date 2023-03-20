@@ -107,7 +107,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathAbs001, Function | MediumTest | L
     for (int i = 0; i < testCount; ++i) {
         ret = abs(testValues[i]);
         LOG("\n [POSIXTEST][abs]abs(%d) = %d, expected is %d", testValues[i], ret, expected[i]);
-        TEST_ASSERT_EQUAL_INT(expected[i], ret);
+        ICUNIT_ASSERT_EQUAL(ret, expected[i], ret);
     }
     return 0;
 };
@@ -126,7 +126,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathAbs002, Function | MediumTest | L
     for (int i = 0; i < testCount; ++i) {
         ret = abs(testValues[i]);
         LOG("\n [POSIXTEST][abs]abs(%d) = %d, expected is %d", testValues[i], ret, expected[i]);
-        TEST_ASSERT_EQUAL_INT(expected[i], ret);
+        ICUNIT_ASSERT_EQUAL(ret, expected[i], ret);
     }
     return 0;
 };
@@ -148,7 +148,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathLog001, Function | MediumTest | L
         ret = log(testValues[i]);
         LOG("\n [POSIXTEST][log]log(%lf) = %lf, expected is %lf", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
-        TEST_ASSERT_TRUE(DoubleEquals(expected[i], ret));
+        ICUNIT_ASSERT_EQUAL(DoubleEquals(expected[i], ret), TRUE, 0);
     }
     return 0;
 };
@@ -191,7 +191,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathSqrt001, Function | MediumTest | 
         ret = sqrt(testValues[i]);
         LOG("\n [POSIXTEST][sqrt]sqrt(%lf) = %lf, expected is %lf", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
-        TEST_ASSERT_TRUE(DoubleEquals(expected[i], ret));
+        ICUNIT_ASSERT_EQUAL(DoubleEquals(expected[i], ret), TRUE, 0);
     }
     return 0;
 };
@@ -236,7 +236,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow001, Function | MediumTest | L
         LOG("\n [POSIXTEST][pow]pow1(%lf,%lf) = %lf, expected is %lf", testValues[i][TEST_VALUE_X],
             testValues[i][TEST_VALUE_Y], ret, testValues[i][TEST_EXPECTED]);
         TEST_ASSERT_EQUAL_FLOAT(testValues[i][TEST_EXPECTED], ret);
-        TEST_ASSERT_TRUE(DoubleEquals(testValues[i][TEST_EXPECTED], ret));
+        ICUNIT_ASSERT_EQUAL(DoubleEquals(testValues[i][TEST_EXPECTED], ret), TRUE, 0);
     }
     return 0;
 };
@@ -269,7 +269,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow002, Function | MediumTest | L
     for (int i = 0; i < testCount; ++i) {
         ret = pow(testValues[i][TEST_VALUE_X], testValues[i][TEST_VALUE_Y]);
         TEST_ASSERT_EQUAL_FLOAT(testValues[i][TEST_EXPECTED], ret);
-        TEST_ASSERT_TRUE(DoubleEquals(testValues[i][TEST_EXPECTED], ret));
+        ICUNIT_ASSERT_EQUAL(DoubleEquals(testValues[i][TEST_EXPECTED], ret), TRUE, 0);
         LOG("\n [POSIXTEST][pow]pow1(%lf,%lf) = %lf, expected is %lf", testValues[i][TEST_VALUE_X],
             testValues[i][TEST_VALUE_Y], ret, testValues[i][TEST_EXPECTED]);
     }
@@ -297,7 +297,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathPow003, Function | MediumTest | L
         TEST_ASSERT_EQUAL_FLOAT(testValues[i][TEST_EXPECTED], ret);
         LOG("\n [POSIXTEST][pow]pow1(%lf,%lf) = %lf, expected is %lf", testValues[i][TEST_VALUE_X],
             testValues[i][TEST_VALUE_Y], ret, testValues[i][TEST_EXPECTED]);
-        TEST_ASSERT_TRUE(DoubleEquals(testValues[i][TEST_EXPECTED], ret));
+        ICUNIT_ASSERT_EQUAL(DoubleEquals(testValues[i][TEST_EXPECTED], ret), TRUE, 0);
     }
     return 0;
 };
@@ -318,7 +318,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathRound001, Function | MediumTest |
         ret = round(testValues[i]);
         LOG("\n [POSIXTEST][round]round1(%lf) = %lf, expected is %lf", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
-        TEST_ASSERT_TRUE(DoubleEquals(expected[i], ret));
+        ICUNIT_ASSERT_EQUAL(DoubleEquals(expected[i], ret), TRUE, 0);
     }
     return 0;
 };
@@ -338,7 +338,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathRound002, Function | MediumTest |
         ret = round(testValues[i]);
         LOG("\n [POSIXTEST][round]round1(%lf) = %lf, expected is %lf", testValues[i], ret, expected[i]);
         TEST_ASSERT_EQUAL_FLOAT(expected[i], ret);
-        TEST_ASSERT_TRUE(DoubleEquals(expected[i], ret));
+        ICUNIT_ASSERT_EQUAL(DoubleEquals(expected[i], ret), TRUE, 0);
     }
     return 0;
 };

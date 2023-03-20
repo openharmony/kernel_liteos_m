@@ -72,10 +72,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose001, Function | MediumTest
     int ret = 0;
     FILE *fp = NULL;
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -89,10 +89,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose002, Function | MediumTest
     int ret = 0;
     FILE *fp = NULL;
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -106,10 +106,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose003, Function | MediumTest
     int ret = 0;
     FILE *fp = NULL;
     fp = fopen(TEST_FILE_PTAH_RIGHT, "r");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -123,10 +123,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose004, Function | MediumTest
     int ret = 0;
     FILE *fp = NULL;
     fp = fopen(TEST_FILE_PTAH_RIGHT, "a");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -139,10 +139,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose005, Function | MediumTest
 {
     FILE *fp = NULL;
     fp = fopen(TEST_FILE_PTAH_RIGHT, "c");
-    TEST_ASSERT_NULL(fp);
+    ICUNIT_ASSERT_EQUAL(fp, NULL, 0);
     return 0;
 }
-
+                                                         
 /* *
  * @tc.number   SUB_KERNEL_FS_FOPEN_FCLOSE_006
  * @tc.name     remove the path before fopen and fclose
@@ -155,10 +155,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose006, Function | MediumTest
 
     (void)remove(TEST_FILE_PTAH_RIGHT);
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -174,10 +174,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose007, Function | MediumTest
 
     (void)remove(TEST_FILE_PTAH_RIGHT);
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -193,10 +193,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose008, Function | MediumTest
 
     (void)remove(TEST_FILE_PTAH_RIGHT);
     fp = fopen(TEST_FILE_PTAH_RIGHT, "a+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -212,10 +212,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose009, Function | MediumTest
 
     (void)remove(TEST_FILE_PTAH_RIGHT);
     fp = fopen(TEST_FILE_PTAH_RIGHT, "a");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -231,10 +231,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose010, Function | MediumTest
 
     (void)remove(TEST_FILE_PTAH_RIGHT);
     fp = fopen(TEST_FILE_PTAH_RIGHT, "wr");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -248,7 +248,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFopenFclose011, Function | MediumTest
     FILE *fp = NULL;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, NULL);
-    TEST_ASSERT_NULL(fp);
+    ICUNIT_ASSERT_EQUAL(fp, NULL, 0);                                  
     return 0;
 }
 
@@ -265,13 +265,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen001, Function | MediumTest | Le
 
     (void)remove(TEST_FILE_PTAH_RIGHT);
     fd = open(TEST_FILE_PTAH_RIGHT, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd >= 0);
+    ICUNIT_ASSERT_WITHIN_EQUAL(fd, 0, fd, 0);
 
     fp = fdopen(fd, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -288,13 +288,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen002, Function | MediumTest | Le
 
     (void)remove(TEST_FILE_PTAH_RIGHT);
     fd = open(TEST_FILE_PTAH_RIGHT, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd >= 0);
+    ICUNIT_ASSERT_WITHIN_EQUAL(fd, 0, fd, -1);
 
     fp = fdopen(fd, "w+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -311,13 +311,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen003, Function | MediumTest | Le
 
     (void)remove(TEST_FILE_PTAH_RIGHT);
     fd = open(TEST_FILE_PTAH_RIGHT, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd >= 0);
+    ICUNIT_ASSERT_WITHIN_EQUAL(fd, 0, fd, -1);
 
     fp = fdopen(fd, "a");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -335,7 +335,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen004, Function | MediumTest | Le
 
     (void)remove(TEST_FILE_PTAH_RIGHT);
     fd = open(TEST_FILE_PTAH_RIGHT, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd >= 0);
+    ICUNIT_ASSERT_WITHIN_EQUAL(fd, 0, fd, -1);
 
     fp = fdopen(500, "w"); /* 500 is a wrong fd */
     // in some fs, may return ok, so return null or not is pass.
@@ -346,7 +346,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFdopen004, Function | MediumTest | Le
 
     fp->fd = fd;
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 #endif
@@ -361,7 +361,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek001, Function | MediumTest 
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, 0, (int)off, EXIT);
@@ -383,10 +383,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek002, Function | MediumTest 
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fseek(fp, 0L, SEEK_SET);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, 0, (int)off, EXIT);
@@ -402,16 +402,16 @@ EXIT:
  * @tc.desc     [C- SOFTWARE -0200]
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek003, Function | MediumTest | Level1)
-{
+{   
     int ret = 0;
     FILE *fp = NULL;
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL,   0);
 
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, TEST_SEEK_SIZE, (int)off, EXIT);
@@ -433,10 +433,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek004, Function | MediumTest 
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_END);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, TEST_SEEK_SIZE, (int)off, EXIT);
@@ -458,10 +458,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek005, Function | MediumTest 
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_CUR);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, TEST_SEEK_SIZE, (int)off, EXIT);
@@ -484,10 +484,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek006, Function | MediumTest 
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fseek(fp, -1L, SEEK_SET);
-    TEST_ASSERT_EQUAL_INT(-1, ret);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, 0, (int)off, EXIT);
@@ -510,10 +510,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek007, Function | MediumTest 
 
     remove(TEST_FILE_PTAH_RIGHT);
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fseek(fp, -1L, SEEK_CUR);
-    TEST_ASSERT_EQUAL_INT(-1, ret);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, 0, (int)off, EXIT);
@@ -536,10 +536,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek008, Function | MediumTest 
 
     remove(TEST_FILE_PTAH_RIGHT);
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fseek(fp, -1L, SEEK_END);
-    TEST_ASSERT_EQUAL_INT(-1, ret);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, 0, (int)off, EXIT);
@@ -561,7 +561,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek009, Function | MediumTest 
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     /* wrong input, fs may return not error, no need to check return value */
     (void)fseek(fp, TEST_SEEK_SIZE, 5); /* 5, a wrong input */
@@ -587,19 +587,19 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek010, Function | MediumTest 
     int fd;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     fd = fp->fd;
 
     fp->fd = 500; /* 500 is a wrong fd */
 
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
-    TEST_ASSERT_EQUAL_INT(-1, ret);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
 
     fp->fd = fd;
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 #endif
@@ -615,13 +615,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek011, Function | MediumTest 
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_CUR);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, (TEST_SEEK_SIZE + TEST_SEEK_SIZE), (int)off, EXIT);
@@ -644,13 +644,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek012, Function | MediumTest 
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fseek(fp, (TEST_SEEK_SIZE + TEST_SEEK_SIZE), SEEK_SET);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, TEST_SEEK_SIZE, (int)off, EXIT);
@@ -673,12 +673,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek013, Function | MediumTest 
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_END);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     off = ftell(fp);
     ICUNIT_GOTO_EQUAL((int)off, TEST_SEEK_SIZE, (int)off, EXIT);
@@ -701,10 +702,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek014, Function | MediumTest 
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     rewind(fp);
 
@@ -718,7 +719,7 @@ EXIT:
 
 /* *
  * @tc.number   SUB_KERNEL_FS_FTELL_FSEEK_015
- * @tc.name     ftell and fseek
+ * @tc.name     ftell and fseek 
  * @tc.desc     [C- SOFTWARE -0200]
  */
 LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek015, Function | MediumTest | Level1)
@@ -728,10 +729,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek015, Function | MediumTest 
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
-
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
+  
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_CUR);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     rewind(fp);
 
@@ -756,10 +757,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFtellFseek016, Function | MediumTest 
     long off = 0;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fseek(fp, TEST_SEEK_SIZE, SEEK_END);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     rewind(fp);
 
@@ -783,13 +784,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs001, Function | MediumTest | Lev
     const char chr1[TEST_BUF_SIZE] = "hello";
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fputs(chr1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -805,13 +806,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs002, Function | MediumTest | Lev
     const char chr1[TEST_BUF_SIZE] = "hello";
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "a");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fputs(chr1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -827,13 +828,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs003, Function | MediumTest | Lev
     const char chr1[TEST_BUF_SIZE] = "hello";
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fputs(chr1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -850,20 +851,20 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs004, Function | MediumTest | Lev
     char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fputs(chr1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     (void)fseek (fp, 0L, SEEK_SET);
     ret = fread(str, strlen(chr1) + 1, 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = strcmp(str, "hello");
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -880,18 +881,18 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFputs005, Function | MediumTest | Lev
     int i;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     for (i = 0; i < TEST_LOOPUP_TIME; i++) {
         ret = fputs(chr1, fp);
-        TEST_ASSERT_TRUE(ret != -1);
+        ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
     }
 
     ret = ftell(fp);
-    TEST_ASSERT_EQUAL_INT(TEST_LOOPUP_TIME * strlen(chr1), ret);
+    ICUNIT_ASSERT_EQUAL(ret, TEST_LOOPUP_TIME * strlen(chr1), ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -908,13 +909,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite001, Function | MediumTest
     const char chr1[TEST_BUF_SIZE] = "hello";
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fwrite(chr1, strlen(chr1) + 1, 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -929,13 +930,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite002, Function | MediumTest
     FILE *fp = NULL;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fwrite(0, 0, 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -951,13 +952,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite003, Function | MediumTest
     const char chr1[TEST_BUF_SIZE] = "hello";
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "r");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fread((void *)chr1, strlen(chr1) + 1, 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -972,13 +973,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite004, Function | MediumTest
     FILE *fp = NULL;
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "r");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fread(0, 0, 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -994,13 +995,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite005, Function | MediumTest
     const char chr1[TEST_BUF_SIZE] = "hello";
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "a");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fwrite(chr1, strlen(chr1) + 1, 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1020,28 +1021,28 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite006, Function | MediumTest
     char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fwrite(chr1, strlen(chr1), 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     (void)fseek(fp, 0L, SEEK_SET);
 
     ret = fread(str, TEST_RW_SIZE, 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = fwrite(chr2, strlen(chr2), 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     (void)fseek(fp, 0L, SEEK_SET);
     ret = fread(str, TEST_RW_SIZE, 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = strcmp(str, "helloworld");
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 
 }
@@ -1062,24 +1063,24 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite007, Function | MediumTest
     char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     ret = fwrite(chr1, strlen(chr1), 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = fwrite(chr2, strlen(chr2), 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     (void)fseek(fp, 0L, SEEK_SET);
 
     ret = fread(str, TEST_RW_SIZE, 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = strcmp(str, "helloworld");
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1100,28 +1101,28 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite008, Function | MediumTest
     char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     for (i = 0; i < TEST_LOOPUP_TIME; i++) {
         ret = fwrite(chr1, strlen(chr1), 1, fp);
-        TEST_ASSERT_TRUE(ret != -1);
+        ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
     }
 
     for (i = 0; i < TEST_LOOPUP_TIME; i++) {
         ret = fwrite(chr2, strlen(chr2), 1, fp);
-        TEST_ASSERT_TRUE(ret != -1);
+        ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
     }
 
     (void)fseek(fp, (TEST_LOOPUP_TIME - 2) * strlen(chr1), SEEK_SET); /* 2, means will read chr1 2times */
 
     ret = fread(str, TEST_RW_SIZE, 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = strncmp(str, "hellohelloworldworld", TEST_RW_SIZE);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1140,23 +1141,23 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFreadFwrite009, Function | MediumTest
     char str[TEST_BUF_SIZE] = {0};
 
     fp = fopen(TEST_FILE_PTAH_RIGHT, "w+");
-    TEST_ASSERT_NOT_NULL(fp);
+    ICUNIT_ASSERT_NOT_EQUAL(fp, NULL, 0);
 
     for (i = 0; i < TEST_LOOPUP_TIME; i++) {
         ret = fwrite(chr1, strlen(chr1), 1, fp);
-        TEST_ASSERT_TRUE(ret != -1);
+        ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
     }
 
     (void)fseek(fp, TEST_SEEK_SIZE, SEEK_SET);
 
     ret = fread(str, TEST_RW_SIZE, 1, fp);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
     ret = strncmp(str, "1234512345123451234512345", TEST_RW_SIZE);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = fclose(fp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1170,7 +1171,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsOpendir001, Function | MediumTest | L
     DIR *dir = NULL;
 
     dir = opendir(TEST_ROOT);
-    TEST_ASSERT_NOT_NULL(dir);
+    ICUNIT_ASSERT_NOT_EQUAL(dir, NULL, 0);
 
     (void)closedir(dir);
 
@@ -1188,7 +1189,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsOpendir002, Function | MediumTest | L
 
     remove(DIRA);
     dir = opendir(DIRA);
-    TEST_ASSERT_NULL(dir);
+    ICUNIT_ASSERT_EQUAL(dir, NULL, 0);
     return 0;
 }
 
@@ -1202,7 +1203,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsOpendir003, Function | MediumTest | L
     DIR *dir = NULL;
 
     dir = opendir(NULL);
-    TEST_ASSERT_NULL(dir);
+    ICUNIT_ASSERT_EQUAL(dir, NULL, 0);
 
     return 0;
 }
@@ -1222,13 +1223,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsReaddir001, Function | MediumTest | L
     (void)mkdir(DIRAB, TEST_MODE_NORMAL);
 
     dirp = opendir(DIRA);
-    TEST_ASSERT_NOT_NULL(dirp);
+    ICUNIT_ASSERT_NOT_EQUAL(dirp, NULL, 0);
 
     dResult = readdir(dirp);
-    TEST_ASSERT_NOT_NULL(dResult);
+    ICUNIT_ASSERT_NOT_EQUAL(dResult, NULL, 0);
 
     ret = closedir(dirp);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     (void)rmdir(DIRAB);
     (void)rmdir(DIRA);
@@ -1252,16 +1253,16 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsReaddir002, Function | MediumTest | L
     (void)mkdir(DIRAC, TEST_MODE_NORMAL);
 
     dirp = opendir(DIRA);
-    TEST_ASSERT_NOT_NULL(dirp);
+    ICUNIT_ASSERT_NOT_EQUAL(dirp, NULL, 0);
 
     dResult = readdir(dirp);
-    TEST_ASSERT_NOT_NULL(dResult);
+    ICUNIT_ASSERT_NOT_EQUAL(dResult, NULL, 0);
     tellDir0 = dResult->d_off;
 
     dResult = readdir(dirp);
-    TEST_ASSERT_NOT_NULL(dResult);
+    ICUNIT_ASSERT_NOT_EQUAL(dResult, NULL, 0);
     tellDir1 = dResult->d_off;
-    TEST_ASSERT_TRUE(tellDir0 == tellDir1);
+    ICUNIT_ASSERT_EQUAL(tellDir0, tellDir1, -1);
 
     (void)rmdir(DIRAC);
     (void)rmdir(DIRAB);
@@ -1280,10 +1281,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsReaddir003, Function | MediumTest | L
     struct dirent *dResult;
 
     dirp = opendir(NULL);
-    TEST_ASSERT_NULL(dirp);
+    ICUNIT_ASSERT_EQUAL(dirp, NULL, 0);
 
     dResult = readdir(dirp);
-    TEST_ASSERT_NULL(dResult);
+    ICUNIT_ASSERT_EQUAL(dResult, NULL, 0);
 
     return 0;
 }
@@ -1301,7 +1302,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRemove001, Function | MediumTest | Le
     fd = open(TEST_FILE_PTAH_RIGHT, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
     close(fd);
     ret = remove(TEST_FILE_PTAH_RIGHT);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1315,9 +1316,9 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRemove002, Function | MediumTest | Le
     int ret = 0;
 
     ret = mkdir(DIRA, TEST_MODE_NORMAL);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     ret = remove(DIRA);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1330,7 +1331,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRemove003, Function | MediumTest | Le
 {
     int ret = 0;
     ret = remove(DIRA);
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1346,16 +1347,16 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRemove004, Function | MediumTest | Le
     (void)mkdir(DIRA, TEST_MODE_NORMAL);
 
     ret = mkdir(DIRAC, TEST_MODE_NORMAL);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = remove(DIRA);
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
 
     ret = remove(DIRAC);
-    TEST_ASSERT_EQUAL(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = remove(DIRA);
-    TEST_ASSERT_EQUAL(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     return 0;
 }
@@ -1372,13 +1373,13 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRmdir001, Function | MediumTest | Lev
     (void)mkdir(DIRA, TEST_MODE_NORMAL);
 
     ret = mkdir(DIRAB, TEST_MODE_NORMAL);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = rmdir(DIRAB);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = rmdir(DIRA);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1394,19 +1395,19 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRmdir002, Function | MediumTest | Lev
     (void)mkdir(DIRA, TEST_MODE_NORMAL);
 
     ret = mkdir(DIRAB, TEST_MODE_NORMAL);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = mkdir(DIRAC, TEST_MODE_NORMAL);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = rmdir(DIRAB);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = rmdir(DIRAC);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = rmdir(DIRA);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1422,16 +1423,16 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRmdir003, Function | MediumTest | Lev
     (void)mkdir(DIRA, TEST_MODE_NORMAL);
 
     ret = mkdir(DIRAB, TEST_MODE_NORMAL);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = rmdir(DIRA);
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
 
     ret = rmdir(DIRAB);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = rmdir(DIRA);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1445,7 +1446,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRmdir004, Function | MediumTest | Lev
     int ret;
 
     ret = rmdir(NULL);
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1461,12 +1462,12 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsUnlink001, Function | MediumTest | Le
     char tmpFileName[]= FILE1;
 
     fd = open(tmpFileName, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
 
     (void)close(fd);
 
     ret = unlink(tmpFileName);
-    TEST_ASSERT_EQUAL(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1480,7 +1481,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsUnlink002, Function | MediumTest | Le
     int ret;
 
     ret = unlink(NULL);
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1498,12 +1499,12 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat001, Function | MediumTest | Leve
 
     remove(FILE1);
     fd = open(tmpFileName, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
 
     (void)close(fd);
 
     ret = stat(tmpFileName, &buf);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
     return 0;
 }
 
@@ -1523,15 +1524,15 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat002, Function | MediumTest | Leve
 
     remove(FILE1);
     fd = open(tmpFileName, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
 
     size = write(fd, writeBuf, sizeof(writeBuf));
     (void)close(fd);
-    TEST_ASSERT_TRUE(size != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(size, -1, size);
 
     ret = stat(tmpFileName, &buf);
-    TEST_ASSERT_TRUE(ret != -1);
-    TEST_ASSERT_TRUE(buf.st_size == sizeof(writeBuf));
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(buf.st_size, sizeof(writeBuf), -1);
     return 0;
 }
 
@@ -1551,16 +1552,16 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsStat003, Function | MediumTest | Leve
 
     (void)memset_s(&buf, sizeof(buf), 0, sizeof(buf));
     fd = open(tmpFileName, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
 
     size = write(fd, writeBuf, sizeof(writeBuf));
     (void)close(fd);
-    TEST_ASSERT_TRUE(size != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(size, -1, size);
 
     ret = stat(tmpFileName, &buf);
-    TEST_ASSERT_TRUE(ret != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
 
-    TEST_ASSERT_EQUAL_INT(0, buf.st_rdev);
+    ICUNIT_ASSERT_EQUAL(buf.st_rdev, 0, buf.st_rdev);
     return 0;
 }
 
@@ -1578,17 +1579,17 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRename001, Function | MediumTest | Le
     (void)remove(FILE2);
 
     fd = open(FILE1, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
     (void)close(fd);
 
     ret = rename(FILE1, FILE2);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = remove(FILE1);
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
 
     ret = remove(FILE2);
-    TEST_ASSERT_EQUAL(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -1605,11 +1606,11 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRename002, Function | MediumTest | Le
     (void)remove(FILE1);
 
     fd = open(FILE1, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
     (void)close(fd);
 
     ret = rename(FILE1, NULL);
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
 
     return 0;
 }
@@ -1626,7 +1627,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsRename003, Function | MediumTest | Le
     (void)remove(FILE1);
 
     ret = rename(NULL, FILE1);
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
 
     return 0;
 }
@@ -1643,7 +1644,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsOpen001, Function | MediumTest | Leve
     (void)remove(FILE1);
 
     fd = open(FILE1, O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_EQUAL(-1, fd);
+    ICUNIT_ASSERT_EQUAL(fd, -1, fd);
 
     return 0;
 }
@@ -1661,7 +1662,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsOpen002, Function | MediumTest | Leve
     (void)mkdir(DIRA, TEST_MODE_NORMAL);
 
     fd = open(FILE_IN_DIRA, O_CREAT | O_RDWR, TEST_MODE_HIGH);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
     (void)close(fd);
 
     return 0;
@@ -1681,9 +1682,9 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsOpen003, Function | MediumTest | Leve
     (void)remove(FILE1);
 
     fd = open(FILE1, O_CREAT | O_RDONLY, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
     size = write(fd, writeBuf, sizeof(writeBuf));
-    TEST_ASSERT_TRUE(size <= 0);
+    ICUNIT_ASSERT_WITHIN_EQUAL(size, size, 0, -1);
     (void)close(fd);
 
     return 0;
@@ -1700,7 +1701,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsOpen004, Function | MediumTest | Leve
 
     (void)rmdir(DIRA);
     fd = open(FILE_IN_DIRA, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
 
     return 0;
 }
@@ -1716,7 +1717,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsOpen005, Function | MediumTest | Leve
 
     (void)rmdir(DIRA);
     fd = open(NULL, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd == -1);
+    ICUNIT_ASSERT_EQUAL(fd, -1, fd);
 
     return 0;
 }
@@ -1734,11 +1735,11 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsClose001, Function | MediumTest | Lev
     (void)remove(FILE1);
 
     fd = open(FILE1, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
 
     (void)close(fd);
     ret = close(fd);
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     return 0;
 
 }
@@ -1765,7 +1766,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite001, Function | MediumTest | Lev
     }
 
     fd = open(FILE1, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
 
     ret = write(fd, writeBuf, TEST_RW_SIZE);
     ICUNIT_GOTO_NOT_EQUAL(ret, -1, ret, EXIT);
@@ -1798,7 +1799,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite002, Function | MediumTest | Lev
 
     remove(FILE1);
     fd = open(FILE1, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
 
     for (i = 0; i < TEST_LOOPUP_TIME; i++) {
         ret = write(fd, writeBuf, sizeof(writeBuf));
@@ -1807,8 +1808,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite002, Function | MediumTest | Lev
     (void)close(fd);
 
     ret = stat(FILE1, &statbuf);
-    TEST_ASSERT_TRUE(ret != -1);
-    TEST_ASSERT_TRUE(statbuf.st_size == sizeof(writeBuf) * TEST_LOOPUP_TIME);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(statbuf.st_size, sizeof(writeBuf) * TEST_LOOPUP_TIME, -1);
     return 0;
 EXIT:
     (void)close(fd);
@@ -1832,7 +1833,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite003, Function | MediumTest | Lev
     }
 
     fd = open(FILE1, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
 
     ret = write(fd, writeBuf, TEST_RW_SIZE);
     ICUNIT_GOTO_NOT_EQUAL(ret, -1, ret, EXIT);
@@ -1845,7 +1846,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsWrite003, Function | MediumTest | Lev
     (void)close(fd);
 
     ret = strncmp(writeBuf, readBuf, TEST_RW_SIZE);
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     return 0;
 
 EXIT:
@@ -1864,8 +1865,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsDirname001, Function | MediumTest | L
 {
     char path[] = FILE0;
     char *workDir = dirname((char *)path);
-    TEST_ASSERT_NOT_NULL(workDir);
-    TEST_ASSERT_EQUAL_STRING(".", workDir);
+    ICUNIT_ASSERT_NOT_EQUAL(workDir, NULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(workDir, ".", 0);
     return 0;
 }
 
@@ -1878,8 +1879,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsDirname002, Function | MediumTest | L
 {
     char path[] = FILE1;
     char *workDir = dirname((char *)path);
-    TEST_ASSERT_NOT_NULL(workDir);
-    TEST_ASSERT_EQUAL_STRING(TEST_ROOT, workDir);
+    ICUNIT_ASSERT_NOT_EQUAL(workDir, NULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(workDir, TEST_ROOT, -1);
     return 0;
 }
 
@@ -1893,8 +1894,8 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsDirname003, Function | MediumTest | L
     // get dir
     char path[] = DIRA;
     char *workDir = dirname((char *)path);
-    TEST_ASSERT_NOT_NULL(workDir);
-    TEST_ASSERT_EQUAL_STRING(TEST_ROOT, workDir);
+    ICUNIT_ASSERT_NOT_EQUAL(workDir, NULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(workDir, TEST_ROOT, -1);
     return 0;
 }
 
@@ -1907,24 +1908,24 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsDirname004, Function | MediumTest | L
 {
     // get dir
     char *workDir = dirname("");
-    TEST_ASSERT_NOT_NULL(workDir);
-    TEST_ASSERT_EQUAL_STRING(".", workDir);
+    ICUNIT_ASSERT_NOT_EQUAL(workDir, NULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(workDir ,".", 0);
 
     workDir = dirname(NULL);
-    TEST_ASSERT_NOT_NULL(workDir);
-    TEST_ASSERT_EQUAL_STRING(".", workDir);
+    ICUNIT_ASSERT_NOT_EQUAL(workDir, NULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(workDir, ".", 0);
 
     workDir = dirname("/");
-    TEST_ASSERT_NOT_NULL(workDir);
-    TEST_ASSERT_EQUAL_STRING("/", workDir);
+    ICUNIT_ASSERT_NOT_EQUAL(workDir, NULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(workDir, "/", 0);
 
     workDir = dirname("..");
-    TEST_ASSERT_NOT_NULL(workDir);
-    TEST_ASSERT_EQUAL_STRING(".", workDir);
+    ICUNIT_ASSERT_NOT_EQUAL(workDir, NULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(workDir, ".", 0);
 
     workDir = dirname(".");
-    TEST_ASSERT_NOT_NULL(workDir);
-    TEST_ASSERT_EQUAL_STRING(".", workDir);
+    ICUNIT_ASSERT_NOT_EQUAL(workDir, NULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(workDir, ".", 0);
     return 0;
 }
 
@@ -1940,10 +1941,10 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFcntl001, Function | MediumTest | Lev
     char tmpFileName[]= FILE1;
 
     fd = open(tmpFileName, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
 
     flags = fcntl(fd, F_GETFL);
-    TEST_ASSERT_TRUE(flags == (O_CREAT | O_RDWR));
+    ICUNIT_TRACK_EQUAL(flags, O_CREAT | O_RDWR, 0);
 
     (void)close(fd);
 
@@ -1962,11 +1963,11 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsFcntl002, Function | MediumTest | Lev
     char tmpFileName[]= FILE1;
 
     fd = open(tmpFileName, O_CREAT | O_RDWR, TEST_MODE_NORMAL);
-    TEST_ASSERT_TRUE(fd != -1);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, -1, fd);
 
     (void)fcntl(fd, F_SETFL, flags | O_APPEND);
     flags = fcntl(fd, F_GETFL);
-    TEST_ASSERT_TRUE(flags == (O_CREAT | O_RDWR | O_APPEND));
+    ICUNIT_TRACK_EQUAL(flags, O_CREAT | O_RDWR | O_APPEND, 0);
 
     (void)close(fd);
 
