@@ -37,6 +37,7 @@
 #include "los_mux.h"
 #include "los_queue.h"
 #include "los_sem.h"
+#include "securec.h"
 
 #if (LOSCFG_PLATFORM_HWI == 1)
 #include "los_interrupt.h"
@@ -95,6 +96,8 @@
 #include "los_trace_pri.h"
 #endif
 
+#define BUFSIZE 256
+
 /*****************************************************************************
  Function    : LOS_Reboot
  Description : system exception, die in here, wait for watchdog.
@@ -110,10 +113,14 @@ LITE_OS_SEC_TEXT_INIT VOID LOS_Reboot(VOID)
 
 LITE_OS_SEC_TEXT_INIT VOID LOS_Panic(const CHAR *fmt, ...)
 {
+    char buf[BUFSIZE] = { 0 };
     va_list ap;
     va_start(ap, fmt);
-    PRINT_ERR(fmt, ap);
+    int len = vsnprintf_s(buf, sizeof(buf), BUFSIZE - 1, fmt, ap);
     va_end(ap);
+    if (len > 0) {
+        PRINT_ERR("%s\n", buf);
+    }
     OsDoExcHook(EXC_PANIC);
 #if (LOSCFG_BACKTRACE_TYPE != 0)
     LOS_BackTrace();
