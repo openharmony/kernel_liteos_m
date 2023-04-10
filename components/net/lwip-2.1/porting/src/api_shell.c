@@ -79,7 +79,7 @@ struct ifconfig_option {
     unsigned char ethaddr[6];
     u16_t mtu;
     /* when using telnet, print to the telnet socket will result in system  */
-    /* deadlock. So we cahe the prinf data to a buf, and when the tcpip      */
+    /* deadlock. So we cache the prinf data to a buf, and when the tcpip      */
     /* callback returns, then print the data out to the telnet socket       */
     sys_sem_t cb_completed;
     char cb_print_buf[PRINT_BUF_LEN];
@@ -319,7 +319,7 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
     u32_t succ_cnt = 0;
     u32_t failed_cnt = 0;
     struct timespec start, end;
-    long timout_ms;
+    long timeout_ms;
     struct pollfd pfd;
     long rtt;
     int ret = 0;
@@ -431,17 +431,17 @@ LWIP_STATIC int OsPingFunc(u32_t *parg)
                 ((ICMPH_TYPE(iecho_resp) == ICMP_ECHO) && (iphdr_resp->src.addr == to.sin_addr.s_addr))) {
                 /* second type timeout event */
                 (void)clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-                timout_ms = ((end.tv_sec - start.tv_sec) * OS_SYS_MS_PER_SECOND + \
+                timeout_ms = ((end.tv_sec - start.tv_sec) * OS_SYS_MS_PER_SECOND + \
                              (end.tv_nsec - start.tv_nsec) / OS_SYS_NS_PER_MS);
-                timout_ms = LWIP_SHELL_CMD_PING_TIMEOUT - timout_ms;
+                timeout_ms = LWIP_SHELL_CMD_PING_TIMEOUT - timeout_ms;
             } else {
-                timout_ms = 0;
+                timeout_ms = 0;
                 break;
             }
-        } while (timout_ms >= 0);
+        } while (timeout_ms >= 0);
 
         /* all timeout events are true timeout */
-        if ((timout_ms < 0) || (timeout_flag == TRUE)) {
+        if ((timeout_ms < 0) || (timeout_flag == TRUE)) {
             failed_cnt++;
             i++;
             PRINTK("\nPing: destination unreachable ...");
