@@ -720,20 +720,11 @@ int gettimeofday(struct timeval *tv, void *ptz)
     struct timezone *tz = (struct timezone *)ptz;
 
     if (tv != NULL) {
-        INT32 rtcRet;
         UINT64 usec = 0;
-        UINT64 currentTime;
 
-        if (g_rtcTimeFunc.RtcGetTimeHook != NULL) {
-            rtcRet = g_rtcTimeFunc.RtcGetTimeHook(&usec);
-            if (rtcRet != 0) {
-                currentTime = GetCurrentTime();
-                tv->tv_sec = currentTime / OS_SYS_MS_PER_SECOND;
-                tv->tv_usec = (currentTime % OS_SYS_MS_PER_SECOND) * OS_SYS_MS_PER_SECOND;
-            } else {
-                tv->tv_sec = usec / OS_SYS_US_PER_SECOND;
-                tv->tv_usec = usec % OS_SYS_US_PER_SECOND;
-            }
+        if ((g_rtcTimeFunc.RtcGetTimeHook != NULL) && (g_rtcTimeFunc.RtcGetTimeHook(&usec) == 0)) {
+            tv->tv_sec = usec / OS_SYS_US_PER_SECOND;
+            tv->tv_usec = usec % OS_SYS_US_PER_SECOND;
         } else {
             struct timespec ts;
             if (-1 == clock_gettime(CLOCK_REALTIME, &ts)) {
