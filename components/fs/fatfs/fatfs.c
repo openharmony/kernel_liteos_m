@@ -387,7 +387,8 @@ int FatfsOpen(struct File *file, const char *path, int oflag)
         errno = ENOMEM;
         return (int)LOS_NOK;
     }
-
+    (void)memset_s(fp, sizeof(FIL), 0, sizeof(FIL));
+    
     ret = FsChangeDrive(path);
     if (ret != (int)LOS_OK) {
         PRINT_ERR("FAT open ChangeDrive err 0x%x!\r\n", ret);
@@ -675,7 +676,8 @@ int FatfsOpendir(struct Dir *dir, const char *dirName)
         errno = ENOENT;
         return (int)LOS_NOK;
     }
-
+    (void)memset_s(dp, sizeof(DIR), 0, sizeof(DIR));
+    
     res = f_opendir(dp, dirName);
     if (res != FR_OK) {
         PRINT_ERR("FAT opendir err 0x%x!\r\n", res);
