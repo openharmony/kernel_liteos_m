@@ -70,7 +70,7 @@
 * 内源检视问题修复 ([c24363b](https://gitee.com/openharmony/kernel_liteos_m/commits/c24363bc50364b0be1fba3b993a83c6936fc3d08))
 * 删除C文件中无用的__cplusplus ([7fe3aad](https://gitee.com/openharmony/kernel_liteos_m/commits/7fe3aaddf56b300ffcb2b186ae01ed64bef1c069)), closes [#I4D0YK](https://gitee.com/openharmony/kernel_liteos_m/issues/I4D0YK)
 * 删除OsMemboxExcInfoGetSub内存调测方法中多余的赋值语句。 ([94db0fe](https://gitee.com/openharmony/kernel_liteos_m/commits/94db0fe7a30edaa10786101f1ef662987a27734a)), closes [#I4CFNX](https://gitee.com/openharmony/kernel_liteos_m/issues/I4CFNX)
-* 去掉没有使用的入参consoleid。 ([a627953](https://gitee.com/openharmony/kernel_liteos_m/commits/a62795304da31e13021ea2c675d124afd2594102)), closes [#I43](https://gitee.com/openharmony/kernel_liteos_m/issues/I43)
+* 去掉没有使用的入参consoleid。 ([a627953](https://gitee.com/openharmony/kernel_liteos_m/commits/a62795304da31e13021ea2c675d124afd2594102)), closes [#I43CVE](https://gitee.com/openharmony/kernel_liteos_m/issues/I43CVE)
 * 去掉编译选项-fno-short-enums ([b542aab](https://gitee.com/openharmony/kernel_liteos_m/commits/b542aab09dd92397f8c1305ac656ef14a012b5f8)), closes [#I4JY32](https://gitee.com/openharmony/kernel_liteos_m/issues/I4JY32)
 * 取消cpu进入低功耗前开中断操作 ([bd39e9e](https://gitee.com/openharmony/kernel_liteos_m/commits/bd39e9e6d67310222c363e132141bb7fee1213f1)), closes [#I4KDP8](https://gitee.com/openharmony/kernel_liteos_m/issues/I4KDP8)
 * 告警修复 ([7d2fd01](https://gitee.com/openharmony/kernel_liteos_m/commits/7d2fd01c2d7d6d4c653a307a1419bc094f5332f0))
@@ -304,8 +304,8 @@ LOS_LmsAddrDisableProtect去能指定内存段的访问保护
 ### Bug Fixes
 
 *  M核代码告警清零 ([cb5f862](https://gitee.com/openharmony/kernel_liteos_m/commits/cb5f862eafd91675bf53d0320616cc8f707a6e5a)), closes [#I4386N](https://gitee.com/openharmony/kernel_liteos_m/issues/I4386N)
-*  M核告警消除 ([5a9d53b](https://gitee.com/openharmony/kernel_liteos_m/commits/5a9d53b6444a3bbe084f575ef079f0da36c27c2a)), closes [#I46](https://gitee.com/openharmony/kernel_liteos_m/issues/I46)
-*  M核编译配置修改 ([deff7c9](https://gitee.com/openharmony/kernel_liteos_m/commits/deff7c921f606ed85663f91d21c12163c15aa7f8)), closes [#I46](https://gitee.com/openharmony/kernel_liteos_m/issues/I46)
+*  M核告警消除 ([5a9d53b](https://gitee.com/openharmony/kernel_liteos_m/commits/5a9d53b6444a3bbe084f575ef079f0da36c27c2a)), closes [#I46LHG](https://gitee.com/openharmony/kernel_liteos_m/issues/I46LHG)
+*  M核编译配置修改 ([deff7c9](https://gitee.com/openharmony/kernel_liteos_m/commits/deff7c921f606ed85663f91d21c12163c15aa7f8)), closes [#I46XEA](https://gitee.com/openharmony/kernel_liteos_m/issues/I46XEA)
 *  shell模块task命令踩内存问题修改 ([b5e84d5](https://gitee.com/openharmony/kernel_liteos_m/commits/b5e84d5516b599257151f88b5a830d6fe9e0e188)), closes #II4
 *  trustzone 中断适配 ([15a2c17](https://gitee.com/openharmony/kernel_liteos_m/commits/15a2c17f791b7d6703863718d92fa35402c41067)), closes [#I42TFV](https://gitee.com/openharmony/kernel_liteos_m/issues/I42TFV)
 * add API LOS_HwiCreate and LOS_HwDelete ([eb668eb](https://gitee.com/openharmony/kernel_liteos_m/commits/eb668eb9e0021961230858f9bfa1599646da9a8f)), closes [#I3R75F](https://gitee.com/openharmony/kernel_liteos_m/issues/I3R75F)
@@ -401,7 +401,7 @@ LOS_LmsAddrDisableProtect去能指定内存段的访问保护
 * 支持smoke 测试用例 ([3ad5942](https://gitee.com/openharmony/kernel_liteos_m/commits/3ad5942301a1094a2c6b6ffee280cf09cfdb2a88)), closes [#I424RX](https://gitee.com/openharmony/kernel_liteos_m/issues/I424RX)
 * 新增函数regcomp,regfree和regexec支持 ([86d5544](https://gitee.com/openharmony/kernel_liteos_m/commits/86d5544a3fd5f41f7f2abe3b143e9f1dc9b430f8)), closes [#I3U9LE](https://gitee.com/openharmony/kernel_liteos_m/issues/I3U9LE)
 * 清理残留无效的trace代码 ([3c48951](https://gitee.com/openharmony/kernel_liteos_m/commits/3c489518576583ab6bf0d581810ef0a02b6ccd51)), closes [#I3ZMB4](https://gitee.com/openharmony/kernel_liteos_m/issues/I3ZMB4)
-* 解决arm9编译冲突问题 ([c1a6245](https://gitee.com/openharmony/kernel_liteos_m/commits/c1a624536887fef44fed37134638bf40191b9aae)), closes [#I420](https://gitee.com/openharmony/kernel_liteos_m/issues/I420)
+* 解决arm9编译冲突问题 ([c1a6245](https://gitee.com/openharmony/kernel_liteos_m/commits/c1a624536887fef44fed37134638bf40191b9aae)), closes [#I420PQ](https://gitee.com/openharmony/kernel_liteos_m/issues/I420PQ)
 * 调度过程低概率触发OsSchedTaskEnQueue断言，导致系统异常 ([e5e9289](https://gitee.com/openharmony/kernel_liteos_m/commits/e5e9289a08cf1db71c09647b71a864f5a1f8a4a2)), closes [#I3VX9Y](https://gitee.com/openharmony/kernel_liteos_m/issues/I3VX9Y)
 * 调整hook类型和位置，方便调试 ([369320d](https://gitee.com/openharmony/kernel_liteos_m/commits/369320de3710486f252c55c522e8c06e19541b77)), closes [#I3TGZS](https://gitee.com/openharmony/kernel_liteos_m/issues/I3TGZS)
 
