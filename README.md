@@ -78,7 +78,7 @@ The OpenHarmony LiteOS-M kernel build system is a modular build system based on 
 
 ### Setting Up the Environment
 
-Before setting up the environment for a development board, you must set up the basic system environment for OpenHarmony first. The basic system environment includes the OpenHarmony build environment and development environment. For details, see [Setting Up Development Environment](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/quick-start/quickstart-lite-env-setup.md).
+Before setting up the environment for a development board, you must set up the basic system environment for OpenHarmony first. The basic system environment includes the OpenHarmony build environment and development environment. For details, see [Setting Up Development Environment](https://gitee.com/openharmony/docs/blob/master/en/device-dev/quick-start/Readme-EN.md).
 
 ### Obtaining the OpenHarmony Source Code
 
@@ -108,7 +108,7 @@ The LiteOS-M kernel porting projects for specific development boards are provide
 
 ## Contribution<a name="section1371123476307"></a>
 
-[How to involve](https://gitee.com/openharmony/docs/blob/HEAD/en/contribute/contribution.md)
+[How to involve](https://gitee.com/openharmony/docs/blob/master/en/contribute/how-to-contribute.md)
 
 [Commit message spec](https://gitee.com/openharmony/kernel_liteos_m/wikis/Commit%20message%E8%A7%84%E8%8C%83)
 
@@ -116,12 +116,10 @@ The LiteOS-M kernel porting projects for specific development boards are provide
 
 How to contribute a chip based on Liteos-M kernel:
 
-[ Board-Level Directory Specifications](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/porting/porting-chip-board-overview.md)
-
-[Mini System SoC Porting Guide](https://gitee.com/openharmony/docs/blob/HEAD/en/device-dev/porting/porting-minichip.md)
+[Mini System SoC Porting Guide](https://gitee.com/openharmony/docs/blob/master/en/device-dev/porting/Readme-EN.md)
 
 ## Repositories Involved<a name="section1371113476307"></a>
 
-[Kernel Subsystem](https://gitee.com/openharmony/docs/blob/HEAD/en/readme/kernel-subsystem.md)
+[Kernel Subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/kernel.md)
 
 [kernel\_liteos\_m](https://gitee.com/openharmony/kernel_liteos_m/blob/master/README.md)
