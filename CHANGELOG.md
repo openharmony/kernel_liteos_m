@@ -80,7 +80,7 @@
 * 将未定义小写"true"，"false"改为"TRUE"，"FALSE"。 ([9819eb5](https://gitee.com/openharmony/kernel_liteos_m/commits/9819eb567636adf1774de9fd6039d274bee8f69b)), closes [#I43D20](https://gitee.com/openharmony/kernel_liteos_m/issues/I43D20)
 * 当前仓代码编译告警的问题 ([194ac58](https://gitee.com/openharmony/kernel_liteos_m/commits/194ac5898d1e2ffaa17f6dca405614b73da6f8bb)), closes #I4N50W
 * 支持硬浮点编译 ([988fd85](https://gitee.com/openharmony/kernel_liteos_m/commits/988fd85fae454a0d9fe01ef1c921b4f3667d5ac8)), closes [#I48KJP](https://gitee.com/openharmony/kernel_liteos_m/issues/I48KJP)
-* 测试用例任务栈的宏定义重复定义，导致在osTest.h中修改不生效 ([ce6cf68](https://gitee.com/openharmony/kernel_liteos_m/commits/ce6cf6879f4564393765a24c4d65448e0fddc3eb)), closes [#I4BA5F](https://gitee.com/openharmony/kernel_liteos_m/issues/I4BA5F)
+* 测试用例任务栈的宏定义重复定义，导致在osTest.h中修改不生效 ([ce6cf68](https://gitee.com/openharmony/kernel_liteos_m/commits/ce6cf6879f4564393765a24c4d65448e0fddc3eb))
 * 添加L0 测试门禁 ([5c168fc](https://gitee.com/openharmony/kernel_liteos_m/commits/5c168fc3e0d08dd4a8924696e17a498eb444fa70)), closes #I4C5R4
 * 添加newlib对ipv6的支持 ([f7400fb](https://gitee.com/openharmony/kernel_liteos_m/commits/f7400fbcb275cbb3b75f1aef2af1459b794432de)), closes [#I4M1DB](https://gitee.com/openharmony/kernel_liteos_m/issues/I4M1DB)
 * 添加文件版权头等信息 ([cf4e017](https://gitee.com/openharmony/kernel_liteos_m/commits/cf4e017970f8a3113bc8b6028d75775f747512c6)), closes [#I4BXBH](https://gitee.com/openharmony/kernel_liteos_m/issues/I4BXBH)
