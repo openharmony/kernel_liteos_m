@@ -32,7 +32,6 @@
 #define _GNU_SOURCE 1
 #include "lfs_adapter.h"
 #include "los_config.h"
-#include "los_fs.h"
 #include "vfs_files.h"
 #include "vfs_operations.h"
 #include "vfs_partition.h"
