@@ -34,13 +34,11 @@
 #include "sched.h"
 #include "signal.h"
 #include "semaphore.h"
-#include "sched.h"
 #include "osTest.h"
 #include "pthread.h"
 #include "limits.h"
 #include "unistd.h"
 #include "mqueue.h"
-#include "signal.h"
 
 #define PTHREAD_IS_ERROR (-1)
 #define PTHREAD_PRIORITY_TEST 20
