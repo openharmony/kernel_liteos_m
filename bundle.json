@@ -28,7 +28,7 @@
         "name": "liteos_m",
         "subsystem": "kernel",
         "syscap": [
-            "SystemCapability.Kernel.liteos-m"
+            "SystemCapability.Kernel.Liteos-M"
         ],
         "features": [],
         "adapted_system_type": [
@@ -36,7 +36,7 @@
         ],
         "rom": "300KB",
         "ram": "100KB",
-        "deps": {
+        "external_deps": {
             "components": [
                 "utils_lite"
             ],
