@@ -27,6 +27,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//kernel/liteos_m/liteos.gni")
+
 static_library("test_sem") {
   sources = [
     "It_los_sem.c",
@@ -75,5 +77,5 @@ static_library("test_sem") {
     "it_los_sem_043.c",
   ]
 
-  configs += [ "//kernel/liteos_m/testsuites:include" ]
+  configs += [ "$LITEOSTOPDIR/testsuites:include" ]
 }

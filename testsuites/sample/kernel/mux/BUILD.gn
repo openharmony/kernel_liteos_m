@@ -27,6 +27,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//kernel/liteos_m/liteos.gni")
+
 static_library("test_mux") {
   sources = [
     "It_los_mutex_001.c",
@@ -64,5 +66,5 @@ static_library("test_mux") {
     "It_los_mux.c",
   ]
 
-  configs += [ "//kernel/liteos_m/testsuites:include" ]
+  configs += [ "$LITEOSTOPDIR/testsuites:include" ]
 }

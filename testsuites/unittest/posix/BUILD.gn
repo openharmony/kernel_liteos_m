@@ -78,5 +78,5 @@ static_library("posix_test") {
     cflags = [ "--no_warnings" ]
   }
 
-  configs += [ "//kernel/liteos_m/testsuites:include" ]
+  configs += [ "$LITEOSTOPDIR/testsuites:include" ]
 }
