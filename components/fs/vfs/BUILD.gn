@@ -41,14 +41,14 @@ kernel_module(module_name) {
   ]
 
   include_dirs = [
-    "//kernel/liteos_m/kernel/arch/include",
-    "//kernel/liteos_m/kernel/include",
-    "//kernel/liteos_m/utils",
+    "$LITEOSTOPDIR/kernel/arch/include",
+    "$LITEOSTOPDIR/kernel/include",
+    "$LITEOSTOPDIR/utils",
     "../",
     ".",
   ]
 
-  deps = [ "//kernel/liteos_m/kal" ]
+  deps = [ "$LITEOSTOPDIR/kal" ]
   configs += [ "$LITEOSTOPDIR:warn_config" ]
   if (!defined(LOSCFG_COMPILER_ICCARM)) {
     cflags = [ "-Wno-parentheses" ]

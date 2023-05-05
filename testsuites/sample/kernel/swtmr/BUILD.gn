@@ -27,6 +27,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//kernel/liteos_m/liteos.gni")
+
 static_library("test_swtmr") {
   sources = [
     "It_los_swtmr.c",
@@ -146,5 +148,5 @@ static_library("test_swtmr") {
     "It_los_swtmr_Delay_005.c",
   ]
 
-  configs += [ "//kernel/liteos_m/testsuites:include" ]
+  configs += [ "$LITEOSTOPDIR/testsuites:include" ]
 }

@@ -26,6 +26,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//kernel/liteos_m/liteos.gni")
+
 static_library("test_lmk") {
   sources = [
     "It_los_lmk.c",
@@ -35,7 +37,7 @@ static_library("test_lmk") {
     "It_los_lmk_004.c",
   ]
 
-  include_dirs = [ "//kernel/liteos_m/components/lmk" ]
+  include_dirs = [ "$LITEOSTOPDIR/components/lmk" ]
 
-  configs += [ "//kernel/liteos_m/testsuites:include" ]
+  configs += [ "$LITEOSTOPDIR/testsuites:include" ]
 }
