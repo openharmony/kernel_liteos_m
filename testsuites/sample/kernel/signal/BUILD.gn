@@ -26,6 +26,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//kernel/liteos_m/liteos.gni")
+
 static_library("test_signal") {
   sources = [
     "It_los_signal.c",
@@ -36,5 +38,5 @@ static_library("test_signal") {
     "It_los_signal_005.c",
   ]
 
-  configs += [ "//kernel/liteos_m/testsuites:include" ]
+  configs += [ "$LITEOSTOPDIR/testsuites:include" ]
 }
