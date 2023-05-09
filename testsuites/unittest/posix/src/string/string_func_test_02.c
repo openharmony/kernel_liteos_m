@@ -82,19 +82,19 @@ static BOOL PosixStringsFuncTestSuiteTearDown(void)
 LITE_TEST_CASE(PosixStringsFuncTestSuite, testStrCaseCmp001, Function | MediumTest | Level1)
 {
     int ret = strcasecmp("", "");
-    TEST_ASSERT_EQUAL_INT(EQUAL, ret);
+    ICUNIT_ASSERT_EQUAL(ret, EQUAL, ret);
 
     ret = strcasecmp("abcdefg", "abcdefg");
-    TEST_ASSERT_EQUAL_INT(EQUAL, ret);
+    ICUNIT_ASSERT_EQUAL(ret, EQUAL, ret);
 
     ret = strcasecmp("abcdefg", "abcdEFg");
-    TEST_ASSERT_EQUAL_INT(EQUAL, ret);
+    ICUNIT_ASSERT_EQUAL(ret, EQUAL, ret);
 
     ret = strcasecmp("abcdefg", "abcdEF");
-    TEST_ASSERT_NOT_EQUAL(EQUAL, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, EQUAL, ret);
 
     ret = strcasecmp("abcdef", "abcdEFg");
-    TEST_ASSERT_NOT_EQUAL(EQUAL, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, EQUAL, ret);
     return 0;
 };
 

@@ -48,32 +48,8 @@
 #define LITE_TEST_CASE(module, function, flag) static int function(void)
 #define RUN_TEST_SUITE(testsuit)
 
-#define TEST_ASSERT_EQUAL(expected, actual) ICUNIT_ASSERT_EQUAL(expected, actual, actual)
-#define TEST_ASSERT_EQUAL_INT(expected, actual) TEST_ASSERT_EQUAL(expected, actual)
-#define TEST_ASSERT_EQUAL_INT32(expected, actual) TEST_ASSERT_EQUAL(expected, actual)
-#define TEST_ASSERT_EQUAL_INT64(expected, actual) TEST_ASSERT_EQUAL(expected, actual)
-#define TEST_ASSERT_EQUAL_UINT32(expected, actual) TEST_ASSERT_EQUAL(expected, actual)
-#define TEST_ASSERT_EQUAL_UINT64(expected, actual) TEST_ASSERT_EQUAL(expected, actual)
-#define TEST_ASSERT_NULL(ptr) TEST_ASSERT_EQUAL(NULL, ptr)
-#define TEST_ASSERT_EQUAL_PTR(expected, actual) TEST_ASSERT_EQUAL(expected, actual)
-
-#define TEST_ASSERT_NOT_EQUAL(expected, actual) ICUNIT_ASSERT_NOT_EQUAL(expected, actual, actual)
-#define TEST_ASSERT_NOT_NULL(ptr) TEST_ASSERT_NOT_EQUAL(NULL, ptr)
-
-#define TEST_ASSERT_EQUAL_STRING(str1, str2) ICUNIT_ASSERT_STRING_EQUAL(str1, str2, 1)
-
-#define TEST_ASSERT_TRUE(condition) TEST_ASSERT_NOT_EQUAL(0, condition)
-#define TEST_ASSERT_LESS_THAN(threshold, actual) TEST_ASSERT_TRUE((actual) < (threshold))
-#define TEST_ASSERT_LESS_THAN_INT(threshold, actual) TEST_ASSERT_LESS_THAN(threshold, actual)
-#define TEST_ASSERT_GREATER_THAN(threshold, actual) TEST_ASSERT_TRUE((actual) > (threshold))
-#define TEST_ASSERT_GREATER_THAN_INT(threshold, actual) TEST_ASSERT_GREATER_THAN(threshold, actual)
-#define TEST_ASSERT_GREATER_OR_EQUAL(threshold, actual) TEST_ASSERT_TRUE((actual) >= (threshold))
-#define TEST_ASSERT_LESS_OR_EQUAL_INT64(threshold, actual) TEST_ASSERT_TRUE((actual) <= (threshold))
-#define TEST_ASSERT_INT32_WITHIN(a, b, c) ICUNIT_ASSERT_WITHIN_EQUAL(c, (b) - (a), (b) + (a), c)
-#define TEST_FAIL() TEST_ASSERT_TRUE(0)
-#define TEST_ASSERT_EQUAL_CHAR_ARRAY(expected, actual, num) ICUNIT_ASSERT_SIZE_STRING_EQUAL(expected, actual, num, 1)
 #define TEST_ASSERT_EQUAL_FLOAT(expected, actual) \
-    TEST_ASSERT_TRUE(((expected) == (actual)) || (isnan(expected) && isnan(actual)))
+    ICUNIT_ASSERT_EQUAL(((expected) == (actual)) || (isnan(expected) && isnan(actual)), TRUE, 0)
 
 void ItSuitePosix(void);
 
