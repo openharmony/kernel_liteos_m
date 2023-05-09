@@ -36,7 +36,7 @@
         ],
         "rom": "300KB",
         "ram": "100KB",
-        "external_deps": {
+        "deps": {
             "components": [
                 "utils_lite"
             ],
