@@ -80,8 +80,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol001, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 1:strtol(base=16) ret:%ld,%s fail.\n", ret, nPtr16);
     }
-    TEST_ASSERT_EQUAL_INT32(16, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr16, "");
+    ICUNIT_ASSERT_EQUAL(ret, 16, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr16, "", 0);
     return 0;
 }
 
@@ -100,8 +100,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol002, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 2:strtol(base=16) ret:%ld,%s fail.\n", ret, nPtr16);
     }
-    TEST_ASSERT_EQUAL_INT32(16, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr16, "");
+    ICUNIT_ASSERT_EQUAL(ret, 16, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr16, "", 0);
     return 0;
 }
 
@@ -120,8 +120,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol003, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 3:strtol(base=10) ret:%ld,%s fail.\n", ret, nPtr10);
     }
-    TEST_ASSERT_EQUAL_INT32(10, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr10, "");
+    ICUNIT_ASSERT_EQUAL(ret, 10, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr10, "", 0);
     return 0;
 }
 
@@ -140,8 +140,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol004, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 4:strtol(base=10) ret:%ld,%s fail.\n", ret, nPtr10);
     }
-    TEST_ASSERT_EQUAL_INT32(-10, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr10, "");
+    ICUNIT_ASSERT_EQUAL(ret, -10, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr10, "", 0);
     return 0;
 }
 
@@ -160,8 +160,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol005, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 5:strtol(base=0) ret:%ld,%s fail.\n", ret, nPtr10_3);
     }
-    TEST_ASSERT_EQUAL_INT32(10, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr10_3, "");
+    ICUNIT_ASSERT_EQUAL(ret, 10, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr10_3, "", 0);
     return 0;
 }
 
@@ -180,8 +180,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol006, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 6:strtol(base=8) ret:%ld,%s fail.\n", ret, nPtr8);
     }
-    TEST_ASSERT_EQUAL_INT32(8, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr8, "");
+    ICUNIT_ASSERT_EQUAL(ret, 8, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr8, "", 0);
     return 0;
 }
 
@@ -200,8 +200,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol007, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 7:strtol(base=8) ret:%ld,%s fail.\n", ret, nPtr8_2);
     }
-    TEST_ASSERT_EQUAL_INT32(8, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr8_2, "");
+    ICUNIT_ASSERT_EQUAL(ret, 8, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr8_2, "", 0);
     return 0;
 }
 
@@ -220,8 +220,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol008, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 8:strtol(base=8) ret:%ld,%s fail.\n", ret, nPtr8_3);
     }
-    TEST_ASSERT_EQUAL_INT32(8, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr8_3, "");
+    ICUNIT_ASSERT_EQUAL(ret, 8, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr8_3, "", 0);
     return 0;
 }
 
@@ -240,8 +240,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol009, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 9:strtol(base=2) ret:%ld,%s fail.\n", ret, nPtr2);
     }
-    TEST_ASSERT_EQUAL_INT32(2, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr2, "");
+    ICUNIT_ASSERT_EQUAL(ret, 2, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr2, "", 0);
     return 0;
 }
 
@@ -260,8 +260,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol010, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 10:strtol(base=10) ret:%ld, %s fail.\n", ret, endPtr);
     }
-    TEST_ASSERT_EQUAL_INT32(12, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr, " 0110 0XDEFE 0666 -1.6");
+    ICUNIT_ASSERT_EQUAL(ret, 12, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, " 0110 0XDEFE 0666 -1.6", 0);
     return 0;
 }
 
@@ -281,8 +281,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol011, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 11:strtol(base=65) ret:%ld, %s fail.\n", ret, endPtr);
     }
-    TEST_ASSERT_EQUAL_INT32(0, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr, "12 1.5");
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, "12 1.5", 0);
     return 0;
 }
 #endif
@@ -297,8 +297,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol012, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 12:strtol(base=10) ret:%ld, %s fail.\n", ret, endPtr);
     }
-    TEST_ASSERT_EQUAL_INT32(2147483647, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr, " -2147483648");
+    ICUNIT_ASSERT_EQUAL(ret, 2147483647, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, " -2147483648", 0);
     return 0;
 }
 
@@ -317,8 +317,8 @@ LITE_TEST_CASE(PosixStdlibStrtolTest, testStdlibStrtol013, Function | MediumTest
     } else {
         LOG("[DEMO] posix stdlib test case 13:strtol(base=10) ret:%ld, %s fail.\n", ret, endPtr);
     }
-    TEST_ASSERT_EQUAL_INT32(-2147483648, ret);
-    TEST_ASSERT_EQUAL_STRING(endPtr, "");
+    ICUNIT_ASSERT_EQUAL(ret, -2147483648, ret);
+    ICUNIT_ASSERT_STRING_EQUAL(endPtr, "", 0);
     return 0;
 }
 

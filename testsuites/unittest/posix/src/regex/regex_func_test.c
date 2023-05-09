@@ -82,7 +82,7 @@ int TestRegex(int flag, const char *pattern, const char *buf, const int expected
     int j = 0;
     regcomp(&reg, pattern, flag);
     int status = regexec(&reg, buf, nmatch, pmatch, 0);
-    TEST_ASSERT_EQUAL_INT(expectedStatus, status);
+    ICUNIT_ASSERT_EQUAL(status, expectedStatus, status);
     if (status == REG_NOMATCH) {
         LOG("no match");
     } else if (status == 0) {
@@ -94,7 +94,7 @@ int TestRegex(int flag, const char *pattern, const char *buf, const int expected
         }
         res[j] = 0;
         LOG("\n");
-        TEST_ASSERT_EQUAL_STRING(res, expectedRes);
+        ICUNIT_ASSERT_STRING_EQUAL(res, expectedRes, 0);
     }
     regfree(&reg);
     return 0;
@@ -105,7 +105,7 @@ int TestRegcomp(int flag, const char *pattern, const int expectedStatus)
     regex_t reg;
     int status = regcomp(&reg, pattern, flag);
     LOG("pattern : %s ,real status : %d \n", pattern, status);
-    TEST_ASSERT_EQUAL_INT(expectedStatus, status);
+    ICUNIT_ASSERT_EQUAL(status, expectedStatus, status);
     regfree(&reg);
     return 0;
 }
@@ -166,7 +166,7 @@ LITE_TEST_CASE(PosixRegexFuncTestSuite, testRegexNosub001, Function | MediumTest
     const char *pattern2 = "HARMONY[1-9]";
     regcomp(&reg, pattern2, cflags);
     int status = regexec(&reg, buf, (size_t)0, NULL, 0);
-    TEST_ASSERT_EQUAL_INT(0, status);
+    ICUNIT_ASSERT_EQUAL(status, 0, status);
     regfree(&reg);
     return 0;
 }

@@ -76,7 +76,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen001, Function | MediumT
 {
     char src[] = "helloworld";
     int ret = strlen(src);
-    TEST_ASSERT_EQUAL_INT(10, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 10, ret);
     return 0;
 }
 
@@ -89,7 +89,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen002, Function | MediumT
 {
     char src[] = "hello world";
     int ret = strlen(src);
-    TEST_ASSERT_EQUAL_INT(11, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 11, ret);
     return 0;
 }
 
@@ -101,7 +101,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen002, Function | MediumT
 LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen003, Function | MediumTest | Level1)
 {
     int ret = strlen("");
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -114,7 +114,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen004, Function | MediumT
 {
     char src[] = "hello\0world";
     int ret = strlen(src);
-    TEST_ASSERT_EQUAL_INT(5, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 5, ret);
     return 0;
 }
 
@@ -127,7 +127,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrlen005, Function | MediumT
 {
     char src[] = "\0helloworld";
     int ret = strlen(src);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -141,7 +141,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncasecmp001, Function | Me
 {
     char *src[] = {"helloworld", "HElloworld"};
     int ret = strncasecmp(src[0], src[1], 2);
-    TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    ICUNIT_ASSERT_EQUAL(ret, RET_OK, ret);
     return 0;
 }
 
@@ -154,7 +154,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncasecmp002, Function | Me
 {
     char *src[] = {"helloworld", "he\0lloworld"};
     int ret = strncasecmp(src[0], src[1], 3);
-    TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, RET_OK + 1, ret, 0);
     return 0;
 }
 
@@ -167,7 +167,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncasecmp003, Function | Me
 {
     char *src[] = {"helloworld", "he lloworld"};
     int ret = strncasecmp(src[0], src[1], 3);
-    TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, RET_OK + 1, ret, 0);
     return 0;
 }
 
@@ -180,7 +180,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncasecmp004, Function | Me
 {
     char *src[] = {"helloworld", "hello World"};
     int ret = strncasecmp(src[0], src[1], 3);
-    TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    ICUNIT_ASSERT_EQUAL(ret, RET_OK, ret);
     return 0;
 }
 
@@ -193,7 +193,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncasecmp005, Function | Me
 {
     char *src[] = {"helloworld", "\0"};
     int ret = strncasecmp(src[0], src[1], 1);
-    TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, RET_OK + 1, ret, 0);
     return 0;
 }
 
@@ -206,7 +206,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncmp001, Function | Medium
 {
     char *src[] = {"helloworld", "HELloworld"};
     int ret = strncmp(src[0], src[1], 3);
-    TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, RET_OK + 1, ret, 0);
     return 0;
 }
 
@@ -219,7 +219,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncmp002, Function | Medium
 {
     char *src[] = {"helloworld", "he\0lloworld"};
     int ret = strncmp(src[0], src[1], 3);
-    TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, RET_OK + 1, ret, 0);
     return 0;
 }
 
@@ -232,7 +232,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncmp003, Function | Medium
 {
     char *src[] = {"helloworld", "he lloworld"};
     int ret = strncmp(src[0], src[1], 3);
-    TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, RET_OK + 1, ret, 0);
     return 0;
 }
 
@@ -245,7 +245,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncmp004, Function | Medium
 {
     char *src[] = {"helloworld", "hello World"};
     int ret = strncmp(src[0], src[1], 3);
-    TEST_ASSERT_EQUAL_INT(RET_OK, ret);
+    ICUNIT_ASSERT_EQUAL(ret, RET_OK, ret);
     return 0;
 }
 
@@ -258,7 +258,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrncmp005, Function | Medium
 {
     char *src[] = {"helloworld", "\0"};
     int ret = strncmp(src[0], src[1], 3);
-    TEST_ASSERT_GREATER_THAN(RET_OK, ret);
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, RET_OK + 1, ret, 0);
     return 0;
 }
 
@@ -272,8 +272,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr001, Function | Medium
 {
     char src[] = "hello world";
     char *ret = strrchr(src, '!');
-    TEST_ASSERT_EQUAL_PTR(NULL, ret);
-    TEST_ASSERT_NULL(ret);
+    ICUNIT_ASSERT_EQUAL(ret, NULL, 0);
     return 0;
 }
 
@@ -286,8 +285,8 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr002, Function | Medium
 {
     char src[] = "hello world";
     char *ret = strrchr(src, '\0');
-    TEST_ASSERT_EQUAL_PTR(src + 11, ret);
-    TEST_ASSERT_NOT_NULL(ret);
+    ICUNIT_ASSERT_EQUAL(ret, src + 11, 0);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, NULL, 0);
     return 0;
 }
 
@@ -300,8 +299,8 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr003, Function | Medium
 {
     char src[] = "hello\0world";
     char *ret = strrchr(src, '\0');
-    TEST_ASSERT_EQUAL_PTR(src + 5, ret);
-    TEST_ASSERT_NOT_NULL(ret);
+    ICUNIT_ASSERT_EQUAL(ret, src + 5, 0);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, NULL, 0);
     return 0;
 }
 
@@ -314,8 +313,8 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr004, Function | Medium
 {
     char src[] = "hello world";
     char *ret = strrchr(src, ' ');
-    TEST_ASSERT_EQUAL_PTR(src + 5, ret);
-    TEST_ASSERT_NOT_NULL(ret);
+    ICUNIT_ASSERT_EQUAL(ret, src + 5, 0);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, NULL, 0);
     return 0;
 }
 
@@ -328,8 +327,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStringStrrchr005, Function | Medium
 {
     char src[] = "hello\0world";
     char *ret = strrchr(src, ' ');
-    TEST_ASSERT_EQUAL_PTR(NULL, ret);
-    TEST_ASSERT_NULL(ret);
+    ICUNIT_ASSERT_EQUAL(ret, NULL, 0);
     return 0;
 }
 

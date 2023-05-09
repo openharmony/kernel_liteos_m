@@ -106,12 +106,12 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait001, Function | 
     struct timespec tsNow = { 0 };
     sem_t sem;
 
-    TEST_ASSERT_EQUAL_INT(0, sem_init((sem_t *)&sem, 0, 0));
+    ICUNIT_ASSERT_EQUAL(sem_init((sem_t *)&sem, 0, 0), 0, 0);
 
     ts = GetDelayedTime(100);
     LOG("predicted time:%lld, %ld", ts.tv_sec, ts.tv_nsec);
     if (sem_timedwait((sem_t *)&sem, &ts) == -1) {
-        TEST_ASSERT_EQUAL_INT(ETIMEDOUT, errno);
+        ICUNIT_ASSERT_EQUAL(errno, ETIMEDOUT, errno);
     } else {
         LOG("\n> sem_timedwait return unexpected");
     }
@@ -120,9 +120,9 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait001, Function | 
     LOG("tsNow %lld, %ld", tsNow.tv_sec, tsNow.tv_nsec);
     int timeDiff = GetTimeDiff(tsNow, ts); // calculate time different
     LOG("timeDiff %d", timeDiff);
-    TEST_ASSERT_LESS_THAN_INT(20, abs(timeDiff));
+    ICUNIT_ASSERT_EQUAL(abs(timeDiff) < 20, TRUE, 0);
 
-    TEST_ASSERT_EQUAL_INT(0, sem_destroy((sem_t *)&sem));
+    ICUNIT_ASSERT_EQUAL(sem_destroy((sem_t *)&sem), 0, 0);
     return 0;
 }
 
@@ -138,7 +138,7 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait002, Function | 
     struct timespec tsBegin = { 0 };
     sem_t sem;
 
-    TEST_ASSERT_EQUAL_INT(0, sem_init((sem_t *)&sem, 0, 1));
+    ICUNIT_ASSERT_EQUAL(sem_init((sem_t *)&sem, 0, 1), 0, 0);
 
     ts = GetDelayedTime(100);
     LOG("\n ts %lld, %ld", ts.tv_sec, ts.tv_nsec);
@@ -146,25 +146,25 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait002, Function | 
     int ret = sem_timedwait((sem_t *)&sem, &ts);
     clock_gettime(CLOCK_REALTIME, &tsNow);
 
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     LOG("\n tsBegin %lld, %ld, tsNow %lld, %ld", tsBegin.tv_sec, tsBegin.tv_nsec, tsNow.tv_sec, tsNow.tv_nsec);
     int timeDiff = GetTimeDiff(tsNow, tsBegin); // calculate time different
     LOG("\n timeDiff %d", timeDiff);
-    TEST_ASSERT_LESS_THAN_INT(20, timeDiff);
+    ICUNIT_ASSERT_WITHIN_EQUAL(timeDiff, timeDiff, 19, 0);
 
     // try get semaphore again
     ts = GetDelayedTime(100);
     LOG("\n ts %lld, %ld", ts.tv_sec, ts.tv_nsec);
     ret = sem_timedwait((sem_t *)&sem, &ts);
     clock_gettime(CLOCK_REALTIME, &tsNow);
-    TEST_ASSERT_EQUAL_INT(-1, ret);
-    TEST_ASSERT_EQUAL_INT(ETIMEDOUT, errno);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, ETIMEDOUT, errno);
     LOG("\n tsNow %lld, %ld", tsNow.tv_sec, tsNow.tv_nsec);
     timeDiff = GetTimeDiff(tsNow, tsBegin); // calculate time different
     LOG("\n wait timeDiff %d", timeDiff);
 
-    TEST_ASSERT_EQUAL_INT(0, sem_destroy((sem_t *)&sem));
+    ICUNIT_ASSERT_EQUAL(sem_destroy((sem_t *)&sem), 0, 0);
     return 0;
 }
 
@@ -182,36 +182,36 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait003, Function | 
     ts.tv_sec = 0;
     ts.tv_nsec = 200000;
     ret = sem_timedwait((sem_t *)&sem, &ts);
-    TEST_ASSERT_EQUAL_INT(-1, ret);
-    TEST_ASSERT_EQUAL_INT(EINVAL, errno);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
 
     ret = sem_init((sem_t *)&sem, 0, 0);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ts.tv_sec = time(NULL);
     ts.tv_nsec = -2;
     ret = sem_timedwait((sem_t *)&sem, &ts);
-    TEST_ASSERT_EQUAL_INT(-1, ret);
-    TEST_ASSERT_EQUAL_INT(EINVAL, errno);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
 
     ts.tv_sec = time(NULL);
     ts.tv_nsec = NANO_S;
     ret = sem_timedwait((sem_t *)&sem, &ts);
-    TEST_ASSERT_EQUAL_INT(-1, ret);
-    TEST_ASSERT_EQUAL_INT(EINVAL, errno);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
 
     ret = sem_timedwait((sem_t *)&sem, NULL);
-    TEST_ASSERT_EQUAL_INT(-1, ret);
-    TEST_ASSERT_EQUAL_INT(EINVAL, errno);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
 
     ret = sem_destroy((sem_t *)&sem);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ts.tv_sec = time(NULL);
     ts.tv_nsec = 2000000;
     ret = sem_timedwait(NULL, &ts);
-    TEST_ASSERT_EQUAL_INT(-1, ret);
-    TEST_ASSERT_EQUAL_INT(EINVAL, errno);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
     return 0;
 }
 
@@ -227,19 +227,19 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Trywait004, Function | Me
     int ret;
 
     ret = sem_init(&sem, 0, 1);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = sem_trywait(&sem);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = sem_getvalue(&sem, &val);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     if (val <= 0) {
         sem_destroy(&sem);
         return LOS_OK;
     } else {
-        TEST_ASSERT_EQUAL_INT(0, ret);
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     }
     return 0;
 }

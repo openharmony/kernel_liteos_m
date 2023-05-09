@@ -78,14 +78,14 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrstrcmp001, Function | MediumTest
     char dest[] = {"Compiler exited with error"};
 
     retValue = strcmp(source, dest);
-    TEST_ASSERT_EQUAL_INT(0, retValue);
+    ICUNIT_ASSERT_EQUAL(retValue, 0, retValue);
 
     int ret = strcmp("abcdef", "ABCDEF");
-    TEST_ASSERT_GREATER_THAN(0, ret);
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, 1, ret, 0);
 
     ret = strcmp("123456", "654321");
-    TEST_ASSERT_LESS_THAN(0, ret);
-    TEST_ASSERT_EQUAL_INT(0, strcmp("~!@#$%^&*()_+", "~!@#$%^&*()_+"));
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, ret, -1, 0);
+    ICUNIT_ASSERT_EQUAL(strcmp("~!@#$%^&*()_+", "~!@#$%^&*()_+"), 0, 0);
     return 0;
 };
 
@@ -102,7 +102,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrstrcmp002, Function | MediumTest
     char dest[] = {"00000000000"};
 
     retValue = strcmp(source, dest);
-    TEST_ASSERT_GREATER_THAN(0, retValue);
+    ICUNIT_ASSERT_WITHIN_EQUAL(retValue, 1, retValue, 0);
     return 0;
 };
 
@@ -119,7 +119,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrstrcmp003, Function | MediumTest
     char dest[] = {"Compiler exited with error"};
 
     retValue = strcmp(source, dest);
-    TEST_ASSERT_LESS_THAN(0, retValue);
+    ICUNIT_ASSERT_WITHIN_EQUAL(retValue, retValue, -1, 0);
     return 0;
 };
 
@@ -135,18 +135,18 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrdup001, Function | MediumTest
     char *dest;
 
     dest = strdup(source);
-    TEST_ASSERT_NOT_NULL(dest);
+    ICUNIT_ASSERT_NOT_EQUAL(dest, NULL, 0);
     printf("The Result Display :%s\r\n", dest);
-    TEST_ASSERT_EQUAL_CHAR_ARRAY(source, dest, sizeof(source) / sizeof(source[0]));
+    ICUNIT_ASSERT_SIZE_STRING_EQUAL(dest, source, sizeof(source) / sizeof(source[0]), 0);
 
     char src[] = "hello world !";
     char *ret = strdup(src);
-    TEST_ASSERT_EQUAL_CHAR_ARRAY(src, ret, sizeof(src) / sizeof(src[0]));
+    ICUNIT_ASSERT_SIZE_STRING_EQUAL(ret, src, sizeof(src) / sizeof(src[0]), 0);
     free(ret);
 
     char srcS[] = "This is String1";
     ret = strdup(srcS);
-    TEST_ASSERT_EQUAL_CHAR_ARRAY("This is String1", ret, sizeof(srcS) / sizeof(srcS[0]));
+    ICUNIT_ASSERT_SIZE_STRING_EQUAL(ret, "This is String1", sizeof(srcS) / sizeof(srcS[0]), 0);
     free(ret);
     return 0;
 };
@@ -163,9 +163,9 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrdup002, Function | MediumTest
     char *dest;
 
     dest = strdup(source);
-    TEST_ASSERT_NOT_NULL(dest);
+    ICUNIT_ASSERT_NOT_EQUAL(dest, NULL, 0);
     printf("The Result Display :%s\r\n", dest);
-    TEST_ASSERT_EQUAL_CHAR_ARRAY(source, dest, sizeof(source) / sizeof(source[0]));
+    ICUNIT_ASSERT_SIZE_STRING_EQUAL(dest, source, sizeof(source) / sizeof(source[0]), 0);
     return 0;
 };
 
@@ -182,16 +182,16 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrcspn001, Function | MediumTes
     char dest1[] = {"H"};
 
     retValue = strcspn(source, dest1);
-    TEST_ASSERT_EQUAL_INT(18U, retValue);
+    ICUNIT_ASSERT_EQUAL(retValue, 18U, retValue);
 
     const char dest[] = "hello world !";
     const char src[] = "!";
     size_t ret = strcspn(dest, src);
-    TEST_ASSERT_EQUAL_INT(12U, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 12U, ret);
 
     const char srcS[] = "a";
     ret = strcspn(dest, srcS);
-    TEST_ASSERT_EQUAL_INT(13U, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 13U, ret);
     return 0;
 };
 
@@ -207,7 +207,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrcspn002, Function | MediumTes
     char dest[] = {"or"};
 
     retValue = strcspn(source, dest);
-    TEST_ASSERT_EQUAL_INT(1, retValue);
+    ICUNIT_ASSERT_EQUAL(retValue, 1, retValue);
     return 0;
 };
 
@@ -222,12 +222,12 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrptime001, Function | MediumTe
     struct tm tmData;
     (void)memset_s(&tmData, sizeof(struct tm), 0, sizeof(struct tm));
     char *ret = strptime("2020-10-29 21:24:00abc", "%Y-%m-%d %H:%M:%S", &tmData);
-    TEST_ASSERT_EQUAL_CHAR_ARRAY("abc", ret, 3);
-    TEST_ASSERT_EQUAL_INT(120, tmData.tm_year);
-    TEST_ASSERT_EQUAL_INT(9, tmData.tm_mon);
-    TEST_ASSERT_EQUAL_INT(29, tmData.tm_mday);
-    TEST_ASSERT_EQUAL_INT(21, tmData.tm_hour);
-    TEST_ASSERT_EQUAL_INT(24, tmData.tm_min);
+    ICUNIT_ASSERT_SIZE_STRING_EQUAL(ret, "abc", 3, 0);
+    ICUNIT_ASSERT_EQUAL(tmData.tm_year, 120, tmData.tm_year);
+    ICUNIT_ASSERT_EQUAL(tmData.tm_mon, 9, tmData.tm_mon);
+    ICUNIT_ASSERT_EQUAL(tmData.tm_mday, 29, tmData.tm_mday);
+    ICUNIT_ASSERT_EQUAL(tmData.tm_hour, 21, tmData.tm_hour);
+    ICUNIT_ASSERT_EQUAL(tmData.tm_min, 24, tmData.tm_min);
     return 0;
 }
 #endif

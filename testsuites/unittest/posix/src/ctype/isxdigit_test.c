@@ -78,7 +78,7 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit001, Function | MediumTe
     } else {
         LOG("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -96,7 +96,7 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit002, Function | MediumTe
     } else {
         LOG("[DEMO] posix ctype test case 2:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -114,7 +114,7 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit003, Function | MediumTe
     } else {
         LOG("[DEMO] posix ctype test case 3:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -132,7 +132,7 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit004, Function | MediumTe
     } else {
         LOG("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -150,7 +150,7 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit005, Function | MediumTe
     } else {
         LOG("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -168,7 +168,7 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit006, Function | MediumTe
     } else {
         LOG("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -186,7 +186,7 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit007, Function | MediumTe
     } else {
         LOG("[DEMO] posix ctype test case 1:isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_NOT_EQUAL(0, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -204,7 +204,7 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit008, Function | MediumTe
     } else {
         LOG("[DEMO] posix ctype test case 5(except):isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -222,7 +222,7 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit009, Function | MediumTe
     } else {
         LOG("[DEMO] posix ctype test case 4(except):isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
 
@@ -240,11 +240,9 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit010, Function | MediumTe
     } else {
         LOG("[DEMO] posix ctype test case 5(except):isxdigit(%c) fail.\n", a);
     }
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 }
-
-RUN_TEST_SUITE(PosixCTypeIsxdigitTest);
 
 void PosixIsxdigitFuncTest()
 {

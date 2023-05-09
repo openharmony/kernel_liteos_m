@@ -77,12 +77,12 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcpy001, Function | MediumTest 
     char dest[1024] = {0};
     retValue = memcpy(dest, source, sizeof(source) / sizeof(source[0]));
 
-    TEST_ASSERT_NOT_NULL(retValue);
+    ICUNIT_ASSERT_NOT_EQUAL(retValue, NULL, 0);
 
     retValue = memcpy(source, dest, sizeof(source) / sizeof(source[0]));
-    TEST_ASSERT_NOT_NULL(retValue);
+    ICUNIT_ASSERT_NOT_EQUAL(retValue, NULL, 0);
 
-    TEST_ASSERT_EQUAL_STRING(dest, source);
+    ICUNIT_ASSERT_STRING_EQUAL(dest, source, 0);
 
     int len;
     char chr = 'A';
@@ -95,7 +95,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcpy001, Function | MediumTest 
 
     memcpy(&buf[16], &buf[0], 16);
     for (int i = 0; i < 16; i++) {
-        TEST_ASSERT_EQUAL_INT((int)buf[i + 16], (int)buf[i]);
+        ICUNIT_ASSERT_EQUAL(buf[i + 16], buf[i], 0);
         if (buf[i + 16] != buf[i]) {
             printf("String Copy error \r\n");
             break;
@@ -118,11 +118,11 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcpy002, Function | MediumTest 
         " immediate use in a computer\r\n"};
     char dest[1024] = {0};
     retValue = memcpy(dest, source, sizeof(source) / sizeof(source[0]));
-    TEST_ASSERT_NOT_NULL(retValue);
+    ICUNIT_ASSERT_NOT_EQUAL(retValue, NULL, 0);
 
     retValue = memcpy(source, dest, sizeof(source) / sizeof(source[0]));
-    TEST_ASSERT_NOT_NULL(retValue);
-    TEST_ASSERT_EQUAL_STRING(source, dest);
+    ICUNIT_ASSERT_NOT_EQUAL(retValue, NULL, 0);
+    ICUNIT_ASSERT_STRING_EQUAL(dest, source, 0);
 
     char chr = 'A';
     int i, len, failure;
@@ -142,7 +142,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcpy002, Function | MediumTest 
             break;
         }
     }
-    TEST_ASSERT_EQUAL_INT(0, failure);
+    ICUNIT_ASSERT_EQUAL(failure, 0, failure);
     return 0;
 };
 
@@ -159,11 +159,11 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemset001, Function | MediumTest 
         " immediate use in a computer\r\n"};
     char ch = rand() % 26 + 'A';
     retValue = memset(source, ch, sizeof(source) / sizeof(source[0]));
-    TEST_ASSERT_NOT_NULL(retValue);
-    TEST_ASSERT_EQUAL_PTR(source, retValue);
+    ICUNIT_ASSERT_NOT_EQUAL(retValue, NULL, 0);
+    ICUNIT_ASSERT_EQUAL(retValue, source, 0);
 
     for (int i = 0; i < (sizeof(source) / sizeof(source[0])); i++) {
-        TEST_ASSERT_EQUAL_INT((int)ch, (int)source[i]);
+        ICUNIT_ASSERT_EQUAL(source[i], ch, 0);
     }
     return 0;
 };
@@ -183,7 +183,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp001, Function | MediumTest 
         "immediate use in a computer\r\n"};
 
     retValue = memcmp(source, dest, sizeof(source) / sizeof(source[0]));
-    TEST_ASSERT_EQUAL_INT(0, retValue);
+    ICUNIT_ASSERT_EQUAL(retValue, 0, retValue);
 
 
     char orign[8] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88};
@@ -195,16 +195,16 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp001, Function | MediumTest 
     int len = sizeof(orign);
 
     ret = memcmp(orign, lt, len);
-    TEST_ASSERT_GREATER_THAN(0, ret);
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, 1, ret, 0);
 
     ret = memcmp(eq, orign, len);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ret = memcmp(orign, gt, len);
-    TEST_ASSERT_LESS_THAN(0, ret);
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, ret, -1, 0);
 
     ret = memcmp(gt, orign, 0);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 };
 
@@ -221,16 +221,16 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp002, Function | MediumTest 
         "immediate use in a computer\r\n"};
     char dest[] = {"Hello, Richard, how are you?\r\n"};
     retValue = memcmp(source, dest, sizeof(dest) / sizeof(dest[0]));
-    TEST_ASSERT_GREATER_THAN(0, retValue);
+    ICUNIT_ASSERT_WITHIN_EQUAL(retValue, 1, retValue, 0);
 
     int ret = memcmp(L"CBCDEFG", L"BBCDEFG", 7);
-    TEST_ASSERT_GREATER_THAN(0, ret);
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, 1, ret, 0);
 
     ret = memcmp(L"ABCDEFG", L"abcdefg", 2);
-    TEST_ASSERT_LESS_THAN(0, ret);
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, ret, -1, 0);
 
     ret = memcmp(L"ABCDEFG", L"ABCDEFG", 6);
-    TEST_ASSERT_EQUAL_INT(0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     return 0;
 };
 
@@ -247,7 +247,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcmp003, Function | MediumTest 
     char dest[] = {"memory refers to the computer hardware devices used to store information for "
         "immediate use in a computer\r\n"};
     retValue = memcmp(source, dest, sizeof(source) / sizeof(source[0]));
-    TEST_ASSERT_LESS_THAN(0, retValue);
+    ICUNIT_ASSERT_WITHIN_EQUAL(retValue, retValue, -1, 0);
     return 0;
 };
 
@@ -261,7 +261,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc001, Function | MediumTest
 {
     char *source = (char *)malloc(20);
     source = (char *)realloc(source, 0);
-    TEST_ASSERT_NULL(source);
+    ICUNIT_ASSERT_EQUAL(source, NULL, 0);
 
     size_t k, len, mlen, rlen;
     for (int i = 0; i < 5; i++) {
@@ -272,7 +272,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc001, Function | MediumTest
 
         mlen = 10;
         mem = malloc(mlen);
-        TEST_ASSERT_NOT_NULL(mem);
+        ICUNIT_ASSERT_NOT_EQUAL(mem, NULL, 0);
 
         (void)memset_s(mem, mlen, testChar, mlen);
         rlen = rand() % (1024) + mlen;
@@ -280,7 +280,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc001, Function | MediumTest
         if (mem1 == NULL) {
             free(mem);
         }
-        TEST_ASSERT_NOT_NULL(mem1);
+        ICUNIT_ASSERT_NOT_EQUAL(mem1, NULL, 0);
 
         len = mlen <= rlen ? mlen : rlen;
 
@@ -292,7 +292,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc001, Function | MediumTest
         }
 
         free(mem1);
-        TEST_ASSERT_EQUAL_INT(0, failure);
+        ICUNIT_ASSERT_EQUAL(failure, 0, failure);
     }
     return 0;
 };
@@ -308,7 +308,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc002, Function | MediumTest
     char *source = (char *)malloc(20);
 
     char *newData = (char *)realloc(source, 40);
-    TEST_ASSERT_NOT_NULL(newData);
+    ICUNIT_ASSERT_NOT_EQUAL(newData, NULL, 0);
     if (newData != NULL) {
         source = newData;
     }
@@ -318,10 +318,10 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc002, Function | MediumTest
     const size_t large = 4096;
 
     void *mem = malloc(len);
-    TEST_ASSERT_NOT_NULL(mem);
+    ICUNIT_ASSERT_NOT_EQUAL(mem, NULL, 0);
 
     void *reMem = realloc(mem, large);
-    TEST_ASSERT_NOT_NULL(reMem);
+    ICUNIT_ASSERT_NOT_EQUAL(reMem, NULL, 0);
 
     if (reMem != NULL) {
         mem = reMem;
@@ -341,7 +341,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc003, Function | MediumTest
     char *retValue = NULL;
 
     retValue = (char *)realloc(retValue, 20);
-    TEST_ASSERT_NOT_NULL(retValue);
+    ICUNIT_ASSERT_NOT_EQUAL(retValue, NULL, 0);
     return 0;
 };
 
@@ -355,7 +355,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemRealloc004, Function | MediumTest
     char *source = (char *)malloc(20);
 
     char *newData = (char *)realloc(source, 10);
-    TEST_ASSERT_NOT_NULL(newData);
+    ICUNIT_ASSERT_NOT_EQUAL(newData, NULL, 0);
 
     if (newData != NULL) {
         source = newData;
