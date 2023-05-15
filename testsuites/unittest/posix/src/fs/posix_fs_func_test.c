@@ -1723,7 +1723,125 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, testFsOpen005, Function | MediumTest | Leve
 }
 
 /* *
- * @tc.number   SUB_KERNEL_FS_CLOSE_005
+ * @tc.number   SUB_KERNEL_FS_OPEN_006
+ * @tc.name     open ro + ro
+ * @tc.desc     [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PosixFsFuncTestSuite, testFsOpen006, Function | MediumTest | Level1)
+{
+    int32_t ret;
+    const char tmpFileName[TEST_BUF_SIZE] = { FILE1 };
+
+    int32_t fd = open(tmpFileName, O_CREAT | O_RDWR, TEST_MODE_HIGH);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, POSIX_FS_IS_ERROR, fd);
+
+    ret = close(fd);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    int32_t fd1 = open(tmpFileName, O_RDONLY, TEST_MODE_NORMAL);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, POSIX_FS_IS_ERROR, fd1);
+
+    int32_t fd2 = open(tmpFileName, O_RDONLY, TEST_MODE_NORMAL);
+    ICUNIT_ASSERT_NOT_EQUAL(fd2, POSIX_FS_IS_ERROR, fd2);
+
+    int32_t fd3 = open(tmpFileName, O_RDONLY, TEST_MODE_NORMAL);
+    ICUNIT_ASSERT_NOT_EQUAL(fd3, POSIX_FS_IS_ERROR, fd3);
+
+    ret = close(fd1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+    ret = close(fd2);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+    ret = close(fd3);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    ret = unlink(tmpFileName);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    return POSIX_FS_NO_ERROR;
+}
+
+/* *
+ * @tc.number   SUB_KERNEL_FS_OPEN_007
+ * @tc.name     open rw + rw
+ * @tc.desc     [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PosixFsFuncTestSuite, testFsOpen007, Function | MediumTest | Level1)
+{
+    int32_t ret;
+    const char tmpFileName[TEST_BUF_SIZE] = { FILE1 };
+
+    int32_t fd = open(tmpFileName, O_CREAT | O_RDWR, TEST_MODE_HIGH);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, POSIX_FS_IS_ERROR, fd);
+
+    ret = close(fd);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    int32_t fd1 = open(tmpFileName, O_RDWR, TEST_MODE_NORMAL);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, POSIX_FS_IS_ERROR, fd1);
+
+    int32_t fd2 = open(tmpFileName, O_RDWR, TEST_MODE_NORMAL);
+    ICUNIT_ASSERT_EQUAL(fd2, POSIX_FS_IS_ERROR, fd2);
+    ICUNIT_ASSERT_EQUAL(errno, EBUSY, POSIX_FS_IS_ERROR);
+
+    ret = close(fd1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    ret = unlink(tmpFileName);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    return POSIX_FS_NO_ERROR;
+}
+
+/* *
+ * @tc.number   SUB_KERNEL_FS_OPEN_008
+ * @tc.name     open
+ * @tc.desc     [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PosixFsFuncTestSuite, testFsOpen008, Function | MediumTest | Level1)
+{
+    int32_t ret;
+    const char tmpFileName[TEST_BUF_SIZE] = { FILE1 };
+
+    int32_t fd = open(tmpFileName, O_CREAT | O_RDWR, TEST_MODE_HIGH);
+    ICUNIT_ASSERT_NOT_EQUAL(fd, POSIX_FS_IS_ERROR, fd);
+
+    ret = close(fd);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    int32_t fd1 = open(tmpFileName, O_RDONLY, TEST_MODE_NORMAL);
+    ICUNIT_ASSERT_NOT_EQUAL(fd1, POSIX_FS_IS_ERROR, fd1);
+
+    int32_t fd2 = open(tmpFileName, O_RDONLY, TEST_MODE_NORMAL);
+    ICUNIT_ASSERT_NOT_EQUAL(fd2, POSIX_FS_IS_ERROR, fd2);
+
+    ret = close(fd1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    ret = close(fd2);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    fd1 = open(tmpFileName, O_RDWR, TEST_MODE_NORMAL);
+    ICUNIT_ASSERT_NOT_EQUAL(fd1, POSIX_FS_IS_ERROR, fd1);
+
+    fd2 = open(tmpFileName, O_RDWR, TEST_MODE_NORMAL);
+    ICUNIT_ASSERT_EQUAL(fd2, POSIX_FS_IS_ERROR, fd2);
+
+    int32_t fd3 = open(tmpFileName, O_RDWR, TEST_MODE_NORMAL);
+    ICUNIT_ASSERT_EQUAL(fd3, POSIX_FS_IS_ERROR, fd3);
+
+    ret = close(fd1);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    ret = unlink(tmpFileName);
+    ICUNIT_ASSERT_NOT_EQUAL(ret, POSIX_FS_IS_ERROR, ret);
+
+    return POSIX_FS_NO_ERROR;
+}
+
+
+
+/* *
+ * @tc.number   SUB_KERNEL_FS_CLOSE_001
  * @tc.name     close
  * @tc.desc     [C- SOFTWARE -0200]
  */
@@ -2045,6 +2163,11 @@ void PosixFsAPITest(void)
     RUN_ONE_TESTCASE(testFsOpen003);
     RUN_ONE_TESTCASE(testFsOpen004);
     RUN_ONE_TESTCASE(testFsOpen005);
+#if (LOSCFG_SUPPORT_FATFS == 1)
+    RUN_ONE_TESTCASE(testFsOpen006);
+    RUN_ONE_TESTCASE(testFsOpen007);
+    RUN_ONE_TESTCASE(testFsOpen008);
+#endif
     RUN_ONE_TESTCASE(testFsClose001);
     RUN_ONE_TESTCASE(testFsWrite001);
     RUN_ONE_TESTCASE(testFsWrite002);
