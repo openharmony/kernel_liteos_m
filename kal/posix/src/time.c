@@ -617,11 +617,22 @@ struct tm *gmtime(const time_t *timer)
 
 struct tm *localtime_r(const time_t *timep, struct tm *result)
 {
+    INT32 ret;
+
     if ((timep == NULL) || (result == NULL)) {
         errno = EFAULT;
         return NULL;
     }
-    if (!ConvertSecs2Utc(*timep, -g_timezone, result)) {
+
+    if (g_rtcTimeFunc.RtcGetTimezoneHook != NULL) {
+        INT32 tempTimezone = 0;
+        g_rtcTimeFunc.RtcGetTimezoneHook(&tempTimezone);
+        ret = ConvertSecs2Utc(*timep, -tempTimezone, result);
+    } else {
+        ret = ConvertSecs2Utc(*timep, -g_timezone, result);
+    }
+
+    if (!ret) {
         errno = EINVAL;
         return NULL;
     }
@@ -664,7 +675,14 @@ static time_t ConvertUtc2Secs(struct tm *tm)
     seconds += (tm->tm_mday - 1) * SECS_PER_DAY;
     seconds += tm->tm_hour * SECS_PER_HOUR + tm->tm_min * SECS_PER_MIN + tm->tm_sec;
 
-    seconds += g_timezone;
+    if (g_rtcTimeFunc.RtcGetTimezoneHook != NULL) {
+        INT32 tempTimezone = 0;
+        g_rtcTimeFunc.RtcGetTimezoneHook(&tempTimezone);
+        seconds += tempTimezone;
+    } else {
+        seconds += g_timezone;
+    }
+
     return seconds;
 }
 
@@ -690,7 +708,14 @@ time_t mktime(struct tm *tmptr)
     }
     timeInSeconds = ConvertUtc2Secs(tmptr);
     /* normalize tm_wday and tm_yday */
-    ConvertSecs2Utc(timeInSeconds, -g_timezone, tmptr);
+    if (g_rtcTimeFunc.RtcGetTimezoneHook != NULL) {
+        INT32 tempTimezone = 0;
+        g_rtcTimeFunc.RtcGetTimezoneHook(&tempTimezone);
+        ConvertSecs2Utc(timeInSeconds, -tempTimezone, tmptr);
+    } else {
+        ConvertSecs2Utc(timeInSeconds, -g_timezone, tmptr);
+    }
+
     return timeInSeconds;
 }
 
@@ -722,7 +747,7 @@ int gettimeofday(struct timeval *tv, void *ptz)
             tv->tv_usec = ts.tv_nsec / OS_SYS_NS_PER_US;
         }
     }
-	
+
     if (tz != NULL) {
         INT32 timeZone = 0;
         if (g_rtcTimeFunc.RtcGetTimezoneHook != NULL) {
@@ -742,12 +767,12 @@ int settimeofday(const struct timeval *tv, const struct timezone *tz)
 {
     struct timespec ts;
 
-    if (tv == NULL) {
+    if ((tv == NULL) && (tz == NULL)) {
         errno = EFAULT;
         return -1;
     }
 
-    if (tv->tv_usec >= OS_SYS_US_PER_SECOND) {
+    if ((tv != NULL) && (tv->tv_usec >= OS_SYS_US_PER_SECOND)) {
         errno = EINVAL;
         return -1;
     }
@@ -766,18 +791,20 @@ int settimeofday(const struct timeval *tv, const struct timezone *tz)
         }
     }
 
-    if (g_rtcTimeFunc.RtcSetTimeHook != NULL) {
-        UINT64 usec;
-        g_rtcTimeBase = tv->tv_sec * OS_SYS_MS_PER_SECOND + tv->tv_usec / OS_SYS_MS_PER_SECOND;
-        usec = tv->tv_sec * OS_SYS_US_PER_SECOND + tv->tv_usec;
-        if (-1 == g_rtcTimeFunc.RtcSetTimeHook(g_rtcTimeBase, &usec)) {
-            return -1;
-        }
-    } else {
-        ts.tv_sec = tv->tv_sec;
-        ts.tv_nsec = tv->tv_usec * OS_SYS_NS_PER_US;
-        if (-1 == clock_settime(CLOCK_REALTIME, &ts)) {
-            return -1;
+    if (tv != NULL) {
+        if (g_rtcTimeFunc.RtcSetTimeHook != NULL) {
+            UINT64 usec;
+            g_rtcTimeBase = tv->tv_sec * OS_SYS_MS_PER_SECOND + tv->tv_usec / OS_SYS_MS_PER_SECOND;
+            usec = tv->tv_sec * OS_SYS_US_PER_SECOND + tv->tv_usec;
+            if (g_rtcTimeFunc.RtcSetTimeHook(g_rtcTimeBase, &usec) < 0) {
+                return -1;
+            }
+        } else {
+            ts.tv_sec = tv->tv_sec;
+            ts.tv_nsec = tv->tv_usec * OS_SYS_NS_PER_US;
+            if (clock_settime(CLOCK_REALTIME, &ts) < 0) {
+                return -1;
+            }
         }
     }
 
