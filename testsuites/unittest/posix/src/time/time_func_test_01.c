@@ -294,6 +294,42 @@ LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeLocaltime002, Function | MediumTe
 }
 
 /* *
+ * @tc.number     SUB_KERNEL_TIME_LOCALTIME_003
+ * @tc.name       test settimeofday api
+ * @tc.desc       [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(PosixTimeFuncTestSuite, testTimeLocaltime003, Function | MediumTest | Level1)
+{
+    char cTime[32]; /* 32, no special meaning */
+    time_t tStart;
+    time_t tEnd;
+    struct timezone tz;
+    struct timeval timeSet = {
+        .tv_sec = 86399,    /* 86399, no special meaning */
+        .tv_usec = 0
+    };
+
+    int ret = gettimeofday(NULL, &tz);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    ret = settimeofday(&timeSet, &tz);
+    time(&tStart);
+    sleep(2);   /* 2, sleep time */
+    time(&tEnd);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    struct tm *tmStart = localtime(&tStart);
+    strftime(cTime, sizeof(cTime), "%H:%M:%S", tmStart);
+    ICUNIT_ASSERT_STRING_EQUAL(cTime, "07:59:59", 0);
+    LOG("\n time_t=%lld, first time:%s", tStart, cTime);
+    struct tm *tmEnd = localtime(&tEnd);
+    strftime(cTime, sizeof(cTime), "%H:%M:%S", tmEnd);
+    ICUNIT_ASSERT_STRING_EQUAL(cTime, "08:00:01", 0);
+    LOG("\n time_t=%lld, first time:%s", tEnd, cTime);
+    return 0;
+}
+
+/* *
  * @tc.number     SUB_KERNEL_TIME_LOCALTIMER_001
  * @tc.name       localtime_r api base test
  * @tc.desc       [C- SOFTWARE -0200]
@@ -593,6 +629,7 @@ void PosixTimeFuncTest(void)
 #if (LOSCFG_LIBC_MUSL == 1)
     RUN_ONE_TESTCASE(testTimeLocaltime001);
     RUN_ONE_TESTCASE(testTimeLocaltime002);
+    RUN_ONE_TESTCASE(testTimeLocaltime003);
     RUN_ONE_TESTCASE(testTimeLocaltimer001);
     RUN_ONE_TESTCASE(testTimeLocaltimer002);
 #endif
