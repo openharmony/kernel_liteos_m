@@ -33,5 +33,5 @@ module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
   sources = []
 
-  deps = [ "//third_party/musl/porting/liteos_m/user" ]
+  deps = [ "$THIRDPARTY_MUSL_DIR/porting/liteos_m/user" ]
 }

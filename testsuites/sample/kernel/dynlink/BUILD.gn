@@ -27,6 +27,8 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import("//kernel/liteos_m/liteos.gni")
+
 static_library("test_dynlink") {
   sources = [
     "It_los_dynlink.c",
@@ -52,14 +54,5 @@ static_library("test_dynlink") {
     "It_los_dynlink_020.c",
   ]
 
-  include_dirs = [
-    "../../../../kernel/include",
-    "../../../../kernel/arch/include",
-    "../../../include",
-    "../../../../utils",
-    "../../../../components/dynlink",
-    ".",
-    "../../../../components/cpup",
-    "//third_party/bounds_checking_function/include",
-  ]
+  configs += [ "$LITEOSTOPDIR/testsuites:include" ]
 }

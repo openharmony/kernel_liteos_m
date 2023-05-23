@@ -27,14 +27,14 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import("//kernel/liteos_m/liteos.gni")
-import("$LITEOSTHIRDPARTY/lwip/lwip.gni")
 import("$LITEOSTOPDIR/components/net/lwip-2.1/lwip_porting.gni")
+import("$THIRDPARTY_LWIP_DIR/lwip.gni")
 
 module_switch = defined(LOSCFG_NET_LWIP_SACK)
 module_name = "lwip"
 kernel_module(module_name) {
   sources = LWIP_PORTING_FILES + LWIPNOAPPSFILES - [ "$LWIPDIR/api/sockets.c" ]
-  include_dirs = [ "//commonlibrary/utils_lite/include" ]
+  include_dirs = [ "$COMMONLIBRARY_UTILS_LITE_DIR/include" ]
 }
 
 config("public") {

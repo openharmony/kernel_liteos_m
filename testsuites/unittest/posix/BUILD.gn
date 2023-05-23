@@ -28,7 +28,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import("//kernel/liteos_m/liteos.gni")
-import("//test/xts/tools/lite/build/suite_lite.gni")
+import("$TEST_XTS_TOOLS_DIR/lite/build/suite_lite.gni")
 
 static_library("posix_test") {
   sources = [
@@ -65,7 +65,7 @@ static_library("posix_test") {
   }
 
   include_dirs = [
-    "//test/xts/tools/hctest/include",
+    "$TEST_XTS_TOOLS_DIR/hctest/include",
     "src",
   ]
 
