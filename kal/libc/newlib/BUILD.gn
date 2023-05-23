@@ -43,7 +43,7 @@ kernel_module(module_name) {
 
   if (defined(LOSCFG_FS_VFS)) {
     sources +=
-        [ "//third_party/musl/porting/liteos_m/kernel/src/misc/realpath.c" ]
+        [ "$THIRDPARTY_MUSL_DIR/porting/liteos_m/kernel/src/misc/realpath.c" ]
   }
 }
 

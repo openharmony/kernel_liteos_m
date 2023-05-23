@@ -34,7 +34,7 @@
 STATIC UINT32 TestCase(VOID)
 {
     VOID *handle = NULL;
-    INT32 (*func)() = NULL;
+    INT32 (*func)(VOID) = NULL;
     INT32 *pValueAddr = NULL;
     INT32 **ppValueAddr = NULL;
     CHAR *symbolName1 = "get_value100";
@@ -49,12 +49,12 @@ STATIC UINT32 TestCase(VOID)
     handle = (VOID *)LOS_SoLoad(dsoName, NULL);
     ICUNIT_ASSERT_NOT_EQUAL(handle, NULL, handle);
 
-    func = (INT32 (*)())LOS_FindSym(handle, symbolName1);
+    func = (INT32 (*)(VOID))LOS_FindSym(handle, symbolName1);
     ICUNIT_GOTO_NOT_EQUAL(func, NULL, func, EXIT);
     ret = func();
     ICUNIT_GOTO_EQUAL(ret, 100, ret, EXIT);
 
-    func = (INT32 (*)())LOS_FindSym(handle, symbolName2);
+    func = (INT32 (*)(VOID))LOS_FindSym(handle, symbolName2);
     ICUNIT_GOTO_NOT_EQUAL(func, NULL, func, EXIT);
     ret = func();
     ICUNIT_GOTO_EQUAL(ret, 200, ret, EXIT);
