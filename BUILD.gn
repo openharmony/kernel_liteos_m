@@ -137,8 +137,8 @@ config("public") {
   ]
 
   if (BOARD_SOC_FEATURE) {
-    configs += [ "//device/board/$device_company:public" ]
-    configs += [ "//device/soc/$LOSCFG_SOC_COMPANY:public" ]
+    configs += [ "$DEVICE_BOARD_DIR/$device_company:public" ]
+    configs += [ "$DEVICE_SOC_DIR/$LOSCFG_SOC_COMPANY:public" ]
   } else {
     if (HAVE_DEVICE_SDK) {
       configs += [ "$device_path:public" ]
@@ -158,8 +158,8 @@ group("modules") {
   ]
 
   if (BOARD_SOC_FEATURE) {
-    deps += [ "//device/board/$device_company" ]
-    deps += [ "//device/soc/$LOSCFG_SOC_COMPANY" ]
+    deps += [ "$DEVICE_BOARD_DIR/$device_company" ]
+    deps += [ "$DEVICE_SOC_DIR/$LOSCFG_SOC_COMPANY" ]
   } else {
     if (HAVE_DEVICE_SDK) {
       deps += [ device_path ]

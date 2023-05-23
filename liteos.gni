@@ -51,8 +51,19 @@ exec_script("//build/lite/run_shell_cmd.py",
 import("$root_out_dir/config.gni")
 
 LITEOSTOPDIR = "//kernel/liteos_m"
-LITEOSTHIRDPARTY = "//third_party"
 HDFTOPDIR = "//drivers/hdf_core/adapter/khdf/liteos_m"
+THIRDPARTY_BOUNDS_CHECKING_FUNCTION_DIR =
+    "//third_party/bounds_checking_function"
+LITEOSTHIRDPARTY = "//third_party"
+THIRDPARTY_FATFS_DIR = "//third_party/FatFs"
+THIRDPARTY_MUSL_DIR = "//third_party/musl"
+THIRDPARTY_LITTLEFS_DIR = "//third_party/littlefs"
+THIRDPARTY_CMSIS_DIR = "//third_party/cmsis"
+THIRDPARTY_LWIP_DIR = "//third_party/lwip"
+DEVICE_BOARD_DIR = "//device/board"
+DEVICE_SOC_DIR = "//device/soc"
+COMMONLIBRARY_UTILS_LITE_DIR = "//commonlibrary/utils_lite"
+TEST_XTS_TOOLS_DIR = "//test/xts/tools"
 
 ARCH = ""
 if (defined(LOSCFG_ARCH_ARM_AARCH32)) {
@@ -163,8 +174,8 @@ set_defaults("kernel_module") {
     "$LITEOSTOPDIR:los_config",
   ]
   visibility = [
-    "$LITEOSTOPDIR:*",
     ":*",
+    "$LITEOSTOPDIR:*",
     "..:*",
     "../..:*",
   ]

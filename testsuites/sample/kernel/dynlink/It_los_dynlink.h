@@ -51,6 +51,7 @@ VOID ItLosDynlink007(VOID);
 VOID ItLosDynlink008(VOID);
 VOID ItLosDynlink009(VOID);
 VOID ItLosDynlink010(VOID);
+VOID ItLosDynlink011(VOID);
 VOID ItLosDynlink012(VOID);
 VOID ItLosDynlink013(VOID);
 VOID ItLosDynlink014(VOID);

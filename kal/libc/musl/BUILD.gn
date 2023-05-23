@@ -28,14 +28,14 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import("//kernel/liteos_m/liteos.gni")
-import("//third_party/musl/porting/liteos_m/kernel/musl.gni")
+import("$THIRDPARTY_MUSL_DIR/porting/liteos_m/kernel/musl.gni")
 
 module_switch = defined(LOSCFG_LIBC_MUSL)
 module_name = get_path_info(rebase_path("."), "name")
 kernel_module(module_name) {
   configs += [ "$LITEOSTOPDIR:warn_config" ]
 
-  deps = [ "//third_party/musl/porting/liteos_m/kernel" ]
+  deps = [ "$THIRDPARTY_MUSL_DIR/porting/liteos_m/kernel" ]
 }
 
 config("public") {
