@@ -34,7 +34,6 @@
 STATIC UINT32 TestCase(VOID)
 {
     VOID *handle = NULL;
-    VOID (*func)(INT32, INT32) = NULL;
     CHAR *dsoName = DSO_FULL_PATH("Align4_dynamic_stdlib.so");
 
     handle = (VOID *)LOS_SoLoad(dsoName, NULL);

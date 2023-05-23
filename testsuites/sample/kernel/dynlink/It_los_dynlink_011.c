@@ -34,7 +34,7 @@
 STATIC UINT32 TestCase(VOID)
 {
     VOID *handle = NULL;
-    INT32 (*func)() = NULL;
+    INT32 (*func)(VOID) = NULL;
     INT32 *pValue = NULL;
     CHAR *symbolName1 = "dyn_bss_func";
     CHAR *symbolName2 = "test_array";
@@ -44,7 +44,7 @@ STATIC UINT32 TestCase(VOID)
     handle = (VOID *)LOS_SoLoad(dsoName, NULL);
     ICUNIT_ASSERT_NOT_EQUAL(handle, NULL, handle);
 
-    func = (INT32 (*)())LOS_FindSym(handle, symbolName1);
+    func = (INT32 (*)(VOID))LOS_FindSym(handle, symbolName1);
     ICUNIT_GOTO_NOT_EQUAL(func, NULL, func, EXIT);
     ret = func();
     ICUNIT_GOTO_EQUAL(ret, 2117, ret, EXIT);
