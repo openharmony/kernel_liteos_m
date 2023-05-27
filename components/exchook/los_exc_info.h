@@ -59,7 +59,7 @@ extern "C" {
 #else
 #define MAX_SWITCH_INFO_SIZE    (0)
 #endif
-     
+
 #define MAX_MEM_INFO_SIZE       (INFO_TYPE_AND_SIZE + sizeof(MemInfoCB) * OS_SYS_MEM_NUM)
 #define MAX_EXC_MEM_SIZE        (INFO_TYPE_AND_SIZE + MAX_SCENE_INFO_SIZE + MAX_TSK_INFO_SIZE + MAX_QUEUE_INFO_SIZE \
                                  + MAX_INT_INFO_SIZE + MAX_SWITCH_INFO_SIZE + MAX_MEM_INFO_SIZE)
