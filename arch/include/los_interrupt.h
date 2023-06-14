@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2022 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -31,6 +31,7 @@
 
 #ifndef _LOS_INTERRUPT_H
 #define _LOS_INTERRUPT_H
+
 #include "los_config.h"
 #include "los_compiler.h"
 
@@ -41,11 +42,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef UINT32 HWI_HANDLE_T;
-
 typedef UINT16 HWI_PRIOR_T;
-
 typedef UINT16 HWI_MODE_T;
-
 typedef UINT32 HWI_ARG_T;
 
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
@@ -53,6 +51,7 @@ typedef VOID (*HWI_PROC_FUNC)(VOID *parm);
 #else
 typedef VOID (*HWI_PROC_FUNC)(void);
 #endif
+
 typedef struct tagIrqParam {
     int swIrq;         /**< The interrupt number */
     VOID *pDevId;      /**< The pointer to the device ID that launches the interrupt */
@@ -66,37 +65,17 @@ typedef struct {
     UINT32 (*disableIrq)(HWI_HANDLE_T hwiNum);
     UINT32 (*setIrqPriority)(HWI_HANDLE_T hwiNum, UINT8 priority);
     UINT32 (*getCurIrqNum)(VOID);
+    UINT32 (*createIrq)(HWI_HANDLE_T hwiNum, HWI_PRIOR_T hwiPrio);
 } HwiControllerOps;
-
-extern HwiControllerOps g_archHwiOps;
 
 /* stack protector */
 extern UINT32 __stack_chk_guard;
-
 extern VOID __stack_chk_fail(VOID);
-
-UINT32 ArchIsIntActive(VOID);
-#define OS_INT_ACTIVE    (ArchIsIntActive())
-#define OS_INT_INACTIVE  (!(OS_INT_ACTIVE))
-#define LOS_HwiCreate ArchHwiCreate
-#define LOS_HwiDelete ArchHwiDelete
-#define LOS_HwiTrigger ArchIntTrigger
-#define LOS_HwiEnable ArchIntEnable
-#define LOS_HwiDisable ArchIntDisable
-#define LOS_HwiClear ArchIntClear
-#define LOS_HwiSetPriority ArchIntSetPriority
-#define LOS_HwiCurIrqNum ArchIntCurIrqNum
-
-UINT32 ArchIntLock(VOID);
-#define LOS_IntLock ArchIntLock
-
-VOID ArchIntRestore(UINT32 intSave);
-#define LOS_IntRestore ArchIntRestore
-
-UINT32 ArchIntUnLock(VOID);
-#define LOS_IntUnLock ArchIntUnLock
-
-#define LOS_HwiOpsGet ArchIntOpsGet
+#if (LOSCFG_DEBUG_TOOLS == 1)
+extern UINT32 OsGetHwiFormCnt(UINT32 index);
+extern CHAR *OsGetHwiFormName(UINT32 index);
+extern BOOL OsHwiIsCreated(UINT32 index);
+#endif
 
 /**
  * @ingroup  los_interrupt
@@ -162,11 +141,40 @@ UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam);
  * <ul><li>los_interrupt.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
-UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
-                     HWI_PRIOR_T hwiPrio,
-                     HWI_MODE_T mode,
-                     HWI_PROC_FUNC handler,
-                     HwiIrqParam *irqParam);
+UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum, HWI_PRIOR_T hwiPrio, HWI_MODE_T mode,
+                     HWI_PROC_FUNC handler, HwiIrqParam *irqParam);
+UINT32 ArchIsIntActive(VOID);
+UINT32 ArchIntLock(VOID);
+UINT32 ArchIntUnLock(VOID);
+VOID ArchIntRestore(UINT32 intSave);
+
+#if (LOSCFG_ARCH_ARM == 1)
+UINT32 ArchIntTrigger(HWI_HANDLE_T hwiNum);
+UINT32 ArchIntEnable(HWI_HANDLE_T hwiNum);
+UINT32 ArchIntDisable(HWI_HANDLE_T hwiNum);
+UINT32 ArchIntClear(HWI_HANDLE_T hwiNum);
+UINT32 ArchIntSetPriority(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priority);
+UINT32 ArchIntCurIrqNum(VOID);
+HwiControllerOps *ArchIntOpsGet(VOID);
+#endif
+
+#define OS_INT_ACTIVE           (ArchIsIntActive())
+#define OS_INT_INACTIVE         (!(OS_INT_ACTIVE))
+#define LOS_IntLock             ArchIntLock
+#define LOS_IntRestore          ArchIntRestore
+#define LOS_IntUnLock           ArchIntUnLock
+#define LOS_HwiDelete           ArchHwiDelete
+#define LOS_HwiCreate           ArchHwiCreate
+#define LOS_HwiTrigger          ArchIntTrigger
+#define LOS_HwiEnable           ArchIntEnable
+#define LOS_HwiDisable          ArchIntDisable
+#define LOS_HwiClear            ArchIntClear
+#define LOS_HwiSetPriority      ArchIntSetPriority
+#define LOS_HwiCurIrqNum        ArchIntCurIrqNum
+#define LOS_HwiOpsGet           ArchIntOpsGet
+
+#if (LOSCFG_ARCH_ARM == 0)
+extern HwiControllerOps g_archHwiOps;
 
 STATIC INLINE UINT32 ArchIntTrigger(HWI_HANDLE_T hwiNum)
 {
@@ -220,11 +228,6 @@ STATIC INLINE HwiControllerOps *ArchIntOpsGet(VOID)
 {
     return &g_archHwiOps;
 }
-
-#if (LOSCFG_DEBUG_TOOLS == 1)
-extern UINT32 OsGetHwiFormCnt(UINT32 index);
-extern CHAR *OsGetHwiFormName(UINT32 index);
-extern BOOL OsGetHwiCreated(UINT32 index);
 #endif
 
 #ifdef __cplusplus

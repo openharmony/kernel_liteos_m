@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -44,14 +44,6 @@ extern "C" {
 
 /* *
  * @ingroup los_arch_interrupt
- * Maximum number of used hardware interrupts.
- */
-#ifndef OS_HWI_MAX_NUM
-#define OS_HWI_MAX_NUM                        LOSCFG_PLATFORM_HWI_LIMIT
-#endif
-
-/* *
- * @ingroup los_arch_interrupt
  * Highest priority of a hardware interrupt.
  */
 #ifndef OS_HWI_PRIO_HIGHEST
@@ -65,19 +57,6 @@ extern "C" {
 #ifndef OS_HWI_PRIO_LOWEST
 #define OS_HWI_PRIO_LOWEST                    7
 #endif
-
-
-/* *
- * @ingroup  los_arch_interrupt
- * Define the type of a hardware interrupt vector table function.
- */
-typedef VOID (**HWI_VECTOR_FUNC)(void);
-
-/* *
- * @ingroup los_arch_interrupt
- * Count of interrupts.
- */
-extern UINT32 g_intCount;
 
 /* *
  * @ingroup los_arch_interrupt
@@ -185,6 +164,16 @@ extern UINT32 _BootVectors[];
  * Solution: Check whether the interrupt specified by the passed-in interrupt number has already been created.
  */
 #define OS_ERRNO_HWI_FASTMODE_ALREADY_CREATED LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x07)
+
+/* *
+ * @ingroup los_arch_interrupt
+ * Hardware interrupt error code: Invalid interrupt operation function.
+ *
+ * Value: 0x02000908
+ *
+ * Solution: Set a valid interrupt operation function
+ */
+#define OS_ERRNO_HWI_OPS_FUNC_NULL            LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x08)
 
 /* *
  * @ingroup los_arch_interrupt
@@ -312,20 +301,6 @@ extern UINT32 _BootVectors[];
  */
 #define OS_EXC_SYS_TICK                       15
 
-#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
-/* *
- * @ingroup los_arch_interrupt
- * Set interrupt vector table.
- */
-extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector, VOID *arg);
-#else
-/* *
- * @ingroup los_arch_interrupt
- * Set interrupt vector table.
- */
-extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector);
-#endif
-
 /* *
  * @ingroup  los_arch_interrupt
  * @brief: Hardware interrupt entry function.
@@ -344,25 +319,6 @@ extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector);
  * @see None.
  */
 extern VOID HalInterrupt(VOID);
-
-/* *
- * @ingroup  los_arch_interrupt
- * @brief: Default vector handling function.
- *
- * @par Description:
- * This API is used to configure interrupt for null function.
- *
- * @attention:
- * <ul><li>None.</li></ul>
- *
- * @param:None.
- *
- * @retval:None.
- * @par Dependency:
- * <ul><li>los_arch_interrupt.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-extern VOID HalHwiDefaultHandler(VOID);
 
 /* *
  * @ingroup  los_arch_interrupt
@@ -403,17 +359,12 @@ extern VOID Reset_Handler(VOID);
  */
 extern VOID HalPendSV(VOID);
 
-
-#define OS_EXC_IN_INIT                      0
-#define OS_EXC_IN_TASK                      1
-#define OS_EXC_IN_HWI                       2
-
 #define OS_EXC_MAX_BUF_LEN                  25
 #define OS_EXC_MAX_NEST_DEPTH               1
+#define OS_EXC_FLAG_NO_FLOAT                0x10000000
 
 #define OS_NVIC_SHCSR                       0xE000ED24
 #define OS_NVIC_CCR                         0xE000ED14
-
 #define OS_NVIC_INT_ENABLE_SIZE             0x20
 #define OS_NVIC_INT_PRI_SIZE                0xF0
 #define OS_NVIC_EXCPRI_SIZE                 0xC
@@ -422,14 +373,6 @@ extern VOID HalPendSV(VOID);
 
 #define OS_NVIC_INT_PEND_SIZE               OS_NVIC_INT_ACT_SIZE
 #define OS_NVIC_INT_ACT_SIZE                OS_NVIC_INT_ENABLE_SIZE
-
-#define OS_EXC_FLAG_NO_FLOAT                0x10000000
-#define OS_EXC_FLAG_FAULTADDR_VALID         0x01
-#define OS_EXC_FLAG_IN_HWI                  0x02
-
-#define OS_EXC_IMPRECISE_ACCESS_ADDR        0xABABABAB
-
-#define OS_EXC_EVENT                        0x00000001
 
 /**
  * @ingroup los_exc
@@ -503,7 +446,6 @@ typedef struct TagExcContext {
 
 typedef VOID (*EXC_PROC_FUNC)(UINT32, EXC_CONTEXT_S *);
 VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, UINT32 pid, EXC_CONTEXT_S *excBufAddr);
-
 VOID HalExcNMI(VOID);
 VOID HalExcHardFault(VOID);
 VOID HalExcMemFault(VOID);
@@ -668,7 +610,6 @@ typedef struct TagExcInfo {
 } ExcInfo;
 
 extern UINT32 g_curNestCount;
-extern UINT32 g_intCount;
 extern UINT8 g_uwExcTbl[32];
 extern ExcInfo g_excInfo;
 

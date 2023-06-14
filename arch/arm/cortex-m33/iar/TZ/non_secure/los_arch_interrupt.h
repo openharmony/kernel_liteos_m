@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,12 +29,10 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _LOS_EXC_H
-#define _LOS_EXC_H
+#ifndef _LOS_ARCH_INTERRUPT_H
+#define _LOS_ARCH_INTERRUPT_H
 
-#include "los_config.h"
-#include "los_compiler.h"
-#include "los_interrupt.h"
+#include "los_common_interrupt.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -43,15 +41,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* *
- * @ingroup los_hwi
- * Maximum number of used hardware interrupts.
- */
-#ifndef OS_HWI_MAX_NUM
-#define OS_HWI_MAX_NUM                        LOSCFG_PLATFORM_HWI_LIMIT
-#endif
-
-/* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Highest priority of a hardware interrupt.
  */
 #ifndef OS_HWI_PRIO_HIGHEST
@@ -59,63 +49,50 @@ extern "C" {
 #endif
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Lowest priority of a hardware interrupt.
  */
 #ifndef OS_HWI_PRIO_LOWEST
 #define OS_HWI_PRIO_LOWEST                    7
 #endif
 
-
 /* *
- * @ingroup  los_hwi
- * Define the type of a hardware interrupt vector table function.
- */
-typedef VOID (**HWI_VECTOR_FUNC)(void);
-
-/* *
- * @ingroup los_hwi
- * Count of interrupts.
- */
-extern UINT32 g_intCount;
-
-/* *
- * @ingroup los_hwi
- * Count of M-Core system interrupt vector.
- */
-#define OS_SYS_VECTOR_CNT                     16
-
-/* *
- * @ingroup los_hwi
- * Count of M-Core interrupt vector.
- */
-#define OS_VECTOR_CNT                         (OS_SYS_VECTOR_CNT + OS_HWI_MAX_NUM)
-
-/* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * AIRCR register priority group parameter .
  */
 #define OS_NVIC_AIRCR_PRIGROUP                7
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Boot interrupt vector table.
  */
 extern UINT32 _BootVectors[];
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
+ * Count of M-Core system interrupt vector.
+ */
+#define OS_SYS_VECTOR_CNT                     16
+
+/* *
+ * @ingroup los_arch_interrupt
+ * Count of M-Core interrupt vector.
+ */
+#define OS_VECTOR_CNT                         (OS_SYS_VECTOR_CNT + OS_HWI_MAX_NUM)
+
+/* *
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Invalid interrupt number.
  *
  * Value: 0x02000900
  *
  * Solution: Ensure that the interrupt number is valid.
- * The value range of the interrupt number applicable for a Cortex-M33 platform is [OS_USER_HWI_MIN,OS_USER_HWI_MAX].
+ * The value range of the interrupt number applicable for a Cortex-M33  platform is [OS_USER_HWI_MIN,OS_USER_HWI_MAX].
  */
 #define OS_ERRNO_HWI_NUM_INVALID              LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x00)
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Null hardware interrupt handling function.
  *
  * Value: 0x02000901
@@ -125,7 +102,7 @@ extern UINT32 _BootVectors[];
 #define OS_ERRNO_HWI_PROC_FUNC_NULL           LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x01)
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Insufficient interrupt resources for hardware interrupt creation.
  *
  * Value: 0x02000902
@@ -135,7 +112,7 @@ extern UINT32 _BootVectors[];
 #define OS_ERRNO_HWI_CB_UNAVAILABLE           LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x02)
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Insufficient memory for hardware interrupt initialization.
  *
  * Value: 0x02000903
@@ -145,7 +122,7 @@ extern UINT32 _BootVectors[];
 #define OS_ERRNO_HWI_NO_MEMORY                LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x03)
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: The interrupt has already been created.
  *
  * Value: 0x02000904
@@ -155,7 +132,7 @@ extern UINT32 _BootVectors[];
 #define OS_ERRNO_HWI_ALREADY_CREATED          LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x04)
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Invalid interrupt priority.
  *
  * Value: 0x02000905
@@ -166,7 +143,7 @@ extern UINT32 _BootVectors[];
 #define OS_ERRNO_HWI_PRIO_INVALID             LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x05)
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Incorrect interrupt creation mode.
  *
  * Value: 0x02000906
@@ -177,7 +154,7 @@ extern UINT32 _BootVectors[];
 #define OS_ERRNO_HWI_MODE_INVALID             LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x06)
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: The interrupt has already been created as a fast interrupt.
  *
  * Value: 0x02000907
@@ -187,7 +164,17 @@ extern UINT32 _BootVectors[];
 #define OS_ERRNO_HWI_FASTMODE_ALREADY_CREATED LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x07)
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
+ * Hardware interrupt error code: Invalid interrupt operation function.
+ *
+ * Value: 0x02000908
+ *
+ * Solution: Set a valid interrupt operation function
+ */
+#define OS_ERRNO_HWI_OPS_FUNC_NULL            LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x08)
+
+/* *
+ * @ingroup los_arch_interrupt
  * SysTick control and status register.
  */
 #define OS_SYSTICK_CONTROL_REG                0xE000E010
@@ -199,132 +186,118 @@ extern UINT32 _BootVectors[];
 #define OS_SYSTICK_CURRENT_REG                0xE000E018
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt Priority-Level Registers.
  */
 #define OS_NVIC_PRI_BASE                      0xE000E400
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt enable register for 0-31.
  */
 #define OS_NVIC_SETENA_BASE                   0xE000E100
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * interrupt pending register.
  */
 #define OS_NVIC_SETPEND_BASE                  0xE000E200
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt active register.
  */
 #define OS_NVIC_INT_ACT_BASE                  0xE000E300
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt disable register for 0-31.
  */
 #define OS_NVIC_CLRENA_BASE                   0xE000E180
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt control and status register.
  */
 #define OS_NVIC_INT_CTRL                      0xE000ED04
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Vector table offset register.
  */
 #define OS_NVIC_VTOR                          0xE000ED08
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Application interrupt and reset control register
  */
 #define OS_NVIC_AIRCR                         0xE000ED0C
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * System exception priority register.
  */
 #define OS_NVIC_EXCPRI_BASE                   0xE000ED18
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt No. 1 :reset.
  */
 #define OS_EXC_RESET                          1
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt No. 2 :Non-Maskable Interrupt.
  */
 #define OS_EXC_NMI                            2
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt No. 3 :(hard)fault.
  */
 #define OS_EXC_HARD_FAULT                     3
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt No. 4 :MemManage fault.
  */
 #define OS_EXC_MPU_FAULT                      4
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt No. 5 :Bus fault.
  */
 #define OS_EXC_BUS_FAULT                      5
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt No. 6 :Usage fault.
  */
 #define OS_EXC_USAGE_FAULT                    6
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt No. 11 :SVCall.
  */
 #define OS_EXC_SVC_CALL                       11
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt No. 12 :Debug monitor.
  */
 #define OS_EXC_DBG_MONITOR                    12
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt No. 14 :PendSV.
  */
 #define OS_EXC_PEND_SV                        14
 
 /* *
- * @ingroup los_hwi
+ * @ingroup los_arch_interrupt
  * Interrupt No. 15 :SysTick.
  */
 #define OS_EXC_SYS_TICK                       15
-
-#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
-/* *
- * @ingroup los_hwi
- * Set interrupt vector table.
- */
-extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector, VOID *arg);
-#else
-/* *
- * @ingroup los_hwi
- * Set interrupt vector table.
- */
-extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector);
-#endif
 
 /* *
  * @ingroup  los_hwi
@@ -346,27 +319,7 @@ extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector);
 extern VOID HalInterrupt(VOID);
 
 /* *
- * @ingroup  los_hwi
- * @brief: Default vector handling function.
- *
- * @par Description:
- * This API is used to configure interrupt for null function.
- *
- * @attention:
- * <ul><li>None.</li></ul>
- *
- * @param:None.
- *
- * @retval:None.
- * @par Dependency:
- * <ul><li>los_hwi.h: the header file that contains the API declaration.</li
-></ul>
- * @see None.
- */
-extern VOID HalHwiDefaultHandler(VOID);
-
-/* *
- * @ingroup  los_hwi
+ * @ingroup  los_arch_interrupt
  * @brief: Reset the vector table.
  *
  * @par Description:
@@ -379,13 +332,13 @@ extern VOID HalHwiDefaultHandler(VOID);
  *
  * @retval:None.
  * @par Dependency:
- * <ul><li>los_hwi.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_arch_interrupt.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern VOID Reset_Handler(VOID);
 
 /* *
- * @ingroup  los_hwi
+ * @ingroup  los_arch_interrupt
  * @brief: Pended System Call.
  *
  * @par Description:
@@ -399,38 +352,24 @@ extern VOID Reset_Handler(VOID);
  *
  * @retval:None.
  * @par Dependency:
- * <ul><li>los_hwi.h: the header file that contains the API declaration.</li></ul>
+ * <ul><li>los_arch_interrupt.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
 extern VOID HalPendSV(VOID);
 
-
-#define OS_EXC_IN_INIT                      0
-#define OS_EXC_IN_TASK                      1
-#define OS_EXC_IN_HWI                       2
-
 #define OS_EXC_MAX_BUF_LEN                  25
 #define OS_EXC_MAX_NEST_DEPTH               1
+#define OS_EXC_FLAG_NO_FLOAT                0x10000000
 
 #define OS_NVIC_SHCSR                       0xE000ED24
 #define OS_NVIC_CCR                         0xE000ED14
-
 #define OS_NVIC_INT_ENABLE_SIZE             0x20
 #define OS_NVIC_INT_PRI_SIZE                0xF0
 #define OS_NVIC_EXCPRI_SIZE                 0xC
 #define OS_NVIC_INT_CTRL_SIZE               4
 #define OS_NVIC_SHCSR_SIZE                  4
-
 #define OS_NVIC_INT_PEND_SIZE               OS_NVIC_INT_ACT_SIZE
 #define OS_NVIC_INT_ACT_SIZE                OS_NVIC_INT_ENABLE_SIZE
-
-#define OS_EXC_FLAG_NO_FLOAT                0x10000000
-#define OS_EXC_FLAG_FAULTADDR_VALID         0x01
-#define OS_EXC_FLAG_IN_HWI                  0x02
-
-#define OS_EXC_IMPRECISE_ACCESS_ADDR        0xABABABAB
-
-#define OS_EXC_EVENT                        0x00000001
 
 /**
  * @ingroup los_exc
@@ -500,11 +439,10 @@ typedef struct TagExcContext {
     UINT32 FPSCR;
     UINT32 NO_NAME;
 #endif
-}EXC_CONTEXT_S;
+} EXC_CONTEXT_S;
 
 typedef VOID (*EXC_PROC_FUNC)(UINT32, EXC_CONTEXT_S *);
 VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, UINT32 pid, EXC_CONTEXT_S *excBufAddr);
-
 VOID HalExcNMI(VOID);
 VOID HalExcHardFault(VOID);
 VOID HalExcMemFault(VOID);
@@ -645,7 +583,7 @@ VOID HalHwiInit(VOID);
  * @ingroup los_exc
  * Exception information structure
  *
- * Description: Exception information saved when an exception is triggered on the Cortex-M4 platform.
+ * Description: Exception information saved when an exception is triggered on the Cortex-M33 platform.
  *
  */
 typedef struct TagExcInfo {
@@ -668,10 +606,9 @@ typedef struct TagExcInfo {
     EXC_CONTEXT_S *context;
 } ExcInfo;
 
-extern UINT32 g_curNestCount;
-extern UINT32 g_intCount;
-extern UINT8 g_uwExcTbl[32];
 extern ExcInfo g_excInfo;
+extern UINT32 g_curNestCount;
+extern UINT8 g_uwExcTbl[32];
 
 #define MAX_INT_INFO_SIZE       (8 + 0x164)
 
@@ -681,4 +618,4 @@ extern ExcInfo g_excInfo;
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* _LOS_EXC_H */
+#endif /* _LOS_ARCH_INTERRUPT_H */

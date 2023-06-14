@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -63,7 +63,7 @@ STATIC VOID ShellCmdHwiInfoShow(OsIrqCpupCB *irqData, CPUP_INFO_S *hwiCpup1s,
     }
 
     for (i = 0; i < LOSCFG_PLATFORM_HWI_LIMIT; i++) {
-        if ((OsGetHwiCreated(i) != TRUE) || (OsGetHwiFormCnt(i) == 0)) {
+        if ((OsHwiIsCreated(i) != TRUE) || (OsGetHwiFormCnt(i) == 0)) {
             continue;
         }
 
@@ -120,7 +120,7 @@ STATIC VOID HwiInfoDump(VOID)
 
     PRINTK(" InterruptNo     Count     Name\n");
     for (i = 0; i < LOSCFG_PLATFORM_HWI_LIMIT; i++) {
-        if ((OsGetHwiCreated(i) != TRUE) || (OsGetHwiFormCnt(i) == 0)) {
+        if ((OsHwiIsCreated(i) != TRUE) || (OsGetHwiFormCnt(i) == 0)) {
             continue;
         }
 
