@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,9 +32,7 @@
 #ifndef _LOS_ARCH_INTERRUPT_H
 #define _LOS_ARCH_INTERRUPT_H
 
-#include "los_config.h"
-#include "los_compiler.h"
-#include "los_interrupt.h"
+#include "los_common_interrupt.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -69,14 +67,6 @@ extern CHAR *VECTOR_START;
 
 /* *
  * @ingroup los_arch_interrupt
- * Maximum number of used hardware interrupts.
- */
-#ifndef OS_HWI_MAX_NUM
-#define OS_HWI_MAX_NUM                        LOSCFG_PLATFORM_HWI_LIMIT
-#endif
-
-/* *
- * @ingroup los_arch_interrupt
  * Highest priority of a hardware interrupt.
  */
 #ifndef OS_HWI_PRIO_HIGHEST
@@ -90,22 +80,6 @@ extern CHAR *VECTOR_START;
 #ifndef OS_HWI_PRIO_LOWEST
 #define OS_HWI_PRIO_LOWEST                    7
 #endif
-
-#define OS_EXC_IN_INIT                        0
-#define OS_EXC_IN_TASK                        1
-#define OS_EXC_IN_HWI                         2
-
-/* *
- * @ingroup  los_arch_interrupt
- * Define the type of a hardware interrupt vector table function.
- */
-typedef VOID (**HWI_VECTOR_FUNC)(VOID);
-
-/* *
- * @ingroup los_arch_interrupt
- * Count of interrupts.
- */
-extern UINT32 g_intCount;
 
 /* *
  * @ingroup los_arch_interrupt
@@ -199,22 +173,17 @@ extern UINT32 g_intCount;
  */
 #define OS_ERRNO_HWI_FASTMODE_ALREADY_CREATED LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x07)
 
-#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
 /* *
  * @ingroup los_arch_interrupt
- * Set interrupt vector table.
+ * Hardware interrupt error code: Invalid interrupt operation function.
+ *
+ * Value: 0x0200090c
+ *
+ * Solution: Set a valid interrupt operation function
  */
-extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector, VOID *arg);
-#else
-/* *
- * @ingroup los_arch_interrupt
- * Set interrupt vector table.
- */
-extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector);
-#endif
+#define OS_ERRNO_HWI_OPS_FUNC_NULL            LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x0c)
 
 VOID HalInterrupt(VOID);
-VOID HalHwiDefaultHandler(VOID);
 VOID HalExcHandleEntry(UINTPTR faultAddr, EXC_CONTEXT_S *excBufAddr, UINT32 type);
 VOID HalHwiInit(VOID);
 

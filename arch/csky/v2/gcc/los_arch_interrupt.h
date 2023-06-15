@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -32,23 +32,13 @@
 #ifndef _LOS_ARCH_INTERRUPT_H
 #define _LOS_ARCH_INTERRUPT_H
 
-#include "los_config.h"
-#include "los_compiler.h"
-#include "los_interrupt.h"
+#include "los_common_interrupt.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
-
-/* *
- * @ingroup los_arch_interrupt
- * Maximum number of used hardware interrupts.
- */
-#ifndef OS_HWI_MAX_NUM
-#define OS_HWI_MAX_NUM                        LOSCFG_PLATFORM_HWI_LIMIT
-#endif
 
 /* *
  * @ingroup los_arch_interrupt
@@ -73,18 +63,6 @@ extern "C" {
 #define HWI_PRI_VALID(pri)              (((pri) >= OS_HWI_PRIO_HIGHEST) && ((pri) <= OS_HWI_PRIO_LOWEST))
 
 /* *
- * @ingroup  los_arch_interrupt
- * Define the type of a hardware interrupt vector table function.
- */
-typedef VOID (**HWI_VECTOR_FUNC)(VOID);
-
-/* *
- * @ingroup los_arch_interrupt
- * Count of interrupts.
- */
-extern volatile UINT32 g_intCount;
-
-/* *
  * @ingroup los_arch_interrupt
  * Count of C-sky system interrupt vector.
  */
@@ -95,6 +73,11 @@ extern volatile UINT32 g_intCount;
  * Count of C-sky interrupt vector.
  */
 #define OS_VECTOR_CNT                         (OS_SYS_VECTOR_CNT + OS_HWI_MAX_NUM)
+
+#define OS_USER_HWI_MIN                 0
+#define OS_USER_HWI_MAX                 (LOSCFG_PLATFORM_HWI_LIMIT - 1)
+
+#define HWI_ALIGNSIZE                   0x400
 
 #define PSR_VEC_OFFSET                         16U
 #define VIC_REG_BASE                           0xE000E100UL
@@ -210,6 +193,16 @@ extern VIC_TYPE *VIC_REG;
 
 /* *
  * @ingroup los_arch_interrupt
+ * Hardware interrupt error code: Invalid interrupt operation function.
+ *
+ * Value: 0x0200090c
+ *
+ * Solution: Set a valid interrupt operation function
+ */
+#define OS_ERRNO_HWI_OPS_FUNC_NULL            LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x0c)
+
+/* *
+ * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Invalid interrupt number.
  *
  * Value: 0x02000900
@@ -217,20 +210,6 @@ extern VIC_TYPE *VIC_REG;
  * Solution: Ensure that the interrupt number is valid.
  */
 #define LOS_ERRNO_HWI_NUM_INVALID             OS_ERRNO_HWI_NUM_INVALID
-
-#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
-/* *
- * @ingroup los_arch_interrupt
- * Set interrupt vector table.
- */
-extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector, VOID *arg);
-#else
-/* *
- * @ingroup los_arch_interrupt
- * Set interrupt vector table.
- */
-extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector);
-#endif
 
 /* *
  * @ingroup  los_arch_interrupt
@@ -251,29 +230,6 @@ extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector);
  */
 extern VOID HalInterrupt(VOID);
 
-/* *
- * @ingroup  los_arch_interrupt
- * @brief: Default vector handling function.
- *
- * @par Description:
- * This API is used to configure interrupt for null function.
- *
- * @attention:
- * <ul><li>None.</li></ul>
- *
- * @param:None.
- *
- * @retval:None.
- * @par Dependency:
- * <ul><li>los_arch_interrupt.h: the header file that contains the API declaration.</li></ul>
- * @see None.
- */
-extern VOID HalHwiDefaultHandler(VOID);
-
-#define OS_EXC_IN_INIT                      0
-#define OS_EXC_IN_TASK                      1
-#define OS_EXC_IN_HWI                       2
-
 #define OS_VIC_INT_ENABLE_SIZE             0x4
 #define OS_VIC_INT_WAKER_SIZE              0x4
 #define OS_VIC_INT_ICER_SIZE               0x4
@@ -282,10 +238,6 @@ extern VOID HalHwiDefaultHandler(VOID);
 #define OS_VIC_INT_IPR_SIZE                0x4
 #define OS_VIC_INT_ISR_SIZE                0x4
 #define OS_VIC_INT_IPTR_SIZE               0x4
-
-#define OS_EXC_FLAG_FAULTADDR_VALID         0x01
-
-#define OS_EXC_IMPRECISE_ACCESS_ADDR        0xABABABAB
 
 /**
  * @ingroup los_exc

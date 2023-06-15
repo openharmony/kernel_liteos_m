@@ -160,11 +160,11 @@ extern "C" {
  * @ingroup los_arch_interrupt
  * Hardware interrupt error code: Invalid interrupt operation function.
  *
- * Value: 0x02000908
+ * Value: 0x0200090c
  *
  * Solution: Set a valid interrupt operation function
  */
-#define OS_ERRNO_HWI_OPS_FUNC_NULL            LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x08)
+#define OS_ERRNO_HWI_OPS_FUNC_NULL            LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x0c)
 
 /* *
  * @ingroup los_arch_interrupt
