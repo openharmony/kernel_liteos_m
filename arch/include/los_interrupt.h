@@ -147,8 +147,6 @@ UINT32 ArchIsIntActive(VOID);
 UINT32 ArchIntLock(VOID);
 UINT32 ArchIntUnLock(VOID);
 VOID ArchIntRestore(UINT32 intSave);
-
-#if (LOSCFG_ARCH_ARM == 1)
 UINT32 ArchIntTrigger(HWI_HANDLE_T hwiNum);
 UINT32 ArchIntEnable(HWI_HANDLE_T hwiNum);
 UINT32 ArchIntDisable(HWI_HANDLE_T hwiNum);
@@ -156,7 +154,6 @@ UINT32 ArchIntClear(HWI_HANDLE_T hwiNum);
 UINT32 ArchIntSetPriority(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priority);
 UINT32 ArchIntCurIrqNum(VOID);
 HwiControllerOps *ArchIntOpsGet(VOID);
-#endif
 
 #define OS_INT_ACTIVE           (ArchIsIntActive())
 #define OS_INT_INACTIVE         (!(OS_INT_ACTIVE))
@@ -172,63 +169,6 @@ HwiControllerOps *ArchIntOpsGet(VOID);
 #define LOS_HwiSetPriority      ArchIntSetPriority
 #define LOS_HwiCurIrqNum        ArchIntCurIrqNum
 #define LOS_HwiOpsGet           ArchIntOpsGet
-
-#if (LOSCFG_ARCH_ARM == 0)
-extern HwiControllerOps g_archHwiOps;
-
-STATIC INLINE UINT32 ArchIntTrigger(HWI_HANDLE_T hwiNum)
-{
-    if (g_archHwiOps.triggerIrq == NULL) {
-        return LOS_NOK;
-    }
-    return g_archHwiOps.triggerIrq(hwiNum);
-}
-
-STATIC INLINE UINT32 ArchIntEnable(HWI_HANDLE_T hwiNum)
-{
-    if (g_archHwiOps.enableIrq == NULL) {
-        return LOS_NOK;
-    }
-    return g_archHwiOps.enableIrq(hwiNum);
-}
-
-STATIC INLINE UINT32 ArchIntDisable(HWI_HANDLE_T hwiNum)
-{
-    if (g_archHwiOps.disableIrq == NULL) {
-        return LOS_NOK;
-    }
-    return g_archHwiOps.disableIrq(hwiNum);
-}
-
-STATIC INLINE UINT32 ArchIntClear(HWI_HANDLE_T hwiNum)
-{
-    if (g_archHwiOps.clearIrq == NULL) {
-        return LOS_NOK;
-    }
-    return g_archHwiOps.clearIrq(hwiNum);
-}
-
-STATIC INLINE UINT32 ArchIntSetPriority(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priority)
-{
-    if (g_archHwiOps.setIrqPriority == NULL) {
-        return LOS_NOK;
-    }
-    return g_archHwiOps.setIrqPriority(hwiNum, priority);
-}
-
-STATIC INLINE UINT32 ArchIntCurIrqNum(VOID)
-{
-    if (g_archHwiOps.getCurIrqNum == NULL) {
-        return LOS_NOK;
-    }
-    return g_archHwiOps.getCurIrqNum();
-}
-
-STATIC INLINE HwiControllerOps *ArchIntOpsGet(VOID)
-{
-    return &g_archHwiOps;
-}
-#endif
 
 #ifdef __cplusplus
 #if __cplusplus

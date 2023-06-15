@@ -31,11 +31,7 @@
 #ifndef _LOS_ARCH_INTERRUPT_H
 #define _LOS_ARCH_INTERRUPT_H
 
-#include "los_compiler.h"
-#include "los_config.h"
-#include "los_interrupt.h"
-#include "los_arch_context.h"
-#include "los_error.h"
+#include "los_common_interrupt.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -146,9 +142,6 @@ extern VOID HalHwiInit(VOID);
 extern UINT32 HalGetHwiFormCnt(HWI_HANDLE_T hwiNum);
 extern HWI_HANDLE_FORM_S *HalGetHwiForm(VOID);
 extern VOID HalHwiInterruptDone(HWI_HANDLE_T hwiNum);
-extern VOID HalHwiDefaultHandler(VOID *arg);
-
-extern UINT32 g_intCount;
 
 /**
  * @ingroup los_arch_interrupt
@@ -272,6 +265,16 @@ extern UINT32 g_intCount;
  * * Solution:check the hwi number or devid, make sure the hwi number or devid need to delete.
  */
 #define OS_ERRNO_HWI_HWINUM_UNCREATE LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x0b)
+
+/* *
+ * @ingroup los_arch_interrupt
+ * Hardware interrupt error code: Invalid interrupt operation function.
+ *
+ * Value: 0x0200090c
+ *
+ * Solution: Set a valid interrupt operation function
+ */
+#define OS_ERRNO_HWI_OPS_FUNC_NULL LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x0c)
 
 extern UINT32 HalUnalignedAccessFix(UINTPTR mcause, UINTPTR mepc, UINTPTR mtval, VOID *sp);
 
