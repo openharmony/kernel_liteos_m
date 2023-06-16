@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -29,7 +29,6 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_interrupt.h"
 #include <stdarg.h>
 #include "securec.h"
 #include "los_context.h"
@@ -41,65 +40,6 @@
 #include "los_memory.h"
 #include "los_membox.h"
 #include "los_arch_regs.h"
-
-UINT32 g_intCount = 0;
-
-/* *
- * @ingroup los_hwi
- * Hardware interrupt form mapping handling function array.
- */
-STATIC HWI_PROC_FUNC __attribute__((aligned(LOSCFG_ARCH_HWI_VECTOR_ALIGN))) g_hwiForm[OS_VECTOR_CNT] = {0};
-
-#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
-
-typedef struct {
-    HWI_PROC_FUNC pfnHandler;
-    VOID *pParm;
-} HWI_HANDLER_FUNC;
-
-/* *
- * @ingroup los_hwi
- * Hardware interrupt handler form mapping handling function array.
- */
-STATIC HWI_HANDLER_FUNC g_hwiHandlerForm[OS_VECTOR_CNT] = {{ (HWI_PROC_FUNC)0, (HWI_ARG_T)0 }};
-
-/* *
- * @ingroup los_hwi
- * Set interrupt vector table.
- */
-VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector, VOID *arg)
-{
-    if ((num + OS_SYS_VECTOR_CNT) < OS_VECTOR_CNT) {
-        g_hwiForm[num + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalInterrupt;
-        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT].pfnHandler = vector;
-        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT].pParm = arg;
-    }
-}
-
-#else
-/* *
- * @ingroup los_hwi
- * Hardware interrupt handler form mapping handling function array.
- */
-STATIC HWI_PROC_FUNC g_hwiHandlerForm[OS_VECTOR_CNT] = {0};
-
-/* *
- * @ingroup los_hwi
- * Set interrupt vector table.
- */
-VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector)
-{
-    if ((num + OS_SYS_VECTOR_CNT) < OS_VECTOR_CNT) {
-        g_hwiForm[num + OS_SYS_VECTOR_CNT] = HalInterrupt;
-        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT] = vector;
-    }
-}
-#endif
-
-UINT32 HwiNumValid(UINT32 num)
-{
-    return (num >= OS_SYS_VECTOR_CNT) && (num <= OS_VECTOR_CNT);
-}
 
 /* *
  * @ingroup los_hwi
@@ -154,22 +94,13 @@ STATIC INLINE UINT32 ArchIntLocked(VOID)
  */
 STATIC UINT32 HwiPending(HWI_HANDLE_T hwiNum)
 {
-    if (!HwiNumValid(hwiNum)) {
-        return OS_ERRNO_HWI_NUM_INVALID;
-    }
-
     __asm__ __volatile__("wsr   %0, intset; rsync" : : "a"(0x1U << hwiNum));
-
     return LOS_OK;
 }
 
-UINT32 HwiUnmask(HWI_HANDLE_T hwiNum)
+STATIC UINT32 HwiUnmask(HWI_HANDLE_T hwiNum)
 {
     UINT32 ier;
-
-    if (!HwiNumValid(hwiNum)) {
-        return OS_ERRNO_HWI_NUM_INVALID;
-    }
 
     __asm__ __volatile__("rsr %0, intenable" : "=a"(ier) : : "memory");
     __asm__ __volatile__("wsr %0, intenable; rsync" : : "a"(ier | ((UINT32)0x1U << hwiNum)));
@@ -177,13 +108,9 @@ UINT32 HwiUnmask(HWI_HANDLE_T hwiNum)
     return LOS_OK;
 }
 
-UINT32 HwiMask(HWI_HANDLE_T hwiNum)
+STATIC UINT32 HwiMask(HWI_HANDLE_T hwiNum)
 {
     UINT32 ier;
-
-    if (!HwiNumValid(hwiNum)) {
-        return OS_ERRNO_HWI_NUM_INVALID;
-    }
 
     __asm__ __volatile__("rsr %0, intenable" : "=a"(ier) : : "memory");
     __asm__ __volatile__("wsr %0, intenable; rsync" : : "a"(ier & ~((UINT32)0x1U << hwiNum)));
@@ -216,53 +143,32 @@ STATIC UINT32 HwiNumGet(VOID)
  * @ingroup los_hwi
  * Clear the interrupt
  */
-STATIC UINT32 HwiClear(HWI_HANDLE_T vector)
+STATIC UINT32 HwiClear(HWI_HANDLE_T hwiNum)
 {
-    if (!HwiNumValid(vector)) {
-        return OS_ERRNO_HWI_NUM_INVALID;
-    }
-
-    __asm__ __volatile__("wsr   %0, intclear; rsync" : : "a"(0x1U << vector));
+    __asm__ __volatile__("wsr   %0, intclear; rsync" : : "a"(0x1U << hwiNum));
 
     return LOS_OK;
 }
 
-HwiControllerOps g_archHwiOps = {
+STATIC UINT32 HwiCreate(HWI_HANDLE_T hwiNum, HWI_PRIOR_T hwiPrio)
+{
+    (VOID)hwiPrio;
+    HwiUnmask(hwiNum);
+    return LOS_OK;
+}
+
+STATIC HwiControllerOps g_archHwiOps = {
     .triggerIrq     = HwiPending,
     .enableIrq      = HwiUnmask,
     .disableIrq     = HwiMask,
     .getCurIrqNum   = HwiNumGet,
     .clearIrq       = HwiClear,
+    .createIrq      = HwiCreate,
 };
 
-INLINE UINT32 ArchIsIntActive(VOID)
+HwiControllerOps *ArchIntOpsGet(VOID)
 {
-    return (g_intCount > 0);
-}
-
-/* ****************************************************************************
- Function    : HalHwiDefaultHandler
- Description : default handler of the hardware interrupt
- Input       : None
- Output      : None
- Return      : None
- **************************************************************************** */
-VOID HalHwiDefaultHandler(VOID)
-{
-    PRINT_ERR("%s irqnum:%u\n", __FUNCTION__, HwiNumGet());
-    while (1) {}
-}
-
-WEAK VOID HalPreInterruptHandler(UINT32 arg)
-{
-    (VOID)arg;
-    return;
-}
-
-WEAK VOID HalAftInterruptHandler(UINT32 arg)
-{
-    (VOID)arg;
-    return;
+    return &g_archHwiOps;
 }
 
 /* ****************************************************************************
@@ -306,88 +212,6 @@ VOID HalInterrupt(VOID)
     g_intCount--;
     LOS_IntRestore(intSave);
     HalIrqEndCheckNeedSched();
-}
-
-/* ****************************************************************************
- Function    : ArchHwiCreate
- Description : create hardware interrupt
- Input       : hwiNum   --- hwi num to create
-               hwiPrio  --- priority of the hwi
-               hwiMode  --- unused
-               hwiHandler --- hwi handler
-               irqParam --- param of the hwi handler
- Output      : None
- Return      : LOS_OK on success or error code on failure
- **************************************************************************** */
-UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
-                     HWI_PRIOR_T hwiPrio,
-                     HWI_MODE_T hwiMode,
-                     HWI_PROC_FUNC hwiHandler,
-                     HwiIrqParam *irqParam)
-{
-    (VOID)hwiMode;
-    UINT32 intSave;
-
-    if (hwiHandler == NULL) {
-        return OS_ERRNO_HWI_PROC_FUNC_NULL;
-    }
-
-    if (hwiNum >= OS_HWI_MAX_NUM) {
-        return OS_ERRNO_HWI_NUM_INVALID;
-    }
-
-    if (g_hwiForm[hwiNum + OS_SYS_VECTOR_CNT] != (HWI_PROC_FUNC)HalHwiDefaultHandler) {
-        return OS_ERRNO_HWI_ALREADY_CREATED;
-    }
-
-    if (hwiPrio > OS_HWI_PRIO_LOWEST) {
-        return OS_ERRNO_HWI_PRIO_INVALID;
-    }
-
-    intSave = LOS_IntLock();
-#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
-    if (irqParam != NULL) {
-        OsSetVector(hwiNum, hwiHandler, irqParam->pDevId);
-    } else {
-        OsSetVector(hwiNum, hwiHandler, NULL);
-    }
-#else
-    (VOID)irqParam;
-    OsSetVector(hwiNum, hwiHandler);
-#endif
-    HwiUnmask(hwiNum);
-
-    LOS_IntRestore(intSave);
-
-    return LOS_OK;
-}
-
-/* ****************************************************************************
- Function    : ArchHwiDelete
- Description : Delete hardware interrupt
- Input       : hwiNum   --- hwi num to delete
-               irqParam --- param of the hwi handler
- Output      : None
- Return      : LOS_OK on success or error code on failure
- **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam)
-{
-    (VOID)irqParam;
-    UINT32 intSave;
-
-    if (hwiNum >= OS_HWI_MAX_NUM) {
-        return OS_ERRNO_HWI_NUM_INVALID;
-    }
-
-    HwiMask(hwiNum);
-
-    intSave = LOS_IntLock();
-
-    g_hwiForm[hwiNum + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalHwiDefaultHandler;
-
-    LOS_IntRestore(intSave);
-
-    return LOS_OK;
 }
 
 ExcInfo g_excInfo = {0};
@@ -559,8 +383,9 @@ WEAK VOID __stack_chk_fail(VOID)
 VOID HalHwiInit(VOID)
 {
     EnableExceptionInterface();
+    HWI_PROC_FUNC *hwiForm = (HWI_PROC_FUNC *)ArchGetHwiFrom();
     for (UINT32 i = 0; i < OS_HWI_MAX_NUM; i++) {
-        g_hwiForm[i + OS_SYS_VECTOR_CNT] = HalHwiDefaultHandler;
+        hwiForm[i + OS_SYS_VECTOR_CNT] = HalHwiDefaultHandler;
         HwiMask(i);
     }
     asm volatile ("wsr %0, vecbase" : : "r"(INIT_VECTOR_START));

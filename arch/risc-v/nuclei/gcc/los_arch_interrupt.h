@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2020, Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  * Copyright (c) 2021 Nuclei Limited. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,14 +29,12 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _LOS_HWI_H
-#define _LOS_HWI_H
 
+#ifndef _LOS_ARCH_INTERRUPT_H
+#define _LOS_ARCH_INTERRUPT_H
+
+#include "los_common_interrupt.h"
 #include "nuclei_sdk_soc.h"
-#include "los_compiler.h"
-#include "los_config.h"
-#include "los_interrupt.h"
-#include "los_arch_context.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -192,6 +190,16 @@ extern VOID HalHwiDefaultHandler(VOID);
  */
 #define OS_ERRNO_HWI_HWINUM_UNCREATE LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x0b)
 
+/* *
+ * @ingroup los_arch_interrupt
+ * Hardware interrupt error code: Invalid interrupt operation function.
+ *
+ * Value: 0x0200090c
+ *
+ * Solution: Set a valid interrupt operation function
+ */
+#define OS_ERRNO_HWI_OPS_FUNC_NULL LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x0c)
+
 extern UINT32 HalUnalignedAccessFix(UINTPTR mcause, UINTPTR mepc, UINTPTR mtval, VOID *sp);
 
 extern VOID DisplayTaskInfo(VOID);
@@ -202,4 +210,4 @@ extern VOID DisplayTaskInfo(VOID);
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-#endif /* _LOS_HWI_H */
+#endif /* _LOS_ARCH_INTERRUPT_H */

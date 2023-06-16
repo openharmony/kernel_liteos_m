@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+ * Copyright (c) 2020-2023 Huawei Device Co., Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -74,7 +74,7 @@ STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
     __asm__ __volatile__("wsr %0, ccompare1; rsync" : : "a"(0));
     __asm__ __volatile__("wsr %0, ccompare2; rsync" : : "a"(0));
 
-    HwiUnmask(tick->irqNum);
+    LOS_HwiEnable(tick->irqNum);
     return LOS_OK;
 }
 
@@ -115,12 +115,12 @@ STATIC UINT64 SysTickCycleGet(UINT32 *period)
 
 STATIC VOID SysTickLock(VOID)
 {
-    HwiMask(OS_TICK_INT_NUM);
+    LOS_HwiDisable(OS_TICK_INT_NUM);
 }
 
 STATIC VOID SysTickUnlock(VOID)
 {
-    HwiUnmask(OS_TICK_INT_NUM);
+    LOS_HwiEnable(OS_TICK_INT_NUM);
 }
 
 ArchTickTimer *ArchSysTickTimerGet(VOID)

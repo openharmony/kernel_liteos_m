@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2023-2023 Huawei Device Co., Ltd. All rights reserved.
  * Copyright (c) 2021 Nuclei Limited. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,8 +37,6 @@
 #include "los_task.h"
 #include "los_debug.h"
 #include "nuclei_sdk_hal.h"
-
-UINT32 g_intCount = 0;
 
 STATIC UINT32 HwiUnmask(HWI_HANDLE_T hwiNum)
 {
@@ -151,20 +150,6 @@ LITE_OS_SEC_TEXT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam
 }
 
 /* ****************************************************************************
- Function    : HalHwiDefaultHandler
- Description : default handler of the hardware interrupt
- Input       : None
- Output      : None
- Return      : None
- **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT VOID HalHwiDefaultHandler(VOID)
-{
-    PRINT_ERR("default handler\n");
-    while (1) {
-    }
-}
-
-/* ****************************************************************************
  Function    : HalDisplayTaskInfo
  Description : display the task list
  Input       : None
@@ -215,13 +200,13 @@ __attribute__((always_inline)) inline VOID HalIntExit(VOID)
     g_intCount -= 1;
 }
 
-__attribute__((always_inline)) inline UINT32 ArchIsIntActive(VOID)
-{
-    return (g_intCount > 0);
-}
-
-const HwiControllerOps g_archHwiOps = {
+STATIC HwiControllerOps g_archHwiOps = {
     .enableIrq      = HwiUnmask,
     .disableIrq     = HwiMask,
     .setIrqPriority = HwiSetPriority,
 };
+
+HwiControllerOps *ArchIntOpsGet(VOID)
+{
+    return &g_archHwiOps;
+}
