@@ -40,7 +40,6 @@
 #include "los_hook.h"
 #include "riscv_hal.h"
 
-
 LosExcInfo g_excInfo;
 #define RISCV_EXC_TYPE_NUM 16
 #define RISCV_EXC_LOAD_MISALIGNED 4
@@ -64,7 +63,6 @@ const CHAR g_excInformation[RISCV_EXC_TYPE_NUM][50] = {
     { "Store/AMO page fault!" },
 };
 
-LITE_OS_SEC_BSS UINT32  g_intCount = 0;
 LITE_OS_SEC_BSS UINT32 g_hwiFormCnt[OS_HWI_MAX_NUM];
 LITE_OS_SEC_DATA_INIT HWI_HANDLE_FORM_S g_hwiForm[OS_HWI_MAX_NUM] = {
     { .pfnHook = NULL, .uwParam = 0 }, // 0 User software interrupt handler
@@ -94,14 +92,6 @@ LITE_OS_SEC_DATA_INIT HWI_HANDLE_FORM_S g_hwiForm[OS_HWI_MAX_NUM] = {
     { .pfnHook = NULL, .uwParam = 0 }, // 24 Reserved
     { .pfnHook = NULL, .uwParam = 0 }, // 25 Reserved
 };
-
-LITE_OS_SEC_TEXT_INIT VOID HalHwiDefaultHandler(VOID *arg)
-{
-    (VOID)arg;
-    PRINT_ERR("default handler\n");
-    while (1) {
-    }
-}
 
 LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
 {
@@ -142,12 +132,6 @@ LITE_OS_SEC_TEXT UINT32 HalGetHwiFormCnt(HWI_HANDLE_T hwiNum)
 LITE_OS_SEC_TEXT HWI_HANDLE_FORM_S *HalGetHwiForm(VOID)
 {
     return g_hwiForm;
-}
-
-
-inline UINT32 ArchIsIntActive(VOID)
-{
-    return (g_intCount > 0);
 }
 
 /*****************************************************************************
@@ -348,3 +332,9 @@ SYSTEM_DEATH:
     }
 }
 
+LITE_OS_SEC_BSS STATIC HwiControllerOps g_archHwiOps;
+
+HwiControllerOps *ArchIntOpsGet(VOID)
+{
+    return &g_archHwiOps;
+}
