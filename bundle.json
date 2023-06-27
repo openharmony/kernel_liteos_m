@@ -43,7 +43,7 @@
             "third_party": [
                 "bounds_checking_function",
                 "cmsis",
-                "fatfs",
+                "FatFs",
                 "littlefs",
                 "lwip",
                 "musl"
