@@ -38,6 +38,9 @@
 #if (LOS_POSIX_TEST == 1)
 #include "posix_test.h"
 #endif
+#if (LOS_XTS_TEST == 1)
+#include "xts_test.h"
+#endif
 
 UINT32 volatile g_testCount;
 UINT32 g_testTskHandle;
@@ -244,6 +247,10 @@ VOID TestTaskEntry(VOID)
 
 #if (LOS_CMSIS_TEST == 1)
     CmsisFuncTestSuite();
+#endif
+
+#if(LOS_XTS_TEST == 1)
+    XtsTestSuite();
 #endif
 
     /* The log is used for testing entrance guard, please do not make any changes. */

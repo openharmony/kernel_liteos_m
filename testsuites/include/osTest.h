@@ -96,6 +96,7 @@ extern "C" {
 #define LOS_KERNEL_LMK_TEST 0
 #define LOS_KERNEL_SIGNAL_TEST 0
 
+#define LOS_XTS_TEST 1
 #define LOS_POSIX_TEST 1
 #define LOS_CMSIS_TEST 1
 #define LOS_CMSIS2_CORE_TASK_TEST 0
