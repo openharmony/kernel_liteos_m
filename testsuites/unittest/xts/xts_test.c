@@ -33,4 +33,5 @@
 void XtsTestSuite(void)
 {
     IpcSemApiTest();
+    IoFuncTest();
 }
