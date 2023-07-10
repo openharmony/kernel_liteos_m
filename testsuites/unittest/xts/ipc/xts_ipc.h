@@ -43,22 +43,39 @@
 #include <semaphore.h>
 #include <sys/resource.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <mqueue.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define NANO_S                          1000000000
 #define NANO_MS                         1000000
-
 #define TEN_CONT                        10
 #define FIFTY_CONT                      50
 #define HUNDRED_CONT                    100
-
 #define TEST_INTP_SIZE                  10
 #define TEST_SEEK_SIZE                  12
-#define POSIX_IPC_NO_ERROR               0
-
+#define POSIX_IPC_NO_ERROR              0
 #define KERNEL_NS_PER_SECOND            1000000000
 #define SEM_VALUE_MAX                   0xFFFE
-
 #define KERNEL_NS_PER_SECOND            1000000000
 #define KERNEL_100MS_BY_NS              100000000
+#define MQ_NAME_LEN                     64
+#define MQ_TX_LEN                       64
+#define MQ_RX_LEN                       64
+#define MQ_MSG_SIZE                     64
+#define MQ_MSG_PRIO                     0
+#define MQ_MAX_MSG                      16
+#define MQ_MAX_QN_LEN                   24
+#define MAX_SIGNAL_NUMBER               64
+#define MAX_PIPE_BUFFER                 1023
+#define MAX_PIPE_NUMBER                 32
+#define MAX_MQ_NUMBER                   LOSCFG_BASE_IPC_QUEUE_LIMIT
+#define MAX_MQ_NAME_LEN                 2560
+#define MAX_MQ_MSG_SIZE                 65530
+#define MQ_MSG                          "MessageToSend"
+#define MQ_MSG_LEN                      sizeof(MQ_MSG)
 
 #endif
