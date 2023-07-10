@@ -28,32 +28,60 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _XTS_TEST_H
-#define _XTS_TEST_H
+#include "xts_io.h"
 
-#include <stdlib.h>
-#include "iCunit.h"
+LITE_TEST_SUIT(IO, IoStringsApi, IoStringsApiTestSuite);
 
-#define TEST_STR(func) ItLos##func
-#define TEST_TO_STR(x) #x
-#define TEST_HEAD_TO_STR(x) TEST_TO_STR(x)
-#define ADD_TEST_CASE(func) \
-    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION)
+static BOOL IoStringsApiTestSuiteSetUp(void)
+{
+    return TRUE;
+}
 
-#define LITE_TEST_SUIT(subsystem, module, testsuit)
-#define LITE_TEST_CASE(module, function, flag) static int function(void)
-#define RUN_TEST_SUITE(testsuit)
+static BOOL IoStringsApiTestSuiteTearDown(void)
+{
+    return TRUE;
+}
 
-#define TEST_ASSERT_EQUAL_FLOAT(expected, actual) \
-    ICUNIT_ASSERT_EQUAL(((expected) == (actual)) || (isnan(expected) && isnan(actual)), TRUE, 0)
+/**
+ * @tc.number SUB_KERNEL_IO_STRINGS_0200
+ * @tc.name   strncasecmp basic function test
+ * @tc.desc   [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(IoStringsApiTestSuite, testStrncasecmp, Function | MediumTest | Level1)
+{
+    int ret = strncasecmp("abcdefg", "abcdEFg", 7); /* 7 common data for test, no special meaning */
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
-#define RUN_ONE_TESTCASE(caseName) ADD_TEST_CASE(caseName)
-#define AUTO_RUN_ONE_TESTCASEFUNC(func) UnityDefaultTestRun(func, __FILE__, __LINE__)
+    ret = strncasecmp("abcdefg", "abcdEF", 7); /* 7 common data for test, no special meaning */
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, 0, INT_MAX, ret);
 
-void XtsTestSuite(void);
+    ret = strncasecmp("abcdef", "abcdEFg", 7); /* 7 common data for test, no special meaning */
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, INT_MIN, 0, ret);
+    return 0;
+}
 
-extern void IpcSemApiTest(void);
+/**
+ * @tc.number SUB_KERNEL_IO_STRINGS_0300
+ * @tc.name   strcasecmp basic function test
+ * @tc.desc   [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(IoStringsApiTestSuite, testStrcasecmp, Function | MediumTest | Level2)
+{
+    int ret = strcasecmp("abcdefg", "abcdEFg");
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
-extern void IoFuncTest(void);
+    ret = strcasecmp("abcdefg", "abcdEF");
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, 0, INT_MAX, ret);
 
-#endif
+    ret = strcasecmp("abcdef", "abcdEFg");
+    ICUNIT_ASSERT_WITHIN_EQUAL(ret, INT_MIN, 0, ret);
+    return 0;
+}
+
+RUN_TEST_SUITE(IoStringsApiTestSuite);
+
+void XtsIoStringsFuncTest(void)
+{
+    RUN_ONE_TESTCASE(testStrncasecmp);
+    RUN_ONE_TESTCASE(testStrcasecmp);
+}

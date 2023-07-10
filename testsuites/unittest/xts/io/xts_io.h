@@ -28,32 +28,24 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _XTS_TEST_H
-#define _XTS_TEST_H
+#ifndef XTS_IO_H
+#define XTS_IO_H
 
-#include <stdlib.h>
-#include "iCunit.h"
-
-#define TEST_STR(func) ItLos##func
-#define TEST_TO_STR(x) #x
-#define TEST_HEAD_TO_STR(x) TEST_TO_STR(x)
-#define ADD_TEST_CASE(func) \
-    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION)
-
-#define LITE_TEST_SUIT(subsystem, module, testsuit)
-#define LITE_TEST_CASE(module, function, flag) static int function(void)
-#define RUN_TEST_SUITE(testsuit)
-
-#define TEST_ASSERT_EQUAL_FLOAT(expected, actual) \
-    ICUNIT_ASSERT_EQUAL(((expected) == (actual)) || (isnan(expected) && isnan(actual)), TRUE, 0)
-
-#define RUN_ONE_TESTCASE(caseName) ADD_TEST_CASE(caseName)
-#define AUTO_RUN_ONE_TESTCASEFUNC(func) UnityDefaultTestRun(func, __FILE__, __LINE__)
-
-void XtsTestSuite(void);
-
-extern void IpcSemApiTest(void);
-
-extern void IoFuncTest(void);
+#include "xts_test.h"
+#include <stdio.h>
+#include <string.h>
+#include <limits.h>
+#include <pthread.h>
+#include <time.h>
+#include <securec.h>
+#include <sys/uio.h>
+#include <grp.h>
+#include <shadow.h>
+#include <pwd.h>
+#include <inttypes.h>
+#include <iconv.h>
+#include <stdarg.h>
+#include <err.h>
+#include <threads.h>
 
 #endif

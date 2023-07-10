@@ -28,32 +28,48 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _XTS_TEST_H
-#define _XTS_TEST_H
+#include "xts_io.h"
 
-#include <stdlib.h>
-#include "iCunit.h"
+LITE_TEST_SUIT(IO, IoStdio, IoStdioTestSuite);
 
-#define TEST_STR(func) ItLos##func
-#define TEST_TO_STR(x) #x
-#define TEST_HEAD_TO_STR(x) TEST_TO_STR(x)
-#define ADD_TEST_CASE(func) \
-    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION)
+static BOOL IoStdioTestSuiteSetUp(void)
+{
+    return TRUE;
+}
 
-#define LITE_TEST_SUIT(subsystem, module, testsuit)
-#define LITE_TEST_CASE(module, function, flag) static int function(void)
-#define RUN_TEST_SUITE(testsuit)
+static BOOL IoStdioTestSuiteTearDown(void)
+{
+    return TRUE;
+}
 
-#define TEST_ASSERT_EQUAL_FLOAT(expected, actual) \
-    ICUNIT_ASSERT_EQUAL(((expected) == (actual)) || (isnan(expected) && isnan(actual)), TRUE, 0)
+int FormatVsnptf(char *format, ...)
+{
+    va_list vArgList;
+    va_start(vArgList, format);
+    char str[50] = {0}; /* 50 common data for test, no special meaning */
+    int ret = vsnprintf_s(str, sizeof(str), sizeof(str), format, vArgList);
+    va_end(vArgList);
+    return ret;
+}
 
-#define RUN_ONE_TESTCASE(caseName) ADD_TEST_CASE(caseName)
-#define AUTO_RUN_ONE_TESTCASEFUNC(func) UnityDefaultTestRun(func, __FILE__, __LINE__)
+/**
+ * @tc.number SUB_KERNEL_IO_STDIO_2100
+ * @tc.name   vsnprintf basic function test
+ * @tc.desc   [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(IoStdioTestSuite, testVsnprintf, Function | MediumTest | Level1)
+{
+    int ret = FormatVsnptf((char *)"%s has %d words", "hello world", 11); /* 11 common data for test, no special meaning */
+    ICUNIT_ASSERT_EQUAL(ret, 24, ret); /* 24 common data for test, no special meaning */
 
-void XtsTestSuite(void);
+    ret = FormatVsnptf((char *)"%f and %c as well as %ld\n", 2.2, 'c', 6); /* 2.2, 6 common data for test, no special meaning */
+    ICUNIT_ASSERT_EQUAL(ret, 28, ret); /* 28 common data for test, no special meaning */
+    return 0;
+}
 
-extern void IpcSemApiTest(void);
+RUN_TEST_SUITE(IoStdioTestSuite);
 
-extern void IoFuncTest(void);
-
-#endif
+void XtsIoStdioFuncTest(void)
+{
+    RUN_ONE_TESTCASE(testVsnprintf);
+}
