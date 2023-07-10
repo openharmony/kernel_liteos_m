@@ -34,10 +34,9 @@ void IpcSemApiTest(void)
 {
     PosixFutexCondTest();
     PosixFutexMutexTest();
-
+    IpcMqExceptionFuncTest();
+    IpcMqFuncTest();
     PosixSemFuncTest();
     PosixSemAbnFuncTest();
     PosixSemXtsFuncTest();
-    
-    return;
 }
