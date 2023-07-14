@@ -28,45 +28,22 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _XTS_TEST_H
-#define _XTS_TEST_H
+#ifndef XTS_PROCESS_H
+#define XTS_PROCESS_H
 
-#include <stdlib.h>
+#include "xts_test.h"
+#include <unistd.h>
+#include <stdio.h>
+#include <setjmp.h>
+#include <securec.h>
+#include <pthread.h>
 #include <time.h>
-#include "iCunit.h"
+#include <sys/resource.h>
+#include <limits.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <string.h>
 
-#define TEST_STR(func) ItLos##func
-#define TEST_TO_STR(x) #x
-#define TEST_HEAD_TO_STR(x) TEST_TO_STR(x)
-#define ADD_TEST_CASE(func) \
-    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION)
-
-#define LITE_TEST_SUIT(subsystem, module, testsuit)
-#define LITE_TEST_CASE(module, function, flag) static int function(void)
-#define RUN_TEST_SUITE(testsuit)
-
-#define TEST_ASSERT_EQUAL_FLOAT(expected, actual) \
-    ICUNIT_ASSERT_EQUAL(((expected) == (actual)) || (isnan(expected) && isnan(actual)), TRUE, 0)
-
-#define RUN_ONE_TESTCASE(caseName) ADD_TEST_CASE(caseName)
-#define AUTO_RUN_ONE_TESTCASEFUNC(func) UnityDefaultTestRun(func, __FILE__, __LINE__)
-
-uint32_t GetRandom(uint32_t max);
-
-void XtsTestSuite(void);
-
-extern void IpcSemApiTest(void);
-
-extern void IoFuncTest(void);
-
-extern void MathFuncTest(void);
-
-extern void MemFuncTest(void);
-
-extern void PthreadFuncTest(void);
-
-extern void SchedApiFuncTest(void);
-
-extern void SysApiFuncTest(void);
+extern void *ThreadPublic(void *arg);
 
 #endif
