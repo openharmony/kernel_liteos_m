@@ -31,6 +31,8 @@ import("//kernel/liteos_m/liteos.gni")
 static_library("ipc_test") {
   sources = [
     "cond/pthread_cond_test.c",
+    "msg_queue/mq_exp_test.c",
+    "msg_queue/mq_test.c",
     "mutex/pthread_mutex_test.c",
     "semaphone/sem_abn_test.c",
     "semaphone/sem_test.c",

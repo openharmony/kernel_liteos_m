@@ -30,8 +30,17 @@
 
 #include "xts_test.h"
 
+uint32_t GetRandom(uint32_t max)
+{
+    if (max == 0 || max == 1) { /* 1, common data for test, no special meaning */
+        return 1;
+    }
+    return (rand() % max) + 1; /* 1, common data for test, no special meaning */
+}
+
 void XtsTestSuite(void)
 {
     IpcSemApiTest();
     IoFuncTest();
+    MathFuncTest();
 }
