@@ -28,37 +28,41 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _XTS_TEST_H
-#define _XTS_TEST_H
+#include "xts_math.h"
 
-#include <stdlib.h>
-#include <time.h>
-#include "iCunit.h"
+LITE_TEST_SUIT(MATH, MathApi, MathApiTestSuite);
 
-#define TEST_STR(func) ItLos##func
-#define TEST_TO_STR(x) #x
-#define TEST_HEAD_TO_STR(x) TEST_TO_STR(x)
-#define ADD_TEST_CASE(func) \
-    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION)
+static BOOL MathApiTestSuiteSetUp(void)
+{
+    return TRUE;
+}
 
-#define LITE_TEST_SUIT(subsystem, module, testsuit)
-#define LITE_TEST_CASE(module, function, flag) static int function(void)
-#define RUN_TEST_SUITE(testsuit)
+static BOOL MathApiTestSuiteTearDown(void)
+{
+    return TRUE;
+}
 
-#define TEST_ASSERT_EQUAL_FLOAT(expected, actual) \
-    ICUNIT_ASSERT_EQUAL(((expected) == (actual)) || (isnan(expected) && isnan(actual)), TRUE, 0)
+/**
+* @tc.number     SUB_KERNEL_MATH_MATH_SIGNBIT_0100
+* @tc.name       test signbit api
+* @tc.desc       [C- SOFTWARE -0100]
+**/
+LITE_TEST_CASE(MathApiTestSuite, testsignbit, Function | MediumTest | Level1)
+{
+    const int testCount = 3; /* 3 common data for test, no special meaning */
+    float testValues[] = {3.000001, -3.000001, 0.0}; /* 3.000001, -3.000001 common data for test, no special meaning */
+    float expected[] = {0, 1, 0}; /* 1 common data for test, no special meaning */
+    float ret;
+    for (int i = 0; i < testCount; ++i) {
+        ret = signbit(testValues[i]);
+        ICUNIT_ASSERT_EQUAL(ret, expected[i], ret);
+    }
+    return 0;
+}
 
-#define RUN_ONE_TESTCASE(caseName) ADD_TEST_CASE(caseName)
-#define AUTO_RUN_ONE_TESTCASEFUNC(func) UnityDefaultTestRun(func, __FILE__, __LINE__)
+RUN_TEST_SUITE(MathApiTestSuite);
 
-uint32_t GetRandom(uint32_t max);
-
-void XtsTestSuite(void);
-
-extern void IpcSemApiTest(void);
-
-extern void IoFuncTest(void);
-
-extern void MathFuncTest(void);
-
-#endif
+void MathApiTest(void)
+{
+    RUN_ONE_TESTCASE(testsignbit);
+}

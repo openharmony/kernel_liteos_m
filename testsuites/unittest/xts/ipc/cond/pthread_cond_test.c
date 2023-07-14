@@ -65,6 +65,7 @@ LITE_TEST_CASE(PthreadCondApiTestSuite, testPthreadCondInit, Function | MediumTe
     pthread_cond_t cond2;
     ret = pthread_cond_init(&cond2, NULL);
     ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
+    return 0;
 }
 
 /**
@@ -92,8 +93,9 @@ LITE_TEST_CASE(PthreadCondApiTestSuite, testPthreadCondDestroy, Function | Mediu
     ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
 
     pthread_cond_t cond3 = PTHREAD_COND_INITIALIZER;
-    ret =pthread_cond_destroy(&cond3);
+    ret = pthread_cond_destroy(&cond3);
     ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
+    return 0;
 }
 
 /**
@@ -108,10 +110,11 @@ LITE_TEST_CASE(PthreadCondApiTestSuite, testPthreadCondattrInit, Function | Medi
 
     ret = pthread_condattr_init(&condAttr);
     ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
-    ret =pthread_condattr_destroy(&condAttr);
+    ret = pthread_condattr_destroy(&condAttr);
     ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
     ret = pthread_condattr_init(&condAttr);
     ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
+    return 0;
 }
 
 // pthread_cond_broadcast
@@ -179,6 +182,7 @@ EXIT:
     ret = pthread_mutex_destroy(&g_mtx3);
     ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
     ICUNIT_ASSERT_EQUAL(testInt, TEST_SEEK_SIZE, testInt);
+    return 0;
 }
 
 RUN_TEST_SUITE(PthreadCondApiTestSuite);

@@ -59,6 +59,7 @@ LITE_TEST_CASE(IpcSemApiTestSuite, testSemInit0100, Function | MediumTest | Leve
         ret = sem_destroy(&sem);
         ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     }
+    return 0;
 }
 
 LITE_TEST_CASE(IpcSemApiTestSuite, testSemPost0100, Function | MediumTest | Level2)
@@ -80,6 +81,7 @@ LITE_TEST_CASE(IpcSemApiTestSuite, testSemPost0100, Function | MediumTest | Leve
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 LITE_TEST_CASE(IpcSemApiTestSuite, testSemWait0100, Function | MediumTest | Level2)
@@ -101,6 +103,7 @@ LITE_TEST_CASE(IpcSemApiTestSuite, testSemWait0100, Function | MediumTest | Leve
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 void *ThreadChat(void *arg)
@@ -153,6 +156,7 @@ LITE_TEST_CASE(IpcSemApiTestSuite, testThreadChat0100, Function | MediumTest | L
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 void *ThreadNThreadWait1(void *arg)
@@ -250,6 +254,7 @@ LITE_TEST_CASE(IpcSemApiTestSuite, testThreadChat0400, Function | MediumTest | L
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 LITE_TEST_CASE(IpcSemApiTestSuite, testSemInitAbnormal0200, Function | MediumTest | Level3)
@@ -274,6 +279,7 @@ LITE_TEST_CASE(IpcSemApiTestSuite, testSemInitAbnormal0200, Function | MediumTes
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 LITE_TEST_CASE(IpcSemApiTestSuite, testSemPostAbnormal, Function | MediumTest | Level3)
@@ -289,6 +295,7 @@ LITE_TEST_CASE(IpcSemApiTestSuite, testSemPostAbnormal, Function | MediumTest | 
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 LITE_TEST_CASE(IpcSemApiTestSuite, testSemTimedWaitAbnormalA, Function | MediumTest | Level3)
@@ -309,6 +316,7 @@ LITE_TEST_CASE(IpcSemApiTestSuite, testSemTimedWaitAbnormalA, Function | MediumT
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 LITE_TEST_CASE(IpcSemApiTestSuite, testSemTimedWaitAbnormalB, Function | MediumTest | Level3)
@@ -329,6 +337,7 @@ LITE_TEST_CASE(IpcSemApiTestSuite, testSemTimedWaitAbnormalB, Function | MediumT
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 RUN_TEST_SUITE(IpcSemApiTestSuite);

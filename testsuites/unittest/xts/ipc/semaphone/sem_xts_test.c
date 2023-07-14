@@ -64,6 +64,7 @@ LITE_TEST_CASE(IpcSemApiXtsTestSuite, testSemInitA, Function | MediumTest | Leve
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 /**
@@ -88,6 +89,7 @@ LITE_TEST_CASE(IpcSemApiXtsTestSuite, testSemInitB, Function | MediumTest | Leve
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 /**
@@ -112,6 +114,7 @@ LITE_TEST_CASE(IpcSemApiXtsTestSuite, testSemInitC, Function | MediumTest | Leve
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 /**
@@ -149,6 +152,7 @@ LITE_TEST_CASE(IpcSemApiXtsTestSuite, testSemPost, Function | MediumTest | Level
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 /**
@@ -186,6 +190,7 @@ LITE_TEST_CASE(IpcSemApiXtsTestSuite, testSemWait, Function | MediumTest | Level
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 /**
@@ -203,6 +208,7 @@ LITE_TEST_CASE(IpcSemApiXtsTestSuite, testSemdestroy, Function | MediumTest | Le
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 void *ThreadChatF01(void *arg)
@@ -256,6 +262,7 @@ LITE_TEST_CASE(IpcSemApiXtsTestSuite, testThreadChat, Function | MediumTest | Le
     ICUNIT_ASSERT_EQUAL(reInt, 0, reInt);
     reInt = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(reInt, 0, reInt);
+    return 0;
 }
 
 void *ThreadSemTimedWait(void *arg)
@@ -318,6 +325,7 @@ LITE_TEST_CASE(IpcSemApiXtsTestSuite, testThreadSemTimedWait, Function | MediumT
     ICUNIT_ASSERT_EQUAL(reInt, 0, reInt);
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
  
 void *ThreadNThreadWaitF01(void *arg)
@@ -411,6 +419,7 @@ LITE_TEST_CASE(IpcSemApiXtsTestSuite, testNThreadWait, Function | MediumTest | L
     ICUNIT_ASSERT_EQUAL(reInt, 0, reInt);
     reInt = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(reInt, 0, reInt);
+    return 0;
 }
 
 RUN_TEST_SUITE(IpcSemApiXtsTestSuite);

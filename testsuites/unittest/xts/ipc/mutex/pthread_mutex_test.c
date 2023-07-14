@@ -128,6 +128,7 @@ LITE_TEST_CASE(PthreadMutexApiTestSuite, testPthreadMutexCond, Function | Medium
     ret = pthread_join(tid[1], NULL); /* 1, common data for test, no special meaning */
     ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
     ICUNIT_ASSERT_EQUAL(g_st1.count, POSIX_IPC_NO_ERROR, g_st1.count);
+    return 0;
 }
 
 RUN_TEST_SUITE(PthreadMutexApiTestSuite);

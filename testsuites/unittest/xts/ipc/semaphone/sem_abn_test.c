@@ -63,6 +63,7 @@ LITE_TEST_CASE(SemAbnormalTestSuite, testSemInitAbnormalSemvaluemax, Function | 
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 /**
@@ -80,7 +81,7 @@ LITE_TEST_CASE(SemAbnormalTestSuite, testSemInitAbnormalGtsemvaluemax, Function 
     ICUNIT_GOTO_EQUAL(ret, -1, ret, EXIT); /* -1, common data for test, no special meaning */
     ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
 EXIT:
-    return;
+    return 0;
 }
 
 /**
@@ -98,6 +99,7 @@ LITE_TEST_CASE(SemAbnormalTestSuite, testSemInitAbnormalInitTwice, Function | Me
 
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 /**
@@ -120,6 +122,7 @@ LITE_TEST_CASE(SemAbnormalTestSuite, testSemPostAbnormal, Function | MediumTest 
 EXIT:
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 /**
@@ -149,6 +152,7 @@ EXIT:
     ICUNIT_ASSERT_EQUAL(semValue, 0, semValue);
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 /**
@@ -177,6 +181,7 @@ EXIT:
     ICUNIT_ASSERT_EQUAL(semValue, 0, semValue);
     ret = sem_destroy(&sem);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
 }
 
 RUN_TEST_SUITE(SemAbnormalTestSuite);
