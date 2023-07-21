@@ -28,51 +28,48 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _XTS_TEST_H
-#define _XTS_TEST_H
+#include "xts_test.h"
+#include "alarm_test.h"
 
-#include <stdlib.h>
-#include <time.h>
-#include "iCunit.h"
+LITE_TEST_SUIT(TIME, TimeAlarmTest, TimeAlarmTestSuite);
 
-#define TEST_STR(func) ItLos##func
-#define TEST_TO_STR(x) #x
-#define TEST_HEAD_TO_STR(x) TEST_TO_STR(x)
-#define ADD_TEST_CASE(func) \
-    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION)
+static BOOL TimeAlarmTestSuiteSetUp(void)
+{
+    return TRUE;
+}
 
-#define LITE_TEST_SUIT(subsystem, module, testsuit)
-#define LITE_TEST_CASE(module, function, flag) static int function(void)
-#define RUN_TEST_SUITE(testsuit)
+static BOOL TimeAlarmTestSuiteTearDown(void)
+{
+    return TRUE;
+}
 
-#define TEST_ASSERT_EQUAL_FLOAT(expected, actual) \
-    ICUNIT_ASSERT_EQUAL(((expected) == (actual)) || (isnan(expected) && isnan(actual)), TRUE, 0)
+/**
+ * @tc.number  SUB_KERNEL_TIME_API_TIMER_CREATE_0500
+ * @tc.name    timer_create function errno for EINVAL test
+ * @tc.desc    [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(TimeAlarmTestSuite, testTimerCreateEINVAL, Function | MediumTest | Level4)
+{
+    int ret;
+    timer_t tid = NULL;
+    clockid_t clockid = GetRandom(2048); /* 2048, common data for test, no special meaning */
+    ret = timer_create(clockid, NULL, &tid);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret); /* -1, common data for test, no special meaning */
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
+    return 0;
+}
 
-#define RUN_ONE_TESTCASE(caseName) ADD_TEST_CASE(caseName)
-#define AUTO_RUN_ONE_TESTCASEFUNC(func) UnityDefaultTestRun(func, __FILE__, __LINE__)
+RUN_TEST_SUITE(TimeAlarmTestSuite);
 
-uint32_t GetRandom(uint32_t max);
+void AlarmTest(void)
+{
+    RUN_ONE_TESTCASE(testTimerCreateEINVAL);
+}
 
-void XtsTestSuite(void);
-
-extern void IpcSemApiTest(void);
-
-extern void IoFuncTest(void);
-
-extern void MathFuncTest(void);
-
-extern void MemFuncTest(void);
-
-extern void ActsNetTest(void);
-
-extern void PthreadFuncTest(void);
-
-extern void SchedApiFuncTest(void);
-
-extern void SysApiFuncTest(void);
-
-extern void TimeFuncTest(void);
-
-extern void CmsisFuncTest(void);
-
-#endif
+void TimeFuncTest(void)
+{
+    AlarmTest();
+    ClockTimeTest();
+    SleepTest();
+    TimeUtilsTest();
+}

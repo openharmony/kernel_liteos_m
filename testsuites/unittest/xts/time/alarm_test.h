@@ -28,51 +28,38 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _XTS_TEST_H
-#define _XTS_TEST_H
-
-#include <stdlib.h>
+#ifndef TIME_ALARM_TEST_H
+#define TIME_ALARM_TEST_H
+#define _GNU_SOURCE
+#include "xts_test.h"
+#include <signal.h>
+#include <signal.h>
 #include <time.h>
-#include "iCunit.h"
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/timeb.h>
+#include <sys/times.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <sys/time.h>
+#include <unistd.h>
 
-#define TEST_STR(func) ItLos##func
-#define TEST_TO_STR(x) #x
-#define TEST_HEAD_TO_STR(x) TEST_TO_STR(x)
-#define ADD_TEST_CASE(func) \
-    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION)
-
-#define LITE_TEST_SUIT(subsystem, module, testsuit)
-#define LITE_TEST_CASE(module, function, flag) static int function(void)
-#define RUN_TEST_SUITE(testsuit)
-
-#define TEST_ASSERT_EQUAL_FLOAT(expected, actual) \
-    ICUNIT_ASSERT_EQUAL(((expected) == (actual)) || (isnan(expected) && isnan(actual)), TRUE, 0)
-
-#define RUN_ONE_TESTCASE(caseName) ADD_TEST_CASE(caseName)
-#define AUTO_RUN_ONE_TESTCASEFUNC(func) UnityDefaultTestRun(func, __FILE__, __LINE__)
-
-uint32_t GetRandom(uint32_t max);
-
-void XtsTestSuite(void);
-
-extern void IpcSemApiTest(void);
-
-extern void IoFuncTest(void);
-
-extern void MathFuncTest(void);
-
-extern void MemFuncTest(void);
-
-extern void ActsNetTest(void);
-
-extern void PthreadFuncTest(void);
-
-extern void SchedApiFuncTest(void);
-
-extern void SysApiFuncTest(void);
-
-extern void TimeFuncTest(void);
-
-extern void CmsisFuncTest(void);
+#define SECS_PER_MIN 60
+#define INIT_TM(tmSt, year, mon, day, hour, min, sec, wday) do { \
+    (tmSt).tm_sec = (sec);                                       \
+    (tmSt).tm_min = (min);                                       \
+    (tmSt).tm_hour = (hour);                                     \
+    (tmSt).tm_mday = (day);                                      \
+    (tmSt).tm_mon = (mon);                                       \
+    (tmSt).tm_year = (year) - 1900;                              \
+    (tmSt).tm_wday = wday;                                       \
+    (tmSt).__tm_gmtoff = 0;                                      \
+    (tmSt).__tm_zone = "";                                       \
+} while (0)
 
 #endif
