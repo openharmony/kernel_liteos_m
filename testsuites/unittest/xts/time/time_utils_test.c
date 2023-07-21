@@ -28,51 +28,53 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _XTS_TEST_H
-#define _XTS_TEST_H
+#include "alarm_test.h"
 
-#include <stdlib.h>
-#include <time.h>
-#include "iCunit.h"
+time_t g_time = 18880; /* 18880, common data for test, no special meaning */
+size_t g_zero = 0;
 
-#define TEST_STR(func) ItLos##func
-#define TEST_TO_STR(x) #x
-#define TEST_HEAD_TO_STR(x) TEST_TO_STR(x)
-#define ADD_TEST_CASE(func) \
-    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION)
+LITE_TEST_SUIT(TIME, TimeUtilsTest, TimeUtilsTestSuite);
 
-#define LITE_TEST_SUIT(subsystem, module, testsuit)
-#define LITE_TEST_CASE(module, function, flag) static int function(void)
-#define RUN_TEST_SUITE(testsuit)
+static BOOL TimeUtilsTestSuiteSetUp(void)
+{
+    return TRUE;
+}
 
-#define TEST_ASSERT_EQUAL_FLOAT(expected, actual) \
-    ICUNIT_ASSERT_EQUAL(((expected) == (actual)) || (isnan(expected) && isnan(actual)), TRUE, 0)
+static BOOL TimeUtilsTestSuiteTearDown(void)
+{
+    return TRUE;
+}
 
-#define RUN_ONE_TESTCASE(caseName) ADD_TEST_CASE(caseName)
-#define AUTO_RUN_ONE_TESTCASEFUNC(func) UnityDefaultTestRun(func, __FILE__, __LINE__)
+/**
+* @tc.number     SUB_KERNEL_TIME_API_MKTIME_0100
+* @tc.name       test mktime api
+* @tc.desc       [C- SOFTWARE -0200]
+*/
+LITE_TEST_CASE(TimeUtilsTestSuite, testMktime, Function | MediumTest | Level2)
+{
+    struct tm *localTime = NULL;
+    struct tm timeptr = {0};
+    struct timeval tv;
+    struct timezone tz;
+	
+    int ret = gettimeofday(&tv, &tz);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    long sysTimezone = (long)(-tz.tz_minuteswest) * SECS_PER_MIN;
 
-uint32_t GetRandom(uint32_t max);
+    INIT_TM(timeptr, 2000, 6, 9, 10, 10, 0, 7); /* 2000, 6, 9, 10, 7, common data for test, no special meaning */
+    time_t timeRet = mktime(&timeptr);
+    ICUNIT_ASSERT_EQUAL(sysTimezone, timeptr.__tm_gmtoff, sysTimezone);
+    ICUNIT_ASSERT_EQUAL(timeRet, 963137400 - timeptr.__tm_gmtoff, timeRet); /* 963137400, common data for test, no special meaning */
+    localTime = localtime(&g_time);
+    ICUNIT_ASSERT_NOT_EQUAL(localTime, NULL, localTime);
+    time_t timep = mktime(localTime);
+    ICUNIT_ASSERT_EQUAL(timep, 18880, timep); /* 18880, common data for test, no special meaning */
+    return 0;
+}
 
-void XtsTestSuite(void);
+RUN_TEST_SUITE(TimeUtilsTestSuite);
 
-extern void IpcSemApiTest(void);
-
-extern void IoFuncTest(void);
-
-extern void MathFuncTest(void);
-
-extern void MemFuncTest(void);
-
-extern void ActsNetTest(void);
-
-extern void PthreadFuncTest(void);
-
-extern void SchedApiFuncTest(void);
-
-extern void SysApiFuncTest(void);
-
-extern void TimeFuncTest(void);
-
-extern void CmsisFuncTest(void);
-
-#endif
+void TimeUtilsTest(void)
+{
+    RUN_ONE_TESTCASE(testMktime);
+}
