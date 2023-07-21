@@ -43,4 +43,8 @@ void XtsTestSuite(void)
     IpcSemApiTest();
     IoFuncTest();
     MathFuncTest();
+    MemFuncTest();
+    PthreadFuncTest();
+    SchedApiFuncTest();
+    SysApiFuncTest();
 }

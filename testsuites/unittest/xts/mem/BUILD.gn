@@ -28,16 +28,16 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-static_library("xts_test") {
-  sources = [ "xts_test.c" ]
-  deps = [
-    "io:io_test",
-    "ipc:ipc_test",
-    "math:math_test",
-    "mem:mem_test",
-    "process:pthread_test",
-    "sched:sched_test",
-    "sys:system_test",
+static_library("mem_test") {
+  sources = [
+    "acts_mem_api_test.c",
+    "mem_api_test.c",
+    "xts_mem.c",
   ]
-  configs += [ "$LITEOSTOPDIR/testsuites:include" ]
+
+  include_dirs = [
+    ".",
+    "$LITEOSTOPDIR/testsuites/include",
+    "$LITEOSTOPDIR/testsuites/unittest/xts",
+  ]
 }
