@@ -39,18 +39,8 @@ choice
 config COMPILER_GCC
     bool "GCC"
 
-config CROSS_COMPILE
-    string "GCC cross-compile toolchain prefix"
-    depends on COMPILER_GCC
-    default "arm-none-eabi-" if ARCH_ARM_AARCH32
-
 config COMPILER_CLANG_LLVM
     bool "Clang"
-
-config LLVM_TARGET
-    string "Clang LLVM target"
-    depends on COMPILER_CLANG_LLVM
-    default "arm-liteos-ohos" if ARCH_ARM_AARCH32
 
 config COMPILER_ICCARM
     bool "ICCARM"
@@ -95,15 +85,6 @@ menu "Platform"
 config PLATFORM
     string
     default "virt"            if PLATFORM_QEMU_ARM_VIRT_CM7 || PLATFORM_QEMU_ARM_VIRT_CM4 || PLATFORM_QEMU_ARM_VIRT_CM55 || PRODUCT_QEMU_RISCV32_VIRT || PLATFORM_QEMU_CSKY_SMARTL || PLATFORM_QEMU_XTENSA_ESP32
-
-config PRODUCT_NAME
-    string
-    default "arm_virt" if PRODUCT_QEMU_ARM
-    default "arm_mps2_an386" if PRODUCT_QEMU_ARM_MPS2_AN386
-    default "arm_mps3_an547" if PRODUCT_QEMU_ARM_MPS3_AN547
-    default "riscv32_virt" if PRODUCT_QEMU_RISCV32_VIRT
-    default "csky_smartl_e802" if PRODUCT_QEMU_CSKY_SMARTL_E802
-    default "xtensa_esp32" if PRODUCT_QEMU_XTENSA_ESP32
 
 config DEVICE_COMPANY
     string
@@ -163,23 +144,8 @@ choice
     help
       Select your target board.
 
-config PRODUCT_QEMU_ARM
-    bool "arm_virt" if PLATFORM_QEMU_ARM_VIRT_CM7
-
-config PRODUCT_QEMU_ARM_MPS2_AN386
-    bool "arm_mps2_an386" if PLATFORM_QEMU_ARM_VIRT_CM4
-
-config PRODUCT_QEMU_ARM_MPS3_AN547
-    bool "arm_mps3_an547" if PLATFORM_QEMU_ARM_VIRT_CM55
-
 config PRODUCT_QEMU_RISCV32_VIRT
     bool "riscv32_virt" if PLATFORM_QEMU_RISCV32_VIRT
-
-config PRODUCT_QEMU_CSKY_SMARTL_E802
-    bool "csky_smartl_e802" if PLATFORM_QEMU_CSKY_SMARTL
-
-config PRODUCT_QEMU_XTENSA_ESP32
-    bool "xtensa_esp32" if PLATFORM_QEMU_XTENSA_ESP32
 
 endchoice
 
@@ -219,12 +185,6 @@ endchoice
 
 orsource "../../device/soc/*/Kconfig.liteos_m.soc"
 
-config QUICK_START
-    bool "Enable QUICK_START"
-    default n
-    depends on DRIVERS && FS_VFS
-    help
-      Answer Y to enable LiteOS support quick start.
 endmenu
 
 ######################### config options of kernel #####################
@@ -343,21 +303,6 @@ config KERNEL_PM_IDLE
       Configuration item for low power frame tailoring.
       If you wish to build LiteOS with support for power management idle.
 
-config KERNEL_PM_TASK_PTIORITY
-    int "Power Management Task Priority"
-    default 1
-    range 1 31
-    depends on KERNEL_PM
-    help
-      Configuration item for priority of low-power task.
-
-config KERNEL_PM_TASK_STACKSIZE
-    int "Power Management Task Stack Size"
-    default 1024
-    depends on KERNEL_PM
-    help
-      Configuration item for stack size of low-power task.
-
 config KERNEL_PM_DEBUG
     bool "Power Management Debug"
     default n
@@ -393,17 +338,6 @@ source "components/lms/Kconfig"
 
 endmenu
 
-######################### config options of lib ########################
-menu "Lib"
-config LIB_LIBC
-    bool "Enable Libc"
-    default y
-    help
-      Answer Y to enable libc for full code.
-
-endmenu
-
-
 ######################### config options of compatibility ##############
 menu "Compat"
 
@@ -436,43 +370,6 @@ endmenu
 
 ######################## config options of debug ########################
 menu "Debug"
-config GDB
-    bool "Enable gdb functions"
-    default n
-    help
-      Answer Y to enable gdb functions.
-
-config PLATFORM_ADAPT
-    bool "Enable Os_adapt"
-    default y
-    help
-      Answer Y to add os_adapt.c to LiteOS.
-
-config ENABLE_OOM_LOOP_TASK
-    bool "Enable Oom loop task"
-    default n
-    depends on KERNEL_VM
-    help
-      Answer Y to enable oom loop kthread to check system out of memory.
-
-config DO_ALIGN
-    bool "Enable do align for hi3518e"
-    default y
-    depends on PLATFORM_HI3518EV200
-    help
-      Answer Y to enable do align for hi3518e.
-
-
-config ENABLE_MAGICKEY
-    bool "Enable MAGIC KEY"
-    default y
-    help
-      Answer Y to enable LiteOS Magic key.
-        ctrl + r : Magic key check switch;
-        ctrl + z : Show all magic op key;
-        ctrl + t : Show task information;
-        ctrl + p : System panic;
-        ctrl + e : Check system memory pool.
 
 config THUMB
     bool "Enable Thumb"
@@ -480,20 +377,6 @@ config THUMB
     depends on ARCH_ARM
     help
       Answer Y to build thumb version.  This will make LiteOS smaller.
-
-config PLATFORM_DVFS
-    bool "Enable Dvfs"
-    default n
-    depends on  COMPAT_LINUXKPI
-    help
-      Answer Y to enable LiteOS support dynamic voltage and frequency scaling feature for
-      low power consumption.
-
-config SAVE_EXCINFO
-    bool "Enable Saving Exception Information"
-    default n
-    help
-      Answer Y to enable LiteOS support saving exception information to storage medium.
 
 config DEBUG_VERSION
     bool "Enable a Debug Version"
@@ -514,13 +397,6 @@ config DEBUG_KERNEL
       It also means you want to get queue, mutex, semaphore, memory debug information.
       That means you want a opposite behaviour compared to release version.
 
-config DEBUG_QUEUE
-    bool "Enable Queue Debugging"
-    default n
-    depends on DEBUG_KERNEL
-    help
-      Answer Y to enable debug queue.
-
 config MUTEX_CREATE_TRACE
     bool "Enable Mutex Trace Debugging"
     default n
@@ -528,20 +404,6 @@ config MUTEX_CREATE_TRACE
     depends on DEBUG_KERNEL
     help
       Answer Y to enable debug mutex trace.
-
-config DEBUG_DEADLOCK
-    bool "Enable Mutex Deadlock Debugging"
-    default n
-    depends on DEBUG_KERNEL
-    help
-      Answer Y to enable debug mutex deadlock.
-
-config DEBUG_SEMAPHORE
-    bool "Enable Semaphore Debugging"
-    default n
-    depends on DEBUG_KERNEL
-    help
-      Answer Y to enable debug semaphore.
 
 config NET_LWIP_SACK_TFTP
     bool "Enable Tftp"
@@ -557,18 +419,6 @@ config DEBUG_HOOK
     help
       Enable the kernel hook framework to support customized trace information capture.
 
-config SCHED_DEBUG
-    bool "Enable sched debug Feature"
-    default n
-    depends on DEBUG_VERSION
-    help
-      If you wish to build LiteOS with support for sched debug.
-
-config USER_INIT_DEBUG
-    bool "Enable user init Debug"
-    default n
-    depends on DEBUG_VERSION
-
 config SHELL_CMD_DEBUG
     bool "Enable shell cmd Debug"
     default n
@@ -581,13 +431,6 @@ config DEBUG_TOOLS
     help
       Answer Y to enable LiteOS debug tools, include stackdump, hwidump, tasktrack.
 
-config USB_DEBUG
-    bool "Enable USB Debug"
-    default n
-    depends on SHELL && DRIVERS_USB && DEBUG_VERSION
-    help
-      Answer Y to enable LiteOS support usb debug.
-      use shell command to open the specified debug level print.
 config MEM_DEBUG
     bool "Enable MEM Debug"
     default n
@@ -610,13 +453,6 @@ config MEM_WATERLINE
     bool "Enable memory pool waterline or not"
     default n
     depends on DEBUG_VERSION && MEM_DEBUG
-
-config VM_OVERLAP_CHECK
-    bool "Enable VM overlap check or not"
-    default n
-    depends on DEBUG_VERSION && MEM_DEBUG
-    help
-      Answer Y to enable vm overlap check.
 
 config TASK_MEM_USED
     bool "Enable show task mem used or not"
@@ -643,12 +479,6 @@ config SECURE_HEAP_SIZE
     int "TrustZone Heap Size (bytes)"
     default 2048
     depends on SECURE_TRUSTZONE
-config SECURE_STACK_DEFAULT_SIZE
-    int "TrustZone Stack Size (bytes)"
-    default 512
-    depends on SECURE_TRUSTZONE
-    help
-      The secure stack must be allocated before the task calls non-secure functions.
 config SECURE
     bool "Enable Security"
     default n
