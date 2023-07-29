@@ -24,18 +24,4 @@ config SHELL_STACK_SIZE
     default 4096
     depends on SHELL
 
-config SHELL_LK
-    bool "Enable Shell lk"
-    default y
-    depends on DEBUG_VERSION && SHELL
-    help
-      Answer Y to enable LiteOS support shell lk.
-
-config SHELL_DMESG
-    bool "Enable Shell dmesg"
-    default n
-    depends on DEBUG_VERSION && SHELL && SHELL_CMD_DEBUG
-    help
-      Answer Y to enable LiteOS support shell dmesg.
-
 endmenu
