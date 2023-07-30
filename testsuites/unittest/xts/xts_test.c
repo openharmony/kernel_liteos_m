@@ -44,7 +44,10 @@ void XtsTestSuite(void)
     IoFuncTest();
     MathFuncTest();
     MemFuncTest();
+    ActsNetTest();
     PthreadFuncTest();
     SchedApiFuncTest();
     SysApiFuncTest();
+    TimeFuncTest();
+    CmsisFuncTest();
 }

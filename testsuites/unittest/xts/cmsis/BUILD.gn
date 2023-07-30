@@ -28,19 +28,15 @@
 
 import("//kernel/liteos_m/liteos.gni")
 
-static_library("xts_test") {
-  sources = [ "xts_test.c" ]
-  deps = [
-    "cmsis:cmsis_test",
-    "io:io_test",
-    "ipc:ipc_test",
-    "math:math_test",
-    "mem:mem_test",
-    "net:net_test",
-    "process:pthread_test",
-    "sched:sched_test",
-    "sys:system_test",
-    "time:time_test",
+static_library("cmsis_test") {
+  sources = [
+    "cmsis_timer_func_test.c",
+    "xts_cmsis.c",
   ]
-  configs += [ "$LITEOSTOPDIR/testsuites:include" ]
+
+  include_dirs = [
+    ".",
+    "$LITEOSTOPDIR/testsuites/include",
+    "$LITEOSTOPDIR/testsuites/unittest/xts",
+  ]
 }
