@@ -30,6 +30,10 @@ import("//kernel/liteos_m/liteos.gni")
 
 static_library("cmsis_test") {
   sources = [
+    "cmsis_event_func_test.c",
+    "cmsis_msg_func_test.c",
+    "cmsis_mutex_func_test.c",
+    "cmsis_sem_func_test.c",
     "cmsis_timer_func_test.c",
     "xts_cmsis.c",
   ]

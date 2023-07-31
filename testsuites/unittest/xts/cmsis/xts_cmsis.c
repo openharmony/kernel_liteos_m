@@ -32,5 +32,9 @@
 
 void CmsisFuncTest(void)
 {
+    CmsisEventFuncTest();
+    CmsisMsgFuncTest();
+    CmsisMutexFuncTest();
+    CmsisSemFuncTest();
     CmsisTimerFuncTest();
 }
