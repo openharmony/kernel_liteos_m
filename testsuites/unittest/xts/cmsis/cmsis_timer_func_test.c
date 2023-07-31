@@ -715,6 +715,18 @@ LITE_TEST_CASE(CmsisTimerFuncTestSuite, testOsKernelGetSysTimerFreq001, Function
     return 0;
 };
 
+/**
+ * @tc.number    : SUB_KERNEL_CMSIS_TIMER_OPERATION_3400
+ * @tc.name      : os operation for get sys time count
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(CmsisTimerFuncTestSuite, testOsKernelGetSysTimerCount001, Function | MediumTest | Level1)
+{
+    UINT32 uwRet = osKernelGetSysTimerCount();
+    ICUNIT_ASSERT_WITHIN_EQUAL(uwRet, 0, UINT_MAX, uwRet);
+    return 0;
+};
+
 RUN_TEST_SUITE(CmsisTimerFuncTestSuite);
 
 void CmsisTimerFuncTest(void)
@@ -752,4 +764,5 @@ void CmsisTimerFuncTest(void)
     RUN_ONE_TESTCASE(testOsTimerIsRunning009);
     RUN_ONE_TESTCASE(testOsKernelGetTickFreq001);
     RUN_ONE_TESTCASE(testOsKernelGetSysTimerFreq001);
+    RUN_ONE_TESTCASE(testOsKernelGetSysTimerCount001);
 }
