@@ -162,7 +162,8 @@ UINT32 LOS_LmsCheckPoolAdd(const VOID *pool, UINT32 size)
     lmsPoolNode->shadowStart = (UINTPTR)poolAddr + realSize;
     lmsPoolNode->shadowSize = poolAddr + size - lmsPoolNode->shadowStart;
     /* init shadow value */
-    (VOID)memset_s((VOID *)lmsPoolNode->shadowStart, lmsPoolNode->shadowSize, LMS_SHADOW_AFTERFREE_U8, lmsPoolNode->shadowSize);
+    (VOID)memset_s((VOID *)lmsPoolNode->shadowStart, lmsPoolNode->shadowSize, LMS_SHADOW_AFTERFREE_U8,
+                   lmsPoolNode->shadowSize);
 
     LOS_ListAdd(&g_lmsCheckPoolList, &(lmsPoolNode->node));
 

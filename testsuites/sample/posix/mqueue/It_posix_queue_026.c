@@ -49,7 +49,7 @@ static VOID *PthreadF01(VOID *argument)
 
     g_testCount = 2; // 2, Init test count value.
 
-EXIT1: 
+EXIT1:
     return NULL;
 EXIT2:
     g_testCount = 0;
