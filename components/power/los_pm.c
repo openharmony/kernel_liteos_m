@@ -147,7 +147,6 @@ STATIC BOOL OsPmTickTimerStop(LosPmCB *pm)
         realSleepTime = expireTime - currTime;
         sleepCycle = OS_SYS_CYCLE_TO_NS(realSleepTime, g_sysClock);
         sleepCycle = OS_SYS_NS_TO_CYCLE(sleepCycle, tickTimer->freq);
-
         if (sleepCycle == 0) {
             pm->sysMode = LOS_SYS_NORMAL_SLEEP;
             return FALSE;
