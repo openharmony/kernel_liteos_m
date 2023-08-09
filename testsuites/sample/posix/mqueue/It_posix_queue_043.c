@@ -50,7 +50,7 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     ret = mq_close(mqdes);
-    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT2); 
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT2);
 
     ret = mq_unlink(mqname);
     ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT1);
