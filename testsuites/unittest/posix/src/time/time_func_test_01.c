@@ -135,8 +135,8 @@ static char *TmToStr(const struct tm *timePtr, char *timeStr, unsigned len)
     if (timePtr == NULL || timeStr == NULL) {
         return "";
     }
-    sprintf_s(timeStr, len, "%ld/%d/%d %02d:%02d:%02d WEEK(%d)", timePtr->tm_year + TM_BASE_YEAR, timePtr->tm_mon + 1,
-        timePtr->tm_mday, timePtr->tm_hour, timePtr->tm_min, timePtr->tm_sec, timePtr->tm_wday);
+    (VOID)sprintf_s(timeStr, len, "%ld/%d/%d %02d:%02d:%02d WEEK(%d)", timePtr->tm_year + TM_BASE_YEAR,
+        timePtr->tm_mon + 1, timePtr->tm_mday, timePtr->tm_hour, timePtr->tm_min, timePtr->tm_sec, timePtr->tm_wday);
     return timeStr;
 }
 
