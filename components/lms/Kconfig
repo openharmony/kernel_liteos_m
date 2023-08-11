@@ -31,11 +31,4 @@ config LMS_CHECK_STRICT
     default n
     depends on KERNEL_LMS
     help
-      Select y to enable byte-by-byte check in lms
-
-config LMS_LIBC_FULL_CHECK
-   bool "Enable libc all function do lms check"
-   default n
-   depends on KERNEL_LMS
-   help
-     Select y to enable libc full check
+      Select y to enable byte-by-byte check in Lms
