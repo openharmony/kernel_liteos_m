@@ -34,6 +34,8 @@ static_library("cmsis_test") {
     "cmsis_msg_func_test.c",
     "cmsis_mutex_func_test.c",
     "cmsis_sem_func_test.c",
+    "cmsis_task_func_test.c",
+    "cmsis_task_pri_func_test.c",
     "cmsis_timer_func_test.c",
     "xts_cmsis.c",
   ]
