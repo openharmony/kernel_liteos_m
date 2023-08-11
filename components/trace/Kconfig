@@ -72,7 +72,4 @@ config TRACE_CONTROL_VIA_SHELL
 config TRACE_CONTROL_AGENT
     bool "Via Trace Agent Task"
 
-config TRACE_NO_CONTROL
-    bool "No Control"
-
 endchoice
