@@ -35,7 +35,7 @@ The directory structure is as follows. For more details, see [arch_spec.md](arch
 │   ├── include          # APIs exposed externally
 │   ├── risc-v           # Code of the risc-v architecture
 │   │   ├── nuclei       # Code of the nuclei system technology risc-v architecture
-│   │   └── riscv32      # Code of the risc-v architecture
+│   │   └── riscv32      # Code of the risc-v official common architecture
 │   └── xtensa           # Code of the xtensa architecture
 │       └── lx6          # Code of the lx6 xtensa architecture
 ├── components           # Optional components
