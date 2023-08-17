@@ -149,4 +149,5 @@ toochain_config_objdump = "${compile_prefix}ielfdumparm$toolchain_cmd_suffix"
 
 toochain_config_command =
     "$toochain_config_objcopy --bin --verbose $liteos_name $liteos_name.bin"
-toochain_config_command += " && sh -c '$toochain_config_objdump --source --all $liteos_name -o $liteos_name.asm'"
+
+toochain_asm_command = " && sh -c '$toochain_config_objdump --source --all $liteos_name -o $liteos_name.asm'"
