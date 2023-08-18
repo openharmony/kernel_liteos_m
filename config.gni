@@ -206,5 +206,6 @@ toochain_config_objdump = "${compile_prefix}objdump$toolchain_cmd_suffix"
 toochain_config_command =
     "$toochain_config_objcopy -O binary $liteos_name $liteos_name.bin"
 toochain_config_command += " && sh -c '$toochain_config_objdump -t $liteos_name | sort >$liteos_name.sym.sorted'"
-toochain_config_command +=
+
+toochain_asm_command =
     " && sh -c '$toochain_config_objdump -d $liteos_name >$liteos_name.asm'"
