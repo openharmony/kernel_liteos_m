@@ -44,6 +44,10 @@ if (defined(LOSCFG_COMPILER_ICCARM)) {
   }
 }
 
+declare_args() {
+  liteos_build_asm = true
+}
+
 config("arch_config") {
   cflags = arch_config_cflags
   asmflags = arch_config_asmflags
@@ -215,4 +219,7 @@ build_ext_component("build_kernel_image") {
   exec_path = rebase_path(root_out_dir)
 
   command = toochain_config_command
+  if (liteos_build_asm) {
+    command += toochain_asm_command
+  }
 }
