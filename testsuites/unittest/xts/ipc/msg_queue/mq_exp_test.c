@@ -647,6 +647,200 @@ LITE_TEST_CASE(IpcMqExceptionApiTestSuite, testMqSetAttrEBADFEINVAL, Function | 
     return 0;
 }
 
+/* *
+ * @tc.number SUB_KERNEL_IPC_MQ_OPEN_0100
+ * @tc.name   mq_open function errno for EEXIST test
+ * @tc.desc   [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(IpcMqExceptionApiTestSuite, testMqOpenEEXIST, Function | MediumTest | Level2)
+{
+    int ret;
+    char qName[MQ_NAME_LEN];
+    mqd_t queue, queueOther;
+
+    ret = sprintf_s(qName, sizeof(qName), "testMqOpenEEXIST_%d", GetRandom(10000)); /* 10000, common data for test, no special meaning */
+    ICUNIT_ASSERT_EQUAL(ret, strlen(qName), ret);
+    queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, NULL);
+    ICUNIT_ASSERT_NOT_EQUAL(queue, (mqd_t)-1, queue); /* 1, common data for test, no special meaning */
+
+    queueOther = mq_open(qName, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR, NULL);
+    ICUNIT_ASSERT_EQUAL(queueOther, (mqd_t)-1, queueOther); /* 1, common data for test, no special meaning */
+    ICUNIT_ASSERT_EQUAL(errno, EEXIST, errno);
+    ret = mq_close(queue);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ret = mq_unlink(qName);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    return 0;
+}
+
+/* *
+ * @tc.number SUB_KERNEL_IPC_MQ_OPEN_0200
+ * @tc.name   mq_open function errno for EINVAL test
+ * @tc.desc   [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(IpcMqExceptionApiTestSuite, testMqOpenEINVAL, Function | MediumTest | Level2)
+{
+    int i, ret;
+    mqd_t queue;
+    struct mq_attr attr = { 0 };
+    char qName[MQ_NAME_LEN];
+    const int max = 65535; /* 65535, common data for test, no special meaning */
+
+    ret = sprintf_s(qName, sizeof(qName), "testMqOpenEINVAL_%d", GetRandom(10000)); /* 10000, common data for test, no special meaning */
+    ICUNIT_ASSERT_EQUAL(ret, strlen(qName), ret);
+
+    for (i = 0; i < 6; i++) {
+        switch (i) {
+            case 0:
+                attr.mq_msgsize = -1; /* -1, common data for test, no special meaning */
+                attr.mq_maxmsg = max;
+                break;
+            case 1:
+                attr.mq_msgsize = max;
+                attr.mq_maxmsg = max;
+                break;
+            case 2:
+                attr.mq_msgsize = 10; /* 10, common data for test, no special meaning */
+                attr.mq_maxmsg = -1; /* -1, common data for test, no special meaning */
+                break;
+            case 3:
+                attr.mq_msgsize = 10; /* 10, common data for test, no special meaning */
+                attr.mq_maxmsg = max + 1;
+                break;
+
+            case 4:
+                attr.mq_msgsize = 0; /* 0, common data for test, no special meaning */
+                attr.mq_maxmsg = 16; /* 16, common data for test, no special meaning */
+                break;
+
+            case 5:
+                attr.mq_msgsize = 64; /* 64, common data for test, no special meaning */
+                attr.mq_maxmsg = 0; /* 0, common data for test, no special meaning */
+                break;
+        }
+
+        queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+        ICUNIT_ASSERT_EQUAL(queue, (mqd_t)-1, queue); /* 1, common data for test, no special meaning */
+
+        if (queue != (mqd_t)-1) { /* 1, common data for test, no special meaning */
+            ret = mq_close(queue);
+            ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+            ret = mq_unlink(qName);
+            ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+        }
+
+        ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
+    }
+
+    for (i = 0; i < MQ_NAME_LEN; i++) {
+        qName[i] = 0;
+    }
+    attr.mq_msgsize = MQ_MSG_SIZE;
+    attr.mq_maxmsg = MQ_MAX_MSG;
+    queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+    ICUNIT_ASSERT_EQUAL(queue, (mqd_t)-1, queue); /* 1, common data for test, no special meaning */
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
+    return 0;
+}
+
+/* *
+ * @tc.number SUB_KERNEL_IPC_MQ_OPEN_0300
+ * @tc.name   mq_open function errno for ENAMETOOLONG test
+ * @tc.desc   [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(IpcMqExceptionApiTestSuite, testMqOpenENAMETOOLONG, Function | MediumTest | Level2)
+{
+    char qName[MAX_MQ_NAME_LEN + 10]; /* 10, common data for test, no special meaning */
+    mqd_t queue;
+    int i, ret;
+
+    for (i = 0; i < MAX_MQ_NAME_LEN + 5; i++) { /* 5, common data for test, no special meaning */
+        qName[i] = '8';
+    }
+    qName[i] = '\0';
+
+    queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, NULL);
+    ICUNIT_ASSERT_EQUAL(queue, (mqd_t)-1, queue); /* -1, common data for test, no special meaning */
+
+    if (queue != (mqd_t)-1) { /* -1, common data for test, no special meaning */
+        ret = mq_close(queue);
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+        ret = mq_unlink(qName);
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    }
+
+    ICUNIT_ASSERT_EQUAL(errno, ENAMETOOLONG, errno);
+    return 0;
+}
+
+/* *
+ * @tc.number SUB_KERNEL_IPC_MQ_OPEN_0400
+ * @tc.name   mq_open function errno for ENOENT test
+ * @tc.desc   [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(IpcMqExceptionApiTestSuite, testMqOpenENOENT, Function | MediumTest | Level3)
+{
+    int ret;
+    mqd_t queue;
+    char qName[MQ_NAME_LEN];
+
+    ret = sprintf_s(qName, MQ_NAME_LEN, "testMqOpenENOENT_%d", GetRandom(10000)); /* 10000, common data for test, no special meaning */
+    ICUNIT_ASSERT_EQUAL(ret, strlen(qName), ret);
+    queue = mq_open(qName, O_RDWR, S_IRUSR | S_IWUSR, NULL);
+    ICUNIT_ASSERT_EQUAL(queue, (mqd_t)-1, queue); /* -1, common data for test, no special meaning */
+
+    if (queue != (mqd_t)-1) { /* -1, common data for test, no special meaning */
+        ret = mq_close(queue);
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+        ret = mq_unlink(qName);
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    }
+    ICUNIT_ASSERT_EQUAL(errno, ENOENT, errno);
+    return 0;
+}
+
+/* *
+ * @tc.number SUB_KERNEL_IPC_MQ_OPEN_0600
+ * @tc.name   mq_open function errno for ENOSPC test
+ * @tc.desc   [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(IpcMqExceptionApiTestSuite, testMqOpenENOSPC, Function | MediumTest | Level3)
+{
+    int ret;
+    mqd_t queue;
+    struct mq_attr setAttr = { 0 };
+    char qName[MQ_NAME_LEN];
+
+    ret = sprintf_s(qName, MQ_NAME_LEN, "testMqOpenENOSPC_%d", GetRandom(10000)); /* 10000, common data for test, no special meaning */
+    ICUNIT_ASSERT_EQUAL(ret, strlen(qName), ret);
+    setAttr.mq_msgsize = MAX_MQ_MSG_SIZE + 1; /* 1, common data for test, no special meaning */
+    setAttr.mq_maxmsg = MAX_MQ_NAME_LEN;
+    queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &setAttr);
+    ICUNIT_ASSERT_EQUAL(queue, (mqd_t)-1, queue); /* -1, common data for test, no special meaning */
+
+    if (queue != (mqd_t)-1) { /* -1, common data for test, no special meaning */
+        ret = mq_close(queue);
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+        ret = mq_unlink(qName);
+        ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    }
+    ICUNIT_ASSERT_EQUAL(errno, ENOSPC, errno);
+    return 0;
+}
+
+/* *
+ * @tc.number SUB_KERNEL_IPC_MQ_CLOSE_0100
+ * @tc.name   mq_close function errno for EBADF test
+ * @tc.desc   [C- SOFTWARE -0200]
+ */
+LITE_TEST_CASE(IpcMqExceptionApiTestSuite, testMqCloseEBADF, Function | MediumTest | Level2)
+{
+    int ret = mq_close(NULL);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret); /* -1, common data for test, no special meaning */
+    ICUNIT_ASSERT_EQUAL(errno, EBADF, errno);
+    return 0;
+}
+
 RUN_TEST_SUITE(IpcMqExceptionApiTestSuite);
 
 void IpcMqExceptionFuncTest(void)
@@ -667,4 +861,10 @@ void IpcMqExceptionFuncTest(void)
     RUN_ONE_TESTCASE(testMqUnlinkEINVAL);
     RUN_ONE_TESTCASE(testMqGetAttrEBADFEINVAL);
     RUN_ONE_TESTCASE(testMqSetAttrEBADFEINVAL);
+    RUN_ONE_TESTCASE(testMqOpenEEXIST);
+    RUN_ONE_TESTCASE(testMqOpenEINVAL);
+    RUN_ONE_TESTCASE(testMqOpenENAMETOOLONG);
+    RUN_ONE_TESTCASE(testMqOpenENOENT);
+    RUN_ONE_TESTCASE(testMqOpenENOSPC);
+    RUN_ONE_TESTCASE(testMqCloseEBADF);
 }
