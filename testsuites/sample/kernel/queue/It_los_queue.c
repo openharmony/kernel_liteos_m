@@ -151,7 +151,22 @@ VOID ItSuiteLosQueue(VOID)
     ItLosQueueHead040();
     ItLosQueueHead041();
     ItLosQueueHead042();
-
+    ItLosQueueIsr001();
+    ItLosQueueIsr002();
+    ItLosQueueIsr003();
+    ItLosQueueIsr004();
+    ItLosQueueIsr005();
+    ItLosQueueIsr006();
+    ItLosQueueIsr007();
+    ItLosQueueIsr008();
+    ItLosQueueIsr009();
+    ItLosQueueIsr010();
+    ItLosQueueIsr011();
+    ItLosQueueIsr012();
+    ItLosQueueIsr013();
+    ItLosQueueIsr014();
+    ItLosQueueIsr015();
+    ItLosQueueIsr016();
 #if (LOS_KERNEL_TEST_FULL == 1)
 #if (LOS_KERNEL_HWI_TEST == 1)
     ItLosQueue044();
