@@ -183,7 +183,22 @@ extern VOID ItLosQueueHead039(VOID);
 extern VOID ItLosQueueHead040(VOID);
 extern VOID ItLosQueueHead041(VOID);
 extern VOID ItLosQueueHead042(VOID);
-
+extern VOID ItLosQueueIsr001(VOID);
+extern VOID ItLosQueueIsr002(VOID);
+extern VOID ItLosQueueIsr003(VOID);
+extern VOID ItLosQueueIsr004(VOID);
+extern VOID ItLosQueueIsr005(VOID);
+extern VOID ItLosQueueIsr006(VOID);
+extern VOID ItLosQueueIsr007(VOID);
+extern VOID ItLosQueueIsr008(VOID);
+extern VOID ItLosQueueIsr009(VOID);
+extern VOID ItLosQueueIsr010(VOID);
+extern VOID ItLosQueueIsr011(VOID);
+extern VOID ItLosQueueIsr012(VOID);
+extern VOID ItLosQueueIsr013(VOID);
+extern VOID ItLosQueueIsr014(VOID);
+extern VOID ItLosQueueIsr015(VOID);
+extern VOID ItLosQueueIsr016(VOID);
 #if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
 extern VOID ItLosQueueStatic001(VOID);
 extern VOID ItLosQueueStatic002(VOID);

@@ -37,7 +37,6 @@
 #include "los_interrupt.h"
 #include "los_membox.h"
 #include "los_memory.h"
-#include "los_task.h"
 #include "los_sched.h"
 #include <stdint.h>
 
