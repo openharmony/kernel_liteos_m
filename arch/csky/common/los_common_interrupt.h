@@ -63,6 +63,11 @@ extern volatile UINT32 g_intCount;
 #endif
 
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
+typedef struct {
+    HWI_PROC_FUNC pfnHandler;
+    VOID *pParm;
+} HWI_HANDLER_FUNC;
+
 /* *
  * @ingroup los_arch_interrupt
  * Set interrupt vector table.
