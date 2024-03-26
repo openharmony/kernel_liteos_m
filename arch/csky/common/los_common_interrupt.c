@@ -155,10 +155,6 @@ UINT32 ArchIntCurIrqNum(VOID)
 }
 
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
-typedef struct {
-    HWI_PROC_FUNC pfnHandler;
-    VOID *pParm;
-} HWI_HANDLER_FUNC;
 
 /* *
  * @ingroup los_hwi
