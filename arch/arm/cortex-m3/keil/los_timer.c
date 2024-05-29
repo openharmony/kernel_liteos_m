@@ -86,7 +86,7 @@ STATIC UINT64 SysTickReload(UINT64 nextResponseTime)
     SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
     SysTick->LOAD = (UINT32)(nextResponseTime - 1UL); /* set reload register */
     SysTick->VAL = 0UL; /* Load the SysTick Counter Value */
-    NVIC_ClearPendingIRQ(SysTick_IRQn);
+    SCB->ICSR |= SCB_ICSR_PENDSTCLR_Msk;
     SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 
     return nextResponseTime;
