@@ -1,0 +1,11 @@
+[
+    {
+        "Name"                  : "LiteOS-M Kernel",
+        "License"               : "BSD-3-Clause",
+        "License File"          : "LICENSE",
+        "Version Number"        : "openharmony 1.0.1",
+        "Owner"                 : "liu.limin@huawei.com ",
+        "Upstream URL"          : "https://gitee.com/openharmony/kernel_liteos_m",
+        "Description"           : "OpenHarmony LiteOS-M is a lightweight operating system kernel designed for the Internet of Things (IoT) field. It features small footprint, low power consumption, and high performance. It has a simple code structure, including the minimum kernel function set, kernel abstraction layer, optional components, and project directory."
+    }
+]
