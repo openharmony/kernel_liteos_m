@@ -166,6 +166,8 @@ static UINT32 OsQueueCreate(const CHAR *queueName,
         unusedQueue = LOS_DL_LIST_FIRST(&(g_freeQueueList));
     }
 #else
+    (void)staticMem;
+
     queue = (UINT8 *)LOS_MemAlloc(m_aucSysMem0, (UINT32)len * msgSize);
     if (queue == NULL) {
         return LOS_ERRNO_QUEUE_CREATE_NO_MEMORY;
