@@ -111,6 +111,12 @@ typedef struct {
 #define OS_RISCV_VECTOR_CNT                  (OS_RISCV_SYS_VECTOR_CNT + OS_RISCV_CUSTOM_IRQ_VECTOR_CNT)
 
 /**
+ * @ingroup los_arch_interrupt
+ * Count of risc-v system interrupt vector.
+ */
+#define OS_SYS_VECTOR_CNT                    0
+
+/**
  * Maximum number of supported hardware devices that generate hardware interrupts.
  * The maximum number of hardware devices that generate hardware interrupts supported by hi3518ev200 is 32.
  */
