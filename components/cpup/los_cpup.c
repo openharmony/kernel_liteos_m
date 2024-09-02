@@ -616,11 +616,11 @@ LITE_OS_SEC_TEXT_MINOR UINT32 LOS_CpupUsageMonitor(CPUP_TYPE_E type, CPUP_MODE_E
 #if (LOSCFG_CPUP_INCLUDE_IRQ == 1)
 LITE_OS_SEC_TEXT_MINOR VOID OsCpupIrqStart(UINT32 intNum)
 {
-    if (g_irqCpupInitFlg == 0) {
+    if ((g_irqCpupInitFlg == 0) || (intNum < OS_SYS_VECTOR_CNT)) {
         return;
     }
-
-    g_irqCpup[intNum].startTime = CpupTimeUsGet();
+    UINT32 cpupIntNum = intNum - OS_SYS_VECTOR_CNT;
+    g_irqCpup[cpupIntNum].startTime = CpupTimeUsGet();
     return;
 }
 
@@ -629,33 +629,34 @@ LITE_OS_SEC_TEXT_MINOR VOID OsCpupIrqEnd(UINT32 intNum)
     UINT64 cpuTime;
     UINT64 usedTime;
 
-    if (g_irqCpupInitFlg == 0) {
+    if ((g_irqCpupInitFlg == 0) || (intNum < OS_SYS_VECTOR_CNT)) {
         return;
     }
 
-    if (g_irqCpup[intNum].startTime == 0) {
+    UINT32 cpupIntNum = intNum - OS_SYS_VECTOR_CNT;
+    if (g_irqCpup[cpupIntNum].startTime == 0) {
         return;
     }
 
     cpuTime = CpupTimeUsGet();
-    if (cpuTime < g_irqCpup[intNum].startTime) {
+    if (cpuTime < g_irqCpup[cpupIntNum].startTime) {
         cpuTime += OS_US_PER_TICK;
     }
 
-    g_irqCpup[intNum].cpupID = intNum;
-    g_irqCpup[intNum].status = OS_CPUP_USED;
-    usedTime = cpuTime - g_irqCpup[intNum].startTime;
+    g_irqCpup[cpupIntNum].cpupID = intNum;
+    g_irqCpup[cpupIntNum].status = OS_CPUP_USED;
+    usedTime = cpuTime - g_irqCpup[cpupIntNum].startTime;
 
-    if (g_irqCpup[intNum].count <= 1000) { /* 1000, Take 1000 samples */
-        g_irqCpup[intNum].allTime += usedTime;
-        g_irqCpup[intNum].count++;
+    if (g_irqCpup[cpupIntNum].count <= 1000) { /* 1000, Take 1000 samples */
+        g_irqCpup[cpupIntNum].allTime += usedTime;
+        g_irqCpup[cpupIntNum].count++;
     } else {
-        g_irqCpup[intNum].allTime = 0;
-        g_irqCpup[intNum].count = 0;
+        g_irqCpup[cpupIntNum].allTime = 0;
+        g_irqCpup[cpupIntNum].count = 0;
     }
-    g_irqCpup[intNum].startTime = 0;
-    if (usedTime > g_irqCpup[intNum].timeMax) {
-        g_irqCpup[intNum].timeMax = usedTime;
+    g_irqCpup[cpupIntNum].startTime = 0;
+    if (usedTime > g_irqCpup[cpupIntNum].timeMax) {
+        g_irqCpup[cpupIntNum].timeMax = usedTime;
     }
     return;
 }
