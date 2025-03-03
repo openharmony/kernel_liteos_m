@@ -74,6 +74,17 @@ OS_CMSE_NS_ENTRY OsSecureContext *HalSecureContextAlloc(UINT32 size)
 
 OS_CMSE_NS_ENTRY VOID HalSecureContextFree(OsSecureContext *secureContext)
 {
+    if (secureContext == NULL) {
+        return;
+    }
+
+    SecureHeapInfo heapInfo = HalGetSecureHeapInfo();
+
+    if (secureContext < heapInfo.start || 
+        (secureContext + sizeof(OsSecureContext)) > heapInfo.start + heapInfo.size) {
+        return;
+    }
+
     UINT32 ipsr;
 
     OS_IPSR_READ(ipsr);
