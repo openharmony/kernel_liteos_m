@@ -79,8 +79,8 @@ OS_CMSE_NS_ENTRY VOID HalSecureContextFree(OsSecureContext *secureContext)
     }
 
     SecureHeapInfo heapInfo = HalGetSecureHeapInfo();
-
-    if (secureContext < heapInfo.start || (secureContext + sizeof(OsSecureContext)) > (heapInfo.start + heapInfo.size)) {
+    if (secureContext < heapInfo.start || 
+        (secureContext + sizeof(OsSecureContext)) > (heapInfo.start + heapInfo.size)) {
         return;
     }
 
