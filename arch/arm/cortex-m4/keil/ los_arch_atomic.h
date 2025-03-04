@@ -134,9 +134,6 @@ STATIC INLINE INT32 ArchAtomicDecRet(Atomic *v)
  * @param  val     [IN] The exchange value.
  *
  * @retval #INT32       The previous value of the atomic variable
- * @par Dependency:
- * <ul><li>los_arch_atomic.h: the header file that contains the API declaration.</li></ul>
- * @see
  */
 STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
 {
