@@ -227,3 +227,4 @@ OS_CMSE_NS_ENTRY VOID HalSecureFree(VOID *ptr)
 
     OsSecureHeapFreeNode(node);
 }
+
