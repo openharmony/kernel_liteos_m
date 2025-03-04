@@ -169,9 +169,6 @@ STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
  *
  * @retval TRUE  The previous value of the atomic variable is not equal to oldVal.
  * @retval FALSE The previous value of the atomic variable is equal to oldVal.
- * @par Dependency:
- * <ul><li>los_arch_atomic.h: the header file that contains the API declaration.</li></ul>
- * @see
  */
 STATIC INLINE BOOL ArchAtomicCmpXchg32bits(volatile INT32 *v, INT32 val, INT32 oldVal)
 {
