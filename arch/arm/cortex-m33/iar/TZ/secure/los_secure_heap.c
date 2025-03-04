@@ -227,11 +227,3 @@ OS_CMSE_NS_ENTRY VOID HalSecureFree(VOID *ptr)
 
     OsSecureHeapFreeNode(node);
 }
-
-OS_CMSE_NS_ENTRY SecureHeapInfo HalGetSecureHeapInfo(void)
-{
-    SecureHeapInfo info;
-    info.start = g_secureHeap;
-    info.size = LOSCFG_SECURE_HEAP_SIZE;
-    return info;
-}
