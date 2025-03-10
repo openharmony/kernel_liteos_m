@@ -40,6 +40,12 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+typedef struct {
+    UINT8 *start;
+    UINT32 size;
+} SecureHeapInfo;
+
+OS_CMSE_NS_ENTRY SecureHeapInfo HalGetSecureHeapInfo(void);
 VOID *HalSecureMalloc(UINT32 size);
 VOID HalSecureFree(VOID *ptr);
 
