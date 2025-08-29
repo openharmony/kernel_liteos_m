@@ -35,7 +35,7 @@ HIDE := @
 KCONFIG_CMDS := $(notdir $(wildcard $(dir $(shell which menuconfig))*config))
 
 ohos_kernel ?= liteos_m
-$(foreach line,$(shell hb env | sed 's/\[OHOS INFO\]/ohos/g;s/ /_/g;s/:_/=/g' || true),$(eval $(line)))
+$(foreach line,$(shell hb env | sed 's/\[OHOS INFO\] /ohos/g;s/ /_/g;s/:_/=/g' || true),$(eval $(line)))
 ifneq ($(ohos_kernel),liteos_m)
 $(error The selected product ($(ohos_product)) is not a liteos_m kernel type product)
 endif
