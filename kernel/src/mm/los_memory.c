@@ -1645,7 +1645,7 @@ STATIC UINT32 OsMemIntegrityCheckSub(struct OsMemNodeHead **tmpNode, const VOID 
     if (!OsMemAddrValidCheck(pool, (*tmpNode)->ptr.prev)) {
         PRINT_ERR("[%s], %d, memory check error!\n"
                   " node prev: %p is out of legal mem range\n",
-                  __FUNCTION__, __LINE__, (*tmpNode)->ptr.next);
+                  __FUNCTION__, __LINE__, (*tmpNode)->ptr.prev);
         return LOS_NOK;
     }
 
