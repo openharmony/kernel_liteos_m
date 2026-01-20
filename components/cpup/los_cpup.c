@@ -56,7 +56,7 @@
  */
 #define OS_THREAD_TYPE_HWI      1
 
-#define OS_CPUP_RECORD_PERIOD   (g_sysClock)
+#define OS_CPUP_RECORD_PERIOD   OS_SYS_US_PER_SECOND
 
 #define OS_SYS_CYCLE_TO_US(cycle)  ((cycle) / (g_sysClock)) * OS_SYS_US_PER_SECOND + \
     ((cycle) % (g_sysClock) * OS_SYS_US_PER_SECOND / (g_sysClock))
