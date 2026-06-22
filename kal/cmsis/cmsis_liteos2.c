@@ -1444,7 +1444,9 @@ osMemoryPoolId_t osMemoryPoolNew(uint32_t block_count, uint32_t block_size, cons
     if ((block_count == 0) || (block_size == 0)) {
         return NULL;
     }
-
+    if (block_count > (UINT32_MAX / block_size)){
+        return NULL;
+    }
     size = block_count * block_size;
 
     if (attr != NULL) {
