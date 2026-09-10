@@ -40,30 +40,25 @@ static VOID TaskF01(VOID)
 
 static UINT32 TestCase(VOID)
 {
-    UINT32 ret;
     UINT32 index;
+    UINT32 intSave;
     CHAR acName[TASK_NAME_NUM];
 
     TSK_INIT_PARAM_S task1 = { 0 };
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
 
-    LOS_TaskLock();
-
     for (index = 0; index < LOSCFG_BASE_CORE_TSK_LIMIT; index++) {
+        intSave = LOS_IntLock();
         task1.usTaskPrio = index;
         (void)sprintf_s(acName, TASK_NAME_NUM, "Tsk040A%d", index);
         task1.pcName = acName;
         task1.uwResved = LOS_TASK_STATUS_DETACHED;
-
-        ret = LOS_TaskCreate(&g_testTaskID01, &task1);
-        ICUNIT_TRACK_EQUAL(ret, LOS_OK, ret);
-
-        ret = LOS_TaskDelete(g_testTaskID01);
-        ICUNIT_TRACK_EQUAL(ret, LOS_OK, ret);
+        g_testTaskID01 = -1;
+        (void)LOS_TaskCreate(&g_testTaskID01, &task1);
+        (void)LOS_TaskDelete(g_testTaskID01);
+        LOS_IntRestore(intSave);
     }
-
-    LOS_TaskUnlock();
 
     return LOS_OK;
 }

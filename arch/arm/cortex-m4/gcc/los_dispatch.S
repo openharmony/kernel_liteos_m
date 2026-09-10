@@ -59,9 +59,9 @@
     bne     SignalContextRestore
 .endm
 
-    .type HalStartToRun, %function
-    .global HalStartToRun
-HalStartToRun:
+    .type ArchStartToRun, %function
+    .global ArchStartToRun
+ArchStartToRun:
     .fnstart
     .cantunwind
 
@@ -69,11 +69,12 @@ HalStartToRun:
     ldr     r5, =OS_NVIC_PENDSV_PRI
     str     r5, [r4]
 
-    mov     r0, #OS_CONTROL_KERNEL_MODE
-    msr     CONTROL, r0
+    mov     r2, #OS_CONTROL_KERNEL_MODE
+    msr     CONTROL, r2
 
-    ldr     r1, =g_losTask
-    ldr     r0, [r1, #4]
+    ldr     r1, =g_oldTask
+    str     r0, [r1]
+
     ldr     r12, [r0]
 
     ldr.w   r1, =OS_FPU_CPACR
@@ -114,9 +115,9 @@ ArchIntLock:
     BX LR
     .fnend
 
-    .type ArchIntUnLock, %function
-    .global ArchIntUnLock
-ArchIntUnLock:
+    .type ArchIntUnlock, %function
+    .global ArchIntUnlock
+ArchIntUnlock:
     .fnstart
     .cantunwind
 
@@ -144,9 +145,13 @@ ArchTaskSchedule:
     ldr     r0, =OS_NVIC_INT_CTRL
     ldr     r1, =OS_NVIC_PENDSVSET
     str     r1, [r0]
+    mrs     r2, IPSR
+    cbnz    r2, ArchTaskScheduleExit
+    mrs     r0, PRIMASK
+    cpsie   i
+    msr     PRIMASK, r0
+ArchTaskScheduleExit:
     bx      lr
-    dsb
-    isb
     .fnend
 
     .type HalPendSV, %function
@@ -161,17 +166,16 @@ HalPendSV:
 HalTaskSwitch:
     SIGNAL_CONTEXT_RESTORE
 
-    push    {r12, lr}
-    blx     OsSchedTaskSwitch
-    pop     {r12, lr}
-    cmp     r0, #0
-    mov     r0, lr
-    bne     TaskContextSwitch
-    msr     PRIMASK, r12
-    bx      lr
+HalPendSVSwitch:
+    /* Check if actual switch needed: g_runTask != g_oldTask */
+    ldr     r0, =g_runTask
+    ldr     r1, [r0]
+    ldr     r2, =g_oldTask
+    ldr     r3, [r2]
+    cmp     r1, r3
+    beq     HalPendSVNoSwitch
 
-TaskContextSwitch:
-    mov     lr, r0
+    /* Context switch: save old, load new */
     mrs     r0, psp
 
     stmfd   r0!, {r4-r12}
@@ -183,13 +187,14 @@ TaskContextSwitch:
     vstmdb  r0!, {d8-d15}
 
 __DisabledFPU1:
-    ldr     r5, =g_losTask
+    ldr     r5, =g_oldTask
     ldr     r6, [r5]
-    str     r0, [r6]
+    str     r0, [r6]            /* save SP to oldTask */
 
-    ldr     r0, [r5, #4]
-    str     r0, [r5]
-    ldr     r1, [r0]
+    ldr     r0, =g_runTask
+    ldr     r0, [r0]
+    str     r0, [r5]             /* g_oldTask = g_runTask */
+    ldr     r1, [r0]             /* newTask stackPointer */
 
 SignalContextRestore:
     ldr.w   r3, =OS_FPU_CPACR
@@ -213,5 +218,9 @@ __DisabledFPU2:
 
     msr     PRIMASK, r12
 
+    bx      lr
+
+HalPendSVNoSwitch:
+    msr     PRIMASK, r12
     bx      lr
     .fnend

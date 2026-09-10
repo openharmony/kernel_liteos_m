@@ -31,7 +31,7 @@
 
 #include "los_iar_tls.h"
 #include <stdio.h>
-#include "los_task.h"
+#include "los_task_pri.h"
 #include "los_mux.h"
 #include "los_memory.h"
 
@@ -44,8 +44,8 @@ void __DLIB_TLS_MEMORY *__iar_dlib_perthread_access(void _DLIB_TLS_MEMORY *symbp
         tlsAreaPtr += __IAR_DLIB_PERTHREAD_SYMBOL_OFFSET(symbp);
         return (void __DLIB_TLS_MEMORY *)tlsAreaPtr;
     } else {
-        UINT32 taskID = LOS_CurTaskIDGet();
-        LosTaskCB *task = OS_TCB_FROM_TID(taskID);
+        UINT32 taskId = LOS_CurTaskIDGet();
+        LosTaskCB *task = OS_TCB_FROM_TID(taskId);
         if (task->iarTlsArea == NULL) {
             task->iarTlsArea = __iar_dlib_perthread_allocate();
         }
@@ -60,8 +60,8 @@ void *__aeabi_read_tp(void)
     if (!LOS_TaskIsRunning()) {
         return __section_begin("__iar_tls$$DATA");
     } else {
-        UINT32 taskID = LOS_CurTaskIDGet();
-        LosTaskCB *task = OS_TCB_FROM_TID(taskID);
+        UINT32 taskId = LOS_CurTaskIDGet();
+        LosTaskCB *task = OS_TCB_FROM_TID(taskId);
         if (task->iarTlsArea == NULL) {
             task->iarTlsArea = IarPerThreadTlsAreaAllocate();
         }

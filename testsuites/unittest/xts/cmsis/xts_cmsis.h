@@ -36,6 +36,14 @@
 #include <limits.h>
 #include "cmsis_os2.h"
 
+#ifndef LOS_FEATURE_ADAPTED
+#ifdef LOSCFG_PLATFORM_WS63_M
+#define LOS_FEATURE_ADAPTED 0
+#else
+#define LOS_FEATURE_ADAPTED 1
+#endif
+#endif
+
 #define LOS_WAIT_FOREVER 0xFFFFFFFF
 
 #define TESTCOUNT_NUM_1 1

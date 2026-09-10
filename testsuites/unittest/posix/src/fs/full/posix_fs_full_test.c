@@ -144,7 +144,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, TestFsFull003, Function | MediumTest | Leve
     for (i = 0; i < TEST_OPEN_FILE_NUM; i++) {
         res = sprintf_s(tmpFileName, TEST_BUF_SIZE, "%s%02d", TEMP_DIRE_FILE, i);
         if (res < 0) {
-            printf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
+            dprintf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
             goto EXIT1;
         }
         fd[i] = open(tmpFileName, O_CREAT | O_RDWR, TEST_MODE_HIGH);
@@ -157,7 +157,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, TestFsFull003, Function | MediumTest | Leve
     while ((dirmsg = readdir(dir)) != NULL) {
         res = sprintf_s(fileName, TEST_BUF_SIZE, "%s%02d", "eFile", index);
         if (res < 0) {
-            printf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
+            dprintf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
             goto EXIT1;
         }
         ret = strcmp(dirmsg->d_name, fileName);
@@ -172,7 +172,7 @@ EXIT1:
     for (int32_t j = 0; j < i; j++) {
         res = sprintf_s(tmpFileName, TEST_BUF_SIZE, "%s%02d", TEMP_DIRE_FILE, j);
         if (res < 0) {
-            printf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
+            dprintf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
             return POSIX_FS_IS_ERROR;
         }
         ret = close(fd[j]);
@@ -212,7 +212,7 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, TestFsFull004, Function | MediumTest | Leve
     for (i = 0; i < TEST_OPEN_DIR_NUM; i++) {
         res = sprintf_s(tmpDirName, TEST_BUF_SIZE, "%s%02d", TEMP_DIRF_DIR, i);
         if (res < 0) {
-            printf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
+            dprintf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
             goto EXIT;
         }
         ret = mkdir(tmpDirName, TEST_MODE_HIGH);
@@ -224,14 +224,14 @@ LITE_TEST_CASE(PosixFsFuncTestSuite, TestFsFull004, Function | MediumTest | Leve
     while ((dirmsg = readdir(dir)) != NULL) {
         res = sprintf_s(dirName, TEST_BUF_SIZE, "%s%02d", "fDir", index);
         if (res < 0) {
-            printf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
+            dprintf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
             goto EXIT1;
         }
         ret = strcmp(dirmsg->d_name, dirName);
         ICUNIT_GOTO_EQUAL(ret, POSIX_FS_NO_ERROR, ret, EXIT1);
         res = sprintf_s(tmpDirName, TEST_BUF_SIZE, "%s%02d", TEMP_DIRF_DIR, index);
         if (res < 0) {
-            printf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
+            dprintf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
             goto EXIT1;
         }
         ret = stat(tmpDirName, &buf);
@@ -247,7 +247,7 @@ EXIT:
     for (int32_t j = 0; j < i; j++) {
         res = sprintf_s(tmpDirName, TEST_BUF_SIZE, "%s%02d", TEMP_DIRF_DIR, j);
         if (res < 0) {
-            printf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
+            dprintf("[%s:%d] sprintf_s failed\n", __func__, __LINE__);
             return POSIX_FS_IS_ERROR;
         }
         ret = rmdir(tmpDirName);

@@ -93,7 +93,7 @@ static UINT32 Testcase(VOID)
         ret = LOS_EventRead(&g_eventCB0, 0xFFFF, LOS_WAITMODE_AND, LOS_WAIT_FOREVER);
         ICUNIT_GOTO_EQUAL(ret, 0xFFFF, ret, EXIT1);
         // 200, Here, check that g_testCount is equal to this .
-        if (g_testCount == 200) {
+        if (g_testCount >= 200) {
             ret = LOS_SwtmrDelete(g_swtmrId1);
             ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT1);
 

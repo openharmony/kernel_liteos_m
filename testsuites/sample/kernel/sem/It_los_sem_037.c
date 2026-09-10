@@ -75,6 +75,7 @@ static UINT32 Testcase(VOID)
     for (i = 0; i < IT_SEMLOOP; i++) {
         ret = LOS_SemPost(g_usSemID);
         ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT2);
+        TEST_DELAY(g_testCount, i + 1, TEST_WAIT_TIMEOUT);
         ICUNIT_GOTO_EQUAL(g_testCount, i + 1, g_testCount, EXIT2);
     }
 

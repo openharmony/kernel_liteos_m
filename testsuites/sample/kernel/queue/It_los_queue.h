@@ -42,6 +42,7 @@ extern "C" {
 #define QUEUE_STANDARD_BUFFER_LENGTH 50
 #define QUEUE_BASE_NUM 3
 #define QUEUE_BASE_MSGSIZE 8
+#define QUEUE_SHORT_STATIC_BUFFER_LENGTH (QUEUE_BASE_NUM * (QUEUE_BASE_MSGSIZE + sizeof(UINT32)))
 
 #define PER_ADDED_VALUE 1
 
@@ -199,7 +200,12 @@ extern VOID ItLosQueueIsr013(VOID);
 extern VOID ItLosQueueIsr014(VOID);
 extern VOID ItLosQueueIsr015(VOID);
 extern VOID ItLosQueueIsr016(VOID);
-#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+extern VOID ItLosQueue301(VOID);
+extern VOID ItLosQueueHead301(VOID);
+extern VOID ItLosQueueHead302(VOID);
+extern VOID ItLosQueueIsr301(VOID);
+extern VOID ItLosQueueIsr302(VOID);
+#if (LOSCFG_QUEUE_STATIC_ALLOCATION == 1)
 extern VOID ItLosQueueStatic001(VOID);
 extern VOID ItLosQueueStatic002(VOID);
 extern VOID ItLosQueueStatic003(VOID);

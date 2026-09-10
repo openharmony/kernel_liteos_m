@@ -37,7 +37,8 @@ module_group("arch") {
   modules = []
   if ("$board_cpu" == "arm9" || "$board_cpu" == "cortex-m3" ||
       "$board_cpu" == "cortex-m4" || "$board_cpu" == "cortex-m7" ||
-      "$board_cpu" == "cortex-m33" || "$board_cpu" == "cortex-m55") {
+      "$board_cpu" == "cortex-m33" || "$board_cpu" == "cortex-m55" ||
+      "$board_cpu" == "cortex-a7") {
     modules += [ "arm" ]
   } else if ("$board_cpu" == "ck802" || "$board_cpu" == "e802" ||
              "$board_cpu" == "ck804ef") {

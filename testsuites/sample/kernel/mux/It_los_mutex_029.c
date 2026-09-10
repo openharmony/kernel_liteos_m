@@ -36,6 +36,7 @@
 
 static VOID TaskFuncD(VOID)
 {
+    LosTaskCB *runTask = OsCurrTaskGet();
     UINT32 ret;
     g_testCount++;
 
@@ -50,13 +51,14 @@ static VOID TaskFuncD(VOID)
     g_testCount++;
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 4, g_testCount); // 4, Here, assert that g_testCount is equal to 4.
     // 2, Here, assert that priority is equal to 2.
-    ICUNIT_ASSERT_EQUAL_VOID(g_losTask.runTask->priority, 2, g_losTask.runTask->priority);
+    ICUNIT_ASSERT_EQUAL_VOID(runTask->priority, 2, runTask->priority);
     g_testCount++;
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 5, g_testCount); // 5, Here, assert that g_testCount is equal to 5.
 }
 
 static VOID TaskFuncC(VOID)
 {
+    LosTaskCB *runTask = OsCurrTaskGet();
     UINT32 ret;
     g_testCount++;
 
@@ -71,12 +73,13 @@ static VOID TaskFuncC(VOID)
     g_testCount++;
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 6, g_testCount); // 6, Here, assert that g_testCount is equal to 6.
     // 5, Here, assert that priority is equal to 5.
-    ICUNIT_ASSERT_EQUAL_VOID(g_losTask.runTask->priority, 5, g_losTask.runTask->priority);
+    ICUNIT_ASSERT_EQUAL_VOID(runTask->priority, 5, runTask->priority);
     g_testCount++;
 }
 
 static VOID TaskFuncA(VOID)
 {
+    LosTaskCB *runTask = OsCurrTaskGet();
     UINT32 ret;
     TSK_INIT_PARAM_S task1 = {0};
     TSK_INIT_PARAM_S task2 = {0};
@@ -122,18 +125,19 @@ static VOID TaskFuncA(VOID)
 
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 7, g_testCount); // 7, Here, assert that g_testCount is equal to 7.
     // 10, Here, assert that priority is equal to 10.
-    ICUNIT_ASSERT_EQUAL_VOID(g_losTask.runTask->priority, 10, g_losTask.runTask->priority);
+    ICUNIT_ASSERT_EQUAL_VOID(runTask->priority, 10, runTask->priority);
     g_testCount++;
 }
 
 static UINT32 Testcase(VOID)
 {
+    LosTaskCB *runTask = OsCurrTaskGet();
     UINT32 ret;
     TSK_INIT_PARAM_S task = {0};
     g_testCount = 0;
 
     ret = LOS_MuxCreate(&g_mutexTest1);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     task.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskFuncA;
     // 10, Set the priority according to the task purpose,a smaller number means a higher priority.
@@ -143,16 +147,24 @@ static UINT32 Testcase(VOID)
     task.uwResved = LOS_TASK_STATUS_DETACHED;
 
     ret = LOS_TaskCreate(&g_testTaskID01, &task);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT_MUX1);
 
     ret = LOS_MuxDelete(g_mutexTest1);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_TRACK_EQUAL(ret, LOS_OK, ret);
+
+    ret = LOS_MuxDelete(g_mutexTest2);
+    ICUNIT_TRACK_EQUAL(ret, LOS_OK, ret);
 
     // 8, Here, assert that g_testCount is equal to 8.
-    ICUNIT_ASSERT_EQUAL(g_testCount, 8, g_testCount);
+    ICUNIT_GOTO_EQUAL(g_testCount, 8, g_testCount, EXIT);
     // 25, Here, assert that priority is equal to 25.
-    ICUNIT_ASSERT_EQUAL(g_losTask.runTask->priority, 25, g_losTask.runTask->priority);
+    ICUNIT_GOTO_EQUAL(runTask->priority, 25, runTask->priority, EXIT);
     return LOS_OK;
+
+EXIT_MUX1:
+    (VOID)LOS_MuxDelete(g_mutexTest1);
+EXIT:
+    return LOS_NOK;
 }
 
 VOID ItLosMux029(void)

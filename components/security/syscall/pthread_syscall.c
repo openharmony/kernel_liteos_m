@@ -28,7 +28,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "los_task.h"
+#include "los_task_pri.h"
 #include "securec.h"
 #include "los_config.h"
 #include "los_debug.h"
@@ -37,6 +37,7 @@
 #include "los_memory.h"
 #include "los_mpu.h"
 #include "los_sched.h"
+#include "los_sched_pri.h"
 #include "los_mux.h"
 #include "los_sem.h"
 #include "los_timer.h"
@@ -46,7 +47,7 @@
 
 int SysUserTaskCreate(unsigned long entry, unsigned long userArea, unsigned long userSp, BOOL joinable)
 {
-    UINT32 ret, taskID;
+    UINT32 ret, taskId;
     TSK_INIT_PARAM_S taskInitParam = { 0 };
     taskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)entry;
     taskInitParam.uwStackSize = 0x1000;
@@ -56,13 +57,13 @@ int SysUserTaskCreate(unsigned long entry, unsigned long userArea, unsigned long
     if (joinable) {
         taskInitParam.uwResved |= LOS_TASK_ATTR_JOINABLE;
     }
-    ret = LOS_TaskCreateOnly(&taskID, &taskInitParam);
+    ret = LOS_TaskCreateOnly(&taskId, &taskInitParam);
     if (ret != LOS_OK) {
         return -EINVAL;
     }
 
-    OsUserTaskInit(taskID, entry, userArea, userSp);
-    return taskID;
+    OsUserTaskInit(taskId, entry, userArea, userSp);
+    return taskId;
 }
 
 int SysSchedSetScheduler(unsigned int tid, int policy, int priority)
@@ -107,8 +108,8 @@ int SysSetThreadArea(const char *area)
     unsigned int intSave;
 
     intSave = LOS_IntLock();
-    LosTaskCB *runTask = g_losTask.runTask;
-    OsGetUserTaskCB(runTask->taskID)->userArea = (unsigned long)(uintptr_t)area;
+    LosTaskCB *runTask = OsCurrTaskGet();
+    OsGetUserTaskCB(runTask->taskId)->userArea = (unsigned long)(uintptr_t)area;
     LOS_IntRestore(intSave);
     return 0;
 }
@@ -119,8 +120,8 @@ char *SysGetThreadArea(void)
     char *area = NULL;
 
     intSave = LOS_IntLock();
-    LosTaskCB *runTask = g_losTask.runTask;
-    area = (char *)OsGetUserTaskCB(runTask->taskID)->userArea;
+    LosTaskCB *runTask = OsCurrTaskGet();
+    area = (char *)OsGetUserTaskCB(runTask->taskId)->userArea;
     LOS_IntRestore(intSave);
     return area;
 }

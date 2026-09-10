@@ -13,6 +13,18 @@ config ARCH_RISCV32
    bool
    select ARCH_RISCV
 
+config ARCH_RISCV_HW_ATOMIC
+    bool "RISC-V hardware Atomic (A) extension is available"
+    depends on ARCH_RISCV
+    default n
+    help
+      Select this if the RISC-V core implements the standard Atomic (A)
+      extension in hardware (lr.w/sc.w/amoadd.w/amoswap.w ...). When
+      selected, the arch atomic operations use A-extension instructions;
+      otherwise they fall back to interrupt-lock (LOS_IntLock) based
+      atomics, which is correct for single-core but disables interrupts
+      during each operation.
+
 config ARCH_XTENSA
    bool
 
@@ -30,3 +42,19 @@ config ARCH_UNALIGNED_EXC
     depends on ARCH_ARM
     help
      This option will enable unaligned exception.
+
+config ARCH_TIMER_VENDOR
+    bool "Use vendor-provided timer instead of arch default"
+    default n
+    help
+      Select this if the board has a custom timer (not SiFive CLINT).
+      The board must provide its own ArchSysTickTimerGet() and ArchEnterSleep().
+
+config ARCH_INTERRUPT_VENDOR
+    bool "Use vendor-provided interrupt controller instead of arch default"
+    default n
+    help
+      Select this if the board has a custom interrupt controller (not the
+      default liteos_m g_hwiForm dispatch). The board must provide its own
+      g_hwiForm, HalHwiInterruptDone, ArchHwiCreate, HalExcEntry, HalHwiInit,
+      and all symbols that los_interrupt.c would normally provide.

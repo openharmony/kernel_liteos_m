@@ -47,9 +47,10 @@ extern "C" {
  * @ingroup los_arch_interrupt
  * Count of interrupts.
  */
-extern UINT32 g_intCount;
 
 extern VOID HalHwiDefaultHandler(VOID *arg);
+
+extern VOID *HalGetHandleForm(HWI_HANDLE_T hwiNum);
 
 #ifdef __cplusplus
 #if __cplusplus

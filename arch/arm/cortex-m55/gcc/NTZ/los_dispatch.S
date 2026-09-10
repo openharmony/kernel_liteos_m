@@ -104,9 +104,9 @@ ArchIntLock:
     bx      lr
     .fnend
 
-    .type ArchIntUnLock, %function
-    .global ArchIntUnLock
-ArchIntUnLock:
+    .type ArchIntUnlock, %function
+    .global ArchIntUnlock
+ArchIntUnlock:
     .fnstart
     .cantunwind
 

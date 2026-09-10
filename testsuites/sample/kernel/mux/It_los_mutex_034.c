@@ -36,6 +36,7 @@
 
 static VOID TaskFuncC(VOID)
 {
+    LosTaskCB *runTask = OsCurrTaskGet();
     UINT32 ret;
     g_testCount++;
 
@@ -51,13 +52,14 @@ static VOID TaskFuncC(VOID)
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
     // 5, Here, assert that priority is equal to 5.
-    ICUNIT_ASSERT_EQUAL_VOID(g_losTask.runTask->priority, 5, g_losTask.runTask->priority);
+    ICUNIT_ASSERT_EQUAL_VOID(runTask->priority, 5, runTask->priority);
 
     g_testCount++;
 }
 
 static VOID TaskFuncB(VOID)
 {
+    LosTaskCB *runTask = OsCurrTaskGet();
     UINT32 ret;
     g_testCount++;
 
@@ -72,12 +74,13 @@ static VOID TaskFuncB(VOID)
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
     // 8, Here, assert that priority is equal to 8.
-    ICUNIT_ASSERT_EQUAL_VOID(g_losTask.runTask->priority, 8, g_losTask.runTask->priority);
+    ICUNIT_ASSERT_EQUAL_VOID(runTask->priority, 8, runTask->priority);
     g_testCount++;
 }
 
 static VOID TaskFuncA(VOID)
 {
+    LosTaskCB *runTask = OsCurrTaskGet();
     UINT32 ret;
     TSK_INIT_PARAM_S task1 = {0};
     TSK_INIT_PARAM_S task2 = {0};
@@ -114,13 +117,14 @@ static VOID TaskFuncA(VOID)
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
     // 10, Here, assert that priority is equal to 10.
-    ICUNIT_ASSERT_EQUAL_VOID(g_losTask.runTask->priority, 10, g_losTask.runTask->priority);
+    ICUNIT_ASSERT_EQUAL_VOID(runTask->priority, 10, runTask->priority);
 
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 6, g_testCount); // 6, Here, assert that g_testCount is equal to 6.
 }
 
 static UINT32 Testcase(VOID)
 {
+    LosTaskCB *runTask = OsCurrTaskGet();
     UINT32 ret;
     TSK_INIT_PARAM_S task = {0};
     g_testCount = 0;
@@ -145,7 +149,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_MuxDelete(g_mutexTest1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
     // 25, Here, assert that priority is equal to 25.
-    ICUNIT_ASSERT_EQUAL(g_losTask.runTask->priority, 25, g_losTask.runTask->priority);
+    ICUNIT_ASSERT_EQUAL(runTask->priority, 25, runTask->priority);
     ICUNIT_ASSERT_EQUAL(g_testCount, 6, g_testCount); // 6, Here, assert that g_testCount is equal to 6.
 
     return LOS_OK;

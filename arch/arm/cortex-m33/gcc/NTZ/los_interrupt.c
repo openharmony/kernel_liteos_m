@@ -33,12 +33,14 @@
 #include "los_context.h"
 #include "los_arch_interrupt.h"
 #include "los_hook.h"
-#include "los_task.h"
+#include "los_task_pri.h"
 #include "los_sched.h"
+#include "los_sched_pri.h"
 #include "los_memory.h"
 #include "los_membox.h"
 #if (LOSCFG_CPUP_INCLUDE_IRQ == 1)
-#include "los_cpup.h"
+#include "los_cpup_pri.h"
+#include "los_hwi_pri.h"
 #endif
 
 #define DEF_HANDLER_START_INDEX 2
@@ -100,6 +102,7 @@ STATIC HwiControllerOps g_archHwiOps = {
     .triggerIrq     = HwiPending,
     .clearIrq       = HwiClear,
     .createIrq      = HwiCreate,
+    .getHandleForm  = HalGetHandleForm,
 };
 
 HwiControllerOps *ArchIntOpsGet(VOID)
@@ -117,50 +120,20 @@ HwiControllerOps *ArchIntOpsGet(VOID)
 LITE_OS_SEC_TEXT VOID HalInterrupt(VOID)
 {
     UINT32 hwiIndex;
-    UINT32 intSave;
 
 #if (LOSCFG_KERNEL_RUNSTOP == 1)
     SCB->SCR &= (UINT32) ~((UINT32)SCB_SCR_SLEEPDEEP_Msk);
 #endif
 
-    intSave = LOS_IntLock();
-    g_intCount++;
-    LOS_IntRestore(intSave);
-
     hwiIndex = HwiNumGet();
 
-    OsHookCall(LOS_HOOK_TYPE_ISR_ENTER, hwiIndex);
 #if (LOSCFG_CPUP_INCLUDE_IRQ == 1)
-    OsCpupIrqStart(hwiIndex);
+    OsCpupIrqStart(OS_HWI_INVALID_IRQ, hwiIndex);
 #endif
-
-    HalPreInterruptHandler(hwiIndex);
-
-#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
-    if (g_hwiHandlerForm[hwiIndex].pfnHandler != 0) {
-        g_hwiHandlerForm[hwiIndex].pfnHandler((VOID *)g_hwiHandlerForm[hwiIndex].pParm);
-    }
-#else
-    if (g_hwiHandlerForm[hwiIndex] != 0) {
-        g_hwiHandlerForm[hwiIndex]();
-    }
-#endif
-
-#if (LOSCFG_DEBUG_TOOLS == 1)
-    ++g_hwiFormCnt[hwiIndex];
-#endif
-
-    HalAftInterruptHandler(hwiIndex);
-
+    OsIntHandle(hwiIndex, &g_hwiHandleForm[hwiIndex]);
 #if (LOSCFG_CPUP_INCLUDE_IRQ == 1)
-    OsCpupIrqEnd(hwiIndex);
+    OsCpupIrqEnd(OS_HWI_INVALID_IRQ, hwiIndex);
 #endif
-
-    OsHookCall(LOS_HOOK_TYPE_ISR_EXIT, hwiIndex);
-
-    intSave = LOS_IntLock();
-    g_intCount--;
-    LOS_IntRestore(intSave);
 }
 
 #define FAULT_STATUS_REG_BIT            32
@@ -239,7 +212,7 @@ STATIC VOID OsExcCurTaskInfo(const ExcInfo *excInfo)
     if (excInfo->phase == OS_EXC_IN_TASK) {
         LosTaskCB *taskCB = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
         PRINTK("Task name = %s\n", taskCB->taskName);
-        PRINTK("Task ID   = %d\n", taskCB->taskID);
+        PRINTK("Task ID   = %d\n", taskCB->taskId);
         PRINTK("Task SP   = %p\n", taskCB->stackPointer);
         PRINTK("Task ST   = 0x%x\n", taskCB->topOfStack);
         PRINTK("Task SS   = 0x%x\n", taskCB->stackSize);
@@ -368,7 +341,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, U
             g_excInfo.thrdPid = pid;
         } else {
             g_excInfo.phase = OS_EXC_IN_TASK;
-            g_excInfo.thrdPid = g_losTask.runTask->taskID;
+            g_excInfo.thrdPid = g_losTask.runTask->taskId;
         }
     } else {
         g_excInfo.phase = OS_EXC_IN_INIT;
@@ -382,7 +355,7 @@ LITE_OS_SEC_TEXT_INIT VOID HalExcHandleEntry(UINT32 excType, UINT32 faultAddr, U
 
     OsDoExcHook(EXC_INTERRUPT);
     OsExcInfoDisplay(&g_excInfo);
-    ArchSysExit();
+    ArchTaskExit();
 }
 
 /* ****************************************************************************

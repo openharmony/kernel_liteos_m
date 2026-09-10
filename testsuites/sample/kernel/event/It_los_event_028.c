@@ -44,6 +44,9 @@ static VOID SwtmrF01(VOID)
     UINT32 ret;
     UINT32 eventMask;
 
+    if (g_testCount >= 16) {
+        return;
+    }
     eventMask = 0x1;
     eventMask = eventMask << g_testCount;
 

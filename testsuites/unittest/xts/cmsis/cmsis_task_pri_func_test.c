@@ -391,14 +391,14 @@ LITE_TEST_CASE(CmsisTaskPriFuncTestSuite, testOsThreadSetPriority003, Function |
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
     ICUNIT_ASSERT_NOT_EQUAL(id, NULL, id);
     
-    g_setPriority = osPriorityAboveNormal7;
+    g_setPriority = osPriorityHigh1;
     g_threadCreateExit2 = 0;
     id = osThreadNew((osThreadFunc_t)CmsisThreadSetPriorityFunc002, NULL, &attr);
     status = osDelay(DELAY_TICKS_5);
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
     ICUNIT_ASSERT_NOT_EQUAL(id, NULL, id);
 
-    g_setPriority = osPriorityHigh;
+    g_setPriority = osPriorityHigh2;
     g_threadCreateExit2 = 0;
     id = osThreadNew((osThreadFunc_t)CmsisThreadSetPriorityFunc002, NULL, &attr);
     status = osDelay(DELAY_TICKS_5);
@@ -727,14 +727,14 @@ LITE_TEST_CASE(CmsisTaskPriFuncTestSuite, testOsThreadSetPriority009, Function |
     attr.stack_mem = NULL;
     attr.stack_size = TEST_TASK_STACK_SIZE;
     attr.priority = osPriorityNormal;
-    g_setPriority = osPriorityAboveNormal2;
+    g_setPriority = osPriorityHigh1;
     g_threadCreateExit2 = 0;
     id = osThreadNew((osThreadFunc_t)CmsisThreadSetPriorityFunc002, NULL, &attr);
     status = osDelay(DELAY_TICKS_5);
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
     ICUNIT_ASSERT_NOT_EQUAL(id, NULL, id);
 
-    g_setPriority = osPriorityHigh;
+    g_setPriority = osPriorityHigh2;
     g_threadCreateExit2 = 0;
     id = osThreadNew((osThreadFunc_t)CmsisThreadSetPriorityFunc002, NULL, &attr);
     status = osDelay(DELAY_TICKS_5);
@@ -965,14 +965,14 @@ LITE_TEST_CASE(CmsisTaskPriFuncTestSuite, testOsThreadSetPriority014, Function |
     attr.stack_mem = NULL;
     attr.stack_size = TEST_TASK_STACK_SIZE;
     attr.priority = osPriorityAboveNormal1;
-    g_setPriority = osPriorityAboveNormal7;
+    g_setPriority = osPriorityHigh1;
     g_threadCreateExit2 = 0;
     id = osThreadNew((osThreadFunc_t)CmsisThreadSetPriorityFunc002, NULL, &attr);
     status = osDelay(DELAY_TICKS_5);
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
     ICUNIT_ASSERT_NOT_EQUAL(id, NULL, id);
 
-    g_setPriority = osPriorityHigh;
+    g_setPriority = osPriorityHigh2;
     g_threadCreateExit2 = 0;
     id = osThreadNew((osThreadFunc_t)CmsisThreadSetPriorityFunc002, NULL, &attr);
     status = osDelay(DELAY_TICKS_5);
@@ -1103,19 +1103,25 @@ void CmsisTaskPriFuncTest(void)
     RUN_ONE_TESTCASE(testOsThreadSetPriority001);
     RUN_ONE_TESTCASE(testOsThreadSetPriority002);
     RUN_ONE_TESTCASE(testOsThreadSetPriority003);
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
     RUN_ONE_TESTCASE(testOsThreadSetPriority004);
     RUN_ONE_TESTCASE(testOsThreadSetPriority005);
+#endif
     RUN_ONE_TESTCASE(testOsThreadSetPriority006);
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
     RUN_ONE_TESTCASE(testOsThreadSetPriority007);
+#endif
     RUN_ONE_TESTCASE(testOsThreadSetPriority008);
     RUN_ONE_TESTCASE(testOsThreadSetPriority009);
     RUN_ONE_TESTCASE(testOsThreadSetPriority010);
     RUN_ONE_TESTCASE(testOsThreadSetPriority011);
     RUN_ONE_TESTCASE(testOsThreadSetPriority012);
     RUN_ONE_TESTCASE(testOsThreadSetPriority013);
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
     RUN_ONE_TESTCASE(testOsThreadSetPriority014);
     RUN_ONE_TESTCASE(testOsThreadSetPriority015);
     RUN_ONE_TESTCASE(testOsThreadSetPriority016);
+#endif
     RUN_ONE_TESTCASE(testOsDelay);
     RUN_ONE_TESTCASE(testOsDelayUntil);
 }

@@ -1,0 +1,45 @@
+config KERNEL_LMS
+    bool "Enable Lite Memory Sanitizer"
+    default n
+    depends on KERNEL_EXTKERNEL && DEBUG_VERSION && KERNEL_BACKTRACE
+    help
+      Select y to build LiteOS with memory sanitizer.
+
+config LMS_MAX_RECORD_POOL_NUM
+    int "Lms check pool max num"
+    default 50
+    depends on KERNEL_LMS
+    help
+      The Max num of lms check pool
+
+config LMS_LOAD_CHECK
+    bool "Enable lms read check"
+    default y
+    depends on KERNEL_LMS
+    help
+      Select y to enable read check.
+
+config LMS_STORE_CHECK
+    bool "Enable lms write check"
+    default y
+    depends on KERNEL_LMS
+    help
+      Select y to enable write check.
+
+config LMS_CHECK_STRICT
+    bool "Enable lms strict check, byte-by-byte"
+    default n
+    depends on KERNEL_LMS
+    help
+      Select y to enable byte-by-byte check in Lms
+
+config LMS_LIBC_FULL_CHECK
+    bool "Enable libc all function do lms check (asan-instrument entire libc)"
+    default n
+    depends on KERNEL_LMS
+    help
+      Rebuild the entire libc with -fsanitize=kernel-address so every libc
+      function is instrumented. off by default to keep
+      A-lib user experience. Note: lms_libc.c high-freq interceptors
+      (memset/memcpy/memmove/strcat/strcpy/strncat/strncpy) are always
+      compiled when LMS=y, providing baseline coverage without this option.

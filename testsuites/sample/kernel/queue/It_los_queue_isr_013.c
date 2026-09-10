@@ -18,6 +18,7 @@
 
 static VOID HwiF01(VOID)
 {
+    TestHwiClear(HWI_NUM_TEST);
     UINT32 ret;
     CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
 
@@ -50,7 +51,7 @@ static UINT32 Testcase(VOID)
     (VOID)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
     irqParam.pDevId = 0;
     ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, &irqParam);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     TSK_INIT_PARAM_S task1 = { 0 };
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;

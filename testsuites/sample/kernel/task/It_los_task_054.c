@@ -32,7 +32,6 @@
 #include "osTest.h"
 #include "It_los_task.h"
 
-
 static VOID HwiF01(VOID)
 {
     UINT32 ret;
@@ -57,7 +56,7 @@ static VOID TaskF02(VOID)
 static VOID TaskF01(VOID)
 {
     UINT32 ret;
-    TSK_INIT_PARAM_S task1 = { 0 };
+    TSK_INIT_PARAM_S task1 = {0};
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.pcName = "Tsk054B";
@@ -68,8 +67,8 @@ static VOID TaskF01(VOID)
     ret = LOS_TaskCreate(&g_testTaskID02, &task1);
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
-#ifdef __RISC_V__
-    ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, HwiF01, 0);
+#if defined(__RISC_V__) || defined(__ARM_ARCH_7A__)
+    ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, (HWI_PROC_FUNC)HwiF01, 0);
 #else
     ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, HwiF01, (HwiIrqParam *)1);
 #endif
@@ -86,7 +85,7 @@ static VOID TaskF01(VOID)
 static UINT32 TestCase(VOID)
 {
     UINT32 ret;
-    TSK_INIT_PARAM_S task1 = { 0 };
+    TSK_INIT_PARAM_S task1 = {0};
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.pcName = "Tsk054A";
@@ -115,4 +114,3 @@ VOID ItLosTask054(VOID) // IT_Layer_ModuleORFeature_No
 {
     TEST_ADD_CASE("ItLosTask054", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL1, TEST_FUNCTION);
 }
-

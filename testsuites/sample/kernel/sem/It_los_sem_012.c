@@ -82,6 +82,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID01, &task);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
+    TEST_DELAY(g_testCount, 1, TEST_WAIT_TIMEOUT);
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT1);
 
     task.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
@@ -91,7 +92,8 @@ static UINT32 Testcase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID02, &task);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT1);
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT2); // 2, Here, assert that g_testCount is equal to 2.
+    TEST_DELAY(g_testCount, 2, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT2);
 
     ICUNIT_GOTO_EQUAL(g_testTsk, 0, g_testTsk, EXIT3);
 
@@ -101,7 +103,8 @@ static UINT32 Testcase(VOID)
     LOS_TaskDelay(1);
 
     ICUNIT_GOTO_EQUAL(g_testTsk, 1, g_testTsk, EXIT3);
-    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT2); // 3, Here, assert that g_testCount is equal to 3.
+    TEST_DELAY(g_testCount, 3, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT2);
 
     LOS_TaskDelete(g_testTaskID02);
 

@@ -8,7 +8,7 @@
  * conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
- * of conditions and the following disclaimer in the documentation and/or other materials
+ * of the following disclaimer in the documentation and/or other materials
  * provided with the distribution.
  *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
@@ -43,19 +43,19 @@ static VOID *TaskF01(void *arg)
     g_testCount++;
     ICUNIT_TRACK_EQUAL(g_testCount, 1, g_testCount);
 
-    LOS_TaskDelay(5); // 5, set delay time.
+    TEST_DELAY(g_testCount, 2, TEST_WAIT_TIMEOUT);
 
     ret = sem_wait(&g_sem074);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
 
     g_testCount++;
-    ICUNIT_TRACK_EQUAL(g_testCount, 5, g_testCount); // 5, Here, assert that g_testCount is equal to 5.
+    ICUNIT_TRACK_EQUAL(g_testCount, 5, g_testCount);
 
     ret = sem_post(&g_sem074);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
 
     g_testCount++;
-    ICUNIT_TRACK_EQUAL(g_testCount, 6, g_testCount); // 6, Here, assert that g_testCount is equal to 6.
+    ICUNIT_TRACK_EQUAL(g_testCount, 6, g_testCount);
 
     ret = pthread_mutex_unlock(&g_mutex074);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
@@ -66,16 +66,15 @@ static VOID *TaskF01(void *arg)
 static VOID *TaskF02(void *arg)
 {
     UINT32 ret;
-    LOS_TaskDelay(1);
 
     g_testCount++;
-    ICUNIT_TRACK_EQUAL(g_testCount, 2, g_testCount); // 2, Here, assert that g_testCount is equal to 2.
+    ICUNIT_TRACK_EQUAL(g_testCount, 2, g_testCount);
 
     ret = pthread_mutex_lock(&g_mutex074);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
 
     g_testCount++;
-    ICUNIT_TRACK_EQUAL(g_testCount, 7, g_testCount); // 7, Here, assert that g_testCount is equal to 7.
+    ICUNIT_TRACK_EQUAL(g_testCount, 7, g_testCount);
 
     ret = pthread_mutex_unlock(&g_mutex074);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
@@ -87,22 +86,21 @@ static VOID *TaskF03(void *arg)
 {
     UINT32 ret;
 
-    LOS_TaskDelay(2); // 2, set delay time.
     g_testCount++;
-    ICUNIT_TRACK_EQUAL(g_testCount, 3, g_testCount); // 3, Here, assert that g_testCount is equal to 3.
+    ICUNIT_TRACK_EQUAL(g_testCount, 3, g_testCount);
 
     ret = sem_wait(&g_sem074);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
 
     g_testCount++;
-    ICUNIT_TRACK_EQUAL(g_testCount, 4, g_testCount); // 4, Here, assert that g_testCount is equal to 4.
+    ICUNIT_TRACK_EQUAL(g_testCount, 4, g_testCount);
 
-    LOS_TaskDelay(4); // 4, set delay time.
+    TEST_DELAY(g_testCount, 5, TEST_WAIT_TIMEOUT);
     ret = sem_post(&g_sem074);
     ICUNIT_TRACK_EQUAL(ret, 0, ret);
 
     g_testCount++;
-    ICUNIT_TRACK_EQUAL(g_testCount, 8, g_testCount); // 8, Here, assert that g_testCount is equal to 8.
+    ICUNIT_TRACK_EQUAL(g_testCount, 8, g_testCount);
 
     return NULL;
 }
@@ -142,7 +140,9 @@ static UINT32 Testcase(VOID)
     ret = pthread_create(&newTh3, &attr3, TaskF03, NULL);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
-    LOS_TaskDelay(10); // 10, set delay time.
+    TEST_DELAY(g_testCount, 8, TEST_WAIT_TIMEOUT);
+    ICUNIT_TRACK_EQUAL(g_testCount, 8, g_testCount);
+
     ret = pthread_mutex_destroy(&g_mutex074);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 

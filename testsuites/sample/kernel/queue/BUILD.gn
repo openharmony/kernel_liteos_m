@@ -188,6 +188,11 @@ static_library("test_queue") {
     "It_los_queue_static_006.c",
     "LLt_los_queue_003.c",
     "Llt_los_queue_001.c",
+    "It_los_queue_301.c",
+    "It_los_queue_head_301.c",
+    "It_los_queue_head_302.c",
+    "It_los_queue_isr_301.c",
+    "It_los_queue_isr_302.c",
   ]
 
   configs += [ "$LITEOSTOPDIR/testsuites:include" ]

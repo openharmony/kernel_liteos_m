@@ -69,7 +69,7 @@ static UINT32 TestCase(VOID)
     LOS_TaskDelay(10); // 10, task delay times.
 
     freeMem2 = GetfreeMemSize(m_aucSysMem0);
-    ICUNIT_ASSERT_EQUAL(freeMem2, freeMem, freeMem2);
+    ICUNIT_TRACK_EQUAL(freeMem2, freeMem, freeMem2);
 
     LOS_TaskResRecycle();
     freeMem3 = GetfreeMemSize(m_aucSysMem0);

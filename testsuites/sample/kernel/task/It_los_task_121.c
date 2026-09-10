@@ -45,7 +45,7 @@ static int TaskDeatchf01(UINT32 argument)
 static UINT32 TestCase(VOID)
 {
     UINT32 ret;
-    UINT32 taskID;
+    UINT32 taskId;
     TSK_INIT_PARAM_S osTaskInitParam = { 0 };
 
     g_testCount = 0;
@@ -55,12 +55,12 @@ static UINT32 TestCase(VOID)
     osTaskInitParam.pcName = "deatch";
     osTaskInitParam.usTaskPrio = TASK_PRIO_TEST - 1;
 
-    ret = LOS_TaskCreate(&taskID, &osTaskInitParam);
+    ret = LOS_TaskCreate(&taskId, &osTaskInitParam);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
     ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
 
-    ret = LOS_TaskJoin(taskID, NULL);
+    ret = LOS_TaskJoin(taskId, NULL);
     ICUNIT_ASSERT_EQUAL(ret, LOS_NOK, ret);
 
     LOS_TaskDelay(1500); /* 1500 ticks wait for the end of child task. */

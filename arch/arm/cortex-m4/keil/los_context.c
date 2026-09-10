@@ -35,6 +35,7 @@
 #include "los_arch_interrupt.h"
 #include "los_task.h"
 #include "los_sched.h"
+#include "los_sched_pri.h"
 #include "los_interrupt.h"
 #include "los_timer.h"
 #include "los_debug.h"
@@ -53,13 +54,13 @@ LITE_OS_SEC_TEXT_INIT VOID ArchInit(VOID)
 }
 
 /* ****************************************************************************
- Function    : ArchSysExit
+ Function    : ArchTaskExit
  Description : Task exit function
  Input       : None
  Output      : None
  Return      : None
  **************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
+LITE_OS_SEC_TEXT_MINOR VOID ArchTaskExit(VOID)
 {
     (VOID)LOS_IntLock();
     while (1) {
@@ -67,15 +68,15 @@ LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
 }
 
 /* ****************************************************************************
- Function    : ArchTskStackInit
+ Function    : ArchTaskStackInit
  Description : Task stack initialization function
- Input       : taskID     --- TaskID
+ Input       : taskId     --- TaskID
                stackSize  --- Total size of the stack
                topStack   --- Top of task's stack
  Output      : None
  Return      : Context pointer
  **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
+LITE_OS_SEC_TEXT_INIT VOID *ArchTaskStackInit(UINT32 taskId, UINT32 stackSize, VOID *topStack)
 {
     TaskContext *context = (TaskContext *)((UINTPTR)topStack + stackSize - sizeof(TaskContext));
 
@@ -126,12 +127,12 @@ LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VO
     context->uwR10 = 0x10101010L;
     context->uwR11 = 0x11111111L;
     context->uwPriMask = 0;
-    context->uwR0 = taskID;
+    context->uwR0 = taskId;
     context->uwR1 = 0x01010101L;
     context->uwR2 = 0x02020202L;
     context->uwR3 = 0x03030303L;
     context->uwR12 = 0x12121212L;
-    context->uwLR = (UINTPTR)ArchSysExit;
+    context->uwLR = (UINTPTR)ArchTaskExit;
     context->uwPC = (UINTPTR)OsTaskEntry;
     context->uwxPSR = 0x01000000L;
 

@@ -36,6 +36,7 @@
 #include "los_arch_interrupt.h"
 #include "los_task.h"
 #include "los_sched.h"
+#include "los_sched_pri.h"
 #include "los_interrupt.h"
 #include "los_arch_timer.h"
 #include "los_timer.h"
@@ -101,14 +102,14 @@ LITE_OS_SEC_TEXT_INIT VOID ArchInit(VOID)
     HalHwiInit();
 }
 
-LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
+LITE_OS_SEC_TEXT_MINOR VOID ArchTaskExit(VOID)
 {
     (VOID)LOS_IntLock();
     while (1) {
     }
 }
 
-LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
+LITE_OS_SEC_TEXT_INIT VOID *ArchTaskStackInit(UINT32 taskId, UINT32 stackSize, VOID *topStack)
 {
     errno_t result;
     TaskContext *context = (TaskContext *)((UINTPTR)topStack + stackSize - sizeof(TaskContext));
@@ -121,7 +122,7 @@ LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VO
 
     context->pc       = (UINT32)(UINTPTR)OsTaskEntry;
     context->regA[INDEX_OF_SP]  = (UINTPTR)topStack + stackSize; /* endStack */
-    context->regA[INDEX_OF_ARGS0]  = taskID; /* argument1 */
+    context->regA[INDEX_OF_ARGS0]  = taskId; /* argument1 */
     context->ps       = SPREG_PS_STACK_CROSS | WOE_ENABLE | 1 << BIT_CALLINC; /* set to kernel stack */
 
     return (VOID *)context;

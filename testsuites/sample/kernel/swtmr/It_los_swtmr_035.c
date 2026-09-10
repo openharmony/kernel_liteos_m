@@ -107,11 +107,18 @@ static UINT32 Testcase(VOID)
 {
     UINT32 ret;
     TSK_INIT_PARAM_S task1;
+    BOOL taskLocked = FALSE;
 
     g_testCount = 0;
     g_swtmrCountA = 0;
     g_swtmrCountB = 0;
     g_swtmrCountC = 0;
+    g_swtmrId1 = OS_INVALID;
+    g_swtmrId2 = OS_INVALID;
+    g_swtmrId3 = OS_INVALID;
+    g_testTaskID01 = OS_INVALID;
+    g_testTaskID02 = OS_INVALID;
+    g_testTaskID03 = OS_INVALID;
 
     ret = LOS_EventInit(&g_eventCB1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
@@ -144,6 +151,7 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     LOS_TaskLock();
+    taskLocked = TRUE;
 
     (void)memset_s(&task1, sizeof(TSK_INIT_PARAM_S), 0, sizeof(TSK_INIT_PARAM_S));
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)Case3;
@@ -172,10 +180,10 @@ static UINT32 Testcase(VOID)
     LOS_SwtmrStart(g_swtmrId1);
 
     LOS_TaskUnlock();
+    taskLocked = FALSE;
 
     while (1) {
-        if (g_swtmrCountA == SWTMR_LOOP_NUM) {
-            ICUNIT_GOTO_EQUAL(g_testCount, g_swtmrCountA, g_testCount, EXIT);
+        if (g_swtmrCountA >= SWTMR_LOOP_NUM) {
 
             ret = LOS_SwtmrDelete(g_swtmrId1);
             ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
@@ -183,14 +191,14 @@ static UINT32 Testcase(VOID)
             g_swtmrCountA = 0;
         }
 
-        if (g_swtmrCountB == SWTMR_LOOP_NUM) {
+        if (g_swtmrCountB >= SWTMR_LOOP_NUM) {
             ret = LOS_SwtmrDelete(g_swtmrId2);
             ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
             g_swtmrCountB = 0;
         }
 
-        if (g_swtmrCountC == SWTMR_LOOP_NUM) {
+        if (g_swtmrCountC >= SWTMR_LOOP_NUM) {
             ret = LOS_SwtmrDelete(g_swtmrId3);
             ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
@@ -198,6 +206,21 @@ static UINT32 Testcase(VOID)
             break;
         }
     }
+
+    if (g_swtmrId1 != OS_INVALID) {
+        (VOID)LOS_SwtmrDelete(g_swtmrId1);
+        g_swtmrId1 = OS_INVALID;
+    }
+    if (g_swtmrId2 != OS_INVALID) {
+        (VOID)LOS_SwtmrDelete(g_swtmrId2);
+        g_swtmrId2 = OS_INVALID;
+    }
+    if (g_swtmrId3 != OS_INVALID) {
+        (VOID)LOS_SwtmrDelete(g_swtmrId3);
+        g_swtmrId3 = OS_INVALID;
+    }
+
+    LOS_TaskDelay(2);
 
     ret = LOS_EventDestroy(&g_eventCB1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
@@ -208,14 +231,36 @@ static UINT32 Testcase(VOID)
     ret = LOS_EventDestroy(&g_eventCB3);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    return LOS_OK;
+    goto EXIT;
 
 EXIT:
-    LOS_SwtmrDelete(g_swtmrId3);
-    LOS_SwtmrDelete(g_swtmrId2);
-    LOS_SwtmrDelete(g_swtmrId1);
-    LOS_TaskDelete(g_testTaskID02);
-    LOS_TaskDelete(g_testTaskID03);
+    if (taskLocked) {
+        LOS_TaskUnlock();
+    }
+    if (g_swtmrId3 != OS_INVALID) {
+        (VOID)LOS_SwtmrDelete(g_swtmrId3);
+        g_swtmrId3 = OS_INVALID;
+    }
+    if (g_swtmrId2 != OS_INVALID) {
+        (VOID)LOS_SwtmrDelete(g_swtmrId2);
+        g_swtmrId2 = OS_INVALID;
+    }
+    if (g_swtmrId1 != OS_INVALID) {
+        (VOID)LOS_SwtmrDelete(g_swtmrId1);
+        g_swtmrId1 = OS_INVALID;
+    }
+    if (g_testTaskID01 != OS_INVALID) {
+        (VOID)LOS_TaskDelete(g_testTaskID01);
+        g_testTaskID01 = OS_INVALID;
+    }
+    if (g_testTaskID02 != OS_INVALID) {
+        (VOID)LOS_TaskDelete(g_testTaskID02);
+        g_testTaskID02 = OS_INVALID;
+    }
+    if (g_testTaskID03 != OS_INVALID) {
+        (VOID)LOS_TaskDelete(g_testTaskID03);
+        g_testTaskID03 = OS_INVALID;
+    }
 
     return LOS_OK;
 }

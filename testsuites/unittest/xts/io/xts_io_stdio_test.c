@@ -52,6 +52,7 @@ int FormatVsnptf(char *format, ...)
     return ret;
 }
 
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
 /**
  * @tc.number SUB_KERNEL_IO_STDIO_2100
  * @tc.name   vsnprintf basic function test
@@ -66,10 +67,16 @@ LITE_TEST_CASE(IoStdioTestSuite, testVsnprintf, Function | MediumTest | Level1)
     ICUNIT_ASSERT_EQUAL(ret, 28, ret); /* 28 common data for test, no special meaning */
     return 0;
 }
+#endif
 
 RUN_TEST_SUITE(IoStdioTestSuite);
 
 void XtsIoStdioFuncTest(void)
 {
+    // testVsnprintf uses "%f" with a float value (2.2) which triggers
+    // FPU instructions through securec's SecFormatFloat. Skip on
+    // boards with LOSCFG_ARCH_FPU_DISABLE.
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
     RUN_ONE_TESTCASE(testVsnprintf);
+#endif
 }

@@ -55,7 +55,6 @@ extern UINT32 g_testTaskID01;
 extern UINT32 g_testTaskID02;
 extern UINT32 g_testTaskID03;
 extern UINT32 g_testQueueID01;
-extern UINT32 g_idleTaskID;
 extern UINT32 g_testTskHandle;
 extern UINT32 g_usSwTmrMaxNum;
 
@@ -171,7 +170,7 @@ extern VOID ItLosTask113(VOID);
 extern VOID ItLosTask114(VOID);
 extern VOID ItLosTask115(VOID);
 extern VOID ItLosTask116(VOID);
-extern VOID ItLosTask117(VOID);
+extern VOID ItLosTask117(VOID); /* deleted, yeild is not permited in hwi */
 extern VOID ItLosTask118(VOID);
 extern VOID ItLosTask119(VOID);
 extern VOID ItLosTask120(VOID);
@@ -185,6 +184,14 @@ extern VOID ItLosTask127(VOID);
 extern VOID ItLosTask128(VOID);
 extern VOID ItLosTask129(VOID);
 extern VOID ItLosTask130(VOID);
+extern VOID ItLosTask301(VOID);
+extern VOID ItLosTask302(VOID);
+extern VOID ItLosTask303(VOID);
+extern VOID ItLosTask304(VOID);
+extern VOID ItLosTask305(VOID);
+extern VOID ItLosTask306(VOID);
+extern VOID ItLosTask307(VOID);
+extern VOID ItLosTask308(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

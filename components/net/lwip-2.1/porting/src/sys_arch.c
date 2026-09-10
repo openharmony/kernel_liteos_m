@@ -56,7 +56,7 @@ static int lwprot_count = 0;
  */
 sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, int stackSize, int prio)
 {
-    UINT32 taskID = LOS_ERRNO_TSK_ID_INVALID;
+    UINT32 taskId = LOS_ERRNO_TSK_ID_INVALID;
     UINT32 ret;
     TSK_INIT_PARAM_S task = {0};
 
@@ -72,13 +72,13 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
     task.usTaskPrio = prio;
     task.uwArg = (UINTPTR)arg;
     task.uwResved = LOS_TASK_STATUS_DETACHED;
-    ret = LOS_TaskCreate(&taskID, &task);
+    ret = LOS_TaskCreate(&taskId, &task);
     if (ret != LOS_OK) {
         LWIP_DEBUGF(SYS_DEBUG, ("sys_thread_new: LOS_TaskCreate error %u\n", ret));
         return -1;
     }
 
-    return taskID;
+    return taskId;
 }
 
 void sys_init(void)

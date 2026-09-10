@@ -29,6 +29,7 @@
  */
 
 #include "It_posix_pthread.h"
+#include "los_task_pri.h"
 
 /*
  * return value of pthread_self() is 0 when
@@ -38,14 +39,14 @@ pthread_t TestPthreadSelf(void)
 {
     pthread_t tid = pthread_self();
     if (tid == 0) {
-        tid = (pthread_t)(((LosTaskCB *)(OsCurrTaskGet()))->taskID);
+        tid = (pthread_t)(((LosTaskCB *)(OsCurrTaskGet()))->taskId);
     }
     return tid;
 }
 
 void ItSuitePosixPthread(void)
 {
-    printf("************** begin SAMPLE POSIX pthread test *************\n");
+    dprintf("************** begin SAMPLE POSIX pthread test *************\n");
     ItPosixPthread001();
     ItPosixPthread002();
     ItPosixPthread003();
@@ -58,7 +59,9 @@ void ItSuitePosixPthread(void)
     ItPosixPthread010();
     ItPosixPthread011();
     ItPosixPthread012();
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
     ItPosixPthread013();
+#endif
     ItPosixPthread014();
     ItPosixPthread015();
     ItPosixPthread016();
@@ -71,4 +74,11 @@ void ItSuitePosixPthread(void)
     ItPosixPthread023();
     ItPosixPthread024();
     ItPosixPthread025();
+    ItPosixPthread027();
+    ItPosixPthread028();
+    ItPosixPthread029();
+    ItPosixPthread030();
+    ItPosixPthread031();
+    ItPosixPthread032();
+    ItPosixPthread033();
 }

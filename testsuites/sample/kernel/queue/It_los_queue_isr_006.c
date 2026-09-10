@@ -20,6 +20,7 @@ CHAR buff1[QUEUE_BASE_MSGSIZE] = "UniDSP";
 
 static VOID HwiF01(VOID)
 {
+    TestHwiClear(HWI_NUM_TEST);
     UINT32 ret;
     ret = LOS_QueueWriteIsr(g_testQueueID01, &buff1, QUEUE_BASE_MSGSIZE);
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
@@ -39,7 +40,7 @@ static UINT32 Testcase(VOID)
     (VOID)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
     irqParam.pDevId = 0;
     ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, &irqParam);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     TestHwiTrigger(HWI_NUM_TEST);
 

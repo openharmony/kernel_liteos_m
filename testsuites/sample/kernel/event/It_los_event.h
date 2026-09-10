@@ -50,7 +50,6 @@ extern UINT32 g_testTaskID01;
 extern UINT32 g_testTaskID02;
 extern UINT32 g_testTaskID03;
 extern UINT32 g_testQueueID01;
-extern UINT32 g_idleTaskID;
 extern UINT32 g_testTskHandle;
 extern UINT32 g_usSwTmrMaxNum;
 

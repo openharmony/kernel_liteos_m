@@ -32,6 +32,7 @@ static_library("math_test") {
   sources = [
     "math_api_test.c",
     "math_std_api_test.c",
+    "math_fpu_test.c",
     "xts_math.c",
   ]
 

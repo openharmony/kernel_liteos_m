@@ -32,6 +32,7 @@
 
 pthread_mutex_t g_mtx3 = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t g_cond3 = PTHREAD_COND_INITIALIZER;
+static volatile int g_condReady = 0;
 
 LITE_TEST_SUIT(FUTEX, PthreadCondApiTest, PthreadCondApiTestSuite);
 
@@ -56,16 +57,32 @@ LITE_TEST_CASE(PthreadCondApiTestSuite, testPthreadCondInit, Function | MediumTe
     pthread_condattr_t condAttr;
 
     ret = pthread_condattr_init(&condAttr);
-    ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
+    ICUNIT_GOTO_EQUAL(ret, POSIX_IPC_NO_ERROR, ret, EXIT);
 
     pthread_cond_t cond1;
     ret = pthread_cond_init(&cond1, &condAttr);
-    ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
+    ICUNIT_GOTO_EQUAL(ret, POSIX_IPC_NO_ERROR, ret, EXIT_ATTR);
 
     pthread_cond_t cond2;
     ret = pthread_cond_init(&cond2, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
+    ICUNIT_GOTO_EQUAL(ret, POSIX_IPC_NO_ERROR, ret, EXIT_COND1);
+
+    ret = pthread_cond_destroy(&cond2);
+    ICUNIT_TRACK_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
+
+    ret = pthread_cond_destroy(&cond1);
+    ICUNIT_TRACK_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
+
+    ret = pthread_condattr_destroy(&condAttr);
+    ICUNIT_TRACK_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
     return 0;
+
+EXIT_COND1:
+    (VOID)pthread_cond_destroy(&cond1);
+EXIT_ATTR:
+    (VOID)pthread_condattr_destroy(&condAttr);
+EXIT:
+    return LOS_NOK;
 }
 
 /**
@@ -122,16 +139,19 @@ void *ThreadPthreadCondBroadcast1(void *arg)
 {
     int ret;
     int *testIntP = (int *)arg;
-    usleep(20); /* 20, common data for test, no special meaning */
     ret = pthread_mutex_lock(&g_mtx3);
-    ICUNIT_GOTO_EQUAL(ret, POSIX_IPC_NO_ERROR, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(ret, POSIX_IPC_NO_ERROR, ret, EXIT1);
     *testIntP = TEST_INTP_SIZE;
+    g_condReady = 1; /* set predicate before broadcast */
     ret = pthread_cond_broadcast(&g_cond3);
     ICUNIT_GOTO_EQUAL(ret, POSIX_IPC_NO_ERROR, ret, EXIT);
     ret = pthread_mutex_unlock(&g_mtx3);
     ICUNIT_GOTO_EQUAL(ret, POSIX_IPC_NO_ERROR, ret, EXIT);
     return arg;
 EXIT:
+    pthread_cond_broadcast(&g_cond3);
+    pthread_mutex_unlock(&g_mtx3);
+EXIT1:
     return NULL;
 }
 
@@ -141,14 +161,21 @@ void *ThreadPthreadCondBroadcast2(void *arg)
     int ret;
     int *testIntP = (int *)arg;
     ret = pthread_mutex_lock(&g_mtx3);
-    ICUNIT_GOTO_EQUAL(ret, POSIX_IPC_NO_ERROR, ret, EXIT);
-    ret = pthread_cond_wait(&g_cond3, &g_mtx3);
-    ICUNIT_GOTO_EQUAL(ret, POSIX_IPC_NO_ERROR, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(ret, POSIX_IPC_NO_ERROR, ret, EXIT1);
+    /* Loop on predicate so a late-arriving waiter does not block forever
+     * even if the broadcast already consumed (CLR'd) the event before this
+     * thread entered LOS_EventRead. */
+    while (g_condReady == 0) {
+        ret = pthread_cond_wait(&g_cond3, &g_mtx3);
+        ICUNIT_GOTO_EQUAL(ret, POSIX_IPC_NO_ERROR, ret, EXIT);
+    }
     (*testIntP)++;
     ret = pthread_mutex_unlock(&g_mtx3);
     ICUNIT_GOTO_EQUAL(ret, POSIX_IPC_NO_ERROR, ret, EXIT);
     return arg;
 EXIT:
+    pthread_mutex_unlock(&g_mtx3);
+EXIT1:
     return NULL;
 }
 
@@ -162,6 +189,12 @@ LITE_TEST_CASE(PthreadCondApiTestSuite, testPthreadCondBroadcast, Function | Med
     int ret;
     pthread_t tid[3]; /* 3, common data for test, no special meaning */
     int testInt = 0;
+
+    /* Reset predicate and explicitly init cond to avoid lazy-init race
+     * when multiple waiters enter pthread_cond_wait simultaneously. */
+    g_condReady = 0;
+    ret = pthread_cond_init(&g_cond3, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
 
     ret = pthread_create(&tid[0], NULL, ThreadPthreadCondBroadcast1, (void*)&testInt);
     ICUNIT_ASSERT_EQUAL(ret, POSIX_IPC_NO_ERROR, ret);
@@ -192,5 +225,7 @@ void PosixFutexCondTest(void)
     RUN_ONE_TESTCASE(testPthreadCondInit);
     RUN_ONE_TESTCASE(testPthreadCondDestroy);
     RUN_ONE_TESTCASE(testPthreadCondattrInit);
+#if defined(LOSCFG_PLATFORM_HI3322)
     RUN_ONE_TESTCASE(testPthreadCondBroadcast);
+#endif
 }

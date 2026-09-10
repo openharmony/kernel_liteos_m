@@ -71,7 +71,7 @@ extern VOID OsSchedTraceRecord(LosTaskCB *newTask, LosTaskCB *runTask);
 
 /* External interface */
 /* dump stack by task id, can be called at any time */
-extern VOID LOS_TaskStackDump(UINT32 taskID);
+extern VOID LOS_TaskStackDump(UINT32 taskId);
 
 /* register sched trace handle, If not registered, the default fun will be used */
 extern VOID LOS_SchedTraceHandleRegister(SchedTraceRecordCB recordCB, SchedTraceShowCB showCB);

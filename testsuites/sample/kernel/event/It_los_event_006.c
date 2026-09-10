@@ -45,7 +45,7 @@ static VOID TaskF01(VOID)
 
     g_testCount++;
 
-    ret = LOS_EventRead(&g_pevent, 0x00000110, LOS_WAITMODE_AND, 2); // 2, The timeout period for reading events.
+    ret = LOS_EventRead(&g_pevent, 0x00000110, LOS_WAITMODE_AND, 100); // 100, The timeout period for reading events.
     ICUNIT_GOTO_EQUAL(ret, g_pevent.uwEventID, ret, EXIT);
     ICUNIT_GOTO_EQUAL(g_pevent.uwEventID, 0x110, g_pevent.uwEventID, EXIT);
 

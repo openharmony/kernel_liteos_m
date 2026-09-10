@@ -71,6 +71,10 @@ static UINT32 Testcase(VOID)
     TSK_INIT_PARAM_S task1 = { 0 };
     TSK_INIT_PARAM_S task2 = { 0 };
 
+    g_testTaskID01 = OS_INVALID;
+    g_testTaskID02 = OS_INVALID;
+    g_testQueueID01 = OS_INVALID;
+
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)ItQueueHead032F01;
     task1.pcName = "TskName1";
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
@@ -90,18 +94,29 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
     g_testCount++;
 
     ret = LOS_TaskCreate(&g_testTaskID02, &task2);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT); // Compare wiht the expected value 5.
 
 EXIT:
-    LOS_QueueDelete(g_testQueueID01);
+    if (g_testTaskID01 != OS_INVALID) {
+        (VOID)LOS_TaskDelete(g_testTaskID01);
+        g_testTaskID01 = OS_INVALID;
+    }
+    if (g_testTaskID02 != OS_INVALID) {
+        (VOID)LOS_TaskDelete(g_testTaskID02);
+        g_testTaskID02 = OS_INVALID;
+    }
+    if (g_testQueueID01 != OS_INVALID) {
+        (VOID)LOS_QueueDelete(g_testQueueID01);
+        g_testQueueID01 = OS_INVALID;
+    }
     return LOS_OK;
 }
 

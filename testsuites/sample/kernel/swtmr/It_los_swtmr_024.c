@@ -48,12 +48,12 @@ static UINT32 Testcase(VOID)
     UINT32 ret;
     UINT32 i;
     UINT32 j;
-    UINT32 swTmrID[LOSCFG_BASE_CORE_SWTMR_LIMIT + 1];
+    UINT32 swTmrID[LOSCFG_BASE_CORE_SWTMR_LIMIT];
 
     g_testCount = 0;
 
     for (j = 0; j < SWTMR_LOOP_NUM; j++) {
-        for (i = 0; i < LOSCFG_BASE_CORE_SWTMR_LIMIT  + 1; i++) {
+        for (i = 0; i < LOSCFG_BASE_CORE_SWTMR_LIMIT; i++) {
             // 4, Timeout interval of a periodic software timer.
             ret = LOS_SwtmrCreate(4, LOS_SWTMR_MODE_PERIOD, Case1, &swTmrID[i], 0xabcdbcda
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
@@ -66,7 +66,7 @@ static UINT32 Testcase(VOID)
             }
         }
 
-        for (i = 0; i < LOSCFG_BASE_CORE_SWTMR_LIMIT; i++) {
+        for (i = 0; i < LOSCFG_BASE_CORE_SWTMR_LIMIT - 1; i++) {
             ret = LOS_SwtmrDelete(swTmrID[i]);
             if (ret != LOS_OK) {
                 ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_NOT_CREATED, ret, EXIT);
@@ -76,7 +76,7 @@ static UINT32 Testcase(VOID)
     return LOS_OK;
 
 EXIT:
-    for (i = 0; i < LOSCFG_BASE_CORE_SWTMR_LIMIT; i++) {
+    for (i = 0; i < LOSCFG_BASE_CORE_SWTMR_LIMIT - 1; i++) {
         (VOID)LOS_SwtmrDelete(swTmrID[i]);
     }
     return LOS_OK;

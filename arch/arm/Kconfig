@@ -16,6 +16,9 @@ config ARCH_ARM_AARCH32
 config ARCH_ARM_V7M
     bool
 
+config ARCH_ARM_V7A
+    bool
+
 config ARCH_ARM_V8M
     bool
 
@@ -25,6 +28,7 @@ config ARCH_ARM_V5TE
 config ARCH_ARM_VER
     string
     default "armv7-m" if ARCH_ARM_V7M
+    default "armv7-a" if ARCH_ARM_V7A
     default "armv8-m" if ARCH_ARM_V8M
     default "armv5te" if ARCH_ARM_V5TE
 
@@ -133,3 +137,4 @@ config ARCH_CPU
     default "Cortex-M33" if ARCH_CORTEX_M33 && COMPILER_ICCARM
     default "Cortex-M55" if ARCH_CORTEX_M55 && COMPILER_ICCARM
     default "arm9" if ARCH_ARM9
+    default "cortex-a7" if ARCH_CORTEX_A7

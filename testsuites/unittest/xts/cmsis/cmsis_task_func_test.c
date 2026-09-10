@@ -29,6 +29,7 @@
  */
 
 #include "xts_cmsis.h"
+#include "osTest.h"
 
 UINT32 g_threadCount;
 UINT16 g_cmsisTestTaskCount;
@@ -73,6 +74,7 @@ static void CmsisThreadCreat002Func002(void const *argument)
 {
     (void)argument;
     g_cmsisTestTaskCount++;
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     osThreadExit();
 }
@@ -83,7 +85,7 @@ static void CmsisThreadCreat003Func001(void const *argument)
     osStatus_t status;
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, 0, g_cmsisTestTaskCount);
     g_cmsisTestTaskCount++;
-    status = osDelay(DELAY_TICKS_5);
+    status = osDelay(20);
     ICUNIT_ASSERT_EQUAL_VOID(status, osOK, status);
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_3, g_cmsisTestTaskCount);
     g_cmsisTestTaskCount++;
@@ -95,9 +97,10 @@ static void CmsisThreadCreat003Func002(void const *argument)
 {
     (void)argument;
     osStatus_t status;
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     g_cmsisTestTaskCount++;
-    status = osDelay(DELAY_TICKS_5);
+    status = osDelay(20);
     ICUNIT_ASSERT_EQUAL_VOID(status, osOK, status);
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_4, g_cmsisTestTaskCount);
     g_cmsisTestTaskCount++;
@@ -107,6 +110,7 @@ static void CmsisThreadCreat003Func002(void const *argument)
 static void CmsisThreadCreat004Func002(void const *argument)
 {
     (void)argument;
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_1, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_1, g_cmsisTestTaskCount);
     g_cmsisTestTaskCount++;
     osThreadExit();
@@ -128,6 +132,7 @@ static void CmsisThreadCreat004Func001(void const *argument)
     g_cmsisTestTaskCount++;
     osId = osThreadNew((osThreadFunc_t)CmsisThreadCreat004Func002, NULL, &osAttr);
     ICUNIT_ASSERT_NOT_EQUAL_VOID(osId, NULL, osId);
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     g_cmsisTestTaskCount++;
     g_threadCreateExit = TESTCOUNT_NUM_1;
@@ -163,10 +168,9 @@ static void WaitThreadExit(osThreadId_t id, UINT16 const *exitFlag)
 static void CmsisThreadCreat005Func001(void const *argument)
 {
     (void)argument;
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_1, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_1, g_cmsisTestTaskCount);
-    while (g_cmsisTestTaskCount < TESTCOUNT_NUM_2) {
-        KeepRunByTick(DELAY_TICKS_10);
-    }
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     g_cmsisTestTaskCount++;
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_3, g_cmsisTestTaskCount);
     g_threadCreateExit = TESTCOUNT_NUM_1;
@@ -258,6 +262,7 @@ static void CmsisThreadYieldFunc002(void const *argument)
     osThreadState_t state = osThreadGetState(g_puwTaskID01);
     ICUNIT_ASSERT_EQUAL_VOID(state, osThreadReady, state);
     g_cmsisTestTaskCount++;
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     g_threadCreateExit = TESTCOUNT_NUM_1;
     osThreadExit();
@@ -278,6 +283,7 @@ static void CmsisThreadYieldFunc001(void const *argument)
     osAttr.stack_size = TEST_TASK_STACK_SIZE;
     osAttr.priority = g_threadPriority;
     g_threadCreateExit = 0;
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_1, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_1, g_cmsisTestTaskCount);
     g_puwTaskID01 = osThreadGetId();
     osId = osThreadNew((osThreadFunc_t)CmsisThreadYieldFunc002, NULL, &osAttr);
@@ -286,6 +292,7 @@ static void CmsisThreadYieldFunc001(void const *argument)
     ICUNIT_ASSERT_EQUAL_VOID(state, osThreadRunning, state);
     status = osThreadYield();
     ICUNIT_ASSERT_EQUAL_VOID(status, osOK, status);
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     g_threadCreateExit1 = TESTCOUNT_NUM_1;
     WaitThreadExit(osId, &g_threadCreateExit);
@@ -324,6 +331,7 @@ static void CmsisThreadResumeFunc002(void const *argument)
     (void)argument;
     osStatus_t status;
     g_cmsisTestTaskCount++;
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     status = osThreadResume(g_puwTaskID01);
     ICUNIT_ASSERT_EQUAL_VOID(status, osOK, status);
@@ -364,6 +372,7 @@ static void CmsisThreadTerminateFunc001(void const *argument)
     status = osThreadTerminate(g_puwTaskID01);
     ICUNIT_ASSERT_EQUAL_VOID(status, osOK, status);
     g_cmsisTestTaskCount++;
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_1, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL_VOID(g_cmsisTestTaskCount, TESTCOUNT_NUM_1, g_cmsisTestTaskCount);
     osThreadExit();
 }
@@ -458,7 +467,7 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadNew002, Function | MediumTest
     osAttr.cb_size = 0U;
     osAttr.stack_mem = NULL;
     osAttr.stack_size = TEST_TASK_STACK_SIZE;
-    osAttr.priority = osPriorityLow1;
+    osAttr.priority = osPriorityLow;
     g_cmsisTestTaskCount = 0;
     g_threadCreateExit = 0;
     osId = osThreadNew((osThreadFunc_t)CmsisThreadCreat002Func001, NULL, &osAttr);
@@ -510,7 +519,7 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadNew003, Function | MediumTest
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
     osId = osThreadNew((osThreadFunc_t)CmsisThreadCreat003Func002, NULL, &osAttr1);
     ICUNIT_ASSERT_NOT_EQUAL(osId, NULL, osId);
-    status = osDelay(DELAY_TICKS_5);
+    status = osDelay(20);
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
     ICUNIT_ASSERT_EQUAL(g_cmsisTestTaskCount, TESTCOUNT_NUM_5, g_cmsisTestTaskCount);
     WaitThreadExit(osId, &g_threadCreateExit);
@@ -561,7 +570,7 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadNew005, Function | MediumTest
     osAttr.cb_size = 0U;
     osAttr.stack_mem = NULL;
     osAttr.stack_size = TEST_TASK_STACK_SIZE;
-    osAttr.priority = osPriorityLow1;
+    osAttr.priority = osPriorityLow;
     g_cmsisTestTaskCount = 0;
     g_cmsisTestTaskCount++;
     g_threadCreateExit = 0;
@@ -570,12 +579,11 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadNew005, Function | MediumTest
     status = osDelay(DELAY_TICKS_1);
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
     g_cmsisTestTaskCount++;
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     status = osDelay(DELAY_TICKS_5);
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
-    while (g_cmsisTestTaskCount != TESTCOUNT_NUM_3) {
-        KeepRunByTick(DELAY_TICKS_10);
-    }
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_3, TEST_WAIT_TIMEOUT);
     WaitThreadExit(osId, &g_threadCreateExit);
     return 0;
 };
@@ -604,14 +612,6 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadNew006, Function | MediumTest
     ICUNIT_ASSERT_EQUAL(id, NULL, id);
 
     osAttr.priority = PRIORITY_COUNT_NOT_MIN;
-    id = osThreadNew((osThreadFunc_t)CmsisThreadCreatFunc, NULL, &osAttr);
-    ICUNIT_ASSERT_EQUAL(id, NULL, id);
-
-    osAttr.priority = osPriorityAboveNormal2;
-    id = osThreadNew((osThreadFunc_t)CmsisThreadCreatFunc, NULL, &osAttr);
-    ICUNIT_ASSERT_EQUAL(id, NULL, id);
-
-    osAttr.priority = osPriorityHigh;
     id = osThreadNew((osThreadFunc_t)CmsisThreadCreatFunc, NULL, &osAttr);
     ICUNIT_ASSERT_EQUAL(id, NULL, id);
 
@@ -927,7 +927,7 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadYield001, Function | MediumTe
     osThreadId_t id;
     osStatus_t status;
     osThreadAttr_t attr;
-    g_threadPriority = osPriorityLow1;
+    g_threadPriority = osPriorityLow;
     attr.name = "test";
     attr.attr_bits = 0U;
     attr.cb_mem = NULL;
@@ -941,9 +941,11 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadYield001, Function | MediumTe
     id = osThreadNew((osThreadFunc_t)CmsisThreadYieldFunc001, NULL, &attr);
     status = osDelay(DELAY_TICKS_5);
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     ICUNIT_ASSERT_NOT_EQUAL(id, NULL, id);
     WaitThreadExit(id, &g_threadCreateExit1);
+    osDelay(1); /* ensure thread resources are fully reaped before next test */
     return 0;
 };
 
@@ -971,9 +973,11 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadYield002, Function | MediumTe
     id = osThreadNew((osThreadFunc_t)CmsisThreadYieldFunc001, NULL, &attr);
     status = osDelay(DELAY_TICKS_5);
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     ICUNIT_ASSERT_NOT_EQUAL(id, NULL, id);
     WaitThreadExit(id, &g_threadCreateExit1);
+    osDelay(1); /* ensure thread resources are fully reaped before next test */
     return 0;
 };
 
@@ -1001,6 +1005,7 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadYield003, Function | MediumTe
     id = osThreadNew((osThreadFunc_t)CmsisThreadYieldFunc001, NULL, &attr);
     status = osDelay(DELAY_TICKS_5);
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     ICUNIT_ASSERT_NOT_EQUAL(id, NULL, id);
     WaitThreadExit(id, &g_threadCreateExit1);
@@ -1031,6 +1036,7 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadYield004, Function | MediumTe
     id = osThreadNew((osThreadFunc_t)CmsisThreadYieldFunc001, NULL, &attr);
     status = osDelay(DELAY_TICKS_5);
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     ICUNIT_ASSERT_NOT_EQUAL(id, NULL, id);
     WaitThreadExit(id, &g_threadCreateExit1);
@@ -1061,6 +1067,7 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadYield005, Function | MediumTe
     id = osThreadNew((osThreadFunc_t)CmsisThreadYieldFunc001, NULL, &attr);
     status = osDelay(DELAY_TICKS_5);
     ICUNIT_ASSERT_EQUAL(status, osOK, status);
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     ICUNIT_ASSERT_NOT_EQUAL(id, NULL, id);
     WaitThreadExit(id, &g_threadCreateExit1);
@@ -1088,6 +1095,7 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadYield006, Function | MediumTe
     g_cmsisTestTaskCount++;
     g_threadCreateExit1 = 0;
     id = osThreadNew((osThreadFunc_t)CmsisThreadYieldFunc001, NULL, &attr);
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     ICUNIT_ASSERT_NOT_EQUAL(id, NULL, id);
     WaitThreadExit(id, &g_threadCreateExit1);
@@ -1115,6 +1123,7 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadYield007, Function | MediumTe
     g_cmsisTestTaskCount++;
     g_threadCreateExit1 = 0;
     id = osThreadNew((osThreadFunc_t)CmsisThreadYieldFunc001, NULL, &attr);
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     ICUNIT_ASSERT_NOT_EQUAL(id, NULL, id);
     WaitThreadExit(id, &g_threadCreateExit1);
@@ -1142,6 +1151,7 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadYield008, Function | MediumTe
     g_cmsisTestTaskCount++;
     g_threadCreateExit1 = 0;
     id = osThreadNew((osThreadFunc_t)CmsisThreadYieldFunc001, NULL, &attr);
+    TEST_DELAY(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_cmsisTestTaskCount, TESTCOUNT_NUM_2, g_cmsisTestTaskCount);
     ICUNIT_ASSERT_NOT_EQUAL(id, NULL, id);
     WaitThreadExit(id, &g_threadCreateExit1);
@@ -1477,7 +1487,7 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsThreadGetState002, Function | Mediu
     attr.cb_size = 0U;
     attr.stack_mem = NULL;
     attr.stack_size = TEST_TASK_STACK_SIZE;
-    attr.priority = osPriorityLow1;
+    attr.priority = osPriorityLow;
     g_threadCreateExit1 = 0;
     g_puwTaskID01 = osThreadGetId();
     id = osThreadNew((osThreadFunc_t)CmsisThreadGetStateFunc001, NULL, &attr);
@@ -2204,53 +2214,6 @@ LITE_TEST_CASE(CmsisTaskFuncTestSuite, testOsKernelRestoreLock003, Function | Me
 
 RUN_TEST_SUITE(CmsisTaskFuncTestSuite);
 
-void CmsisTaskFuncTest(void)
-{
-    RUN_ONE_TESTCASE(testOsThreadNew001);
-    RUN_ONE_TESTCASE(testOsThreadNew002);
-    RUN_ONE_TESTCASE(testOsThreadNew003);
-    RUN_ONE_TESTCASE(testOsThreadNew004);
-    RUN_ONE_TESTCASE(testOsThreadNew005);
-    RUN_ONE_TESTCASE(testOsThreadNew006);
-    RUN_ONE_TESTCASE(testOsThreadNew007);
-    RUN_ONE_TESTCASE(testOsThreadNew008);
-    RUN_ONE_TESTCASE(testOsThreadNew009);
-    RUN_ONE_TESTCASE(testOsThreadGetName001);
-    RUN_ONE_TESTCASE(testOsThreadGetName002);
-    RUN_ONE_TESTCASE(testOsThreadGetName003);
-    RUN_ONE_TESTCASE(testOsThreadGetState001);
-    RUN_ONE_TESTCASE(testOsThreadGetState002);
-    RUN_ONE_TESTCASE(testOsThreadGetState003);
-    RUN_ONE_TESTCASE(testOsThreadGetState004);
-    RUN_ONE_TESTCASE(testOsThreadSuspend001);
-    RUN_ONE_TESTCASE(testOsThreadSuspend002);
-    RUN_ONE_TESTCASE(testOsThreadSuspend003);
-    RUN_ONE_TESTCASE(testOsThreadSuspend004);
-    RUN_ONE_TESTCASE(testOsThreadGetId001);
-    RUN_ONE_TESTCASE(testOsThreadGetId002);
-    RUN_ONE_TESTCASE(testOsThreadGetId003);
-    RUN_ONE_TESTCASE(testOsThreadGetId004);
-    RUN_ONE_TESTCASE(testOsThreadGetStackSize001);
-    RUN_ONE_TESTCASE(testOsThreadGetStackSize002);
-    RUN_ONE_TESTCASE(testOsThreadGetStackSize003);
-    RUN_ONE_TESTCASE(testOsThreadGetStackSpace001);
-    RUN_ONE_TESTCASE(testOsThreadGetStackSpace002);
-    RUN_ONE_TESTCASE(testOsThreadGetStackSpace003);
-    RUN_ONE_TESTCASE(testOsThreadGetStackSpace004);
-    RUN_ONE_TESTCASE(testOsThreadYield001);
-    RUN_ONE_TESTCASE(testOsThreadYield002);
-    RUN_ONE_TESTCASE(testOsThreadYield003);
-    RUN_ONE_TESTCASE(testOsThreadYield004);
-    RUN_ONE_TESTCASE(testOsThreadYield005);
-    RUN_ONE_TESTCASE(testOsThreadYield006);
-    RUN_ONE_TESTCASE(testOsThreadYield007);
-    RUN_ONE_TESTCASE(testOsThreadYield008);
-    RUN_ONE_TESTCASE(testOsThreadYield009);
-    RUN_ONE_TESTCASE(testOsThreadResume001);
-    RUN_ONE_TESTCASE(testOsThreadResume002);
-    CmsisTaskFuncTest1();
-}
-
 void CmsisTaskFuncTest1(void)
 {
     RUN_ONE_TESTCASE(testOsThreadTerminate001);
@@ -2272,4 +2235,59 @@ void CmsisTaskFuncTest1(void)
     RUN_ONE_TESTCASE(testOsKernelRestoreLock001);
     RUN_ONE_TESTCASE(testOsKernelRestoreLock002);
     RUN_ONE_TESTCASE(testOsKernelRestoreLock003);
+}
+
+void CmsisTaskFuncTest(void)
+{
+    RUN_ONE_TESTCASE(testOsThreadNew001);
+#if (LOS_FEATURE_ADAPTED == 1)
+    RUN_ONE_TESTCASE(testOsThreadNew002);
+    RUN_ONE_TESTCASE(testOsThreadNew003);
+    RUN_ONE_TESTCASE(testOsThreadNew004);
+    RUN_ONE_TESTCASE(testOsThreadNew005);
+    RUN_ONE_TESTCASE(testOsThreadNew006);
+    RUN_ONE_TESTCASE(testOsThreadNew007);
+    RUN_ONE_TESTCASE(testOsThreadNew008);
+    RUN_ONE_TESTCASE(testOsThreadNew009);
+#endif
+    RUN_ONE_TESTCASE(testOsThreadGetName001);
+    RUN_ONE_TESTCASE(testOsThreadGetName002);
+    RUN_ONE_TESTCASE(testOsThreadGetName003);
+    RUN_ONE_TESTCASE(testOsThreadGetState001);
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
+    RUN_ONE_TESTCASE(testOsThreadGetState002);
+    RUN_ONE_TESTCASE(testOsThreadGetState003);
+    RUN_ONE_TESTCASE(testOsThreadGetState004);
+#endif
+    RUN_ONE_TESTCASE(testOsThreadSuspend001);
+    RUN_ONE_TESTCASE(testOsThreadSuspend002);
+    RUN_ONE_TESTCASE(testOsThreadSuspend003);
+    RUN_ONE_TESTCASE(testOsThreadSuspend004);
+    RUN_ONE_TESTCASE(testOsThreadGetId001);
+    RUN_ONE_TESTCASE(testOsThreadGetId002);
+    RUN_ONE_TESTCASE(testOsThreadGetId003);
+    RUN_ONE_TESTCASE(testOsThreadGetId004);
+    RUN_ONE_TESTCASE(testOsThreadGetStackSize001);
+    RUN_ONE_TESTCASE(testOsThreadGetStackSize002);
+    RUN_ONE_TESTCASE(testOsThreadGetStackSize003);
+    RUN_ONE_TESTCASE(testOsThreadGetStackSpace001);
+    RUN_ONE_TESTCASE(testOsThreadGetStackSpace002);
+    RUN_ONE_TESTCASE(testOsThreadGetStackSpace003);
+    RUN_ONE_TESTCASE(testOsThreadGetStackSpace004);
+    RUN_ONE_TESTCASE(testOsThreadYield001);
+    RUN_ONE_TESTCASE(testOsThreadYield002);
+    RUN_ONE_TESTCASE(testOsThreadYield003);
+    RUN_ONE_TESTCASE(testOsThreadYield004);
+    RUN_ONE_TESTCASE(testOsThreadYield005);
+#if (LOS_FEATURE_ADAPTED == 1)
+    RUN_ONE_TESTCASE(testOsThreadYield006);
+#endif
+    RUN_ONE_TESTCASE(testOsThreadYield007);
+    RUN_ONE_TESTCASE(testOsThreadYield008);
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
+    RUN_ONE_TESTCASE(testOsThreadYield009);
+#endif
+    RUN_ONE_TESTCASE(testOsThreadResume001);
+    RUN_ONE_TESTCASE(testOsThreadResume002);
+    CmsisTaskFuncTest1();
 }

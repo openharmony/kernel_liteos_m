@@ -865,6 +865,8 @@ void IpcMqExceptionFuncTest(void)
     RUN_ONE_TESTCASE(testMqOpenEINVAL);
     RUN_ONE_TESTCASE(testMqOpenENAMETOOLONG);
     RUN_ONE_TESTCASE(testMqOpenENOENT);
+#if (LOS_KERNEL_MEM_TEST == 1)
     RUN_ONE_TESTCASE(testMqOpenENOSPC);
+#endif
     RUN_ONE_TESTCASE(testMqCloseEBADF);
 }

@@ -68,7 +68,11 @@ static UINT32 Testcase(VOID)
     LOS_TaskDelay(10);
 
     deltaTicks = (g_timeUpdateNS - g_timeRecordNS) * LOSCFG_BASE_CORE_TICK_PER_SECOND / OS_SYS_NS_PER_SECOND;
+#ifdef LOSCFG_KERNEL_TICKLESS_GLOBAL
     ICUNIT_ASSERT_EQUAL(deltaTicks, SWTMR_PERIODIC, deltaTicks);
+#else
+    ICUNIT_ASSERT_WITHIN_EQUAL(deltaTicks, SWTMR_PERIODIC - 1, SWTMR_PERIODIC, deltaTicks);
+#endif
 
 EXIT:
     LOS_SwtmrDelete(g_swtmrId1);

@@ -72,7 +72,9 @@ static UINT32 Testcase(VOID)
 
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ICUNIT_ASSERT_WITHIN_EQUAL(delayTicks, tickUpdate - tickRecord - 1, tickUpdate - tickRecord + 1, delayTicks);
+    ret = ((delayTicks >= tickUpdate - tickRecord - 1) &&
+           (delayTicks <= tickUpdate - tickRecord + 1)) ? LOS_OK : LOS_NOK;
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     // 10, set task delay time.
     LOS_TaskDelay(10);

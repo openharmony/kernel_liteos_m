@@ -6,15 +6,15 @@
  * are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this list of
- * conditions and the following disclaimer.
+ *    conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
- * of conditions and the following disclaimer in the documentation and/or other materials
- * provided with the distribution.
+ *    of conditions and the following disclaimer in the documentation and/or other materials
+ *    provided with the distribution.
  *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
- * to endorse or promote products derived from this software without specific prior written
- * permission.
+ *    to endorse or promote products derived from this software without specific prior written
+ *    permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
@@ -32,32 +32,47 @@
 #include "osTest.h"
 #include "It_los_lms.h"
 
-static UINT32 TestCase(VOID)
+static volatile UINT32 g_lms016HookHit = 0;
+static VOID Lms016ErrHook(UINTPTR p, UINT32 size, UINT32 errMod)
+{
+    (VOID)p;
+    (VOID)size;
+    (VOID)errMod;
+    g_lms016HookHit++;
+}
+
+static UINT32 TestCase016Impl(VOID *pool)
 {
     CHAR *string = "LMS_TestCase";
     CHAR *src;
     CHAR *buf;
     CHAR *str;
-    UINT32 ret;
 
-    src = LOS_MemAlloc(m_aucSysMem0, strlen(string));
+    src = LOS_MemAlloc(pool, strlen(string));
     ICUNIT_ASSERT_NOT_EQUAL(src, NULL, src);
 
-    buf = LOS_MemAlloc(m_aucSysMem0, (strlen(string) + 10)); /* mem size 10 */
+    buf = LOS_MemAlloc(pool, (strlen(string) + 10)); /* mem size 10 */
     ICUNIT_ASSERT_NOT_EQUAL(buf, NULL, buf);
 
-    str = strcpy(src, string); /* write overflow */
+    g_lms016HookHit = 0;
+    /* Register LMS error hook to verify detection of the deliberate overflow below.
+     * LMS detects but does not prevent corruption; the subsequent free() may fail,
+     * which is expected behavior - the test's purpose is to verify LMS detection. */
+    OsLmsErrorHookSet(Lms016ErrHook);
+
+    str = strcpy(src, string); /* write overflow: src is strlen(string) bytes, copies strlen+1 */
     ICUNIT_ASSERT_NOT_EQUAL(str, NULL, str);
 
     (VOID)strcpy(buf, src); /* Check LMS detection information when the strcpy src overflows. */
 
-    ret = LOS_MemFree(m_aucSysMem0, buf);
-    ICUNIT_ASSERT_NOT_EQUAL(ret, LOS_NOK, ret);
-
-    ret = LOS_MemFree(m_aucSysMem0, src);
-    ICUNIT_ASSERT_NOT_EQUAL(ret, LOS_NOK, ret);
+    ICUNIT_ASSERT_NOT_EQUAL(g_lms016HookHit, 0, g_lms016HookHit);
 
     return LOS_OK;
+}
+
+static UINT32 TestCase(VOID)
+{
+    return LMS_TEST_RUN_IN_SANDBOX(TestCase016Impl, 2 * PAGE_SIZE);
 }
 
 /* LmsTestStrcpyOverflow */
@@ -65,4 +80,3 @@ VOID ItLosLms016(void)
 {
     TEST_ADD_CASE("ItLosLms016", TestCase, TEST_LOS, TEST_LMS, TEST_LEVEL1, TEST_FUNCTION);
 }
-

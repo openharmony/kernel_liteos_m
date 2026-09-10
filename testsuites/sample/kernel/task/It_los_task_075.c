@@ -2,14 +2,14 @@
  * Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
  * Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
+ * Redistribution and use in source and binary, with or without modification,
  * are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this list of
  * conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
- * of conditions and the following disclaimer in the documentation and/or other materials
+ * of the conditions and the following disclaimer in the documentation and/or other materials
  * provided with the distribution.
  *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
@@ -38,10 +38,9 @@ static VOID TaskF02(VOID)
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT1);
     g_testCount++;
 
-    while (g_testCount <= 2) { // 2, wait until g_testCount is greater to 2.
-    }
+    TEST_DELAY(g_testCount, 3, TEST_WAIT_TIMEOUT);
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT2); // 3, Here, assert that g_testCount is equal to 3.
+    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT2);
     g_testCount++;
 
     LOS_TaskDelete(g_testTaskID02);
@@ -64,7 +63,8 @@ static VOID TaskF01(VOID)
     ret = LOS_TaskDelay(1);
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
+    TEST_DELAY(g_testCount, 2, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT);
     g_testCount++;
 
     LOS_TaskDelete(g_testTaskID01);
@@ -84,7 +84,7 @@ static UINT32 TestCase(VOID)
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.pcName = "Tsk075A";
-    task1.usTaskPrio = TASK_PRIO_TEST - 2; // 2, set new task priority, it is higher than the current task.
+    task1.usTaskPrio = TASK_PRIO_TEST - 2;
 
     g_testCount = 0;
 
@@ -93,7 +93,7 @@ static UINT32 TestCase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT3);
 
-    ret = LOS_TaskDelay(2); // 2, set delay time
+    ret = LOS_TaskDelay(2);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_TSK_DELAY_IN_LOCK, ret, EXIT2);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT2);
@@ -105,14 +105,15 @@ static UINT32 TestCase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID02, &task1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT2);
 
-    ret = LOS_TaskDelay(2); // 2, set delay time
+    ret = LOS_TaskDelay(2);
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_DELAY_IN_LOCK, ret);
 
     ICUNIT_GOTO_EQUAL(g_testCount, 0, g_testCount, EXIT1);
 
     LOS_TaskUnlock();
 
-    ICUNIT_ASSERT_EQUAL(g_testCount, 4, g_testCount); // 4, Here, assert that g_testCount is equal to 4.
+    TEST_DELAY(g_testCount, 4, TEST_WAIT_TIMEOUT);
+    ICUNIT_ASSERT_EQUAL(g_testCount, 4, g_testCount);
 
     return LOS_OK;
 
@@ -125,8 +126,7 @@ EXIT3:
     return LOS_OK;
 }
 
-VOID ItLosTask075(VOID) // IT_Layer_ModuleORFeature_No
+VOID ItLosTask075(VOID)
 {
     TEST_ADD_CASE("ItLosTask075", TestCase, TEST_LOS, TEST_TASK, TEST_LEVEL1, TEST_FUNCTION);
 }
-

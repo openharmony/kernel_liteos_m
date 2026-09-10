@@ -56,7 +56,8 @@ static VOID TaskF01(VOID)
 
     ret = LOS_TaskCreate(&g_testTaskID02, &task1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT); // 3, Here, assert that g_testCount is equal to 3.
+    TEST_DELAY(g_testCount, 3, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT);
 
     g_testCount++;
 
@@ -87,7 +88,8 @@ static UINT32 Testcase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    ICUNIT_ASSERT_EQUAL(g_testCount, 5, g_testCount); // 5, Here, assert that g_testCount is equal to 5.
+    TEST_DELAY(g_testCount, 5, TEST_WAIT_TIMEOUT);
+    ICUNIT_ASSERT_EQUAL(g_testCount, 5, g_testCount);
 
     LOS_TaskDelete(g_testTaskID01);
 

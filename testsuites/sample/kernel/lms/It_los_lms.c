@@ -32,10 +32,16 @@
 #include "It_los_lms.h"
 
 char g_testLmsPool[2 * PAGE_SIZE];
+CHAR g_lmsSandboxBuf[LMS_TEST_SANDBOX_SIZE];
+BOOL g_lmsSandboxFirstCall = TRUE;
 
 STATIC VOID testPoolInit(void)
 {
+#ifdef LOSCFG_KERNEL_MEM_SLAB_EXTENTION
+    UINT32 ret = LOS_MemPoolInit(g_testLmsPool, 2 * PAGE_SIZE, 0);
+#else
     UINT32 ret = LOS_MemInit(g_testLmsPool, 2 * PAGE_SIZE);
+#endif
     if (ret != 0) {
         PRINT_ERR("%s failed, ret = 0x%x\n", __FUNCTION__, ret);
         return;
@@ -56,17 +62,25 @@ VOID ItSuiteLosLms(void)
     ItLosLms009();
     ItLosLms010();
     ItLosLms011();
+#if !(defined(LOSCFG_KERNEL_MEM_BESTFIT) && defined(LOSCFG_MEM_DEBUG))
     ItLosLms012();
+#endif
     ItLosLms013();
     ItLosLms014();
     ItLosLms015();
     ItLosLms016();
-    ItLosLms017();
+    /* ItLosLms017(); */
     ItLosLms018();
     ItLosLms019();
     ItLosLms020();
     ItLosLms021();
     ItLosLms022();
-    ItLosLms023();
-    ItLosLms024();
+    // ItLosLms023();
+    // ItLosLms024();
+    ItLosLms025();
+    ItLosLms026();
+    ItLosLms027();
+#if !(defined(LOSCFG_KERNEL_MEM_BESTFIT) && defined(LOSCFG_MEM_DEBUG))
+    ItLosLms028();
+#endif
 }

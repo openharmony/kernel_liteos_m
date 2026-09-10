@@ -79,6 +79,7 @@ VOID ItSuiteLosMux(void);
 
 #if (LOS_KERNEL_MULTI_HWI_TEST == 1)
 VOID ItLosMux020(void);
+VOID ItLosMux301(VOID);
 #endif
 
 #ifdef __cplusplus

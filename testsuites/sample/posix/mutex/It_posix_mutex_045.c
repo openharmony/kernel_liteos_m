@@ -29,6 +29,7 @@
  */
 
 #include "It_posix_mutex.h"
+#include "los_task_pri.h"
 
 static pthread_mutex_t g_mutex046;
 static UINT32 g_nID;
@@ -39,8 +40,8 @@ static void *TaskF01(void *arg)
     ret = pthread_mutex_trylock(&g_mutex046);
     ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
-    g_nID = OsCurrTaskGet()->taskID;
-    LOS_TaskSuspend(OsCurrTaskGet()->taskID);
+    g_nID = OsCurrTaskGet()->taskId;
+    LOS_TaskSuspend(OsCurrTaskGet()->taskId);
 
     ret = pthread_mutex_unlock(&g_mutex046);
     ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);

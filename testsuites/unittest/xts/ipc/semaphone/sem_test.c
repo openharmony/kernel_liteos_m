@@ -213,48 +213,68 @@ LITE_TEST_CASE(IpcSemApiTestSuite, testThreadChat0400, Function | MediumTest | L
     g_semTestStep = 0;
 
     ret = sem_init((sem_t *)&sem, 0, 0);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     ret = pthread_create(&tid1, NULL, ThreadNThreadWait1, (void *)&sem);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_SEM);
 
     ret = pthread_create(&tid2, NULL, ThreadNThreadWait2, (void *)&sem);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_TID1);
 
     ret = nanosleep(&req, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
-    ICUNIT_ASSERT_EQUAL(g_semTestStep, 1, g_semTestStep); /* 1, common data for test, no special meaning */
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_TID2);
+    ICUNIT_GOTO_EQUAL(g_semTestStep, 1, g_semTestStep, EXIT_TID2); /* 1, common data for test, no special meaning */
 
     ret = sem_post(&sem);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_TID2);
 
     req.tv_nsec = 20 * NANO_MS; /* 20, common data for test, no special meaning */
     ret = nanosleep(&req, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
-    ICUNIT_ASSERT_EQUAL(g_semTestStep, 2, g_semTestStep); /* 2, common data for test, no special meaning */
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_TID2);
+    ICUNIT_GOTO_EQUAL(g_semTestStep, 2, g_semTestStep, EXIT_TID2); /* 2, common data for test, no special meaning */
 
     req.tv_nsec = 200 * NANO_MS; /* 200, common data for test, no special meaning */
     ret = nanosleep(&req, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
-    ICUNIT_ASSERT_EQUAL(g_semTestStep, 3, g_semTestStep); /* 3, common data for test, no special meaning */
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_TID2);
+    ICUNIT_GOTO_EQUAL(g_semTestStep, 3, g_semTestStep, EXIT_TID2); /* 3, common data for test, no special meaning */
 
     ret = sem_post(&sem);
     req.tv_nsec = 20 * NANO_MS; /* 20, common data for test, no special meaning */
     ret = nanosleep(&req, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
-    ICUNIT_ASSERT_EQUAL(g_semTestStep, 3, g_semTestStep); /* 3, common data for test, no special meaning */
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_TID2);
+    ICUNIT_GOTO_EQUAL(g_semTestStep, 3, g_semTestStep, EXIT_TID2); /* 3, common data for test, no special meaning */
 
     ret = pthread_join(tid1, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_TID2);
 
     ret = pthread_join(tid2, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_TID2);
 
-    ICUNIT_ASSERT_EQUAL(g_semTestStep, 4, g_semTestStep); /* 4, common data for test, no special meaning */
+    ICUNIT_GOTO_EQUAL(g_semTestStep, 4, g_semTestStep, EXIT_TID2); /* 4, common data for test, no special meaning */
 
     ret = sem_destroy(&sem);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_TRACK_EQUAL(ret, 0, ret);
     return 0;
+
+EXIT_TID2:
+    (VOID)sem_post(&sem);
+    (VOID)sem_post(&sem);
+    (VOID)pthread_join(tid2, NULL);
+    (VOID)pthread_join(tid1, NULL);
+    (VOID)sem_destroy(&sem);
+    return LOS_NOK;
+
+EXIT_TID1:
+    (VOID)sem_post(&sem);
+    (VOID)pthread_join(tid1, NULL);
+    (VOID)sem_destroy(&sem);
+    return LOS_NOK;
+
+EXIT_SEM:
+    (VOID)sem_destroy(&sem);
+
+EXIT:
+    return LOS_NOK;
 }
 
 LITE_TEST_CASE(IpcSemApiTestSuite, testSemInitAbnormal0200, Function | MediumTest | Level3)
@@ -348,7 +368,9 @@ void PosixSemFuncTest()
     RUN_ONE_TESTCASE(testSemPost0100);
     RUN_ONE_TESTCASE(testSemWait0100);
     RUN_ONE_TESTCASE(testThreadChat0100);
+#if (LOS_FEATURE_ADAPTED == 1)
     RUN_ONE_TESTCASE(testThreadChat0400);
+#endif
     RUN_ONE_TESTCASE(testSemInitAbnormal0200);
     RUN_ONE_TESTCASE(testSemPostAbnormal);
     RUN_ONE_TESTCASE(testSemTimedWaitAbnormalA);

@@ -42,12 +42,18 @@ void XtsTestSuite(void)
 {
     IpcSemApiTest();
     IoFuncTest();
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
     MathFuncTest();
+#endif
     MemFuncTest();
+#if defined(LOSCFG_NET_LWIP)
     ActsNetTest();
+#endif
     PthreadFuncTest();
     SchedApiFuncTest();
     SysApiFuncTest();
     TimeFuncTest();
+#if defined(LOSCFG_KAL_CMSIS)
     CmsisFuncTest();
+#endif
 }

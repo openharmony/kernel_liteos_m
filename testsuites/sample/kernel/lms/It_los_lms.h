@@ -72,6 +72,49 @@ VOID ItLosLms021(void);
 VOID ItLosLms022(void);
 VOID ItLosLms023(void);
 VOID ItLosLms024(void);
+/* LMS compatibility & new feature coverage tests */
+VOID ItLosLms025(void);
+VOID ItLosLms026(void);
+VOID ItLosLms027(void);
+VOID ItLosLms028(void);
+
+/* ==================== LMS Test Sandbox ==================== */
+#include "los_lms_pri.h"
+
+#define LMS_TEST_SANDBOX_SIZE  (2 * PAGE_SIZE)
+extern CHAR g_lmsSandboxBuf[LMS_TEST_SANDBOX_SIZE];
+extern BOOL g_lmsSandboxFirstCall;
+
+typedef UINT32 (*LmsTestImplFn)(VOID *pool);
+
+static inline UINT32 LmsTestRunInSandbox(LmsTestImplFn impl, UINT32 poolSize)
+{
+    UINT32 ret;
+
+    if (poolSize > LMS_TEST_SANDBOX_SIZE) {
+        poolSize = LMS_TEST_SANDBOX_SIZE;
+    }
+    if (!g_lmsSandboxFirstCall) {
+        (VOID)memset_s(g_lmsSandboxBuf, LMS_TEST_SANDBOX_SIZE, 0, LMS_TEST_SANDBOX_SIZE);
+        (VOID)LOS_MemDeInit(g_lmsSandboxBuf);
+    }
+    g_lmsSandboxFirstCall = FALSE;
+#ifdef LOSCFG_KERNEL_MEM_SLAB_EXTENTION
+    if (LOS_MemPoolInit(g_lmsSandboxBuf, poolSize, 0) != LOS_OK) {
+        return LOS_NOK;
+    }
+#else
+    if (LOS_MemInit(g_lmsSandboxBuf, poolSize) != LOS_OK) {
+        return LOS_NOK;
+    }
+#endif
+    ret = impl(g_lmsSandboxBuf);
+    OsLmsErrorHookSet(NULL);
+    return ret;
+}
+
+#define LMS_TEST_RUN_IN_SANDBOX(impl_fn, pool_size) \
+    LmsTestRunInSandbox((impl_fn), (pool_size))
 
 #ifdef __cplusplus
 #if __cplusplus

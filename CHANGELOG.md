@@ -292,8 +292,8 @@ pthread_equal接口由newlib下转移到kal/posix/src/pthread.c中
 * SwtmrHandlerItem结构体新增swtmrID字段，用于标识超时队列中软件定时器id
 * 新增支持API:
 
-LOS_LmsCheckPoolAdd使能检测指定内存池
-LOS_LmsCheckPoolDel不检测指定内存池
+LOS_LmsAddCheckPool使能检测指定内存池
+LOS_LmsDelCheckPool不检测指定内存池
 LOS_LmsAddrProtect为指定内存段上锁，不允许访问
 LOS_LmsAddrDisableProtect去能指定内存段的访问保护
 

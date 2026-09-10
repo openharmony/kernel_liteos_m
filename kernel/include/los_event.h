@@ -333,8 +333,24 @@ extern UINT32 LOS_EventClear(PEVENT_CB_S eventCB, UINT32 eventMask);
  */
 extern UINT32 LOS_EventDestroy(PEVENT_CB_S eventCB);
 
-extern UINT32 OsEventReadOnce(PEVENT_CB_S eventCB, UINT32 eventMask, UINT32 mode, UINT32 timeOut);
-extern UINT32 OsEventWriteOnce(PEVENT_CB_S eventCB, UINT32 events);
+#ifdef LOSCFG_COMPAT_POSIX
+extern UINT32 LOS_EventCondWrite(PEVENT_CB_S eventCB);
+extern UINT32 EventCondRead(PEVENT_CB_S eventCB, UINT32 *timeout);
+
+#define LOS_EventCondRead(eventCB, eventCond, timeout) ({           \
+    UINT32 ret = LOS_OK;                                            \
+    UINT32 readTime = (timeout);                                    \
+                                                                    \
+    while (!(eventCond)) {                                          \
+        ret = EventCondRead(eventCB, &readTime);                    \
+        if (ret != LOS_OK) {                                        \
+            break;                                                  \
+        }                                                           \
+    }                                                               \
+    ret = (eventCond) ? LOS_OK : ret;                               \
+    ret;                                                            \
+})
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

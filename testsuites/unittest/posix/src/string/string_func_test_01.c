@@ -63,7 +63,7 @@ static BOOL PosixStringFuncTestSuiteSetUp(void)
  */
 static BOOL PosixStringFuncTestSuiteTearDown(void)
 {
-    printf("==== [ String TEST ] ====\n\n");
+    dprintf("==== [ String TEST ] ====\n\n");
     return TRUE;
 }
 

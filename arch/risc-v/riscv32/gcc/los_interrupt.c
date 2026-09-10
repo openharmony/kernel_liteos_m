@@ -34,13 +34,20 @@
 #include "los_arch.h"
 #include "los_arch_interrupt.h"
 #include "los_arch_context.h"
-#include "los_task.h"
+#include "los_hwi_pri.h"
+#include "los_task_pri.h"
 #include "los_sched.h"
+#include "los_sched_pri.h"
 #include "los_debug.h"
 #include "los_hook.h"
 #include "riscv_hal.h"
+#include "los_hwi_pri.h"
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
+#include "los_exc_pri.h"
+#endif
 
 LosExcInfo g_excInfo;
+LITE_OS_SEC_BSS STATIC HwiControllerOps g_archHwiOps;
 #define RISCV_EXC_TYPE_NUM 16
 #define RISCV_EXC_LOAD_MISALIGNED 4
 #define RISCV_EXC_STORE_MISALIGNED 6
@@ -100,24 +107,17 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
         g_hwiForm[index].pfnHook = HalHwiDefaultHandler;
         g_hwiForm[index].uwParam = 0;
     }
+    g_archHwiOps.getHandleForm = HalGetHandleForm;
 }
 
 typedef VOID (*HwiProcFunc)(VOID *arg);
 __attribute__((section(".interrupt.text"))) VOID HalHwiInterruptDone(HWI_HANDLE_T hwiNum)
 {
-    g_intCount++;
-
-    OsHookCall(LOS_HOOK_TYPE_ISR_ENTER, hwiNum);
-
-    HWI_HANDLE_FORM_S *hwiForm = &g_hwiForm[hwiNum];
-    HwiProcFunc func = (HwiProcFunc)(hwiForm->pfnHook);
-    func(hwiForm->uwParam);
-
-    ++g_hwiFormCnt[hwiNum];
-
-    OsHookCall(LOS_HOOK_TYPE_ISR_EXIT, hwiNum);
-
-    g_intCount--;
+    HwiControllerOps *ops = ArchIntOpsGet();
+    if ((ops != NULL) && (ops->clearIrq != NULL)) {
+        ops->clearIrq(hwiNum);
+    }
+    OsIntHandle(hwiNum, &g_hwiHandleForm[hwiNum]);
 }
 
 LITE_OS_SEC_TEXT UINT32 HalGetHwiFormCnt(HWI_HANDLE_T hwiNum)
@@ -163,7 +163,7 @@ LITE_OS_SEC_TEXT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
     if (g_hwiForm[hwiNum].pfnHook == NULL) {
         return OS_ERRNO_HWI_NUM_INVALID;
     } else if (g_hwiForm[hwiNum].pfnHook != HalHwiDefaultHandler) {
-        return OS_ERRNO_HWI_NUM_INVALID;
+        return OS_ERRNO_HWI_ALREADY_CREATED;
     }
     if ((hwiPrio < OS_HWI_PRIO_LOWEST) || (hwiPrio > OS_HWI_PRIO_HIGHEST)) {
         return OS_ERRNO_HWI_PRIO_INVALID;
@@ -176,6 +176,11 @@ LITE_OS_SEC_TEXT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
     } else {
         g_hwiForm[hwiNum].uwParam = NULL;
     }
+    /* Dual-write g_hwiHandleForm (approach B transition, riscv32: no offset). */
+    g_hwiHandleForm[hwiNum].hook = hwiHandler;
+    g_hwiHandleForm[hwiNum].registerInfo = (irqParam != NULL) ? (HWI_ARG_T)(UINTPTR)irqParam->pDevId : 0;
+    g_hwiHandleForm[hwiNum].respCount = 0;
+    g_hwiHandleForm[hwiNum].next = NULL;
     if (hwiNum >= OS_RISCV_SYS_VECTOR_CNT) {
         HalSetLocalInterPri(hwiNum, hwiPrio);
     }
@@ -201,9 +206,14 @@ LITE_OS_SEC_TEXT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam
         return OS_ERRNO_HWI_NUM_INVALID;
     }
 
+    ArchIntDisable(hwiNum);
     intSave = LOS_IntLock();
     g_hwiForm[hwiNum].pfnHook = HalHwiDefaultHandler;
     g_hwiForm[hwiNum].uwParam = 0;
+    g_hwiHandleForm[hwiNum].hook = NULL;
+    g_hwiHandleForm[hwiNum].respCount = 0;
+    g_hwiHandleForm[hwiNum].shareMode = 0;
+    g_hwiHandleForm[hwiNum].next = NULL;
     LOS_IntRestore(intSave);
     return LOS_OK;
 }
@@ -279,8 +289,8 @@ STATIC VOID ExcInfoDisplay(VOID)
     }
 
     if (LOS_TaskIsRunning()) {
-        PRINTK("taskName = %s\n", g_losTask.runTask->taskName);
-        PRINTK("taskID = %u\n", g_losTask.runTask->taskID);
+    PRINTK("taskName = %s\n", g_runTask->taskName);
+    PRINTK("taskID = %u\n", g_runTask->taskId);
     } else {
         PRINTK("The exception occurs during system startup!\n");
     }
@@ -319,6 +329,24 @@ VOID HalExcEntry(const LosExcContext *excBufAddr)
         }
     }
 
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
+    LogReadWriteFunc dumpFunc = OsGetExcInfoRW();
+    if (dumpFunc != NULL) {
+        OsSetExcInfoOffset(0);
+    }
+#endif
+
+    if (g_excRegHook != NULL) {
+        g_excRegHook(g_excInfo.type, g_excInfo.context);
+#ifdef LOSCFG_SHELL_EXCINFO_DUMP
+        if (dumpFunc != NULL) {
+            dumpFunc(OsGetExcInfoDumpAddr(), OsGetExcInfoLen(), 0, OsGetExcInfoBuf());
+        }
+#endif
+        while (1) {
+        }
+    }
+
     ExcInfoDisplay();
 
     if (LOS_TaskIsRunning()) {
@@ -332,7 +360,7 @@ SYSTEM_DEATH:
     }
 }
 
-LITE_OS_SEC_BSS STATIC HwiControllerOps g_archHwiOps;
+/* g_archHwiOps declared at top of file (before HalHwiInit) */
 
 HwiControllerOps *ArchIntOpsGet(VOID)
 {

@@ -8,8 +8,8 @@
  * 1. Redistributions of source code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  *
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list
- *    of conditions and the following disclaimer in the documentation and/or other materials
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of
+ *    conditions and the following disclaimer in the documentation and/or other materials
  *    provided with the distribution.
  *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
@@ -33,73 +33,10 @@
 #define _LOS_SCHED_H
 
 #include "los_task.h"
-#include "los_interrupt.h"
-#include "los_tick.h"
-#include "los_sortlink.h"
 
 #ifdef __cplusplus
-#if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-#endif /* __cplusplus */
-
-#define OS_SCHED_MINI_PERIOD       (g_sysClock / LOSCFG_BASE_CORE_TICK_PER_SECOND_MINI)
-#define OS_SCHED_MAX_RESPONSE_TIME OS_SORT_LINK_UINT64_MAX
-
-extern UINT32 g_taskScheduled;
-typedef BOOL (*SchedScan)(VOID);
-
-VOID OsSchedResetSchedResponseTime(UINT64 responseTime);
-
-VOID OsSchedSetIdleTaskSchedParam(LosTaskCB *idleTask);
-
-UINT32 OsSchedSwtmrScanRegister(SchedScan func);
-
-VOID OsSchedUpdateExpireTime(VOID);
-
-UINT64 OsSchedGetNextExpireTime(UINT64 startTime);
-
-VOID OsSchedTaskDeQueue(LosTaskCB *taskCB);
-
-VOID OsSchedTaskEnQueue(LosTaskCB *taskCB);
-
-VOID OsSchedTaskWait(LOS_DL_LIST *list, UINT32 timeout);
-
-VOID OsSchedTaskWake(LosTaskCB *resumedTask);
-
-BOOL OsSchedModifyTaskSchedParam(LosTaskCB *taskCB, UINT16 priority);
-
-VOID OsSchedDelay(LosTaskCB *runTask, UINT32 tick);
-
-VOID OsSchedYield(VOID);
-
-VOID OsSchedTaskExit(LosTaskCB *taskCB);
-
-VOID OsSchedSuspend(LosTaskCB *taskCB);
-
-BOOL OsSchedResume(LosTaskCB *taskCB);
-
-VOID OsSchedTick(VOID);
-
-UINT32 OsSchedInit(VOID);
-
-VOID OsSchedStart(VOID);
-
-BOOL OsSchedTaskSwitch(VOID);
-
-LosTaskCB *OsGetTopTask(VOID);
-
-VOID OsSchedTimeConvertFreq(UINT32 oldFreq);
-
-STATIC INLINE UINT64 OsGetCurrSchedTimeCycle(VOID)
-{
-    return LOS_SysCycleGet();
-}
-
-STATIC INLINE BOOL OsCheckKernelRunning(VOID)
-{
-    return (g_taskScheduled && LOS_CHECK_SCHEDULE);
-}
 
 /**
  * @ingroup los_sched
@@ -155,10 +92,26 @@ extern VOID LOS_SchedTickHandler(VOID);
  */
 extern VOID LOS_Schedule(VOID);
 
+/**
+ * @ingroup los_sched
+ * @brief Get predicted sleep ticks.
+ *
+ * @par Description:
+ * This API is used to get predicted sleep ticks.
+ *
+ * @attention None.
+ *
+ * @param  None.
+ *
+ * @retval #UINT32 Sleep ticks.
+ * @par Dependency:
+ * <ul><li>los_sched.h: the header file that contains the API declaration.</li></ul>
+ * @see None.
+ */
+extern UINT32 LOS_SleepTicksGet(VOID);
+
 #ifdef __cplusplus
-#if __cplusplus
 }
-#endif /* __cplusplus */
 #endif /* __cplusplus */
 
 #endif /* _LOS_SCHED_H */

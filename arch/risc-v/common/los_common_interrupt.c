@@ -30,12 +30,30 @@
 
 #include "los_arch_interrupt.h"
 #include "los_debug.h"
+#include "los_hwi_pri.h"
+#include "los_exc.h"
+#include "los_interrupt.h"
 
-LITE_OS_SEC_BSS UINT32  g_intCount = 0;
+HwiHandleInfo g_hwiHandleForm[OS_HWI_MAX_NUM] = {0};
 
-UINT32 ArchIsIntActive(VOID)
+EXC_PROC_FUNC g_excRegHook = NULL;
+
+UINT32 ArchSetExcHook(EXC_PROC_FUNC excHook)
 {
-    return (g_intCount > 0);
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    g_excRegHook = excHook;
+    LOS_IntRestore(intSave);
+    return LOS_OK;
+}
+
+VOID *HalGetHandleForm(HWI_HANDLE_T hwiNum)
+{
+    if (hwiNum >= OS_HWI_MAX_NUM) {
+        return NULL;
+    }
+    return &g_hwiHandleForm[hwiNum];
 }
 
 LITE_OS_SEC_TEXT_INIT VOID HalHwiDefaultHandler(VOID *arg)

@@ -32,6 +32,9 @@
 
 #ifndef _LOS_ICUNIT_H
 #define _LOS_ICUNIT_H
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wreturn-type"
+#endif
 #include "osTest.h"
 
 #ifdef TST_DRVPRINT
@@ -93,114 +96,28 @@ typedef struct {
 } ICUNIT_SUIT_S;
 
 typedef enum {
-    TEST_TASK = 0,
-    TEST_MEM,
-    TEST_SEM,
-    TEST_MUX,
-    TEST_EVENT,
-    TEST_QUE,
-    TEST_SWTMR,
-    TEST_HWI,
-    TEST_ATO,
-    TEST_CPUP,
-    TEST_SCATTER,
-    TEST_RUNSTOP,
-    TEST_TIMER,
-    TEST_MMU,
-    TEST_TICKLESS,
-    TEST_ROBIN,
-    TEST_LIBC,
-    TEST_WAIT,
-    TEST_VFAT,
-    TEST_YAFFS,
-    TEST_JFFS,
-    TEST_RAMFS,
-    TEST_NFS,
-    TEST_PROC,
-    TEST_FS,
-    TEST_PTHREAD,
-    TEST_COMP,
-    TEST_HWI_HALFBOTTOM,
-    TEST_WORKQ,
-    TEST_WAKELOCK,
-    TEST_TIMES,
-    TEST_LIBM,
-    TEST_SUPPORT,
-    TEST_STL,
-    TEST_MAIL,
-    TEST_MSG,
-    TEST_CP,
-    TEST_SIGNAL,
-    TEST_SCHED,
-    TEST_MTDCHAR,
-    TEST_TIME,
-    TEST_WRITE,
-    TEST_READ,
-    TEST_DYNLOAD,
-    TEST_REGISTER,
-    TEST_SR,
-    TEST_UNAME,
-    TEST_MISC,
-    TEST_EXC,
-#if defined(LOSCFG_3RDPARTY_TEST)
-    TEST_THTTPD,
-    TEST_BIDIREFC,
-    TEST_CJSON,
-    TEST_CURL,
-    TEST_FFMPEG,
-    TEST_FREETYPE,
-    TEST_INIPARSER,
-    TEST_JSONCPP,
-    TEST_LIBICONV,
-    TEST_LIBJPEG,
-    TEST_LIBPNG,
-    TEST_OPENEXIF,
-    TEST_OPENSSL,
-    TEST_OPUS,
-    TEST_SQLITE,
-    TEST_TINYXML,
-#endif
-    TEST_DRIVERBASE,
-    TEST_DYNLINK,
-    TEST_LMS,
+#define ICUNIT_MOD(name) name,
+#include "icunit_module_def.h"
+#undef ICUNIT_MOD
 } LiteOS_test_module;
 
 typedef enum {
-    TEST_LOS = 0,
-    TEST_CMSIS,
-    TEST_POSIX,
-    TEST_LIB,
-    TEST_VFS,
-    TEST_EXTEND,
-    TEST_PARTITION,
-    TEST_CPP,
-    TEST_SHELL,
-    TEST_LINUX,
-    TEST_USB,
-#if defined(LOSCFG_3RDPARTY_TEST)
-    TEST_3RDPARTY,
-#endif
-    TEST_DRIVERFRAME,
-    TEST_CONTEXHUB
+#define ICUNIT_LAYER(name) name,
+#include "icunit_layer_def.h"
+#undef ICUNIT_LAYER
 } LiteOS_test_layer;
 
 typedef enum {
-    TEST_LEVEL0 = 0,
-    TEST_LEVEL1,
-    TEST_LEVEL2,
-    TEST_LEVEL3
+#define ICUNIT_LEVEL(name) name,
+#include "icunit_level_def.h"
+#undef ICUNIT_LEVEL
 } LiteOS_test_level;
 
 typedef enum {
-    TEST_FUNCTION = 0,
-    TEST_PRESSURE,
-    TEST_PERFORMANCE
+#define ICUNIT_TYPE(name) name,
+#include "icunit_type_def.h"
+#undef ICUNIT_TYPE
 } LiteOS_test_type;
-
-
-extern iUINT16 iCunit_errLineNo;
-extern iiUINT32 iCunit_errCode;
-extern void ICunitSaveErr(iiUINT32 line, iiUINT32 retCode);
 
 
 #define ICUNIT_UNINIT 0x0EF00000
@@ -211,6 +128,40 @@ extern void ICunitSaveErr(iiUINT32 line, iiUINT32 retCode);
 #define ICUNIT_SUIT_ALL 0x0EF0FFFF
 
 #define ICUNIT_SUCCESS 0x00000000
+
+#define ICUNIT_FAIL_LOG_MAX 50
+
+typedef struct {
+    iCHAR *pcCaseID;
+    iUINT16 testcase_layer;
+    iUINT16 testcase_module;
+    iUINT16 testcase_level;
+    iUINT16 testcase_type;
+    iUINT16 errLine;
+    iiUINT32 retCode;
+} ICUNIT_FAIL_LOG_S;
+
+typedef struct {
+    iUINT32 execCount;
+    iUINT32 failCount;
+    iUINT32 passCount;
+} ICUNIT_MODULE_STAT_S;
+
+
+extern iUINT16 iCunit_errLineNo;
+extern iiUINT32 iCunit_errCode;
+extern void ICunitSaveErr(iiUINT32 line, iiUINT32 retCode);
+
+extern ICUNIT_FAIL_LOG_S g_failLogArray[ICUNIT_FAIL_LOG_MAX];
+extern iUINT32 g_failLogCount;
+extern ICUNIT_MODULE_STAT_S g_moduleStat[];
+extern void ICunitRecordFailLog(iCHAR *caseID, iUINT16 layer, iUINT16 module, iUINT16 level, iUINT16 type,
+    iUINT16 errLine, iiUINT32 retCode);
+extern void ICunitPrintFailLogs(void);
+extern const char *ICunitLayerToStr(iUINT16 layer);
+extern const char *ICunitModuleToStr(iUINT16 module);
+extern const char *ICunitLevelToStr(iUINT16 level);
+extern const char *ICunitTypeToStr(iUINT16 type);
 
 #define ICUNIT_TRACK_EQUAL(param, value, retcode)       \
     do {                                                \
@@ -291,23 +242,31 @@ extern void ICunitSaveErr(iiUINT32 line, iiUINT32 retCode);
 
 #define ICUNIT_ASSERT_STRING_EQUAL(str1, str2, retcode) \
     do {                                                \
-        if (strcmp(str1, str2) != 0) {                  \
-            ICunitSaveErr(__LINE__, (iiUINT32)retcode); \
-            return 1;                                   \
+        if ((const VOID *)(str1) != (const VOID *)(str2)) { \
+            if ((str1) == NULL || (str2) == NULL || strcmp(str1, str2) != 0) { \
+                ICunitSaveErr(__LINE__, (iiUINT32)retcode); \
+                return 1;                               \
+            }                                           \
         }                                               \
     } while (0)
 
 #define ICUNIT_ASSERT_STRING_EQUAL_VOID(str1, str2, retcode)       \
     do {                                                           \
-        if (strcmp((const char *)str1, (const char *)str2) != 0) { \
-            ICunitSaveErr(__LINE__, (iiUINT32)retcode);            \
-            return;                                                \
+        if ((const VOID *)(str1) != (const VOID *)(str2)) {        \
+            if ((str1) == NULL || (str2) == NULL || strcmp((const char *)str1, (const char *)str2) != 0) { \
+                ICunitSaveErr(__LINE__, (iiUINT32)retcode);        \
+                return;                                            \
+            }                                                       \
         }                                                          \
     } while (0)
 
 #define ICUNIT_ASSERT_STRING_NOT_EQUAL(str1, str2, retcode) \
     do {                                                    \
-        if (strcmp(str1, str2) == 0) {                      \
+        if ((const VOID *)(str1) == (const VOID *)(str2)) { \
+            ICunitSaveErr(__LINE__, (iiUINT32)retcode);     \
+            return 1;                                       \
+        }                                                   \
+        if ((str1) != NULL && (str2) != NULL && strcmp(str1, str2) == 0) { \
             ICunitSaveErr(__LINE__, (iiUINT32)retcode);     \
             return 1;                                       \
         }                                                   \

@@ -84,99 +84,6 @@ extern UINT32 _BootVectors[];
 
 /* *
  * @ingroup los_arch_interrupt
- * Hardware interrupt error code: Invalid interrupt number.
- *
- * Value: 0x02000900
- *
- * Solution: Ensure that the interrupt number is valid.
- * The value range of the interrupt number applicable for a Cortex-M3 platform is [OS_USER_HWI_MIN,OS_USER_HWI_MAX].
- */
-#define OS_ERRNO_HWI_NUM_INVALID              LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x00)
-
-/* *
- * @ingroup los_arch_interrupt
- * Hardware interrupt error code: Null hardware interrupt handling function.
- *
- * Value: 0x02000901
- *
- * Solution: Pass in a valid non-null hardware interrupt handling function.
- */
-#define OS_ERRNO_HWI_PROC_FUNC_NULL           LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x01)
-
-/* *
- * @ingroup los_arch_interrupt
- * Hardware interrupt error code: Insufficient interrupt resources for hardware interrupt creation.
- *
- * Value: 0x02000902
- *
- * Solution: Increase the configured maximum number of supported hardware interrupts.
- */
-#define OS_ERRNO_HWI_CB_UNAVAILABLE           LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x02)
-
-/* *
- * @ingroup los_arch_interrupt
- * Hardware interrupt error code: Insufficient memory for hardware interrupt initialization.
- *
- * Value: 0x02000903
- *
- * Solution: Expand the configured memory.
- */
-#define OS_ERRNO_HWI_NO_MEMORY                LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x03)
-
-/* *
- * @ingroup los_arch_interrupt
- * Hardware interrupt error code: The interrupt has already been created.
- *
- * Value: 0x02000904
- *
- * Solution: Check whether the interrupt specified by the passed-in interrupt number has already been created.
- */
-#define OS_ERRNO_HWI_ALREADY_CREATED          LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x04)
-
-/* *
- * @ingroup los_arch_interrupt
- * Hardware interrupt error code: Invalid interrupt priority.
- *
- * Value: 0x02000905
- *
- * Solution: Ensure that the interrupt priority is valid.
- * The value range of the interrupt priority applicable for a Cortex-M3 platform is [0,15].
- */
-#define OS_ERRNO_HWI_PRIO_INVALID             LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x05)
-
-/* *
- * @ingroup los_arch_interrupt
- * Hardware interrupt error code: Incorrect interrupt creation mode.
- *
- * Value: 0x02000906
- *
- * Solution: The interrupt creation mode can be only set to OS_HWI_MODE_COMM or
- * OS_HWI_MODE_FAST of which the value can be 0 or 1.
- */
-#define OS_ERRNO_HWI_MODE_INVALID             LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x06)
-
-/* *
- * @ingroup los_arch_interrupt
- * Hardware interrupt error code: The interrupt has already been created as a fast interrupt.
- *
- * Value: 0x02000907
- *
- * Solution: Check whether the interrupt specified by the passed-in interrupt number has already been created.
- */
-#define OS_ERRNO_HWI_FASTMODE_ALREADY_CREATED LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x07)
-
-/* *
- * @ingroup los_arch_interrupt
- * Hardware interrupt error code: Invalid interrupt operation function.
- *
- * Value: 0x0200090c
- *
- * Solution: Set a valid interrupt operation function
- */
-#define OS_ERRNO_HWI_OPS_FUNC_NULL            LOS_ERRNO_OS_ERROR(LOS_MOD_HWI, 0x0c)
-
-/* *
- * @ingroup los_arch_interrupt
  * SysTick control and status register.
  */
 #define OS_SYSTICK_CONTROL_REG                0xE000E010
@@ -507,7 +414,6 @@ VOID HalHwiInit(VOID);
  * Cortex-M exception types: Memory management status register access violation.
  */
 #define OS_EXC_MF_IACCVIOL         9
-
 
 /**
  * @ingroup los_exc

@@ -6,15 +6,15 @@
  * are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this list of
- * conditions and the following disclaimer.
+ *    conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
- * of conditions and the following disclaimer in the documentation and/or other materials
- * provided with the distribution.
+ *    of conditions and the following disclaimer in the documentation and/or other materials
+ *    provided with the distribution.
  *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
- * to endorse or promote products derived from this software without specific prior written
- * permission.
+ *    to endorse or promote products derived from this software without specific prior written
+ *    permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
@@ -32,15 +32,20 @@
 #include "osTest.h"
 #include "It_los_lms.h"
 
-static UINT32 TestCase(VOID)
+static UINT32 TestCase020Impl(VOID *pool)
 {
-    CHAR *p = (CHAR *)LOS_MemAlloc(g_testLmsPool, INDEX_MAX);
+    CHAR *p = (CHAR *)LOS_MemAlloc(pool, INDEX_MAX);
     ICUNIT_ASSERT_NOT_EQUAL(p, NULL, 0);
     (void)memset_s(p, INDEX_MAX, 0, INDEX_MAX + 1);
     PRINTK("p[0] = %d\n", p[0]);
-    (void)memset_s(p, INDEX_MAX + 1, 0, INDEX_MAX + 1); /* trigger overflow */
+    (void)memset_s(p, INDEX_MAX + 1, 0, INDEX_MAX + 1); /* trigger overflow — corrupts sandbox only */
 
     return LOS_OK;
+}
+
+static UINT32 TestCase(VOID)
+{
+    return LMS_TEST_RUN_IN_SANDBOX(TestCase020Impl, 2 * PAGE_SIZE);
 }
 
 /* LmsTestMemset_sOverflow */
@@ -48,4 +53,3 @@ VOID ItLosLms020(void)
 {
     TEST_ADD_CASE("ItLosLms020", TestCase, TEST_LOS, TEST_LMS, TEST_LEVEL1, TEST_FUNCTION);
 }
-

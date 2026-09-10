@@ -29,14 +29,27 @@
  */
 
 #include "posix_test.h"
+extern VOID ItSuitePosixRwlock(VOID);
+extern VOID ItSuitePosixTime(VOID);
+extern VOID ItSuitePosixIo(VOID);
+#if defined(LOSCFG_ARCH_ARM) && defined(LOSCFG_POSIX_SIGNAL_API)
+extern VOID ItSuitePosixSignal(VOID);
+#endif
 
 void ItSuitePosix(void)
 {
-    PRINTF("***********************BEGIN POSIX TEST**********************\n");
     PthreadFuncTestSuite();
     ItSuitePosixPthread();
     ItSuitePosixMutex();
+    ItSuitePosixRwlock();
     ItSuitePosixMqueue();
+    ItSuitePosixTime();
+#ifdef LOSCFG_POSIX_PIPE_API
+    ItSuitePosixIo();
+#endif
+#if defined(LOSCFG_ARCH_ARM) && defined(LOSCFG_POSIX_SIGNAL_API)
+    ItSuitePosixSignal();
+#endif
     PosixCtypeFuncTest();
     PosixIsdigitFuncTest();
     PosixIslowerFuncTest();
@@ -44,7 +57,9 @@ void ItSuitePosix(void)
     PosixTolowerFuncTest();
     PosixToupperFuncTest();
     PosixStrerrorTest();
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
     PosixMathFuncTest();
+#endif
     PosixMqueueFuncTest();
     PosixStdargFuncTest();
     PosixStdlibAtoiFuncTest();

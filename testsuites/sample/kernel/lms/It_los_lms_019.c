@@ -6,15 +6,15 @@
  * are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this list of
- * conditions and the following disclaimer.
+ *    conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
- * of conditions and the following disclaimer in the documentation and/or other materials
- * provided with the distribution.
+ *    of conditions and the following disclaimer in the documentation and/or other materials
+ *    provided with the distribution.
  *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
- * to endorse or promote products derived from this software without specific prior written
- * permission.
+ *    to endorse or promote products derived from this software without specific prior written
+ *    permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
@@ -32,12 +32,12 @@
 #include "osTest.h"
 #include "It_los_lms.h"
 
-static UINT32 TestCase(VOID)
+static UINT32 TestCase019Impl(VOID *pool)
 {
     CHAR *src;
     CHAR *buf;
 
-    src = LOS_MemAlloc(m_aucSysMem0, 9);
+    src = LOS_MemAlloc(pool, 9);
     ICUNIT_ASSERT_NOT_EQUAL(src, NULL, src);
 
     (void)memset_s(src, 9, 0, 9);
@@ -51,7 +51,7 @@ static UINT32 TestCase(VOID)
     src[7] = 56;
     PRINTK("strlen(src) = %d\n", strlen(src));
 
-    buf = LOS_MemAlloc(m_aucSysMem0, 20);
+    buf = LOS_MemAlloc(pool, 20);
     ICUNIT_ASSERT_NOT_EQUAL(buf, NULL, buf);
     buf[0] = 0;
     (VOID)strncpy(buf, src, 8); /* no trigger overflow */
@@ -60,8 +60,13 @@ static UINT32 TestCase(VOID)
     buf[0] = 0;
     (VOID)strncpy(buf, src, 20); /* no trigger overflow */
     buf[0] = 0;
-    (VOID)strncpy(buf, src, 21); /* trigger buf overflow */
+    (VOID)strncpy(buf, src, 21); /* trigger buf overflow — corrupts sandbox only */
     return LOS_OK;
+}
+
+static UINT32 TestCase(VOID)
+{
+    return LMS_TEST_RUN_IN_SANDBOX(TestCase019Impl, 2 * PAGE_SIZE);
 }
 
 /* LmsTestStrncpyOverflow */
@@ -69,4 +74,3 @@ VOID ItLosLms019(void)
 {
     TEST_ADD_CASE("ItLosLms019", TestCase, TEST_LOS, TEST_LMS, TEST_LEVEL1, TEST_FUNCTION);
 }
-

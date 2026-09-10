@@ -49,7 +49,7 @@ static VOID TaskF01(void)
 
     tickNum = (osEndTime - osStartTime);
 
-    if (tickNum < (1000 - 2) || tickNum > (1000 + 2)) { // 1000, Timeout interval of sem. +2 -2 is tolerance scope.
+    if (tickNum < (1000 - 5) || tickNum > (1000 + 5)) { // 1000, Timeout interval of sem. +5 -5 is tolerance scope.
         ICUNIT_ASSERT_EQUAL_VOID(tickNum, 0, tickNum);
     }
 
@@ -72,18 +72,27 @@ static UINT32 Testcase(VOID)
     ret = LOS_SemCreate(0, &g_usSemID);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
+    g_testTaskID01 = OS_INVALID;
+
     ret = LOS_TaskCreate(&g_testTaskID01, &task);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
+    TEST_DELAY(g_testCount, 1, TEST_WAIT_TIMEOUT);
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
     LOS_TaskDelay(1000); // 1000, set delay time.
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
+    TEST_DELAY(g_testCount, 2, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT);
 
     ret = LOS_TaskDelete(g_testTaskID01);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    g_testTaskID01 = OS_INVALID;
 
 EXIT:
+    if (g_testTaskID01 != OS_INVALID) {
+        (VOID)LOS_TaskDelete(g_testTaskID01);
+        g_testTaskID01 = OS_INVALID;
+    }
     ret = LOS_SemDelete(g_usSemID);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 

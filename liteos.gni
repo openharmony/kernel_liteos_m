@@ -51,7 +51,7 @@ exec_script("//build/lite/run_shell_cmd.py",
 import("$root_out_dir/config.gni")
 
 LITEOSTOPDIR = "//kernel/liteos_m"
-HDFTOPDIR = "//drivers/hdf_core/adapter/khdf/liteos_m"
+HDFTOPDIR = "//drivers/hdf_core/adapter/khdf/liteos"
 THIRDPARTY_BOUNDS_CHECKING_FUNCTION_DIR =
     "//third_party/bounds_checking_function"
 LITEOSTHIRDPARTY = "//third_party"

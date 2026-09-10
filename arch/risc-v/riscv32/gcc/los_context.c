@@ -33,57 +33,46 @@
 #include "los_arch_interrupt.h"
 #include "los_arch_timer.h"
 #include "los_task.h"
+#include "los_task_pri.h"
 #include "los_sched.h"
+#include "los_sched_pri.h"
 #include "los_memory.h"
 #include "soc_common.h"
 
-STATIC UINT32 g_sysNeedSched = FALSE;
+LITE_OS_SEC_BSS LosTaskCB *g_runTask = NULL;
 
 LITE_OS_SEC_TEXT_INIT VOID ArchInit(VOID)
 {
     HalHwiInit();
 }
 
-VOID HalIrqEndCheckNeedSched(VOID)
-{
-    if (g_sysNeedSched) {
-        LOS_Schedule();
-    }
-}
-
-VOID ArchTaskSchedule(VOID)
-{
-    UINT32 intSave;
-
-    if (OS_INT_ACTIVE) {
-        g_sysNeedSched = TRUE;
-        return;
-    }
-
-    intSave = LOS_IntLock();
-    g_sysNeedSched = FALSE;
-    BOOL isSwitch = OsSchedTaskSwitch();
-    if (isSwitch) {
-        HalTaskContextSwitch(intSave);
-        return;
-    }
-
-    LOS_IntRestore(intSave);
-    return;
-}
-
-LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
+LITE_OS_SEC_TEXT_MINOR VOID ArchTaskExit(VOID)
 {
     ArchIntLock();
     while (1) {
     }
 }
 
-LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
+LITE_OS_SEC_TEXT_INIT VOID *ArchTaskStackInit(UINT32 taskId, UINT32 stackSize, VOID *topStack)
 {
     TaskContext *context = (TaskContext *)((UINTPTR)topStack + stackSize - sizeof(TaskContext));
 
     context->mstatus = RISCV_MSTATUS_MPP | RISCV_MSTATUS_MPIE;
+#ifndef LOSCFG_ARCH_FPU_DISABLE
+    /* Enable FPU (mstatus.FS = Dirty) so the task can use FP instructions.
+     * The task switch / interrupt entry will save/restore FP registers
+     * because FS != Off. */
+    context->mstatus |= RISCV_MSTATUS_FS;
+    /* Zero FPU register area (ft0-fs11 + fcsr + reserved) by looping from
+     * the first FPU field to the end of TaskContext, 
+     * which uses a similar loop from S11_REG_INDEX+1 to sizeof(TaskContext). */
+    UINT32 fpuStart = (UINT32)(UINTPTR)&(((TaskContext *)0)->ft11) / sizeof(UINT32);
+    UINT32 fpuEnd = (UINT32)sizeof(TaskContext) / sizeof(UINT32);
+    UINT32 index;
+    for (index = fpuStart; index < fpuEnd; index++) {
+        ((UINT32 *)context)[index] = 0;
+    }
+#endif
     context->mepc = (UINT32)(UINTPTR)OsTaskEntry;
     context->tp = TP_INIT_VALUE;
     context->sp = SP_INIT_VALUE;
@@ -110,20 +99,12 @@ LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VO
     context->a3 = A3_INIT_VALUE;
     context->a2 = A2_INIT_VALUE;
     context->a1 = A1_INIT_VALUE;
-    context->a0 = taskID;
+    context->a0 = taskId;
     context->t2 = T2_INIT_VALUE;
     context->t1 = T1_INIT_VALUE;
     context->t0 = T0_INIT_VALUE;
-    context->ra = (UINT32)(UINTPTR)ArchSysExit;
+    context->ra = (UINT32)(UINTPTR)ArchTaskExit;
     return (VOID *)context;
-}
-
-LITE_OS_SEC_TEXT_INIT UINT32 ArchStartSchedule(VOID)
-{
-    (VOID)LOS_IntLock();
-    OsSchedStart();
-    HalStartToRun();
-    return LOS_OK; /* never return */
 }
 
 LITE_OS_SEC_TEXT VOID wfi(VOID)

@@ -98,6 +98,13 @@ static UINT32 Testcase(VOID)
         task.uwStackSize = TASK_STACK_SIZE_TEST;
         task.usTaskPrio = TASK_PRIO_TEST - 2; // 2, set new task priority, it is higher than the current task.
 
+        g_testTaskID01 = OS_INVALID;
+        g_testTaskID02 = OS_INVALID;
+
+        for (index = 0; index < g_actMuxUsedcnt; index++) {
+            g_usSemID3[index] = OS_INVALID;
+        }
+
         for (index = 0; index < g_actMuxUsedcnt; index++) {
             ret = LOS_SemCreate(0, &g_usSemID3[index]);
             ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
@@ -113,9 +120,19 @@ static UINT32 Testcase(VOID)
         ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     EXIT:
+        if (g_testTaskID01 != OS_INVALID) {
+            (VOID)LOS_TaskDelete(g_testTaskID01);
+            g_testTaskID01 = OS_INVALID;
+        }
+        if (g_testTaskID02 != OS_INVALID) {
+            (VOID)LOS_TaskDelete(g_testTaskID02);
+            g_testTaskID02 = OS_INVALID;
+        }
         for (index = 0; index < g_actMuxUsedcnt; index++) {
-            ret = LOS_SemDelete(g_usSemID3[index]);
-            ICUNIT_TRACK_EQUAL(ret, LOS_OK, ret);
+            if (g_usSemID3[index] != OS_INVALID) {
+                (VOID)LOS_SemDelete(g_usSemID3[index]);
+                g_usSemID3[index] = OS_INVALID;
+            }
         }
     }
 

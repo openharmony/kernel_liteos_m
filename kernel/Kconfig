@@ -1,0 +1,522 @@
+menu "Kernel"
+
+rsource "base/mem/Kconfig"
+
+######################### config options of extended #####################
+
+
+
+config KERNEL_EXTKERNEL
+    bool "Enable Extend Kernel"
+    default y
+    help
+      This option will enable extend Kernel of LiteOS.  Extend kernel include
+      cppsupport, cpup, etc. You can select one or some
+      of them.
+
+config KERNEL_BACKTRACE
+    bool "Enable Backtrace"
+    default n
+    depends on KERNEL_EXTKERNEL
+    help
+      If you wish to build LiteOS with support for backtrace.
+
+choice
+    prompt "Select Backtrace Type"
+    depends on KERNEL_BACKTRACE
+
+config BACKTRACE_TYPE_1
+    bool "1: Call stack analysis for cortex-m series by scanning the stack"
+    depends on ARCH_ARM && !ARCH_ARM9
+
+config BACKTRACE_TYPE_2
+    bool "2: Call stack analysis for risc-v by using frame pointer"
+    depends on ARCH_RISCV
+
+config BACKTRACE_TYPE_3
+    bool "3: Call stack analysis for risc-v by scanning the stack"
+    depends on ARCH_RISCV
+
+config BACKTRACE_TYPE_4
+    bool "4: Call stack analysis for xtensa by scanning the stack"
+    depends on ARCH_XTENSA
+
+config BACKTRACE_TYPE_5
+    bool "5: Call stack analysis for c-sky by scanning the stack"
+    depends on ARCH_CSKY
+
+config BACKTRACE_TYPE_6
+    bool "6: Call stack analysis for arm9 by scanning the stack"
+    depends on ARCH_ARM9
+
+endchoice
+
+config BACKTRACE_TYPE
+    int
+    default 0 if ! KERNEL_BACKTRACE
+    default 1 if BACKTRACE_TYPE_1
+    default 2 if BACKTRACE_TYPE_2
+    default 3 if BACKTRACE_TYPE_3
+    default 4 if BACKTRACE_TYPE_4
+    default 5 if BACKTRACE_TYPE_5
+    default 6 if BACKTRACE_TYPE_6
+
+config BACKTRACE_DEPTH
+    int "Backtrace depth"
+    default 15
+    depends on KERNEL_BACKTRACE
+
+config KERNEL_CPPSUPPORT
+    bool "Enable C++ Support"
+    default n
+    depends on KERNEL_EXTKERNEL
+    help
+      If you wish to build LiteOS with support for C++.
+
+rsource "extended/signal/Kconfig"
+
+config BASE_CORE_CPUP
+    bool
+    default n
+
+config KERNEL_CPUP
+    bool "Enable Cpup"
+    default n
+    depends on KERNEL_EXTKERNEL
+    select BASE_CORE_CPUP
+    help
+      If you wish to build LiteOS with support for cpup.
+
+config CPUP_INCLUDE_IRQ
+    bool "Enable Cpup include irq"
+    default y
+    depends on KERNEL_CPUP
+    help
+      If you wish to include irq usage for cpup.
+
+config CPUP_SAMPLE_PERIOD
+    int "Cpup sample period (in ticks)"
+    default BASE_CORE_TICK_PER_SECOND
+    depends on KERNEL_CPUP
+    help
+      Sampling period of cpup in ticks. The period must be no less than
+      100ms and no greater than 10s.
+
+config CPUP_HISTORY_RECORD_NUM
+    int "Cpup history record number"
+    default 10
+    depends on KERNEL_CPUP
+    help
+      Number of historical cpup records kept for the multi-period query.
+
+config CPUP_CB_NUM_CONFIGURABLE
+    bool "Enable configurable cpup irq cb index"
+    default n
+    depends on KERNEL_CPUP && CPUP_INCLUDE_IRQ
+    help
+      When enabled, the cpup irq control block index is allocated on
+      demand via OsCpupCBIrqCreate. Otherwise a direct fixed mapping
+      (irqNum + OS_CPUP_TASK_CB_NUM) is used.
+
+config CPUP_START_STOP
+    bool "Enable cpup start/stop API"
+    default y
+    depends on KERNEL_CPUP
+    help
+      Enable the LOS_CpupStart and LOS_CpupStop runtime APIs.
+
+config KERNEL_DYNLINK
+    bool "Enable Dynamic Link Feature"
+    default n
+    depends on KERNEL_EXTKERNEL && ARCH_ARM
+    help
+      If you wish to build LiteOS with support for dynamic link.
+
+config KERNEL_PM
+    bool "Enable Power Management"
+    default n
+    depends on KERNEL_EXTKERNEL
+    help
+      Configuration item for low power frame tailoring.
+      If you wish to build LiteOS with support for power management.
+
+config KERNEL_PM_IDLE
+    bool "Enable Power Management Idle"
+    default n
+    depends on KERNEL_PM
+    help
+      Configuration item for low power frame tailoring.
+      If you wish to build LiteOS with support for power management idle.
+
+config KERNEL_PM_DEBUG
+    bool "Power Management Debug"
+    default n
+    depends on KERNEL_PM
+    help
+      Configuration item for low power frame debug tailoring.
+
+config PLATFORM_EXC
+    bool "Enable Platform Exc Hook"
+    default n
+    depends on KERNEL_EXTKERNEL
+
+config KERNEL_LMK
+    bool "Enable Low Memory Killer"
+    default n
+    depends on KERNEL_EXTKERNEL
+    help
+      Configuration item for low memory killer tailoring.
+      If you wish to build LiteOS with support for low memory killer.
+
+config KERNEL_LMK_DEBUG
+    bool "Low Memory Killer Debug"
+    default n
+    depends on KERNEL_LMK
+    help
+      Configuration item forlow memory killer debug tailoring.
+
+######################### config options of trace #########################
+rsource "extended/trace/Kconfig"
+
+######################### config options of lms #########################
+rsource "extended/lms/Kconfig"
+
+######################### config options of interrupt ###################
+menu "Interrupt Management"
+
+config ARCH_INTERRUPT_TAKEOVER
+    bool "Interrupt Takeover"
+    default y
+    help
+      Platform interrupt takeover.
+
+if ARCH_INTERRUPT_TAKEOVER
+
+config ARCH_INTERRUPT_PREEMPTION
+    bool "Enable Interrupt Preemption"
+    default n
+
+config HWI_PRE_POST_PROCESS
+    bool "Enable Interrupt pre/post-processing"
+
+config PLATFORM_HWI_WITH_ARG
+    bool "Enable Interrupt Create With Args"
+    depends on KERNEL_MEM_ALLOC
+    default y
+
+menuconfig HWI_BOTTOM_HALF
+    bool "Enable Interrupt Bottom Half"
+    default n
+    depends on BASE_IPC_EVENT
+    help
+      This represents to support interrupt bottom half.
+
+if HWI_BOTTOM_HALF
+
+config HWI_BOTTOM_HALF_WORK_LIMIT
+    int "Max Bottom Half Work Number"
+    default 16
+    help
+      This represents the maximum number of bottom half work.
+
+endif # HWI_BOTTOM_HALF
+
+config HWI_PRIO_LIMIT
+    int "Interrupt priority range"
+    default 32
+    help
+      This parameter indicates the total number of interrupt priorities.
+
+endif # ARCH_INTERRUPT_TAKEOVER
+
+endmenu
+
+######################### config options of task #########################
+menu "Task"
+
+config KERNEL_TASK_ENTRY_VOID_PTR
+    bool "Enable VOID* task entry signature"
+    default n
+    help
+      This option enables VOID* task entry function signature:
+        typedef TSK_ENTRY_FUNC = VOID* (*)(VOID *param)
+        TSK_INIT_PARAM_S uses 'pArgs' (VOID*) instead of 'uwArg' (UINT32)
+        LosTaskCB uses 'args' (VOID*) instead of 'arg' (UINT32)
+      When disabled (default), uses community UINT32 arg signature.
+      Enable to allow liteos business code (VOID* entry) to compile on community base.
+
+config BASE_CORE_TICK_PER_SECOND
+    int "Tick Value Per Second"
+    default 100
+    help
+      This represents the tick value per second.
+
+choice
+    prompt "Tick Mode"
+    default KERNEL_TICKLESS_GLOBAL
+
+config KERNEL_TICK_PERIODIC
+    bool "Periodic Tick Mode"
+    help
+      Use periodic tick interrupts. Timer fires at fixed interval
+      (TICK_PER_SECOND). Sortlink uses tick-granularity delta.
+
+config KERNEL_TICKLESS_GLOBAL
+    bool "Tickless Global Mode"
+    help
+      Use one-shot timer with tickless global mode. Timer is
+      reloaded per event. Sortlink uses cycle-granularity delta.
+endchoice
+
+choice
+    prompt "Sortlink Option"
+    default BASE_CORE_USE_SINGLE_LIST
+    help
+      The scheduler used to dispatch tasks.
+
+config BASE_CORE_USE_SINGLE_LIST
+    bool "Use Single List"
+    help
+      Use Single List for Task & Swtmr.
+
+config BASE_CORE_USE_MULTI_LIST
+    bool "Use Multi List"
+    depends on !KERNEL_TICKLESS_GLOBAL
+    help
+      The scheduler uses a multi list sortlink.
+      Not available with Tickless Global Mode.
+endchoice
+
+config BASE_CORE_TSK_LIMIT
+    int "Max Task Number"
+    default 5
+    help
+      This represents the max number of task.
+
+config BASE_CORE_TSK_MIN_STACK_SIZE
+    int "Task Min Stack Size"
+    default 128
+    help
+      This represents the task min stack size. Must be aligned on a
+      boundary of 4 (caller responsibility when overriding).
+
+config BASE_CORE_TSK_IDLE_STACK_SIZE
+    int "Idle Task Stack Size"
+    default 384
+    help
+      This represents the idle task stack size.
+
+config BASE_CORE_TSK_DEFAULT_PRIO
+    int "Task Default Priority"
+    default 10
+    help
+      This represents the task default priority and the max priority is 32.
+
+config BASE_CORE_TIMESLICE
+    bool "Enable Timeslice"
+    default y
+    help
+      Enable timeslice-based round-robin scheduling for tasks of equal priority.
+
+config BASE_CORE_TIMESLICE_TIMEOUT
+    int "Timeslice Timeout (us)"
+    default 20000
+    depends on BASE_CORE_TIMESLICE
+    help
+      Longest execution time of tasks with the same priorities, in microseconds.
+
+config BASE_CORE_TSK_MONITOR
+    bool "Enable Task Monitor Function"
+    default n
+    help
+      This represents to be support to monitor task stack and switch info.
+
+config BASE_CORE_TSK_DEFAULT_STACK_SIZE
+    int "Task Default Stack Size"
+    default 1024
+    help
+      This represents the task default stack size.
+
+config BASE_CORE_TSK_SWTMR_STACK_SIZE
+    int "Swtmr Task Stack Size"
+    default LOSCFG_BASE_CORE_TSK_DEFAULT_STACK_SIZE
+    help
+      This represents the swtmr task stack size. Defaults to the task
+      default stack size if not overridden.
+
+config TASK_JOINABLE
+    bool "Enable Join/Detach mechanism"
+    default y
+    help
+      Enable joinable task support (LOS_TaskJoin/LOS_TaskDetach). When enabled,
+      tasks created with LOS_TASK_ATTR_JOINABLE attribute can be joined by other
+      tasks to reclaim resources and retrieve return value. When disabled, all
+      tasks behave as detached (resources freed automatically on exit).
+
+config SCHED_LATENCY
+    bool "Schedule Latency"
+    default y
+    depends on ARCH_ARM_V7M
+    help
+      Use PendSV for deferred context switching. LOS_Schedule calls
+      OsSchedPreempt directly (even in interrupt context) and PendSV
+      only does register save/restore without calling OsSchedProcSchedFlag.
+      This reduces PendSV stack usage and eliminates redundant scheduling
+      decisions. Default enabled for Cortex-M3/M4/M7 (ARCH_ARM_V7M).
+
+endmenu
+
+menu "Ipc"
+
+menuconfig BASE_IPC_EVENT
+    bool "Enable Event"
+    default y
+    help
+      Enable event module. When disabled, all LOS_Event* APIs are unavailable
+      and los_event.c is not compiled into the image.
+
+menuconfig BASE_IPC_SEM
+    bool "Enable Sem"
+    default y
+    help
+      Enable semaphore module. When disabled, all LOS_Sem* APIs are unavailable
+      and los_sem.c is not compiled into the image.
+
+if BASE_IPC_SEM
+
+config BASE_IPC_SEM_LIMIT
+    int "Max Sem Number"
+    default 6
+    help
+      This represents the maximum number of semaphores.
+
+endif # BASE_IPC_SEM
+
+menuconfig BASE_IPC_MUX
+    bool "Enable Mutex"
+    default y
+    help
+      Enable mutex module. When disabled, all LOS_Mux* APIs are unavailable
+      and los_mux.c is not compiled into the image.
+
+if BASE_IPC_MUX
+
+config BASE_IPC_MUX_LIMIT
+    int "Max Mutex Number"
+    default 6
+    help
+      This represents the maximum number of mutexes.
+
+choice
+    prompt "Mutex Wait Mode"
+    default MUTEX_WAITMODE_FIFO
+
+config MUTEX_WAITMODE_FIFO
+    bool "FIFO"
+    help
+      Tasks waiting on a mutex are woken in first-in-first-out order.
+
+config MUTEX_WAITMODE_PRIO
+    bool "Priority"
+    help
+      Tasks waiting on a mutex are woken in priority order.
+      Higher priority tasks are inserted before lower priority ones in the wait list.
+endchoice
+
+endif # BASE_IPC_MUX
+
+menuconfig BASE_IPC_QUEUE
+    bool "Enable Queue"
+    default y
+    help
+      Enable queue module. When disabled, all LOS_Queue* APIs are unavailable
+      and los_queue.c is not compiled into the image.
+
+if BASE_IPC_QUEUE
+
+config BASE_IPC_QUEUE_LIMIT
+    int "Max Queue Number"
+    default 6
+    help
+      This represents the maximum number of queues.
+
+config BASE_IPC_STATIC_QUEUE_LIMIT
+    int "Max Static Queue Number"
+    default 3
+    help
+      This represents the maximum number of static queues.
+
+config QUEUE_DYNAMIC_ALLOCATION
+    bool "Enable Queue Dynamic Allocation"
+    default y
+    help
+      This option will support dynamic memory allocation interface for users to create a queue.
+      When disabled, LOS_QueueCreate is unavailable and only LOS_QueueCreateStatic can be used.
+
+config QUEUE_STATIC_ALLOCATION
+    bool "Enable Queue Static Allocation"
+    default n
+    help
+      This option will support users to create a queue with static memory.
+
+endif # BASE_IPC_QUEUE
+
+menuconfig BASE_IPC_RWSEM
+    bool "Enable Rwsem"
+    default n
+    help
+      Enable read-write semaphore module. When disabled, all LOS_Rwsem* APIs are unavailable
+      and los_rwsem.c is not compiled into the image.
+
+if BASE_IPC_RWSEM
+
+config BASE_IPC_RWSEM_LIMIT
+    int "Max Rwsem Number"
+    default 6
+    help
+      This represents the maximum number of read-write semaphores.
+
+endif # BASE_IPC_RWSEM
+
+endmenu
+
+menu "Debug"
+    config DEBUG_KERNEL
+        bool "Enable Debug Kernel"
+        default n
+        help
+          Answer Y to enable kernel debug.
+
+    config DEBUG_TASK
+        bool "Enable Task Debugging"
+        default n
+        depends on DEBUG_KERNEL
+        help
+          Answer Y to enable debug task.
+
+    config DEBUG_MUTEX
+        bool "Enable Mutex Debugging"
+        default n
+        depends on DEBUG_KERNEL
+        depends on BASE_IPC_MUX
+        help
+          Answer Y to enable mutex leak detection and creator tracking.
+
+    config DEBUG_SEMAPHORE
+        bool "Enable Semaphore Debugging"
+        default n
+        depends on DEBUG_KERNEL
+        depends on BASE_IPC_SEM
+        help
+          Answer Y to enable semaphore leak detection and creator tracking.
+
+    config DEBUG_QUEUE
+        bool "Enable Queue Debugging"
+        default n
+        depends on DEBUG_KERNEL
+        depends on BASE_IPC_QUEUE
+        help
+          Answer Y to enable queue leak detection and creator tracking.
+endmenu
+
+endmenu

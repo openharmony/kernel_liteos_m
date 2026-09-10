@@ -1,0 +1,1001 @@
+/*
+ * Copyright (c) 2022-2023 Huawei Device Co., Ltd. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ *    conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ *    of conditions and the following disclaimer in the documentation and/or other materials
+ *    provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its contributors may be used
+ *    to endorse or promote products derived from this software without specific prior written
+ *    permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#define _GNU_SOURCE
+#include <time.h>
+#include <sys/time.h>
+#include <stdint.h>
+#include <errno.h>
+#include <signal.h>
+#include <unistd.h>
+#include "time_internal.h"
+#include "los_debug.h"
+#include "los_task.h"
+#include "los_swtmr_pri.h"
+#include "los_tick.h"
+#include "los_context.h"
+#include "los_interrupt.h"
+#include "sys/times.h"
+#include "rtc_time_hook.h"
+#include "libc_lock.h"
+#include "tzdst_pri.h"
+#include "time64.h"
+#include <limits.h>
+
+/* musl porting limits.h defines DELAYTIMER_MAX as 32, keep the
+ * original morpheus value */
+#ifdef DELAYTIMER_MAX
+#undef DELAYTIMER_MAX
+#endif
+
+/* musl internal helpers, compiled in third_party/musl porting */
+extern long long __tm_to_secs(const struct tm *tm);
+extern int __secs_to_tm(long long t, struct tm *tm);
+
+int settimeofday(const struct timeval *tv, const struct timezone *tz);
+
+
+#define DELAYTIMER_MAX 0x7FFFFFFFF
+
+/* accumulative time delta from discontinuous modify */
+STATIC struct timespec g_accDeltaFromSet;
+
+STATIC const UINT16 g_daysInMonth[2][13] = {
+    /* Normal years.  */
+    { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
+    /* Leap years.  */
+    { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
+};
+
+#if (LOSCFG_LIBC_NEWLIB == 1)
+#define TIMEZONE _timezone
+#else
+#define TIMEZONE timezone
+/*
+ * Time zone information, stored in seconds,
+ * negative values indicate the east of UTC,
+ * positive values indicate the west of UTC.
+ * The variable `timezone' is defined in tzdst.c (synced from fbb).
+ */
+#endif
+
+/*
+ * store register rtc func
+ */
+STATIC struct RtcTimeHook g_rtcTimeFunc;
+
+STATIC UINT64 g_rtcTimeBase = 0;
+STATIC UINT64 g_systickBase = 0;
+
+VOID LOS_RtcHookRegister(struct RtcTimeHook *cfg)
+{
+    if (cfg == NULL) {
+        return;
+    }
+    g_rtcTimeFunc.RtcGetTickHook = cfg->RtcGetTickHook;
+    g_rtcTimeFunc.RtcGetTimeHook = cfg->RtcGetTimeHook;
+    g_rtcTimeFunc.RtcSetTimeHook = cfg->RtcSetTimeHook;
+    g_rtcTimeFunc.RtcGetTimezoneHook = cfg->RtcGetTimezoneHook;
+    g_rtcTimeFunc.RtcSetTimezoneHook = cfg->RtcSetTimezoneHook;
+}
+
+int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
+{
+    UINT64 nseconds;
+    UINT64 tick;
+    UINT32 ret;
+    const UINT32 nsPerTick = OS_SYS_NS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND;
+
+    if (!ValidTimeSpec(rqtp)) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    nseconds = (UINT64)rqtp->tv_sec * OS_SYS_NS_PER_SECOND + rqtp->tv_nsec;
+
+    tick = (nseconds + nsPerTick - 1) / nsPerTick; // Round up for ticks
+
+    if (tick >= UINT32_MAX) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    /* PS: skip the first tick because it is NOT a full tick. */
+    ret = LOS_TaskDelay(tick ? (UINT32)(tick + 1) : 0);
+    if (ret == LOS_OK || ret == LOS_ERRNO_TSK_YIELD_NOT_ENOUGH_TASK) {
+        if (rmtp) {
+            rmtp->tv_sec = rmtp->tv_nsec = 0;
+        }
+        return 0;
+    }
+
+    /* sleep in interrupt context or in task sched lock state */
+    errno = EINTR;
+    return -1;
+}
+
+int timer_create(clockid_t clockID, struct sigevent *restrict evp, timer_t *restrict timerID)
+{
+    UINT32 ret;
+    UINT32 swtmrID;
+
+    if (!timerID || (clockID != CLOCK_REALTIME) || !evp) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if ((evp->sigev_notify != SIGEV_THREAD) || evp->sigev_notify_attributes) {
+        errno = ENOTSUP;
+        return -1;
+    }
+
+    ret = LOS_SwtmrCreate(1, LOS_SWTMR_MODE_ONCE, (SWTMR_PROC_FUNC)evp->sigev_notify_function,
+                          &swtmrID, (UINT32)(UINTPTR)evp->sigev_value.sival_ptr
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
+                          , OS_SWTMR_ROUSES_IGNORE, OS_SWTMR_ALIGN_INSENSITIVE
+#endif
+    );
+    if (ret != LOS_OK) {
+        errno = (ret == LOS_ERRNO_SWTMR_MAXSIZE) ? EAGAIN : EINVAL;
+        return -1;
+    }
+
+    *timerID = (timer_t)(UINTPTR)swtmrID;
+    return 0;
+}
+
+int timer_delete(timer_t timerID)
+{
+    UINT32 swtmrID = (UINT32)(UINTPTR)timerID;
+    if (LOS_SwtmrDelete(swtmrID) != LOS_OK) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    return 0;
+}
+
+int timer_settime(timer_t timerID, int flags,
+                  const struct itimerspec *restrict value,
+                  struct itimerspec *restrict oldValue)
+{
+    UINT32 intSave;
+    UINT32 swtmrID = (UINT32)(UINTPTR)timerID;
+    SWTMR_CTRL_S *swtmr = NULL;
+    UINT32 interval, expiry, ret;
+
+    if (flags != 0) {
+        /* flags not supported currently */
+        errno = ENOTSUP;
+        return -1;
+    }
+
+    if (value == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (!ValidTimeSpec(&value->it_value) || !ValidTimeSpec(&value->it_interval)) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    expiry = OsTimeSpec2Tick(&value->it_value);
+    interval = OsTimeSpec2Tick(&value->it_interval);
+
+    /* if specified interval, it must be same with expiry due to the limitation of liteos-m */
+    if (interval && interval != expiry) {
+        errno = ENOTSUP;
+        return -1;
+    }
+
+    if (oldValue) {
+        (VOID)timer_gettime(timerID, oldValue);
+    }
+
+    ret = LOS_SwtmrStop(swtmrID);
+    if ((ret != LOS_OK) && (ret != LOS_ERRNO_SWTMR_NOT_STARTED)) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    intSave = LOS_IntLock();
+    swtmr = OS_SWT_FROM_SID(swtmrID);
+    swtmr->ucMode = (interval ? LOS_SWTMR_MODE_PERIOD : LOS_SWTMR_MODE_NO_SELFDELETE);
+    swtmr->uwInterval = (interval ? interval : expiry);
+
+    swtmr->ucOverrun = 0;
+    LOS_IntRestore(intSave);
+
+    if ((value->it_value.tv_sec == 0) && (value->it_value.tv_nsec == 0)) {
+        /*
+         * 1) when expiry is 0, means timer should be stopped.
+         * 2) If timer is ticking, stopping timer is already done before.
+         * 3) If timer is created but not ticking, return 0 as well.
+         */
+        return 0;
+    }
+
+    if (LOS_SwtmrStart(swtmr->usTimerID) != LOS_OK) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    return 0;
+}
+
+int timer_gettime(timer_t timerID, struct itimerspec *value)
+{
+    UINT32 tick = 0;
+    SWTMR_CTRL_S *swtmr = NULL;
+    UINT32 swtmrID = (UINT32)(UINTPTR)timerID;
+    UINT32 ret;
+
+    if (value == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    swtmr = OS_SWT_FROM_SID(swtmrID);
+
+    /* get expire time */
+    ret = LOS_SwtmrTimeGet(swtmr->usTimerID, &tick);
+    if ((ret != LOS_OK) && (ret != LOS_ERRNO_SWTMR_NOT_STARTED)) {
+        errno = EINVAL;
+        return -1;
+    }
+    if (ret == LOS_ERRNO_SWTMR_NOT_STARTED) {
+        tick = 0;
+    }
+    OsTick2TimeSpec(&value->it_value, tick);
+    OsTick2TimeSpec(&value->it_interval, (swtmr->ucMode == LOS_SWTMR_MODE_ONCE) ? 0 : swtmr->uwInterval);
+    return 0;
+}
+
+int timer_getoverrun(timer_t timerID)
+{
+    SWTMR_CTRL_S *swtmr = NULL;
+    swtmr = OS_SWT_FROM_SID((UINT32)(UINTPTR)timerID);
+
+    if ((swtmr->ucOverrun) >= (UINT8)DELAYTIMER_MAX) {
+        return (INT32)DELAYTIMER_MAX;
+    }
+    return (int)swtmr->ucOverrun;
+}
+
+STATIC VOID OsGetHwTime(struct timespec *hwTime)
+{
+    UINT64 cycle = LOS_SysCycleGet();
+    UINT64 nowNsec = (cycle / g_sysClock) * OS_SYS_NS_PER_SECOND +
+                     (cycle % g_sysClock) * OS_SYS_NS_PER_SECOND / g_sysClock;
+
+    hwTime->tv_sec = nowNsec / OS_SYS_NS_PER_SECOND;
+    hwTime->tv_nsec = nowNsec % OS_SYS_NS_PER_SECOND;
+}
+
+STATIC VOID OsGetRealTime(struct timespec *realTime)
+{
+    UINT32 intSave;
+    struct timespec hwTime = {0};
+    OsGetHwTime(&hwTime);
+    intSave = LOS_IntLock();
+    realTime->tv_nsec = hwTime.tv_nsec + g_accDeltaFromSet.tv_nsec;
+    realTime->tv_sec = hwTime.tv_sec + g_accDeltaFromSet.tv_sec + (realTime->tv_nsec >= OS_SYS_NS_PER_SECOND);
+    realTime->tv_nsec %= OS_SYS_NS_PER_SECOND;
+    LOS_IntRestore(intSave);
+}
+
+STATIC VOID OsSetRealTime(const struct timespec *realTime)
+{
+    UINT32 intSave;
+    struct timespec hwTime = {0};
+    OsGetHwTime(&hwTime);
+    intSave = LOS_IntLock();
+    g_accDeltaFromSet.tv_nsec = realTime->tv_nsec - hwTime.tv_nsec;
+    g_accDeltaFromSet.tv_sec = realTime->tv_sec - hwTime.tv_sec - (g_accDeltaFromSet.tv_nsec < 0);
+    g_accDeltaFromSet.tv_nsec = (g_accDeltaFromSet.tv_nsec + OS_SYS_NS_PER_SECOND) % OS_SYS_NS_PER_SECOND;
+    LOS_IntRestore(intSave);
+}
+
+int clock_settime(clockid_t clockID, const struct timespec *tp)
+{
+    if (!ValidTimeSpec(tp)) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    switch (clockID) {
+        case CLOCK_REALTIME:
+            /* we only support the realtime clock currently */
+            OsSetRealTime(tp);
+            return 0;
+        case CLOCK_MONOTONIC_COARSE:
+        case CLOCK_REALTIME_COARSE:
+        case CLOCK_MONOTONIC_RAW:
+        case CLOCK_PROCESS_CPUTIME_ID:
+        case CLOCK_BOOTTIME:
+#ifdef CLOCK_REALTIME_ALARM
+        case CLOCK_REALTIME_ALARM:
+#endif
+#ifdef CLOCK_BOOTTIME_ALARM
+        case CLOCK_BOOTTIME_ALARM:
+#endif
+#ifdef CLOCK_SGI_CYCLE
+        case CLOCK_SGI_CYCLE:
+#endif
+#ifdef CLOCK_TAI
+        case CLOCK_TAI:
+#endif
+        case CLOCK_THREAD_CPUTIME_ID:
+            errno = ENOTSUP;
+            return -1;
+        case CLOCK_MONOTONIC:
+        default:
+            errno = EINVAL;
+            return -1;
+    }
+}
+
+int clock_gettime(clockid_t clockID, struct timespec *tp)
+{
+    if (tp == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    switch (clockID) {
+        case CLOCK_MONOTONIC_RAW:
+        case CLOCK_MONOTONIC:
+        case CLOCK_MONOTONIC_COARSE:
+            OsGetHwTime(tp);
+            return 0;
+        case CLOCK_REALTIME:
+        case CLOCK_REALTIME_COARSE:
+            OsGetRealTime(tp);
+            return 0;
+        case CLOCK_THREAD_CPUTIME_ID:
+        case CLOCK_PROCESS_CPUTIME_ID:
+        case CLOCK_BOOTTIME:
+#ifdef CLOCK_REALTIME_ALARM
+        case CLOCK_REALTIME_ALARM:
+#endif
+#ifdef CLOCK_BOOTTIME_ALARM
+        case CLOCK_BOOTTIME_ALARM:
+#endif
+#ifdef CLOCK_SGI_CYCLE
+        case CLOCK_SGI_CYCLE:
+#endif
+#ifdef CLOCK_TAI
+        case CLOCK_TAI:
+#endif
+            errno = ENOTSUP;
+            return -1;
+        default:
+            errno = EINVAL;
+            return -1;
+    }
+}
+
+int clock_getres(clockid_t clockID, struct timespec *tp)
+{
+    if (tp == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    switch (clockID) {
+        case CLOCK_MONOTONIC_RAW:
+        case CLOCK_MONOTONIC:
+        case CLOCK_REALTIME:
+        case CLOCK_MONOTONIC_COARSE:
+        case CLOCK_REALTIME_COARSE:
+            tp->tv_nsec = OS_SYS_NS_PER_SECOND / g_sysClock;
+            tp->tv_sec = 0;
+            return 0;
+        case CLOCK_THREAD_CPUTIME_ID:
+        case CLOCK_PROCESS_CPUTIME_ID:
+        case CLOCK_BOOTTIME:
+#ifdef CLOCK_REALTIME_ALARM
+        case CLOCK_REALTIME_ALARM:
+#endif
+#ifdef CLOCK_BOOTTIME_ALARM
+        case CLOCK_BOOTTIME_ALARM:
+#endif
+#ifdef CLOCK_SGI_CYCLE
+        case CLOCK_SGI_CYCLE:
+#endif
+#ifdef CLOCK_TAI
+        case CLOCK_TAI:
+#endif
+            errno = ENOTSUP;
+            return -1;
+        default:
+            errno = EINVAL;
+            return -1;
+    }
+}
+
+int clock_nanosleep(clockid_t clk, int flags, const struct timespec *req, struct timespec *rem)
+{
+    switch (clk) {
+        case CLOCK_REALTIME:
+            if (flags == 0) {
+                /* we only support the realtime clock currently */
+                return nanosleep(req, rem);
+            }
+            /* fallthrough */
+        case CLOCK_MONOTONIC_COARSE:
+        case CLOCK_REALTIME_COARSE:
+        case CLOCK_MONOTONIC_RAW:
+        case CLOCK_MONOTONIC:
+        case CLOCK_PROCESS_CPUTIME_ID:
+        case CLOCK_BOOTTIME:
+#ifdef CLOCK_REALTIME_ALARM
+        case CLOCK_REALTIME_ALARM:
+#endif
+#ifdef CLOCK_BOOTTIME_ALARM
+        case CLOCK_BOOTTIME_ALARM:
+#endif
+#ifdef CLOCK_SGI_CYCLE
+        case CLOCK_SGI_CYCLE:
+#endif
+#ifdef CLOCK_TAI
+        case CLOCK_TAI:
+#endif
+            if (flags == 0 || flags == TIMER_ABSTIME) {
+                return ENOTSUP;
+            }
+            /* fallthrough */
+        case CLOCK_THREAD_CPUTIME_ID:
+        default:
+            return EINVAL;
+    }
+}
+
+clock_t clock(void)
+{
+    if (g_rtcTimeFunc.RtcGetTickHook != NULL) {
+        return g_rtcTimeFunc.RtcGetTickHook();
+    }
+
+    clock_t clk;
+    struct timespec hwTime;
+    OsGetHwTime(&hwTime);
+
+    clk = hwTime.tv_sec * CLOCKS_PER_SEC;
+    clk += hwTime.tv_nsec  / (OS_SYS_NS_PER_SECOND / CLOCKS_PER_SEC);
+
+    return clk;
+}
+
+STATIC UINT64 GetCurrentTime(VOID)
+{
+    UINT64 tickDelta = 0;
+    UINT64 currentTick;
+
+    if (g_rtcTimeFunc.RtcGetTickHook != NULL) {
+        currentTick = g_rtcTimeFunc.RtcGetTickHook();
+        if ((g_systickBase != 0) && (currentTick > g_systickBase)) {
+            tickDelta = currentTick - g_systickBase;
+        }
+    }
+    return g_rtcTimeBase + LOS_Tick2MS((UINT32)tickDelta);
+}
+
+time_t time(time_t *timer)
+{
+    UINT64 usec = 0;
+    time_t sec;
+    INT32 rtcRet;
+
+    if (g_rtcTimeFunc.RtcGetTimeHook != NULL) {
+        rtcRet = g_rtcTimeFunc.RtcGetTimeHook(&usec);
+        if (rtcRet != 0) {
+            UINT64 currentTime;
+            currentTime = GetCurrentTime();
+            sec = currentTime / OS_SYS_MS_PER_SECOND;
+        } else {
+            sec = usec / OS_SYS_US_PER_SECOND;
+        }
+        if (timer != NULL) {
+            *timer = sec;
+        }
+        return sec;
+    } else {
+        struct timespec ts;
+        if (-1 == clock_gettime(CLOCK_REALTIME, &ts)) {
+            return (time_t)-1;
+        }
+
+        if (timer != NULL) {
+            *timer = ts.tv_sec;
+        }
+        return ts.tv_sec;
+    }
+}
+
+/*
+ * Compute the `struct tm' representation of T,
+ * offset OFFSET seconds east of UTC,
+ * and store year, yday, mon, mday, wday, hour, min, sec into *TP.
+ * Return nonzero if successful.
+ */
+static INT32 ConvertSecs2Utc(time_t t, INT32 offset, struct tm *tp)
+{
+    time_t days;
+    time_t rem;
+    time_t year;
+    time_t month;
+    time_t yearGuess;
+
+    days = t / SECS_PER_DAY;
+    rem = t % SECS_PER_DAY;
+    rem += offset;
+    while (rem < 0) {
+        rem += SECS_PER_DAY;
+        --days;
+    }
+    while (rem >= SECS_PER_DAY) {
+        rem -= SECS_PER_DAY;
+        ++days;
+    }
+    tp->tm_hour = rem / SECS_PER_HOUR;
+    rem %= SECS_PER_HOUR;
+    tp->tm_min = rem / SECS_PER_MIN;
+    tp->tm_sec = rem % SECS_PER_MIN;
+    /* January 1, 1970 was a Thursday.  */
+    tp->tm_wday = (BEGIN_WEEKDAY + days) % DAYS_PER_WEEK;
+    if (tp->tm_wday < 0) {
+        tp->tm_wday += DAYS_PER_WEEK;
+    }
+    year = EPOCH_YEAR;
+
+    while ((days < 0) ||
+           (days >= (IS_LEAP_YEAR (year) ? DAYS_PER_LEAP_YEAR : DAYS_PER_NORMAL_YEAR))) {
+        /* Guess a corrected year, assuming 365 days per year.  */
+        yearGuess = year + days / DAYS_PER_NORMAL_YEAR - (days % DAYS_PER_NORMAL_YEAR < 0);
+
+        /* Adjust days and year to match the guessed year.  */
+        days -= ((yearGuess - year) * DAYS_PER_NORMAL_YEAR +
+                 LEAPS_THRU_END_OF (yearGuess - 1) -
+                 LEAPS_THRU_END_OF (year - 1));
+        year = yearGuess;
+    }
+    tp->tm_year = year - TM_YEAR_BASE;
+    if (tp->tm_year != year - TM_YEAR_BASE) {
+        return 0;
+    }
+    tp->tm_yday = days;
+    const UINT16 *daysInMonth = g_daysInMonth[IS_LEAP_YEAR(year)];
+    /* valid month value is 0-11 */
+    for (month = 11; days < (long int) daysInMonth[month]; --month) {
+        continue;
+    }
+    days -= daysInMonth[month];
+    tp->tm_mon = month;
+    tp->tm_mday = days + 1;
+    tp->__tm_gmtoff = offset;
+    tp->__tm_zone = NULL;
+    tp->tm_isdst = 0;
+    return 1;
+}
+
+struct tm *gmtime_r(const time_t *timep, struct tm *result)
+{
+    if ((timep == NULL) || (result == NULL)) {
+        errno = EFAULT;
+        return NULL;
+    }
+    if (!ConvertSecs2Utc(*timep, 0, result)) {
+        errno = EINVAL;
+        return NULL;
+    }
+    return result;
+}
+
+struct tm *gmtime(const time_t *timer)
+{
+    static struct tm tm;
+    return gmtime_r(timer, &tm);
+}
+
+/* timezone seconds west of UTC currently in effect (RTC hook wins over the
+ * global `timezone' variable, keep the morpheus liteos_m behavior) */
+time_t OsEffectiveTimezone(VOID)
+{
+    if (g_rtcTimeFunc.RtcGetTimezoneHook != NULL) {
+        INT32 tempTimezone = 0;
+        g_rtcTimeFunc.RtcGetTimezoneHook(&tempTimezone);
+        return (time_t)tempTimezone;
+    }
+    return (time_t)TIMEZONE;
+}
+
+#if (LOSCFG_LIBC_MUSL == 1)
+struct tm *localtime_r(const time_t *timep, struct tm *result)
+{
+    long long timeoff;
+    time_t tzoff;
+    INT32 dstsec = 0;
+
+    if ((timep == NULL) || (result == NULL)) {
+        errno = EFAULT;
+        return NULL;
+    }
+
+    (void)LIBC_LOCK(g_tzdstLock);
+    tzoff = OsEffectiveTimezone();
+    if (CheckWithinDstPeriod(NULL, *timep) == TRUE) {
+        dstsec = DstForwardSecondGet();
+    }
+    /* morpheus `timezone' is POSIX west-positive: local = utc - timezone */
+    timeoff = (long long)*timep - (long long)tzoff + dstsec;
+    (void)LIBC_UNLOCK(g_tzdstLock);
+
+    /* Reject time_t values whose year would overflow int because
+     * __secs_to_zone cannot safely handle them. (synced from fbb) */
+    if ((timeoff < INT_MIN * TZ_MAX_SEC_PER_YEAR) || (timeoff > INT_MAX * TZ_MAX_SEC_PER_YEAR)) {
+        errno = EOVERFLOW;
+        return NULL;
+    }
+
+    if (__secs_to_tm(timeoff, result) < 0) {
+        errno = EOVERFLOW;
+        return NULL;
+    }
+    result->__tm_gmtoff = (long)(-(INT64)tzoff + dstsec);
+    result->__tm_zone = NULL;
+    result->tm_isdst = (dstsec != 0) ? 1 : 0;
+    return result;
+}
+#else /* LOSCFG_LIBC_NEWLIB: legacy implementation, no DST support */
+struct tm *localtime_r(const time_t *timep, struct tm *result)
+{
+    INT32 ret;
+
+    if ((timep == NULL) || (result == NULL)) {
+        errno = EFAULT;
+        return NULL;
+    }
+
+    if (g_rtcTimeFunc.RtcGetTimezoneHook != NULL) {
+        INT32 tempTimezone = 0;
+        g_rtcTimeFunc.RtcGetTimezoneHook(&tempTimezone);
+        ret = ConvertSecs2Utc(*timep, -tempTimezone, result);
+    } else {
+        ret = ConvertSecs2Utc(*timep, -TIMEZONE, result);
+    }
+
+    if (!ret) {
+        errno = EINVAL;
+        return NULL;
+    }
+    return result;
+}
+#endif
+
+struct tm *localtime(const time_t *timer)
+{
+    static struct tm tm;
+    return localtime_r(timer, &tm);
+}
+
+int setlocalseconds(int seconds)
+{
+    struct timeval tv = {0};
+
+    tv.tv_sec = seconds;
+    tv.tv_usec = 0;
+
+    return settimeofday(&tv, NULL);
+}
+
+#ifndef __LP64__
+int gettimeofday64(struct timeval64 *tv, struct timezone *tz)
+{
+    struct timespec ts = {0};
+
+    (VOID)tz;
+    if (tv == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (clock_gettime(CLOCK_REALTIME, &ts) != 0) {
+        return -1;
+    }
+    tv->tv_sec = (int64_t)ts.tv_sec;
+    tv->tv_usec = (int64_t)ts.tv_nsec / OS_SYS_NS_PER_US;
+    return 0;
+}
+
+int settimeofday64(const struct timeval64 *tv, const struct timezone *tz)
+{
+    struct timeval tv32 = {0};
+
+    (VOID)tz;
+    if ((tv == NULL) || (tv->tv_usec < 0) || (tv->tv_usec >= OS_SYS_US_PER_SECOND) ||
+        (tv->tv_sec < 0) || (tv->tv_sec > INT32_MAX)) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    /* the 32-bit kernel time base cannot hold values beyond time_t */
+    tv32.tv_sec = (time_t)tv->tv_sec;
+    tv32.tv_usec = (suseconds_t)tv->tv_usec;
+    return settimeofday(&tv32, NULL);
+}
+#endif
+
+#if (LOSCFG_LIBC_MUSL == 1)
+time_t mktime(struct tm *tmptr)
+{
+    long long t;
+    time_t timeInSeconds;
+    time_t tzoff;
+    INT32 dstsec = 0;
+
+    if (tmptr == NULL) {
+        errno = EFAULT;
+        return (time_t)-1;
+    }
+
+    t = __tm_to_secs(tmptr);
+    (void)LIBC_LOCK(g_tzdstLock);
+    tzoff = OsEffectiveTimezone();
+    if (tmptr->tm_isdst != 0) {
+        if (CheckWithinDstPeriod(tmptr, 0) == TRUE) {
+            dstsec = DstForwardSecondGet();
+        }
+        tmptr->tm_isdst = 0;
+    }
+    /* morpheus `timezone' is POSIX west-positive: utc = local - timezone */
+    t = t + (long long)tzoff - dstsec;
+    (void)LIBC_UNLOCK(g_tzdstLock);
+
+    if ((time_t)t != t) {
+        errno = EOVERFLOW;
+        return (time_t)-1;
+    }
+    timeInSeconds = (time_t)t;
+
+    /* normalize tm_wday and tm_yday (morpheus extension, keep POSIX behavior) */
+    (VOID)ConvertSecs2Utc(timeInSeconds, -tzoff, tmptr);
+
+    return timeInSeconds;
+}
+#else /* LOSCFG_LIBC_NEWLIB: legacy implementation, no DST support */
+STATIC const UINT8 g_montbl[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+static time_t ConvertUtc2Secs(struct tm *tm)
+{
+    time_t seconds = 0;
+    INT32 month = 0;
+    UINT8 leap = 0;
+
+    INT32 year = (EPOCH_YEAR - TM_YEAR_BASE);
+    while (year < tm->tm_year) {
+        seconds += SECS_PER_NORMAL_YEAR;
+        if (IS_LEAP_YEAR(year + TM_YEAR_BASE)) {
+            seconds += SECS_PER_DAY;
+        }
+        year++;
+    }
+
+    if (IS_LEAP_YEAR(tm->tm_year + TM_YEAR_BASE)) {
+        leap = 1;
+    }
+    while (month < tm->tm_mon) {
+        if ((month == 1) && leap) {
+            seconds += (g_montbl[month] + 1) * SECS_PER_DAY;
+        } else {
+            seconds += g_montbl[month] * SECS_PER_DAY;
+        }
+        month++;
+    }
+
+    seconds += (tm->tm_mday - 1) * SECS_PER_DAY;
+    seconds += tm->tm_hour * SECS_PER_HOUR + tm->tm_min * SECS_PER_MIN + tm->tm_sec;
+
+    if (g_rtcTimeFunc.RtcGetTimezoneHook != NULL) {
+        INT32 tempTimezone = 0;
+        g_rtcTimeFunc.RtcGetTimezoneHook(&tempTimezone);
+        seconds += tempTimezone;
+    } else {
+        seconds += TIMEZONE;
+    }
+
+    return seconds;
+}
+
+time_t mktime(struct tm *tmptr)
+{
+    time_t timeInSeconds;
+    if (tmptr == NULL) {
+        errno = EFAULT;
+        return (time_t)-1;
+    }
+
+    /* tm_isdst is not supported and is ignored */
+    if (tmptr->tm_year < (EPOCH_YEAR - TM_YEAR_BASE) ||
+            tmptr->__tm_gmtoff > (-TIME_ZONE_MIN * SECS_PER_MIN) ||
+            tmptr->__tm_gmtoff < (-TIME_ZONE_MAX * SECS_PER_MIN) ||
+            tmptr->tm_sec > 60 || tmptr->tm_sec < 0 ||      /* Seconds [0-60] */
+            tmptr->tm_min > 59 || tmptr->tm_min < 0 ||      /* Minutes [0-59] */
+            tmptr->tm_hour > 23 || tmptr->tm_hour < 0 ||    /* Hours [0-23] */
+            tmptr->tm_mday > 31 || tmptr->tm_mday < 1 ||    /* Day of the month [1-31] */
+            tmptr->tm_mon > 11 || tmptr->tm_mon < 0) {      /* Month [0-11] */
+        errno = EOVERFLOW;
+        return (time_t)-1;
+    }
+    timeInSeconds = ConvertUtc2Secs(tmptr);
+    /* normalize tm_wday and tm_yday */
+    if (g_rtcTimeFunc.RtcGetTimezoneHook != NULL) {
+        INT32 tempTimezone = 0;
+        g_rtcTimeFunc.RtcGetTimezoneHook(&tempTimezone);
+        ConvertSecs2Utc(timeInSeconds, -tempTimezone, tmptr);
+    } else {
+        ConvertSecs2Utc(timeInSeconds, -TIMEZONE, tmptr);
+    }
+
+    return timeInSeconds;
+}
+#endif
+
+int gettimeofday(struct timeval *tv, void *ptz)
+{
+    struct timezone *tz = (struct timezone *)ptz;
+
+    if (tv != NULL) {
+        UINT64 usec = 0;
+
+        if ((g_rtcTimeFunc.RtcGetTimeHook != NULL) && (g_rtcTimeFunc.RtcGetTimeHook(&usec) == 0)) {
+            tv->tv_sec = usec / OS_SYS_US_PER_SECOND;
+            tv->tv_usec = usec % OS_SYS_US_PER_SECOND;
+        } else {
+            struct timespec ts;
+            if (-1 == clock_gettime(CLOCK_REALTIME, &ts)) {
+                return -1;
+            }
+            tv->tv_sec = ts.tv_sec;
+            tv->tv_usec = ts.tv_nsec / OS_SYS_NS_PER_US;
+        }
+    }
+
+    if (tz != NULL) {
+        if (g_rtcTimeFunc.RtcGetTimezoneHook != NULL) {
+            INT32 tempTimezone = 0;
+            g_rtcTimeFunc.RtcGetTimezoneHook(&tempTimezone);
+            tz->tz_minuteswest = tempTimezone / SECS_PER_MIN;
+        } else {
+            tz->tz_minuteswest = TIMEZONE / SECS_PER_MIN;
+        }
+
+        tz->tz_dsttime = 0;
+    }
+    return 0;
+}
+#if (LOSCFG_LIBC_NEWLIB == 1)
+FUNC_ALIAS(gettimeofday, _gettimeofday, (struct timeval *tv, void *ptz), int);
+#endif
+
+int settimeofday(const struct timeval *tv, const struct timezone *tz)
+{
+    struct timespec ts;
+
+    if ((tv == NULL) && (tz == NULL)) {
+        errno = EFAULT;
+        return -1;
+    }
+
+    if ((tv != NULL) && (tv->tv_usec >= OS_SYS_US_PER_SECOND)) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if (tz != NULL) {
+        if ((tz->tz_minuteswest >= TIME_ZONE_MIN) &&
+            (tz->tz_minuteswest <= TIME_ZONE_MAX)) {
+#if (LOSCFG_LIBC_MUSL == 1)
+            if (LIBC_LOCK(g_tzdstLock) != 0) {
+                errno = EAGAIN;
+                return -1;
+            }
+            TIMEZONE = tz->tz_minuteswest * SECS_PER_MIN;
+            (void)LIBC_UNLOCK(g_tzdstLock);
+#else
+            TIMEZONE = tz->tz_minuteswest * SECS_PER_MIN;
+#endif
+        } else {
+            errno = EINVAL;
+            return -1;
+        }
+
+        if (g_rtcTimeFunc.RtcSetTimezoneHook != NULL) {
+            g_rtcTimeFunc.RtcSetTimezoneHook(TIMEZONE);
+        }
+    }
+
+    if (tv != NULL) {
+        if (g_rtcTimeFunc.RtcSetTimeHook != NULL) {
+            UINT64 usec;
+            g_rtcTimeBase = tv->tv_sec * OS_SYS_MS_PER_SECOND + tv->tv_usec / OS_SYS_MS_PER_SECOND;
+            usec = tv->tv_sec * OS_SYS_US_PER_SECOND + tv->tv_usec;
+            if (g_rtcTimeFunc.RtcSetTimeHook(g_rtcTimeBase, &usec) < 0) {
+                return -1;
+            }
+        } else {
+            ts.tv_sec = tv->tv_sec;
+            ts.tv_nsec = tv->tv_usec * OS_SYS_NS_PER_US;
+            if (clock_settime(CLOCK_REALTIME, &ts) < 0) {
+                return -1;
+            }
+        }
+    }
+
+    if (g_rtcTimeFunc.RtcGetTickHook != NULL) {
+        g_systickBase = g_rtcTimeFunc.RtcGetTickHook();
+    }
+
+    return 0;
+}
+
+int usleep(useconds_t useconds)
+{
+    struct timespec specTime = { 0 };
+    UINT64 nanoseconds = (UINT64)useconds * OS_SYS_NS_PER_US;
+
+    specTime.tv_sec = (time_t)(nanoseconds / OS_SYS_NS_PER_SECOND);
+    specTime.tv_nsec = (long)(nanoseconds % OS_SYS_NS_PER_SECOND);
+    return nanosleep(&specTime, NULL);
+}
+
+unsigned sleep(unsigned seconds)
+{
+    struct timespec specTime = { 0 };
+    UINT64 nanoseconds = (UINT64)seconds * OS_SYS_NS_PER_SECOND;
+
+    specTime.tv_sec = (time_t)(nanoseconds / OS_SYS_NS_PER_SECOND);
+    specTime.tv_nsec = (long)(nanoseconds % OS_SYS_NS_PER_SECOND);
+    return nanosleep(&specTime, NULL);
+}
+
+clock_t times(struct tms *tms)
+{
+    clock_t clockTick = (clock_t)LOS_TickCountGet();
+
+    if (tms != NULL) {
+        tms->tms_cstime = clockTick;
+        tms->tms_cutime = clockTick;
+        tms->tms_stime  = clockTick;
+        tms->tms_utime  = clockTick;
+    }
+    return clockTick;
+}

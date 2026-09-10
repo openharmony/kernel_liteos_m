@@ -35,6 +35,22 @@
 #include "los_config.h"
 #include "los_compiler.h"
 
+struct LosTaskCB;
+typedef struct LosTaskCB LosTaskCB;
+
+extern LosTaskCB *g_runTask;
+extern LosTaskCB *g_oldTask;
+
+STATIC INLINE VOID *ArchCurrTaskGet(VOID)
+{
+    return (VOID *)g_runTask;
+}
+
+STATIC INLINE VOID ArchCurrTaskSet(VOID *val)
+{
+    g_runTask = (LosTaskCB *)val;
+}
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -101,6 +117,12 @@ typedef struct TagTskContext {
 #endif
 } TaskContext;
 
+/* Extract the frame pointer (uwR11, ARM EABI fp) from a suspended task's saved context. */
+STATIC INLINE UINTPTR ArchGetTaskFp(const VOID *stackPointer)
+{
+    return (UINTPTR)(((TaskContext *)stackPointer)->uwR11);
+}
+
 /**
  * @ingroup  los_config
  * @brief: Task start running function.
@@ -119,7 +141,7 @@ typedef struct TagTskContext {
  * <ul><li>los_config.h: the header file that contains the API declaration.</li></ul>
  * @see None.
  */
-extern VOID HalStartToRun(VOID);
+extern VOID ArchStartToRun(LosTaskCB *newTask);
 
 #if (LOSCFG_SECURE == 1)
 /**

@@ -39,6 +39,34 @@
 #define EXC_SIZE_ON_STACK  (36 * REGBYTES)
 #define INT_SIZE_ON_STACK  (32 * REGBYTES)
 
+/* ---- FPU support (enabled when LOSCFG_ARCH_FPU_DISABLE is not defined) ----
+ * The ws63 chip (rv32imfc) has the single-precision F extension. FPU register
+ * state (f0-f31 + fcsr) is saved/restored on top of the 32 integer slots in
+ * the task/interrupt stack frame so all existing integer-reg offsets stay
+ * unchanged.
+ * Stack layout (sp-relative, growing down):  slots 0..31 = integer regs,
+ * slots 32..51 = FPU caller regs (ft0-ft11, fa0-fa7),
+ * slots 52..63 = FPU callee regs (fs0-fs11),
+ * slots 64..67 = fcsr + 3 reserved.
+ */
+#ifndef LOSCFG_ARCH_FPU_DISABLE
+#define FPUREGBYTES             4
+#define FSREG                   fsw
+#define FLREG                   flw
+#define FPU_CALLER_REG_NUM      20  /* ft0-ft11, fa0-fa7 */
+#define FPU_CALLEE_REG_NUM      12  /* fs0-fs11 */
+#define FPU_STATUS_REG_NUM      4   /* fcsr, res[3] */
+#define FPU_CALLER_REG_SIZE     (FPU_CALLER_REG_NUM * FPUREGBYTES)
+#define FPU_CALLEE_REG_SIZE     (FPU_CALLEE_REG_NUM * FPUREGBYTES)
+#define FPU_EXTENSION_REG_SIZE  (FPU_CALLER_REG_SIZE + FPU_CALLEE_REG_SIZE)
+#define FPU_STATUS_REG_SIZE     (FPU_STATUS_REG_NUM * REGBYTES)
+#define FPU_SAVE_SIZE           (FPU_EXTENSION_REG_SIZE + FPU_STATUS_REG_SIZE)
+#define FCSR_STACK_OFFSET       (32 * REGBYTES + FPU_EXTENSION_REG_SIZE)
+#define RISCV_MSTATUS_FS        0x00006000  /* FS=Dirty so FPU state is saved/restored */
+#else
+#define FPU_SAVE_SIZE           0
+#endif
+
 /* task TCB offset */
 #define TASK_CB_KERNEL_SP       0x0
 #define TASK_CB_STATUS          0x4

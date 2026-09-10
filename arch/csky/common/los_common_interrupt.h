@@ -52,7 +52,6 @@ typedef VOID (**HWI_VECTOR_FUNC)(VOID);
  * @ingroup los_arch_interrupt
  * Count of interrupts.
  */
-extern volatile UINT32 g_intCount;
 
 /* *
  * @ingroup los_arch_interrupt
@@ -73,14 +72,12 @@ typedef struct {
  * Set interrupt vector table.
  */
 extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector, VOID *arg);
-extern HWI_HANDLER_FUNC g_hwiHandlerForm[];
 #else
 /* *
  * @ingroup los_arch_interrupt
  * Set interrupt vector table.
  */
 extern VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector);
-extern HWI_PROC_FUNC g_hwiHandlerForm[];
 #endif
 
 #define OS_EXC_IN_INIT                      0
@@ -108,9 +105,8 @@ extern HWI_PROC_FUNC g_hwiHandlerForm[];
  */
 extern VOID HalHwiDefaultHandler(VOID);
 
-VOID HalPreInterruptHandler(UINT32 arg);
-VOID HalAftInterruptHandler(UINT32 arg);
 VOID *ArchGetHwiFrom(VOID);
+VOID *HalGetHandleForm(HWI_HANDLE_T hwiNum);
 
 #ifdef __cplusplus
 #if __cplusplus

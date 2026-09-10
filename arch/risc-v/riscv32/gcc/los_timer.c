@@ -44,6 +44,28 @@ STATIC UINT64 SysTickCycleGet(UINT32 *period);
 STATIC VOID SysTickLock(VOID);
 STATIC VOID SysTickUnlock(VOID);
 
+#ifdef LOSCFG_KERNEL_TICK_PERIODIC
+STATIC UINT32 g_tickPeriod = 0;
+
+STATIC VOID SysTickPeriodicHandler(VOID)
+{
+    UINT32 timerL, timerH;
+    UINT64 cmp;
+
+    READ_UINT32(timerL, MTIMERCMP);
+    READ_UINT32(timerH, MTIMERCMP + MTIMER_HI_OFFSET);
+    cmp = OS_COMBINED_64(timerH, timerL);
+    cmp += g_tickPeriod;
+    HalIrqDisable(RISCV_MACH_TIMER_IRQ);
+    WRITE_UINT32(0xffffffff, MTIMERCMP + MTIMER_HI_OFFSET);
+    WRITE_UINT32((UINT32)cmp, MTIMERCMP);
+    WRITE_UINT32((UINT32)(cmp >> SHIFT_32_BIT), MTIMERCMP + MTIMER_HI_OFFSET);
+    HalIrqEnable(RISCV_MACH_TIMER_IRQ);
+
+    OsTickHandler();
+}
+#endif
+
 STATIC ArchTickTimer g_archTickTimer = {
     .freq = 0,
     .irqNum = RISCV_MACH_TIMER_IRQ,
@@ -53,14 +75,24 @@ STATIC ArchTickTimer g_archTickTimer = {
     .reload = SysTickReload,
     .lock = SysTickLock,
     .unlock = SysTickUnlock,
+#ifdef LOSCFG_KERNEL_TICK_PERIODIC
+    .tickHandler = SysTickPeriodicHandler,
+#else
     .tickHandler = NULL,
+#endif
 };
 
 STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
 {
     ArchTickTimer *tick = &g_archTickTimer;
+    tick->freq = OS_SYS_CLOCK;
 
+#ifdef LOSCFG_KERNEL_TICK_PERIODIC
+    g_tickPeriod = tick->freq / LOSCFG_BASE_CORE_TICK_PER_SECOND;
+    UINT32 period = g_tickPeriod;
+#else
     UINT32 period = (UINT32)LOSCFG_BASE_CORE_TICK_RESPONSE_MAX;
+#endif
     HwiIrqParam irqParam;
     irqParam.pDevId = (VOID *)period;
 
@@ -68,8 +100,6 @@ STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
     if (ret != LOS_OK) {
         return ret;
     }
-
-    tick->freq = OS_SYS_CLOCK;
 
     WRITE_UINT32(0xffffffff, MTIMERCMP + 4); /* The high 4 bits of mtimer */
     WRITE_UINT32(period, MTIMERCMP);

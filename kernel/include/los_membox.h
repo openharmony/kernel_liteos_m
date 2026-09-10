@@ -46,30 +46,49 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+/**
+ * @ingroup los_membox
+ * Memory pool alignment
+ */
+#define LOS_MEMBOX_ALIGNED(memAddr) (((UINTPTR)(memAddr) + sizeof(UINTPTR) - 1) & (~(sizeof(UINTPTR) - 1)))
+
+#ifdef LOSCFG_KERNEL_MEMBOX_STATIC
+/**
+ * @ingroup los_membox
+ * Get next node in static memory pool
+ */
 #define OS_MEMBOX_NEXT(addr, blkSize) (LOS_MEMBOX_NODE *)(VOID *)((UINT8 *)(addr) + (blkSize))
 
 #define OS_MEMBOX_NODE_HEAD_SIZE sizeof(LOS_MEMBOX_NODE)
 
+#define LOS_MEMBOX_SIZE(blkSize, blkNum) \
+    (sizeof(LOS_MEMBOX_INFO) + (LOS_MEMBOX_ALIGNED((blkSize) + OS_MEMBOX_NODE_HEAD_SIZE) * (blkNum)))
+
 /**
  * @ingroup los_membox
- * Structure of a free node in a memory pool
+ * Structure of a free node in a static memory pool
  */
 typedef struct tagMEMBOX_NODE {
-    struct tagMEMBOX_NODE *pstNext; /**< Free node's pointer to the next node in a memory pool */
+    struct tagMEMBOX_NODE *pstNext; /**< Free node's pointer to the next node in a static memory pool. */
 } LOS_MEMBOX_NODE;
+#endif
 
 /**
  * @ingroup los_membox
  * Memory pool information structure
  */
 typedef struct LOS_MEMBOX_INFO {
-    UINT32 uwBlkSize;            /**< Block size */
-    UINT32 uwBlkNum;             /**< Block number */
-    UINT32 uwBlkCnt;             /**< The number of allocated blocks */
+    UINT32 uwBlkSize;           /**< The memory block size of the static memory pool */
+    UINT32 uwBlkNum;            /**< The total memory block number of the static memory pool */
+    UINT32 uwBlkCnt;            /**< The number of allocated memory blocks in the static memory pool */
 #if (LOSCFG_PLATFORM_EXC == 1)
     struct LOS_MEMBOX_INFO *nextMemBox; /**< Point to the next membox */
 #endif
-    LOS_MEMBOX_NODE stFreeList;  /**< Free list */
+#ifdef LOSCFG_KERNEL_MEMBOX_STATIC
+    LOS_MEMBOX_NODE stFreeList; /**< The list of free memory block node in the static memory pool. This
+                                     structure member is available only LOSCFG_KERNEL_MEMBOX_STATIC is
+                                     defined. */
+#endif
 } LOS_MEMBOX_INFO;
 
 typedef LOS_MEMBOX_INFO OS_MEMBOX_S;
@@ -78,18 +97,6 @@ typedef LOS_MEMBOX_INFO OS_MEMBOX_S;
 UINT32 OsMemboxExcInfoGet(UINT32 memNumMax, MemInfoCB *memExcInfo);
 #endif
 
-/**
- * @ingroup los_membox
- * Memory pool alignment
- */
-#define LOS_MEMBOX_ALIGNED(memAddr) (((UINTPTR)(memAddr) + sizeof(UINTPTR) - 1) & (~(sizeof(UINTPTR) - 1)))
-
-/**
- * @ingroup los_membox
- * Memory pool size
- */
-#define LOS_MEMBOX_SIZE(blkSize, blkNum) \
-    (sizeof(LOS_MEMBOX_INFO) + (LOS_MEMBOX_ALIGNED((blkSize) + OS_MEMBOX_NODE_HEAD_SIZE) * (blkNum)))
 
 /**
  * @ingroup los_membox

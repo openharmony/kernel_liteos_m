@@ -50,7 +50,7 @@ static UINT32 Testcase(VOID)
 
     g_testCount = 0;
 
-    ret = LOS_SwtmrCreate(1, LOS_SWTMR_MODE_ONCE, Case1, &swtmrId1, 0xffff
+    ret = LOS_SwtmrCreate(100, LOS_SWTMR_MODE_ONCE, Case1, &swtmrId1, 0xffff
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
         , OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_INSENSITIVE
 #endif

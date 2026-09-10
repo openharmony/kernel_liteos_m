@@ -62,9 +62,9 @@ typedef struct {
     unsigned int boxID;
 } UserTaskCB;
 
-VOID OsUserTaskInit(UINT32 taskID, UINTPTR entry, UINTPTR userArea, UINTPTR userSp);
-VOID OsUserTaskDelete(UINT32 taskID);
-UserTaskCB *OsGetUserTaskCB(UINT32 taskID);
+VOID OsUserTaskInit(UINT32 taskId, UINTPTR entry, UINTPTR userArea, UINTPTR userSp);
+VOID OsUserTaskDelete(UINT32 taskId);
+UserTaskCB *OsGetUserTaskCB(UINT32 taskId);
 UINT32 LOS_BoxStart(VOID);
 
 extern INT32 _ulibc_start(UINTPTR main);
