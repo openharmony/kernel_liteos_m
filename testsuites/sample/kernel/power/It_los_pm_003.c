@@ -32,6 +32,7 @@
 #include "It_los_pm.h"
 #include "los_timer.h"
 #include "los_sched.h"
+#include "los_sched_pri.h"
 
 #define TEST_LOOP 5
 static EVENT_CB_S g_pmTestEvent;
@@ -76,7 +77,7 @@ static UINT32 SysSuspend(VOID)
     }
 
     UINT64 timeout = LOS_SchedTickTimeoutNsGet();
-    printf("pm timeout : %u ns -> %u ticks\n", (UINT32)timeout, (UINT32)(timeout / OS_NS_PER_TICK));
+    dprintf("pm timeout : %u ns -> %u ticks\n", (UINT32)timeout, (UINT32)(timeout / OS_NS_PER_TICK));
     return ArchEnterSleep();
 }
 
@@ -139,7 +140,7 @@ static VOID PmTestTask(VOID)
         if (g_pmTestCount > TEST_LOOP) {
             break;
         }
-        printf("PmTestTask loop: %u\n", g_pmTestCount);
+        dprintf("PmTestTask loop: %u\n", g_pmTestCount);
     }
 
 EXIT:

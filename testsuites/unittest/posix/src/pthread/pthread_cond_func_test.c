@@ -33,7 +33,9 @@
 #include <securec.h>
 #include "hctest.h"
 #include "los_config.h"
+#if (LOS_CMSIS_TEST == 1)
 #include "cmsis_os2.h"
+#endif
 #include "kernel_test.h"
 #include "pthread.h"
 #include "log.h"
@@ -68,7 +70,7 @@ static BOOL PthreadFuncTestSuiteSetUp(void)
  */
 static BOOL PthreadFuncTestSuiteTearDown(void)
 {
-    printf("+-------------------------------------------+\n");
+    dprintf("+-------------------------------------------+\n");
     return TRUE;
 }
 

@@ -33,6 +33,7 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <stdint.h>
 #include "iCunit.h"
 
 #define TEST_STR(func) ItLos##func

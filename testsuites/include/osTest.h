@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "iCunit.h"
 
@@ -43,7 +44,7 @@
 
 #include "los_interrupt.h"
 #include "los_arch_interrupt.h"
-#include "los_task.h"
+#include "los_task_pri.h"
 #include "los_sem.h"
 #include "los_event.h"
 #include "los_memory.h"
@@ -52,10 +53,11 @@
 #include "los_cpup.h"
 #endif
 #include "los_tick.h"
-#include "los_swtmr.h"
+#include "los_swtmr_pri.h"
 #include "los_mux.h"
 #include "securec.h"
 #include "securectype.h"
+#include "test_common.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -65,7 +67,7 @@ extern "C" {
 
 #define PRINTF(fmt, args...) \
     do {                     \
-        printf(fmt, ##args); \
+        PRINTK(fmt, ##args); \
     } while (0)
 
 #define LITEOS_BASE_TEST 1
@@ -73,7 +75,12 @@ extern "C" {
 #ifndef LOS_KERNEL_TEST_FULL
 #define LOS_KERNEL_TEST_FULL  0
 #endif
+#ifndef LOS_KERNEL_TEST_MANUAL
+#define LOS_KERNEL_TEST_MANUAL 0
+#endif
+#ifndef LOS_KERNEL_ATOMIC_TEST
 #define LOS_KERNEL_ATOMIC_TEST 1
+#endif
 #define LOS_KERNEL_CORE_TASK_TEST 1
 #define LOS_KERNEL_IPC_MUX_TEST 1
 #define LOS_KERNEL_IPC_SEM_TEST 1
@@ -81,10 +88,19 @@ extern "C" {
 #define LOS_KERNEL_IPC_QUEUE_TEST 1
 #define LOS_KERNEL_CORE_SWTMR_TEST 1
 #ifndef LOS_KERNEL_HWI_TEST
+#if defined(LOSCFG_PLATFORM_HI3322)
+#define LOS_KERNEL_HWI_TEST 0
+#else
 #define LOS_KERNEL_HWI_TEST 1
+#endif
 #endif
 #define LOS_KERNEL_FS_TEST 0
 #define LOS_KERNEL_MEM_TEST 1
+#if (LOSCFG_BASE_CORE_CPUP == 1)
+#define LOS_KERNEL_CORE_CPUP_TEST 1
+#else
+#define LOS_KERNEL_CORE_CPUP_TEST 0
+#endif
 #define LOS_KERNEL_DYNLINK_TEST 0
 #define LOS_KERNEL_TICKLESS_TEST 0
 #if (LOSCFG_KERNEL_PM == 1)
@@ -92,13 +108,60 @@ extern "C" {
 #else
 #define LOS_KERNEL_PM_TEST 0
 #endif
+#ifdef LOSCFG_KERNEL_LMS
+#define LOS_KERNEL_LMS_TEST 1
+#else
 #define LOS_KERNEL_LMS_TEST 0
+#endif
 #define LOS_KERNEL_LMK_TEST 0
 #define LOS_KERNEL_SIGNAL_TEST 0
+#define LOS_KERNEL_MISC_TEST 1
 
-#define LOS_XTS_TEST 1
-#define LOS_POSIX_TEST 1
+#if (LOSCFG_KERNEL_TRACE == 1)
+#define LOS_KERNEL_TRACE_TEST 1
+#else
+#define LOS_KERNEL_TRACE_TEST 0
+#endif
+
+#if (defined(LOSCFG_SHELL_EXCINFO_DUMP) || (LOSCFG_BACKTRACE_TYPE != 0))
+#define LOS_KERNEL_EXC_TEST 1
+#else
+#define LOS_KERNEL_EXC_TEST 0
+#endif
+
+#if (LOSCFG_SHELL == 1)
+#define LOS_KERNEL_SHELL_TEST 1
+#else
+#define LOS_KERNEL_SHELL_TEST 0
+#endif
+
+#ifndef LOS_FEATURE_ADAPTED
+#if defined(LOSCFG_PLATFORM_WS63_M) || defined(LOSCFG_PLATFORM_HI3322)
+#define LOS_FEATURE_ADAPTED 0
+#else
+#define LOS_FEATURE_ADAPTED 1
+#endif
+#endif
+
+#ifndef QEMU_ADAPTED
+#define QEMU_ADAPTED 0
+#endif
+
+#ifdef LOSCFG_KAL_CMSIS
 #define LOS_CMSIS_TEST 1
+#else
+#define LOS_CMSIS_TEST 0
+#endif
+#ifdef LOSCFG_POSIX_API
+#define LOS_POSIX_TEST 1
+#else
+#define LOS_POSIX_TEST 0
+#endif
+#ifdef LOSCFG_POSIX_API
+#define LOS_XTS_TEST 1
+#else
+#define LOS_XTS_TEST 0
+#endif
 #define LOS_CMSIS2_CORE_TASK_TEST 0
 #define LOS_CMSIS2_IPC_MUX_TEST 0
 #define LOS_CMSIS2_IPC_SEM_TEST 0
@@ -211,9 +274,11 @@ extern EVENT_CB_S g_exampleEvent;
 #define TASK_PRIO_TEST 25
 #define TASK_PRIO_TEST_NORMAL 20
 
+#define TEST_WAIT_TIMEOUT 100
+
 #define TASK_LOOP_NUM 0x100000
 #define QUEUE_LOOP_NUM 100
-#define HWI_LOOP_NUM 100
+#define HWI_LOOP_NUM 10
 #define SWTMR_LOOP_NUM 1000
 #define TASK_NAME_NUM 10
 #define TEST_TASK_RUNTIME 0x100000
@@ -232,7 +297,7 @@ extern EVENT_CB_S g_exampleEvent;
 #define LOS_MS_PER_TICK (LOS_SYS_MS_PER_SECOND / LOSCFG_BASE_CORE_TICK_PER_SECOND)
 
 #ifdef __RISC_V__
-#define OS_TSK_TEST_STACK_SIZE 0x9000
+#define OS_TSK_TEST_STACK_SIZE 0x2000
 #elif  __XTENSA_LX6__
 #define OS_TSK_TEST_STACK_SIZE 0x800
 #else
@@ -290,7 +355,12 @@ extern UINT32 TaskUsedCountGet(VOID);
 #define HWI_NUM_INT72 72
 #define HWI_NUM_INT73 73
 
-#ifdef __RISC_V__
+#ifdef LOSCFG_PLATFORM_WS63_M
+#define TIMER_1_IRQN 27
+#define HWI_NUM_TEST TIMER_1_IRQN
+#define LOS_KERNEL_MULTI_HWI_TEST 0
+
+#elif __RISC_V__
 #define HWI_NUM_TEST 32
 #define HWI_NUM_TEST0 33
 #define HWI_NUM_TEST1 34
@@ -303,6 +373,18 @@ extern UINT32 TaskUsedCountGet(VOID);
 #elif __XTENSA_LX6__
 #define HWI_NUM_TEST 7 // xtensa_lx6 only support one software interrupt number
 #define LOS_KERNEL_MULTI_HWI_TEST 0 // xtensa_lx6 not support multiple hwi number test case
+#elif defined(__ARM_ARCH_7A__)
+/* Cortex-A(GICv2):SGI(0-15)的 enable 位屏蔽、软触发 pending 清除语义在规范中
+ * 是 implementation defined,很多 GICv2 实现对 SGI 不可靠(mask 拦不住 pending、
+ * 读 IAR 不清 GICD_ISPENDR 位 → 重入)。PPI/SPI 的 GICD_ISENABLER/ICENABLER/
+ * ISPENDR 全部标准可写可读可清,软触发(GICD_ISPENDR)可靠。故 A7 测试中断用 SPI,
+ * 避开 SGI。号段选 32+(与 liteos_a 一致),避开 tick(IRQ29)等 PPI 占用。 */
+#define HWI_NUM_TEST  32
+#define HWI_NUM_TEST0 33
+#define HWI_NUM_TEST1 34
+#define HWI_NUM_TEST2 35
+#define HWI_NUM_TEST3 36
+#define LOS_KERNEL_MULTI_HWI_TEST 1
 #else
 #define HWI_NUM_TEST  HWI_NUM_INT7
 #define HWI_NUM_TEST0 HWI_NUM_INT1
@@ -316,7 +398,9 @@ extern UINT32 TaskUsedCountGet(VOID);
 #define LOSCFG_BASE_IPC_SEM_CONFIG LOSCFG_BASE_IPC_SEM_LIMIT
 #define LOSCFG_BASE_CORE_SWTMR_CONFIG LOSCFG_BASE_CORE_SWTMR_LIMIT
 #define LOSCFG_BASE_CORE_TSK_CONFIG LOSCFG_BASE_CORE_TSK_LIMIT
-#define dprintf printf
+#ifndef dprintf
+#define dprintf PRINTK
+#endif
 #define IT_SEM_COUNT_MAX OS_SEM_COUNTING_MAX_COUNT
 
 extern EVENT_CB_S g_pstEventCb01;
@@ -324,7 +408,7 @@ extern EVENT_CB_S g_pstEventCb02;
 extern EVENT_CB_S g_pstEventCb03;
 
 
-extern UINT32 TEST_TskDelete(UINT32 taskID);
+extern UINT32 TEST_TskDelete(UINT32 taskId);
 extern UINT32 TestSemDelete(UINT32 semHandle);
 extern UINT32 TestHwiDelete(UINT32 hwiNum);
 extern VOID TEST_HwiDeleteAll(VOID);
@@ -339,7 +423,7 @@ typedef struct tagHwiHandleForm {
 } HWI_HANDLE_FORM_S;
 #endif
 #define TEST_HwiCreate(ID, prio, mode, Func, irqParam) LOS_HwiCreate(ID, prio, mode, Func, irqParam)
-#define uart_printf_func printf
+#define uart_printf_func PRINTK
 
 extern VOID ItSuiteLosAtomic(void);
 extern VOID ItSuiteLosTask(void);
@@ -347,14 +431,21 @@ extern VOID ItSuiteLosQueue(void);
 extern VOID ItSuiteLosMux(void);
 extern VOID ItSuiteLosEvent(void);
 extern VOID ItSuiteLosSem(void);
+extern VOID ItSuiteLosRwsem(void);
 extern VOID ItSuiteLosSwtmr(void);
 extern VOID ItSuiteLosHwi(void);
 extern VOID ItSuiteLosMem(void);
+extern VOID ItSuiteLosTrace(void);
+extern VOID ItSuiteLosCpup(void);
 extern VOID ItSuiteLosDynlink(void);
 extern VOID ItSuite_Los_FatFs(void);
+extern VOID ItSuiteLosLms(void);
 extern VOID ItSuiteLosPm(void);
 extern VOID ItSuiteLosLmk(void);
 extern VOID ItSuiteLosSignal(void);
+extern VOID ItSuiteLosMisc(void);
+extern VOID ItSuiteLosExc(void);
+extern VOID ItSuiteLosShell(void);
 
 extern int PthreadFuncTestSuite(void);
 
@@ -392,7 +483,6 @@ extern UINT32 g_taskMaxNum;
 
 extern LITE_OS_SEC_BSS_INIT LOS_DL_LIST g_stUnusedSemList;
 
-extern LosTask g_losTask;
 extern VOID LOS_Schedule(VOID);
 extern LosTaskCB *g_taskCBArray;
 

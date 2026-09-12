@@ -53,7 +53,7 @@ static UINT32 Testcase(VOID)
     g_testCount = 0;
     LOS_EventInit(&g_pevent);
 
-    ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, HwiF01, 0);
+    ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, (HWI_PROC_FUNC)HwiF01, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
     TestHwiTrigger(HWI_NUM_TEST);
     ICUNIT_ASSERT_EQUAL(g_testCount, 2, g_testCount); // 2, Here, assert that g_testCount is equal to 2.

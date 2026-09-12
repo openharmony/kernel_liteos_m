@@ -50,7 +50,9 @@ VOID ItSuiteLosMux(void)
     ItLosMux026();
     ItLosMux027();
     ItLosMux029();
+#ifdef LOSCFG_MUTEX_WAITMODE_FIFO
     ItLosMux031();
+#endif
 
 #if (LOS_KERNEL_TEST_FULL == 1)
     ItLosMux007();
@@ -65,11 +67,14 @@ VOID ItSuiteLosMux(void)
     ItLosMux025();
     ItLosMux030();
     ItLosMux033();
+#if (LOS_FEATURE_ADAPTED == 1)
     ItLosMux034();
+#endif
 #if (LOS_KERNEL_HWI_TEST == 1)
     ItLosMux013();
     ItLosMux016();
     ItLosMux017();
+    ItLosMux301();
     ItLosMux019();
 #ifndef __RISC_V__
 #if (LOS_KERNEL_MULTI_HWI_TEST == 1)

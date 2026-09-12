@@ -86,7 +86,7 @@ static BOOL MqueueFuncTestSuiteSetUp(void)
  */
 static BOOL MqueueFuncTestSuiteTearDown(void)
 {
-    printf("+-------------------------------------------+\n");
+    dprintf("+-------------------------------------------+\n");
     return TRUE;
 }
 
@@ -303,13 +303,13 @@ LITE_TEST_CASE(MqueueFuncTestSuite, TestMqOpenENFILE, Function | MediumTest | Le
 
         if (queue[i] == (mqd_t)-1) {
             flag = 1;
-            printf("break: i = %d", i);
+            dprintf("break: i = %d", i);
             break;
         }
         ICUNIT_TRACK_NOT_EQUAL(queue[i], (mqd_t)-1, queue[i]);
     }
 
-    printf("func: i = %d", i);
+    dprintf("func: i = %d", i);
     if (flag == 0) {
         queue[i] = mq_open(qName[i], O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, NULL);
     }

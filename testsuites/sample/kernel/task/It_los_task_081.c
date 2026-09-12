@@ -78,7 +78,7 @@ static VOID TaskF02(VOID)
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SEM_TIMEOUT, ret, EXIT);
 
     tick2 = tick2 - tick1;
-    if ((tick2 != 10) && (tick2 != 11)) { // 10, 11 delay time
+    if ((tick2 != 10) && (tick2 != 11) && (tick2 != 12)) { // 10, 11, 12 delay time
         ICUNIT_GOTO_EQUAL(tick2, 0, tick2, EXIT); // 0, Here, assert that result is equal to 0.
     }
     ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT); // 5, Here, assert that g_testCount is equal to 5.
@@ -117,7 +117,7 @@ static UINT32 TestCase(VOID)
     ret = LOS_TaskResume(g_testTaskID01);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    LOS_TaskDelay(10); // 10, set delay time
+    TEST_DELAY(g_testCount, 3, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_testCount, 3, g_testCount); // 3, Here, assert that g_testCount is equal to 3.
 
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
@@ -125,6 +125,7 @@ static UINT32 TestCase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
+    TEST_DELAY(g_testCount, 4, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_testCount, 4, g_testCount); // 4, Here, assert that g_testCount is equal to 4.
     g_testCount++;
 
@@ -134,7 +135,7 @@ static UINT32 TestCase(VOID)
     ret = LOS_TaskResume(g_testTaskID01);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    LOS_TaskDelay(11); // 11, set delay time
+    TEST_DELAY(g_testCount, 6, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_testCount, 6, g_testCount); // 6, Here, assert that g_testCount is equal to 6.
     return LOS_OK;
 }

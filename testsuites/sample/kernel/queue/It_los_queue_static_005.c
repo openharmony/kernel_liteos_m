@@ -31,6 +31,7 @@
 
 #include "It_los_queue.h"
 
+#if (LOSCFG_QUEUE_STATIC_ALLOCATION == 1)
 #define QUEUE_OVERSIZE_NUM 30
 
 static UINT32 Testcase(VOID)
@@ -38,12 +39,12 @@ static UINT32 Testcase(VOID)
     UINT32 ret;
     CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
     CHAR buff2[QUEUE_SHORT_BUFFER_LENGTH] = "";
-    CHAR buff3[QUEUE_SHORT_BUFFER_LENGTH] = {0};
+    CHAR buff3[QUEUE_SHORT_STATIC_BUFFER_LENGTH] = {0};
 
     g_testQueueID01 = LOSCFG_BASE_IPC_QUEUE_LIMIT - 1;
 
-    ret = LOS_QueueCreateStatic("Q1", QUEUE_OVERSIZE_NUM, &g_testQueueID01, (UINT8 *)buff3, 0, 0xFFFF);
-    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_SIZE_TOO_BIG, ret, EXIT);
+    ret = LOS_QueueCreateStatic("Q1", QUEUE_OVERSIZE_NUM, &g_testQueueID01, 0, 0xFFFF, (VOID *)buff3, QUEUE_SHORT_STATIC_BUFFER_LENGTH);
+    ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_CREATE_NO_MEMORY, ret, EXIT);
 
     ret = LOS_QueueWrite(g_testQueueID01, &buff1, QUEUE_BASE_MSGSIZE, 0);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_QUEUE_NOT_CREATE, ret, EXIT);
@@ -66,4 +67,5 @@ VOID ItLosQueueStatic005(VOID)
 {
     TEST_ADD_CASE("ItLosQueueStatic005", Testcase, TEST_LOS, TEST_QUE, TEST_LEVEL1, TEST_FUNCTION);
 }
+#endif
 

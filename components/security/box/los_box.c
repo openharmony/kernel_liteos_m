@@ -29,7 +29,7 @@
  */
 
 #include "los_box.h"
-#include "los_task.h"
+#include "los_task_pri.h"
 #include "los_context.h"
 #include "los_arch_context.h"
 #include "los_debug.h"
@@ -37,25 +37,25 @@
 static UserTaskCB g_UserTaskCBArray[LOSCFG_BASE_CORE_TSK_LIMIT] = { 0 };
 static LosBoxCB g_boxCB[1];
 
-VOID OsUserTaskInit(UINT32 taskID, UINTPTR entry, UINTPTR userArea, UINTPTR userSp)
+VOID OsUserTaskInit(UINT32 taskId, UINTPTR entry, UINTPTR userArea, UINTPTR userSp)
 {
-    LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
+    LosTaskCB *taskCB = OS_TCB_FROM_TID(taskId);
     taskCB->taskStatus |= OS_TASK_FLAG_USER_TASK;
     HalUserTaskStackInit(taskCB->stackPointer, entry, userSp);
 
-    g_UserTaskCBArray[taskID].userArea = userArea;
-    g_UserTaskCBArray[taskID].userSp = userSp;
-    g_UserTaskCBArray[taskID].boxID = g_UserTaskCBArray[g_losTask.runTask->taskID].boxID;
+    g_UserTaskCBArray[taskId].userArea = userArea;
+    g_UserTaskCBArray[taskId].userSp = userSp;
+    g_UserTaskCBArray[taskId].boxID = g_UserTaskCBArray[OsCurrTaskGet()->taskId].boxID;
 }
 
-VOID OsUserTaskDelete(UINT32 taskID)
+VOID OsUserTaskDelete(UINT32 taskId)
 {
-    (VOID)memset_s(&g_UserTaskCBArray[taskID], sizeof(UserTaskCB), 0, sizeof(UserTaskCB));
+    (VOID)memset_s(&g_UserTaskCBArray[taskId], sizeof(UserTaskCB), 0, sizeof(UserTaskCB));
 }
 
-UserTaskCB *OsGetUserTaskCB(UINT32 taskID)
+UserTaskCB *OsGetUserTaskCB(UINT32 taskId)
 {
-    return &g_UserTaskCBArray[taskID];
+    return &g_UserTaskCBArray[taskId];
 }
 
 static UINT32 BoxInit(VOID)
@@ -71,7 +71,7 @@ static UINT32 BoxInit(VOID)
 
 VOID OsBoxStart(VOID)
 {
-    UINT32 ret, taskID;
+    UINT32 ret, taskId;
     UINT32 count = sizeof(g_boxCB) / sizeof(LosBoxCB);
     TSK_INIT_PARAM_S taskInitParam = { 0 };
 
@@ -82,18 +82,18 @@ VOID OsBoxStart(VOID)
         taskInitParam.pcName = "BoxMainTask";
         taskInitParam.usTaskPrio = LOSCFG_BOX_PRIO;
         taskInitParam.uwResved = LOS_TASK_ATTR_JOINABLE;
-        ret = LOS_TaskCreateOnly(&taskID, &taskInitParam);
+        ret = LOS_TaskCreateOnly(&taskId, &taskInitParam);
         if (ret != LOS_OK) {
             PRINT_ERR("Create box %u main task failed, Error 0x%x\n", i, ret);
             return;
         }
 
-        OsUserTaskInit(taskID, (UINTPTR)_ulibc_start, 0, box->boxStackAddr + box->boxStackSize);
-        g_UserTaskCBArray[taskID].boxID = i;
+        OsUserTaskInit(taskId, (UINTPTR)_ulibc_start, 0, box->boxStackAddr + box->boxStackSize);
+        g_UserTaskCBArray[taskId].boxID = i;
 
-        ret = LOS_TaskResume(taskID);
+        ret = LOS_TaskResume(taskId);
         if (ret != LOS_OK) {
-            PRINT_ERR("Box(%u) resume task %u failed, Error 0x%x\n", i, taskID, ret);
+            PRINT_ERR("Box(%u) resume task %u failed, Error 0x%x\n", i, taskId, ret);
             return;
         }
     }
@@ -101,7 +101,7 @@ VOID OsBoxStart(VOID)
 
 UINT32 LOS_BoxStart(VOID)
 {
-    UINT32 ret, taskID;
+    UINT32 ret, taskId;
     TSK_INIT_PARAM_S taskInitParam = { 0 };
 
     ret = BoxInit();
@@ -115,5 +115,5 @@ UINT32 LOS_BoxStart(VOID)
     taskInitParam.pcName = "BoxStart";
     taskInitParam.usTaskPrio = LOSCFG_BOX_START_PRIO;
     taskInitParam.uwResved = 0;
-    return LOS_TaskCreate(&taskID, &taskInitParam);
+    return LOS_TaskCreate(&taskId, &taskInitParam);
 }

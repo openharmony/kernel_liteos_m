@@ -352,7 +352,7 @@ extern "C" {
  * OS_WAIT_TASK_ARRAY_ELEMENT_MASK is the mask for each element.
  */
 #define OS_WAIT_TASK_ARRAY_LEN                   ((LOSCFG_BASE_CORE_TSK_LIMIT >> 5) + 1)
-#define OS_WAIT_TASK_ID_TO_ARRAY_IDX(taskID)     (taskID >> 5)
+#define OS_WAIT_TASK_ID_TO_ARRAY_IDX(taskId)     (taskId >> 5)
 #define OS_WAIT_TASK_ARRAY_ELEMENT_MASK          (31)
 
 /**
@@ -399,11 +399,13 @@ typedef struct tagQueueInfo {
  * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_QueueDelete
  */
+#ifdef LOSCFG_QUEUE_DYNAMIC_ALLOCATION
 extern UINT32 LOS_QueueCreate(const CHAR *queueName,
                               UINT16 len,
                               UINT32 *queueID,
                               UINT32 flags,
                               UINT16 maxMsgSize);
+#endif
 
 /**
  * @ingroup los_queue
@@ -433,12 +435,15 @@ extern UINT32 LOS_QueueCreate(const CHAR *queueName,
  * <ul><li>los_queue.h: the header file that contains the API declaration.</li></ul>
  * @see LOS_QueueDelete
  */
+#if (LOSCFG_QUEUE_STATIC_ALLOCATION == 1)
 extern UINT32 LOS_QueueCreateStatic(const CHAR *queueName,
                                     UINT16 len,
                                     UINT32 *queueID,
-                                    UINT8 *staticMem,
                                     UINT32 flags,
-                                    UINT16 maxMsgSize);
+                                    UINT16 maxMsgSize,
+                                    VOID *queueMem,
+                                    UINT16 memSize);
+#endif
 
 /**
  * @ingroup los_queue
@@ -1131,7 +1136,7 @@ extern LosQueueCB *g_allQueue;
   *  @ingroup los_queue
   *  Maximum number of queues
   */
-#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+#if (LOSCFG_QUEUE_STATIC_ALLOCATION == 1)
 #define OS_ALL_IPC_QUEUE_LIMIT                     LOSCFG_BASE_IPC_QUEUE_LIMIT + LOSCFG_BASE_IPC_STATIC_QUEUE_LIMIT
 #else
 #define OS_ALL_IPC_QUEUE_LIMIT                     LOSCFG_BASE_IPC_QUEUE_LIMIT

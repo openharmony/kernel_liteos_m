@@ -31,15 +31,15 @@
 
 #include "It_los_queue.h"
 
-#if (LOSCFG_BASE_IPC_QUEUE_STATIC == 1)
+#if (LOSCFG_QUEUE_STATIC_ALLOCATION == 1)
 static UINT32 Testcase(VOID)
 {
     UINT32 ret;
     CHAR buff1[QUEUE_SHORT_BUFFER_LENGTH] = "UniDSP";
     CHAR buff2[QUEUE_SHORT_BUFFER_LENGTH] = "";
-    CHAR buff3[QUEUE_SHORT_BUFFER_LENGTH] = {0};
+    CHAR buff3[QUEUE_SHORT_STATIC_BUFFER_LENGTH] = {0};
 
-    ret = LOS_QueueCreateStatic("Q1", QUEUE_BASE_NUM, &g_testQueueID01, (UINT8 *)buff3, 0, 1);
+    ret = LOS_QueueCreateStatic("Q1", QUEUE_BASE_NUM, &g_testQueueID01, 0, 1, (VOID *)buff3, QUEUE_SHORT_STATIC_BUFFER_LENGTH);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ret = LOS_QueueWrite(g_testQueueID01, &buff1, QUEUE_BASE_MSGSIZE, 0);

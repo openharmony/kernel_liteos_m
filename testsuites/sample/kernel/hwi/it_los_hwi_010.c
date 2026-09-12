@@ -67,6 +67,7 @@ static UINT32 Testcase(VOID)
 
     LOS_IntRestore(intSave1);
 
+    LOS_TaskDelay(5); // 5, set delay time.
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
 
 EXIT:

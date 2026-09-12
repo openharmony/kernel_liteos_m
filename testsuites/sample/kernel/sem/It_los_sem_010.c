@@ -79,7 +79,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_SemPost(g_usSemID);
     ICUNIT_TRACK_EQUAL(ret, LOS_OK, ret);
 
-    ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, HwiF01, 0);
+    ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, (HWI_PROC_FUNC)HwiF01, 0);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     TestHwiTrigger(HWI_NUM_TEST);

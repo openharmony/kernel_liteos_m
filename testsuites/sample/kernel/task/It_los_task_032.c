@@ -37,10 +37,10 @@ static UINT32 TestCase(VOID)
 {
     UINT32 ret;
 
-    ret = LOS_TaskSuspend(g_idleTaskID);
+    ret = LOS_TaskSuspend(OsGetIdleTaskId());
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_OPERATE_IDLE, ret);
 
-    ret = LOS_TaskResume(g_idleTaskID);
+    ret = LOS_TaskResume(OsGetIdleTaskId());
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_NOT_SUSPENDED, ret);
 
     return LOS_OK;

@@ -38,13 +38,14 @@
 #define _LOS_SWTMR_H
 
 #include "los_config.h"
-#include "los_sortlink.h"
 
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
+
+typedef struct tagSwTmrCtrl SWTMR_CTRL_S;
 
 /**
  * @ingroup los_swtmr
@@ -265,29 +266,6 @@ typedef VOID (*SWTMR_PROC_FUNC)(UINT32 para);
 
 /**
  * @ingroup los_swtmr
- * Software timer control structure
- */
-typedef struct tagSwTmrCtrl {
-    struct tagSwTmrCtrl *pstNext;       /* Pointer to the next software timer                    */
-    UINT8               ucState;        /* Software timer state                                  */
-    UINT8               ucMode;         /* Software timer mode                                   */
-    UINT8               ucOverrun;      /* Times that a software timer repeats timing            */
-#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
-    UINT8               ucRouses;       /* wake up enable                                        */
-    UINT8               ucSensitive;    /* align enable                                          */
-#endif
-    UINT32              usTimerID;      /* Software timer ID                                     */
-    UINT32              uwInterval;     /* Timeout interval of a periodic software timer         */
-    UINT32              uwArg;          /* Parameter passed in when the callback function
-                                           that handles software timer timeout is called         */
-    SWTMR_PROC_FUNC     pfnHandler;     /* Callback function that handles software timer timeout */
-    SortLinkList        stSortList;
-    UINT64              startTime;
-} SWTMR_CTRL_S;
-
-
-/**
- * @ingroup los_swtmr
  * @brief Start a software timer.
  *
  * @par Description:
@@ -372,7 +350,7 @@ extern UINT32 LOS_SwtmrTimeGet(UINT32 swtmrID, UINT32 *tick);
  * <li>There are LOSCFG_BASE_CORE_SWTMR_LIMIT timers available, change it's value when necessary.</li>
  * </ul>
  *
- * @param  interval     [IN] Timing duration of the software timer to be created (unit: ms).
+ * @param  interval     [IN] Timing duration of the software timer to be created (unit: tick).
  * @param  mode         [IN] Software timer mode. Pass in one of the modes specified by EnSwTmrType. There are three
  * types of modes, one-off, periodic, and continuously periodic after one-off, of which the third mode is not
  * supported temporarily.
@@ -430,31 +408,6 @@ extern UINT32 LOS_SwtmrCreate(UINT32 interval,
  * @see LOS_SwtmrCreate
  */
 extern UINT32 LOS_SwtmrDelete(UINT32 swtmrID);
-
-/**
- * @ingroup los_swtmr
- * Software timer state
- */
-enum SwtmrState {
-    OS_SWTMR_STATUS_UNUSED,             /**< The software timer is not used. */
-    OS_SWTMR_STATUS_CREATED,            /**< The software timer is created. */
-    OS_SWTMR_STATUS_TICKING             /**< The software timer is timing. */
-};
-
-/**
- * @ingroup los_swtmr
- * Structure of the callback function that handles software timer timeout
- */
-typedef struct {
-    SWTMR_PROC_FUNC     handler;        /**< Callback function that handles software timer timeout */
-    UINT32              arg;            /**< Parameter passed in when the callback function
-                                             that handles software timer timeout is called */
-    UINT32              swtmrID;        /**< The id used to obtain the software timer handle */
-} SwtmrHandlerItem;
-
-extern SWTMR_CTRL_S *g_swtmrCBArray;
-
-#define OS_SWT_FROM_SID(swtmrId)    ((SWTMR_CTRL_S *)g_swtmrCBArray + ((swtmrId) % LOSCFG_BASE_CORE_SWTMR_LIMIT))
 
 /**
  * @ingroup los_swtmr

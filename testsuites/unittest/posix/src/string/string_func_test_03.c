@@ -62,7 +62,7 @@ static BOOL PosixStringFuncTestSuiteSetUp(void)
  */
 static BOOL PosixStringFuncTestSuiteTearDown(void)
 {
-    printf("+Hello this is a String  function test+\n");
+    dprintf("+Hello this is a String  function test+\n");
     return TRUE;
 }
 
@@ -136,7 +136,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrdup001, Function | MediumTest
 
     dest = strdup(source);
     ICUNIT_ASSERT_NOT_EQUAL(dest, NULL, 0);
-    printf("The Result Display :%s\r\n", dest);
+    dprintf("The Result Display :%s\r\n", dest);
     ICUNIT_ASSERT_SIZE_STRING_EQUAL(dest, source, sizeof(source) / sizeof(source[0]), 0);
 
     char src[] = "hello world !";
@@ -164,7 +164,7 @@ LITE_TEST_CASE(PosixStringFuncTestSuite, testStrStrdup002, Function | MediumTest
 
     dest = strdup(source);
     ICUNIT_ASSERT_NOT_EQUAL(dest, NULL, 0);
-    printf("The Result Display :%s\r\n", dest);
+    dprintf("The Result Display :%s\r\n", dest);
     ICUNIT_ASSERT_SIZE_STRING_EQUAL(dest, source, sizeof(source) / sizeof(source[0]), 0);
     return 0;
 };

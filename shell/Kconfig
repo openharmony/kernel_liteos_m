@@ -1,0 +1,48 @@
+config SHELL
+    bool "Enable Shell"
+    default n
+    depends on DEBUG_VERSION
+    select USE_SHELL
+    help
+      Answer Y to enable LiteOS support shell cmd.
+
+config USE_SHELL
+    bool
+    default n
+
+menu "Functionality of Shell"
+    depends on SHELL
+
+config SHELL_PRIO
+    int "Shell Task Priority"
+    default 3
+    range 1 31
+    depends on SHELL
+
+config SHELL_STACK_SIZE
+    int "Shell Task Stack Size"
+    default 4096
+    depends on SHELL
+
+config SHELL_LK
+    bool "Enable Shell LK (Logger)"
+    default y
+    depends on SHELL
+    help
+      Answer Y to enable LiteOS shell LK (logger) subsystem. When enabled,
+      LOS_LkPrint / LOS_LkRegHook are available and the kernel printf path
+      routes through the LK hook for level-based filtering. The default trace
+      level is LOS_ERR_LEVEL (2). See shell_lk.h for the public API.
+
+config SHELL_DMESG
+    bool "Enable Shell Dmesg"
+    default n
+    depends on SHELL
+    help
+      Answer Y to enable LiteOS shell dmesg subsystem. When enabled, an 8KB
+      ring buffer captures kernel log output and the LOS_Dmesg* public API
+      becomes available. The kernel printf path (los_printf.c UartOutput)
+      automatically records into the dmesg buffer via OsLogMemcpyRecord.
+      See dmesg.h for the public API.
+
+endmenu

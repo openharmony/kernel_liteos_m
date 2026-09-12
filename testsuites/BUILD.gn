@@ -37,15 +37,34 @@ config("include") {
   if (defined(LOSCFG_KERNEL_TEST_FULL)) {
     defines += [ "LOS_KERNEL_TEST_FULL=1" ]
   }
-  cflags = warn_config_cflags
-  asmflags = warn_config_asmflags
+  if (defined(LOSCFG_KERNEL_TEST_MANUAL)) {
+    defines += [ "LOS_KERNEL_TEST_MANUAL=1" ]
+  }
+  # Filter out -Werror and -Wno-address-of-packed-member from the warn config.
+  # Test code contains pre-existing warnings (sign-compare, type-limits,
+  # unused-parameter) that are accepted by GCC >= 9 but cause hard errors on
+  # older toolchains (e.g. ws63 riscv32 gcc 7.3). Additionally,
+  # -Wno-address-of-packed-member is unrecognized by GCC < 9 and triggers
+  # cc1 "unrecognized command line option" errors when -Werror is active.
+  _test_cflags = [ "-fno-stack-protector" ]
+  foreach(flag, warn_config_cflags) {
+    if (!defined(LOSCFG_ARCH_RISCV) ||
+        (flag != "-Werror" && flag != "-Wno-address-of-packed-member")) {
+      _test_cflags += [ flag ]
+    }
+  }
+  cflags = _test_cflags
+  asmflags = _test_cflags
 }
 
 module_switch = defined(LOSCFG_TEST)
 kernel_module("test_init") {
   sources = [
     "src/iCunit.c",
+    "src/icunit_filter.c",
     "src/osTest.c",
+    "src/test_common.c",
+    "src/los_resleak_test.c",
   ]
 
   include_dirs = [
@@ -59,32 +78,49 @@ kernel_module("test_init") {
 group("testsuites") {
   deps = [
     ":test_init",
-    "sample/cmsis:test_cmsis",
-    "sample/kernel/atomic:test_atomic",
     "sample/kernel/event:test_event",
     "sample/kernel/hwi:test_hwi",
     "sample/kernel/mem:test_mem",
     "sample/kernel/mux:test_mux",
-    "sample/kernel/power:test_pm",
     "sample/kernel/queue:test_queue",
     "sample/kernel/sem:test_sem",
+    "sample/kernel/rwsem:test_rwsem",
     "sample/kernel/swtmr:test_swtmr",
     "sample/kernel/task:test_task",
+    "sample/kernel/misc:test_misc",
+    "sample/kernel/exc:test_exc",
     "sample/posix:test_posix",
+    "sample/kernel/atomic:test_atomic",
     "unittest/posix:posix_test",
     "unittest/xts:xts_test",
   ]
+
+  if (defined(LOSCFG_KAL_CMSIS)) {
+    deps += [ "sample/cmsis:test_cmsis" ]
+  }
+  if (defined(LOSCFG_BASE_CORE_CPUP)) {
+    deps += [ "sample/kernel/cpup:test_cpup" ]
+  }
   if (defined(LOSCFG_DYNLINK)) {
     deps += [ "sample/kernel/dynlink:test_dynlink" ]
   }
   if (defined(LOSCFG_KERNEL_LMS)) {
     deps += [ "sample/kernel/lms:test_lms" ]
   }
+  if (defined(LOSCFG_KERNEL_TRACE)) {
+    deps += [ "sample/kernel/trace:test_trace" ]
+  }
   if (defined(LOSCFG_KERNEL_LMK)) {
     deps += [ "sample/kernel/lmk:test_lmk" ]
   }
   if (defined(LOSCFG_KERNEL_SIGNAL)) {
     deps += [ "sample/kernel/signal:test_signal" ]
+  }
+  if (defined(LOSCFG_KERNEL_PM)) {
+    deps += [ "sample/kernel/power:test_pm" ]
+  }
+  if (defined(LOSCFG_SHELL)) {
+    deps += [ "sample/kernel/shell:test_shell" ]
   }
   if (!module_switch) {
     deps = []

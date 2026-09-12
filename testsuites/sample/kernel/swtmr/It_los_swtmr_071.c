@@ -77,7 +77,12 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_SwtmrTimeGet(g_swtmrId1, &tick);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+#ifdef LOSCFG_KERNEL_TICKLESS_GLOBAL
     ICUNIT_GOTO_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime - 1, tick, EXIT);
+#else
+    ICUNIT_ASSERT_WITHIN_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime - 1,
+                               TIMER_LOS_EXPIRATION3 - delayTime, tick);
+#endif
 
     ret = LOS_SwtmrStop(g_swtmrId1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);

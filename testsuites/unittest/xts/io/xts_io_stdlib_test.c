@@ -273,9 +273,11 @@ RUN_TEST_SUITE(IoStdlibApiTestSuite);
 
 void XtsIoStdlibFuncTest(void)
 {
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
     RUN_ONE_TESTCASE(testStrtof);
     RUN_ONE_TESTCASE(testStrtod);
     RUN_ONE_TESTCASE(testStrtold);
+#endif
     RUN_ONE_TESTCASE(testStrtol);
     RUN_ONE_TESTCASE(testStrtoul);
     RUN_ONE_TESTCASE(testStrtoull);

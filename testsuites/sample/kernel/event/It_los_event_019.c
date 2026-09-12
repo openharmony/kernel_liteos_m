@@ -61,14 +61,11 @@ EXIT:
 static VOID TaskF01(VOID)
 {
     UINT32 ret;
-
     g_testCount++;
 
-    ret = LOS_EventRead(&g_pevent, 0x11, LOS_WAITMODE_AND, 2); // 2, The timeout period for reading events.
+    ret = LOS_EventRead(&g_pevent, 0x11, LOS_WAITMODE_AND, 100);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_EVENT_READ_TIMEOUT, ret, EXIT);
-
-
-    ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT); // 5, Here, assert that g_testCount is equal to 5.
+    ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT);
     g_testCount++;
 
 EXIT:
@@ -89,10 +86,13 @@ static UINT32 Testcase(VOID)
     g_testCount = 0;
     LOS_EventInit(&g_pevent);
 
-    ret = LOS_TaskCreate(&g_testTaskID01, &task1);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    g_testTaskID01 = OS_INVALID;
+    g_testTaskID02 = OS_INVALID;
 
-    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+    ret = LOS_TaskCreate(&g_testTaskID01, &task1);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT1);
+
+    ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT1);
     g_testCount++;
 
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
@@ -104,14 +104,20 @@ static UINT32 Testcase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID02, &task1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT1);
 
-    LOS_TaskDelay(10); // 10, set delay time.
+    TEST_DELAY(g_testCount, 6, TEST_WAIT_TIMEOUT);
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 6, g_testCount, EXIT1); // 6, Here, assert that g_testCount is equal to 6.
+    ICUNIT_GOTO_EQUAL(g_testCount, 6, g_testCount, EXIT1);
 
 EXIT1:
-    LOS_TaskDelete(g_testTaskID02);
+    if (g_testTaskID02 != OS_INVALID) {
+        (VOID)LOS_TaskDelete(g_testTaskID02);
+        g_testTaskID02 = OS_INVALID;
+    }
 
-    LOS_TaskDelete(g_testTaskID01);
+    if (g_testTaskID01 != OS_INVALID) {
+        (VOID)LOS_TaskDelete(g_testTaskID01);
+        g_testTaskID01 = OS_INVALID;
+    }
 
     return LOS_OK;
 }

@@ -63,15 +63,18 @@ static UINT32 Testcase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID01, &task);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
+    TEST_DELAY(g_testCount, 1, TEST_WAIT_TIMEOUT);
     ICUNIT_TRACK_EQUAL(g_testCount, 1, g_testCount);
 
     LOS_TaskLock();
     ret = LOS_SemPost(g_usSemID);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT2);
+    TEST_DELAY(g_testCount, 1, TEST_WAIT_TIMEOUT);
     ICUNIT_TRACK_EQUAL(g_testCount, 1, g_testCount);
 
     LOS_TaskUnlock();
-    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT2); // 2, Here, assert that g_testCount is equal to 2.
+    TEST_DELAY(g_testCount, 2, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT2);
 
 EXIT:
     ret = LOS_SemDelete(g_usSemID);

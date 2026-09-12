@@ -62,7 +62,7 @@ static BOOL PosixCtypeFuncTestSuiteSetUp(void)
  */
 static BOOL PosixCtypeFuncTestSuiteTearDown(void)
 {
-    printf("==== [ Ctype TEST ] ====\n\n");
+    dprintf("==== [ Ctype TEST ] ====\n\n");
     return TRUE;
 }
 

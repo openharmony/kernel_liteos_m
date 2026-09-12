@@ -36,8 +36,10 @@ kernel_module(module_name) {
     "los_dispatch.S",
     "los_exc.S",
     "los_interrupt.c",
-    "los_timer.c",
   ]
+  if (!defined(LOSCFG_ARCH_TIMER_VENDOR)) {
+    sources += [ "los_timer.c" ]
+  }
   configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 

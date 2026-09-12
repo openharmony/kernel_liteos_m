@@ -360,6 +360,9 @@ STATIC INLINE VOID OsSetMutexCreateInfo(LosMuxCB *mux, UINTPTR val)
 }
 #endif /* LOSCFG_MUTEX_CREATE_TRACE == 1 */
 
+extern VOID OsMuxPostOpSub(LosTaskCB *runTask, LosMuxCB *muxPosted);
+extern VOID OsMuxBitmapRestore(const LosTaskCB *runTask, LosTaskCB *owner);
+
 #ifdef __cplusplus
 #if __cplusplus
 }

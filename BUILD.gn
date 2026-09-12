@@ -135,9 +135,12 @@ config("public") {
   configs = [
     "arch:public",
     "kernel:public",
-    "kal:public",
+    "compat:public",
+    "lib:public",
+    "fs:public",
+    "shell:public",
     "components:public",
-    "utils:public",
+    "drivers/interrupt:public",
   ]
 
   if (BOARD_SOC_FEATURE) {
@@ -154,11 +157,13 @@ group("modules") {
   deps = [
     "arch",
     "components",
-    "kal",
+    "compat",
+    "drivers/interrupt",
+    "lib",
     "kernel",
+    "fs",
+    "shell",
     "testsuites",
-    "utils",
-    HDFTOPDIR,
   ]
 
   if (BOARD_SOC_FEATURE) {
@@ -186,9 +191,6 @@ static_library("libkernel") {
 
 group("kernel") {
   deps = [ ":libkernel" ]
-}
-
-group("liteos_m") {
 }
 
 executable("liteos") {

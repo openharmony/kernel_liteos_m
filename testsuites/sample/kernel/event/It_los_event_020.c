@@ -38,7 +38,8 @@ static VOID TaskF02(VOID)
     UINT32 ret;
     UINT32 index = 0;
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
+    TEST_DELAY(g_testCount, 2, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT);
     g_testCount++;
 
     while (index < 100000) { // 100000, Wait for enough time.
@@ -48,7 +49,8 @@ static VOID TaskF02(VOID)
     ret = LOS_EventWrite(&g_pevent, 0x11);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT); // 3, Here, assert that g_testCount is equal to 3.
+    TEST_DELAY(g_testCount, 3, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT);
     g_testCount++;
 
 EXIT:
@@ -61,7 +63,7 @@ static VOID TaskF01(VOID)
 
     g_testCount++;
 
-    ret = LOS_EventRead(&g_pevent, 0x11, LOS_WAITMODE_OR, 2); // 2, The timeout period for reading events.
+    ret = LOS_EventRead(&g_pevent, 0x11, LOS_WAITMODE_OR, 100);
     ICUNIT_GOTO_EQUAL(ret, g_pevent.uwEventID, ret, EXIT);
     ICUNIT_GOTO_EQUAL(ret, 0x11, ret, EXIT);
 
@@ -87,10 +89,14 @@ static UINT32 Testcase(VOID)
     g_testCount = 0;
     LOS_EventInit(&g_pevent);
 
+    g_testTaskID01 = OS_INVALID;
+    g_testTaskID02 = OS_INVALID;
+
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+    TEST_DELAY(g_testCount, 1, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT1);
     g_testCount++;
 
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
@@ -101,12 +107,18 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_TaskCreate(&g_testTaskID02, &task1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT1);
-    ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT1); // 5, Here, assert that g_testCount is equal to 5.
+    ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT1);
 
 EXIT1:
-    LOS_TaskDelete(g_testTaskID02);
+    if (g_testTaskID02 != OS_INVALID) {
+        (VOID)LOS_TaskDelete(g_testTaskID02);
+        g_testTaskID02 = OS_INVALID;
+    }
 
-    LOS_TaskDelete(g_testTaskID01);
+    if (g_testTaskID01 != OS_INVALID) {
+        (VOID)LOS_TaskDelete(g_testTaskID01);
+        g_testTaskID01 = OS_INVALID;
+    }
 
     return LOS_OK;
 }

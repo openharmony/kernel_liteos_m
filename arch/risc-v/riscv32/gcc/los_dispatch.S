@@ -34,15 +34,15 @@
 .global  HalEnableIRQ
 .global  HalDisableIRQ
 .global  ArchIntLock
-.global  ArchIntUnLock
+.global  ArchIntUnlock
 .global  ArchIntRestore
-.global  HalStartToRun
-.global  HalTaskContextSwitch
+.global  ArchStartToRun
+.global  ArchTaskSchedule
 .extern  __irq_stack_top
-.section .interrupt.text
+.section .interrupt.text, "ax"
 
 .macro PUSH_ALL_REG
-    addi sp, sp, -(32 * REGBYTES)
+    addi sp, sp, -(32 * REGBYTES + FPU_SAVE_SIZE)
     SREG  t6, 2 * REGBYTES(sp)
     SREG  t5, 3 * REGBYTES(sp)
     SREG  t4, 4 * REGBYTES(sp)
@@ -71,9 +71,87 @@
     SREG  s1, 29 * REGBYTES(sp)
     SREG  s0, 30 * REGBYTES(sp)
     SREG  ra, 31 * REGBYTES(sp)
+#ifndef LOSCFG_ARCH_FPU_DISABLE
+    /* Save FPU caller-saved registers (ft0-ft11, fa0-fa7) */
+    FSREG  ft11, (32 * REGBYTES + 0  * FPUREGBYTES)(sp)
+    FSREG  ft10, (32 * REGBYTES + 1  * FPUREGBYTES)(sp)
+    FSREG  ft9,  (32 * REGBYTES + 2  * FPUREGBYTES)(sp)
+    FSREG  ft8,  (32 * REGBYTES + 3  * FPUREGBYTES)(sp)
+    FSREG  fa7,  (32 * REGBYTES + 4  * FPUREGBYTES)(sp)
+    FSREG  fa6,  (32 * REGBYTES + 5  * FPUREGBYTES)(sp)
+    FSREG  fa5,  (32 * REGBYTES + 6  * FPUREGBYTES)(sp)
+    FSREG  fa4,  (32 * REGBYTES + 7  * FPUREGBYTES)(sp)
+    FSREG  fa3,  (32 * REGBYTES + 8  * FPUREGBYTES)(sp)
+    FSREG  fa2,  (32 * REGBYTES + 9  * FPUREGBYTES)(sp)
+    FSREG  fa1,  (32 * REGBYTES + 10 * FPUREGBYTES)(sp)
+    FSREG  fa0,  (32 * REGBYTES + 11 * FPUREGBYTES)(sp)
+    FSREG  ft7,  (32 * REGBYTES + 12 * FPUREGBYTES)(sp)
+    FSREG  ft6,  (32 * REGBYTES + 13 * FPUREGBYTES)(sp)
+    FSREG  ft5,  (32 * REGBYTES + 14 * FPUREGBYTES)(sp)
+    FSREG  ft4,  (32 * REGBYTES + 15 * FPUREGBYTES)(sp)
+    FSREG  ft3,  (32 * REGBYTES + 16 * FPUREGBYTES)(sp)
+    FSREG  ft2,  (32 * REGBYTES + 17 * FPUREGBYTES)(sp)
+    FSREG  ft1,  (32 * REGBYTES + 18 * FPUREGBYTES)(sp)
+    FSREG  ft0,  (32 * REGBYTES + 19 * FPUREGBYTES)(sp)
+    /* Save FPU callee-saved registers (fs0-fs11) */
+    FSREG  fs11, (32 * REGBYTES + FPU_CALLER_REG_SIZE + 0  * FPUREGBYTES)(sp)
+    FSREG  fs10, (32 * REGBYTES + FPU_CALLER_REG_SIZE + 1  * FPUREGBYTES)(sp)
+    FSREG  fs9,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 2  * FPUREGBYTES)(sp)
+    FSREG  fs8,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 3  * FPUREGBYTES)(sp)
+    FSREG  fs7,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 4  * FPUREGBYTES)(sp)
+    FSREG  fs6,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 5  * FPUREGBYTES)(sp)
+    FSREG  fs5,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 6  * FPUREGBYTES)(sp)
+    FSREG  fs4,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 7  * FPUREGBYTES)(sp)
+    FSREG  fs3,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 8  * FPUREGBYTES)(sp)
+    FSREG  fs2,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 9  * FPUREGBYTES)(sp)
+    FSREG  fs1,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 10 * FPUREGBYTES)(sp)
+    FSREG  fs0,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 11 * FPUREGBYTES)(sp)
+    /* Save FCSR (t0 already saved above, safe to clobber) */
+    frcsr  t0
+    SREG   t0, FCSR_STACK_OFFSET(sp)
+#endif
 .endm
 
 .macro POP_ALL_REG
+#ifndef LOSCFG_ARCH_FPU_DISABLE
+    /* Restore FCSR first so subsequent FLREG use the right rounding mode */
+    LREG   t0, FCSR_STACK_OFFSET(sp)
+    fscsr  t0
+    /* Restore FPU callee-saved registers (fs0-fs11) */
+    FLREG  fs11, (32 * REGBYTES + FPU_CALLER_REG_SIZE + 0  * FPUREGBYTES)(sp)
+    FLREG  fs10, (32 * REGBYTES + FPU_CALLER_REG_SIZE + 1  * FPUREGBYTES)(sp)
+    FLREG  fs9,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 2  * FPUREGBYTES)(sp)
+    FLREG  fs8,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 3  * FPUREGBYTES)(sp)
+    FLREG  fs7,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 4  * FPUREGBYTES)(sp)
+    FLREG  fs6,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 5  * FPUREGBYTES)(sp)
+    FLREG  fs5,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 6  * FPUREGBYTES)(sp)
+    FLREG  fs4,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 7  * FPUREGBYTES)(sp)
+    FLREG  fs3,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 8  * FPUREGBYTES)(sp)
+    FLREG  fs2,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 9  * FPUREGBYTES)(sp)
+    FLREG  fs1,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 10 * FPUREGBYTES)(sp)
+    FLREG  fs0,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 11 * FPUREGBYTES)(sp)
+    /* Restore FPU caller-saved registers (ft0-ft11, fa0-fa7) */
+    FLREG  ft11, (32 * REGBYTES + 0  * FPUREGBYTES)(sp)
+    FLREG  ft10, (32 * REGBYTES + 1  * FPUREGBYTES)(sp)
+    FLREG  ft9,  (32 * REGBYTES + 2  * FPUREGBYTES)(sp)
+    FLREG  ft8,  (32 * REGBYTES + 3  * FPUREGBYTES)(sp)
+    FLREG  fa7,  (32 * REGBYTES + 4  * FPUREGBYTES)(sp)
+    FLREG  fa6,  (32 * REGBYTES + 5  * FPUREGBYTES)(sp)
+    FLREG  fa5,  (32 * REGBYTES + 6  * FPUREGBYTES)(sp)
+    FLREG  fa4,  (32 * REGBYTES + 7  * FPUREGBYTES)(sp)
+    FLREG  fa3,  (32 * REGBYTES + 8  * FPUREGBYTES)(sp)
+    FLREG  fa2,  (32 * REGBYTES + 9  * FPUREGBYTES)(sp)
+    FLREG  fa1,  (32 * REGBYTES + 10 * FPUREGBYTES)(sp)
+    FLREG  fa0,  (32 * REGBYTES + 11 * FPUREGBYTES)(sp)
+    FLREG  ft7,  (32 * REGBYTES + 12 * FPUREGBYTES)(sp)
+    FLREG  ft6,  (32 * REGBYTES + 13 * FPUREGBYTES)(sp)
+    FLREG  ft5,  (32 * REGBYTES + 14 * FPUREGBYTES)(sp)
+    FLREG  ft4,  (32 * REGBYTES + 15 * FPUREGBYTES)(sp)
+    FLREG  ft3,  (32 * REGBYTES + 16 * FPUREGBYTES)(sp)
+    FLREG  ft2,  (32 * REGBYTES + 17 * FPUREGBYTES)(sp)
+    FLREG  ft1,  (32 * REGBYTES + 18 * FPUREGBYTES)(sp)
+    FLREG  ft0,  (32 * REGBYTES + 19 * FPUREGBYTES)(sp)
+#endif
     LREG  t6, 2 * REGBYTES(sp)
     LREG  t5, 3 * REGBYTES(sp)
     LREG  t4, 4 * REGBYTES(sp)
@@ -102,61 +180,60 @@
     LREG  s1, 29 * REGBYTES(sp)
     LREG  s0, 30 * REGBYTES(sp)
     LREG  ra, 31 * REGBYTES(sp)
-    addi  sp, sp, 32 * REGBYTES
+    addi  sp, sp, 32 * REGBYTES + FPU_SAVE_SIZE
 .endm
 
-HalTaskContextSwitch:
+ArchTaskSchedule:
     PUSH_ALL_REG
 
     // clear mpie
-    li   a2, RISCV_MSTATUS_MPIE
-    not  a2, a2
-    and  a0, a0, a2
+    csrr t0, mstatus
+    li   t2, RISCV_MSTATUS_MPIE
+    not  t2, t2
+    and  t0, t0, t2
 
     // get mie
-    andi a1, a0, RISCV_MSTATUS_MIE
+    andi t1, t0, RISCV_MSTATUS_MIE
 
     // must be in machine mode
-    ori  a1, a1, 0x180
-    slli a1, a1, 0x4
-    or   a0, a0, a1
+    ori  t1, t1, 0x180
+    slli t1, t1, 0x4
+    or   t0, t0, t1
 
     // clear mie
-    li   a2, RISCV_MSTATUS_MIE
-    not  a2, a2
-    and  a0, a0, a2
+    li   t2, RISCV_MSTATUS_MIE
+    not  t2, t2
+    and  t0, t0, t2
 
-    SREG a0, 16 * REGBYTES(sp)
+#ifndef LOSCFG_ARCH_FPU_DISABLE
+    // keep FPU enabled (mstatus.FS = Dirty) so the task can use FP on resume
+    li   t2, RISCV_MSTATUS_FS
+    or   t0, t0, t2
+#endif
+
+    SREG t0, 16 * REGBYTES(sp)
+
     SREG ra, 17 * REGBYTES(sp)
 
-    la   a1, g_losTask
-    lw   a0, 0(a1)
-    sw   sp, TASK_CB_KERNEL_SP(a0)
+    // a0=newTask, a1=runTask
+    sw   sp, TASK_CB_KERNEL_SP(a1)
 
-    lw   a0, 4(a1)
-    sw   a0, 0(a1)
-
-HalStartToRun:
-    la   a1, g_losTask
-    lw   a0, 4(a1)
-
-// retireve stack pointer
+    .type ArchStartToRun, %function
+    .global ArchStartToRun
+ArchStartToRun:
     lw      sp, TASK_CB_KERNEL_SP(a0)
 
-// enable global interrupts
     lw      t0, 16 * REGBYTES(sp)
     csrw    mstatus, t0
 
-// retrieve the address at which exception happened
     lw      t0, 17 * REGBYTES(sp)
     csrw    mepc, t0
 
-// retrieve the registers
     POP_ALL_REG
 
     mret
 
-.section .text
+.section .text, "ax"
 HalDisableIRQ:
     li      t0, (RISCV_MSTATUS_MPIE | RISCV_MSTATUS_MIE) // mpie | mie
     csrrc   zero, mstatus, t0
@@ -172,7 +249,7 @@ ArchIntLock:
     csrrc   zero, mstatus, t0
     ret
 
-ArchIntUnLock:
+ArchIntUnlock:
     csrr    a0, mstatus           // return value
     li      t0, RISCV_MSTATUS_MIE   // mie
     csrrs   zero, mstatus, t0

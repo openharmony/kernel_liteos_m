@@ -1,0 +1,138 @@
+# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this list of
+#    conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice, this list
+#    of conditions and the following disclaimer in the documentation and/or other materials
+#    provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its contributors may be used
+#    to endorse or promote products derived from this software without specific prior written
+#    permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import("//kernel/liteos_m/liteos.gni")
+
+module_name = get_path_info(rebase_path("."), "name")
+kernel_module(module_name) {
+  sources = [
+    "los_init.c",
+    "los_hwi.c",
+    "sched/sched_sq/los_sched.c",
+    "sched/sched_sq/los_sched_tick.c",
+    "sched/sched_sq/los_priqueue.c",
+    "los_sortlink.c",
+    "los_swtmr.c",
+    "los_swtmr_debug.c",
+    "los_misc.c",
+    "los_percpu.c",
+    "los_task.c",
+    "los_tick.c",
+    "los_bitmap.c",
+    "los_exc.c",
+    "los_printf.c",
+    "utils/los_debug.c",
+    "utils/los_error.c",
+    "utils/los_hook.c",
+  ]
+
+  include_dirs = [
+    "include",
+    "../extended/backtrace",
+    "../extended/trace",
+    "../extended/trace/cnv" ]
+
+  if (defined(LOSCFG_BASE_IPC_EVENT)) {
+    sources += [ "los_event.c" ]
+  }
+  if (defined(LOSCFG_BASE_IPC_SEM)) {
+    sources += [ "los_sem.c" ]
+  }
+  if (defined(LOSCFG_BASE_IPC_MUX)) {
+    sources += [ "los_mux.c" ]
+  }
+  if (defined(LOSCFG_BASE_IPC_QUEUE)) {
+    sources += [ "los_queue.c" ]
+  }
+
+  if (defined(LOSCFG_BASE_IPC_RWSEM)) {
+    sources += [ "los_rwsem.c" ]
+  }
+
+  if (defined(LOSCFG_DEBUG_MUTEX)) {
+    sources += [ "los_mux_debug.c" ]
+  }
+  if (defined(LOSCFG_DEBUG_SEMAPHORE)) {
+    sources += [ "los_sem_debug.c" ]
+  }
+  if (defined(LOSCFG_DEBUG_QUEUE)) {
+    sources += [ "los_queue_debug.c" ]
+  }
+  if (defined(LOSCFG_KERNEL_MEM_TLSF)) {
+    sources += [ "mem/tlsf/los_memory.c" ]
+  }
+  if (defined(LOSCFG_KERNEL_MEM_BESTFIT)) {
+    sources += [
+      "mem/bestfit/los_memory.c",
+      "mem/bestfit/los_multipledlinkhead.c",
+    ]
+    include_dirs += [ "mem/bestfit" ]
+  }
+
+  if (defined(LOSCFG_KERNEL_MEM_BESTFIT_LITTLE)) {
+    sources += [
+      "mem/bestfit_little/los_memory.c",
+      "mem/bestfit_little/los_heap.c",
+    ]
+    include_dirs += [ "mem/bestfit_little" ]
+  }
+
+  if (defined(LOSCFG_MEM_TASK_STAT)) {
+    sources += [
+        "mem/common/memstat/los_memstat.c"
+    ]
+  }
+
+  if (defined(LOSCFG_KERNEL_MEMBOX_STATIC)) {
+    sources += [
+        "mem/membox/los_membox.c"
+    ]
+  }
+
+  if (defined(LOSCFG_KERNEL_MEMBOX_DYNAMIC)) {
+    sources += [
+        "mem/membox/los_membox_dyn.c"
+    ]
+  }
+
+  if (defined(LOSCFG_MEM_MUL_POOL)) {
+    sources += [
+        "mem/common/multipool/los_multipool.c"
+    ]
+  }
+
+  if (defined(LOSCFG_KERNEL_MEM_SLAB_EXTENTION)) {
+    sources += [
+        "mem/slab/los_slab.c",
+        "mem/slab/los_slabmem.c",
+    ]
+  }
+
+  configs += [ "$LITEOSTOPDIR:warn_config" ]
+}

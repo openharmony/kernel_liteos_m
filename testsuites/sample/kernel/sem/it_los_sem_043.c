@@ -23,8 +23,8 @@
  * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
  * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
  * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, TORT (INCLUDING NEGLIGENCE OR
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
@@ -55,21 +55,35 @@ static UINT32 Testcase(VOID)
         task.uwStackSize = TASK_STACK_SIZE_TEST;
         task.usTaskPrio = TASK_PRIO_TEST - 1;
 
+        g_testTaskID01 = OS_INVALID;
+        g_usSemID3[loop] = OS_INVALID;
+
         ret = LOS_SemCreate(0, &g_usSemID3[loop]);
         ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
         ret = LOS_TaskCreate(&g_testTaskID01, &task);
         ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
+        TEST_DELAY(g_testCount, 1, TEST_WAIT_TIMEOUT);
+
         ret = LOS_SemDelete(g_usSemID3[loop]);
         ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SEM_PENDED, ret, EXIT);
         LOS_TaskDelete(g_testTaskID01);
+        g_testTaskID01 = OS_INVALID;
+        LOS_SemDelete(g_usSemID3[loop]);
+        g_usSemID3[loop] = OS_INVALID;
     }
     return LOS_OK;
 EXIT:
+    if (g_testTaskID01 != OS_INVALID) {
+        (VOID)LOS_TaskDelete(g_testTaskID01);
+        g_testTaskID01 = OS_INVALID;
+    }
     for (loop = 0; loop < LOSCFG_BASE_IPC_SEM_LIMIT; loop++) {
-        LOS_SemDelete(g_usSemID3[loop]);
-        LOS_TaskDelete(g_testTaskID01);
+        if (g_usSemID3[loop] != OS_INVALID) {
+            (VOID)LOS_SemDelete(g_usSemID3[loop]);
+            g_usSemID3[loop] = OS_INVALID;
+        }
     }
 
     g_usLoop = 0;
@@ -82,4 +96,3 @@ VOID ItLosSem043(void)
 {
     TEST_ADD_CASE("ItLosSem043", Testcase, TEST_LOS, TEST_SEM, TEST_LEVEL2, TEST_PRESSURE);
 }
-

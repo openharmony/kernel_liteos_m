@@ -40,6 +40,9 @@ static VOID SwtmrF01(VOID)
 {
     UINT32 ret;
 
+    if (g_testCount >= 16) {
+        return;
+    }
     g_testCount++;
 
     g_uwEventMask = g_uwEventMask | (1 << g_testCount);
@@ -52,11 +55,10 @@ static VOID TaskF01(VOID)
 {
     UINT32 ret;
 
-    while (g_testCount < 16) { // 16, The number of times the test case task is executed.
-    }
+    TEST_BUSY_DELAY(g_testCount, 16, TEST_WAIT_TIMEOUT);
 
     ret = LOS_EventRead(&g_pevent, 0x1FFFF, LOS_WAITMODE_AND, LOS_WAIT_FOREVER);
-    ICUNIT_GOTO_EQUAL(ret, g_pevent.uwEventID, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(ret, 0x1FFFF, ret, EXIT);
     ICUNIT_GOTO_EQUAL(g_pevent.uwEventID, 0x1FFFF, g_pevent.uwEventID, EXIT);
 
     g_testCount1++;

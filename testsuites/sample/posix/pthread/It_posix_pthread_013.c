@@ -39,10 +39,10 @@ static VOID *PthreadF01(void *t)
     int rc;
 
     rc = pthread_mutex_lock(&g_pthreadMutexTest1);
-    ICUNIT_GOTO_EQUAL(rc, 0, rc, EXIT);
+    ICUNIT_GOTO_EQUAL(rc, 0, rc, EXIT1);
 
     g_testCount++;
-    LOS_TaskDelay(1);
+    TEST_DELAY(g_testCount, 2, TEST_WAIT_TIMEOUT); /* wait for PthreadF02 to increment */
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, here assert the result.
     g_testCount++;
 
@@ -54,6 +54,8 @@ static VOID *PthreadF01(void *t)
     ICUNIT_GOTO_EQUAL(rc, 0, rc, EXIT);
 
 EXIT:
+    pthread_mutex_unlock(&g_pthreadMutexTest1);
+EXIT1:
     return NULL;
 }
 
@@ -79,6 +81,7 @@ static VOID *PthreadF02(void *t)
     LOS_TaskDelay(2); // 2, delay for Timing control.
 
 EXIT:
+    pthread_cond_signal(&g_pthreadCondTest1);
     return NULL;
 }
 static UINT32 Testcase(VOID)

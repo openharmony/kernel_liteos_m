@@ -1,0 +1,103 @@
+menu "Memory Management"
+
+config KERNEL_MEM_ALLOC
+    bool "Dynamic Memory Management"
+    default y
+
+if KERNEL_MEM_ALLOC
+choice
+    prompt "Dynamic Memory Management Algorithm"
+    default KERNEL_MEM_TLSF
+
+config KERNEL_MEM_TLSF
+    bool "tlsf"
+    help
+      This option will change mem type as tlsf
+
+config KERNEL_MEM_BESTFIT
+    bool "bestfit"
+    help
+      This option will change mem type as bestfit
+
+config KERNEL_MEM_BESTFIT_LITTLE
+    bool "bestfit_little"
+    help
+      This option will change mem type as bestfit little
+endchoice
+
+config MEM_FREE_BY_TASKID
+    bool "Enable Mem Free By Task"
+    default n
+    depends on KERNEL_MEM_TLSF
+
+config KERNEL_MEM_SLAB_EXTENTION
+    bool "Enable Mem SLAB Extension"
+    default n
+    depends on KERNEL_MEM_ALLOC
+    depends on KERNEL_MEM_BESTFIT || KERNEL_MEM_BESTFIT_LITTLE
+
+config KERNEL_MEM_SLAB_AUTO_EXPANSION_MODE
+    bool "Enable Mem SLAB Auto Expansion Mode"
+    default n
+    depends on KERNEL_MEM_SLAB_EXTENTION
+
+config MEM_TASK_STAT
+    bool "Enable Memory Task Usage Statistics"
+    default n
+    depends on KERNEL_MEM_BESTFIT || KERNEL_MEM_BESTFIT_LITTLE
+    help
+      Answer Y to enable LiteOS support memory task statistics
+
+config MEM_MUL_POOL
+    bool "Enable Memory multi-pool control"
+    default y
+    depends on KERNEL_MEM_BESTFIT || KERNEL_MEM_BESTFIT_LITTLE || KERNEL_MEM_TLSF
+    help
+      Answer Y to enable LiteOS support memory multi-pool control
+
+config MEM_MUL_POOL_ALLOC
+    bool "Enable Memory multi-pool alloc"
+    default n
+    depends on MEM_MUL_POOL && KERNEL_MEM_BESTFIT
+    help
+      Answer Y to enable LiteOS support memory multi-pool alloc
+
+config MEM_MUL_MODULE
+    bool "Enable Memory module statistics"
+    default n
+    depends on KERNEL_MEM_BESTFIT
+    help
+      Answer Y to enable LiteOS support memory statistics depend on different module
+
+config MEM_MODULE_MAX
+    int "Max Memory Module Number"
+    default 32
+    range 8 1024
+    depends on MEM_MUL_MODULE
+    help
+      This represents the maximum number of Memory Module
+endif
+
+config KERNEL_MEMBOX
+    bool "Membox Management"
+    default y
+
+choice
+    prompt "Membox Management Algorithm"
+    default KERNEL_MEMBOX_STATIC
+    depends on KERNEL_MEMBOX
+
+config KERNEL_MEMBOX_STATIC
+    bool "static memory"
+    help
+      This option will change membox implemented with input memory
+
+config KERNEL_MEMBOX_DYNAMIC
+    bool "dynamic memory"
+    depends on KERNEL_MEM_ALLOC
+    help
+      This option will change membox implemented with dynamic allocated memory
+
+endchoice
+
+endmenu

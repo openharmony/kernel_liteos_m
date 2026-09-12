@@ -34,4 +34,7 @@ void MathFuncTest(void)
 {
     MathApiTest();
     MathStdApiTest();
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
+    MathFPUTest();
+#endif
 }

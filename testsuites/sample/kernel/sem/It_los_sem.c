@@ -60,7 +60,9 @@ VOID ItSuiteLosSem(void)
     ItLosSem028();
     ItLosSem029();
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
+#if (LOS_FEATURE_ADAPTED == 1)
     ItLosSem031();
+#endif
 #endif
     ItLosSem032();
     ItLosSem038();
@@ -83,5 +85,10 @@ VOID ItSuiteLosSem(void)
     ItLosSem036();
     ItLosSem037();
     ItLosSem039();
+    ItLosSem301();
+    ItLosSem302();
+    ItLosSem303();
+    ItLosSem304();
+    ItLosSem305();
 #endif
 }

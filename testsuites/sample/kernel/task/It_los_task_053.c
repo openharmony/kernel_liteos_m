@@ -51,7 +51,7 @@ static VOID TaskF01(VOID)
 
     g_testCount++;
 
-    ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, HwiF01, 0);
+    ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, (HWI_PROC_FUNC)HwiF01, 0);
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
     TestHwiTrigger(HWI_NUM_TEST);
@@ -77,15 +77,16 @@ static UINT32 TestCase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    ICUNIT_ASSERT_EQUAL(g_testCount, 2, g_testCount); // 2, Here, assert that g_testCount is equal to 2.
+    ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
     g_testCount++;
 
     ret = LOS_TaskResume(g_testTaskID01);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     LOS_TaskDelay(20); // 20, set delay time
 
-    ICUNIT_ASSERT_EQUAL(g_testCount, 4, g_testCount); // 4, Here, assert that g_testCount is equal to 4.
+    ICUNIT_GOTO_EQUAL(g_testCount, 4, g_testCount, EXIT); // 4, Here, assert that g_testCount is equal to 4.
+EXIT:
     TestHwiDelete(HWI_NUM_TEST);
     return LOS_OK;
 }

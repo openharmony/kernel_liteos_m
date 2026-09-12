@@ -58,7 +58,7 @@ static BOOL PosixFsFuncTestSuiteSetUp(void)
  */
 static BOOL PosixFsFuncTestSuiteTearDown(void)
 {
-    printf("+-------------------------------------------+\n");
+    dprintf("+-------------------------------------------+\n");
     return TRUE;
 }
 

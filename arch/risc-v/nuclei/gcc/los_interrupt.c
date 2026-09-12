@@ -34,6 +34,7 @@
 #include "los_arch.h"
 #include "los_arch_interrupt.h"
 #include "los_arch_context.h"
+#include "los_hwi_pri.h"
 #include "los_task.h"
 #include "los_debug.h"
 #include "nuclei_sdk_hal.h"

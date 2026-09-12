@@ -154,8 +154,14 @@ warn_config_cflags += [
   "-Wpointer-arith",
   "-Wstrict-prototypes",
   "-Winvalid-pch",
-  "-Wno-address-of-packed-member",
 ]
+
+if (ohos_build_compiler == "clang") {
+  warn_config_cflags += [ "-Wno-unused-function" ]
+}
+if (!defined(LOSCFG_ARCH_RISCV)) {
+  warn_config_cflags += [ "-Wno-address-of-packed-member" ]
+}
 warn_config_asmflags += warn_config_cflags
 
 #

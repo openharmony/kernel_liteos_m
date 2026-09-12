@@ -111,6 +111,8 @@ static_library("test_swtmr") {
     "It_los_swtmr_079.c",
     "It_los_swtmr_080.c",
     "It_los_swtmr_081.c",
+  "It_los_swtmr_121.c",
+  "It_los_swtmr_122.c",
     "It_los_swtmr_Align_001.c",
     "It_los_swtmr_Align_002.c",
     "It_los_swtmr_Align_003.c",
@@ -146,6 +148,10 @@ static_library("test_swtmr") {
     "It_los_swtmr_Delay_003.c",
     "It_los_swtmr_Delay_004.c",
     "It_los_swtmr_Delay_005.c",
+    "It_los_swtmr_Api_001.c",
+    "It_los_swtmr_Api_002.c",
+    "It_los_swtmr_Api_003.c",
+    "It_los_swtmr_Api_004.c",
   ]
 
   configs += [ "$LITEOSTOPDIR/testsuites:include" ]

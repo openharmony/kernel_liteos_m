@@ -42,8 +42,12 @@
 extern "C" {
 #endif
 
+#ifndef dprintf
+#define dprintf PRINTK
+#endif
+
 #ifdef DEBUG_LOG_OUT
-    #define LOG printf
+    #define LOG dprintf
 #else
     #define LOG(...)
 #endif

@@ -39,4 +39,6 @@
 #include <math.h>
 #include <limits.h>
 
+extern void MathFPUTest(void);
+
 #endif

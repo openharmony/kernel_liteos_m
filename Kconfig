@@ -137,6 +137,24 @@ config PLATFORM_QEMU_XTENSA_ESP32
     help
         QEMU ESP32 Virtual Platform using xtensa CPU.
 
+config PLATFORM_WS63_M
+    bool "ws63_m"
+    select ARCH_RISCV32
+    help
+        HiSilicon WS63 NearLink DK 3863 board (RISC-V LinxCore131).
+
+config PLATFORM_NRF52832
+    bool "nrf52832"
+    select ARCH_CORTEX_M4
+    help
+        Nordic nRF52832 dev board (ARM Cortex-M4F, 512KB Flash / 64KB RAM).
+
+config PLATFORM_HI3322
+    bool "hi3322"
+    select ARCH_RISCV32
+    help
+        HiSilicon HI3322 wearable SoC (RISC-V LinxCore).
+
 endchoice
 
 choice
@@ -188,167 +206,20 @@ orsource "../../device/soc/*/Kconfig.liteos_m.soc"
 endmenu
 
 ######################### config options of kernel #####################
-menu "Kernel"
-
-######################### config options of extended #####################
-
-config KERNEL_EXTKERNEL
-    bool "Enable Extend Kernel"
-    default y
-    help
-      This option will enable extend Kernel of LiteOS.  Extend kernel include
-      cppsupport, cpup, etc. You can select one or some
-      of them.
-
-config KERNEL_BACKTRACE
-    bool "Enable Backtrace"
-    default n
-    depends on KERNEL_EXTKERNEL
-    help
-      If you wish to build LiteOS with support for backtrace.
-
-choice
-    prompt "Select Backtrace Type"
-    depends on KERNEL_BACKTRACE
-
-config BACKTRACE_TYPE_1
-    bool "1: Call stack analysis for cortex-m series by scanning the stack"
-    depends on ARCH_ARM && !ARCH_ARM9
-
-config BACKTRACE_TYPE_2
-    bool "2: Call stack analysis for risc-v by using frame pointer"
-    depends on ARCH_RISCV
-
-config BACKTRACE_TYPE_3
-    bool "3: Call stack analysis for risc-v by scanning the stack"
-    depends on ARCH_RISCV
-
-config BACKTRACE_TYPE_4
-    bool "4: Call stack analysis for xtensa by scanning the stack"
-    depends on ARCH_XTENSA
-
-config BACKTRACE_TYPE_5
-    bool "5: Call stack analysis for c-sky by scanning the stack"
-    depends on ARCH_CSKY
-
-config BACKTRACE_TYPE_6
-    bool "6: Call stack analysis for arm9 by scanning the stack"
-    depends on ARCH_ARM9
-
-endchoice
-
-config BACKTRACE_TYPE
-    int
-    default 0 if ! KERNEL_BACKTRACE
-    default 1 if BACKTRACE_TYPE_1
-    default 2 if BACKTRACE_TYPE_2
-    default 3 if BACKTRACE_TYPE_3
-    default 4 if BACKTRACE_TYPE_4
-    default 5 if BACKTRACE_TYPE_5
-    default 6 if BACKTRACE_TYPE_6
-
-config BACKTRACE_DEPTH
-    int "Backtrace depth"
-    default 15
-    depends on KERNEL_BACKTRACE
-
-config KERNEL_CPPSUPPORT
-    bool "Enable C++ Support"
-    default n
-    depends on KERNEL_EXTKERNEL
-    help
-      If you wish to build LiteOS with support for C++.
-
-rsource "components/signal/Kconfig"
-
-config BASE_CORE_CPUP
-    bool
-    default n
-
-config KERNEL_CPUP
-    bool "Enable Cpup"
-    default n
-    depends on KERNEL_EXTKERNEL
-    select BASE_CORE_CPUP
-    help
-      If you wish to build LiteOS with support for cpup.
-
-config CPUP_INCLUDE_IRQ
-    bool "Enable Cpup include irq"
-    default y
-    depends on KERNEL_CPUP
-    help
-      If you wish to include irq usage for cpup.
-
-config KERNEL_DYNLINK
-    bool "Enable Dynamic Link Feature"
-    default n
-    depends on KERNEL_EXTKERNEL && ARCH_ARM
-    help
-      If you wish to build LiteOS with support for dynamic link.
-
-config KERNEL_PM
-    bool "Enable Power Management"
-    default n
-    depends on KERNEL_EXTKERNEL
-    help
-      Configuration item for low power frame tailoring.
-      If you wish to build LiteOS with support for power management.
-
-config KERNEL_PM_IDLE
-    bool "Enable Power Management Idle"
-    default n
-    depends on KERNEL_PM
-    help
-      Configuration item for low power frame tailoring.
-      If you wish to build LiteOS with support for power management idle.
-
-config KERNEL_PM_DEBUG
-    bool "Power Management Debug"
-    default n
-    depends on KERNEL_PM
-    help
-      Configuration item for low power frame debug tailoring.
-
-config PLATFORM_EXC
-    bool "Enable Platform Exc Hook"
-    default n
-    depends on KERNEL_EXTKERNEL
-
-config KERNEL_LMK
-    bool "Enable Low Memory Killer"
-    default n
-    depends on KERNEL_EXTKERNEL
-    help
-      Configuration item for low memory killer tailoring.
-      If you wish to build LiteOS with support for low memory killer.
-
-config KERNEL_LMK_DEBUG
-    bool "Low Memory Killer Debug"
-    default n
-    depends on KERNEL_LMK
-    help
-      Configuration item forlow memory killer debug tailoring.
-
-######################### config options of trace #########################
-source "components/trace/Kconfig"
-
-######################### config options of lms #########################
-source "components/lms/Kconfig"
-
-endmenu
+rsource "kernel/Kconfig"
 
 ######################### config options of compatibility ##############
 menu "Compat"
 
-rsource "kal/Kconfig"
+rsource "compat/Kconfig"
+rsource "lib/Kconfig"
 
 endmenu
 
 ######################## config options of filesystem ##################
 menu "FileSystem"
 
-rsource "components/fs/Kconfig"
+rsource "fs/Kconfig"
 
 endmenu
 
@@ -442,24 +313,71 @@ config MEM_LEAKCHECK
     bool "Enable Function call stack of Mem operation recorded"
     default n
     depends on DEBUG_VERSION && MEM_DEBUG
+    depends on KERNEL_MEM_TLSF || KERNEL_MEM_BESTFIT
+    # TLSF + MEM_FREE_BY_TASKID uses a 26-bit bitfield for sizeAndFlag, where
+    # LEAK_FLAG (1U<<23) overlaps with size bit 23 for heaps > 8MB, corrupting
+    # GET_SIZE. bestfit uses a full UINT32 and is unaffected.
+    depends on !(KERNEL_MEM_TLSF && MEM_FREE_BY_TASKID)
     select KERNEL_BACKTRACE
     help
       Answer Y to enable record the LR of Function call stack of Mem operation, it can check the mem leak through the information of mem node.
+
+config MEM_OMIT_LR_CNT
+    int "Number of ignored layers for backtrace."
+    default 3
+    depends on MEM_LEAKCHECK
+    help
+      The omit layers of function call from kernel memory interfaces such as LOS_MemAlloc/LOS_MemAllocAlign/LOS_MemRealloc/LOS_MemFree.
+
+config MEM_RECORD_LR_CNT
+    int "Number of layers for backtrace."
+    default 4
+    depends on MEM_LEAKCHECK
+    help
+      The record number of layers of the function call relationship starting from the number of
+      ignored layers(LOSCFG_MEM_OMIT_LR_CNT).
+
 config BASE_MEM_NODE_INTEGRITY_CHECK
     bool "Enable integrity check or not"
     default n
     depends on DEBUG_VERSION && MEM_DEBUG
+    depends on KERNEL_MEM_TLSF || KERNEL_MEM_BESTFIT
+
 config MEM_WATERLINE
     bool "Enable memory pool waterline or not"
     default n
     depends on DEBUG_VERSION && MEM_DEBUG
+    depends on KERNEL_MEM_TLSF
 
 config TASK_MEM_USED
     bool "Enable show task mem used or not"
     default n
     depends on DEBUG_VERSION && MEM_DEBUG
+    depends on KERNEL_MEM_TLSF
 
-source "components/shell/Kconfig"
+config MEM_HEAD_BACKUP
+    bool "Enable Node Head Backup"
+    default n
+    depends on MEM_DEBUG && KERNEL_MEM_BESTFIT
+    help
+      Answer Y to enable node head backup
+
+config BASE_MEM_NODE_SIZE_CHECK
+    bool "Enable size check or not"
+    default n
+    depends on MEM_DEBUG && KERNEL_MEM_BESTFIT
+
+config SHELL_EXCINFO_DUMP
+    bool "Enable shell exception info dump"
+    default n
+    depends on PLATFORM_EXC
+    help
+      Answer Y to enable exception info dump framework. When enabled, the
+      kernel records exception information into a buffer via registered
+      dump hook, so that the information can be persisted (e.g. to flash)
+      and later read back for diagnosis.
+
+source "shell/Kconfig"
 
 endmenu
 
@@ -498,6 +416,10 @@ config KERNEL_TEST
     select TEST
 config KERNEL_TEST_FULL
     bool "Full Kernel Test"
+    default n
+    depends on KERNEL_TEST
+config KERNEL_TEST_MANUAL
+    bool "Manual Kernel Test"
     default n
     depends on KERNEL_TEST
 endmenu

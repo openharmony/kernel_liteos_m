@@ -131,6 +131,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathAbs002, Function | MediumTest | L
     return 0;
 };
 
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
 /* *
  * @tc.number     SUB_KERNEL_MATH_LOG_001
  * @tc.name       log basic function test
@@ -142,7 +143,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathLog001, Function | MediumTest | L
     double testValues[] = { 0.5, 5.5, 1};
     double expected[] = { -0.69314718055994528623, 1.70474809223842527217, 0.00000000000000000000};
     double ret;
-    PRINT_EMG("GZHTESTLOG PRINT_EMG: %lf, %lf, %lf", testValues[0], testValues[1], testValues[2]);
+    dprintf("GZHTESTLOG PRINT_EMG: %lf, %lf, %lf", testValues[0], testValues[1], testValues[2]);
     LOG("GZHTESTLOG LOG: %lf, %lf, %lf", testValues[0], testValues[1], testValues[2]);
     for (int i = 0; i < testCount; ++i) {
         ret = log(testValues[i]);
@@ -342,6 +343,7 @@ LITE_TEST_CASE(PosixMathFuncTestSuite, testMathRound002, Function | MediumTest |
     }
     return 0;
 };
+#endif
 
 RUN_TEST_SUITE(PosixMathFuncTestSuite);
 
@@ -350,6 +352,7 @@ void PosixMathFuncTest()
     LOG("begin PosixMathFuncTest....");
     RUN_ONE_TESTCASE(testMathAbs001);
     RUN_ONE_TESTCASE(testMathAbs002);
+#if !defined(LOSCFG_ARCH_FPU_DISABLE)
     RUN_ONE_TESTCASE(testMathLog001);
     RUN_ONE_TESTCASE(testMathLog002);
     RUN_ONE_TESTCASE(testMathSqrt001);
@@ -359,6 +362,7 @@ void PosixMathFuncTest()
     RUN_ONE_TESTCASE(testMathPow003);
     RUN_ONE_TESTCASE(testMathRound001);
     RUN_ONE_TESTCASE(testMathRound002);
+#endif
 
     return;
 }

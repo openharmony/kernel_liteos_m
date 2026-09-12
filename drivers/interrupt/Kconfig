@@ -1,0 +1,6 @@
+config RISCV_LCMP_CLIC
+    bool "RISC-V LCMP CLIC interrupt controller"
+    select ARCH_INTERRUPT_TAKEOVER
+    help
+      RISC-V Core-Local Interrupt Controller (CLIC) for LinxCore.
+      Used by HI3322. Does not auto-clear pending bits (unlike PLIC).

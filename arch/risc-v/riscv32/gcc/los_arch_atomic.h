@@ -35,6 +35,8 @@
 #include "los_compiler.h"
 #include "los_interrupt.h"
 
+#ifdef LOSCFG_ARCH_RISCV_HW_ATOMIC
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -146,7 +148,7 @@ STATIC INLINE INT32 ArchAtomicDecRet(Atomic *v)
  * <ul><li>los_arch_atomic.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
-STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
+STATIC INLINE INT32 ArchAtomicXchg32bits(Atomic *v, INT32 val)
 {
     INT32 prevVal = 0;
     UINT32 intSave;
@@ -182,7 +184,7 @@ STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
  * <ul><li>los_arch_atomic.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
-STATIC INLINE BOOL ArchAtomicCmpXchg32bits(volatile INT32 *v, INT32 val, INT32 oldVal)
+STATIC INLINE BOOL ArchAtomicCmpXchg32bits(Atomic *v, INT32 val, INT32 oldVal)
 {
     INT32 prevVal = 0;
     UINT32 intSave;
@@ -200,105 +202,17 @@ STATIC INLINE BOOL ArchAtomicCmpXchg32bits(volatile INT32 *v, INT32 val, INT32 o
     return prevVal != oldVal;
 }
 
-STATIC INLINE INT64 ArchAtomic64Read(const Atomic64 *v)
-{
-    INT64 val;
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
-    val = *v;
-    LOS_IntRestore(intSave);
-
-    return val;
-}
-
-STATIC INLINE VOID ArchAtomic64Set(Atomic64 *v, INT64 setVal)
-{
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
-    *v = setVal;
-    LOS_IntRestore(intSave);
-}
-
-STATIC INLINE INT64 ArchAtomic64Add(Atomic64 *v, INT64 addVal)
-{
-    INT64 val;
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
-    *v += addVal;
-    val = *v;
-    LOS_IntRestore(intSave);
-
-    return val;
-}
-
-STATIC INLINE INT64 ArchAtomic64Sub(Atomic64 *v, INT64 subVal)
-{
-    INT64 val;
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
-    *v -= subVal;
-    val = *v;
-    LOS_IntRestore(intSave);
-
-    return val;
-}
-
-STATIC INLINE VOID ArchAtomic64Inc(Atomic64 *v)
-{
-    (VOID)ArchAtomic64Add(v, 1);
-}
-
-STATIC INLINE INT64 ArchAtomic64IncRet(Atomic64 *v)
-{
-    return ArchAtomic64Add(v, 1);
-}
-
-STATIC INLINE VOID ArchAtomic64Dec(Atomic64 *v)
-{
-    (VOID)ArchAtomic64Sub(v, 1);
-}
-
-STATIC INLINE INT64 ArchAtomic64DecRet(Atomic64 *v)
-{
-    return ArchAtomic64Sub(v, 1);
-}
-
-STATIC INLINE INT64 ArchAtomicXchg64bits(Atomic64 *v, INT64 val)
-{
-    INT64 prevVal;
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
-    prevVal = *v;
-    *v = val;
-    LOS_IntRestore(intSave);
-
-    return prevVal;
-}
-
-STATIC INLINE BOOL ArchAtomicCmpXchg64bits(Atomic64 *v, INT64 val, INT64 oldVal)
-{
-    INT64 prevVal;
-    UINT32 intSave;
-
-    intSave = LOS_IntLock();
-    prevVal = *v;
-    if (prevVal == oldVal) {
-        *v = val;
-    }
-    LOS_IntRestore(intSave);
-
-    return prevVal != oldVal;
-}
-
 #ifdef __cplusplus
 #if __cplusplus
 }
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
+#include "arch_generic/atomic64.h"
+
+#else /* LOSCFG_ARCH_RISCV_HW_ATOMIC */
+
+#include "arch_generic/atomic.h"
+
+#endif /* LOSCFG_ARCH_RISCV_HW_ATOMIC */
 #endif /* _LOS_ARCH_ATOMIC_H */

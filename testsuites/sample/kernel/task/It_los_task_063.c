@@ -38,10 +38,9 @@ static VOID TaskF02(VOID)
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 2, g_testCount); // 2, Here, assert that g_testCount is equal to 2.
     g_testCount++;
 
-    while (g_testCount != 4) { // 4, wait until g_testCount == 4.
-    }
+    TEST_DELAY(g_testCount, 4, TEST_WAIT_TIMEOUT);
 
-    ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 4, g_testCount); // 4, Here, assert that g_testCount is equal to 4.
+    ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 4, g_testCount);
     g_testCount++;
 
     LOS_TaskDelete(g_testTaskID02);
@@ -52,9 +51,9 @@ static VOID TaskF01(VOID)
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 0, g_testCount);
     g_testCount++;
 
-    LOS_TaskDelay(10); // 10, set delay time
+    TEST_DELAY(g_testCount, 3, TEST_WAIT_TIMEOUT);
 
-    ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 3, g_testCount); // 3, Here, assert that g_testCount is equal to 3.
+    ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 3, g_testCount);
     g_testCount++;
 
     LOS_TaskDelete(g_testTaskID01);
@@ -86,7 +85,8 @@ static UINT32 TestCase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID02, &task1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-    ICUNIT_ASSERT_EQUAL(g_testCount, 5, g_testCount); // 5, Here, assert that g_testCount is equal to 5.
+    TEST_DELAY(g_testCount, 5, TEST_WAIT_TIMEOUT);
+    ICUNIT_ASSERT_EQUAL(g_testCount, 5, g_testCount);
 
     return LOS_OK;
 }

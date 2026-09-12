@@ -37,7 +37,6 @@ static VOID TaskF01(VOID)
 {
     UINT32 ret;
     g_testCount++;
-
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 1, g_testCount);
 
     ret = LOS_TaskDelete(g_testTaskID01);
@@ -48,7 +47,6 @@ static VOID TaskF02(VOID)
 {
     UINT32 ret;
     g_testCount++;
-
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 2, g_testCount); // 2, Here, assert that g_testCount is equal to 2.
 
     ret = LOS_TaskDelete(g_testTaskID02);
@@ -62,7 +60,7 @@ static UINT32 TestCase(VOID)
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF01;
     task1.uwStackSize = TASK_STACK_SIZE_TEST;
     task1.pcName = "Tsk038A";
-    task1.usTaskPrio = TASK_PRIO_TEST - 1;
+    task1.usTaskPrio = TASK_PRIO_TEST - 2;
     task1.uwResved = LOS_TASK_STATUS_DETACHED;
     g_testCount = 0;
 
@@ -74,6 +72,7 @@ static UINT32 TestCase(VOID)
 
     task1.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
     task1.pcName = "Tsk038B";
+    task1.usTaskPrio = TASK_PRIO_TEST - 1;
     ret = LOS_TaskCreate(&g_testTaskID02, &task1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 

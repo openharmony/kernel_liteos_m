@@ -100,6 +100,31 @@ extern "C" {
 extern UINT64 LOS_SysCycleGet(VOID);
 
 /**
+ * @ingroup  los_tick
+ * @brief Obtain system cycle count.
+ *
+ * @par Description:
+ * This API is used to obtain system cycle count since the system startup.
+ *
+ * @attention
+ * <ul>
+ * <li>This count is determined by the tick source.</li>
+ * <li>Parameters of this interface are pointers, it should be a correct value. Otherwise, the
+ * system may be abnormal.</li>
+ * </ul>
+ *
+ * @param  highCnt    [OUT] Type  #UINT32 Pointer to the higher 32bit of cycles to be obtained.
+ * @param  lowCnt     [OUT] Type  #UINT32 Pointer to the lower 32bit of cycles to be obtained.
+ *
+ * @retval None.
+ *
+ * @par Dependency:
+ * <ul><li>los_tick.h: the header file that contains the API declaration.</li></ul>
+ * @see LOS_TickCountGet
+ */
+extern VOID LOS_GetCpuCycle(UINT32 *highCnt, UINT32 *lowCnt);
+
+/**
  * @ingroup los_tick
  * Number of milliseconds in one second.
  */
@@ -435,6 +460,7 @@ extern UINT32 LOS_TickTimerRegister(const ArchTickTimer *timer, const HWI_PROC_F
  * @see None.
  */
 extern VOID LOS_UDelay(UINT64 microseconds);
+#define LOS_Udelay LOS_UDelay
 
 /* *
  * @ingroup  los_task
@@ -454,6 +480,7 @@ extern VOID LOS_UDelay(UINT64 microseconds);
  * @see None.
  */
 extern VOID LOS_MDelay(UINT32 millisec);
+#define LOS_Mdelay LOS_MDelay
 
 /* *
  * @ingroup  los_task

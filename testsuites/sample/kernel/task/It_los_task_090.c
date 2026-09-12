@@ -41,6 +41,7 @@ static VOID TaskF01(VOID)
     ret = LOS_TaskYield();
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
+    TEST_DELAY(g_testCount, 2, TEST_WAIT_TIMEOUT);
     ICUNIT_GOTO_EQUAL(g_testCount, 2, g_testCount, EXIT); // 2, Here, assert that g_testCount is equal to 2.
     g_testCount++;
 EXIT:
@@ -66,8 +67,9 @@ static UINT32 TestCase(VOID)
     task1.usTaskPrio = TASK_PRIO_TEST - 1;
     task1.uwResved = LOS_TASK_STATUS_DETACHED;
 
-    g_testCount = 0;
+    LOS_TaskDelay(1);
     LOS_TaskLock();
+    g_testCount = 0;
     ret = LOS_TaskCreate(&g_testTaskID01, &task1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
@@ -79,6 +81,7 @@ static UINT32 TestCase(VOID)
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
     LOS_TaskUnlock();
 
+    TEST_DELAY(g_testCount, 3, TEST_WAIT_TIMEOUT);
     ICUNIT_ASSERT_EQUAL(g_testCount, 3, g_testCount); // 3, Here, assert that g_testCount is equal to 3.
 
     return LOS_OK;

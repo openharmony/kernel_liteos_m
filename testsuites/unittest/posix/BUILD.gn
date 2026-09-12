@@ -58,6 +58,14 @@ static_library("posix_test") {
     "src/string/string_func_test_03.c",
     "src/string/strstr_test.c",
     "src/time/time_func_test_01.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_001.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_003.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_004.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_006.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_007.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_008.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_009.c",
   ]
 
   if (defined(LOSCFG_SUPPORT_FATFS) || defined(LOSCFG_SUPPORT_LITTLEFS)) {

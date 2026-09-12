@@ -15,6 +15,8 @@
 
 #include "It_los_queue.h"
 
+#if (LOS_KERNEL_MULTI_HWI_TEST == 1)
+
 
 static VOID HwiF01(VOID)
 {
@@ -48,12 +50,12 @@ static UINT32 Testcase(VOID)
     (VOID)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
     irqParam.pDevId = 0;
     ret = LOS_HwiCreate(HWI_NUM_TEST, hwiPrio, mode, (HWI_PROC_FUNC)HwiF01, &irqParam);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     (VOID)memset_s(&irqParam, sizeof(HwiIrqParam), 0, sizeof(HwiIrqParam));
     irqParam.pDevId = 0;
     ret = LOS_HwiCreate(HWI_NUM_TEST0, hwiPrio, mode, (HWI_PROC_FUNC)HwiF02, &irqParam);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     TestHwiTrigger(HWI_NUM_TEST);
 
@@ -74,4 +76,5 @@ VOID ItLosQueueIsr010(VOID)
 {
     TEST_ADD_CASE("ItLosQueueIsr010", Testcase, TEST_LOS, TEST_QUE, TEST_LEVEL1, TEST_FUNCTION);
 }
+#endif
 

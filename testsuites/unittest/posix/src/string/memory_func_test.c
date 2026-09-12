@@ -61,7 +61,7 @@ static BOOL PosixMemFuncTestSuiteSetUp(void)
  */
 static BOOL PosixMemFuncTestSuiteTearDown(void)
 {
-    printf("+Hello this is a memory function test+\n");
+    dprintf("+Hello this is a memory function test+\n");
     return TRUE;
 }
 
@@ -97,7 +97,7 @@ LITE_TEST_CASE(PosixMemFuncTestSuite, testOsMemMemcpy001, Function | MediumTest 
     for (int i = 0; i < 16; i++) {
         ICUNIT_ASSERT_EQUAL(buf[i + 16], buf[i], 0);
         if (buf[i + 16] != buf[i]) {
-            printf("String Copy error \r\n");
+            dprintf("String Copy error \r\n");
             break;
         }
     }

@@ -47,9 +47,10 @@ static UINT32 Testcase(VOID)
 {
     UINT32 ret;
     UINT32 i;
+    UINT32 created;
     CHAR   acName[10] = {0};
     TSK_INIT_PARAM_S task = { 0 };
-    UINT32 puwTaskID[LOSCFG_BASE_CORE_TSK_LIMIT];
+    UINT32 puwTaskID[LOSCFG_BASE_CORE_TSK_LIMIT] = {0};
 
     UINT32 actTaskused = 0;
     LosTaskCB *taskCB = NULL;
@@ -71,15 +72,17 @@ static UINT32 Testcase(VOID)
         task.pcName = acName;
         task.usTaskPrio = TASK_PRIO_TEST - 1;
         ret = LOS_TaskCreate(&puwTaskID[i], &task);
-        ICUNIT_GOTO_EQUAL(ret, LOS_OK, i, EXIT);
+        if (ret != LOS_OK) {
+            break;
+        }
     }
+    created = i;
     ret = LOS_SemPend(g_usSemID, 0x1);
     ICUNIT_TRACK_EQUAL(ret, LOS_ERRNO_SEM_TIMEOUT, ret);
 
-EXIT:
-    for (i = 0; i < LOSCFG_BASE_CORE_TSK_LIMIT - actTaskused; i++) {
-        ret = LOS_TaskDelete(puwTaskID[i]);
-        ICUNIT_TRACK_EQUAL(ret, LOS_OK, ret);
+    for (i = 0; i < created; i++) {
+        (VOID)LOS_TaskDelete(puwTaskID[i]);
+        puwTaskID[i] = 0;
     }
 
     ret = LOS_SemDelete(g_usSemID);

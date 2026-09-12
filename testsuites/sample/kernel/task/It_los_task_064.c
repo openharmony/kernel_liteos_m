@@ -53,7 +53,7 @@ static VOID TaskF02(VOID)
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 1, g_testCount);
     g_testCount++;
 
-    ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, HwiF01, 0);
+    ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, (HWI_PROC_FUNC)HwiF01, 0);
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_OK, ret);
 
     TestHwiTrigger(HWI_NUM_TEST);

@@ -61,7 +61,7 @@ static BOOL PosixSysFuncTestSuiteSetUp(void)
  */
 static BOOL PosixSysFuncTestSuiteTearDown(void)
 {
-    printf("+Hello this is a System function test+\n");
+    dprintf("+Hello this is a System function test+\n");
     return TRUE;
 }
 

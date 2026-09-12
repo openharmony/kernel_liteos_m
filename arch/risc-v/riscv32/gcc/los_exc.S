@@ -34,7 +34,7 @@
 #include "soc_common.h"
 
 .macro PUSH_CALLER_REG
-    addi sp, sp, -(32 * REGBYTES)
+    addi sp, sp, -(32 * REGBYTES + FPU_SAVE_SIZE)
     SREG  t6, 2 * REGBYTES(sp)
     SREG  t5, 3 * REGBYTES(sp)
     SREG  t4, 4 * REGBYTES(sp)
@@ -55,11 +55,63 @@
     SREG  t0, 16 * REGBYTES(sp)
     csrr  t0, mepc
     SREG  t0, 17 * REGBYTES(sp)
+#ifndef LOSCFG_ARCH_FPU_DISABLE
+    /* Save FPU caller-saved registers (ft0-ft11, fa0-fa7) */
+    FSREG  ft11, (32 * REGBYTES + 0  * FPUREGBYTES)(sp)
+    FSREG  ft10, (32 * REGBYTES + 1  * FPUREGBYTES)(sp)
+    FSREG  ft9,  (32 * REGBYTES + 2  * FPUREGBYTES)(sp)
+    FSREG  ft8,  (32 * REGBYTES + 3  * FPUREGBYTES)(sp)
+    FSREG  fa7,  (32 * REGBYTES + 4  * FPUREGBYTES)(sp)
+    FSREG  fa6,  (32 * REGBYTES + 5  * FPUREGBYTES)(sp)
+    FSREG  fa5,  (32 * REGBYTES + 6  * FPUREGBYTES)(sp)
+    FSREG  fa4,  (32 * REGBYTES + 7  * FPUREGBYTES)(sp)
+    FSREG  fa3,  (32 * REGBYTES + 8  * FPUREGBYTES)(sp)
+    FSREG  fa2,  (32 * REGBYTES + 9  * FPUREGBYTES)(sp)
+    FSREG  fa1,  (32 * REGBYTES + 10 * FPUREGBYTES)(sp)
+    FSREG  fa0,  (32 * REGBYTES + 11 * FPUREGBYTES)(sp)
+    FSREG  ft7,  (32 * REGBYTES + 12 * FPUREGBYTES)(sp)
+    FSREG  ft6,  (32 * REGBYTES + 13 * FPUREGBYTES)(sp)
+    FSREG  ft5,  (32 * REGBYTES + 14 * FPUREGBYTES)(sp)
+    FSREG  ft4,  (32 * REGBYTES + 15 * FPUREGBYTES)(sp)
+    FSREG  ft3,  (32 * REGBYTES + 16 * FPUREGBYTES)(sp)
+    FSREG  ft2,  (32 * REGBYTES + 17 * FPUREGBYTES)(sp)
+    FSREG  ft1,  (32 * REGBYTES + 18 * FPUREGBYTES)(sp)
+    FSREG  ft0,  (32 * REGBYTES + 19 * FPUREGBYTES)(sp)
+    /* Save FCSR (t0 already saved above, safe to clobber) */
+    frcsr  t0
+    SREG   t0, FCSR_STACK_OFFSET(sp)
+#endif
 .endm
 
 .macro POP_CALLER_REG
     LREG  t0, 16 * REGBYTES(sp)
     csrw  mstatus, t0
+#ifndef LOSCFG_ARCH_FPU_DISABLE
+    /* Restore FCSR after mstatus so FS is enabled */
+    LREG   t0, FCSR_STACK_OFFSET(sp)
+    fscsr  t0
+    /* Restore FPU caller-saved registers */
+    FLREG  ft11, (32 * REGBYTES + 0  * FPUREGBYTES)(sp)
+    FLREG  ft10, (32 * REGBYTES + 1  * FPUREGBYTES)(sp)
+    FLREG  ft9,  (32 * REGBYTES + 2  * FPUREGBYTES)(sp)
+    FLREG  ft8,  (32 * REGBYTES + 3  * FPUREGBYTES)(sp)
+    FLREG  fa7,  (32 * REGBYTES + 4  * FPUREGBYTES)(sp)
+    FLREG  fa6,  (32 * REGBYTES + 5  * FPUREGBYTES)(sp)
+    FLREG  fa5,  (32 * REGBYTES + 6  * FPUREGBYTES)(sp)
+    FLREG  fa4,  (32 * REGBYTES + 7  * FPUREGBYTES)(sp)
+    FLREG  fa3,  (32 * REGBYTES + 8  * FPUREGBYTES)(sp)
+    FLREG  fa2,  (32 * REGBYTES + 9  * FPUREGBYTES)(sp)
+    FLREG  fa1,  (32 * REGBYTES + 10 * FPUREGBYTES)(sp)
+    FLREG  fa0,  (32 * REGBYTES + 11 * FPUREGBYTES)(sp)
+    FLREG  ft7,  (32 * REGBYTES + 12 * FPUREGBYTES)(sp)
+    FLREG  ft6,  (32 * REGBYTES + 13 * FPUREGBYTES)(sp)
+    FLREG  ft5,  (32 * REGBYTES + 14 * FPUREGBYTES)(sp)
+    FLREG  ft4,  (32 * REGBYTES + 15 * FPUREGBYTES)(sp)
+    FLREG  ft3,  (32 * REGBYTES + 16 * FPUREGBYTES)(sp)
+    FLREG  ft2,  (32 * REGBYTES + 17 * FPUREGBYTES)(sp)
+    FLREG  ft1,  (32 * REGBYTES + 18 * FPUREGBYTES)(sp)
+    FLREG  ft0,  (32 * REGBYTES + 19 * FPUREGBYTES)(sp)
+#endif
     LREG  t0, 17 * REGBYTES(sp)
     csrw  mepc, t0
     LREG  t6, 2 * REGBYTES(sp)
@@ -78,7 +130,7 @@
     LREG  a1, 24 * REGBYTES(sp)
     LREG  a0, 25 * REGBYTES(sp)
     LREG  ra, 31 * REGBYTES(sp)
-    addi sp, sp, 32 * REGBYTES
+    addi sp, sp, 32 * REGBYTES + FPU_SAVE_SIZE
 .endm
 
 .macro PUSH_CALLEE_REG
@@ -94,9 +146,64 @@
    SREG  s2, 28 * REGBYTES(sp)
    SREG  s1, 29 * REGBYTES(sp)
    SREG  s0, 30 * REGBYTES(sp)
+#ifndef LOSCFG_ARCH_FPU_DISABLE
+   /* Save FPU callee-saved registers (fs0-fs11) into the frame already
+    * allocated by PUSH_CALLER_REG. */
+   FSREG  fs11, (32 * REGBYTES + FPU_CALLER_REG_SIZE + 0  * FPUREGBYTES)(sp)
+   FSREG  fs10, (32 * REGBYTES + FPU_CALLER_REG_SIZE + 1  * FPUREGBYTES)(sp)
+   FSREG  fs9,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 2  * FPUREGBYTES)(sp)
+   FSREG  fs8,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 3  * FPUREGBYTES)(sp)
+   FSREG  fs7,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 4  * FPUREGBYTES)(sp)
+   FSREG  fs6,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 5  * FPUREGBYTES)(sp)
+   FSREG  fs5,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 6  * FPUREGBYTES)(sp)
+   FSREG  fs4,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 7  * FPUREGBYTES)(sp)
+   FSREG  fs3,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 8  * FPUREGBYTES)(sp)
+   FSREG  fs2,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 9  * FPUREGBYTES)(sp)
+   FSREG  fs1,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 10 * FPUREGBYTES)(sp)
+   FSREG  fs0,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 11 * FPUREGBYTES)(sp)
+#endif
 .endm
 
 .macro POP_ALL_REG
+#ifndef LOSCFG_ARCH_FPU_DISABLE
+    /* Restore FCSR (mstatus already restored by caller, FS is enabled) */
+    LREG   t0, FCSR_STACK_OFFSET(sp)
+    fscsr  t0
+    /* Restore FPU callee-saved registers (fs0-fs11) */
+    FLREG  fs11, (32 * REGBYTES + FPU_CALLER_REG_SIZE + 0  * FPUREGBYTES)(sp)
+    FLREG  fs10, (32 * REGBYTES + FPU_CALLER_REG_SIZE + 1  * FPUREGBYTES)(sp)
+    FLREG  fs9,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 2  * FPUREGBYTES)(sp)
+    FLREG  fs8,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 3  * FPUREGBYTES)(sp)
+    FLREG  fs7,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 4  * FPUREGBYTES)(sp)
+    FLREG  fs6,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 5  * FPUREGBYTES)(sp)
+    FLREG  fs5,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 6  * FPUREGBYTES)(sp)
+    FLREG  fs4,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 7  * FPUREGBYTES)(sp)
+    FLREG  fs3,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 8  * FPUREGBYTES)(sp)
+    FLREG  fs2,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 9  * FPUREGBYTES)(sp)
+    FLREG  fs1,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 10 * FPUREGBYTES)(sp)
+    FLREG  fs0,  (32 * REGBYTES + FPU_CALLER_REG_SIZE + 11 * FPUREGBYTES)(sp)
+    /* Restore FPU caller-saved registers (ft0-ft11, fa0-fa7) */
+    FLREG  ft11, (32 * REGBYTES + 0  * FPUREGBYTES)(sp)
+    FLREG  ft10, (32 * REGBYTES + 1  * FPUREGBYTES)(sp)
+    FLREG  ft9,  (32 * REGBYTES + 2  * FPUREGBYTES)(sp)
+    FLREG  ft8,  (32 * REGBYTES + 3  * FPUREGBYTES)(sp)
+    FLREG  fa7,  (32 * REGBYTES + 4  * FPUREGBYTES)(sp)
+    FLREG  fa6,  (32 * REGBYTES + 5  * FPUREGBYTES)(sp)
+    FLREG  fa5,  (32 * REGBYTES + 6  * FPUREGBYTES)(sp)
+    FLREG  fa4,  (32 * REGBYTES + 7  * FPUREGBYTES)(sp)
+    FLREG  fa3,  (32 * REGBYTES + 8  * FPUREGBYTES)(sp)
+    FLREG  fa2,  (32 * REGBYTES + 9  * FPUREGBYTES)(sp)
+    FLREG  fa1,  (32 * REGBYTES + 10 * FPUREGBYTES)(sp)
+    FLREG  fa0,  (32 * REGBYTES + 11 * FPUREGBYTES)(sp)
+    FLREG  ft7,  (32 * REGBYTES + 12 * FPUREGBYTES)(sp)
+    FLREG  ft6,  (32 * REGBYTES + 13 * FPUREGBYTES)(sp)
+    FLREG  ft5,  (32 * REGBYTES + 14 * FPUREGBYTES)(sp)
+    FLREG  ft4,  (32 * REGBYTES + 15 * FPUREGBYTES)(sp)
+    FLREG  ft3,  (32 * REGBYTES + 16 * FPUREGBYTES)(sp)
+    FLREG  ft2,  (32 * REGBYTES + 17 * FPUREGBYTES)(sp)
+    FLREG  ft1,  (32 * REGBYTES + 18 * FPUREGBYTES)(sp)
+    FLREG  ft0,  (32 * REGBYTES + 19 * FPUREGBYTES)(sp)
+#endif
     LREG  t6, 2 * REGBYTES(sp)
     LREG  t5, 3 * REGBYTES(sp)
     LREG  t4, 4 * REGBYTES(sp)
@@ -125,10 +232,10 @@
     LREG  s1, 29 * REGBYTES(sp)
     LREG  s0, 30 * REGBYTES(sp)
     LREG  ra, 31 * REGBYTES(sp)
-    addi  sp, sp, 32 * REGBYTES
+    addi  sp, sp, 32 * REGBYTES + FPU_SAVE_SIZE
 .endm
 
-.section .interrupt.text
+.section .interrupt.text, "ax"
 .extern HalExcEntry
 .extern g_excInfo
 .global HalTrapEntry
@@ -163,12 +270,12 @@ HalTrapEntry:
     mret
 
 
-.section .interrupt.HalTrapVector.text
+.section .interrupt.HalTrapVector.text, "ax"
 .extern HalTrapEntry
-.extern HalIrqEndCheckNeedSched
+.extern OsSchedProcSchedFlag
 .global HalTrapVector
 .equ TRAP_INTERRUPT_MODE_MASK, 0x80000000
-.align 4
+.align 6
 HalTrapVector:
     PUSH_CALLER_REG
     csrr  a0, mcause
@@ -181,7 +288,7 @@ HalTrapVector:
     la    sp, __start_and_irq_stack_top
     jal   HalHwiInterruptDone
     csrr  sp, mscratch
-    call  HalIrqEndCheckNeedSched
+    call  OsSchedProcSchedFlag
 
     POP_CALLER_REG
     mret

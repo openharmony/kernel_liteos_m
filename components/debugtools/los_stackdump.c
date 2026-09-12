@@ -29,6 +29,7 @@
  */
 
 #include "los_debugtools.h"
+#include "los_task_pri.h"
 #include "securec.h"
 #include "los_debug.h"
 #include "los_memory.h"
@@ -64,13 +65,13 @@ STATIC VOID ShowFormat(UINTPTR *buf, DumpInfo *info)
     PRINTK("\r\n");
 }
 
-STATIC INT32 DumpTaskInfo(UINT32 taskID, UINTPTR *buf, DumpInfo *info)
+STATIC INT32 DumpTaskInfo(UINT32 taskId, UINTPTR *buf, DumpInfo *info)
 {
     errno_t ret;
-    LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
+    LosTaskCB *taskCB = OS_TCB_FROM_TID(taskId);
 
-    if (taskID == LOS_CurTaskIDGet()) {
-        info->taskSP = ArchSpGet();
+    if (taskId == LOS_CurTaskIDGet()) {
+        info->taskSP = ArchGetSp();
     } else {
         info->taskSP = (UINTPTR)taskCB->stackPointer;
     }
@@ -89,15 +90,15 @@ STATIC INT32 DumpTaskInfo(UINT32 taskID, UINTPTR *buf, DumpInfo *info)
     return LOS_OK;
 }
 
-VOID LOS_TaskStackDump(UINT32 taskID)
+VOID LOS_TaskStackDump(UINT32 taskId)
 {
     UINTPTR *buf = NULL;
     DumpInfo info;
     UINT32 intSave;
     INT32 ret;
 
-    if (taskID > g_taskMaxNum) {
-        PRINT_ERR("error taskID %u\r\n", taskID);
+    if (taskId > g_taskMaxNum) {
+        PRINT_ERR("error taskID %u\r\n", taskId);
         return;
     }
 
@@ -107,7 +108,7 @@ VOID LOS_TaskStackDump(UINT32 taskID)
     }
 
     intSave = LOS_IntLock();
-    info.waterLine = OsGetTaskWaterLine(taskID);
+    info.waterLine = OsGetTaskWaterLine(taskId);
     if (info.waterLine == OS_NULL_INT) {
         LOS_IntRestore(intSave);
         return;
@@ -121,7 +122,7 @@ VOID LOS_TaskStackDump(UINT32 taskID)
     }
     (VOID)memset_s(buf, info.waterLine, 0, info.waterLine);
 
-    ret = DumpTaskInfo(taskID, buf, &info);
+    ret = DumpTaskInfo(taskId, buf, &info);
     if (ret != LOS_OK) {
         LOS_IntRestore(intSave);
         (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, buf);
@@ -131,7 +132,7 @@ VOID LOS_TaskStackDump(UINT32 taskID)
     }
 
     LOS_IntRestore(intSave);
-    PRINTK("Task %u, SP 0x%x, WaterLine 0x%x", taskID, info.taskSP, info.waterLine);
+    PRINTK("Task %u, SP 0x%x, WaterLine 0x%x", taskId, info.taskSP, info.waterLine);
     ShowFormat(buf, &info);
     (VOID)LOS_MemFree(OS_SYS_MEM_ADDR, buf);
 
@@ -140,16 +141,16 @@ VOID LOS_TaskStackDump(UINT32 taskID)
 
 UINT32 OsShellCmdStackDump(INT32 argc, const CHAR **argv)
 {
-    UINT32 taskID;
+    UINT32 taskId;
 
     if (argc != 1) {
         PRINT_ERR("\nUsage: stack taskID\n");
         return LOS_NOK;
     }
 
-    taskID = (UINT32)atoi(argv[0]);
+    taskId = (UINT32)atoi(argv[0]);
 
-    LOS_TaskStackDump(taskID);
+    LOS_TaskStackDump(taskId);
     return LOS_OK;
 }
 #endif /* LOSCFG_STACK_DUMP == 1 */

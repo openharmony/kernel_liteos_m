@@ -33,6 +33,7 @@
 #include <semaphore.h>
 #include <stdio.h>
 #include <errno.h>
+#include <fcntl.h>
 #include "ohos_types.h"
 #include "posix_test.h"
 #include "los_config.h"
@@ -106,12 +107,12 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait001, Function | 
     struct timespec tsNow = { 0 };
     sem_t sem;
 
-    ICUNIT_ASSERT_EQUAL(sem_init((sem_t *)&sem, 0, 0), 0, 0);
+    ICUNIT_GOTO_EQUAL(sem_init((sem_t *)&sem, 0, 0), 0, 0, EXIT);
 
     ts = GetDelayedTime(100);
     LOG("predicted time:%lld, %ld", ts.tv_sec, ts.tv_nsec);
     if (sem_timedwait((sem_t *)&sem, &ts) == -1) {
-        ICUNIT_ASSERT_EQUAL(errno, ETIMEDOUT, errno);
+        ICUNIT_GOTO_EQUAL(errno, ETIMEDOUT, errno, EXIT);
     } else {
         LOG("\n> sem_timedwait return unexpected");
     }
@@ -120,10 +121,14 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait001, Function | 
     LOG("tsNow %lld, %ld", tsNow.tv_sec, tsNow.tv_nsec);
     int timeDiff = GetTimeDiff(tsNow, ts); // calculate time different
     LOG("timeDiff %d", timeDiff);
-    ICUNIT_ASSERT_EQUAL(abs(timeDiff) < 20, TRUE, 0);
+    ICUNIT_GOTO_EQUAL(abs(timeDiff) < (3 * 1000 / LOSCFG_BASE_CORE_TICK_PER_SECOND), TRUE, 0, EXIT);
 
-    ICUNIT_ASSERT_EQUAL(sem_destroy((sem_t *)&sem), 0, 0);
+    ICUNIT_TRACK_EQUAL(sem_destroy((sem_t *)&sem), 0, 0);
     return 0;
+
+EXIT:
+    (VOID)sem_destroy((sem_t *)&sem);
+    return LOS_NOK;
 }
 
 /* *
@@ -151,7 +156,7 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Timedwait002, Function | 
     LOG("\n tsBegin %lld, %ld, tsNow %lld, %ld", tsBegin.tv_sec, tsBegin.tv_nsec, tsNow.tv_sec, tsNow.tv_nsec);
     int timeDiff = GetTimeDiff(tsNow, tsBegin); // calculate time different
     LOG("\n timeDiff %d", timeDiff);
-    ICUNIT_ASSERT_WITHIN_EQUAL(timeDiff, timeDiff, 19, 0);
+    ICUNIT_ASSERT_WITHIN_EQUAL(timeDiff, timeDiff, (3 * 1000 / LOSCFG_BASE_CORE_TICK_PER_SECOND), 0);
 
     // try get semaphore again
     ts = GetDelayedTime(100);
@@ -244,12 +249,40 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Trywait004, Function | Me
     return 0;
 }
 
+
+/* *
+ * @tc.number   SUB_KERNEL_IPC_SEM_NAMED_001
+ * @tc.name     sem_open/sem_close/sem_unlink ENOSYS stub contract
+ * @tc.desc     [C- SOFTWARE -0200]
+ */
+/* 用例简要描述: sem_open/close/unlink ENOSYS 桩契约固化 */
+LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Named001, Function | MediumTest | Level1)
+{
+    /* B 侧具名信号量为 ENOSYS 桩(semaphore.c:209-229),固化桩契约 */
+    sem_t *ret = sem_open("test_sem_named", O_CREAT, 0644, 1); /* 0644: mode, 1: value */
+    ICUNIT_ASSERT_EQUAL(ret, SEM_FAILED, (UINTPTR)ret);
+    ICUNIT_ASSERT_EQUAL(errno, ENOSYS, errno);
+
+    int rc = sem_close(ret);
+    ICUNIT_ASSERT_EQUAL(rc, -1, rc);
+    ICUNIT_ASSERT_EQUAL(errno, ENOSYS, errno);
+
+    rc = sem_unlink("test_sem_named");
+    ICUNIT_ASSERT_EQUAL(rc, -1, rc);
+    ICUNIT_ASSERT_EQUAL(errno, ENOSYS, errno);
+
+    return 0;
+}
+
 RUN_TEST_SUITE(PosixSemaphoreFuncTestSuite);
 
 void PosixSemaphoreFuncTest()
 {
-    PRINT_EMG("begin PosixSemaphoreFuncTest....");
+    dprintf("begin PosixSemaphoreFuncTest....");
+#if (LOS_FEATURE_ADAPTED == 1)
     RUN_ONE_TESTCASE(testIpcSem_Timedwait001);
+    RUN_ONE_TESTCASE(testIpcSem_Named001);
+#endif
     RUN_ONE_TESTCASE(testIpcSem_Timedwait002);
     RUN_ONE_TESTCASE(testIpcSem_Timedwait003);
     RUN_ONE_TESTCASE(testIpcSem_Trywait004);

@@ -122,13 +122,13 @@ static UINT32 TestCase(VOID)
     for (loop = 0; loop < IT_TASK_LOOP; loop++) {
         g_testCount = 0;
 
-        ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, HwiF01, 0);
+        ret = LOS_HwiCreate(HWI_NUM_TEST, 1, 0, (HWI_PROC_FUNC)HwiF01, 0);
         ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-        ret = LOS_HwiCreate(HWI_NUM_TEST1, 1, 0, HwiF02, 0);
+        ret = LOS_HwiCreate(HWI_NUM_TEST1, 1, 0, (HWI_PROC_FUNC)HwiF02, 0);
         ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
-        ret = LOS_HwiCreate(HWI_NUM_TEST2, 1, 0, HwiF03, 0);
+        ret = LOS_HwiCreate(HWI_NUM_TEST2, 1, 0, (HWI_PROC_FUNC)HwiF03, 0);
         ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
         TestHwiTrigger(HWI_NUM_TEST1);

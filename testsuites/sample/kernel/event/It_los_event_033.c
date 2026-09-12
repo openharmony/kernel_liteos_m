@@ -42,7 +42,8 @@ static VOID TaskF01(VOID)
     ret = LOS_EventRead(&g_pevent, 0xF, LOS_WAITMODE_AND | LOS_WAITMODE_CLR, LOS_WAIT_FOREVER);
     ICUNIT_GOTO_EQUAL(ret, 0xF, ret, EXIT);
     ICUNIT_GOTO_EQUAL(g_pevent.uwEventID, 0, g_pevent.uwEventID, EXIT);
-    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT); // 3, Here, assert that g_testCount is equal to 3.
+    TEST_DELAY(g_testCount, 3, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT);
 
     g_testCount++;
 
@@ -62,7 +63,8 @@ static VOID TaskF02(VOID)
     ret = LOS_EventRead(&g_pevent, 0xF, LOS_WAITMODE_AND | LOS_WAITMODE_CLR, LOS_WAIT_FOREVER);
     ICUNIT_GOTO_EQUAL(ret, 0xF, ret, EXIT);
     ICUNIT_GOTO_EQUAL(g_pevent.uwEventID, 0, g_pevent.uwEventID, EXIT);
-    ICUNIT_GOTO_EQUAL(g_testCount, 4, g_testCount, EXIT); // 4, Here, assert that g_testCount is equal to 4.
+    TEST_DELAY(g_testCount, 4, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 4, g_testCount, EXIT);
 
     g_testCount++;
 
@@ -83,7 +85,8 @@ static VOID TaskF03(VOID)
     ret = LOS_EventRead(&g_pevent, 0xF, LOS_WAITMODE_AND | LOS_WAITMODE_CLR, LOS_WAIT_FOREVER);
     ICUNIT_GOTO_EQUAL(ret, 0xF, ret, EXIT);
     ICUNIT_GOTO_EQUAL(g_pevent.uwEventID, 0, g_pevent.uwEventID, EXIT);
-    ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT); // 5, Here, assert that g_testCount is equal to 5.
+    TEST_DELAY(g_testCount, 5, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT);
 
     g_testCount++;
 
@@ -127,13 +130,15 @@ static UINT32 Testcase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID03, &task1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT2);
 
-    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT2); // 3, Here, assert that g_testCount is equal to 3.
+    TEST_DELAY(g_testCount, 3, TEST_WAIT_TIMEOUT);
+    ICUNIT_GOTO_EQUAL(g_testCount, 3, g_testCount, EXIT2);
 
     (VOID)LOS_EventWrite(&g_pevent, 0xF);
 
     LOS_TaskDelay(1);
 
-    ICUNIT_ASSERT_EQUAL(g_testCount, 6, g_testCount); // 6, Here, assert that g_testCount is equal to 6.
+    TEST_DELAY(g_testCount, 6, TEST_WAIT_TIMEOUT);
+    ICUNIT_ASSERT_EQUAL(g_testCount, 6, g_testCount);
 
     (VOID)LOS_EventClear(&g_pevent, 0);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);

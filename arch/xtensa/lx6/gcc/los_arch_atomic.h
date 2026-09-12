@@ -139,7 +139,7 @@ STATIC INLINE INT32 ArchAtomicDecRet(Atomic *v)
  * <ul><li>los_arch_atomic.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
-STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
+STATIC INLINE INT32 ArchAtomicXchg32bits(Atomic *v, INT32 val)
 {
     INT32 prevVal = 0;
     INT32 tmp;
@@ -175,7 +175,7 @@ STATIC INLINE INT32 ArchAtomicXchg32bits(volatile INT32 *v, INT32 val)
  * <ul><li>los_arch_atomic.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
-STATIC INLINE BOOL ArchAtomicCmpXchg32bits(volatile INT32 *v, INT32 val, INT32 oldVal)
+STATIC INLINE BOOL ArchAtomicCmpXchg32bits(Atomic *v, INT32 val, INT32 oldVal)
 {
     INT32 prevVal = 0;
 

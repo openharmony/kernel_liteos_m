@@ -98,13 +98,22 @@ static UINT32 Testcase(VOID)
     }
 
     LOS_SwtmrStop(swTmrID);
-    ICUNIT_ASSERT_EQUAL(g_testCount, 0x10, g_testCount);
+    ICUNIT_GOTO_EQUAL(g_testCount, 0x10, g_testCount, EXIT);
+
+    (VOID)LOS_TaskDelete(g_testTaskID01);
 
     ret = LOS_SwtmrDelete(swTmrID);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ret = LOS_SemDelete(g_usSemID);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
+    ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+    return LOS_OK;
+
+EXIT:
+    LOS_SwtmrStop(swTmrID);
+    LOS_SwtmrDelete(swTmrID);
+    LOS_TaskDelete(g_testTaskID01);
+    LOS_SemDelete(g_usSemID);
     return LOS_OK;
 }
 

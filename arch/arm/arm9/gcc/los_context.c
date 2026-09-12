@@ -33,8 +33,9 @@
 #include "securec.h"
 #include "los_arch_context.h"
 #include "los_arch_interrupt.h"
-#include "los_task.h"
+#include "los_task_pri.h"
 #include "los_sched.h"
+#include "los_sched_pri.h"
 #include "los_interrupt.h"
 #include "los_debug.h"
 
@@ -51,13 +52,13 @@ LITE_OS_SEC_TEXT_INIT VOID ArchInit(VOID)
 }
 
 /* ****************************************************************************
- Function    : ArchSysExit
+ Function    : ArchTaskExit
  Description : Task exit function
  Input       : None
  Output      : None
  Return      : None
  **************************************************************************** */
-LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
+LITE_OS_SEC_TEXT_MINOR VOID ArchTaskExit(VOID)
 {
     (VOID)LOS_IntLock();
     while (1) {
@@ -65,20 +66,20 @@ LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)
 }
 
 /* ****************************************************************************
- Function    : ArchTskStackInit
+ Function    : ArchTaskStackInit
  Description : Task stack initialization function
- Input       : taskID     --- TaskID
+ Input       : taskId     --- TaskID
                stackSize  --- Total size of the stack
                topStack    --- Top of task's stack
  Output      : None
  Return      : Context pointer
  **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VOID *topStack)
+LITE_OS_SEC_TEXT_INIT VOID *ArchTaskStackInit(UINT32 taskId, UINT32 stackSize, VOID *topStack)
 {
     TaskContext *context = (TaskContext *)((UINTPTR)topStack + stackSize - sizeof(TaskContext));
-    LosTaskCB *taskCB = OS_TCB_FROM_TID(taskID);
+    LosTaskCB *taskCB = OS_TCB_FROM_TID(taskId);
 
-    context->r0 = taskID;
+    context->r0 = taskId;
     context->r1 = 0x01010101L;
     context->r2 = 0x02020202L;
     context->r3 = 0x03030303L;
@@ -92,7 +93,7 @@ LITE_OS_SEC_TEXT_INIT VOID *ArchTskStackInit(UINT32 taskID, UINT32 stackSize, VO
     context->r11 = 0x11111111L;
     context->r12 = 0x12121212L;
     context->sp = (UINTPTR)topStack + stackSize;
-    context->lr = (UINTPTR)ArchSysExit;
+    context->lr = (UINTPTR)ArchTaskExit;
 
     if ((UINTPTR)taskCB->taskEntry & 0x01) {
         context->pc = (UINTPTR)OsTaskEntryThumb;

@@ -70,9 +70,9 @@ STATIC VOID DefaultRecordHandle(LosTaskCB *newTask, LosTaskCB *runTask)
 {
     UINT32 point = g_schedCount % TRACE_NUM;
 
-    g_traceRingBuf[point].newTaskID = newTask->taskID;
+    g_traceRingBuf[point].newTaskID = newTask->taskId;
     (VOID)memcpy_s(g_traceRingBuf[point].newTaskName, LOS_TASK_NAMELEN, newTask->taskName, LOS_TASK_NAMELEN);
-    g_traceRingBuf[point].runTaskID = runTask->taskID;
+    g_traceRingBuf[point].runTaskID = runTask->taskId;
     (VOID)memcpy_s(g_traceRingBuf[point].runTaskName, LOS_TASK_NAMELEN, runTask->taskName, LOS_TASK_NAMELEN);
 
     g_schedCount++;

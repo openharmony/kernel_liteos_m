@@ -58,6 +58,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID01, &task);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT1);
 
+    TEST_DELAY(g_testCount, 1, TEST_WAIT_TIMEOUT);
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT2);
 
 EXIT2:

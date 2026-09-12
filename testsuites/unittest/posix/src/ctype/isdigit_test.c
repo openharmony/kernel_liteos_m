@@ -170,4 +170,3 @@ void PosixIsdigitFuncTest()
 
     return;
 }
-

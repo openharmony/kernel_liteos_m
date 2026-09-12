@@ -63,7 +63,7 @@ static BOOL PosixStdargFuncTestSuiteSetUp(void)
  */
 static BOOL PosixStdargFuncTestSuiteTearDown(void)
 {
-    printf("==== [ Stdarg TEST ] ====\n\n");
+    dprintf("==== [ Stdarg TEST ] ====\n\n");
     return TRUE;
 }
 

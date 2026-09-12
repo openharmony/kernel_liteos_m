@@ -54,8 +54,6 @@ extern EVENT_CB_S g_eventCB3;
 #define TIMER_LOS_HANDLER_PARAMETER 0xFF
 #define TIMER_LOS_SELF_DELETED 1
 
-extern UINT32 g_idleTaskID;
-
 extern UINT32 g_swtmrId1;
 extern UINT32 g_swtmrId2;
 extern UINT32 g_swtmrId3;
@@ -187,6 +185,13 @@ extern VOID ItLosSwtmrDelay002(VOID);
 extern VOID ItLosSwtmrDelay003(VOID);
 extern VOID ItLosSwtmrDelay004(VOID);
 extern VOID ItLosSwtmrDelay005(VOID);
+
+extern VOID ItLosSwtmrApi001(VOID);
+extern VOID ItLosSwtmrApi002(VOID);
+extern VOID ItLosSwtmrApi003(VOID);
+extern VOID ItLosSwtmrApi004(VOID);
+extern VOID ItLosSwtmr121(VOID);
+extern VOID ItLosSwtmr122(VOID);
 
 
 #ifdef __cplusplus

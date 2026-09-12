@@ -40,7 +40,7 @@ static VOID *TaskJoinf01(void *argument)
 
 static UINT32 TestCase(VOID)
 {
-    UINT32 taskID;
+    UINT32 taskId;
     UINT32 ret;
     UINTPTR uwtemp = 1;
     TSK_INIT_PARAM_S osTaskInitParam = { 0 };
@@ -53,14 +53,14 @@ static UINT32 TestCase(VOID)
     osTaskInitParam.usTaskPrio = TASK_PRIO_TEST;
     osTaskInitParam.uwResved = LOS_TASK_ATTR_JOINABLE;
 
-    ret = LOS_TaskCreate(&taskID, &osTaskInitParam);
+    ret = LOS_TaskCreate(&taskId, &osTaskInitParam);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
 
-    ret = LOS_TaskJoin(taskID, &uwtemp);
+    ret = LOS_TaskJoin(taskId, &uwtemp);
     ICUNIT_ASSERT_EQUAL(ret, 0, ret);
     ICUNIT_ASSERT_EQUAL(uwtemp, 9, uwtemp); /* 8: pthread exit code */
 
-    ret = LOS_TaskDelete(taskID);
+    ret = LOS_TaskDelete(taskId);
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_NOT_CREATED, ret);
 
     return LOS_OK;

@@ -58,6 +58,9 @@ iUINT32 iCunit_ErrLog_AddCase = 0;
 iUINT16 iCunit_errLineNo;
 iiUINT32 iCunit_errCode;
 
+ICUNIT_FAIL_LOG_S g_failLogArray[ICUNIT_FAIL_LOG_MAX];
+iUINT32 g_failLogCount = 0;
+
 #ifdef __cplusplus
 #if __cplusplus
 }

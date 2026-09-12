@@ -74,6 +74,7 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_TaskCreate(&g_testTaskID01, &task);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+    TEST_DELAY(g_testCount, 1, TEST_WAIT_TIMEOUT);
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT2);
 
     task.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
@@ -85,7 +86,8 @@ static UINT32 Testcase(VOID)
     ret = LOS_SemPend(g_usSemID, 0xF);
     ICUNIT_TRACK_EQUAL(ret, LOS_ERRNO_SEM_TIMEOUT, ret);
 
-    ICUNIT_TRACK_EQUAL(g_testCount, 2, g_testCount); // 2, Here, assert that g_testCount is equal to 2.
+    TEST_DELAY(g_testCount, 2, TEST_WAIT_TIMEOUT);
+    ICUNIT_TRACK_EQUAL(g_testCount, 2, g_testCount);
 
     LOS_TaskDelete(g_testTaskID02);
 EXIT2:

@@ -49,14 +49,17 @@ static VOID TaskF02(void)
 {
     UINT32 ret;
 
+    TEST_DELAY(g_testCount, 1, TEST_WAIT_TIMEOUT);
     ICUNIT_TRACK_EQUAL(g_testCount, 1, g_testCount);
     LOS_TaskLock();
 
     ret = LOS_SemPost(g_usSemID);
     ICUNIT_TRACK_EQUAL(ret, LOS_OK, ret);
+    TEST_DELAY(g_testCount, 1, TEST_WAIT_TIMEOUT);
     ICUNIT_TRACK_EQUAL(g_testCount, 1, g_testCount);
 
     LOS_TaskUnlock();
+    TEST_DELAY(g_testCount, 1, TEST_WAIT_TIMEOUT);
     ICUNIT_TRACK_EQUAL(g_testCount, 1, g_testCount);
 
     g_testCount++;
@@ -81,6 +84,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID01, &task);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
+    TEST_DELAY(g_testCount, 1, TEST_WAIT_TIMEOUT);
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT2);
 
     task.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskF02;
@@ -89,7 +93,8 @@ static UINT32 Testcase(VOID)
     ret = LOS_TaskCreate(&g_testTaskID02, &task);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT2);
 
-    ICUNIT_TRACK_EQUAL(g_testCount, 3, g_testCount); // 3, Here, assert that g_testCount is equal to 3.
+    TEST_DELAY(g_testCount, 3, TEST_WAIT_TIMEOUT);
+    ICUNIT_TRACK_EQUAL(g_testCount, 3, g_testCount);
 
 EXIT:
     ret = LOS_SemDelete(g_usSemID);

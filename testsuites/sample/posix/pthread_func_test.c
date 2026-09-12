@@ -248,6 +248,7 @@ static VOID *PthreadJoinF05(void *argument)
 
     usleep(100000); /* 100000: sleep 100 ms */
 EXIT:
+    g_testCount++;
     return NULL;
 }
 
@@ -263,29 +264,43 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread005, Function | MediumTest | Lev
     struct sched_param schedParam = { 0 };
     UINT32 ret;
 
+    g_testCount = 0;
+
     ret = pthread_attr_init(&attr);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     schedParam.sched_priority = TASK_PRIO_TEST - 1;
     ret = pthread_attr_setschedparam(&attr, &schedParam);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_create(&newTh, &attr, PthreadJoinF05, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_join(newTh, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, EINVAL, ret);
+    ICUNIT_GOTO_EQUAL(ret, EINVAL, ret, EXIT_ATTR);
 
+    /* Wait for the detached thread to finish and be auto-reaped. */
+    while (g_testCount == 0) {
+        usleep(10000); /* 10000: poll every 10 ms */
+    }
+    usleep(100000); /* 100000: give the scheduler enough time to reap the exited task and free TCB/stack. */
+
+    (VOID)pthread_attr_destroy(&attr);
     return LOS_OK;
+
+EXIT_ATTR:
+    (VOID)pthread_attr_destroy(&attr);
+EXIT:
+    return LOS_NOK;
 };
 
 static pthread_cond_t g_pthread_cond;
@@ -320,6 +335,7 @@ static VOID *PthreadFunc06(void *argument)
     int policy;
     int ret;
     int i;
+    int createdCount = 0;
     pthread_attr_t attr;
     struct sched_param schedParam = { 0 };
     pthread_t thread[TEST_THREAD_COUNT];
@@ -344,7 +360,11 @@ static VOID *PthreadFunc06(void *argument)
 
     for (i = 0; i < TEST_THREAD_COUNT; i++) {
         ret = pthread_create(&thread[i], &attr, PthreadCondFunc001, NULL);
-        ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+        if (ret != 0) {
+            ICunitSaveErr(__LINE__, (iiUINT32)ret);
+            goto EXIT;
+        }
+        createdCount++;
     }
 
     ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT); /* 5: Five threads */
@@ -366,6 +386,9 @@ static VOID *PthreadFunc06(void *argument)
     }
 
 EXIT:
+    for (i = 0; i < createdCount; i++) {
+        pthread_join(thread[i], NULL);
+    }
     return NULL;
 }
 
@@ -382,31 +405,46 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread006, Function | MediumTest | Lev
     UINT32 ret;
 
     ret = pthread_mutex_init(&g_pthread_mutex, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     ret = pthread_cond_init(&g_pthread_cond, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_MUTEX);
 
     ret = pthread_attr_init(&attr);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_COND);
 
     ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     schedParam.sched_priority = TASK_PRIO_TEST - 1;
     ret = pthread_attr_setschedparam(&attr, &schedParam);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_create(&newTh, &attr, PthreadFunc06, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_join(newTh, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
+
+    ret = pthread_cond_destroy(&g_pthread_cond);
+    ICUNIT_TRACK_EQUAL(ret, 0, ret);
+
+    ret = pthread_mutex_destroy(&g_pthread_mutex);
+    ICUNIT_TRACK_EQUAL(ret, 0, ret);
 
     return LOS_OK;
+
+EXIT_ATTR:
+    (VOID)pthread_attr_destroy(&attr);
+EXIT_COND:
+    (VOID)pthread_cond_destroy(&g_pthread_cond);
+EXIT_MUTEX:
+    (VOID)pthread_mutex_destroy(&g_pthread_mutex);
+EXIT:
+    return LOS_NOK;
 };
 
 static void *PthreadCondFunc002(void *arg)
@@ -438,6 +476,7 @@ static VOID *PthreadFunc07(void *argument)
     int policy;
     int ret;
     int i;
+    int createdCount = 0;
     pthread_attr_t attr;
     struct sched_param schedParam = { 0 };
     pthread_t thread[TEST_THREAD_COUNT];
@@ -465,7 +504,11 @@ static VOID *PthreadFunc07(void *argument)
 
     for (i = 0; i < TEST_THREAD_COUNT; i++) {
         ret = pthread_create(&thread[i], &attr, PthreadCondFunc002, NULL);
-        ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+        if (ret != 0) {
+            ICunitSaveErr(__LINE__, (iiUINT32)ret);
+            goto EXIT;
+        }
+        createdCount++;
     }
 
     ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT); /* 5: Five threads */
@@ -478,6 +521,9 @@ static VOID *PthreadFunc07(void *argument)
     ICUNIT_GOTO_EQUAL(g_testCount, 10, g_testCount, EXIT); /* 10: Twice per thread */
 
 EXIT:
+    for (i = 0; i < createdCount; i++) {
+        pthread_join(thread[i], NULL);
+    }
     return NULL;
 }
 
@@ -494,28 +540,41 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread007, Function | MediumTest | Lev
     UINT32 ret;
 
     ret = pthread_cond_init(&g_pthread_cond, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     ret = pthread_attr_init(&attr);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_COND);
 
     ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     schedParam.sched_priority = TASK_PRIO_TEST - 1;
     ret = pthread_attr_setschedparam(&attr, &schedParam);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_create(&newTh, &attr, PthreadFunc07, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_join(newTh, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
+
+    ret = pthread_cond_destroy(&g_pthread_cond);
+    ICUNIT_TRACK_EQUAL(ret, 0, ret);
+
+    ret = pthread_mutex_destroy(&g_pthread_mutex);
+    ICUNIT_TRACK_EQUAL(ret, 0, ret);
 
     return LOS_OK;
+
+EXIT_ATTR:
+    (VOID)pthread_attr_destroy(&attr);
+EXIT_COND:
+    (VOID)pthread_cond_destroy(&g_pthread_cond);
+EXIT:
+    return LOS_NOK;
 };
 
 static int g_pthreadKey1;
@@ -530,48 +589,36 @@ static void pthreadKeyFree(void *data)
 static void *PthreadFunc08(void *arg)
 {
 #define TEST_KEY_SIZE 0x100
-    int *data = (int *)malloc(TEST_KEY_SIZE);
-    if (data == NULL) {
-        return (void *)ENOMEM;
-    }
+    int *data = NULL;
+    int ret;
+    int *result = NULL;
+
+    data = (int *)malloc(TEST_KEY_SIZE);
+    ICUNIT_GOTO_NOT_EQUAL(data, NULL, data, EXIT);
 
     (void)memset_s(data, TEST_KEY_SIZE, 0, TEST_KEY_SIZE);
     *data = 100 + (int)pthread_self(); /* 100: test data */
-    int ret = pthread_setspecific(g_pthreadKey1, (void *)data);
-    if (ret != 0) {
-        return (void *)ret;
-    }
+    ret = pthread_setspecific(g_pthreadKey1, (void *)data);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     data = (int *)malloc(TEST_KEY_SIZE);
-    if (data == NULL) {
-        return (void *)ENOMEM;
-    }
+    ICUNIT_GOTO_NOT_EQUAL(data, NULL, data, EXIT);
 
     (void)memset_s(data, TEST_KEY_SIZE, 0, TEST_KEY_SIZE);
     *data = 200 + (int)pthread_self(); /* 200: test data */
     ret = pthread_setspecific(g_pthreadKey2, (void *)data);
-    if (ret != 0) {
-        return (void *)ret;
-    }
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
-    int *result = (int *)pthread_getspecific(g_pthreadKey1);
-    if (result == NULL) {
-        return (void *)EINVAL;
-    }
-
-    if (*result != (100 + (int)pthread_self())) { /* 100: test data */
-        return (void *)EDEADLK;
-    }
+    result = (int *)pthread_getspecific(g_pthreadKey1);
+    ICUNIT_GOTO_NOT_EQUAL(result, NULL, result, EXIT);
+    ICUNIT_GOTO_EQUAL(*result, 100 + (int)pthread_self(), *result, EXIT); /* 100: test data */
 
     result = (int *)pthread_getspecific(g_pthreadKey2);
-    if (result == NULL) {
-        return (void *)EINVAL;
-    }
+    ICUNIT_GOTO_NOT_EQUAL(result, NULL, result, EXIT);
+    ICUNIT_GOTO_EQUAL(*result, 200 + (int)pthread_self(), *result, EXIT); /* 200: test data */
 
-    if (*result != (200 + (int)pthread_self())) { /* 200: test data */
-        return (void *)EDEADLK;
-    }
-
+    return NULL;
+EXIT:
     return NULL;
 }
 
@@ -749,27 +796,38 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread011, Function | MediumTest | Lev
     UINT32 ret;
     g_testCount = 0;
     ret = pthread_attr_init(&attr);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     ret = pthread_attr_setstacksize(&attr, OS_TSK_TEST_STACK_SIZE);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     schedParam.sched_priority = TASK_PRIO_TEST - 1;
     ret = pthread_attr_setschedparam(&attr, &schedParam);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_create(&thread, &attr, PthreadCancelFunc01, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_ATTR);
 
     ret = pthread_cancel(thread);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT_THREAD);
 
-    ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
+    ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT_THREAD);
 
+    ret = pthread_join(thread, NULL);
+    ICUNIT_TRACK_EQUAL(ret, 0, ret);
+
+    (VOID)pthread_attr_destroy(&attr);
     return LOS_OK;
+
+EXIT_THREAD:
+    (VOID)pthread_join(thread, NULL);
+EXIT_ATTR:
+    (VOID)pthread_attr_destroy(&attr);
+EXIT:
+    return LOS_NOK;
 };
 
 static VOID *PthreadTestcancelFunc01(void *argument)

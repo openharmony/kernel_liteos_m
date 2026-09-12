@@ -93,8 +93,11 @@ struct TestMemNodeHead {
         struct TestMemNodeHead *prev; /* The prev is used for current node points to the previous node */
         struct TestMemNodeHead *next; /* The next is used for sentinel node points to the expand node */
     } ptr;
-#if (LOSCFG_MEM_FREE_BY_TASKID == 1)
-    UINT32 taskID : 6;
+#if (LOSCFG_TASK_MEM_USED == 1)
+    UINT32 taskId;
+    UINT32 sizeAndFlag;
+#elif (LOSCFG_MEM_FREE_BY_TASKID == 1)
+    UINT32 taskId : 6;
     UINT32 sizeAndFlag : 26;
 #else
     UINT32 sizeAndFlag;
@@ -190,11 +193,43 @@ VOID ItLosMem044(void);
 VOID ItLosMem045(void);
 VOID ItLosMem046(void);
 VOID ItLosMem047(void);
+VOID ItLosMem048(void);
+VOID ItLosMem049(void);
+VOID ItLosMem050(void);
+VOID ItLosMem051(void);
+VOID ItLosMem052(void);
+VOID ItLosMem053(void);
+VOID ItLosMem054(void);
+VOID ItLosMem055(void);
+VOID ItLosMem056(void);
+VOID ItLosMem057(void);
 VOID ItLosMem058(void);
 VOID ItLosMem063(void);
 VOID ItLosMem064(void);
 VOID ItLosMem065(void);
 VOID ItLosTick001(void);
+VOID ItLosTick002(void);
+VOID ItLosTick003(void);
+VOID ItLosTick004(void);
+VOID ItLosTick005(void);
+VOID ItLosTick006(void);
+VOID ItLosTick007(void);
+VOID ItLosTick008(void);
+VOID ItLosTick009(void);
+VOID ItLosTick010(void);
+VOID ItLosTick011(void);
+VOID ItLosMem301(void);
+#ifdef LOSCFG_MEM_MUL_POOL_ALLOC
+#define TEST_POOL_MAX_NUM       4
+#define TEST_EACH_POOL_SIZE     0x2000
+extern UINT8 g_poolMem[TEST_POOL_MAX_NUM][TEST_EACH_POOL_SIZE];
+extern UINT32 g_poolNum;
+VOID TestGetAddrSize(UINTPTR *poolAddr, UINT32 *poolSize);
+VOID TestReleaseAddrSize(VOID *pool);
+VOID TEST_MulPoolUnRegister(VOID);
+VOID ItLosMulPool001(void);
+VOID ItLosMulPool002(void);
+#endif
 
 #ifdef __cplusplus
 #if __cplusplus

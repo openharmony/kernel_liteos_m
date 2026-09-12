@@ -58,7 +58,7 @@ static VOID Case3(UINT32 arg)
     UINT16 align;
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
     g_uwsTick3 = LOS_TickCountGet();
-    printf("g_uwsTick3=%d\n", g_uwsTick3);
+    dprintf("g_uwsTick3=%d\n", g_uwsTick3);
     align = g_uwsTick3 - g_uwsTick2;
     ICUNIT_ASSERT_NOT_EQUAL_VOID(align, 0, align);
     g_testCount++;

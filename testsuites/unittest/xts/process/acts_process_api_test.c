@@ -55,10 +55,19 @@ static void *ThreadFunc(void* arg)
 LITE_TEST_CASE(ProcessApiTestSuite, testPthreadSetnameNp1000, Function | MediumTest | Level1) {
     pthread_t thisThread;
     int returnVal = pthread_create(&thisThread, NULL, ThreadFunc, NULL);
+    ICUNIT_GOTO_EQUAL(returnVal, 0, returnVal, EXIT_NO_THREAD);
+
     returnVal = pthread_setname_np(thisThread, "funcThreadNamelongName");
-    ICUNIT_ASSERT_NOT_EQUAL(returnVal, 0, returnVal);
-    ICUNIT_ASSERT_EQUAL(returnVal, ERANGE, returnVal);
+    ICUNIT_GOTO_NOT_EQUAL(returnVal, 0, returnVal, EXIT);
+    ICUNIT_GOTO_EQUAL(returnVal, ERANGE, returnVal, EXIT);
+
+    (VOID)pthread_join(thisThread, NULL);
     return 0;
+
+EXIT:
+    (VOID)pthread_join(thisThread, NULL);
+EXIT_NO_THREAD:
+    return LOS_NOK;
 }
 
 RUN_TEST_SUITE(ProcessApiTestSuite);

@@ -65,7 +65,7 @@ static UINT32 TestCase(VOID)
     ret = LOS_TaskPriSet(g_testTaskID01, TASK_PRIO_TEST - 1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_NOT_CREATED, ret);
 
-    ret = LOS_TaskPriSet(g_idleTaskID, TASK_PRIO_TEST - 1);
+    ret = LOS_TaskPriSet(OsGetIdleTaskId(), TASK_PRIO_TEST - 1);
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_OPERATE_IDLE, ret);
 
     ret = LOS_TaskPriSet(g_taskMaxNum + 1, TASK_PRIO_TEST - 1);
