@@ -54,93 +54,13 @@ VOID *ArchGetHwiFrom(VOID)
  **************************************************************************** */
 LITE_OS_SEC_TEXT_MINOR VOID HalHwiDefaultHandler(VOID)
 {
-    PRINT_ERR("%s irqnum:%x\n", __FUNCTION__, ArchIntCurIrqNum());
+    PRINT_ERR("%s irqnum:%x\n", __FUNCTION__, LOS_HwiCurIrqNum());
     while (1) {}
 }
 
 STATIC UINT32 HwiNumValid(UINT32 num)
 {
     return ((num) >= OS_USER_HWI_MIN) && ((num) <= OS_USER_HWI_MAX);
-}
-
-UINT32 ArchIntTrigger(HWI_HANDLE_T hwiNum)
-{
-    if (!HwiNumValid(hwiNum)) {
-        return LOS_ERRNO_HWI_NUM_INVALID;
-    }
-
-    HwiControllerOps *hwiOps = ArchIntOpsGet();
-    if (hwiOps->triggerIrq == NULL) {
-        return OS_ERRNO_HWI_OPS_FUNC_NULL;
-    }
-
-    return hwiOps->triggerIrq(hwiNum);
-}
-
-UINT32 ArchIntEnable(HWI_HANDLE_T hwiNum)
-{
-    if (!HwiNumValid(hwiNum)) {
-        return LOS_ERRNO_HWI_NUM_INVALID;
-    }
-
-    HwiControllerOps *hwiOps = ArchIntOpsGet();
-    if (hwiOps->enableIrq == NULL) {
-        return OS_ERRNO_HWI_OPS_FUNC_NULL;
-    }
-
-    return hwiOps->enableIrq(hwiNum);
-}
-
-UINT32 ArchIntDisable(HWI_HANDLE_T hwiNum)
-{
-    if (!HwiNumValid(hwiNum)) {
-        return LOS_ERRNO_HWI_NUM_INVALID;
-    }
-
-    HwiControllerOps *hwiOps = ArchIntOpsGet();
-    if (hwiOps->disableIrq == NULL) {
-        return OS_ERRNO_HWI_OPS_FUNC_NULL;
-    }
-
-    return hwiOps->disableIrq(hwiNum);
-}
-
-UINT32 ArchIntClear(HWI_HANDLE_T hwiNum)
-{
-    if (!HwiNumValid(hwiNum)) {
-        return LOS_ERRNO_HWI_NUM_INVALID;
-    }
-
-    HwiControllerOps *hwiOps = ArchIntOpsGet();
-    if (hwiOps->clearIrq == NULL) {
-        return OS_ERRNO_HWI_OPS_FUNC_NULL;
-    }
-
-    return hwiOps->clearIrq(hwiNum);
-}
-
-UINT32 ArchIntSetPriority(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priority)
-{
-    if (!HwiNumValid(hwiNum)) {
-        return LOS_ERRNO_HWI_NUM_INVALID;
-    }
-
-    if (!HWI_PRI_VALID(priority)) {
-        return OS_ERRNO_HWI_PRIO_INVALID;
-    }
-
-    HwiControllerOps *hwiOps = ArchIntOpsGet();
-    if (hwiOps->setIrqPriority == NULL) {
-        return OS_ERRNO_HWI_OPS_FUNC_NULL;
-    }
-
-    return hwiOps->setIrqPriority(hwiNum, priority);
-}
-
-UINT32 ArchIntCurIrqNum(VOID)
-{
-    HwiControllerOps *hwiOps = ArchIntOpsGet();
-    return hwiOps->getCurIrqNum();
 }
 
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
@@ -155,7 +75,7 @@ VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector, VOID *arg)
         g_hwiForm[num + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)IrqEntry;
         g_hwiHandleForm[num + OS_SYS_VECTOR_CNT].hook = vector;
         g_hwiHandleForm[num + OS_SYS_VECTOR_CNT].registerInfo = (HWI_ARG_T)(UINTPTR)arg;
-        ArchIntEnable(num);
+        LOS_HwiEnable(num);
     }
 }
 #else
@@ -173,111 +93,10 @@ VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector)
     if ((num + OS_SYS_VECTOR_CNT) < OS_VECTOR_CNT) {
         g_hwiForm[num + OS_SYS_VECTOR_CNT] = IrqEntry;
         g_hwiHandleForm[num + OS_SYS_VECTOR_CNT].hook = vector;
-        ArchIntEnable(num);
+        LOS_HwiEnable(num);
     }
 }
 #endif
-
-/* ****************************************************************************
- Function    : ArchHwiCreate
- Description : create hardware interrupt
- Input       : hwiNum   --- hwi num to create
-               hwiPrio  --- priority of the hwi
-               hwiMode  --- unused
-               hwiHandler  --- hwi handler
-               irqParam --- param of the hwi handler
- Output      : None
- Return      : LOS_OK on success or error code on failure
- **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum, HWI_PRIOR_T hwiPrio,
-                                           HWI_MODE_T hwiMode, HWI_PROC_FUNC hwiHandler,
-                                           HwiIrqParam *irqParam)
-{
-    (VOID)hwiMode;
-    UINT32 intSave;
-    UINT32 ret;
-
-    if (hwiHandler == NULL) {
-        return OS_ERRNO_HWI_PROC_FUNC_NULL;
-    }
-    if (hwiNum >= OS_HWI_MAX_NUM) {
-        return OS_ERRNO_HWI_NUM_INVALID;
-    }
-    if (g_hwiHandleForm[hwiNum + OS_SYS_VECTOR_CNT].hook != NULL) {
-        return OS_ERRNO_HWI_ALREADY_CREATED;
-    }
-    if (hwiPrio > OS_HWI_PRIO_LOWEST) {
-        return OS_ERRNO_HWI_PRIO_INVALID;
-    }
-    intSave = LOS_IntLock();
-#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
-    if (irqParam != NULL) {
-        OsSetVector(hwiNum, hwiHandler, irqParam->pDevId);
-    } else {
-        OsSetVector(hwiNum, hwiHandler, NULL);
-    }
-#else
-    (VOID)irqParam;
-    OsSetVector(hwiNum, hwiHandler);
-#endif
-
-    /* Dual-write g_hwiHandleForm (approach B transition). */
-    g_hwiHandleForm[hwiNum + OS_SYS_VECTOR_CNT].hook = hwiHandler;
-#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
-    g_hwiHandleForm[hwiNum + OS_SYS_VECTOR_CNT].registerInfo = (irqParam != NULL) ? (HWI_ARG_T)(UINTPTR)irqParam->pDevId : 0;
-#else
-    g_hwiHandleForm[hwiNum + OS_SYS_VECTOR_CNT].registerInfo = 0;
-#endif
-    g_hwiHandleForm[hwiNum + OS_SYS_VECTOR_CNT].respCount = 0;
-    g_hwiHandleForm[hwiNum + OS_SYS_VECTOR_CNT].next = NULL;
-
-    HwiControllerOps *hwiOps = ArchIntOpsGet();
-    if (hwiOps->createIrq == NULL) {
-        LOS_IntRestore(intSave);
-        return OS_ERRNO_HWI_OPS_FUNC_NULL;
-    }
-    ret = hwiOps->createIrq(hwiNum, hwiPrio);
-    if (ret != LOS_OK) {
-        /* Roll back the dispatch table on createIrq failure. */
-        g_hwiForm[hwiNum + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalHwiDefaultHandler;
-        g_hwiHandleForm[hwiNum + OS_SYS_VECTOR_CNT].hook = NULL;
-        LOS_IntRestore(intSave);
-        return ret;
-    }
-
-    LOS_IntRestore(intSave);
-
-    return LOS_OK;
-}
-
-/* ****************************************************************************
- Function    : ArchHwiDelete
- Description : Delete hardware interrupt
- Input       : hwiNum   --- hwi num to delete
-               irqParam --- param of the hwi handler
- Output      : None
- Return      : LOS_OK on success or error code on failure
- **************************************************************************** */
-LITE_OS_SEC_TEXT_INIT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam)
-{
-    (VOID)irqParam;
-    UINT32 intSave;
-
-    if (hwiNum >= OS_HWI_MAX_NUM) {
-        return OS_ERRNO_HWI_NUM_INVALID;
-    }
-
-    ArchIntDisable((IRQn_Type)hwiNum);
-
-    intSave = LOS_IntLock();
-    g_hwiHandleForm[hwiNum + OS_SYS_VECTOR_CNT].hook = NULL;
-    g_hwiHandleForm[hwiNum + OS_SYS_VECTOR_CNT].respCount = 0;
-    g_hwiHandleForm[hwiNum + OS_SYS_VECTOR_CNT].shareMode = 0;
-    g_hwiHandleForm[hwiNum + OS_SYS_VECTOR_CNT].next = NULL;
-    LOS_IntRestore(intSave);
-
-    return LOS_OK;
-}
 
 VOID *HalGetHandleForm(HWI_HANDLE_T hwiNum)
 {

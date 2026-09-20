@@ -280,6 +280,14 @@ extern const char *ICunitTypeToStr(iUINT16 type);
         }                                               \
     } while (0)
 
+#define ICUNIT_GOTO_WITHIN_EQUAL(param, value1, value2, retcode, label) \
+    do {                                                                \
+        if ((param) < (value1) || (param) > (value2)) {                 \
+            ICunitSaveErr(__LINE__, (iiUINT32)(retcode));               \
+            goto label;                                                 \
+        }                                                               \
+    } while (0)
+
 #define ICUNIT_GOTO_NOT_EQUAL(param, value, retcode, label) \
     do {                                                    \
         if ((param) == (value)) {                           \

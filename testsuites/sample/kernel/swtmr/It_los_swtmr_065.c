@@ -47,7 +47,7 @@ static VOID HwiF01(VOID)
     return;
 }
 
-static VOID SwtmrF01(UINT32 arg)
+static VOID SwtmrF01(UINTPTR arg)
 {
     g_testCount++;
     return;

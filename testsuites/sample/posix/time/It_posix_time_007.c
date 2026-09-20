@@ -13,5 +13,5 @@ static UINT32 Testcase(VOID)
 
 VOID ItPosixTime007(void)
 {
-    TEST_ADD_CASE("ItPosixTime007", Testcase, TEST_POSIX, TEST_MUX, TEST_LEVEL1, TEST_FUNCTION);
+    TEST_ADD_CASE("ItPosixTime007", Testcase, TEST_LIB, TEST_POSIX, TEST_LEVEL1, TEST_FUNCTION);
 }

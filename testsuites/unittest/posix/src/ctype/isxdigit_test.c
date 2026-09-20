@@ -244,6 +244,28 @@ LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCTypeIsxdigit010, Function | MediumTe
     return 0;
 }
 
+/* *
+ * @tc.number    : TEST_CTYPE_ISXDIGIT_011
+ * @tc.name      : count isxdigit-true characters over the whole ascii table
+ * @tc.desc      : [C- SOFTWARE -0200]
+ * 移植自 musl libc-test/src/functionalext/supplement/ctype/isxdigit.c:86-95
+ * （isxdigit_0600）：枚举 ASCII 0..127，十六进制数字字符共 22 个
+ * （10 数字 + 6 小写 a-f + 6 大写 A-F）。
+ */
+LITE_TEST_CASE(PosixCTypeIsxdigitTest, testCtypeIsxdigitCount001, Function | MediumTest | Level1)
+{
+    int total = 0;
+    int i;
+    /* 全 ASCII 枚举计数：isxdigit 为真的字符共 22 个 */
+    for (i = 0; i < 128; i++) {
+        if (isxdigit(i)) {
+            total++;
+        }
+    }
+    ICUNIT_ASSERT_EQUAL(total, 22, total);
+    return 0;
+}
+
 void PosixIsxdigitFuncTest()
 {
     LOG("begin PosixIsxdigitFuncTest....");
@@ -257,6 +279,7 @@ void PosixIsxdigitFuncTest()
     RUN_ONE_TESTCASE(testCTypeIsxdigit008);
     RUN_ONE_TESTCASE(testCTypeIsxdigit009);
     RUN_ONE_TESTCASE(testCTypeIsxdigit010);
+    RUN_ONE_TESTCASE(testCtypeIsxdigitCount001);
 
     return;
 }

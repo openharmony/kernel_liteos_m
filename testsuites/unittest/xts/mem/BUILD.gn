@@ -40,4 +40,5 @@ static_library("mem_test") {
     "$LITEOSTOPDIR/testsuites/include",
     "$LITEOSTOPDIR/testsuites/unittest/xts",
   ]
+  configs += [ "//kernel/liteos_m/testsuites:no_test_coverage" ]
 }

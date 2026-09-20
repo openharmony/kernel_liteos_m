@@ -92,6 +92,7 @@ STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)
     WRITE_UINT32(value, OS_TIMER_CTL_REG_ADDR);
 
     (VOID)LOS_HwiCreate(OS_TIMER_IRQ_NUM, 0, 0, (HWI_PROC_FUNC)handler, 0);
+    LOS_HwiEnable(OS_TIMER_IRQ_NUM);
     LOS_IntRestore(intSave);
 
     return LOS_OK;

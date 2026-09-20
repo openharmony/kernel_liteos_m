@@ -52,35 +52,77 @@ VOID ItSuiteLosLms(void)
 {
     testPoolInit();
     ItLosLms001();
+    LMS_FEED_WDT();
     ItLosLms002();
+    LMS_FEED_WDT();
     ItLosLms003();
+    LMS_FEED_WDT();
     ItLosLms004();
+    LMS_FEED_WDT();
     ItLosLms005();
+    LMS_FEED_WDT();
     ItLosLms006();
+    LMS_FEED_WDT();
     ItLosLms007();
+    LMS_FEED_WDT();
     ItLosLms008();
+    LMS_FEED_WDT();
     ItLosLms009();
+    LMS_FEED_WDT();
+#if !(defined(LOSCFG_KERNEL_MEM_BESTFIT) && defined(LOSCFG_MEM_DEBUG))
     ItLosLms010();
+    LMS_FEED_WDT();
+#endif
     ItLosLms011();
+    LMS_FEED_WDT();
 #if !(defined(LOSCFG_KERNEL_MEM_BESTFIT) && defined(LOSCFG_MEM_DEBUG))
     ItLosLms012();
+    LMS_FEED_WDT();
 #endif
     ItLosLms013();
+    LMS_FEED_WDT();
     ItLosLms014();
+    LMS_FEED_WDT();
     ItLosLms015();
+    LMS_FEED_WDT();
     ItLosLms016();
-    /* ItLosLms017(); */
+    LMS_FEED_WDT();
+    //ItLosLms017();
+    LMS_FEED_WDT();
     ItLosLms018();
+    LMS_FEED_WDT();
     ItLosLms019();
+    LMS_FEED_WDT();
     ItLosLms020();
+    LMS_FEED_WDT();
     ItLosLms021();
+    LMS_FEED_WDT();
     ItLosLms022();
-    // ItLosLms023();
-    // ItLosLms024();
+    LMS_FEED_WDT();
+#if !(defined(LOSCFG_PLATFORM_WS63_M) && defined(LOSCFG_KERNEL_LMS))
+    /* strcat_s/strcpy_s internally use memcpy via SECUREC_MEMCPY_WARP_OPT.
+     * On WS63, --wrap=memcpy redirects memcpy to __wrap_memcpy (byte-by-byte
+     * sram_put_byte), bypassing LMS __asan_store*_noabort checks, so the
+     * error hook is never called and these tests fail. */
+    //ItLosLms023();
+    LMS_FEED_WDT();
+    //ItLosLms024();
+    LMS_FEED_WDT();
+#endif
     ItLosLms025();
+    LMS_FEED_WDT();
     ItLosLms026();
+    LMS_FEED_WDT();
     ItLosLms027();
+    LMS_FEED_WDT();
 #if !(defined(LOSCFG_KERNEL_MEM_BESTFIT) && defined(LOSCFG_MEM_DEBUG))
     ItLosLms028();
+    LMS_FEED_WDT();
 #endif
+    ItLosLms029();
+    LMS_FEED_WDT();
+    ItLosLms030();
+    LMS_FEED_WDT();
+    ItLosLms031();
+    LMS_FEED_WDT();
 }

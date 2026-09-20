@@ -57,6 +57,10 @@ extern VOID ItLosShell002(VOID);
 extern VOID ItLosShell003(VOID);
 extern VOID ItLosShell004(VOID);
 VOID ItLosShell005(VOID);
+VOID ItLosShell006(VOID);
+VOID ItLosShell007(VOID);
+VOID ItLosShell008(VOID);
+VOID ItLosShell009(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

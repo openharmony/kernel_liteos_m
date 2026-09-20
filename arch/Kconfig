@@ -56,5 +56,5 @@ config ARCH_INTERRUPT_VENDOR
     help
       Select this if the board has a custom interrupt controller (not the
       default liteos_m g_hwiForm dispatch). The board must provide its own
-      g_hwiForm, HalHwiInterruptDone, ArchHwiCreate, HalExcEntry, HalHwiInit,
+      g_hwiForm, HalHwiInterruptDone, LOS_HwiCreate, HalExcEntry, HalHwiInit,
       and all symbols that los_interrupt.c would normally provide.

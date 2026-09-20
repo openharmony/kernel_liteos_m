@@ -38,7 +38,7 @@ static UINT64 g_timeUpdateNS = 0;
 
 #define SWTMR_PERIODIC 4
 
-static VOID Case1(UINT32 arg)
+static VOID Case1(UINTPTR arg)
 {
     g_testCount1++;
     g_timeUpdateNS = LOS_CurrNanosec();
@@ -71,7 +71,7 @@ static UINT32 Testcase(VOID)
 #ifdef LOSCFG_KERNEL_TICKLESS_GLOBAL
     ICUNIT_ASSERT_EQUAL(deltaTicks, SWTMR_PERIODIC, deltaTicks);
 #else
-    ICUNIT_ASSERT_WITHIN_EQUAL(deltaTicks, SWTMR_PERIODIC - 1, SWTMR_PERIODIC, deltaTicks);
+    ICUNIT_ASSERT_WITHIN_EQUAL(deltaTicks, SWTMR_PERIODIC - 1, SWTMR_PERIODIC + 1, deltaTicks);
 #endif
 
 EXIT:

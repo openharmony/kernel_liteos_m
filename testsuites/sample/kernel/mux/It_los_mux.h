@@ -74,6 +74,8 @@ VOID ItLosMux031(void);
 VOID ItLosMux032(void);
 VOID ItLosMux033(void);
 VOID ItLosMux034(void);
+VOID ItLosMux035(void);
+VOID ItLosMux036(void);
 
 VOID ItSuiteLosMux(void);
 

@@ -15,6 +15,8 @@ VOID ItPosixSignal090(void);
 VOID ItPosixSignal091(VOID);
 VOID ItPosixSignal092(VOID);
 VOID ItPosixSignal093(VOID);
+VOID ItPosixSignal094(VOID);
+VOID ItPosixSignal095(VOID);
 
 VOID ItSuitePosixSignal(void);
 

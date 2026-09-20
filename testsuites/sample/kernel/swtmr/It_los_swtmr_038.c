@@ -33,7 +33,7 @@
 #include "It_los_swtmr.h"
 
 
-static VOID SwtmrF01(UINT32 arg)
+static VOID SwtmrF01(UINTPTR arg)
 {
     UINT32 ret;
 
@@ -47,7 +47,7 @@ static VOID SwtmrF01(UINT32 arg)
     return;
 }
 
-static VOID SwtmrF02(UINT32 arg)
+static VOID SwtmrF02(UINTPTR arg)
 {
     UINT32 ret;
 

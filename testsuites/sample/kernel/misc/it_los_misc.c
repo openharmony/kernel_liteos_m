@@ -41,6 +41,7 @@ VOID ItSuiteLosMisc(VOID)
     ItLosCompiler001();
     ItLosErr001();
     ItLosPrintf001();
+    ItLosPrintf002();
 #if defined(LOSCFG_ARCH_ARM)
     ItLosInit001();
 #endif

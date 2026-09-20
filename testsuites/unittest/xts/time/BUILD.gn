@@ -29,6 +29,12 @@
 import("//kernel/liteos_m/liteos.gni")
 
 static_library("time_test") {
+  defines = [
+    "XTS_CASE_LAYER=TEST_LIB",
+    "XTS_CASE_MODULE=TEST_POSIX",
+    "XTS_CASE_LEVEL=TEST_LEVEL0",
+  ]
+
   sources = [
     "alarm_test.c",
     "clock_time_test.c",
@@ -41,4 +47,5 @@ static_library("time_test") {
     "$LITEOSTOPDIR/testsuites/include",
     "$LITEOSTOPDIR/testsuites/unittest/xts",
   ]
+  configs += [ "//kernel/liteos_m/testsuites:no_test_coverage" ]
 }

@@ -34,7 +34,7 @@
 static int TaskDeatchf01(UINT32 argument)
 {
     int ret = LOS_TaskDetach(LOS_CurTaskIDGet());
-    ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_NOT_JOIN, ret);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_ALREADY_JOIN, ret);
 
     g_testCount++;
     return 0;

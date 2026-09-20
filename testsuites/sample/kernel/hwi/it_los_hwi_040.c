@@ -59,7 +59,7 @@ static UINT32 TestdisableIrq(HWI_HANDLE_T hwiNum)
     return LOS_OK;
 }
 
-static UINT32 TestsetIrqPriority(HWI_HANDLE_T hwiNum, UINT8 priority)
+static UINT32 TestsetIrqPriority(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priority)
 {
     g_testCount++;
     dprintf("This is TestsetIrqPriority\n");

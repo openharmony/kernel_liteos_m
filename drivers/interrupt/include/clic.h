@@ -40,13 +40,44 @@
 extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
+
+/* ---- CLIC register layout (struct description, GIC/NVIC driver pattern) ----
+ * The board's soc.h must define CLIC_BASE_ADDR before CLIC_REG is used
+ * (e.g. device/board/hihope/hi3322/.../asm/soc.h).
+ *
+ * Memory map (CLIC spec + LCMP implementation):
+ *   0x000  cliccfg   (RW, 8-bit)
+ *   0x004  clicinfo  (RO, 32-bit)
+ *   0x1000 per-interrupt block: 4 bytes per interrupt —
+ *          clicintip / clicintie / clicintattr / clicintctl at +0/+1/+2/+3
+ */
+
+/* Per-interrupt register group (4 bytes, at 0x1000 + 4*n). */
+struct ClicIntCtrl {
+    volatile UINT8 ip;      /* +0 clicintip: pending (SW-writable when edge-triggered) */
+    volatile UINT8 ie;      /* +1 clicintie: enable */
+    volatile UINT8 attr;    /* +2 clicintattr: mode[7:6], trig[1], vectored[0] */
+    volatile UINT8 ctl;     /* +3 clicintctl: priority/level bits */
+};
+
+struct ClicRegs {
+    volatile UINT8 cfg;                 /* 0x000 cliccfg */
+    UINT8 reserved0[3];                 /* 0x001-0x003 */
+    volatile UINT32 info;               /* 0x004 clicinfo (RO) */
+    UINT8 reserved1[0x1000 - 0x008];    /* 0x008-0x0FFF */
+    struct ClicIntCtrl intCtrl[];       /* 0x1000+, count = clicinfo.NUM_INTERRUPT */
+};
+
+#define CLIC_REG   ((volatile struct ClicRegs *)(UINTPTR)CLIC_BASE_ADDR)
+
+/* clicinfo.CLICINTCTLBITS: priority bits implemented in clicintctl (LCMP: 3). */
 #define REG_CLIC_INFO_CLICINTCTLBITS 3
-#define CLIC_CFG                0
-#define CLIC_INFO               4
-#define CLIC_INTIP(x)           (0x1000 + 4 * (x))
-#define CLIC_INTIE(x)           (0x1001 + 4 * (x))
-#define CLIC_INTATTR(x)         (0x1002 + 4 * (x))
-#define CLIC_INTCTL(x)          (0x1003 + 4 * (x))
+
+/* clicintattr bits */
+#define CLIC_ATTR_VECTORED       (1U << 0)   /* 0 = non-vectored (this driver) */
+#define CLIC_ATTR_EDGE_TRIG      (1U << 1)   /* edge-triggered; required so SW can set clicintip */
+#define CLIC_ATTR_MODE_SHIFT     6
+#define CLIC_ATTR_MODE_M         (3U << CLIC_ATTR_MODE_SHIFT)  /* machine mode */
 
 extern VOID HalIrqInit(VOID);
 

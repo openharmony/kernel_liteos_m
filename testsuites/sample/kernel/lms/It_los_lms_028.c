@@ -33,19 +33,15 @@
 #include "It_los_lms.h"
 
 /*
- * ItLosLms028 - Use-after-free detection path & OsLmsPrintPoolListInfo coverage.
+ * ItLosLms028 - Use-after-free & double-free detection path.
  * Verifies:
  *   - After LOS_MemFree, the freed region is marked AFTERFREE.
  *   - A subsequent access to the freed pointer triggers a FREE_ERRORMODE
  *     (or COMMON_ERRMODE) report via the OsLmsCheckValid -> OsLmsReportError path.
- *   - OsLmsPrintPoolListInfo executes without crashing (PRINT_DEBUG path;
- *     useful for statement coverage even if debug output is suppressed).
  *   - Double-free attempt is detected (the g_lms->check -> freeMark path).
  */
 static UINT32 TestCase028Impl(VOID *pool)
 {
-    OsLmsPrintPoolListInfo();
-
     CHAR *str = (CHAR *)LOS_MemAlloc(pool, INDEX_MAX);
     ICUNIT_ASSERT_NOT_EQUAL(str, NULL, str);
     (VOID)memset(str, 0xAA, INDEX_MAX);
@@ -59,7 +55,6 @@ static UINT32 TestCase028Impl(VOID *pool)
     /* Double free attempt: should also be reported but not crash. */
     (VOID)LOS_MemFree(pool, str);
 
-    OsLmsPrintPoolListInfo();
     return LOS_OK;
 }
 
@@ -68,7 +63,7 @@ static UINT32 TestCase(VOID)
     return LMS_TEST_RUN_IN_SANDBOX(TestCase028Impl, 2 * PAGE_SIZE);
 }
 
-/* LmsTestUseAfterFreeAndPrintPoolInfo */
+/* LmsTestUseAfterFreeAndDoubleFree */
 VOID ItLosLms028(void)
 {
     TEST_ADD_CASE("ItLosLms028", TestCase, TEST_LOS, TEST_LMS, TEST_LEVEL1, TEST_FUNCTION);

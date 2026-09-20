@@ -27,6 +27,13 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static_library("fs") {
+  # fs 用例归属：layer=TEST_VFS, module=TEST_FS
+  defines = [
+    "POSIX_CASE_LAYER=TEST_VFS",
+    "POSIX_CASE_MODULE=TEST_FS",
+    "POSIX_CASE_LEVEL=TEST_LEVEL0",
+  ]
+
   sources = [
     "api/posix_fs_access_test.c",
     "api/posix_fs_close_test.c",
@@ -58,4 +65,5 @@ static_library("fs") {
     "../",
     "../../../../include",
   ]
+  configs += [ "//kernel/liteos_m/testsuites:no_test_coverage" ]
 }

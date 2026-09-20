@@ -1,0 +1,70 @@
+# Copyright (c) 2026-2026 Huawei Device Co., Ltd. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this list of
+# conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice, this list
+# of conditions and the following disclaimer in the documentation and/or other materials
+# provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its contributors may be used
+# to endorse or promote products derived from this software without specific prior written
+# permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+## ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# Test-suite Kconfig: every test-only knob lives here and hangs off the
+# KERNEL_TEST -> TEST chain (KERNEL_TEST selects TEST), so a build without
+# LOSCFG_TEST=y gets none of this code compiled in and the binary is
+# identical to a tree without these additions.
+
+menu "Test"
+
+config TEST
+    bool
+    default n
+
+config KERNEL_TEST
+    bool "Enable Kernel Test"
+    default n
+    select TEST
+
+config KERNEL_TEST_FULL
+    bool "Full Kernel Test"
+    default n
+    depends on KERNEL_TEST
+
+config KERNEL_TEST_MANUAL
+    bool "Manual Kernel Test"
+    default n
+    depends on KERNEL_TEST
+
+config TEST_KERNEL_COVERAGE
+    bool "Enable code coverage instrumentation (gcov)"
+    default n
+    depends on KERNEL_TEST
+    depends on COMPILER_GCC
+    help
+      Requires KERNEL_TEST=y and a GCC toolchain. Answer Y to compile
+      kernel sources with -fprofile-arcs -ftest-coverage. No libgcov is
+      linked: the standalone runtime in testsuites/src/gcov registers the
+      per-translation-unit gcov_info structs (via .init_array constructors)
+      and at test end streams the counters over the console UART as base64
+      GCOV_BEGIN/GCOV_END frames for host-side .gcda reconstruction (no
+      on-target filesystem needed). Intended for debug/test builds only:
+      it enlarges code & BSS and adds runtime dump overhead.
+
+endmenu

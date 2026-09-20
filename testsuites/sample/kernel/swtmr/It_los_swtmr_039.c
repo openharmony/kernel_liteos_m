@@ -35,7 +35,7 @@
 
 static UINT32 g_testCount1 = 0;
 
-static VOID Case1(UINT32 arg)
+static VOID Case1(UINTPTR arg)
 {
     UINT32 ret;
 
@@ -52,7 +52,7 @@ EXIT:
     ICUNIT_ASSERT_EQUAL_VOID(ret, LOS_ERRNO_SWTMR_HWI_ACTIVE, ret);
 }
 
-static VOID Case2(UINT32 arg)
+static VOID Case2(UINTPTR arg)
 {
     g_testCount1++;
     return;

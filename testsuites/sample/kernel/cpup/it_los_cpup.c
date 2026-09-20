@@ -42,6 +42,7 @@ VOID ItSuiteLosCpup(VOID)
     ItLosCpup003();
     ItLosCpup005();
     ItLosCpup006();
+    ItLosCpup009(); /* 依赖 IRQ 统计(qemu 开 CPUP_INCLUDE_IRQ),同 005 仅 qemu */
 #endif
     ItLosCpup007();
     ItLosCpup008();

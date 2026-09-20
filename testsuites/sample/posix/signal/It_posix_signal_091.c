@@ -56,7 +56,7 @@ static UINT32 Testcase(VOID)
 
 VOID ItPosixSignal091(VOID)
 {
-    TEST_ADD_CASE("ItPosixSignal091", Testcase, TEST_POSIX, TEST_MUX, TEST_LEVEL1, TEST_FUNCTION);
+    TEST_ADD_CASE("ItPosixSignal091", Testcase, TEST_LIB, TEST_POSIX, TEST_LEVEL1, TEST_FUNCTION);
 }
 #else
 typedef int bug03_placeholder;

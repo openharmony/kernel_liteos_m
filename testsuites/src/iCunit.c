@@ -83,7 +83,14 @@ const char *ICunitTypeToStr(iUINT16 t)
     }
 }
 
-#define MODULE_COUNT (TEST_TRACE + 1)
+/* 模块总数随 icunit_module_def.h 自动同步，避免硬编码下标越界 */
+enum {
+#define ICUNIT_MOD(name) _MODULE_CNT_##name,
+#include "icunit_module_def.h"
+#undef ICUNIT_MOD
+    MODULE_COUNT_DUMMY
+};
+#define MODULE_COUNT MODULE_COUNT_DUMMY
 ICUNIT_MODULE_STAT_S g_moduleStat[MODULE_COUNT];
 
 void ICunitSaveErr(iiUINT32 line, iiUINT32 retCode)

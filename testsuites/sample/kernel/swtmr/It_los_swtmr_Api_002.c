@@ -32,7 +32,7 @@
 #include "osTest.h"
 #include "It_los_swtmr.h"
 
-static VOID SwtmrApi002Func(UINT32 arg)
+static VOID SwtmrApi002Func(UINTPTR arg)
 {
     g_testCount++;
 }

@@ -46,6 +46,7 @@ static UINT32 TestCase(VOID)
         PRINTK("0x%x\n", str[size + 1]); /* not trigger read overflow at size + 1 */
         PRINTK("0x%x\n", str[size + 2]); /* trigger read overflow at size + 2 */
         (VOID)LOS_MemFree(m_aucSysMem0, str);
+        LMS_FEED_WDT();
     }
 
     return LOS_OK;

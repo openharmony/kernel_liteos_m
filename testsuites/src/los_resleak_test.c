@@ -61,7 +61,11 @@ STATIC UINT32 OsResLeakMemUsedGet(VOID)
 
 STATIC VOID OsResLeakForceReclaim(VOID)
 {
-    (VOID)LOS_TaskResRecycle();
+    /* Intentionally empty: calling LOS_TaskResRecycle() here (as main did)
+     * forcibly reclaims task resources mid-test, corrupting TCB/stack state
+     * for tests that create and exit tasks — causes TSK_TCB_UNAVAILABLE and
+     * TSK_DELAY_IN_LOCK regressions on qemu_mini_system_demo. Resource
+     * reclamation is left to the idle task and LOS_TaskCreate as designed. */
 }
 
 #if (LOSCFG_POSIX_MQUEUE_API == 1)

@@ -465,6 +465,46 @@ extern "C" {
 
 /**
  * @ingroup los_task
+ * Task error code: A task cannot be waiting for multiple tasks.
+ *
+ * Value: 0x0200022d.
+ *
+ * Solution: Check whether other tasks are waiting for this task.
+ */
+#define LOS_ERRNO_TSK_ALREADY_JOIN                  LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x2d)
+
+/**
+ * @ingroup los_task
+ * Task error code: This task is detached attr.
+ *
+ * Value: 0x0200022e.
+ *
+ * Solution: Check the task properties and whether it is waiting for other tasks to finish.
+ */
+#define LOS_ERRNO_TSK_IS_DETACHED                   LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x2e)
+
+/**
+ * @ingroup los_task
+ * Task error code: An "zombie" task cannot be operated.
+ *
+ * Value: 0x02000230.
+ *
+ * Solution: Check whether a Joinable task exists. If so, call LOS_TaskJoin to reclaim resources.
+ */
+#define LOS_ERRNO_TSK_IS_ZOMBIE                     LOS_ERRNO_OS_ERROR(LOS_MOD_TSK, 0x30)
+
+/**
+ * @ingroup los_task
+ * Task error code: The task is locked when it is being deleted.
+ *
+ * Value: 0x03000231.
+ *
+ * Solution: Unlock the task.
+ */
+#define LOS_ERRNO_TSK_DELETE_LOCKED                 LOS_ERRNO_OS_FATAL(LOS_MOD_TSK, 0x31)
+
+/**
+ * @ingroup los_task
  * Define the type of the task entry function.
  *
  */
@@ -844,6 +884,7 @@ extern UINT32 LOS_TaskCreateStatic(UINT32 *taskId, TSK_INIT_PARAM_S *taskInitPar
  *
  * @retval #LOS_ERRNO_TSK_ID_INVALID        Invalid Task ID
  * @retval #LOS_ERRNO_TSK_NOT_CREATED       The task is not created.
+ * @retval #LOS_ERRNO_TSK_IS_ZOMBIE         The task is in a "zombie" state.
  * @retval #LOS_ERRNO_TSK_NOT_SUSPENDED     The task is not suspended.
  * @retval #LOS_OK                          The task is successfully resumed.
  * @par Dependency:
@@ -1277,8 +1318,9 @@ extern UINT32 LOS_TaskSwitchInfoGet(UINT32 index, UINT32 *taskSwitchInfo);
  * <ul><li>los_task.h: the header file that contains the API declaration.</li></ul>
  * @see
  */
-extern BOOL LOS_TaskIsRunning(VOID);
-#define LOS_TaskIsScheduled LOS_TaskIsRunning    /* 对外接口别名，功能等价；单核场景 */
+extern BOOL LOS_TaskIsScheduled(VOID);
+
+#define LOS_TaskIsRunning                           LOS_TaskIsScheduled
 
 /**
  * @ingroup  los_task

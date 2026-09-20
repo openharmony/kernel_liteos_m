@@ -1,0 +1,70 @@
+# Copyright (c) 2026-2026 Huawei Device Co., Ltd. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this list of
+# conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice, this list
+# of conditions and the following disclaimer in the documentation and/or other materials
+# provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its contributors may be used
+# to endorse or promote products derived from this software without specific prior written
+# permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+## ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import("//kernel/liteos_m/liteos.gni")
+
+# gcov dump glue for bare-metal targets (standalone runtime).
+#
+# The kernel is instrumented with -fprofile-arcs -ftest-coverage
+# (kernel/liteos_m/config.gni) but does NOT link libgcov: test_gcov.c
+# supplies the gcov runtime symbols the instrumented code references
+# (__gcov_init / __gcov_merge_add) and streams the profile over the
+# console UART as base64 GCOV_BEGIN/GCOV_END frames. Host-side tooling
+# (log parsing, .gcda reconstruction, lcov coverage report) lives in the
+# *.py / *.sh files here.
+
+# -fno-stack-protector: the module is intentionally libc-header free, and
+# this keeps it free of libc SSP references (__stack_chk_guard /
+# __stack_chk_fail) too; applied to the whole debug/test-only module for
+# uniformity.
+config("gcov_no_ssp") {
+  cflags = [ "-fno-stack-protector" ]
+}
+
+module_switch = defined(LOSCFG_TEST_KERNEL_COVERAGE)
+module_name = "gcov"
+kernel_module(module_name) {
+  sources = [ "test_gcov.c" ]
+  configs += [
+    "$LITEOSTOPDIR:warn_config",
+    ":gcov_no_ssp",
+    # Exclude the gcov runtime itself from instrumentation (it would be
+    # circular: the dumper instrumented by gcov trying to dump its own
+    # counters). Same single-point exclusion config as the rest of
+    # testsuites.
+    "//kernel/liteos_m/testsuites:no_test_coverage",
+  ]
+}
+
+config("public") {
+  # test_gcov.h lives in testsuites/include (shared with osTest.c)
+  include_dirs = [
+    ".",
+    "//kernel/liteos_m/testsuites/include",
+  ]
+}

@@ -39,8 +39,25 @@
 #define TEST_STR(func) ItLos##func
 #define TEST_TO_STR(x) #x
 #define TEST_HEAD_TO_STR(x) TEST_TO_STR(x)
+/*
+ * 用例归属由 XTS_CASE_LAYER/XTS_CASE_MODULE/XTS_CASE_LEVEL 决定，
+ * 默认 lib/libc；各测试库可在 BUILD.gn defines 中按目录覆盖
+ * （如 xts/cmsis: TEST_COMPAT/TEST_CMSIS，xts/math: TEST_LIB/TEST_LIBM）。
+ */
+#ifndef XTS_CASE_LAYER
+#define XTS_CASE_LAYER TEST_LIB
+#endif
+#ifndef XTS_CASE_MODULE
+#define XTS_CASE_MODULE TEST_LIBC
+#endif
+#ifndef XTS_CASE_LEVEL
+#define XTS_CASE_LEVEL TEST_LEVEL0
+#endif
+
+#ifndef ADD_TEST_CASE /* osTest.c 会同时包含 posix_test.h，避免重复定义 */
 #define ADD_TEST_CASE(func) \
-    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION)
+    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, XTS_CASE_LAYER, XTS_CASE_MODULE, XTS_CASE_LEVEL, TEST_FUNCTION)
+#endif
 
 #define LITE_TEST_SUIT(subsystem, module, testsuit)
 #define LITE_TEST_CASE(module, function, flag) static int function(void)

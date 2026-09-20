@@ -59,12 +59,12 @@ static VOID TaskF01(VOID)
 
     g_testCount++;
 
-    ret = LOS_EventRead(&g_pevent2, 0x11, LOS_WAITMODE_AND, 10); // 10, The timeout period for reading events.
+    ret = LOS_EventRead(&g_pevent2, 0x11, LOS_WAITMODE_AND, TEST_WAIT_TIMEOUT);
     ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
     LOS_EventClear(&g_pevent2, 0x11);
 
-    ret = LOS_EventRead(&g_pevent2, 0x11, LOS_WAITMODE_AND, 10); // 10, The timeout period for reading events.
+    ret = LOS_EventRead(&g_pevent2, 0x11, LOS_WAITMODE_AND, TEST_WAIT_TIMEOUT);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_EVENT_READ_TIMEOUT, ret, EXIT);
 
     ret = LOS_EventWrite(&g_pevent2, 0x11);
@@ -87,7 +87,7 @@ static VOID TaskF02(VOID)
 
     g_testCount++;
 
-    ret = LOS_EventRead(&g_pevent, 0x1, LOS_WAITMODE_OR, 10); // 10, The timeout period for reading events.
+    ret = LOS_EventRead(&g_pevent, 0x1, LOS_WAITMODE_OR, TEST_WAIT_TIMEOUT);
     ICUNIT_GOTO_EQUAL(ret, 0x1, ret, EXIT);
     ICUNIT_GOTO_EQUAL(g_testCount, 5, g_testCount, EXIT); // 5, Here, assert that g_testCount is equal to 5.
     g_testCount++;
@@ -133,7 +133,7 @@ static UINT32 Testcase(VOID)
 
     TestHwiTrigger(HWI_NUM_TEST);
 
-    LOS_TaskDelay(11); // 11, set delay time.
+    TEST_DELAY(g_testCount, 7, TEST_WAIT_TIMEOUT);
     ICUNIT_GOTO_EQUAL(g_testCount, 7, g_testCount, EXIT1); // 7, Here, assert that g_testCount is equal to 7.
 
 EXIT1:

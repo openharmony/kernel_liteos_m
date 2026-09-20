@@ -51,6 +51,11 @@ STATIC INLINE VOID ArchCurrTaskSet(VOID *val)
     g_runTask = (LosTaskCB *)val;
 }
 
+STATIC INLINE UINT32 ArchCurrCpuid(VOID)
+{
+    return 0;
+}
+
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {

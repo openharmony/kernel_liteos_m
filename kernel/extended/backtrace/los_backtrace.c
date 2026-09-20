@@ -179,7 +179,7 @@ WEAK BOOL IsValidFP(UINTPTR fp)
         return FALSE;
     }
 
-    if (LOS_TaskIsRunning()) {
+    if (LOS_TaskIsScheduled()) {
         taskCB = g_backtraceTaskCB;
         if (taskCB == NULL) {
             taskCB = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
@@ -315,7 +315,7 @@ STATIC INLINE UINT32 OsStackAddrGet(UINTPTR *stackStart, UINTPTR *stackEnd, UINT
             }
         }
     } else {
-        if (!LOS_TaskIsRunning()) {
+        if (!LOS_TaskIsScheduled()) {
             *stackStart = OsSpGet();
             *stackEnd = CSTACK_END_ADDR;
             if ((*stackStart < CSTACK_START_ADDR) || (*stackStart >= CSTACK_END_ADDR)) {
@@ -401,7 +401,7 @@ BOOL FindSuitableStack(UINTPTR regSP, UINTPTR *start, UINTPTR *end)
     UINT32 stackEnd;
     BOOL found = FALSE;
 
-    if (LOS_TaskIsRunning()) {
+    if (LOS_TaskIsScheduled()) {
         LosTaskCB *taskCB = g_backtraceTaskCB;
         if (taskCB == NULL) {
             taskCB = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
@@ -517,7 +517,7 @@ BOOL FindSuitableStack(UINTPTR regSP, UINTPTR *start, UINTPTR *end)
     UINT32 stackEnd;
     BOOL found = FALSE;
 
-    if (LOS_TaskIsRunning()) {
+    if (LOS_TaskIsScheduled()) {
         LosTaskCB *taskCB = g_backtraceTaskCB;
         if (taskCB == NULL) {
             taskCB = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
@@ -645,7 +645,7 @@ VOID LOS_RecordLR(UINTPTR *LR, UINT32 LRSize, UINT32 jumpCount, UINTPTR SP)
         SP = OsSpGet();
     }
 
-    if (LOS_TaskIsRunning()) {
+    if (LOS_TaskIsScheduled()) {
         taskCB = g_backtraceTaskCB;
         if (taskCB == NULL) {
             taskCB = OS_TCB_FROM_TID(LOS_CurTaskIDGet());
@@ -735,7 +735,7 @@ VOID LOS_BackTrace(VOID)
 
     LOS_RecordLR(LR, BACKTRACE_MAX_DEPTH, OS_BACKTRACE_START, 0);
 
-    if (LOS_TaskIsRunning()) {
+    if (LOS_TaskIsScheduled()) {
         PRINTK("taskName = %s\n", OsCurrTaskGet()->taskName);
         PRINTK("taskID   = %u\n", OsCurrTaskGet()->taskId);
     }

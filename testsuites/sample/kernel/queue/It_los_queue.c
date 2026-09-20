@@ -116,6 +116,8 @@ VOID ItSuiteLosQueue(VOID)
     ItLosQueue106();
     ItLosQueue107();
     ItLosQueue114();
+    ItLosQueue115();
+    ItLosQueue116();
     ItLosQueueHead001();
     ItLosQueueHead002();
     ItLosQueueHead003();
@@ -185,7 +187,7 @@ VOID ItSuiteLosQueue(VOID)
 #endif
     ItLosQueue073();
     ItLosQueue109();
-#if (LOSCFG_TEST_LLT == 1)
+#if (LOS_FEATURE_ADAPTED == 1)
     LlTLosQueue001();
     LltLosQueue003();
 #endif

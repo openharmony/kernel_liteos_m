@@ -48,6 +48,11 @@ UINT32 g_uwsTick3;
 
 VOID ItSuiteLosSwtmr(void)
 {
+#ifdef LOSCFG_KERNEL_CPUP
+    /* 停用 cpup guard timer，消除其对齐锚点相位对本系列用例断言窗口的干扰 */
+    OsCpupStop();
+#endif
+
     ItLosSwtmr001();
     ItLosSwtmr002();
     ItLosSwtmr003();
@@ -87,9 +92,7 @@ VOID ItSuiteLosSwtmr(void)
     ItLosSwtmr026();
     ItLosSwtmr029();
     ItLosSwtmr030();
-#if (LOS_FEATURE_ADAPTED == 1)
     ItLosSwtmr031();
-#endif
     ItLosSwtmr032();
     ItLosSwtmr035();
     ItLosSwtmr036();
@@ -116,89 +119,51 @@ VOID ItSuiteLosSwtmr(void)
     ItLosSwtmr061();
     ItLosSwtmr062();
     ItLosSwtmr063();
-#if (LOS_FEATURE_ADAPTED == 1) && (QEMU_ADAPTED == 1)
     ItLosSwtmr066();
-#endif
     ItLosSwtmr067();
-#if (LOS_FEATURE_ADAPTED == 1) && (QEMU_ADAPTED == 1)
     ItLosSwtmr068();
-#endif
-#if (LOS_FEATURE_ADAPTED == 1) && (QEMU_ADAPTED == 1)
     ItLosSwtmr069();
-#endif
-#if (LOS_FEATURE_ADAPTED == 1)
     ItLosSwtmr071();
-#endif
-#if (LOS_FEATURE_ADAPTED == 1) && (QEMU_ADAPTED == 1)
     ItLosSwtmr072();
-#endif
     ItLosSwtmr073();
-#if (LOS_FEATURE_ADAPTED == 1)
     ItLosSwtmr074();
-#endif
     ItLosSwtmr075();
     ItLosSwtmr076();
     ItLosSwtmr077();
     ItLosSwtmr078();
-#if (LOS_FEATURE_ADAPTED == 1) && (QEMU_ADAPTED == 1)
     ItLosSwtmr079();
-#endif
-#if (LOS_FEATURE_ADAPTED == 1)
     ItLosSwtmr080();
-#endif
-#if (LOS_FEATURE_ADAPTED == 1)
     ItLosSwtmr081();
-#endif
+
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
     ItLosSwtmrAlign005();
     ItLosSwtmrAlign006();
-#if (LOS_FEATURE_ADAPTED == 1)
     ItLosSwtmrAlign007();
-#endif
     ItLosSwtmrAlign008();
     ItLosSwtmrAlign009();
     ItLosSwtmrAlign010();
     ItLosSwtmrAlign011();
     ItLosSwtmrAlign012();
-#if (LOS_FEATURE_ADAPTED == 1) && (QEMU_ADAPTED == 1)
     ItLosSwtmrAlign013();
-#endif
     ItLosSwtmrAlign014();
     ItLosSwtmrAlign015();
     ItLosSwtmrAlign016();
     ItLosSwtmrAlign017();
     ItLosSwtmrAlign018();
     ItLosSwtmrAlign019();
-#if (LOS_FEATURE_ADAPTED == 1) && (QEMU_ADAPTED == 1)
     ItLosSwtmrAlign020();
-#endif
-#if (LOS_FEATURE_ADAPTED == 1) && (QEMU_ADAPTED == 1)
     ItLosSwtmrAlign021();
-#endif
-#if (LOS_FEATURE_ADAPTED == 1)
     ItLosSwtmrAlign022();
     ItLosSwtmrAlign023();
-#endif
     ItLosSwtmrAlign024();
-#if (LOS_FEATURE_ADAPTED == 1) && (QEMU_ADAPTED == 1)
     ItLosSwtmrAlign025();
-#endif
     ItLosSwtmrAlign026();
-#if (LOS_FEATURE_ADAPTED == 1) && (QEMU_ADAPTED == 1)
     ItLosSwtmrAlign027();
-#endif
-#if (LOS_FEATURE_ADAPTED == 1)
     ItLosSwtmrAlign028();
-#endif
-#if (LOS_FEATURE_ADAPTED == 1)
     ItLosSwtmrAlign029();
-#endif
-#if (QEMU_ADAPTED == 1)
     ItLosSwtmrAlign030();
-#endif
-#if (LOS_FEATURE_ADAPTED == 1) && (QEMU_ADAPTED == 1)
     ItLosSwtmrAlign031();
-#endif
+    ItLosSwtmrAlign032();
 #endif
     ItLosSwtmrDelay001();
     ItLosSwtmrDelay003();
@@ -220,5 +185,7 @@ VOID ItSuiteLosSwtmr(void)
     ItLosSwtmr122();
 #endif
 #endif
+#ifdef LOSCFG_KERNEL_CPUP
+    OsCpupStart();
+#endif
 }
-

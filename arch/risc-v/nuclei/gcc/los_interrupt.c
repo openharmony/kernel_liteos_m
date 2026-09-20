@@ -61,7 +61,7 @@ STATIC UINT32 HwiMask(HWI_HANDLE_T hwiNum)
     return LOS_OK;
 }
 
-STATIC UINT32 HwiSetPriority(HWI_HANDLE_T hwiNum, UINT8 priority)
+STATIC UINT32 HwiSetPriority(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priority)
 {
     if (hwiNum >= OS_HWI_MAX_NUM) {
         return OS_ERRNO_HWI_NUM_INVALID;
@@ -79,75 +79,6 @@ STATIC UINT32 HwiSetPriority(HWI_HANDLE_T hwiNum, UINT8 priority)
 LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
 {
     // already setup interrupt vectors
-}
-
-/*****************************************************************************
- Function    : ArchHwiCreate
- Description : create hardware interrupt
- Input       : hwiNum       --- hwi num to create
-               hwiPrio      --- priority of the hwi
-               hwiMode      --- hwi interrupt hwiMode, between vector or non-vector
-               hwiHandler   --- hwi handler
-               irqParam     --- set trig hwiMode of the hwi handler
-                                Level Triggerred = 0
-                                Postive/Rising Edge Triggered = 1
-                                Negtive/Falling Edge Triggered = 3
- Output      : None
- Return      : LOS_OK on success or error code on failure
- *****************************************************************************/
-UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
-                     HWI_PRIOR_T hwiPrio,
-                     HWI_MODE_T hwiMode,
-                     HWI_PROC_FUNC hwiHandler,
-                     HwiIrqParam *irqParam)
-{
-    if (hwiNum > SOC_INT_MAX) {
-        return OS_ERRNO_HWI_NUM_INVALID;
-    }
-    if (hwiMode > ECLIC_VECTOR_INTERRUPT) {
-        return OS_ERRNO_HWI_MODE_INVALID;
-    }
-    if ((irqParam == NULL) || (irqParam->pDevId > ECLIC_NEGTIVE_EDGE_TRIGGER)) {
-        return OS_ERRNO_HWI_ARG_INVALID;
-    }
-
-    /* set interrupt vector hwiMode */
-    ECLIC_SetShvIRQ(hwiNum, hwiMode);
-    /* set interrupt trigger hwiMode and polarity */
-    ECLIC_SetTrigIRQ(hwiNum, irqParam->pDevId);
-    /* set interrupt level */
-    // default to 0
-    ECLIC_SetLevelIRQ(hwiNum, 0);
-    /* set interrupt priority */
-    // high 16 bit for level
-    ECLIC_SetLevelIRQ(hwiNum, (hwiPrio >> 16));
-    /* set interrupt priority */
-    // low 16 bit for priority
-    ECLIC_SetPriorityIRQ(hwiNum, (hwiPrio & 0xffff));
-    if (hwiHandler != NULL) {
-        /* set interrupt handler entry to vector table */
-        ECLIC_SetVector(hwiNum, (rv_csr_t)hwiHandler);
-    }
-    /* enable interrupt */
-    HwiUnmask(hwiNum);
-    return LOS_OK;
-}
-
-/*****************************************************************************
- Function    : ArchHwiDelete
- Description : Delete hardware interrupt
- Input       : hwiNum   --- hwi num to delete
-               irqParam --- param of the hwi handler
- Return      : LOS_OK on success or error code on failure
- *****************************************************************************/
-LITE_OS_SEC_TEXT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam)
-{
-    (VOID)irqParam;
-    // change func to default func
-    ECLIC_SetVector(hwiNum, (rv_csr_t)HalHwiDefaultHandler);
-    // disable interrupt
-    HwiMask(hwiNum);
-    return LOS_OK;
 }
 
 /* ****************************************************************************
@@ -201,13 +132,17 @@ __attribute__((always_inline)) inline VOID HalIntExit(VOID)
     g_intCount -= 1;
 }
 
-STATIC HwiControllerOps g_archHwiOps = {
+/* Un-migrated arch variant: this file still owns g_hwiControllerOps + HwiControllerOpsGet
+ * (pre-driver-layer model). Migrated pattern: driver-owned static ops table
+ * under drivers/interrupt/ (see arm_nvic.c), selected via Kconfig. Migrate
+ * this variant when it is next touched. */
+STATIC HwiControllerOps g_hwiControllerOps = {
     .enableIrq      = HwiUnmask,
     .disableIrq     = HwiMask,
     .setIrqPriority = HwiSetPriority,
 };
 
-HwiControllerOps *ArchIntOpsGet(VOID)
+HwiControllerOps *HwiControllerOpsGet(VOID)
 {
-    return &g_archHwiOps;
+    return &g_hwiControllerOps;
 }

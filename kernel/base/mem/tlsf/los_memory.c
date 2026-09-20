@@ -51,6 +51,8 @@
 
 UINT8 *m_aucSysMem0 = NULL;
 
+LITE_OS_SEC_BSS SPIN_LOCK_INIT(g_memSpin);
+
 #if (LOSCFG_SYS_EXTERNAL_HEAP == 0)
 STATIC UINT8 g_memStart[LOSCFG_SYS_HEAP_SIZE];
 #endif
