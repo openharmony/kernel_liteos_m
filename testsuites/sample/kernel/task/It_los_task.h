@@ -184,6 +184,7 @@ extern VOID ItLosTask127(VOID);
 extern VOID ItLosTask128(VOID);
 extern VOID ItLosTask129(VOID);
 extern VOID ItLosTask130(VOID);
+extern VOID ItLosTask131(VOID);
 extern VOID ItLosTask301(VOID);
 extern VOID ItLosTask302(VOID);
 extern VOID ItLosTask303(VOID);

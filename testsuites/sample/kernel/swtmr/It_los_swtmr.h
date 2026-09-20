@@ -180,6 +180,7 @@ extern VOID ItLosSwtmrAlign028(VOID);
 extern VOID ItLosSwtmrAlign029(VOID);
 extern VOID ItLosSwtmrAlign030(VOID);
 extern VOID ItLosSwtmrAlign031(VOID);
+extern VOID ItLosSwtmrAlign032(VOID);
 extern VOID ItLosSwtmrDelay001(VOID);
 extern VOID ItLosSwtmrDelay002(VOID);
 extern VOID ItLosSwtmrDelay003(VOID);

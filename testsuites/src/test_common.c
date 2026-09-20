@@ -45,8 +45,9 @@ volatile UINT32 g_itersPerTick = 0;
 static volatile UINT32 g_calibState = CALIB_IDLE;
 static volatile UINT32 g_calibCount = 0;
 
-static VOID OsTestCalibSwtmrHandler(VOID)
+static VOID OsTestCalibSwtmrHandler(UINTPTR arg)
 {
+    (void)arg;
     if (g_calibState == CALIB_IDLE) {
         g_calibState = CALIB_COUNTING;          /* 1st trigger: start */
     } else if (g_calibState == CALIB_COUNTING) {

@@ -61,50 +61,39 @@ enum SwtmrState {
 
 /**
  * @ingroup los_swtmr
- * Structure of the callback function that handles software timer timeout
- */
-typedef struct {
-    SWTMR_PROC_FUNC     handler;        /**< Callback function that handles software timer timeout */
-    UINT32              arg;            /**< Parameter passed in when the callback function
-                                             that handles software timer timeout is called */
-    UINT32              swtmrID;        /**< The id used to obtain the software timer handle */
-} SwtmrHandlerItem;
-
-/**
- * @ingroup los_swtmr
  * Software timer control structure
  */
-typedef struct tagSwTmrCtrl {
-    struct tagSwTmrCtrl *pstNext;       /* Pointer to the next software timer                    */
-    UINT8               ucState;        /* Software timer state                                  */
-    UINT8               ucMode;         /* Software timer mode                                   */
-    UINT8               ucOverrun;      /* Times that a software timer repeats timing            */
+typedef struct tagSwtmrCB {
+    SortLinkList        sortList;
+    UINT8               state;          /* Software timer state                                  */
+    UINT8               mode;           /* Software timer mode                                   */
+    UINT8               overrun;        /* Times that a software timer repeats timing            */
     UINT8               inProcess;      /* Handler-in-progress counter (deferred delete support)  */
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
-    UINT8               ucRouses;       /* wake up enable                                        */
-    UINT8               ucSensitive;    /* align enable                                          */
+    UINT8               alignEnable;    /* Whether the timer needs to be aligned                 */
+    UINT8               isAligned;      /* Whether alignment has been performed                  */
+    UINT32              canMultiple : 1; /* Whether the timer can participate in integer multiple alignment */
+    UINT32              times       : 24; /* interval / LOS_COMMON_DIVISOR                        */
 #endif
-    UINT32              usTimerID;      /* Software timer ID                                     */
-    UINT32              uwInterval;     /* Timeout interval of a periodic software timer         */
-    UINT32              expiry;        /* Timeout interval of a one-off software timer         */
-    UINT32              uwArg;          /* Parameter passed in when the callback function
-                                           that handles software timer timeout is called         */
-    SWTMR_PROC_FUNC     pfnHandler;     /* Callback function that handles software timer timeout */
-    SortLinkList        stSortList;
-    UINT64              startTime;
+    UINT32              timerId;        /* Software timer ID                                     */
+    UINT32              interval;       /* Timeout interval of a periodic software timer         */
+    UINT32              expiry;         /* Timeout interval of a one-off software timer         */
 #ifdef LOSCFG_KERNEL_SMP
     UINT32              cpuid;          /* The cpu where the timer running on                  */
 #endif
-} SWTMR_CTRL_S;
+    UINTPTR             arg;            /* Parameter passed in when the callback function
+                                           that handles software timer timeout is called         */
+    SWTMR_PROC_FUNC     handler;        /* Callback function that handles software timer timeout */
+} LosSwtmrCB, SWTMR_CTRL_S;
 
-extern SWTMR_CTRL_S *g_swtmrCBArray;
+extern SWTMR_CTRL_S *g_osSwtmrCBArray;
 extern LOS_DL_LIST g_swtmrFreeList;
 extern SPIN_LOCK_S g_swtmrSpin;
 
 #define SWTMR_LOCK(state)       LOS_SpinLockSave(&g_swtmrSpin, &(state))
 #define SWTMR_UNLOCK(state)     LOS_SpinUnlockRestore(&g_swtmrSpin, (state))
 
-#define OS_SWT_FROM_SID(swtmrId)    ((SWTMR_CTRL_S *)g_swtmrCBArray + ((swtmrId) % LOSCFG_BASE_CORE_SWTMR_LIMIT))
+#define OS_SWT_FROM_SWTID(swtmrId) ((SWTMR_CTRL_S *)g_osSwtmrCBArray + ((swtmrId) % LOSCFG_BASE_CORE_SWTMR_LIMIT))
 
 #if defined(LOSCFG_TASK_STACK_STATIC_ALLOCATION) && !defined(LOSCFG_BASE_CORE_SWTMR_IN_ISR)
 extern UINT8 *g_osSwtmrTaskStack[LOSCFG_KERNEL_CORE_NUM];
@@ -115,8 +104,7 @@ extern UINT32 OsSwtmrInit(VOID);
 #if !defined(LOSCFG_BASE_CORE_SWTMR_IN_ISR)
 extern VOID OsSwtmrTask(VOID);
 #endif
-extern BOOL OsSwtmrIdVerify(UINT32 swtmrId);
-extern SWTMR_CTRL_S *OsSwtmrIdGet(UINT32 swtmrId);
+extern SWTMR_CTRL_S *OsSwtmrIdVerify(UINT32 swtmrId);
 /* OsSwtmrCheckSelfDelete is STATIC INLINE in los_swtmr.c */
 #ifdef LOSCFG_EXC_INTERACTION
 extern BOOL IsSwtmrTask(UINT32 taskId);

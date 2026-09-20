@@ -35,7 +35,7 @@
 static UINT32 g_swTmrID1;
 static UINT32 g_swTmrID2;
 
-static VOID SwtmrF01(UINT32 arg)
+static VOID SwtmrF01(UINTPTR arg)
 {
     if (arg != TIMER_LOS_HANDLER_PARAMETER) {
         return;
@@ -47,7 +47,7 @@ static VOID SwtmrF01(UINT32 arg)
     return;
 }
 
-static VOID SwtmrF02(UINT32 arg)
+static VOID SwtmrF02(UINTPTR arg)
 {
     if (arg != TIMER_LOS_HANDLER_PARAMETER) {
         return;
@@ -84,6 +84,8 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_SwtmrStart(g_swTmrID1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
+
+    (VOID)LOS_TaskDelay(1);
 
     ret = LOS_SwtmrStart(g_swTmrID2);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);

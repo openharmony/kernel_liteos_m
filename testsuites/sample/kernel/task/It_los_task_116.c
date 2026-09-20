@@ -33,7 +33,7 @@
 #include "It_los_task.h"
 
 
-static VOID SwtmrF01(UINT32 arg)
+static VOID SwtmrF01(UINTPTR arg)
 {
     if (arg != 0xffff) {
         return;

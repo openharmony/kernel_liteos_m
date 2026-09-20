@@ -110,7 +110,7 @@ extern "C" {
  *
  * The task exits and waits for the parent thread to reclaim the resource.
  */
-#define OS_TASK_STATUS_EXIT                         0x0100
+#define OS_TASK_STATUS_ZOMBIE                         0x0100
 
 #if (LOSCFG_SECURE == 1)
 /**
@@ -129,9 +129,11 @@ extern "C" {
 #ifdef LOSCFG_TASK_JOINABLE
 #define OS_TASK_IS_JOINABLE(taskCB)                 (((taskCB)->taskFlags & OS_TASK_FLAG_DETACHED) == 0)
 #define OS_TASK_IS_DETACHED(taskCB)                 (((taskCB)->taskFlags & OS_TASK_FLAG_DETACHED) != 0)
+#define OS_TASK_IS_ZOMBIE(taskStatus)               ((taskStatus) & OS_TASK_STATUS_ZOMBIE)
 #else
 #define OS_TASK_IS_JOINABLE(taskCB)                 FALSE
 #define OS_TASK_IS_DETACHED(taskCB)                 TRUE
+#define OS_TASK_IS_ZOMBIE(taskStatus)               FALSE
 #endif
 
 /**
@@ -154,6 +156,14 @@ extern "C" {
  * @ingroup los_task
  * Define the task control block structure.
  */
+
+#ifdef LOSCFG_TASK_JOINABLE
+#define OS_TASK_IS_ALREADY_JOIN(taskCB)     ((taskCB)->joinner != NULL)
+#define OS_TASK_IS_JOINING(taskCB)          ((taskCB)->joined != NULL)
+#else
+#define OS_TASK_IS_ALREADY_JOIN(taskCB)     FALSE
+#define OS_TASK_IS_JOINING(taskCB)          FALSE
+#endif
 
 typedef struct LosTaskCB {
     VOID                        *stackPointer;            /**< Task stack pointer */
@@ -181,7 +191,10 @@ typedef struct LosTaskCB {
     LOS_DL_LIST                 pendList;
     LOS_DL_LIST                 timerList;
 #ifdef LOSCFG_TASK_JOINABLE
-    LOS_DL_LIST                 joinList;
+    struct LosTaskCB    *joinner;           /* Pointer to the task that
+                                             * invokes LOS_TaskJoin func to wait for cur task */
+    struct LosTaskCB    *joined;            /* Point to the task waiting
+                                             * By the cur task invoking LOS_TaskJoin func */
     UINTPTR                     taskRetval;               /**< Return value of the end of the task, If the task does not exit by itself, the ID of the task that killed the task is recorded. */
 #endif
 #ifdef LOSCFG_BASE_IPC_EVENT
@@ -196,6 +209,13 @@ typedef struct LosTaskCB {
     INT32                       errorNo;
 #if (LOSCFG_KERNEL_SIGNAL == 1)
     VOID                        *sig;                     /**< Task signal */
+#endif
+#ifdef LOSCFG_KERNEL_SMP
+    UINT32                      mpSignal;                 /**< Mp Task signal */
+    volatile UINT16             currCpu;                  /**< CPU core number this task is running on */
+    volatile UINT16             lastCpu;                  /**< CPU core number this task last ran on */
+    UINT32                      timerCpu;                 /**< CPU core number where this task is delayed or pended */
+    UINT16                      cpuAffiMask;              /**< CPU affinity mask, support up to 16 cores */
 #endif
 
 

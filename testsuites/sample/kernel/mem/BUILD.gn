@@ -83,7 +83,14 @@ static_library("test_mem") {
     "It_los_tick_009.c",
     "It_los_tick_010.c",
     "It_los_tick_011.c",
+    "It_los_tick_012.c",
+    "It_los_tick_013.c",
     "It_los_mem_301.c",
+    "It_los_mem_310.c",
+    "It_los_mem_311.c",
+    "It_los_mem_312.c",
+    "It_los_mem_313.c",
+    "It_los_mem_314.c",
     "it_los_mem.c",
   ]
 

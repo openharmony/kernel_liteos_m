@@ -105,6 +105,10 @@
 #include "los_trace_pri.h"
 #endif
 
+#if (LOSCFG_BASE_CORE_SWTMR == 1) && !defined(LOSCFG_BASE_CORE_SWTMR_IN_ISR)
+LITE_OS_SEC_BSS STATIC UINTPTR g_swtmrExpiryBuf[LOSCFG_KERNEL_CORE_NUM][LOSCFG_BASE_CORE_SWTMR_LIMIT];
+#endif
+
 /*****************************************************************************
  Function    : LOS_Reboot
  Description : system exception, die in here, wait for watchdog.
@@ -301,6 +305,11 @@ LITE_OS_SEC_TEXT_INIT UINT32 OsMain(VOID)
     }
 
 #if (LOSCFG_BASE_CORE_SWTMR == 1)
+#if !defined(LOSCFG_BASE_CORE_SWTMR_IN_ISR)
+    for (UINT32 i = 0; i < LOSCFG_KERNEL_CORE_NUM; i++) {
+        g_percpu[i].expiryList.buf = g_swtmrExpiryBuf[i];
+    }
+#endif
     ret = OsSwtmrInit();
     if (ret != LOS_OK) {
         PRINT_ERR("OsSwtmrInit error\n");

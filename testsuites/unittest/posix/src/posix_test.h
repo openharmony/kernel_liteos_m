@@ -38,8 +38,25 @@
 #define TEST_STR(func) ItLos##func
 #define TEST_TO_STR(x) #x
 #define TEST_HEAD_TO_STR(x) TEST_TO_STR(x)
+/*
+ * 用例归属由 POSIX_CASE_LAYER/POSIX_CASE_MODULE/POSIX_CASE_LEVEL 决定，
+ * 默认 lib/libc；各测试库可在 BUILD.gn defines 中按目录覆盖
+ * （如 src/fs 固定原值不调整）。
+ */
+#ifndef POSIX_CASE_LAYER
+#define POSIX_CASE_LAYER TEST_LIB
+#endif
+#ifndef POSIX_CASE_MODULE
+#define POSIX_CASE_MODULE TEST_LIBC
+#endif
+#ifndef POSIX_CASE_LEVEL
+#define POSIX_CASE_LEVEL TEST_LEVEL0
+#endif
+
+#ifndef ADD_TEST_CASE /* osTest.c 会同时包含 xts_test.h，避免重复定义 */
 #define ADD_TEST_CASE(func) \
-    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION)
+    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, POSIX_CASE_LAYER, POSIX_CASE_MODULE, POSIX_CASE_LEVEL, TEST_FUNCTION)
+#endif
 
 #define Function   0
 #define MediumTest 0

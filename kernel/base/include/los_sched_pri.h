@@ -94,7 +94,15 @@ STATIC INLINE BOOL OsPreemptableInSched(VOID)
 {
     BOOL preemptible = FALSE;
 
+#ifdef LOSCFG_KERNEL_SMP
+    /*
+     * For smp systems, schedule must hold the task spinlock, and this counter
+     * will increase by 1 in that case.
+     */
+    preemptible = (OsPercpuGet()->taskLockCnt == 1);
+#else
     preemptible = (OsPercpuGet()->taskLockCnt == 0);
+#endif
     if (!preemptible) {
         OsSetSchedFlag(INT_PEND_RESCH);
     }
@@ -155,11 +163,11 @@ BOOL OsSchedPrioModify(LosTaskCB *taskCB, UINT16 priority);
 
 VOID OsSchedDelay(LosTaskCB *runTask, UINT32 tick);
 
-VOID OsSchedYield(VOID);
+UINT32 OsSchedYield(VOID);
 
 VOID OsSchedTaskExit(LosTaskCB *taskCB);
 
-VOID OsSchedSuspend(LosTaskCB *taskCB);
+UINT32 OsSchedSuspend(LosTaskCB *taskCB);
 
 BOOL OsSchedResume(LosTaskCB *taskCB);
 
@@ -178,6 +186,27 @@ VOID OsSchedTimeConvertFreq(UINT32 oldFreq);
 VOID OsSchedPreempt(VOID);
 
 VOID OsSchedResched(VOID);
+#if defined(LOSCFG_SCHED_LATENCY)
+STATIC INLINE VOID OsTaskReSched(VOID)
+{
+    OsSchedResched();
+}
+#else
+STATIC INLINE VOID OsTaskReSched(VOID)
+{
+    if (OS_INT_ACTIVE) {
+        OsSetSchedFlag(INT_SUSPEND_DELETE_RESCH);
+        return;
+    }
+    OsSchedResched();
+}
+#endif
+
+
+STATIC INLINE VOID OsSysTaskSuspend(LosTaskCB *taskCB)
+{
+    (VOID)OsSchedSuspend(taskCB);
+}
 
 #ifdef __cplusplus
 #if __cplusplus

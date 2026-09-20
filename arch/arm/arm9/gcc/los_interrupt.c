@@ -86,24 +86,20 @@ STATIC UINT32 HwiMask(HWI_HANDLE_T hwiNum)
     return LOS_OK;
 }
 
-STATIC UINT32 HwiCreate(HWI_HANDLE_T hwiNum, HWI_PRIOR_T hwiPrio)
-{
-    (VOID)hwiPrio;
-    HwiUnmask(hwiNum);
-    return LOS_OK;
-}
-
-STATIC HwiControllerOps g_archHwiOps = {
+/* Un-migrated arch variant: this file still owns g_hwiControllerOps + HwiControllerOpsGet
+ * (pre-driver-layer model). Migrated pattern: driver-owned static ops table
+ * under drivers/interrupt/ (see arm_nvic.c), selected via Kconfig. Migrate
+ * this variant when it is next touched. */
+STATIC HwiControllerOps g_hwiControllerOps = {
     .enableIrq      = HwiUnmask,
     .disableIrq     = HwiMask,
     .getCurIrqNum   = HwiNumGet,
-    .createIrq      = HwiCreate,
     .getHandleForm  = HalGetHandleForm,
 };
 
-HwiControllerOps *ArchIntOpsGet(VOID)
+HwiControllerOps *HwiControllerOpsGet(VOID)
 {
-    return &g_archHwiOps;
+    return &g_hwiControllerOps;
 }
 
 /* ****************************************************************************
@@ -336,7 +332,7 @@ VOID ArchIntRestore(UINT32 intSave)
     __asm__ __volatile__("MSR CPSR_c, %0" : : "r"(intSave));
 }
 
-UINT32 ArchIntUnlock(VOID)
+UINT32 ArchIntUnLock(VOID)
 {
     UINT32 intSave;
 

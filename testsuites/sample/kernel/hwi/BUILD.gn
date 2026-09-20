@@ -77,6 +77,7 @@ static_library("test_hwi") {
     "it_los_hwi_045.c",
     "it_los_hwi_046.c",
     "it_los_hwi_047.c",
+    "it_los_hwi_048.c",
     "llt_los_hwi_035.c",
   ]
 

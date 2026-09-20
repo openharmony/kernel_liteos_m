@@ -57,13 +57,13 @@ EXIT:
     TestHwiDelete(HWI_NUM_TEST);
 }
 
-static VOID Case2(UINT32 arg)
+static VOID Case2(UINTPTR arg)
 {
     g_testCount1++;
     return;
 }
 
-static VOID Case3(UINT32 arg)
+static VOID Case3(UINTPTR arg)
 {
     g_testCount1++;
     return;

@@ -39,4 +39,7 @@ VOID ItSuitePosixTime(void)
     ItPosixTime034();
     ItPosixTime035();
     ItPosixTime036();
+    ItPosixTime037();
+    ItPosixTime038();
+    ItPosixTime039();
 }

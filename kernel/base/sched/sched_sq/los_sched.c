@@ -52,7 +52,7 @@
 #endif
 
 #define OS_TASK_BLOCKED_STATUS (OS_TASK_STATUS_PEND | OS_TASK_STATUS_SUSPEND | \
-                                OS_TASK_STATUS_EXIT | OS_TASK_STATUS_UNUSED)
+                                OS_TASK_STATUS_ZOMBIE | OS_TASK_STATUS_UNUSED)
 
 LITE_OS_SEC_BSS STATIC LOS_DL_LIST g_taskSortlink[OS_TSK_SORTLINK_LEN];
 
@@ -243,9 +243,36 @@ BOOL OsSchedPrioModify(LosTaskCB *taskCB, UINT16 priority)
     return FALSE;
 }
 
-VOID OsSchedSuspend(LosTaskCB *taskCB)
+UINT32 OsSchedSuspend(LosTaskCB *taskCB)
 {
+    UINT32 intSave;
+    UINT16 tempStatus;
+    UINT32 errRet = LOS_OK;
     BOOL isPmMode = FALSE;
+
+    SCHEDULER_LOCK(intSave);
+
+    tempStatus = taskCB->taskStatus;
+    if (tempStatus & OS_TASK_STATUS_UNUSED) {
+        errRet = LOS_ERRNO_TSK_NOT_CREATED;
+        goto LOS_RETURN;
+    }
+
+    if (tempStatus & OS_TASK_STATUS_ZOMBIE) {
+        errRet = LOS_ERRNO_TSK_IS_ZOMBIE;
+        goto LOS_RETURN;
+    }
+
+    if (tempStatus & OS_TASK_STATUS_SUSPEND) {
+        errRet = LOS_ERRNO_TSK_ALREADY_SUSPENDED;
+        goto LOS_RETURN;
+    }
+
+    if ((tempStatus & OS_TASK_STATUS_RUNNING) && (OsPercpuGet()->taskLockCnt != 0)) {
+        errRet = LOS_ERRNO_TSK_SUSPEND_LOCKED;
+        goto LOS_RETURN;
+    }
+
     if (taskCB->taskStatus & OS_TASK_STATUS_READY) {
         OsSchedTaskDeQueue(taskCB);
     }
@@ -253,12 +280,21 @@ VOID OsSchedSuspend(LosTaskCB *taskCB)
 #if (LOSCFG_KERNEL_PM == 1)
     isPmMode = OsIsPmMode();
 #endif
+
     if ((taskCB->taskStatus & (OS_TASK_STATUS_PEND_TIME | OS_TASK_STATUS_DELAY)) && isPmMode) {
         OsSchedFreezeTask(taskCB);
     }
 
     taskCB->taskStatus |= OS_TASK_STATUS_SUSPEND;
     OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTOSUSPENDEDLIST, taskCB);
+
+    if (taskCB->taskStatus & OS_TASK_STATUS_RUNNING) {
+        OsTaskReSched();
+    }
+
+LOS_RETURN:
+    SCHEDULER_UNLOCK(intSave);
+    return errRet;
 }
 
 VOID OsSchedAddSortLink(SortLinkAttribute *sortLinkHeader, SortLinkList *sortList, UINT32 waitTicks)
@@ -319,15 +355,20 @@ VOID OsSchedTaskExit(LosTaskCB *taskCB)
         OsSchedResetSchedResponseTime(0);
         taskCB->taskStatus &= ~(OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND_TIME);
     }
-    taskCB->taskStatus |= OS_TASK_STATUS_EXIT;
+    taskCB->taskStatus |= OS_TASK_STATUS_ZOMBIE;
 }
 
-VOID OsSchedYield(VOID)
+UINT32 OsSchedYield(VOID)
 {
     LosTaskCB *runTask = OsCurrTaskGet();
 
     runTask->timeSlice = 0;
+    if (OsPriQueueIsEmpty(runTask->priority)) {
+        return LOS_ERRNO_TSK_YIELD_NOT_ENOUGH_TASK;
+    }
+
     OsSchedTaskEnQueue(runTask);
+    return LOS_OK;
 }
 
 VOID OsSchedDelay(LosTaskCB *runTask, UINT32 tick)
@@ -388,7 +429,7 @@ LosTaskCB *OsSchedStart(VOID)
     OsTickSysTimerStartTimeSet(newTask->startTime);
 
 #if (LOSCFG_BASE_CORE_SWTMR == 1)
-    OsSwtmrResponseTimeReset(newTask->startTime);
+    OsSwtmrResponseTimeReset();
 #endif
 
     g_taskScheduled = TRUE;

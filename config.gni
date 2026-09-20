@@ -195,6 +195,7 @@ misc_config_cflags += [
 if (!defined(LOSCFG_COMPILER_CLANG_LLVM)) {
   misc_config_cflags += [ "-fno-aggressive-loop-optimizations" ]
 }
+
 misc_config_asmflags += misc_config_cflags
 misc_config_asmflags += [ "-DCLZ=CLZ" ]
 

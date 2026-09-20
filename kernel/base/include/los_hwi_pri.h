@@ -33,6 +33,8 @@
 
 #include "los_interrupt.h"
 #include "los_list.h"
+#include "los_spinlock.h"
+#include "los_percpu_pri.h"
 #if (LOSCFG_HWI_BOTTOM_HALF == 1)
 #include "los_task.h"
 #include "los_event.h"
@@ -85,10 +87,28 @@ typedef struct HwiHandleInfo {
  */
 extern HwiHandleInfo g_hwiHandleForm[];
 
-extern UINT32 g_intCount;
+extern UINT32 g_intCount[LOSCFG_KERNEL_CORE_NUM];
+
+#ifdef LOSCFG_KERNEL_SMP
+extern SPIN_LOCK_S g_hwiSpin;
+#define HWI_LOCK(state)       LOS_SpinLockSave(&g_hwiSpin, &(state))
+#define HWI_UNLOCK(state)     LOS_SpinUnlockRestore(&g_hwiSpin, (state))
+#else
+#define HWI_LOCK(state)       ((state) = LOS_IntLock())
+#define HWI_UNLOCK(state)     LOS_IntRestore(state)
+#endif
 
 #if (LOSCFG_HWI_BOTTOM_HALF == 1)
 #define HWI_BH_EVENT_MASK  0x01
+
+#ifdef LOSCFG_KERNEL_SMP
+extern SPIN_LOCK_S g_hwiBottomHalfSpin;
+#define HWI_BH_LOCK(state)    LOS_SpinLockSave(&g_hwiBottomHalfSpin, &(state))
+#define HWI_BH_UNLOCK(state)  LOS_SpinUnlockRestore(&g_hwiBottomHalfSpin, (state))
+#else
+#define HWI_BH_LOCK(state)    ((state) = LOS_IntLock())
+#define HWI_BH_UNLOCK(state)  LOS_IntRestore(state)
+#endif
 
 typedef struct {
     LOS_DL_LIST entry;
@@ -130,19 +150,6 @@ extern UINT32 OsHwiBottomHalfInit(VOID);
  * @param handleForm  [IN] Pointer to the per-IRQ HwiHandleInfo dispatch node.
  */
 extern VOID OsIntHandle(HWI_HANDLE_T hwiNum, HwiHandleInfo *handleForm);
-
-/**
- * Delete a hardware interrupt.
- */
-extern UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam);
-
-/**
- * Create a hardware interrupt.
- *
- * Implemented per arch in arch/<arch>/common/los_common_interrupt.c.
- */
-extern UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum, HWI_PRIOR_T hwiPrio, HWI_MODE_T mode,
-                            HWI_PROC_FUNC handler, HwiIrqParam *irqParam);
 
 #ifdef __cplusplus
 }

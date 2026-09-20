@@ -87,7 +87,7 @@ EXIT:
 
 VOID ItPosixPipe003(VOID)
 {
-    TEST_ADD_CASE("ItPosixPipe003", Testcase, TEST_POSIX, TEST_MUX, TEST_LEVEL0, TEST_FUNCTION);
+    TEST_ADD_CASE("ItPosixPipe003", Testcase, TEST_LIB, TEST_POSIX, TEST_LEVEL0, TEST_FUNCTION);
 }
 #else
 typedef int bug02_placeholder; /* 保非空翻译单元 */

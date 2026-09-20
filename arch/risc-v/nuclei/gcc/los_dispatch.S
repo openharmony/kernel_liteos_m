@@ -49,9 +49,9 @@ ArchIntLock:
     csrrc   zero, mstatus, t0
     ret
 
-    .type ArchIntUnlock, %function
-    .global ArchIntUnlock
-ArchIntUnlock:
+    .type ArchIntUnLock, %function
+    .global ArchIntUnLock
+ArchIntUnLock:
     csrr    a0, mstatus           // return value
     li      t0, MSTATUS_MIE   // mie
     csrrs   zero, mstatus, t0

@@ -77,7 +77,7 @@ VOID ItSuiteLosHwi()
  * 039: tests LOS_HwiDisable-then-trigger, but HalTimerStart (TestHwiTrigger) calls
  * HalIrqEnable which re-enables the IRQ -> disable window broken, g_testCount==1 at the
  * "expect 0" assert. Logic incompatibility with ws63 timer1 trigger.
- * 040: error-handling test; ws63 g_archHwiOps incomplete (missing enableIrq/etc) ->
+ * 040: error-handling test; ws63 g_hwiControllerOps incomplete (missing enableIrq/etc) ->
  * invalid-IRQ ops return OPS_FUNC_NULL instead of NUM_INVALID; also leaks HWI on failure
  * -> cascades 041/044/045/046 ALREADY_CREATED. Skip, analyze later.
  */
@@ -87,6 +87,7 @@ VOID ItSuiteLosHwi()
     ItLosHwi041();
 #if (LOSCFG_HWI_BOTTOM_HALF == 1)
     ItLosHwi042();
+    ItLosHwi048();
 #endif
 #if (LOSCFG_HWI_PRE_POST_PROCESS == 1)
     ItLosHwi044();

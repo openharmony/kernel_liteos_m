@@ -119,6 +119,7 @@ config("los_config") {
 
     #":warn_config",
     ":misc_config",
+    "//kernel/liteos_m/testsuites:kernel_test_coverage",
   ]
 }
 
@@ -141,6 +142,7 @@ config("public") {
     "shell:public",
     "components:public",
     "drivers/interrupt:public",
+    "drivers/timer:public",
   ]
 
   if (BOARD_SOC_FEATURE) {
@@ -159,6 +161,7 @@ group("modules") {
     "components",
     "compat",
     "drivers/interrupt",
+    "drivers/timer",
     "lib",
     "kernel",
     "fs",

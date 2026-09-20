@@ -33,7 +33,7 @@
 #include "It_los_swtmr.h"
 
 
-static VOID Case1(UINT32 arg)
+static VOID Case1(UINTPTR arg)
 {
     // 20, Here, assert that g_testCount is equal to this .
     ICUNIT_ASSERT_EQUAL_VOID(g_testCount, 20, g_testCount);

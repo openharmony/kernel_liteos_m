@@ -8,5 +8,7 @@ source "../../drivers/hdf_core/adapter/khdf/liteos/Kconfig"
 
 source "drivers/interrupt/Kconfig"
 
+source "drivers/timer/Kconfig"
+
 # Device driver Kconfig import
 osource "$(DEVICE_PATH)/drivers/Kconfig"

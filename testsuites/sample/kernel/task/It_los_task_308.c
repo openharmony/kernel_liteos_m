@@ -33,15 +33,15 @@
 #include "It_los_task.h"
 
 
-/* 用例简要描述: LOS_TaskIsRunning 返回 TRUE(含 IsScheduled 别名) */
+/* 用例简要描述: LOS_TaskIsScheduled 返回 TRUE(含 IsScheduled 别名) */
 static UINT32 TestCase(VOID)
 {
     BOOL running;
 
     /* F-Pos: by the time test cases run, the LiteOS kernel has already started
-       scheduling -> LOS_TaskIsRunning must return TRUE. This also covers the
+       scheduling -> LOS_TaskIsScheduled must return TRUE. This also covers the
        public alias macro LOS_TaskIsScheduled (los_task.h: #define -> alias). */
-    running = LOS_TaskIsRunning();
+    running = LOS_TaskIsScheduled();
     ICUNIT_ASSERT_EQUAL(running, TRUE, running);
 
     running = LOS_TaskIsScheduled();

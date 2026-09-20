@@ -315,7 +315,7 @@ typedef UINTPTR HWI_ARG_T;
  *
  * @par Description:
  * This definition is used to declare the type of a hardware interrupt handling function.
- * It is used as the handler parameter type of ArchHwiCreate.
+ * It is used as the handler parameter type of LOS_HwiCreate.
  * @attention
  * None.
  *
@@ -325,7 +325,7 @@ typedef UINTPTR HWI_ARG_T;
  * @retval None.
  * @par Dependency:
  * <ul><li>los_interrupt.h: the header file that contains the API declaration.</li></ul>
- * @see ArchHwiCreate
+ * @see LOS_HwiCreate
  */
 #if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)
 typedef VOID (*HWI_PROC_FUNC)(VOID *parm);
@@ -378,10 +378,12 @@ typedef struct {
     UINT32 (*clearIrq)(HWI_HANDLE_T hwiNum);
     UINT32 (*enableIrq)(HWI_HANDLE_T hwiNum);
     UINT32 (*disableIrq)(HWI_HANDLE_T hwiNum);
-    UINT32 (*setIrqPriority)(HWI_HANDLE_T hwiNum, UINT8 priority);
+    UINT32 (*setIrqPriority)(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priority);
     UINT32 (*getCurIrqNum)(VOID);
-    UINT32 (*createIrq)(HWI_HANDLE_T hwiNum, HWI_PRIOR_T hwiPrio);
     VOID *(*getHandleForm)(HWI_HANDLE_T hwiNum);
+    /* SMP interrupt-controller extensions; NULL on UP/single-core ports */
+    UINT32 (*sendIpi)(HWI_HANDLE_T hwiNum, UINT32 cpuMask);
+    UINT32 (*setIrqCpuAffinity)(HWI_HANDLE_T hwiNum, UINT32 cpuMask);
 } HwiControllerOps;
 
 #if (LOSCFG_HWI_PRE_POST_PROCESS == 1)
@@ -615,28 +617,22 @@ extern UINT32 LOS_HwiSetAffinity(HWI_HANDLE_T hwiNum, UINT32 cpuMask);
  * @see None.
  */
 extern UINT32 LOS_HwiRespCntGet(HWI_HANDLE_T hwiNum, UINT32 *respCount);
+extern UINT32 LOS_HwiTrigger(HWI_HANDLE_T hwiNum);
+extern UINT32 LOS_HwiEnable(HWI_HANDLE_T hwiNum);
+extern UINT32 LOS_HwiDisable(HWI_HANDLE_T hwiNum);
+extern UINT32 LOS_HwiClear(HWI_HANDLE_T hwiNum);
+extern UINT32 LOS_HwiSetPriority(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priority);
+extern UINT32 LOS_HwiCurIrqNum(VOID);
 
 UINT32 ArchIntLock(VOID);
-UINT32 ArchIntUnlock(VOID);
+UINT32 ArchIntUnLock(VOID);
 VOID ArchIntRestore(UINT32 intSave);
-UINT32 ArchIntTrigger(HWI_HANDLE_T hwiNum);
-UINT32 ArchIntEnable(HWI_HANDLE_T hwiNum);
-UINT32 ArchIntDisable(HWI_HANDLE_T hwiNum);
-UINT32 ArchIntClear(HWI_HANDLE_T hwiNum);
-UINT32 ArchIntSetPriority(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priority);
-UINT32 ArchIntCurIrqNum(VOID);
-HwiControllerOps *ArchIntOpsGet(VOID);
+HwiControllerOps *HwiControllerOpsGet(VOID);
 
 #define LOS_IntLock             ArchIntLock
 #define LOS_IntRestore          ArchIntRestore
-#define LOS_IntUnLock           ArchIntUnlock
-#define LOS_HwiTrigger          ArchIntTrigger
-#define LOS_HwiClear            ArchIntClear
-#define LOS_HwiEnable           ArchIntEnable
-#define LOS_HwiDisable          ArchIntDisable
-#define LOS_HwiSetPriority      ArchIntSetPriority
-#define LOS_HwiCurIrqNum        ArchIntCurIrqNum
-#define LOS_HwiOpsGet           ArchIntOpsGet
+#define LOS_IntUnLock           ArchIntUnLock
+#define LOS_HwiOpsGet           HwiControllerOpsGet
 
 #ifdef __cplusplus
 #if __cplusplus

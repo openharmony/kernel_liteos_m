@@ -152,9 +152,8 @@ osStatus_t osKernelStart(void)
     if (g_kernelState != osKernelReady) {
         return osError;
     }
-
+    g_kernelState = osKernelRunning;
     if (LOS_Start() == LOS_OK) {
-        g_kernelState = osKernelRunning;
         return osOK;
     } else {
         return osError;
@@ -521,7 +520,7 @@ osStatus_t osThreadYield(void)
 
     ret = LOS_TaskYield();
 
-    if (ret == LOS_OK) {
+    if ((ret == LOS_OK) || (ret == LOS_ERRNO_TSK_YIELD_NOT_ENOUGH_TASK)) {
         return osOK;
     }
 
@@ -753,21 +752,21 @@ osTimerId_t osTimerNew(osTimerFunc_t func, osTimerType_t type, void *argument, c
     }
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
-    if (LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func, &swtmrId, (UINT32)(UINTPTR)argument,
+    if (LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func, &swtmrId, (UINTPTR)argument,
         osTimerRousesAllow, osTimerAlignIgnore) != LOS_OK) {
         return (osTimerId_t)NULL;
     }
 #else
-    if (LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func, &swtmrId, (UINT32)(UINTPTR)argument) != LOS_OK) {
+    if (LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func, &swtmrId, (UINTPTR)argument) != LOS_OK) {
         return (osTimerId_t)NULL;
     }
 #endif
-    return (osTimerId_t)OS_SWT_FROM_SID(swtmrId);
+    return (osTimerId_t)OS_SWT_FROM_SWTID(swtmrId);
 }
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 osTimerId_t osTimerExtNew(osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr,
-    osTimerRouses_t ucRouses, osTimerAlign_t ucSensitive)
+    osTimerRouses_t rouses, osTimerAlign_t sensitive)
 {
     UNUSED(attr);
     UINT32 usSwTmrID;
@@ -783,11 +782,11 @@ osTimerId_t osTimerExtNew(osTimerFunc_t func, osTimerType_t type, void *argument
         mode = LOS_SWTMR_MODE_PERIOD;
     }
     if (LOS_OK != LOS_SwtmrCreate(1, mode, (SWTMR_PROC_FUNC)func, &usSwTmrID,
-        (UINT32)(UINTPTR)argument, ucRouses, ucSensitive)) {
+        (UINTPTR)argument, rouses, sensitive)) {
         return (osTimerId_t)NULL;
     }
 
-    return (osTimerId_t)OS_SWT_FROM_SID(usSwTmrID);
+    return (osTimerId_t)OS_SWT_FROM_SWTID(usSwTmrID);
 }
 #endif
 
@@ -804,8 +803,8 @@ osStatus_t osTimerStart(osTimerId_t timer_id, uint32_t ticks)
 
     UINT32 intSave = LOS_IntLock();
     pstSwtmr = (SWTMR_CTRL_S *)timer_id;
-    pstSwtmr->uwInterval = ticks;
-    ret = LOS_SwtmrStart(pstSwtmr->usTimerID);
+    pstSwtmr->interval = ticks;
+    ret = LOS_SwtmrStart(pstSwtmr->timerId);
     LOS_IntRestore(intSave);
     if (ret == LOS_OK) {
         return osOK;
@@ -835,7 +834,7 @@ osStatus_t osTimerStop(osTimerId_t timer_id)
         return osErrorParameter;
     }
 
-    ret = LOS_SwtmrStop(pstSwtmr->usTimerID);
+    ret = LOS_SwtmrStop(pstSwtmr->timerId);
     if (ret == LOS_OK) {
         return osOK;
     } else if (ret == LOS_ERRNO_SWTMR_ID_INVALID) {
@@ -854,7 +853,7 @@ uint32_t osTimerIsRunning(osTimerId_t timer_id)
         return 0;
     }
 
-    return (OS_SWTMR_STATUS_TICKING == ((SWTMR_CTRL_S *)timer_id)->ucState);
+    return (OS_SWTMR_STATUS_TICKING == ((SWTMR_CTRL_S *)timer_id)->state);
 }
 
 osStatus_t osTimerDelete(osTimerId_t timer_id)
@@ -868,7 +867,7 @@ osStatus_t osTimerDelete(osTimerId_t timer_id)
     if (pstSwtmr == NULL) {
         return osErrorParameter;
     }
-    ret = LOS_SwtmrDelete(pstSwtmr->usTimerID);
+    ret = LOS_SwtmrDelete(pstSwtmr->timerId);
     if (ret == LOS_OK) {
         return osOK;
     } else if (ret == LOS_ERRNO_SWTMR_ID_INVALID) {

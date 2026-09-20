@@ -50,7 +50,7 @@ EXIT:
     TestHwiDelete(HWI_NUM_TEST);
 }
 
-static VOID Case2(UINT32 arg)
+static VOID Case2(UINTPTR arg)
 {
     g_testCount1++;
 
@@ -67,8 +67,8 @@ static UINT32 Testcase(VOID)
     irqParam.pDevId = 0;
 
     g_testCount1 = 0;
-    // 1, Timeout interval of a periodic software timer.
-    ret = LOS_SwtmrCreate(1, LOS_SWTMR_MODE_PERIOD, (SWTMR_PROC_FUNC)Case2, &g_swtmrId1, (UINT32)&irqParam
+    // 4, Timeout interval of a periodic software timer.
+    ret = LOS_SwtmrCreate(4, LOS_SWTMR_MODE_PERIOD, (SWTMR_PROC_FUNC)Case2, &g_swtmrId1, (UINT32)&irqParam
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
         , OS_SWTMR_ROUSES_ALLOW, OS_SWTMR_ALIGN_INSENSITIVE
 #endif
@@ -81,7 +81,7 @@ static UINT32 Testcase(VOID)
 
     TestHwiTrigger(HWI_NUM_TEST);
 
-    ret = LOS_TaskDelay(1); // 1, set delay time.
+    ret = LOS_TaskDelay(4); // 4, set delay time.
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     // 2, Here, assert that g_testCount is equal to this .

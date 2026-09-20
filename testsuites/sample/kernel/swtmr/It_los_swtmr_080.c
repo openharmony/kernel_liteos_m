@@ -35,7 +35,7 @@
 #define SWTMR_PERIOD 4 // 4, Timeout interval of a periodic software timer ticks.
 
 static UINT32 g_testCount1 = 0;
-static VOID Case1(UINT32 arg)
+static VOID Case1(UINTPTR arg)
 {
     g_testCount1++;
     return;

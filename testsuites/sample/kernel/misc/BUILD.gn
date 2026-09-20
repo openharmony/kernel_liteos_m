@@ -40,6 +40,7 @@ static_library("test_misc") {
     "it_los_compiler_001.c",
     "it_los_err_001.c",
     "it_los_printf_001.c",
+    "it_los_printf_002.c",
     "it_los_init_001.c",
   ]
   include_dirs = [ "." ]

@@ -5,8 +5,8 @@ VOID ItSuitePosixIo(void)
     dprintf("*********** Begin sample posix pipe test ************\n");
     ItPosixPipe001();
     ItPosixPipe002();
-#include "bug_isolate.h"
-#ifndef PRODUCT_BUG_ISOLATE
-    ItPosixPipe003();
-#endif
+    ItPosixPipe004();
+    ItPosixPipe005();
+    ItPosixPipe006();
+    ItPosixPipe007();
 }

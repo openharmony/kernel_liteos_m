@@ -3,14 +3,14 @@
  * Copyright (c) 2020-2026 Huawei Device Co., Ltd. All rights reserved.
  * Copyright (c) 2026-2026 HiSilicon (Shanghai) Technologies Co., Ltd. All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
+ * Redistribution and use in source and binary, with or without modification,
  * are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this list of
  *    conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice, this list
- *    of conditions and the following disclaimer in the documentation and/or other materials
+ *    of the following disclaimer in the documentation and/or other materials
  *    provided with the distribution.
  *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used
@@ -31,32 +31,23 @@
  */
 
 /*
- * Description: CLIC interrupt controller driver for HI3322.
- *              CLIC uses memory-mapped registers at 0xb0000000 (non-vector
- *              mode, all traps dispatch via mtvec).
+ * Description: CLIC interrupt controller driver for HI3322 (LinxCore).
+ *              CLIC uses memory-mapped registers (base CLIC_BASE_ADDR from
+ *              the board's soc.h, struct layout in clic.h), non-vector mode,
+ *              all traps dispatch via mtvec.
  */
 
 #include "los_interrupt.h"
 #include "los_hwi_pri.h"
 #include "los_arch_interrupt.h"
-#include "clic.h"
 #include "soc.h"
+#include "clic.h"
 
-extern VOID HalTrapVector(VOID);
-
-#define CSR_MTVEC  0x305u
-
-#define CLIC_CFG_OFF        0x00u
-#define CLIC_INTIP_OFF(x)   (0x1000u + 4u * (x))
-#define CLIC_INTIE_OFF(x)   (0x1001u + 4u * (x))
-#define CLIC_INTATTR_OFF(x) (0x1002u + 4u * (x))
-#define CLIC_INTCTL_OFF(x)  (0x1003u + 4u * (x))
-
-/* clicintattr: bit0=0 (non-vector), bit1=1 (edge-triggered), [7:6]=3 M-mode.
+/* clicintattr: non-vectored (bit0=0), edge-triggered (bit1=1), M-mode ([7:6]=3).
  * Edge-triggered is required so that software can set clicintip[i] by writing 1
  * (per CLIC spec, level-triggered mode ignores software writes when the hardware
  * source is not asserting). This enables TestHwiTrigger / LOS_HwiTrigger. */
-#define CLIC_ATTR_MMODE      ((3u << 6) | 0x02u)
+#define CLIC_ATTR_MMODE      (CLIC_ATTR_MODE_M | CLIC_ATTR_EDGE_TRIG)
 
 /* cliccfg: nlbits=4, bit0=0 (non-vector global) */
 #define CLIC_CFG_VALUE       (4u << 1)
@@ -67,13 +58,6 @@ extern VOID HalTrapVector(VOID);
  * bits 30..0 = interrupt/exception code. */
 #define MCAUSE_INT_BIT       0x80000000u
 #define MCAUSE_INT_ID_MASK   0x7FFFFFFFu
-
-/*
- * Use hardcoded base instead of read_custom_csr(0xFBF) — re-reading the
- * CSR each call returned inconsistent values on this chip (writes went to
- * one address, reads from another).
- */
-#define CLIC_REG_BASE        0xb0000000u
 
 #define CLIC_CFG_REGISTER_BITS_NUM 8U
 #define CLIC_CFG_INTERRUPT_OFFSET  1U
@@ -86,16 +70,17 @@ extern VOID HalTrapVector(VOID);
 
 STATIC UINT32 g_clicCfgLevelBitsNum = 1;
 
-static inline void clic_w8(UINT32 off, uint8_t v)
+/* Byte access with fence — CLIC requires a fence around each MMIO access. */
+static inline void clic_w8(volatile UINT8 *reg, uint8_t v)
 {
-    *(volatile uint8_t *)(uintptr_t)(CLIC_REG_BASE + off) = v;
+    *reg = v;
     __asm__ __volatile__("fence" ::: "memory");
 }
 
-static inline uint8_t clic_r8(UINT32 off)
+static inline uint8_t clic_r8(volatile UINT8 *reg)
 {
     __asm__ __volatile__("fence" ::: "memory");
-    return *(volatile uint8_t *)(uintptr_t)(CLIC_REG_BASE + off);
+    return *reg;
 }
 
 STATIC UINT32 HalIrqClear(UINT32 hwiNum)
@@ -103,7 +88,7 @@ STATIC UINT32 HalIrqClear(UINT32 hwiNum)
     if (hwiNum >= OS_HWI_MAX_NUM) {
         return LOS_NOK;
     }
-    clic_w8(CLIC_INTIP_OFF(hwiNum), 0);
+    clic_w8(&CLIC_REG->intCtrl[hwiNum].ip, 0);
     return LOS_OK;
 }
 
@@ -112,7 +97,7 @@ STATIC UINT32 HalIrqTrigger(UINT32 hwiNum)
     if (hwiNum >= OS_HWI_MAX_NUM) {
         return LOS_NOK;
     }
-    clic_w8(CLIC_INTIP_OFF(hwiNum), 1);
+    clic_w8(&CLIC_REG->intCtrl[hwiNum].ip, 1);
     return LOS_OK;
 }
 
@@ -121,7 +106,7 @@ STATIC UINT32 HalIrqUnmask(UINT32 hwiNum)
     if (hwiNum >= OS_HWI_MAX_NUM) {
         return LOS_NOK;
     }
-    clic_w8(CLIC_INTIE_OFF(hwiNum), 1);
+    clic_w8(&CLIC_REG->intCtrl[hwiNum].ie, 1);
     return LOS_OK;
 }
 
@@ -130,11 +115,11 @@ STATIC UINT32 HalIrqMask(UINT32 hwiNum)
     if (hwiNum >= OS_HWI_MAX_NUM) {
         return LOS_NOK;
     }
-    clic_w8(CLIC_INTIE_OFF(hwiNum), 0);
+    clic_w8(&CLIC_REG->intCtrl[hwiNum].ie, 0);
     return LOS_OK;
 }
 
-STATIC UINT32 HalIrqSetPrio(UINT32 hwiNum, UINT8 priority)
+STATIC UINT32 HalIrqSetPrio(UINT32 hwiNum, HWI_PRIOR_T priority)
 {
     if (hwiNum >= OS_HWI_MAX_NUM) {
         return LOS_ERRNO_HWI_NUM_INVALID;
@@ -145,9 +130,9 @@ STATIC UINT32 HalIrqSetPrio(UINT32 hwiNum, UINT8 priority)
     UINT8 localLevel = SET_SYS_PRIOR(priority);
     localLevel = (UINT8)((UINT32)localLevel << (8U - g_clicCfgLevelBitsNum));
     UINT8 mask = ((UINT8)(-1)) >> g_clicCfgLevelBitsNum;
-    UINT8 clicIntCtl = clic_r8(CLIC_INTCTL_OFF(hwiNum));
+    UINT8 clicIntCtl = clic_r8(&CLIC_REG->intCtrl[hwiNum].ctl);
     clicIntCtl = (UINT8)((clicIntCtl & mask) | localLevel);
-    clic_w8(CLIC_INTCTL_OFF(hwiNum), clicIntCtl);
+    clic_w8(&CLIC_REG->intCtrl[hwiNum].ctl, clicIntCtl);
     return LOS_OK;
 }
 
@@ -161,19 +146,28 @@ STATIC UINT32 HalCurIrqGet(VOID)
     return mcause & MCAUSE_INT_ID_MASK;
 }
 
+/* Driver-owned ops table (arm_nvic.c pattern): the selected driver owns
+ * g_hwiControllerOps + HwiControllerOpsGet; the arch layer only consumes them via
+ * HwiControllerOpsGet() (e.g. HalHwiInterruptDone). Statically initialized —
+ * complete from the first instruction, no init-order window. */
+STATIC HwiControllerOps g_hwiControllerOps = {
+    .triggerIrq     = HalIrqTrigger,
+    .clearIrq       = HalIrqClear,
+    .enableIrq      = HalIrqUnmask,
+    .disableIrq     = HalIrqMask,
+    .setIrqPriority = HalIrqSetPrio,
+    .getCurIrqNum   = HalCurIrqGet,
+    .getHandleForm  = HalGetHandleForm,
+};
+
+HwiControllerOps *HwiControllerOpsGet(VOID)
+{
+    return &g_hwiControllerOps;
+}
+
 LITE_OS_SEC_TEXT_INIT VOID HalIrqInit(VOID)
 {
-    HwiControllerOps *ops = ArchIntOpsGet();
-
-    /* Register CLIC ops into the kernel's HwiControllerOps framework */
-    ops->clearIrq       = HalIrqClear;
-    ops->triggerIrq     = HalIrqTrigger;
-    ops->enableIrq      = HalIrqUnmask;
-    ops->disableIrq     = HalIrqMask;
-    ops->setIrqPriority = HalIrqSetPrio;
-    ops->getCurIrqNum   = HalCurIrqGet;
-
-    clic_w8(CLIC_CFG_OFF, CLIC_CFG_VALUE);
+    clic_w8(&CLIC_REG->cfg, CLIC_CFG_VALUE);
 
     for (UINT32 i = 0; i < CLIC_CFG_REGISTER_BITS_NUM; i++) {
         if (((UINT8)(LOSCFG_HWI_PRIO_LIMIT - 1) & ((0x80U) >> i)) != 0) {
@@ -183,13 +177,11 @@ LITE_OS_SEC_TEXT_INIT VOID HalIrqInit(VOID)
     }
 
     for (UINT32 i = 0; i < OS_HWI_MAX_NUM; i++) {
-        clic_w8(CLIC_INTIP_OFF(i), 0);       /* clear pending */
-        clic_w8(CLIC_INTIE_OFF(i), 0);       /* disabled */
-        clic_w8(CLIC_INTATTR_OFF(i), CLIC_ATTR_MMODE);
-        clic_w8(CLIC_INTCTL_OFF(i), CLIC_INTCTL_DEF);
+        clic_w8(&CLIC_REG->intCtrl[i].ie, 0);       /* disable first — prevents re-pend */
+        clic_w8(&CLIC_REG->intCtrl[i].ip, 0);       /* clear pending */
+        clic_w8(&CLIC_REG->intCtrl[i].attr, CLIC_ATTR_MMODE);
+        clic_w8(&CLIC_REG->intCtrl[i].ctl, CLIC_INTCTL_DEF);
     }
-
-    /* Point mtvec at HalTrapVector (assembly trap handler) */
-    UINT32 trap_addr = (UINT32)(uintptr_t)HalTrapVector;
-    __asm__ volatile ("csrw %0, %1" :: "i"(CSR_MTVEC), "r"(trap_addr) : "memory");
+    /* mtvec is CPU-level trap configuration — set by the arch HalHwiInit
+     * (see arch/risc-v/riscv32/gcc/los_interrupt.c), not by this driver. */
 }

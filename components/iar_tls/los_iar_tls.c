@@ -57,7 +57,7 @@ void __DLIB_TLS_MEMORY *__iar_dlib_perthread_access(void _DLIB_TLS_MEMORY *symbp
 #pragma section = "__iar_tls$$DATA"
 void *__aeabi_read_tp(void)
 {
-    if (!LOS_TaskIsRunning()) {
+    if (!LOS_TaskIsScheduled()) {
         return __section_begin("__iar_tls$$DATA");
     } else {
         UINT32 taskId = LOS_CurTaskIDGet();
@@ -151,7 +151,7 @@ void __iar_system_Mtxlock(__iar_Rmtx *m)
     }
     struct IarMutexInfo *muxInfo = (struct IarMutexInfo *)*m;
     
-    if (LOS_TaskIsRunning()) {
+    if (LOS_TaskIsScheduled()) {
         (void)LOS_MuxPend(muxInfo->muxID, LOS_WAIT_FOREVER);
     }
 }
@@ -163,7 +163,7 @@ void __iar_system_Mtxunlock(__iar_Rmtx *m)
     }
     struct IarMutexInfo *muxInfo = (struct IarMutexInfo *)*m;
     
-    if (LOS_TaskIsRunning()) {
+    if (LOS_TaskIsScheduled()) {
         (void)LOS_MuxPost(muxInfo->muxID);
     }
 }
@@ -196,7 +196,7 @@ void __iar_file_Mtxlock(__iar_Rmtx *m)
     }
     struct IarMutexInfo *muxInfo = (struct IarMutexInfo *)*m;
     
-    if (LOS_TaskIsRunning()) {
+    if (LOS_TaskIsScheduled()) {
         (void)LOS_MuxPend(muxInfo->muxID, LOS_WAIT_FOREVER);
     }
 }
@@ -208,7 +208,7 @@ void __iar_file_Mtxunlock(__iar_Rmtx *m)
     }
     struct IarMutexInfo *muxInfo = (struct IarMutexInfo *)*m;
     
-    if (LOS_TaskIsRunning()) {
+    if (LOS_TaskIsScheduled()) {
         (void)LOS_MuxPost(muxInfo->muxID);
     }
 }

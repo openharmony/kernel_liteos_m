@@ -31,13 +31,15 @@
 #include <securec.h>
 #include "osTest.h"
 #include "cmsis_os.h"
+#include "kal.h"
 #include "bug_isolate.h" /* BUG 宏统一在此定义,修复对应 BUG 后删宏恢复用例 */
 
 #define TEST_STR(func) ItLos##func
 #define TEST_TO_STR(x) #x
 #define TEST_HEAD_TO_STR(x) TEST_TO_STR(x)
+/* CMSIS 兼容层用例: layer=TEST_COMPAT, module=TEST_CMSIS */
 #define ADD_TEST_CASE(func) \
-    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION)
+    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_COMPAT, TEST_CMSIS, TEST_LEVEL0, TEST_FUNCTION)
 
 #define Function   0
 #define MediumTest 0
@@ -62,6 +64,14 @@ static VOID CmsisStackFunc01(void)
  * @tc.name      : event operation for join
  * @tc.desc      : [C- SOFTWARE -0200]
  */
+
+static volatile UINT32 g_cmsisLowFreqTimerRan;
+static void CmsisLowFreqTimerCb(void *argument)
+{
+    (void)argument;
+    g_cmsisLowFreqTimerRan++;
+}
+
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis001, Function | MediumTest | Level1)
 {
     osThreadId_t threadId;
@@ -69,7 +79,9 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis001, Function | MediumTest | Level1)
 
     g_testCount = 0;
 
-    void *stackAddr = malloc(OS_TSK_TEST_STACK_SIZE);
+    void *stackAddr = NULL;
+
+    stackAddr = LOS_MemAllocAlign(OS_TASK_STACK_ADDR, OS_TSK_TEST_STACK_SIZE, 8);
     ICUNIT_ASSERT_NOT_EQUAL(stackAddr, NULL, stackAddr);
 
     attr.stack_mem = stackAddr;
@@ -81,7 +93,7 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsis001, Function | MediumTest | Level1)
 
     ICUNIT_GOTO_EQUAL(g_testCount, 1, g_testCount, EXIT);
 EXIT:
-    free(stackAddr);
+    (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, stackAddr);
     return LOS_OK;
 };
 
@@ -771,6 +783,7 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsisThreadFlags004, Function | MediumTes
 }
 
 /* ==== Memory Pool ==== */
+#if (LOSCFG_KERNEL_MEMBOX_STATIC == 1) /* membox dyn 下 CMSIS osMemoryPool* 无实现, 用例隔离(测试侧适配) */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsisMemPool001, Function | MediumTest | Level1)
 {
     osMemoryPoolId_t mp;
@@ -844,7 +857,6 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsisMemPool005, Function | MediumTest | 
     return LOS_OK;
 }
 
-/* 用例简要描述: GetName */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsisMemPool006, Function | MediumTest | Level1)
 {
     osMemoryPoolId_t mp;
@@ -869,6 +881,7 @@ EXIT:
     dprintf("--- ItCmsisMemPool006 end ---\n");
     return LOS_OK;
 }
+#endif /* LOSCFG_KERNEL_MEMBOX_STATIC */
 
 /* ==== Event Flags ==== */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsisEventFlags001, Function | MediumTest | Level1)
@@ -1460,13 +1473,19 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsisKernel008, Function | MediumTest | L
 static osEventFlagsId_t g_isrEfId;
 static osSemaphoreId_t g_isrSemId;
 static osMessageQueueId_t g_isrQId;
+#if (LOSCFG_KERNEL_MEMBOX_STATIC == 1) /* membox dyn 下 CMSIS osMemoryPool* 无实现, 用例隔离(测试侧适配) */
 static osMemoryPoolId_t g_isrMpId;
+#endif /* LOSCFG_KERNEL_MEMBOX_STATIC */
 static osThreadId_t g_isrThrId;
+#if (LOSCFG_KERNEL_MEMBOX_STATIC == 1) /* membox dyn 下 CMSIS osMemoryPool* 无实现, 用例隔离(测试侧适配) */
 static VOID *g_isrMpBlk = NULL;
+#endif /* LOSCFG_KERNEL_MEMBOX_STATIC */
 static volatile uint32_t g_isrEfSetRet = 0xDEAD;
 static volatile uint32_t g_isrSemRelRet = 0xDEAD;
 static volatile uint32_t g_isrQPutRet = 0xDEAD;
+#if (LOSCFG_KERNEL_MEMBOX_STATIC == 1) /* membox dyn 下 CMSIS osMemoryPool* 无实现, 用例隔离(测试侧适配) */
 static volatile uint32_t g_isrMpFreeRet = 0xDEAD;
+#endif /* LOSCFG_KERNEL_MEMBOX_STATIC */
 static volatile uint32_t g_isrTfSetRet = 0xDEAD;
 
 static VOID HwiFIsr001(VOID)
@@ -1475,7 +1494,9 @@ static VOID HwiFIsr001(VOID)
     g_isrEfSetRet = osEventFlagsSet(g_isrEfId, 0x1);
     g_isrSemRelRet = osSemaphoreRelease(g_isrSemId);
     g_isrQPutRet = osMessageQueuePut(g_isrQId, "ISROUT", 0U, 0U); /* timeout=0 ISR 合法 */
+#if (LOSCFG_KERNEL_MEMBOX_STATIC == 1) /* membox dyn 下 CMSIS osMemoryPool* 无实现, 用例隔离(测试侧适配) */
     g_isrMpFreeRet = osMemoryPoolFree(g_isrMpId, (void *)g_isrMpBlk);
+#endif /* LOSCFG_KERNEL_MEMBOX_STATIC */
     g_isrTfSetRet = osThreadFlagsSet(g_isrThrId, 0x1);
 }
 
@@ -1498,10 +1519,12 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsisIsr001, Function | MediumTest | Leve
     ICUNIT_ASSERT_EQUAL((g_isrSemId != NULL), 1, (uint32_t)(UINTPTR)g_isrSemId);
     g_isrQId = osMessageQueueNew(2U, 8U, NULL); /* 2: msg count, 8: msg size */
     ICUNIT_ASSERT_EQUAL((g_isrQId != NULL), 1, (uint32_t)(UINTPTR)g_isrQId);
+#if (LOSCFG_KERNEL_MEMBOX_STATIC == 1) /* membox dyn 下 CMSIS osMemoryPool* 无实现, 用例隔离(测试侧适配) */
     g_isrMpId = osMemoryPoolNew(2U, 16U, NULL); /* 2: block count, 16: block size */
     ICUNIT_ASSERT_EQUAL((g_isrMpId != NULL), 1, (uint32_t)(UINTPTR)g_isrMpId);
     g_isrMpBlk = osMemoryPoolAlloc(g_isrMpId, 0U);
     ICUNIT_ASSERT_EQUAL((g_isrMpBlk != NULL), 1, (uint32_t)(UINTPTR)g_isrMpBlk);
+#endif /* LOSCFG_KERNEL_MEMBOX_STATIC */
     g_isrThrId = osThreadGetId(); /* 本任务作为被 Set 标志对象 */
 
     /* 注册并触发 ISR,回调内依次执行 5 个 F-ISR 场景 */
@@ -1529,7 +1552,9 @@ LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsisIsr001, Function | MediumTest | Leve
     ICUNIT_GOTO_EQUAL(rbuf[0], 'I', rbuf[0], EXIT);
 
     /* 断言 4(设计§5.9.1 行005): ISR 内 Free 返回 osOK */
+#if (LOSCFG_KERNEL_MEMBOX_STATIC == 1) /* membox dyn 下 CMSIS osMemoryPool* 无实现, 用例隔离(测试侧适配) */
     ICUNIT_GOTO_EQUAL(g_isrMpFreeRet, osOK, g_isrMpFreeRet, EXIT);
+#endif /* LOSCFG_KERNEL_MEMBOX_STATIC */
 
     /* 断言 5(设计§5.10.1 行004): ISR 内 ThreadFlagsSet 唤醒本任务 Wait */
     ICUNIT_GOTO_EQUAL(g_isrTfSetRet, 0x1, g_isrTfSetRet, EXIT);
@@ -1541,7 +1566,9 @@ EXIT:
     if (g_isrEfId != NULL) { (VOID)osEventFlagsDelete(g_isrEfId); g_isrEfId = NULL; }
     if (g_isrSemId != NULL) { (VOID)osSemaphoreDelete(g_isrSemId); g_isrSemId = NULL; }
     if (g_isrQId != NULL) { (VOID)osMessageQueueDelete(g_isrQId); g_isrQId = NULL; }
+#if (LOSCFG_KERNEL_MEMBOX_STATIC == 1) /* membox dyn 下 CMSIS osMemoryPool* 无实现, 用例隔离(测试侧适配) */
     if (g_isrMpId != NULL) { (VOID)osMemoryPoolDelete(g_isrMpId); g_isrMpId = NULL; }
+#endif /* LOSCFG_KERNEL_MEMBOX_STATIC */
     dprintf("--- TestCmsisIsr001 end ---\n");
     return LOS_OK;
 }
@@ -2338,6 +2365,7 @@ EXIT:
 
 /* ---- MemoryPool ---- */
 /* 用例简要描述: GetCount+Space */
+#if (LOSCFG_KERNEL_MEMBOX_STATIC == 1) /* membox dyn 下 CMSIS osMemoryPool* 无实现, 用例隔离(测试侧适配) */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsisMemPool007, Function | MediumTest | Level0)
 {
     osMemoryPoolId_t mp;
@@ -2372,7 +2400,6 @@ EXIT:
     return LOS_OK;
 }
 
-/* 用例简要描述: 碎片化压力 */
 LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsisMemPool008, Function | MediumTest | Level3)
 {
     osMemoryPoolId_t mp = NULL;
@@ -2416,6 +2443,81 @@ EXIT:
     }
     return LOS_OK;
 }
+#endif /* LOSCFG_KERNEL_MEMBOX_STATIC */
+
+
+/* 用例简要描述: CMSIS 低频接口一揽子：osKernelInitialize（运行期 osError）、
+ * osSemaphoreGetName / osEventFlagsGetName（恒 NULL 查询接口）、osTimerExtNew
+ * （对齐扩展定时器创建：周期/单次成功 + NULL func/非法 type 负路径）。
+ * 所有断言走 EXIT 统一回收定时器，异常路径不泄漏资源。 */
+LITE_TEST_CASE(CmsisFuncTestSuite, TestCmsisLowFreq001, Function | MediumTest | Level1)
+{
+    const char *name;
+    osTimerId_t timerId = NULL;
+    osTimerId_t timerOnceId = NULL;
+    osSemaphoreId_t semId = NULL;
+    osTimerFunc_t fn = CmsisLowFreqTimerCb;
+
+    g_cmsisLowFreqTimerRan = 0;
+
+    /* F-Pos: 信号量名称查询接口——本实现恒返回 NULL（含合法 id 与 NULL id 容错）。 */
+    semId = osSemaphoreNew(1, 0, NULL);
+    ICUNIT_GOTO_NOT_EQUAL((UINTPTR)semId, (UINTPTR)NULL, (UINTPTR)semId, EXIT);
+    name = osSemaphoreGetName(semId);
+    ICUNIT_GOTO_EQUAL((UINTPTR)name, (UINTPTR)NULL, (UINTPTR)name, EXIT);
+    name = osSemaphoreGetName(NULL);
+    ICUNIT_GOTO_EQUAL((UINTPTR)name, (UINTPTR)NULL, (UINTPTR)name, EXIT);
+
+    /* F-Pos: 事件标志名称查询接口——本实现恒返回 NULL（任务上下文路径）。 */
+    name = osEventFlagsGetName(NULL);
+    ICUNIT_GOTO_EQUAL((UINTPTR)name, (UINTPTR)NULL, (UINTPTR)name, EXIT);
+
+#if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
+    /* F-Inv: 定时器创建负路径——NULL 回调 / 非法 type。 */
+    timerId = osTimerExtNew(NULL, osTimerPeriodic, NULL, NULL, osTimerRousesAllow, osTimerAlignAllow);
+    ICUNIT_GOTO_EQUAL((UINTPTR)timerId, (UINTPTR)NULL, (UINTPTR)timerId, EXIT);
+    timerId = osTimerExtNew(fn, (osTimerType_t)0xFF, NULL, NULL, osTimerRousesAllow, osTimerAlignAllow);
+    ICUNIT_GOTO_EQUAL((UINTPTR)timerId, (UINTPTR)NULL, (UINTPTR)timerId, EXIT);
+
+    /* F-Pos: 周期定时器 EXT 创建（对齐参数路由到 LOS_SwtmrCreate）。 */
+    timerId = osTimerExtNew(fn, osTimerPeriodic, NULL, NULL, osTimerRousesAllow, osTimerAlignAllow);
+    ICUNIT_GOTO_NOT_EQUAL((UINTPTR)timerId, (UINTPTR)NULL, (UINTPTR)timerId, EXIT);
+    ICUNIT_GOTO_EQUAL(osTimerStart(timerId, 2), osOK, osTimerStart(timerId, 2), EXIT); // 2, period ticks.
+
+    /* F-Pos: 单次定时器 EXT 创建。 */
+    timerOnceId = osTimerExtNew(fn, osTimerOnce, NULL, NULL, osTimerRousesIgnore, osTimerAlignIgnore);
+    ICUNIT_GOTO_NOT_EQUAL((UINTPTR)timerOnceId, (UINTPTR)NULL, (UINTPTR)timerOnceId, EXIT);
+    ICUNIT_GOTO_EQUAL(osTimerStart(timerOnceId, 2), osOK, osTimerStart(timerOnceId, 2), EXIT); // 2, delay ticks.
+
+    (void)osDelay(5); // 5, let timers fire.
+    ICUNIT_GOTO_EQUAL(g_cmsisLowFreqTimerRan > 0, TRUE, g_cmsisLowFreqTimerRan, EXIT);
+
+    (void)osTimerStop(timerId);
+    (void)osTimerDelete(timerId);
+    timerId = NULL;
+    (void)osTimerDelete(timerOnceId);
+    timerOnceId = NULL;
+#endif
+    /* 正常路径同样回收信号量。 */
+    if (semId != NULL) {
+        (void)osSemaphoreDelete(semId);
+        semId = NULL;
+    }
+    return LOS_OK;
+
+EXIT:
+    if (semId != NULL) {
+        (void)osSemaphoreDelete(semId);
+    }
+    if (timerId != NULL) {
+        (void)osTimerStop(timerId);
+        (void)osTimerDelete(timerId);
+    }
+    if (timerOnceId != NULL) {
+        (void)osTimerDelete(timerOnceId);
+    }
+    return LOS_OK;
+}
 
 void CmsisFuncTestSuite(void)
 {
@@ -2453,12 +2555,14 @@ void CmsisFuncTestSuite(void)
     ADD_TEST_CASE(TestCmsisThreadFlags002);
     ADD_TEST_CASE(TestCmsisThreadFlags003);
     ADD_TEST_CASE(TestCmsisThreadFlags004);
+#if (LOSCFG_KERNEL_MEMBOX_STATIC == 1) /* membox dyn 下 CMSIS osMemoryPool* 无实现, 用例隔离(测试侧适配) */
     ADD_TEST_CASE(TestCmsisMemPool001);
     ADD_TEST_CASE(TestCmsisMemPool002);
     ADD_TEST_CASE(TestCmsisMemPool003);
     ADD_TEST_CASE(TestCmsisMemPool004);
     ADD_TEST_CASE(TestCmsisMemPool005);
     ADD_TEST_CASE(TestCmsisMemPool006);
+#endif /* LOSCFG_KERNEL_MEMBOX_STATIC */
     ADD_TEST_CASE(TestCmsisEventFlags001);
     ADD_TEST_CASE(TestCmsisEventFlags002);
     ADD_TEST_CASE(TestCmsisEventFlags003);
@@ -2514,7 +2618,9 @@ void CmsisFuncTestSuite(void)
     ADD_TEST_CASE(TestCmsisQueue003);
     ADD_TEST_CASE(TestCmsisQueue004);
     ADD_TEST_CASE(TestCmsisQueue005);
+#if (LOSCFG_KERNEL_MEMBOX_STATIC == 1) /* membox dyn 下 CMSIS osMemoryPool* 无实现, 用例隔离(测试侧适配) */
     ADD_TEST_CASE(TestCmsisMemPool007);
     ADD_TEST_CASE(TestCmsisMemPool008);
+#endif /* LOSCFG_KERNEL_MEMBOX_STATIC */
+    ADD_TEST_CASE(TestCmsisLowFreq001);
 }
-
