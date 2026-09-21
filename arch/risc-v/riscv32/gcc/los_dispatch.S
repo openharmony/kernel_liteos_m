@@ -34,7 +34,7 @@
 .global  HalEnableIRQ
 .global  HalDisableIRQ
 .global  ArchIntLock
-.global  ArchIntUnlock
+.global  ArchIntUnLock
 .global  ArchIntRestore
 .global  ArchStartToRun
 .global  ArchTaskSchedule
@@ -249,7 +249,7 @@ ArchIntLock:
     csrrc   zero, mstatus, t0
     ret
 
-ArchIntUnlock:
+ArchIntUnLock:
     csrr    a0, mstatus           // return value
     li      t0, RISCV_MSTATUS_MIE   // mie
     csrrs   zero, mstatus, t0

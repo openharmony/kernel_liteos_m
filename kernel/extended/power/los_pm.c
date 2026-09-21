@@ -690,9 +690,9 @@ UINT32 LOS_PmLockRelease(const CHAR *name)
     return ret;
 }
 
-STATIC VOID OsPmSwtmrHandler(UINT32 arg)
+STATIC VOID OsPmSwtmrHandler(UINTPTR arg)
 {
-    const CHAR *name = (const CHAR *)(UINTPTR)arg;
+    const CHAR *name = (const CHAR *)arg;
     UINT32 ret = LOS_PmLockRelease(name);
     if (ret != LOS_OK) {
         PRINT_ERR("Pm delay lock %s release faled! : 0x%x\n", name, ret);

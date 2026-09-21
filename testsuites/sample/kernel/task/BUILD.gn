@@ -159,6 +159,7 @@ static_library("test_task") {
     "It_los_task_128.c",
     "It_los_task_129.c",
     "It_los_task_130.c",
+    "It_los_task_131.c",
     "It_los_task_301.c",
     "It_los_task_302.c",
     "It_los_task_303.c",

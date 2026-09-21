@@ -130,6 +130,7 @@ VOID ItSuiteLosTask()
     ItLosTask128();
     ItLosTask129();
     ItLosTask130();
+    ItLosTask131();
     ItLosTask301();
     ItLosTask302();
     ItLosTask303();
@@ -141,9 +142,7 @@ VOID ItSuiteLosTask()
 
 #if (LOS_KERNEL_TEST_FULL == 1)
     ItLosTask039();
-#if (LOS_FEATURE_ADAPTED == 1)
     ItLosTask040();
-#endif
     ItLosTask043();
     ItLosTask056();
     ItLosTask063();

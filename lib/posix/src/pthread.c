@@ -540,7 +540,7 @@ int pthread_detach(pthread_t thread)
     }
 
     ret = LOS_TaskDetach((UINT32)thread);
-    if (ret == LOS_ERRNO_TSK_NOT_JOIN) {
+    if (ret == LOS_ERRNO_TSK_ALREADY_JOIN) {
         return ESRCH;
     } else if (ret != LOS_OK) {
         return EINVAL;
@@ -615,7 +615,7 @@ int pthread_setname_np(pthread_t thread, const char *name)
 
     taskCB = OS_TCB_FROM_TID((UINT32)thread);
     intSave = LOS_IntLock();
-    if (taskCB->taskStatus & OS_TASK_STATUS_EXIT) {
+    if (taskCB->taskStatus & OS_TASK_STATUS_ZOMBIE) {
         LOS_IntRestore(intSave);
         return EINVAL;
     }

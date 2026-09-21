@@ -36,7 +36,7 @@
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 static  UINT32 g_swtmrCount1;
 static  UINT32 g_swtmrCount2;
-static VOID Case1(UINT32 arg)
+static VOID Case1(UINTPTR arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
     g_swtmrCount1++;
@@ -44,7 +44,7 @@ static VOID Case1(UINT32 arg)
     return;
 }
 
-static VOID Case2(UINT32 arg)
+static VOID Case2(UINTPTR arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
     g_swtmrCount2++;

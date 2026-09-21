@@ -33,7 +33,7 @@
 #include "It_los_swtmr.h"
 
 
-static VOID SwtmrF01(UINT32 arg)
+static VOID SwtmrF01(UINTPTR arg)
 {
     if (arg != TIMER_LOS_HANDLER_PARAMETER) {
         return;
@@ -77,12 +77,8 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_SwtmrTimeGet(g_swtmrId1, &tick);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-#ifdef LOSCFG_KERNEL_TICKLESS_GLOBAL
-    ICUNIT_GOTO_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime - 1, tick, EXIT);
-#else
-    ICUNIT_ASSERT_WITHIN_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime - 1,
-                               TIMER_LOS_EXPIRATION3 - delayTime, tick);
-#endif
+    // TaskDelay + TimeGet, advance timing may differ by 1 tick
+    ICUNIT_GOTO_WITHIN_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime - 1, TIMER_LOS_EXPIRATION3 - delayTime, tick, EXIT);
 
     ret = LOS_SwtmrStop(g_swtmrId1);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);

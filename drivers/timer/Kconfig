@@ -1,0 +1,53 @@
+config CORTEX_M_SYSTICK
+    bool "ARM Cortex-M SysTick"
+    default n
+    depends on ARCH_CORTEX_M3 || ARCH_CORTEX_M4 || ARCH_CORTEX_M7 || ARCH_CORTEX_M55
+    select ARCH_TIMER_VENDOR
+    select TIMER_ARCH_BRIDGE
+    help
+      ARM Cortex-M SysTick timer (M3/M4/M7/M55).
+
+config DW_APB_TIMER
+    bool "DW APB dual timer (Synopsys) as system tick"
+    default n
+    depends on ARCH_RISCV32
+    depends on !KERNEL_TICKLESS_GLOBAL
+    select ARCH_TIMER_VENDOR
+    help
+      Synopsys DesignWare APB dual timer as system tick (RISC-V boards).
+      Reserved for the RISC-V timer MR: dw_apb_timer.c lands there. Board
+      contract (asm/register_config.h / soc.h): DW_APB_TIMER_BASE is
+      required; DW_APB_TIMER_IRQ, DW_APB_TIMER_CLOCK, DW_APB_TIMER_IRQ_PRIO,
+      DW_APB_TIMER_LOCK_BASE, DW_APB_TIMER_UNLOCK_VAL are optional, with
+      DW_APB_TIMER_NEED_UNLOCK / DW_APB_TIMER_LOAD_WO / DW_APB_TIMER_EOI_FENCE
+      quirks as the SoC requires. The board must provide
+      HalIrqEnable/HalIrqDisable. ArchSysTickTimerGet/ArchEnterSleep are
+      exported weak, so a future board can still override.
+
+      Depends on !KERNEL_TICKLESS_GLOBAL: the reload callback is a no-op in
+      periodic mode, so tickless would silently degrade to plain periodic
+      ticking (timer keeps firing every tick, no idle-window savings).
+      Proper tickless needs one-shot reload support plus a working getCycle
+      (CURRENT_BROKEN quirk); remove this dependency only together with
+      that work.
+
+config TIMER_ARCH_BRIDGE
+    bool "Bridge HAL timer drivers to ArchTickTimer"
+    default n
+    depends on CORTEX_M_SYSTICK
+    help
+      Adapter that wraps a HAL timer driver (HalClockInit/Start/GetCycles,
+      hal_timer.h) into the liteos_m ArchTickTimer interface, exporting a
+      weak ArchSysTickTimerGet. The SysTick driver (cortex_m_systick.c) has
+      no native table and is the current consumer; drivers with a native
+      ArchTickTimer table (dw_apb_timer.c) do not need this bridge.
+      OS_SYS_CLOCK must match the HAL timer input clock. Limitations:
+      tickHandler override unsupported (a non-OsTickHandler handler logs a
+      warning); a HAL driver without one-shot reload degrades tickless to
+      periodic ticking; init() fails loudly unless HalClockIsRunning()
+      confirms the counter is up (weak default TRUE). lock/unlock are the
+      PM tick-lock pair (see HalClockTickTimerLock/Unlock).
+
+# The LOSCFG_KERNEL_LOWPOWER-guarded HAL blocks (HalTickAdjust etc.) stay
+# although liteos_m has no LOWPOWER: they compile out and preserve the
+# driver contract for a future lowpower framework. Do not remove them.

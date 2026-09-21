@@ -406,23 +406,8 @@ config MPU_ENABLE
     default n
 endmenu
 
-menu "Test"
-config TEST
-    bool
-    default n
-config KERNEL_TEST
-    bool "Enable Kernel Test"
-    default n
-    select TEST
-config KERNEL_TEST_FULL
-    bool "Full Kernel Test"
-    default n
-    depends on KERNEL_TEST
-config KERNEL_TEST_MANUAL
-    bool "Manual Kernel Test"
-    default n
-    depends on KERNEL_TEST
-endmenu
+######################## config options for testsuites #####################
+rsource "testsuites/Kconfig"
 
 menu "Stack Smashing Protector (SSP) Compiler Feature"
 

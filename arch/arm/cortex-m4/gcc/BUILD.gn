@@ -37,8 +37,13 @@ kernel_module(module_name) {
     "los_exc.S",
     "los_interrupt.c",
     "los_mpu.c",
-    "los_timer.c",
   ]
+
+  # The arch default timer is replaced by a vendor timer when
+  # ARCH_TIMER_VENDOR is selected (same mechanism as riscv32).
+  if (!defined(LOSCFG_ARCH_TIMER_VENDOR)) {
+    sources += [ "los_timer.c" ]
+  }
   configs += [ "$LITEOSTOPDIR:warn_config" ]
 }
 

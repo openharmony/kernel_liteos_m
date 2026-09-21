@@ -67,8 +67,12 @@ VOID ItSuiteLosMux(void)
     ItLosMux025();
     ItLosMux030();
     ItLosMux033();
-#if (LOS_FEATURE_ADAPTED == 1)
+#ifdef LOSCFG_MUTEX_WAITMODE_FIFO
     ItLosMux034();
+#endif
+    ItLosMux035();
+#if (LOSCFG_MUTEX_WAITMODE_PRIO == 1)
+    ItLosMux036();
 #endif
 #if (LOS_KERNEL_HWI_TEST == 1)
     ItLosMux013();

@@ -35,11 +35,15 @@ VOID ItSuiteLosShell(VOID)
 {
 #ifdef LOSCFG_SHELL_DMESG
     ItLosShell001();
+    ItLosShell008(); /* dmesg 边界深化: 环绕读回一致性/LvSet-LvGet 往返/重装清零 */
 #endif
 #ifdef LOSCFG_SHELL_LK
     ItLosShell002();
     ItLosShell004();
     ItLosShell005();
+    ItLosShell006(); /* osCmdReg 运行时注册+OsCmdExec 触发回调+help 直调 */
+    ItLosShell007(); /* ExecCmdline 解析分发链: 带参/空行容错/command not found */
+    ItLosShell009();
 #endif
 #if defined(LOSCFG_SHELL_LK) && defined(LOSCFG_SHELL_DMESG)
     ItLosShell003();

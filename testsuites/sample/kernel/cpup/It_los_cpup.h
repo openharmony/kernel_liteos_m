@@ -51,6 +51,7 @@ VOID ItLosCpup005(VOID);
 VOID ItLosCpup006(VOID);
 VOID ItLosCpup007(VOID);
 VOID ItLosCpup008(VOID);
+VOID ItLosCpup009(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

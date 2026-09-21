@@ -50,7 +50,7 @@ const int MQ_MAX_MSG  = 16;	 // mqueue message number
 const char MQ_MSG[] = "MessageToSend";  // mqueue message to send
 const int MQ_MSG_LEN = sizeof(MQ_MSG);  // mqueue message len to send
 
-const int MAX_MQ_NUMBER   = LOSCFG_BASE_IPC_QUEUE_LIMIT - 1;   // max mqueue number
+const int MAX_MQ_NUMBER   = LOSCFG_BASE_IPC_QUEUE_LIMIT;   // max mqueue number
 const int MAX_MQ_NAME_LEN = 256;    // max mqueue name length
 const int MAX_MQ_MSG_SIZE = 65530;  // max mqueue message size
 
@@ -520,7 +520,177 @@ LITE_TEST_CASE(MqueueFuncTestSuite, TestMqReceiveEAGAIN, Function | MediumTest |
     return 0;
 }
 
+/**
+ * @tc.number    SUB_KERNEL_IPC_MQ_UNLINK_CLOSE_0100
+ * @tc.name      mq_unlink then last mq_close triggers mqueue delete
+ * @tc.desc      [C- SOFTWARE -0200]
+ */
+/* 用例简要描述: unlink 标记延迟删除后最后一个 close 触发 DoMqueueDelete, 同名可重建
+ * 覆盖目标: mqueue.c:364-366（gcov 第 1 轮） */
+LITE_TEST_CASE(MqueueFuncTestSuite, testMqUnlinkClose001, Function | MediumTest | Level2)
+{
+    mqd_t queue = (mqd_t)-1, queueNew = (mqd_t)-1;
+    char qName[MQ_NAME_LEN];
+    int ret;
+
+    sprintf_s(qName, MQ_NAME_LEN, "testMqUnlinkClose_%d", GetRandom(10000));
+
+    errno = 0;
+    queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, NULL);
+    ICUNIT_GOTO_NOT_EQUAL(queue, (mqd_t)-1, queue, EXIT);
+
+    /* 存在打开句柄时 unlink 仅置延迟删除标记 unlinkflag=TRUE(mqueue.c:474-477);
+     * 当前实现返回 -1/EINTR(POSIX 语义为标记后返回 0), 按实现固化 */
+    errno = 0;
+    ret = mq_unlink(qName);
+    ICUNIT_GOTO_EQUAL(ret, -1, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(errno, EINTR, errno, EXIT);
+
+    /* 最后一个 close: mq_personal 摘空且 unlinkflag==TRUE → DoMqueueDelete(mqueue.c:364-366) */
+    errno = 0;
+    ret = mq_close(queue);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    queue = (mqd_t)-1;
+
+    /* 验证确已删除: 同名 open(不带 O_CREAT)应 ENOENT */
+    errno = 0;
+    queue = mq_open(qName, O_RDWR, S_IRUSR | S_IWUSR, NULL);
+    ICUNIT_GOTO_EQUAL(queue, (mqd_t)-1, queue, EXIT);
+    ICUNIT_GOTO_EQUAL(errno, ENOENT, errno, EXIT);
+
+    /* 删除后同名重建成功(验证删除重建路径完整) */
+    errno = 0;
+    queueNew = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, NULL);
+    ICUNIT_GOTO_NOT_EQUAL(queueNew, (mqd_t)-1, queueNew, EXIT);
+
+    /* 清理: 重建对象再走一次 unlink 标记 + close 删除, 保证不留全局残留 */
+    (VOID)mq_unlink(qName);
+    errno = 0;
+    ret = mq_close(queueNew);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    queueNew = (mqd_t)-1;
+
+    return 0;
+
+EXIT:
+    if (queue != (mqd_t)-1) {
+        (VOID)mq_unlink(qName);
+        (VOID)mq_close(queue);
+        queue = (mqd_t)-1;
+    }
+    if (queueNew != (mqd_t)-1) {
+        (VOID)mq_unlink(qName);
+        (VOID)mq_close(queueNew);
+        queueNew = (mqd_t)-1;
+    }
+    return 0;
+}
+
 RUN_TEST_SUITE(MqueueFuncTestSuite);
+
+/**
+ * @tc.number SUB_KERNEL_IPC_MQ_OPEN_0700
+ * @tc.name   mq_open attribute parameter validation and attribute readback
+ * @tc.desc   [C- SOFTWARE -0200]
+ */
+/* 用例简要描述: mq_open 属性参数校验(EINVAL 四组)+NULL attr 默认值创建+合法 attr 创建后 mq_getattr 回读一致
+ * 覆盖目标: mqueue.c:290-297（attr 范围校验: maxmsg>USHRT_MAX 或 msgsize>USHRT_MAX-4 → EINVAL, gcov 第 3 轮）
+ *   mqueue.c:184-187（DoMqueueCreate: maxmsg==0 或 msgsize==0 → LOS_QueueCreate
+ *              返回 PARA_ISZERO → MapMqErrno→EINVAL 走 ERROUT）
+ *   mqueue.c:208-221（DoMqueueCreate 成功路径: mq_personal 分配与初始化, :223 返回）
+ *   mqueue.c:267（mq_open defaultAttr 默认值 {0, MQ_MAX_MSG_NUM=16, MQ_MAX_MSG_LEN=64, 0}）
+ *   mqueue.c:391-394（OsMqGetAttr 回读 maxmsg/msgsize/curmsgs/flags）
+ * 实现偏差说明: POSIX 规定 attr.mq_curmsgs > mq_maxmsg 时 mq_open 应返回 EINVAL,
+ *   本实现不校验 curmsgs(mqueue.c:292-293 仅校验 maxmsg/msgsize 范围),
+ *   按"先读源码定断言"原则固化实现行为: 创建成功且 mq_getattr 回读 curmsgs==0 */
+LITE_TEST_CASE(MqueueFuncTestSuite, testMqOpenAttr001, Function | MediumTest | Level2)
+{
+    struct mq_attr attr = {0};
+    struct mq_attr getAttr = {0};
+    char qName[MQ_NAME_LEN];
+    mqd_t queue = (mqd_t)-1;
+    int ret;
+
+    sprintf_s(qName, MQ_NAME_LEN, "testMqOpenAttr_%d", GetRandom(10000));
+
+    /* 参数校验 1: mq_maxmsg 超上限(USHRT_MAX=65535) → mq_open 内直接 EINVAL(mqueue.c:292) */
+    errno = 0;
+    attr.mq_flags = 0;
+    attr.mq_maxmsg = 65536; /* 65536: USHRT_MAX + 1 */
+    attr.mq_msgsize = MQ_MSG_SIZE;
+    attr.mq_curmsgs = 0;
+    queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+    ICUNIT_GOTO_EQUAL(queue, (mqd_t)-1, queue, EXIT);
+    ICUNIT_GOTO_EQUAL(errno, EINVAL, errno, EXIT);
+
+    /* 参数校验 2: mq_msgsize 超上限(USHRT_MAX - sizeof(UINT32) = 65531) → EINVAL(mqueue.c:293) */
+    errno = 0;
+    attr.mq_maxmsg = MQ_MAX_MSG;
+    attr.mq_msgsize = 65532; /* 65532: 越上限 65531 一格, 不触达内存分配 */
+    queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+    ICUNIT_GOTO_EQUAL(queue, (mqd_t)-1, queue, EXIT);
+    ICUNIT_GOTO_EQUAL(errno, EINVAL, errno, EXIT);
+
+    /* 参数校验 3: mq_maxmsg==0 通过 mq_open 范围检查(0 不越界), 进 DoMqueueCreate
+     * 后 LOS_QueueCreate len=0 返回 PARA_ISZERO → EINVAL(mqueue.c:184-187 走 ERROUT) */
+    errno = 0;
+    attr.mq_maxmsg = 0;
+    attr.mq_msgsize = MQ_MSG_SIZE;
+    queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+    ICUNIT_GOTO_EQUAL(queue, (mqd_t)-1, queue, EXIT);
+    ICUNIT_GOTO_EQUAL(errno, EINVAL, errno, EXIT);
+
+    /* 参数校验 4: mq_msgsize==0 → 同上 LOS_QueueCreate maxMsgSize=0 返回 PARA_ISZERO → EINVAL */
+    errno = 0;
+    attr.mq_maxmsg = MQ_MAX_MSG;
+    attr.mq_msgsize = 0;
+    queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+    ICUNIT_GOTO_EQUAL(queue, (mqd_t)-1, queue, EXIT);
+    ICUNIT_GOTO_EQUAL(errno, EINVAL, errno, EXIT);
+
+    /* 功能 1: attr 传 NULL 走默认值路径(mqueue.c:267 defaultAttr{maxmsg=16, msgsize=64}),
+     * 创建成功后 mq_getattr 回读默认属性一致(mqueue.c:391-394) */
+    errno = 0;
+    queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, NULL);
+    ICUNIT_GOTO_NOT_EQUAL(queue, (mqd_t)-1, queue, EXIT);
+    errno = 0;
+    ret = mq_getattr(queue, &getAttr);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(getAttr.mq_maxmsg, MQ_MAX_MSG, getAttr.mq_maxmsg, EXIT);
+    ICUNIT_GOTO_EQUAL(getAttr.mq_msgsize, MQ_MSG_SIZE, getAttr.mq_msgsize, EXIT);
+    ICUNIT_GOTO_EQUAL(getAttr.mq_curmsgs, 0, getAttr.mq_curmsgs, EXIT);
+    ICUNIT_GOTO_EQUAL(getAttr.mq_flags & O_RDWR, O_RDWR, getAttr.mq_flags, EXIT);
+    (VOID)mq_close(queue);
+    queue = (mqd_t)-1;
+    (VOID)mq_unlink(qName);
+
+    /* 功能 2: 合法 attr(maxmsg=2, msgsize=16) 且 mq_curmsgs(5) > mq_maxmsg(2) —
+     * 实现不校验 curmsgs, 创建成功(POSIX 语义应 EINVAL, 属实现偏差, 按实现固化);
+     * 回读 maxmsg/msgsize 与 attr 一致, curmsgs 恒为 0 */
+    errno = 0;
+    attr.mq_maxmsg = 2;
+    attr.mq_msgsize = 16;
+    attr.mq_curmsgs = 5; /* 5: 故意大于 maxmsg, 验证该字段被实现忽略 */
+    queue = mq_open(qName, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+    ICUNIT_GOTO_NOT_EQUAL(queue, (mqd_t)-1, queue, EXIT);
+    errno = 0;
+    ret = mq_getattr(queue, &getAttr);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(getAttr.mq_maxmsg, 2, getAttr.mq_maxmsg, EXIT);
+    ICUNIT_GOTO_EQUAL(getAttr.mq_msgsize, 16, getAttr.mq_msgsize, EXIT);
+    ICUNIT_GOTO_EQUAL(getAttr.mq_curmsgs, 0, getAttr.mq_curmsgs, EXIT);
+    (VOID)mq_close(queue);
+    queue = (mqd_t)-1;
+    (VOID)mq_unlink(qName);
+
+EXIT:
+    if (queue != (mqd_t)-1) {
+        (VOID)mq_close(queue);
+        queue = (mqd_t)-1;
+    }
+    (VOID)mq_unlink(qName);
+    return 0;
+}
 
 void PosixMqueueFuncTest(void)
 {
@@ -537,6 +707,8 @@ void PosixMqueueFuncTest(void)
     RUN_ONE_TESTCASE(TestMqSendEBADFEMSGSIZE);
     RUN_ONE_TESTCASE(TestMqSendEINVAL);
     RUN_ONE_TESTCASE(TestMqReceiveEAGAIN);
+    RUN_ONE_TESTCASE(testMqUnlinkClose001);
+    RUN_ONE_TESTCASE(testMqOpenAttr001);
 
     return;
 }

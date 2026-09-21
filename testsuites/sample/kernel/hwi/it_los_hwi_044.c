@@ -43,6 +43,12 @@ static volatile UINT32 g_handlerSeq;
 
 static VOID PreHookFunc(HWI_HANDLE_T hwiNum)
 {
+    /* The hooks are global: every dispatched IRQ (e.g. the periodic tick)
+     * invokes them. Count only our IRQ so a tick landing inside the
+     * trigger window cannot pollute the hit counters. */
+    if (hwiNum != HWI_NUM_TEST + OS_SYS_VECTOR_CNT) {
+        return;
+    }
     g_preHookHit++;
     g_preHookHwiNum = hwiNum;
     g_execSeq = 1;
@@ -50,6 +56,9 @@ static VOID PreHookFunc(HWI_HANDLE_T hwiNum)
 
 static VOID PostHookFunc(HWI_HANDLE_T hwiNum)
 {
+    if (hwiNum != HWI_NUM_TEST + OS_SYS_VECTOR_CNT) {
+        return;
+    }
     g_postHookHit++;
     g_postHookHwiNum = hwiNum;
     g_execSeq = 3;

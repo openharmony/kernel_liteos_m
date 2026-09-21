@@ -43,4 +43,18 @@ VOID ItSuiteLosRwsem(VOID)
     ItLosRwsem005();
     ItLosRwsem006();
     ItLosRwsem007();
+    ItLosRwsem008();
+    ItLosRwsem009();
+    ItLosRwsem010();
+    ItLosRwsem011();
+    ItLosRwsem012();
+    ItLosRwsem013();
+    ItLosRwsem014();
+
+#if (LOS_KERNEL_TEST_FULL == 1)
+#if (LOS_KERNEL_HWI_TEST == 1)
+    ItLosRwsem015();
+    ItLosRwsem016();
+#endif
+#endif
 }

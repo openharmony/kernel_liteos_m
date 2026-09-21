@@ -32,12 +32,12 @@ STATIC VOID OsPrintSwtmrMsg(const SWTMR_CTRL_S *swtmr)
            "%-6u    "
            "0x%-08x          "
            "0x%lx\n",
-           swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT,
-           g_shellSwtmrStatus[swtmr->ucState],
-           g_shellSwtmrMode[swtmr->ucMode],
-           swtmr->uwInterval,
-           swtmr->uwArg,
-           (unsigned long)swtmr->pfnHandler);
+           swtmr->timerId % LOSCFG_BASE_CORE_SWTMR_LIMIT,
+           g_shellSwtmrStatus[swtmr->state],
+           g_shellSwtmrMode[swtmr->mode],
+           swtmr->interval,
+           swtmr->arg,
+           (unsigned long)swtmr->handler);
 }
 
 STATIC INLINE VOID OsPrintSwtmrMsgHead(VOID)
@@ -48,14 +48,14 @@ STATIC INLINE VOID OsPrintSwtmrMsgHead(VOID)
 
 LITE_OS_SEC_TEXT_MINOR UINT32 OsDbgSwtmrInfoGet(UINT32 timerId)
 {
-    SWTMR_CTRL_S *swtmr = g_swtmrCBArray;
+    SWTMR_CTRL_S *swtmr = g_osSwtmrCBArray;
     UINT16 index;
     UINT16 num = 0;
 
     OsPrintSwtmrMsgHead();
     if (timerId == OS_ALL_SWTMR_MASK) {
         for (index = 0; index < LOSCFG_BASE_CORE_SWTMR_LIMIT; ++index, ++swtmr) {
-            if (swtmr->ucState != 0) {
+            if (swtmr->state != 0) {
                 OsPrintSwtmrMsg(swtmr);
                 num++;
             }
@@ -67,7 +67,7 @@ LITE_OS_SEC_TEXT_MINOR UINT32 OsDbgSwtmrInfoGet(UINT32 timerId)
         }
     } else {
         for (index = 0; index < LOSCFG_BASE_CORE_SWTMR_LIMIT; ++index, ++swtmr) {
-            if ((timerId == (swtmr->usTimerID % LOSCFG_BASE_CORE_SWTMR_LIMIT)) && (swtmr->ucState != 0)) {
+            if ((timerId == (swtmr->timerId % LOSCFG_BASE_CORE_SWTMR_LIMIT)) && (swtmr->state != 0)) {
                 OsPrintSwtmrMsg(swtmr);
                 return LOS_OK;
             }

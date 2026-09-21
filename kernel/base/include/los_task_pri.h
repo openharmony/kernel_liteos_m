@@ -12,9 +12,36 @@ extern "C" {
 #define OS_TCB_FROM_PENDLIST(ptr)                       LOS_DL_LIST_ENTRY(ptr, LosTaskCB, pendList)
 #define OS_TCB_FROM_TID(taskId)                         (((LosTaskCB *)g_taskCBArray) + (taskId))
 
+#ifdef LOSCFG_KERNEL_SMP
+/* Task signal types */
+#define SIGNAL_NONE                 0U
+#define SIGNAL_KILL                 (1U << 0)
+#define SIGNAL_SUSPEND              (1U << 1)
+#define SIGNAL_AFFI                 (1U << 2)
+#define SIGNAL_TERMINATE            SIGNAL_KILL
+
+/* default and non-running task's ownership id */
+#define OS_TASK_INVALID_CPUID       0xFFFF
+#endif
+
+#ifdef LOSCFG_KERNEL_SMP
+STATIC INLINE VOID OsTaskSignalSet(LosTaskCB *taskCB, UINT32 mpSignal)
+{
+    taskCB->mpSignal = mpSignal;
+}
+#else
+STATIC INLINE VOID OsTaskSignalSet(LosTaskCB *taskCB, UINT32 signal)
+{
+    (VOID)taskCB;
+    (VOID)signal;
+}
+#endif
+
+extern VOID OsTaskProcSignal(VOID);
+
 STATIC INLINE BOOL OsTaskIsExit(const LosTaskCB *taskCB)
 {
-    return ((taskCB->taskStatus & OS_TASK_STATUS_EXIT) != 0);
+    return ((taskCB->taskStatus & OS_TASK_STATUS_ZOMBIE) != 0);
 }
 
 /**

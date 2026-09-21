@@ -68,7 +68,7 @@ VOID ArchIntRestore(UINT32 intSave)
  * @ingroup los_hwi
  * Unlock interrupt.
  */
-UINT32 ArchIntUnlock(VOID)
+UINT32 ArchIntUnLock(VOID)
 {
     UINT32 intSave;
 
@@ -152,26 +152,22 @@ STATIC UINT32 HwiClear(HWI_HANDLE_T hwiNum)
     return LOS_OK;
 }
 
-STATIC UINT32 HwiCreate(HWI_HANDLE_T hwiNum, HWI_PRIOR_T hwiPrio)
-{
-    (VOID)hwiPrio;
-    HwiUnmask(hwiNum);
-    return LOS_OK;
-}
-
-STATIC HwiControllerOps g_archHwiOps = {
+/* Un-migrated arch variant: this file still owns g_hwiControllerOps + HwiControllerOpsGet
+ * (pre-driver-layer model). Migrated pattern: driver-owned static ops table
+ * under drivers/interrupt/ (see arm_nvic.c), selected via Kconfig. Migrate
+ * this variant when it is next touched. */
+STATIC HwiControllerOps g_hwiControllerOps = {
     .triggerIrq     = HwiPending,
     .enableIrq      = HwiUnmask,
     .disableIrq     = HwiMask,
     .getCurIrqNum   = HwiNumGet,
     .clearIrq       = HwiClear,
-    .createIrq      = HwiCreate,
     .getHandleForm  = HalGetHandleForm,
 };
 
-HwiControllerOps *ArchIntOpsGet(VOID)
+HwiControllerOps *HwiControllerOpsGet(VOID)
 {
-    return &g_archHwiOps;
+    return &g_hwiControllerOps;
 }
 
 /* ****************************************************************************

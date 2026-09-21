@@ -105,14 +105,15 @@ extern SPIN_LOCK_S g_memSpin;
 #define OS_MEM_POOL_EXPAND_ENABLE   0x01
 /* The memory pool support no lock. */
 #define OS_MEM_POOL_UNLOCK_ENABLE   0x02
+extern SPIN_LOCK_S g_memSpin;
 #define MEM_LOCK(pool, state)       do {                    \
     if (!(((struct OsMemPoolHead *)(pool))->info.attr & OS_MEM_POOL_UNLOCK_ENABLE)) { \
-        (state) = LOS_IntLock();                            \
+        LOS_SpinLockSave(&g_memSpin, &(state));             \
     }                                                       \
 } while (0);
 #define MEM_UNLOCK(pool, state)     do {                    \
     if (!(((struct OsMemPoolHead *)(pool))->info.attr & OS_MEM_POOL_UNLOCK_ENABLE)) { \
-        LOS_IntRestore(state);                              \
+        LOS_SpinUnlockRestore(&g_memSpin, state);           \
     }                                                       \
 } while (0);
 #endif

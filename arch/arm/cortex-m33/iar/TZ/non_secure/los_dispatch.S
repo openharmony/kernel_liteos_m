@@ -32,7 +32,7 @@
     PRESERVE8
 
     EXPORT  ArchIntLock
-    EXPORT  ArchIntUnlock
+    EXPORT  ArchIntUnLock
     EXPORT  ArchIntRestore
     EXPORT  ArchTaskSchedule
     EXPORT  HalPendSV
@@ -105,7 +105,7 @@ ArchIntLock
     CPSID   I
     BX      LR
 
-ArchIntUnlock
+ArchIntUnLock
     MRS     R0, PRIMASK
     CPSIE   I
     BX      LR

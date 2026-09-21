@@ -38,7 +38,7 @@
 #define HWI_NUM_INT14 HWI_NUM_TEST
 #endif
 
-static VOID Case1(UINT32 arg)
+static VOID Case1(UINTPTR arg)
 {
     g_testCount++;
     return;

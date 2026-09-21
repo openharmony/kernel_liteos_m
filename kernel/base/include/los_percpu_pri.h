@@ -34,6 +34,7 @@
 
 #include "los_compiler.h"
 #include "los_interrupt.h"
+#include "los_arch_context.h"
 #include "los_sortlink_pri.h"
 #include "los_list.h"
 
@@ -55,10 +56,14 @@ extern "C" {
 
 #define CPUID_TO_AFFI_MASK(cpuid)  (0x1u << (cpuid))
 
-STATIC INLINE UINT32 ArchCurrCpuid(VOID)
-{
-    return 0;
-}
+
+#ifdef LOSCFG_KERNEL_SMP
+typedef enum {
+    CPU_RUNNING = 0,   /* cpu is running */
+    CPU_HALT,          /* cpu in the halt */
+    CPU_EXC            /* cpu in the exc */
+} ExcFlag;
+#endif
 
 typedef struct {
     UINT16 head;

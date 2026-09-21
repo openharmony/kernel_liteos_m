@@ -37,7 +37,7 @@
 static  UINT32 g_swtmrCount1;
 static  UINT32 g_swtmrCount2;
 static  UINT32 g_swtmrCount3;
-static VOID Case1(UINT32 arg)
+static VOID Case1(UINTPTR arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
     g_swtmrCount1++;
@@ -45,7 +45,7 @@ static VOID Case1(UINT32 arg)
     return;
 }
 
-static VOID Case2(UINT32 arg)
+static VOID Case2(UINTPTR arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
     g_swtmrCount2++;
@@ -53,7 +53,7 @@ static VOID Case2(UINT32 arg)
     return;
 }
 
-static VOID Case3(UINT32 arg)
+static VOID Case3(UINTPTR arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
     g_swtmrCount3++;
@@ -67,6 +67,13 @@ static UINT32 Testcase(VOID)
     UINT32 swtmrId1;
     UINT32 swtmrId2;
     UINT32 swtmrId3;
+
+    /* Align to a tick boundary: a 1-tick delay resumes right after the next
+     * tick scan, so the 20/40/80-tick swtmr expiries and the TaskDelay wakes
+     * below land on the same boundaries for every entry phase, making the
+     * exact-count assertions independent of the upstream suite timing. */
+    ret = LOS_TaskDelay(1);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     g_testCount = 0;
     g_swtmrCount1 = 0;
@@ -97,14 +104,14 @@ static UINT32 Testcase(VOID)
     ret = LOS_SwtmrStart(swtmrId3);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
-    ret = LOS_TaskDelay(20); // 20, set delay time.
+    ret = LOS_TaskDelay(20 + 1); // 20 + 1, set delay time.
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     ICUNIT_GOTO_EQUAL(g_swtmrCount1, 1, g_swtmrCount1, EXIT); // 1, Here, assert that g_testCount is equal to this .
     ICUNIT_GOTO_EQUAL(g_swtmrCount2, 0, g_swtmrCount2, EXIT); // 0, Here, assert that g_testCount is equal to this .
     ICUNIT_GOTO_EQUAL(g_swtmrCount3, 0, g_swtmrCount3, EXIT); // 0, Here, assert that g_testCount is equal to this .
 
-    ret = LOS_TaskDelay(60); // 60, set delay time.
+    ret = LOS_TaskDelay(60 + 1); // 60 + 1, set delay time.
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     ICUNIT_GOTO_EQUAL(g_swtmrCount1, 4, g_swtmrCount1, EXIT); // 4, Here, assert that g_testCount is equal to this .

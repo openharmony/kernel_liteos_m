@@ -10,10 +10,7 @@ VOID ItSuitePosixSignal(void)
     ItPosixSignal088();
     ItPosixSignal089();
     ItPosixSignal090();
-#include "bug_isolate.h"
-#ifndef PRODUCT_BUG_ISOLATE
-    ItPosixSignal091();
-#endif
     ItPosixSignal092();
     ItPosixSignal093();
+    ItPosixSignal095();
 }

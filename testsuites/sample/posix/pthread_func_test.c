@@ -39,7 +39,6 @@
 
 #undef TASK_PRIO_TEST
 #define TASK_PRIO_TEST           LOSCFG_BASE_CORE_TSK_DEFAULT_PRIO
-#define OS_TSK_TEST_STACK_SIZE   0x1000
 #define PTHREAD_TASK_DELAY       10
 
 static INT32 g_pthreadSem = 0;
@@ -47,8 +46,9 @@ static INT32 g_pthreadSem = 0;
 #define TEST_STR(func) ItLos##func
 #define TEST_TO_STR(x) #x
 #define TEST_HEAD_TO_STR(x) TEST_TO_STR(x)
+/* POSIX 兼容用例: layer=TEST_LIB, module=TEST_POSIX */
 #define ADD_TEST_CASE(func) \
-    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LOS, TEST_TASK, TEST_LEVEL0, TEST_FUNCTION)
+    TEST_ADD_CASE(TEST_HEAD_TO_STR(TEST_STR(func)), func, TEST_LIB, TEST_POSIX, TEST_LEVEL0, TEST_FUNCTION)
 
 #define Function   0
 #define MediumTest 0
@@ -1040,7 +1040,7 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread017, Function | MediumTest | Lev
     void *stackAddr = NULL;
     g_testCount = 0;
 
-    stackAddr = malloc(OS_TSK_TEST_STACK_SIZE);
+    stackAddr = LOS_MemAllocAlign(OS_TASK_STACK_ADDR, OS_TSK_TEST_STACK_SIZE, 8);
     ICUNIT_ASSERT_NOT_EQUAL(stackAddr, NULL, stackAddr);
 
     ret = pthread_attr_init(&attr);
@@ -1056,9 +1056,147 @@ LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread017, Function | MediumTest | Lev
     ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
 
 EXIT:
-    free(stackAddr);
+    (VOID)LOS_MemFree(OS_TASK_STACK_ADDR, stackAddr);
     return LOS_OK;
 };
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_018
+ * @tc.name      : event operation for condattr setpshared parameter validation
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+/* 用例简要描述: pthread_condattr_setpshared 成功路径/SHARED 不支持/NULL attr 行为
+ * 覆盖目标: lib/posix/src/pthread_cond.c:63-75
+ *   :74      shared == PTHREAD_PROCESS_PRIVATE → 0(成功路径)
+ *   :70-71   shared == PTHREAD_PROCESS_SHARED → ENOSYS(不支持进程间共享)
+ *   NULL attr: 实现不解引用 attr(:65 (VOID)attr), 按 shared 值返回, 不崩溃
+ *   (:66-68 的 EINVAL 分支已由 TestPthread014 覆盖)
+ * getpshared 往返: setpshared(PRIVATE) 后 getpshared == PRIVATE(:52-61) */
+LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread018, Function | MediumTest | Level1)
+{
+    INT32 ret;
+    INT32 pshared = -1;
+    pthread_condattr_t attr;
+
+    /* 成功路径: PRIVATE */
+    ret = pthread_condattr_init(&attr);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    ret = pthread_condattr_setpshared(&attr, PTHREAD_PROCESS_PRIVATE);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    /* getpshared 往返 == PRIVATE */
+    ret = pthread_condattr_getpshared(&attr, &pshared);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(pshared, PTHREAD_PROCESS_PRIVATE, pshared, EXIT);
+
+    /* SHARED: 进程间共享不支持 → ENOSYS */
+    ret = pthread_condattr_setpshared(&attr, PTHREAD_PROCESS_SHARED);
+    ICUNIT_GOTO_EQUAL(ret, ENOSYS, ret, EXIT);
+
+    /* NULL attr: 实现忽略 attr 指针, 按 shared 值返回, 不解引用不崩溃 */
+    ret = pthread_condattr_setpshared(NULL, PTHREAD_PROCESS_PRIVATE);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    ret = pthread_condattr_setpshared(NULL, PTHREAD_PROCESS_SHARED);
+    ICUNIT_GOTO_EQUAL(ret, ENOSYS, ret, EXIT);
+
+EXIT:
+    /* destroy 收尾: 任意断言失败均跳转至此, 确保 attr 资源释放 */
+    ret = pthread_condattr_destroy(&attr);
+    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+
+    return 0;
+}
+
+/**
+ * @tc.number    : SUB_KERNEL_PTHREAD_OPERATION_019
+ * @tc.name      : pthread parameter validation for schedparam specific key cancelstate
+ * @tc.desc      : [C- SOFTWARE -0200]
+ */
+/* 用例简要描述: getschedparam/getspecific/key_delete/setcancelstate 参数校验集+正常路径回读
+ * 覆盖目标: lib/posix/src/pthread.c
+ *   :415-418  getschedparam 非法线程 id(超任务数上限, IsPthread 判假) → EINVAL
+ *   :420-422  getschedparam policy 或 param 传 NULL → EINVAL
+ *   :429-432  getschedparam 正常路径: 策略恒 SCHED_RR, 优先级回写
+ *   :815-817  getspecific key 越界(>= PTHREAD_KEYS_MAX=128) → 返回 NULL(不置 errno)
+ *   :822-824  getspecific 范围内未使用 key(本线程未调过 setspecific, key 数组
+ *             未分配/槽位 UNUSED) → 返回 NULL
+ *   :733-735  key_delete key 越界 → EINVAL
+ *   :738-741  key_delete 重复删除(槽位已 UNUSED) → EAGAIN
+ *   :743-757  key_delete 正常路径: 置 UNUSED 并遍历清理各线程槽位
+ *   :356-358  setcancelstate 非法状态值(5 非 ENABLE/DISABLE) → EINVAL
+ *   :368-372  setcancelstate 正常路径: oldState 回读改前状态 */
+LITE_TEST_CASE(PthreadFuncTestSuite, TestPthread019, Function | MediumTest | Level1)
+{
+    pthread_key_t key = (pthread_key_t)128; /* 128: PTHREAD_KEYS_MAX, 越界哨兵值, EXIT 补删无害 */
+    pthread_t invalidThread;
+    struct sched_param schedParam = { 0 };
+    void *specific = NULL;
+    int policy = 0;
+    int oldState = -1;
+    int ret;
+
+    /* 1. getschedparam: 非法线程 id(超过任务数上限, IsPthread 判假, pthread.c:415-418) → EINVAL */
+    invalidThread = (pthread_t)(LOSCFG_BASE_CORE_TSK_LIMIT + 1);
+    ret = pthread_getschedparam(invalidThread, &policy, &schedParam);
+    ICUNIT_GOTO_EQUAL(ret, EINVAL, ret, EXIT);
+
+    /* 2. getschedparam: policy 传 NULL(pthread.c:420-422) → EINVAL */
+    ret = pthread_getschedparam(pthread_self(), NULL, &schedParam);
+    ICUNIT_GOTO_EQUAL(ret, EINVAL, ret, EXIT);
+
+    /* 3. getschedparam 正常路径(pthread.c:429-432): 调度策略恒 SCHED_RR */
+    ret = pthread_getschedparam(pthread_self(), &policy, &schedParam);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(policy, SCHED_RR, policy, EXIT);
+
+    /* 4. getspecific: key 越界(200 >= PTHREAD_KEYS_MAX=128, pthread.c:815-817)
+     *    → 返回 NULL, POSIX 语义该函数无错误返回不置 errno */
+    specific = pthread_getspecific((pthread_key_t)200);
+    ICUNIT_GOTO_EQUAL((UINTPTR)specific, (UINTPTR)NULL, 0, EXIT);
+
+    /* 5. getspecific: 范围内未使用 key 99(本线程未调过 setspecific,
+     *    key 数组未分配, pthread.c:822-824) → 返回 NULL */
+    specific = pthread_getspecific((pthread_key_t)99);
+    ICUNIT_GOTO_EQUAL((UINTPTR)specific, (UINTPTR)NULL, 0, EXIT);
+
+    /* 6. key_delete: key 越界(pthread.c:733-735) → EINVAL */
+    ret = pthread_key_delete((pthread_key_t)200);
+    ICUNIT_GOTO_EQUAL(ret, EINVAL, ret, EXIT);
+
+    /* 7. key 正常创建后删除(pthread.c:743-757 正常路径, 无析构器不触发回调) */
+    ret = pthread_key_create(&key, NULL);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    ret = pthread_key_delete(key);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+
+    /* 8. key_delete 重复删除: 槽位已 UNUSED(pthread.c:738-741) → EAGAIN */
+    ret = pthread_key_delete(key);
+    ICUNIT_GOTO_EQUAL(ret, EAGAIN, ret, EXIT);
+
+    /* 9. setcancelstate: 非法状态值 5(非 ENABLE/DISABLE, pthread.c:356-358) → EINVAL */
+    ret = pthread_setcancelstate(5, NULL);
+    ICUNIT_GOTO_EQUAL(ret, EINVAL, ret, EXIT);
+
+    /* 10. setcancelstate 正常路径(pthread.c:368-372): 先恢复默认 ENABLE 保证基线,
+     *     置 DISABLE 回读旧值应为 ENABLE, 再恢复 ENABLE 回读旧值应为 DISABLE */
+    ret = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    ret = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldState);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(oldState, PTHREAD_CANCEL_ENABLE, oldState, EXIT);
+    ret = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldState);
+    ICUNIT_GOTO_EQUAL(ret, 0, ret, EXIT);
+    ICUNIT_GOTO_EQUAL(oldState, PTHREAD_CANCEL_DISABLE, oldState, EXIT);
+
+    return LOS_OK;
+
+EXIT:
+    /* 恢复: 取消状态回默认 ENABLE; key 哨兵值越界补删返回 EINVAL 无害, 已建未删则真删 */
+    (VOID)pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    (VOID)pthread_key_delete(key);
+    return LOS_NOK;
+}
 
 static void PosixTestCase(void)
 {
@@ -1079,6 +1217,8 @@ static void PosixTestCase(void)
     ADD_TEST_CASE(TestPthread015);
     ADD_TEST_CASE(TestPthread016);
     ADD_TEST_CASE(TestPthread017);
+    ADD_TEST_CASE(TestPthread018);
+    ADD_TEST_CASE(TestPthread019);
     return;
 }
 

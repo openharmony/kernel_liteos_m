@@ -29,6 +29,12 @@
 import("//kernel/liteos_m/liteos.gni")
 
 static_library("net_test") {
+  defines = [
+    "XTS_CASE_LAYER=TEST_LIB",
+    "XTS_CASE_MODULE=TEST_POSIX",
+    "XTS_CASE_LEVEL=TEST_LEVEL0",
+  ]
+
   sources = [ "acts_net_test.c" ]
 
   include_dirs = [
@@ -37,4 +43,5 @@ static_library("net_test") {
     "$LITEOSTOPDIR/testsuites/unittest/xts",
     "$THIRDPARTY_MUSL_DIR/include/net",
   ]
+  configs += [ "//kernel/liteos_m/testsuites:no_test_coverage" ]
 }

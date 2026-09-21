@@ -196,7 +196,14 @@ VOID ItSuiteLosMem(void)
     ItLosTick009();
     ItLosTick010();
     ItLosTick011();
+    ItLosTick012();
+    ItLosTick013();
     ItLosMem301();
+    ItLosMem310(); /* LOS_Membox Alloc/Free lifecycle + StatisticsGet (membox) */
+    ItLosMem311(); /* LOS_MemboxClr (membox) */
+    ItLosMem312(); /* SLAB_MSK pool via LOS_MemPoolInit (slab extension) */
+    ItLosMem313(); /* bestfit_little defensive behaviors (bestfit_little only) */
+    ItLosMem314(); /* bestfit_little LOS_MemRealloc boundaries (bestfit_little only) */
 #endif
 #ifdef LOSCFG_MEM_MUL_POOL_ALLOC
     ItLosMulPool001();

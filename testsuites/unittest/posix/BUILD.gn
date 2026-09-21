@@ -30,48 +30,9 @@
 import("//kernel/liteos_m/liteos.gni")
 import("$TEST_XTS_TOOLS_DIR/lite/build/suite_lite.gni")
 
-static_library("posix_test") {
-  sources = [
-    "src/ctype/ctype_func_test.c",
-    "src/ctype/isdigit_test.c",
-    "src/ctype/islower_test.c",
-    "src/ctype/isxdigit_test.c",
-    "src/ctype/tolower_test.c",
-    "src/ctype/toupper_test.c",
-    "src/errno/strerror_test.c",
-    "src/math/math_func_test.c",
-    "src/mqueue/mqueue_func_test.c",
-    "src/posix_test.c",
-    "src/regex/regex_func_test.c",
-    "src/semaphore/semaphore_func_test.c",
-    "src/stdarg/stdarg_func_test.c",
-    "src/stdlib/atoi_test.c",
-    "src/stdlib/atol_test.c",
-    "src/stdlib/atoll_test.c",
-    "src/stdlib/strtol_test.c",
-    "src/stdlib/strtoul_test.c",
-    "src/stdlib/strtoull_test.c",
-    "src/string/memory_func_test.c",
-    "src/string/strchr_test.c",
-    "src/string/string_func_test_01.c",
-    "src/string/string_func_test_02.c",
-    "src/string/string_func_test_03.c",
-    "src/string/strstr_test.c",
-    "src/time/time_func_test_01.c",
-    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock.c",
-    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_001.c",
-    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_003.c",
-    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_004.c",
-    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_006.c",
-    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_007.c",
-    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_008.c",
-    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_009.c",
-  ]
-
-  if (defined(LOSCFG_SUPPORT_FATFS) || defined(LOSCFG_SUPPORT_LITTLEFS)) {
-    deps = [ "src/fs" ]
-  }
-
+# 各测试域按库拆分，用例归属经 POSIX_CASE_* defines 注入
+# （与 unittest/posix/src/posix_test.h 的可配置默认值配套），避免单库混合归属
+config("posix_test_cfg") {
   include_dirs = [
     "$TEST_XTS_TOOLS_DIR/hctest/include",
     "src",
@@ -85,6 +46,117 @@ static_library("posix_test") {
   } else {
     cflags = [ "--no_warnings" ]
   }
+}
 
-  configs += [ "$LITEOSTOPDIR/testsuites:include" ]
+# libc 域用例（ctype/errno/regex/stdarg/stdlib/string），归属走默认 TEST_LIB/TEST_LIBC
+static_library("posix_test_lib") {
+  sources = [
+    "src/ctype/ctype_func_test.c",
+    "src/ctype/isdigit_test.c",
+    "src/ctype/islower_test.c",
+    "src/ctype/isxdigit_test.c",
+    "src/ctype/tolower_test.c",
+    "src/ctype/toupper_test.c",
+    "src/errno/strerror_test.c",
+    "src/posix_test.c",
+    "src/regex/regex_func_test.c",
+    "src/stdarg/stdarg_func_test.c",
+    "src/stdlib/atoi_test.c",
+    "src/stdlib/atol_test.c",
+    "src/stdlib/atoll_test.c",
+    "src/stdlib/strtol_test.c",
+    "src/stdlib/strtoul_test.c",
+    "src/stdlib/strtoull_test.c",
+    "src/string/memory_func_test.c",
+    "src/string/strchr_test.c",
+    "src/string/string_func_test_01.c",
+    "src/string/string_func_test_02.c",
+    "src/string/string_func_test_03.c",
+    "src/string/strstr_test.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_001.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_003.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_004.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_006.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_007.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_008.c",
+    "$LITEOSTOPDIR/testsuites/sample/posix/rwlock/It_posix_rwlock_009.c",
+  ]
+
+  defines = [
+    "POSIX_CASE_LAYER=TEST_LIB",
+    "POSIX_CASE_MODULE=TEST_LIBC",
+    "POSIX_CASE_LEVEL=TEST_LEVEL0",
+  ]
+
+  configs += [
+    ":posix_test_cfg",
+    "$LITEOSTOPDIR/testsuites:include",
+  ]
+}
+
+static_library("posix_math_test") {
+  sources = [ "src/math/math_func_test.c" ]
+  defines = [
+    "POSIX_CASE_LAYER=TEST_LIB",
+    "POSIX_CASE_MODULE=TEST_LIBM",
+    "POSIX_CASE_LEVEL=TEST_LEVEL0",
+  ]
+  configs += [
+    ":posix_test_cfg",
+    "$LITEOSTOPDIR/testsuites:include",
+  ]
+}
+
+static_library("posix_mqueue_test") {
+  sources = [ "src/mqueue/mqueue_func_test.c" ]
+  defines = [
+    "POSIX_CASE_LAYER=TEST_LIB",
+    "POSIX_CASE_MODULE=TEST_POSIX",
+    "POSIX_CASE_LEVEL=TEST_LEVEL0",
+  ]
+  configs += [
+    ":posix_test_cfg",
+    "$LITEOSTOPDIR/testsuites:include",
+  ]
+}
+
+static_library("posix_sem_test") {
+  sources = [ "src/semaphore/semaphore_func_test.c" ]
+  defines = [
+    "POSIX_CASE_LAYER=TEST_LIB",
+    "POSIX_CASE_MODULE=TEST_POSIX",
+    "POSIX_CASE_LEVEL=TEST_LEVEL0",
+  ]
+  configs += [
+    ":posix_test_cfg",
+    "$LITEOSTOPDIR/testsuites:include",
+  ]
+}
+
+static_library("posix_time_test") {
+  sources = [ "src/time/time_func_test_01.c" ]
+  defines = [
+    "POSIX_CASE_LAYER=TEST_LIB",
+    "POSIX_CASE_MODULE=TEST_POSIX",
+    "POSIX_CASE_LEVEL=TEST_LEVEL0",
+  ]
+  configs += [
+    ":posix_test_cfg",
+    "$LITEOSTOPDIR/testsuites:include",
+  ]
+}
+
+group("posix_test") {
+  deps = [
+    ":posix_test_lib",
+    ":posix_math_test",
+    ":posix_mqueue_test",
+    ":posix_sem_test",
+    ":posix_time_test",
+  ]
+
+  if (defined(LOSCFG_SUPPORT_FATFS) || defined(LOSCFG_SUPPORT_LITTLEFS)) {
+    deps += [ "src/fs" ]
+  }
 }
