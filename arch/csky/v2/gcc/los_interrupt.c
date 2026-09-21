@@ -83,7 +83,7 @@ UINT32 ArchIntLock(VOID)
     return intSave;
 }
 
-UINT32 ArchIntUnlock(VOID)
+UINT32 ArchIntUnLock(VOID)
 {
     UINT32 intSave;
     __asm__ __volatile__(
@@ -119,7 +119,7 @@ STATIC UINT32 HwiUnmask(HWI_HANDLE_T hwiNum)
     return LOS_OK;
 }
 
-STATIC UINT32 HwiSetPriority(HWI_HANDLE_T hwiNum, UINT8 priority)
+STATIC UINT32 HwiSetPriority(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priority)
 {
     UINT32 intSave;
 
@@ -171,27 +171,23 @@ STATIC UINT32 HwiNumGet(VOID)
     return (HalGetPsr() >> PSR_VEC_OFFSET) & MASK_8_BITS;
 }
 
-STATIC UINT32 HwiCreate(HWI_HANDLE_T hwiNum, HWI_PRIOR_T hwiPrio)
-{
-    HwiSetPriority(hwiNum, (UINT8)hwiPrio);
-    HwiUnmask(hwiNum);
-    return LOS_OK;
-}
-
-STATIC HwiControllerOps g_archHwiOps = {
+/* Un-migrated arch variant: this file still owns g_hwiControllerOps + HwiControllerOpsGet
+ * (pre-driver-layer model). Migrated pattern: driver-owned static ops table
+ * under drivers/interrupt/ (see arm_nvic.c), selected via Kconfig. Migrate
+ * this variant when it is next touched. */
+STATIC HwiControllerOps g_hwiControllerOps = {
     .enableIrq      = HwiUnmask,
     .disableIrq     = HwiMask,
     .setIrqPriority = HwiSetPriority,
     .getCurIrqNum   = HwiNumGet,
     .triggerIrq     = HwiPending,
     .clearIrq       = HwiClear,
-    .createIrq      = HwiCreate,
     .getHandleForm  = HalGetHandleForm,
 };
 
-HwiControllerOps *ArchIntOpsGet(VOID)
+HwiControllerOps *HwiControllerOpsGet(VOID)
 {
-    return &g_archHwiOps;
+    return &g_hwiControllerOps;
 }
 
 /* ****************************************************************************

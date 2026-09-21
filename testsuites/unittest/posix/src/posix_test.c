@@ -73,6 +73,7 @@ void ItSuitePosix(void)
     PosixStringFuncTest02();
     PosixStringStrcasecmpFuncTest();
     PosixStringFuncTest03();
+    PosixStringStrstrTest();
 #if (LOS_KERNEL_TEST_FULL == 1)
     PosixSemaphoreFuncTest();
     PosixTimeFuncTest();

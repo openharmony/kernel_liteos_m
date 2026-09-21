@@ -30,6 +30,9 @@
  */
 
 #include "osTest.h"
+#ifdef LOSCFG_TEST_KERNEL_COVERAGE
+#include "test_gcov.h"
+#endif
 #include "los_config.h"
 #include "los_swtmr_pri.h"
 #include "los_resleak_test.h"
@@ -87,7 +90,7 @@ UINT32 g_usSemID3[LOSCFG_BASE_IPC_SEM_CONFIG + 1];
 #define TST_RAMADDRSTART 0x20000000
 #define TST_RAMADDREND 0x20010000
 
-extern SWTMR_CTRL_S *g_swtmrCBArray;
+extern SWTMR_CTRL_S *g_osSwtmrCBArray;
 UINT32 SwtmrCountGetTest(VOID)
 {
     UINT32 loop;
@@ -96,9 +99,9 @@ UINT32 SwtmrCountGetTest(VOID)
     SWTMR_CTRL_S *swTmrCB = (SWTMR_CTRL_S *)NULL;
 
     intSave = LOS_IntLock();
-    swTmrCB = g_swtmrCBArray;
+    swTmrCB = g_osSwtmrCBArray;
     for (loop = 0; loop < LOSCFG_BASE_CORE_SWTMR_LIMIT; loop++, swTmrCB++) {
-        if (swTmrCB->ucState != OS_SWTMR_STATUS_UNUSED) {
+        if (swTmrCB->state != OS_SWTMR_STATUS_UNUSED) {
             swTmrCnt++;
         }
     }
@@ -259,6 +262,14 @@ void TestCmsis2(void)
 
 VOID TestTaskEntry(VOID)
 {
+#ifdef LOSCFG_TEST_KERNEL_COVERAGE
+    /* Run .init_array constructors so every instrumented translation unit
+     * registers its gcov_info with the standalone runtime before the first
+     * test case executes. Counters accumulate in BSS regardless, so only
+     * the dump below depends on this having happened. */
+    TEST_GcovRunConstructors();
+    dprintf("[GCOV] constructors registered\n");
+#endif
     dprintf("\t\n --- Test Start --- \n\n");
     ICunitInit();
 
@@ -287,6 +298,13 @@ VOID TestTaskEntry(VOID)
     IcFilterReportNotFound();
     IcResumeReport();
     ICunitPrintFailLogs();
+#ifdef LOSCFG_TEST_KERNEL_COVERAGE
+    /* Dump coverage BEFORE the '--- Test End ---' capture-stop marker so the
+     * serial capture (which stops at Test End) records the gcov stream. */
+    dprintf("\n>>> dumping gcov coverage data over UART, please wait...\n");
+    TEST_GcovDump();
+    dprintf(">>> gcov coverage dump complete.\n");
+#endif
     dprintf("--- Test End ---\n");
 }
 
@@ -415,6 +433,31 @@ VOID TestHwiClear(UINT32 hwiNum)
 {
     LOS_HwiClear(hwiNum);
 }
+#elif defined(LOSCFG_CORTEX_M_NVIC)
+/*
+ * Cortex-M NVIC has working software-trigger (NVIC_SetPendingIRQ via
+ * ops->triggerIrq) and proper create/delete via the driver-layer
+ * HwiControllerOps framework. Use the real LOS_Hwi* APIs.
+ */
+VOID TestHwiTrigger(UINT32 hwiNum)
+{
+    LOS_HwiEnable(hwiNum);
+    LOS_HwiTrigger(hwiNum);
+}
+
+UINT32 TestHwiDelete(UINT32 hwiNum)
+{
+    UINT32 ret = LOS_HwiDelete(hwiNum, NULL);
+    if (ret != LOS_OK) {
+        return LOS_NOK;
+    }
+    return LOS_OK;
+}
+
+VOID TestHwiClear(UINT32 hwiNum)
+{
+    LOS_HwiClear(hwiNum);
+}
 #else
 /*
  * ws63 PLIC (himideerv200) has no software-trigger mechanism (LOCIPD is
@@ -467,6 +510,7 @@ UINT64 LosCpuCycleGet(VOID)
 
 VOID TestHwiTrigger(UINT32 hwiNum)
 {
+    LOS_HwiEnable(hwiNum);
     LOS_HwiTrigger(hwiNum);
 #ifdef __ARM_ARCH_7A__
     /* GIC software-pend is asynchronous: the ISPENDR write completes before

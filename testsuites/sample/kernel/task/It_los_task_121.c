@@ -34,7 +34,7 @@
 static int TaskDeatchf01(UINT32 argument)
 {
     UINT32 ret = LOS_TaskDetach(LOS_CurTaskIDGet());
-    ICUNIT_ASSERT_EQUAL(ret, LOS_NOK, ret);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_IS_DETACHED, ret);
 
     g_testCount++;
 
@@ -61,7 +61,7 @@ static UINT32 TestCase(VOID)
     ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
 
     ret = LOS_TaskJoin(taskId, NULL);
-    ICUNIT_ASSERT_EQUAL(ret, LOS_NOK, ret);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_IS_DETACHED, ret);
 
     LOS_TaskDelay(1500); /* 1500 ticks wait for the end of child task. */
 

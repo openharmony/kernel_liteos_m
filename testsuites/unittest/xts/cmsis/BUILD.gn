@@ -29,6 +29,12 @@
 import("//kernel/liteos_m/liteos.gni")
 
 static_library("cmsis_test") {
+  defines = [
+    "XTS_CASE_LAYER=TEST_COMPAT",
+    "XTS_CASE_MODULE=TEST_CMSIS",
+    "XTS_CASE_LEVEL=TEST_LEVEL0",
+  ]
+
   sources = [
     "cmsis_event_func_test.c",
     "cmsis_msg_func_test.c",
@@ -45,4 +51,5 @@ static_library("cmsis_test") {
     "$LITEOSTOPDIR/testsuites/include",
     "$LITEOSTOPDIR/testsuites/unittest/xts",
   ]
+  configs += [ "//kernel/liteos_m/testsuites:no_test_coverage" ]
 }

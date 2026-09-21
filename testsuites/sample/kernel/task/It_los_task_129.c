@@ -46,17 +46,17 @@ static UINT32 TestCase(VOID)
     g_testCount = 0;
 
     osTaskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)TaskDeatchf01;
-    osTaskInitParam.uwStackSize = 0x1003; /* 0x1003: The size is not aligned */
     osTaskInitParam.pcName = "deatch";
     osTaskInitParam.usTaskPrio = TASK_PRIO_TEST - 5; /* 5: Relatively high priority */
     osTaskInitParam.uwResved = LOS_TASK_ATTR_JOINABLE;
 
-    taskStack = LOS_MemAlloc(OS_TASK_STACK_ADDR, osTaskInitParam.uwStackSize);
+    osTaskInitParam.uwStackSize = 0x1000;
+    taskStack = LOS_MemAllocAlign(OS_TASK_STACK_ADDR, osTaskInitParam.uwStackSize, 8);
     osTaskInitParam.stackAddr = (UINTPTR)taskStack;
     ICUNIT_ASSERT_NOT_EQUAL(osTaskInitParam.stackAddr, 0, osTaskInitParam.stackAddr);
 
     ret = LOS_TaskCreate(&taskId, &osTaskInitParam);
-    ICUNIT_ASSERT_EQUAL(ret, 0, ret);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);
 
     ICUNIT_ASSERT_EQUAL(g_testCount, 1, g_testCount);
 
@@ -65,6 +65,15 @@ static UINT32 TestCase(VOID)
 
     ret = LOS_TaskDelete(taskId);
     ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_NOT_CREATED, ret);
+
+    osTaskInitParam.uwStackSize = 0x1003; /* 0x1003: The size is not aligned */
+    ret = LOS_TaskCreate(&taskId, &osTaskInitParam);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_STKSZ_NOT_ALIGN, ret);
+
+    osTaskInitParam.uwStackSize = 0x1000;
+    osTaskInitParam.stackAddr = (UINTPTR)taskStack + 4;
+    ret = LOS_TaskCreate(&taskId, &osTaskInitParam);
+    ICUNIT_ASSERT_EQUAL(ret, LOS_ERRNO_TSK_STKSZ_NOT_ALIGN, ret);
 
     ret = LOS_MemFree(OS_TASK_STACK_ADDR, taskStack);
     ICUNIT_ASSERT_EQUAL(ret, LOS_OK, ret);

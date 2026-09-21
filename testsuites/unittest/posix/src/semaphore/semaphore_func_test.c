@@ -274,6 +274,66 @@ LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSem_Named001, Function | Medi
     return 0;
 }
 
+/* *
+ * @tc.number   SUB_KERNEL_IPC_SEM_PARAM_001
+ * @tc.name     sem interfaces invalid parameter and stale handle mapping
+ * @tc.desc     [C- SOFTWARE -0200]
+ */
+/* 用例简要描述: sem_wait/post/trywait/getvalue/destroy 对 NULL 与失效句柄的错误码映射
+ * 覆盖目标: semaphore.c:48-50(MapError SEM_INVALID→EINVAL), :95-97(sem_destroy NULL/
+ * 未 init 句柄), :113-115, :131-133, :149-151, :168-170, :196-198（gcov 第 1+2 轮） */
+LITE_TEST_CASE(PosixSemaphoreFuncTestSuite, testIpcSemParam001, Function | MediumTest | Level2)
+{
+    sem_t sem = {0}; /* 零初始化: s_magic=0 ≠ _SEM_MAGIC, 未 init/已 destroy 状态确定 */
+    int val = -1;
+    int ret;
+
+    /* 1. NULL 句柄: 各接口直接走参数校验行, 返回 -1 且 errno==EINVAL */
+    errno = 0;
+    ret = sem_wait(NULL);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
+
+    errno = 0;
+    ret = sem_post(NULL);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
+
+    errno = 0;
+    ret = sem_trywait(NULL);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
+
+    errno = 0;
+    ret = sem_getvalue(NULL, &val);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
+
+    /* 输出指针为 NULL: 零初始化句柄 magic 不符 → sem_getvalue(sem, NULL) 同样 EINVAL(:196-198) */
+    errno = 0;
+    ret = sem_getvalue((sem_t *)&sem, NULL);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
+
+    /* 2. sem_destroy 参数校验(semaphore.c:95-97): NULL 句柄与未 init(magic 不符)句柄
+     * 均返回 -1 且 errno==EINVAL(纯参数校验, 不触内核删除路径) */
+    errno = 0;
+    ret = sem_destroy(NULL);
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
+
+    errno = 0;
+    ret = sem_destroy(&sem); /* 零初始化 sem: s_magic=0 ≠ _SEM_MAGIC */
+    ICUNIT_ASSERT_EQUAL(ret, -1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, EINVAL, errno);
+
+    /* 注: "destroy 后失效句柄"段已移除(20260912 第 1 轮实测): sem_destroy 不清 s_magic
+     * 且 LOS_SemPend 对已删除句柄实测返回 LOS_OK(句柄失效防线缺失, 属误用/异常路径+内核
+     * 行为待产品侧裁决——建议 destroy 清零 s_magic 并使 LOS 层对 UNUSED 句柄报 INVALID);
+     * 该路径与 MapError 表长尾一并归入异常分支, 本轮不覆盖。 */
+    return 0;
+}
+
 RUN_TEST_SUITE(PosixSemaphoreFuncTestSuite);
 
 void PosixSemaphoreFuncTest()
@@ -286,6 +346,7 @@ void PosixSemaphoreFuncTest()
     RUN_ONE_TESTCASE(testIpcSem_Timedwait002);
     RUN_ONE_TESTCASE(testIpcSem_Timedwait003);
     RUN_ONE_TESTCASE(testIpcSem_Trywait004);
+    RUN_ONE_TESTCASE(testIpcSemParam001);
 
     return;
 }

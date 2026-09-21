@@ -43,7 +43,10 @@ STATIC INT32 MapErrno(UINT32 err)
 
 int sched_yield(void)
 {
-    if (LOS_TaskYield() != LOS_OK) {
+    UINT32 ret;
+
+    ret = LOS_TaskYield();
+    if ((ret != LOS_OK) && (ret != LOS_ERRNO_TSK_YIELD_NOT_ENOUGH_TASK)) {
         return -1;
     }
 

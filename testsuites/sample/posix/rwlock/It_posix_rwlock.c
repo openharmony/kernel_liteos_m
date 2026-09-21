@@ -49,14 +49,20 @@ VOID ItSuitePosixRwlock(void)
     ItPosixRwlock063();
     ItPosixRwlock064();
     ItPosixRwlock065();
-    //ItPosixRwlock066();
+#if (LOS_FEATURE_ADAPTED == 1)
+    ItPosixRwlock066();
+#endif
     ItPosixRwlock067();
     ItPosixRwlock068();
-    //ItPosixRwlock069();
-    //ItPosixRwlock070();
-    //ItPosixRwlock071();
+    ItPosixRwlock069();
+    ItPosixRwlock070();
+#if (LOS_FEATURE_ADAPTED == 1)
+    ItPosixRwlock071();
+#endif
     ItPosixRwlock072();
     ItPosixRwlock073();
     ItPosixRwlock074();
-    //ItPosixRwlock075();
+    ItPosixRwlock075();
+    ItPosixRwlock076();
+    ItPosixRwlock077();
 }

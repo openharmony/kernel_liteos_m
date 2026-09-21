@@ -1,5 +1,19 @@
 menu "Kernel"
 
+config KERNEL_SMP
+    bool "Enable Kernel SMP"
+    default n
+
+config KERNEL_SMP_CORE_NUM
+    int "Multi-processing Core Numbers"
+    default 2
+    depends on KERNEL_SMP
+
+config KERNEL_SMP_GC_SWTMR
+    bool "Enable cross-core task GC swtmr"
+    default y
+    depends on KERNEL_SMP
+
 rsource "base/mem/Kconfig"
 
 ######################### config options of extended #####################
@@ -518,5 +532,9 @@ menu "Debug"
         help
           Answer Y to enable queue leak detection and creator tracking.
 endmenu
+
+config BASE_CORE_SYS_RES_CHECK
+   bool "Enable System Resource Check"
+   default y
 
 endmenu

@@ -47,7 +47,10 @@
 #endif
 
 LosExcInfo g_excInfo;
-LITE_OS_SEC_BSS STATIC HwiControllerOps g_archHwiOps;
+/* g_hwiControllerOps lives in the selected interrupt-controller driver
+ * (drivers/interrupt/riscv_lcmp_clic.c or riscv_himideerv200_plic.c),
+ * which also provides HwiControllerOpsGet(). This file only consumes the
+ * ops via HwiControllerOpsGet() in HalHwiInterruptDone. */
 #define RISCV_EXC_TYPE_NUM 16
 #define RISCV_EXC_LOAD_MISALIGNED 4
 #define RISCV_EXC_STORE_MISALIGNED 6
@@ -107,13 +110,17 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
         g_hwiForm[index].pfnHook = HalHwiDefaultHandler;
         g_hwiForm[index].uwParam = 0;
     }
-    g_archHwiOps.getHandleForm = HalGetHandleForm;
+    /* Point mtvec at the arch trap entry (HalTrapVector, los_exc.S).
+     * mtvec is CPU-level trap configuration — an arch concern (moved from
+     * the CLIC driver). Idempotent for boards whose reset code already
+     * sets it (ws63 reset_vector.S). WRITE_CSR: asm/soc_common.h. */
+    WRITE_CSR(mtvec, (UINT32)(UINTPTR)HalTrapVector);
 }
 
 typedef VOID (*HwiProcFunc)(VOID *arg);
 __attribute__((section(".interrupt.text"))) VOID HalHwiInterruptDone(HWI_HANDLE_T hwiNum)
 {
-    HwiControllerOps *ops = ArchIntOpsGet();
+    HwiControllerOps *ops = HwiControllerOpsGet();
     if ((ops != NULL) && (ops->clearIrq != NULL)) {
         ops->clearIrq(hwiNum);
     }
@@ -132,90 +139,6 @@ LITE_OS_SEC_TEXT UINT32 HalGetHwiFormCnt(HWI_HANDLE_T hwiNum)
 LITE_OS_SEC_TEXT HWI_HANDLE_FORM_S *HalGetHwiForm(VOID)
 {
     return g_hwiForm;
-}
-
-/*****************************************************************************
- Function    : ArchHwiCreate
- Description : create hardware interrupt
- Input       : hwiNum     --- hwi num to create
-               hwiPrio    --- priority of the hwi
-               hwiMode    --- hwi interrupt mode
-               hwiHandler --- hwi handler
-               irqParam   --- param of the hwi handler
- Output      : None
- Return      : LOS_OK on success or error code on failure
- *****************************************************************************/
-LITE_OS_SEC_TEXT UINT32 ArchHwiCreate(HWI_HANDLE_T hwiNum,
-                                      HWI_PRIOR_T hwiPrio,
-                                      HWI_MODE_T hwiMode,
-                                      HWI_PROC_FUNC hwiHandler,
-                                      HwiIrqParam *irqParam)
-{
-    (VOID)hwiMode;
-    UINT32 intSave;
-
-    if (hwiHandler == NULL) {
-        return OS_ERRNO_HWI_PROC_FUNC_NULL;
-    }
-    if (hwiNum >= OS_HWI_MAX_NUM) {
-        return OS_ERRNO_HWI_NUM_INVALID;
-    }
-    if (g_hwiForm[hwiNum].pfnHook == NULL) {
-        return OS_ERRNO_HWI_NUM_INVALID;
-    } else if (g_hwiForm[hwiNum].pfnHook != HalHwiDefaultHandler) {
-        return OS_ERRNO_HWI_ALREADY_CREATED;
-    }
-    if ((hwiPrio < OS_HWI_PRIO_LOWEST) || (hwiPrio > OS_HWI_PRIO_HIGHEST)) {
-        return OS_ERRNO_HWI_PRIO_INVALID;
-    }
-
-    intSave = LOS_IntLock();
-    g_hwiForm[hwiNum].pfnHook = hwiHandler;
-    if (irqParam != NULL) {
-        g_hwiForm[hwiNum].uwParam = (VOID *)irqParam->pDevId;
-    } else {
-        g_hwiForm[hwiNum].uwParam = NULL;
-    }
-    /* Dual-write g_hwiHandleForm (approach B transition, riscv32: no offset). */
-    g_hwiHandleForm[hwiNum].hook = hwiHandler;
-    g_hwiHandleForm[hwiNum].registerInfo = (irqParam != NULL) ? (HWI_ARG_T)(UINTPTR)irqParam->pDevId : 0;
-    g_hwiHandleForm[hwiNum].respCount = 0;
-    g_hwiHandleForm[hwiNum].next = NULL;
-    if (hwiNum >= OS_RISCV_SYS_VECTOR_CNT) {
-        HalSetLocalInterPri(hwiNum, hwiPrio);
-    }
-
-    LOS_IntRestore(intSave);
-
-    return LOS_OK;
-}
-
-/*****************************************************************************
- Function    : ArchHwiDelete
- Description : Delete hardware interrupt
- Input       : hwiNum   --- hwi num to delete
-               irqParam --- param of the hwi handler
- Return      : LOS_OK on success or error code on failure
- *****************************************************************************/
-LITE_OS_SEC_TEXT UINT32 ArchHwiDelete(HWI_HANDLE_T hwiNum, HwiIrqParam *irqParam)
-{
-    (VOID)irqParam;
-    UINT32 intSave;
-
-    if (hwiNum >= OS_HWI_MAX_NUM) {
-        return OS_ERRNO_HWI_NUM_INVALID;
-    }
-
-    ArchIntDisable(hwiNum);
-    intSave = LOS_IntLock();
-    g_hwiForm[hwiNum].pfnHook = HalHwiDefaultHandler;
-    g_hwiForm[hwiNum].uwParam = 0;
-    g_hwiHandleForm[hwiNum].hook = NULL;
-    g_hwiHandleForm[hwiNum].respCount = 0;
-    g_hwiHandleForm[hwiNum].shareMode = 0;
-    g_hwiHandleForm[hwiNum].next = NULL;
-    LOS_IntRestore(intSave);
-    return LOS_OK;
 }
 
 STATIC VOID ExcBackTrace(UINTPTR fp)
@@ -288,7 +211,7 @@ STATIC VOID ExcInfoDisplay(VOID)
         PRINTK("Exc  type : Oops  - Invalid\n");
     }
 
-    if (LOS_TaskIsRunning()) {
+    if (LOS_TaskIsScheduled()) {
     PRINTK("taskName = %s\n", g_runTask->taskName);
     PRINTK("taskID = %u\n", g_runTask->taskId);
     } else {
@@ -349,7 +272,7 @@ VOID HalExcEntry(const LosExcContext *excBufAddr)
 
     ExcInfoDisplay();
 
-    if (LOS_TaskIsRunning()) {
+    if (LOS_TaskIsScheduled()) {
         PRINTK("----------------All Task information ------------\n");
         OsGetAllTskInfo();
     }
@@ -358,11 +281,4 @@ SYSTEM_DEATH:
     OsDoExcHook(EXC_INTERRUPT);
     while (1) {
     }
-}
-
-/* g_archHwiOps declared at top of file (before HalHwiInit) */
-
-HwiControllerOps *ArchIntOpsGet(VOID)
-{
-    return &g_archHwiOps;
 }

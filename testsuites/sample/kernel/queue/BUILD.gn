@@ -129,6 +129,8 @@ static_library("test_queue") {
     "It_los_queue_109.c",
     "It_los_queue_110.c",
     "It_los_queue_114.c",
+    "It_los_queue_115.c",
+    "It_los_queue_116.c",
     "It_los_queue_head_001.c",
     "It_los_queue_head_002.c",
     "It_los_queue_head_003.c",

@@ -34,7 +34,7 @@
 
 #if (LOSCFG_BASE_CORE_SWTMR_ALIGN == 1)
 
-static VOID SwtmrApi003Func(UINT32 arg)
+static VOID SwtmrApi003Func(UINTPTR arg)
 {
     ICUNIT_ASSERT_EQUAL_VOID(arg, 0xffff, arg);
     g_testCount++;

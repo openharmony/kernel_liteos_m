@@ -36,6 +36,7 @@
 #include "ctype.h"
 #include "stdlib.h"
 #include "string.h"
+#include "errno.h"
 #include "limits.h"
 #include "log.h"
 
@@ -269,6 +270,84 @@ LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoul010, Function | MediumTe
     return 0;
 }
 
+/* *
+ * @tc.number    : TEST_STDLIB_STRTOUL_011
+ * @tc.name      : strtoul accepts negative input by wrapping around without ERANGE
+ * @tc.desc      : [C- SOFTWARE -0200]
+ * 移植自 musl libc-test/src/functional/strtol.c:45-50：strtoul 对 "-1"/"-2"
+ * 按模回绕返回（-1UL/-2UL），不置 ERANGE（errno 保持 0），endptr 停在数字串尾。
+ */
+LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoulNeg001, Function | MediumTest | Level1)
+{
+    char nPtr[] = "-1";
+    char *endPtr = NULL;
+    unsigned long ret;
+
+    /* "-1" 模回绕为 ULONG_MAX，负数本身不触发 ERANGE */
+    errno = 0;
+    ret = strtoul(nPtr, &endPtr, 10);
+    ICUNIT_ASSERT_EQUAL(ret, ULONG_MAX, ret);
+    ICUNIT_ASSERT_EQUAL(errno, 0, errno);
+    ICUNIT_ASSERT_EQUAL(endPtr - nPtr, 2, (int)(endPtr - nPtr));
+
+    /* "-2" 模回绕为 ULONG_MAX-1，同样不置 ERANGE */
+    char nPtr2[] = "-2";
+    errno = 0;
+    ret = strtoul(nPtr2, &endPtr, 10);
+    ICUNIT_ASSERT_EQUAL(ret, ULONG_MAX - 1, ret);
+    ICUNIT_ASSERT_EQUAL(errno, 0, errno);
+    ICUNIT_ASSERT_EQUAL(endPtr - nPtr2, 2, (int)(endPtr - nPtr2));
+    return 0;
+}
+
+/* *
+ * @tc.number    : TEST_STDLIB_STRTOUL_012
+ * @tc.name      : strtoul overflow is clamped to ULONG_MAX and sets ERANGE
+ * @tc.desc      : [C- SOFTWARE -0200]
+ * 移植自 musl libc-test/src/functional/strtol.c:42-44（32 位正溢出）与
+ * :57-59（32 位负溢出）、:67-69/:82-84（64 位对应值）：超出 unsigned long
+ * 表示范围时 clamp 到 ULONG_MAX、errno 置 ERANGE、endptr 停在数字串尾。
+ */
+LITE_TEST_CASE(PosixStdlibStrtoulTest, testStdlibStrtoulOverflow001, Function | MediumTest | Level1)
+{
+    char *endPtr = NULL;
+    unsigned long ret;
+
+    if (sizeof(unsigned long) == 4) {
+        /* 32 位：正向 4294967296 溢出 clamp 到 ULONG_MAX 并置 ERANGE */
+        char nPtrPos[] = "4294967296";
+        errno = 0;
+        ret = strtoul(nPtrPos, &endPtr, 10);
+        ICUNIT_ASSERT_EQUAL(ret, ULONG_MAX, ret);
+        ICUNIT_ASSERT_EQUAL(errno, ERANGE, errno);
+        ICUNIT_ASSERT_EQUAL(endPtr - nPtrPos, 10, (int)(endPtr - nPtrPos));
+
+        /* 32 位：负向 -4294967296 溢出 clamp 到 ULONG_MAX 并置 ERANGE */
+        char nPtrNeg[] = "-4294967296";
+        errno = 0;
+        ret = strtoul(nPtrNeg, &endPtr, 10);
+        ICUNIT_ASSERT_EQUAL(ret, ULONG_MAX, ret);
+        ICUNIT_ASSERT_EQUAL(errno, ERANGE, errno);
+        ICUNIT_ASSERT_EQUAL(endPtr - nPtrNeg, 11, (int)(endPtr - nPtrNeg));
+    } else {
+        /* 64 位：对应 musl :67-69/:82-84 的 64 位边界值 */
+        char nPtrPos[] = "18446744073709551616";
+        errno = 0;
+        ret = strtoul(nPtrPos, &endPtr, 10);
+        ICUNIT_ASSERT_EQUAL(ret, ULONG_MAX, ret);
+        ICUNIT_ASSERT_EQUAL(errno, ERANGE, errno);
+        ICUNIT_ASSERT_EQUAL(endPtr - nPtrPos, 20, (int)(endPtr - nPtrPos));
+
+        char nPtrNeg[] = "-18446744073709551616";
+        errno = 0;
+        ret = strtoul(nPtrNeg, &endPtr, 10);
+        ICUNIT_ASSERT_EQUAL(ret, ULONG_MAX, ret);
+        ICUNIT_ASSERT_EQUAL(errno, ERANGE, errno);
+        ICUNIT_ASSERT_EQUAL(endPtr - nPtrNeg, 21, (int)(endPtr - nPtrNeg));
+    }
+    return 0;
+}
+
 RUN_TEST_SUITE(PosixStdlibStrtoulTest);
 
 void PosixStdlibStrtoulFuncTest()
@@ -286,6 +365,8 @@ void PosixStdlibStrtoulFuncTest()
     RUN_ONE_TESTCASE(testStdlibStrtoul008);
     RUN_ONE_TESTCASE(testStdlibStrtoul009);
     RUN_ONE_TESTCASE(testStdlibStrtoul010);
+    RUN_ONE_TESTCASE(testStdlibStrtoulNeg001);
+    RUN_ONE_TESTCASE(testStdlibStrtoulOverflow001);
 
     return;
 }

@@ -33,9 +33,9 @@
 #include "It_los_swtmr.h"
 
 
-extern SWTMR_CTRL_S *g_swtmrCBArray;
+extern SWTMR_CTRL_S *g_osSwtmrCBArray;
 
-static VOID SwtmrF01(UINT32 arg)
+static VOID SwtmrF01(UINTPTR arg)
 {
     if (arg != TIMER_LOS_HANDLER_PARAMETER) {
         return;
@@ -67,9 +67,9 @@ static UINT32 Testcase(VOID)
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
     swTmrCBID = swTmrID % LOSCFG_BASE_CORE_SWTMR_LIMIT;
-    swtmr = g_swtmrCBArray + swTmrCBID;
-    status = swtmr->ucState;
-    swtmr->ucState = swtmr->ucState | 0x55;
+    swtmr = g_osSwtmrCBArray + swTmrCBID;
+    status = swtmr->state;
+    swtmr->state = swtmr->state | 0x55;
 
     ret = LOS_SwtmrStart(swTmrID);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_STATUS_INVALID, ret, EXIT);
@@ -83,7 +83,7 @@ static UINT32 Testcase(VOID)
     ret = LOS_SwtmrDelete(swTmrID);
     ICUNIT_GOTO_EQUAL(ret, LOS_ERRNO_SWTMR_STATUS_INVALID, ret, EXIT);
 
-    swtmr->ucState = status;
+    swtmr->state = status;
     ret = LOS_SwtmrStart(swTmrID);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
 
@@ -94,12 +94,8 @@ static UINT32 Testcase(VOID)
 
     ret = LOS_SwtmrTimeGet(swTmrID, &tick);
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);
-#ifdef LOSCFG_KERNEL_TICKLESS_GLOBAL
-    ICUNIT_GOTO_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime - 1, tick, EXIT);
-#else
-    ICUNIT_ASSERT_WITHIN_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime - 1,
-                               TIMER_LOS_EXPIRATION3 - delayTime, tick);
-#endif
+    // TaskDelay + TimeGet,  timing may differ by 1 tick
+    ICUNIT_GOTO_WITHIN_EQUAL(tick, TIMER_LOS_EXPIRATION3 - delayTime - 1, TIMER_LOS_EXPIRATION3 - delayTime, tick, EXIT);
 
     ret = LOS_TaskDelay(7); // 7, set delay time.
     ICUNIT_GOTO_EQUAL(ret, LOS_OK, ret, EXIT);

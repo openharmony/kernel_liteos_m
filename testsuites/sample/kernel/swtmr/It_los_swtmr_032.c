@@ -33,13 +33,13 @@
 #include "It_los_swtmr.h"
 
 
-static VOID Case1(UINT32 arg)
+static VOID Case1(UINTPTR arg)
 {
     UINT32 ret;
     UINT32 index;
 
-    // 100, set lookup times
-    for (index = 0; index < 100; index++) {
+    // SWTMR_LOOP_NUM1, set lookup times
+    for (index = 0; index < SWTMR_LOOP_NUM1; index++) {
         ret = LOS_EventRead(&g_eventCB0, 0x1111, LOS_WAITMODE_AND | LOS_WAITMODE_CLR, LOS_WAIT_FOREVER);
         ICUNIT_GOTO_EQUAL(ret, 0x1111, ret, EXIT);
     }

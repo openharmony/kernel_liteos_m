@@ -77,6 +77,21 @@ VOID ItLosLms025(void);
 VOID ItLosLms026(void);
 VOID ItLosLms027(void);
 VOID ItLosLms028(void);
+VOID ItLosLms029(void);
+VOID ItLosLms030(void);
+VOID ItLosLms031(void);
+
+#if defined(LOSCFG_PLATFORM_WS63_M) && defined(LOSCFG_KERNEL_LMS)
+/* LMS 错误报告在关中断状态下打印 backtrace+mem dump(gcov 插桩下单份约 4s),
+ * 期间 tick 大量丢失, 喂狗任务 app_task 无法按 100 tick 周期唤醒, 连续报告
+ * 会耗尽 60s 看门狗窗口导致单板复位。在用例边界/报告组之间直接调用板级
+ * 喂狗接口(app_task 喂的是同一个看门狗), 不依赖调度恢复。仅 WS63 且开启
+ * LMS 时生效, 其它平台/配置编译为空。 */
+extern void ws63_watchdog_feed(void);
+#define LMS_FEED_WDT() ws63_watchdog_feed()
+#else
+#define LMS_FEED_WDT()
+#endif
 
 /* ==================== LMS Test Sandbox ==================== */
 #include "los_lms_pri.h"

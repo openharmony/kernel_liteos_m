@@ -29,9 +29,11 @@
  */
 
 #include "los_interrupt.h"
+#include "los_mp_pri.h"
 #include "los_trace.h"
 #include "los_debug.h"
 #include "los_hwi_pri.h"
+#include "los_percpu_pri.h"
 #include "los_hook.h"
 #ifdef LOSCFG_BASE_CORE_CPUP
 #include "los_cpup_pri.h"
@@ -45,14 +47,20 @@ STATIC LOS_DL_LIST g_bhworkList;
 STATIC LOS_DL_LIST g_bhworkFreeList;
 STATIC HwiBhworkItem g_bhWorkBuf[LOSCFG_HWI_BOTTOM_HALF_WORK_LIMIT];
 STATIC EVENT_CB_S g_bhEvent;
+#ifdef LOSCFG_KERNEL_SMP
+LITE_OS_SEC_BSS SPIN_LOCK_INIT(g_hwiBottomHalfSpin);
+#endif
 #endif
 
-UINT32 g_intCount = 0;
+UINT32 g_intCount[LOSCFG_KERNEL_CORE_NUM] = {0};
+#define OS_INT_COUNT()  g_intCount[ArchCurrCpuid()]
+
+LITE_OS_SEC_BSS SPIN_LOCK_INIT(g_hwiSpin);
 
 UINT32 IntActive(VOID)
 {
     UINT32 intSave = LOS_IntLock();
-    UINT32 intCount = g_intCount;
+    UINT32 intCount = OS_INT_COUNT();
     LOS_IntRestore(intSave);
     return intCount;
 }
@@ -61,8 +69,8 @@ UINT32 IntActive(VOID)
  * Kernel-level LOS_Hwi* APIs.
  *
  * Arch-independent concerns (NULL check, LOS_TRACE, orchestration) live here;
- * arch-specific work (dispatch table / NVIC / vector setup / createIrq +
- * rollback) is delegated to the existing ArchHwi* interfaces implemented per
+ * arch-specific work (dispatch table fill / vector setup) is delegated to the
+ * existing ArchHwi* interfaces implemented per
  * arch in arch/<arch>/common/los_common_interrupt.c (and per-toolchain for
  * risc-v). LOS_TRACE is a no-op when LOSCFG_KERNEL_TRACE is off (default).
  *
@@ -72,31 +80,158 @@ UINT32 IntActive(VOID)
  * ===========================================================================
  */
 
+STATIC UINT32 OsHwiCreate(HwiHandleInfo *hwiForm, HWI_MODE_T hwiMode, HWI_PROC_FUNC hwiHandler,
+                          const HWI_IRQ_PARAM_S *irqParam)
+{
+    UINT32 intSave;
+
+    (VOID)hwiMode;
+    intSave = LOS_IntLock();
+    if (hwiForm->hook == NULL) {
+        hwiForm->hook = hwiHandler;
+        hwiForm->registerInfo = (irqParam != NULL) ? (HWI_ARG_T)(UINTPTR)irqParam->pDevId : 0;
+        hwiForm->respCount = 0;
+        hwiForm->next = NULL;
+    } else {
+        LOS_IntRestore(intSave);
+        return OS_ERRNO_HWI_ALREADY_CREATED;
+    }
+    LOS_IntRestore(intSave);
+    return LOS_OK;
+}
+
+STATIC UINT32 OsHwiDel(HwiHandleInfo *hwiForm, HWI_HANDLE_T hwiNum)
+{
+    UINT32 intSave;
+
+    intSave = LOS_IntLock();
+    /* Disable IRQ first — prevents a racing interrupt from dispatching
+     * via a NULL hook after the fields below are cleared. */
+    (VOID)LOS_HwiDisable(hwiNum);
+    hwiForm->hook = NULL;
+    hwiForm->registerInfo = 0;
+    hwiForm->respCount = 0;
+    hwiForm->shareMode = 0;
+    hwiForm->next = NULL;
+    LOS_IntRestore(intSave);
+    return LOS_OK;
+}
+
 LITE_OS_SEC_TEXT UINT32 LOS_HwiCreate(HWI_HANDLE_T hwiNum, HWI_PRIOR_T hwiPrio,
                                       HWI_MODE_T hwiMode, HWI_PROC_FUNC hwiHandler,
                                       HWI_IRQ_PARAM_S *irqParam)
 {
     UINT32 ret;
+    HwiHandleInfo *hwiForm = NULL;
+    HwiControllerOps *hwiOps = HwiControllerOpsGet();
 
     if (hwiHandler == NULL) {
         return LOS_ERRNO_HWI_PROC_FUNC_NULL;
     }
+    if ((hwiOps == NULL) || (hwiOps->getHandleForm == NULL)) {
+        return OS_ERRNO_HWI_PROC_FUNC_NULL;
+    }
+
+    hwiForm = (HwiHandleInfo *)hwiOps->getHandleForm(hwiNum);
+    if (hwiForm == NULL) {
+        return OS_ERRNO_HWI_NUM_INVALID;
+    }
+
     LOS_TRACE(HWI_CREATE, hwiNum, hwiPrio, hwiMode, (UINTPTR)hwiHandler);
-    ret = ArchHwiCreate(hwiNum, hwiPrio, hwiMode, hwiHandler, irqParam);
+    ret = OsHwiCreate(hwiForm, hwiMode, hwiHandler, irqParam);
     LOS_TRACE(HWI_CREATE_SHARE, hwiNum,
               (UINTPTR)(irqParam != NULL ? irqParam->pDevId : NULL), ret);
-    return ret;
+    if (ret != LOS_OK) {
+        return ret;
+    }
+
+    if (hwiOps->setIrqPriority != NULL) {
+        ret = hwiOps->setIrqPriority(hwiNum, hwiPrio);
+        if (ret != LOS_OK) {
+            (VOID)OsHwiDel(hwiForm, hwiNum);
+            return ret;
+        }
+    }
+
+    return LOS_OK;
 }
 
 LITE_OS_SEC_TEXT UINT32 LOS_HwiDelete(HWI_HANDLE_T hwiNum, HWI_IRQ_PARAM_S *irqParam)
 {
     UINT32 ret;
+    HwiHandleInfo *hwiForm = NULL;
+    HwiControllerOps *hwiOps = HwiControllerOpsGet();
+
+    (VOID)irqParam;
+    if ((hwiOps == NULL) || (hwiOps->getHandleForm == NULL)) {
+        return OS_ERRNO_HWI_PROC_FUNC_NULL;
+    }
+
+    hwiForm = (HwiHandleInfo *)hwiOps->getHandleForm(hwiNum);
+    if (hwiForm == NULL) {
+        return OS_ERRNO_HWI_NUM_INVALID;
+    }
 
     LOS_TRACE(HWI_DELETE, hwiNum);
-    ret = ArchHwiDelete(hwiNum, irqParam);
+    ret = OsHwiDel(hwiForm, hwiNum);
     LOS_TRACE(HWI_DELETE_SHARE, hwiNum,
               (UINTPTR)(irqParam != NULL ? irqParam->pDevId : NULL), ret);
     return ret;
+}
+
+LITE_OS_SEC_TEXT UINT32 LOS_HwiTrigger(HWI_HANDLE_T hwiNum)
+{
+    HwiControllerOps *hwiOps = HwiControllerOpsGet();
+    if ((hwiOps == NULL) || (hwiOps->triggerIrq == NULL)) {
+        return OS_ERRNO_HWI_PROC_FUNC_NULL;
+    }
+    LOS_TRACE(HWI_TRIGGER, hwiNum);
+    return hwiOps->triggerIrq(hwiNum);
+}
+
+LITE_OS_SEC_TEXT UINT32 LOS_HwiEnable(HWI_HANDLE_T hwiNum)
+{
+    HwiControllerOps *hwiOps = HwiControllerOpsGet();
+    if ((hwiOps == NULL) || (hwiOps->enableIrq == NULL)) {
+        return OS_ERRNO_HWI_PROC_FUNC_NULL;
+    }
+    LOS_TRACE(HWI_ENABLE, hwiNum);
+    return hwiOps->enableIrq(hwiNum);
+}
+
+LITE_OS_SEC_TEXT UINT32 LOS_HwiDisable(HWI_HANDLE_T hwiNum)
+{
+    HwiControllerOps *hwiOps = HwiControllerOpsGet();
+    if ((hwiOps == NULL) || (hwiOps->disableIrq == NULL)) {
+        return OS_ERRNO_HWI_PROC_FUNC_NULL;
+    }
+    LOS_TRACE(HWI_DISABLE, hwiNum);
+    return hwiOps->disableIrq(hwiNum);
+}
+
+LITE_OS_SEC_TEXT UINT32 LOS_HwiClear(HWI_HANDLE_T hwiNum)
+{
+    HwiControllerOps *hwiOps = HwiControllerOpsGet();
+    if ((hwiOps == NULL) || (hwiOps->clearIrq == NULL)) {
+        return OS_ERRNO_HWI_PROC_FUNC_NULL;
+    }
+    LOS_TRACE(HWI_CLEAR, hwiNum);
+    return hwiOps->clearIrq(hwiNum);
+}
+
+LITE_OS_SEC_TEXT UINT32 LOS_HwiSetPriority(HWI_HANDLE_T hwiNum, HWI_PRIOR_T priority)
+{
+    HwiControllerOps *hwiOps = HwiControllerOpsGet();
+    if ((hwiOps == NULL) || (hwiOps->setIrqPriority == NULL)) {
+        return OS_ERRNO_HWI_PROC_FUNC_NULL;
+    }
+    LOS_TRACE(HWI_SETPRI, hwiNum, priority);
+    return hwiOps->setIrqPriority(hwiNum, priority);
+}
+
+LITE_OS_SEC_TEXT UINT32 LOS_HwiCurIrqNum(VOID)
+{
+    return HwiControllerOpsGet()->getCurIrqNum();
 }
 
 #if (LOSCFG_HWI_PRE_POST_PROCESS == 1)
@@ -154,7 +289,7 @@ VOID OsIntHandle(HWI_HANDLE_T hwiNum, HwiHandleInfo *handleForm)
     }
 
     intSave = LOS_IntLock();
-    g_intCount++;
+    OS_INT_COUNT()++;
     LOS_IntRestore(intSave);
 
     OsHookCall(LOS_HOOK_TYPE_ISR_ENTER, hwiNum);
@@ -182,13 +317,13 @@ VOID OsIntHandle(HWI_HANDLE_T hwiNum, HwiHandleInfo *handleForm)
     OsHookCall(LOS_HOOK_TYPE_ISR_EXIT, hwiNum);
 
     intSave = LOS_IntLock();
-    g_intCount--;
+    OS_INT_COUNT()--;
     LOS_IntRestore(intSave);
 }
 
 LITE_OS_SEC_TEXT UINT32 LOS_HwiRespCntGet(HWI_HANDLE_T hwiNum, UINT32 *respCount)
 {
-    HwiControllerOps *hwiOps = ArchIntOpsGet();
+    HwiControllerOps *hwiOps = HwiControllerOpsGet();
     if (respCount == NULL) {
         return LOS_ERRNO_HWI_PTR_NULL;
     }
@@ -206,16 +341,22 @@ LITE_OS_SEC_TEXT UINT32 LOS_HwiRespCntGet(HWI_HANDLE_T hwiNum, UINT32 *respCount
 #ifdef LOSCFG_KERNEL_SMP
 LITE_OS_SEC_TEXT UINT32 LOS_HwiSendIpi(HWI_HANDLE_T hwiNum, UINT32 cpuMask)
 {
-    (VOID)hwiNum;
-    (VOID)cpuMask;
-    return LOS_ERRNO_HWI_ARG_NOT_ENABLED;
+    HwiControllerOps *hwiOps = HwiControllerOpsGet();
+
+    if ((hwiOps == NULL) || (hwiOps->sendIpi == NULL)) {
+        return LOS_ERRNO_HWI_ARG_NOT_ENABLED;
+    }
+    return hwiOps->sendIpi(hwiNum, cpuMask);
 }
 
 LITE_OS_SEC_TEXT UINT32 LOS_HwiSetAffinity(HWI_HANDLE_T hwiNum, UINT32 cpuMask)
 {
-    (VOID)hwiNum;
-    (VOID)cpuMask;
-    return LOS_ERRNO_HWI_AFFI_INVALID;
+    HwiControllerOps *hwiOps = HwiControllerOpsGet();
+
+    if ((hwiOps == NULL) || (hwiOps->setIrqCpuAffinity == NULL)) {
+        return LOS_ERRNO_HWI_AFFI_INVALID;
+    }
+    return hwiOps->setIrqCpuAffinity(hwiNum, cpuMask);
 }
 #endif
 
@@ -233,20 +374,20 @@ STATIC VOID OsHwiBhTask(VOID)
             (VOID)LOS_EventRead(&g_bhEvent, HWI_BH_EVENT_MASK,
                                  LOS_WAITMODE_CLR | LOS_WAITMODE_OR, LOS_WAIT_FOREVER);
         }
-        intSave = LOS_IntLock();
+        HWI_BH_LOCK(intSave);
         while (!LOS_ListEmpty(&g_bhworkList)) {
             bhwork = LOS_DL_LIST_ENTRY(g_bhworkList.pstNext, HwiBhworkItem, entry);
             LOS_ListDelInit(g_bhworkList.pstNext);
             func = bhwork->workFunc;
             data = bhwork->data;
             LOS_ListTailInsert(&g_bhworkFreeList, &bhwork->entry);
-            LOS_IntRestore(intSave);
+            HWI_BH_UNLOCK(intSave);
 
             func(data);
 
-            intSave = LOS_IntLock();
+            HWI_BH_LOCK(intSave);
         }
-        LOS_IntRestore(intSave);
+        HWI_BH_UNLOCK(intSave);
     }
 }
 
@@ -287,9 +428,9 @@ LITE_OS_SEC_TEXT UINT32 LOS_HwiBhworkAdd(HWI_BOTTOM_HALF_FUNC bhHandler, VOID *d
     if (bhHandler == NULL) {
         return LOS_ERRNO_HWI_PROC_FUNC_NULL;
     }
-    intSave = LOS_IntLock();
+    HWI_BH_LOCK(intSave);
     if (LOS_ListEmpty(&g_bhworkFreeList)) {
-        LOS_IntRestore(intSave);
+        HWI_BH_UNLOCK(intSave);
         return LOS_ERRNO_HWI_NO_MEMORY;
     }
     bhwork = LOS_DL_LIST_ENTRY(g_bhworkFreeList.pstNext, HwiBhworkItem, entry);
@@ -297,7 +438,7 @@ LITE_OS_SEC_TEXT UINT32 LOS_HwiBhworkAdd(HWI_BOTTOM_HALF_FUNC bhHandler, VOID *d
     bhwork->data = data;
     bhwork->workFunc = bhHandler;
     LOS_ListTailInsert(&g_bhworkList, &bhwork->entry);
-    LOS_IntRestore(intSave);
+    HWI_BH_UNLOCK(intSave);
 
     return LOS_EventWrite(&g_bhEvent, HWI_BH_EVENT_MASK);
 }

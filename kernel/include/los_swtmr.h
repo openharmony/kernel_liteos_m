@@ -45,7 +45,7 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-typedef struct tagSwTmrCtrl SWTMR_CTRL_S;
+typedef struct tagSwtmrCB SWTMR_CTRL_S;
 
 /**
  * @ingroup los_swtmr
@@ -262,7 +262,7 @@ enum EnSwTmrType {
 * <ul><li>los_swtmr.h: the header file that contains the API declaration.</li></ul>
 * @see None.
 */
-typedef VOID (*SWTMR_PROC_FUNC)(UINT32 para);
+typedef VOID (*SWTMR_PROC_FUNC)(UINTPTR arg);
 
 /**
  * @ingroup los_swtmr
@@ -375,7 +375,7 @@ extern UINT32 LOS_SwtmrCreate(UINT32 interval,
                               UINT8 mode,
                               SWTMR_PROC_FUNC handler,
                               UINT32 *swtmrID,
-                              UINT32 arg,
+                              UINTPTR arg,
                               UINT8 rouses,
                               UINT8 sensitive);
 #else
@@ -383,7 +383,7 @@ extern UINT32 LOS_SwtmrCreate(UINT32 interval,
                               UINT8 mode,
                               SWTMR_PROC_FUNC handler,
                               UINT32 *swtmrID,
-                              UINT32 arg);
+                              UINTPTR arg);
 #endif
 
 /**
@@ -453,7 +453,7 @@ extern UINT32 OsSwtmrInit(VOID);
  */
 extern UINT32 OsSwtmrGetNextTimeout(VOID);
 
-extern VOID OsSwtmrResponseTimeReset(UINT64 startTime);
+extern VOID OsSwtmrResponseTimeReset(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

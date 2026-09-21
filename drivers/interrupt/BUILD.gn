@@ -6,8 +6,14 @@ kernel_module(module_name) {
   if (defined(LOSCFG_RISCV_LCMP_CLIC)) {
     sources += [ "riscv_lcmp_clic.c" ]
   }
+  if (defined(LOSCFG_RISCV_HIMIDEERV200_PLIC)) {
+    sources += [ "riscv_himideerv200_plic.c" ]
+  }
   if (defined(LOSCFG_ARM_GIC_V2)) {
-    sources += [ "gic-v2/interrupt.c" ]
+    sources += [ "arm_gic_v2.c" ]
+  }
+  if (defined(LOSCFG_CORTEX_M_NVIC)) {
+    sources += [ "arm_nvic.c" ]
   }
   include_dirs = [ "include" ]
 }

@@ -50,6 +50,15 @@ VOID ItLosRwsem004(VOID);
 VOID ItLosRwsem005(VOID);
 VOID ItLosRwsem006(VOID);
 VOID ItLosRwsem007(VOID);
+VOID ItLosRwsem008(VOID);
+VOID ItLosRwsem009(VOID);
+VOID ItLosRwsem010(VOID);
+VOID ItLosRwsem011(VOID);
+VOID ItLosRwsem012(VOID);
+VOID ItLosRwsem013(VOID);
+VOID ItLosRwsem014(VOID);
+VOID ItLosRwsem015(VOID);
+VOID ItLosRwsem016(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

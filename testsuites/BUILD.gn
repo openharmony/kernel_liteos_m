@@ -30,7 +30,56 @@
 import("//kernel/liteos_m/config.gni")
 import("//kernel/liteos_m/liteos.gni")
 
+# Code coverage (gcov): instrument sources with arc profiling and emit .gcno
+# notes at compile time. The standalone gcov runtime in testsuites/src/gcov
+# supplies the __gcov_* symbols (no libgcov linkage) and streams the counters
+# over the console UART at test end. Pulled in two ways:
+#   1. kernel_module targets — composed into los_config (referenced from
+#      kernel/liteos_m/BUILD.gn), which set_defaults applies.
+#   2. third_party/musl static_library targets — explicitly referenced in
+#      musl/porting/liteos_m/kernel/BUILD.gn, because static_library does
+#      not inherit kernel_module's set_defaults.
+# NOTE: -O2 instrumentation was evaluated and rejected: the faster ISR paths
+# shift the tick-phase assumptions of the swtmr/hwi test cases (ItLosSwtmr033
+# hung 1/2 runs in an unbounded busy-wait); the optimization level is left at
+# the build default rather than forced here.
+config("kernel_test_coverage") {
+  if (defined(LOSCFG_TEST_KERNEL_COVERAGE)) {
+    cflags = [
+      "-fprofile-arcs",
+      "-ftest-coverage",
+    ]
+    if (defined(LOSCFG_PLATFORM_QEMU_ARM_VIRT_CM4)) {
+      # arm gcc 10.3 -fprofile-arcs miscompiles optimized-routines string
+      # functions (gcov counter prologue ldrd clobbers a live argument
+      # register, so strcpy-family calls copy from address 0).
+      cflags += [ "-fprofile-exclude-files=.*third_party.*optimized-routines.*" ]
+    }
+    cflags_cc = cflags
+  }
+}
+
+# Counter-flag excluding testsuites targets from the instrumentation above
+# (GCC last-wins). Attached via testsuites:include config (consumed by every
+# testsuites kernel_module) and directly by the gcov runtime module. No-op
+# when coverage is off.
+config("no_test_coverage") {
+  if (defined(LOSCFG_TEST_KERNEL_COVERAGE)) {
+    cflags = [
+      "-fno-profile-arcs",
+      "-fno-test-coverage",
+    ]
+    cflags_cc = cflags
+  }
+}
+
 config("include") {
+  # Test code must not be instrumented: chain the single-point exclusion
+  # config above whose -fno-* flags override the -fprofile-arcs
+  # -ftest-coverage injected via los_config (GCC last-wins). Every
+  # testsuites kernel_module pulls this config in.
+  configs = [ ":no_test_coverage" ]
+
   defines = []
   include_dirs = [ "include" ]
 
@@ -55,6 +104,16 @@ config("include") {
   }
   cflags = _test_cflags
   asmflags = _test_cflags
+  if (ohos_build_compiler == "clang") {
+    # clang 15 对测试代码存量告警类的降级(同上 -Werror 过滤同理,仅测试侧生效)
+    cflags += [
+      "-Wno-error=strict-prototypes",
+      "-Wno-error=typedef-redefinition",
+      "-Wno-error=sometimes-uninitialized",
+      "-Wno-error=string-compare",
+      "-Wno-error=tautological-constant-out-of-range-compare",
+    ]
+  }
 }
 
 module_switch = defined(LOSCFG_TEST)
@@ -94,6 +153,14 @@ group("testsuites") {
     "unittest/posix:posix_test",
     "unittest/xts:xts_test",
   ]
+
+  # Conditional so that a coverage-off build keeps the exact same dep-graph
+  # traversal order as a tree without this code: an unconditional dep would
+  # reorder the archive members and shift the linked layout (byte-diff vs a
+  # pristine build even though the module itself is empty).
+  if (defined(LOSCFG_TEST_KERNEL_COVERAGE)) {
+    deps += [ "src/gcov" ]
+  }
 
   if (defined(LOSCFG_KAL_CMSIS)) {
     deps += [ "sample/cmsis:test_cmsis" ]

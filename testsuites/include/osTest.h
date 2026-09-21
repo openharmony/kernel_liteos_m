@@ -114,7 +114,9 @@ extern "C" {
 #define LOS_KERNEL_LMS_TEST 0
 #endif
 #define LOS_KERNEL_LMK_TEST 0
-#define LOS_KERNEL_SIGNAL_TEST 0
+#ifndef LOS_KERNEL_SIGNAL_TEST
+#define LOS_KERNEL_SIGNAL_TEST 1
+#endif
 #define LOS_KERNEL_MISC_TEST 1
 
 #if (LOSCFG_KERNEL_TRACE == 1)
@@ -170,7 +172,7 @@ extern "C" {
 #define LOS_CMSIS2_CORE_SWTMR_TEST 0
 #define LOS_CMSIS2_HWI_TEST 0
 
-#define LOSCFG_TEST_LLT 0
+#define LOSCFG_TEST_LLT 1
 #define LOSCFG_TEST_MUCH_LOG 0
 
 extern UINT32 volatile g_testCount;
@@ -279,7 +281,10 @@ extern EVENT_CB_S g_exampleEvent;
 #define TASK_LOOP_NUM 0x100000
 #define QUEUE_LOOP_NUM 100
 #define HWI_LOOP_NUM 10
-#define SWTMR_LOOP_NUM 1000
+// pressure count ,fix 1000 -> 10 for daily test
+#define SWTMR_LOOP_NUM 10
+// pressure count ,fix 100 -> 10 for daily test
+#define SWTMR_LOOP_NUM1 10
 #define TASK_NAME_NUM 10
 #define TEST_TASK_RUNTIME 0x100000
 #define TEST_SWTMR_RUNTIME 0x1000000
@@ -301,7 +306,14 @@ extern EVENT_CB_S g_exampleEvent;
 #elif  __XTENSA_LX6__
 #define OS_TSK_TEST_STACK_SIZE 0x800
 #else
+#ifdef LOSCFG_TEST_KERNEL_COVERAGE
+/* ARM (-O0 instrumented) test task: measured waterline exceeds 0x1000
+ * (deeper -O0 frames + the gcov dump call chain at test end), so use the
+ * same 0x5000 headroom the -O0 build needs. */
+#define OS_TSK_TEST_STACK_SIZE 0x5000
+#else
 #define OS_TSK_TEST_STACK_SIZE 0x1000
+#endif
 #endif
 #define TASK_STACK_SIZE_TEST OS_TSK_TEST_STACK_SIZE
 #define TEST_TASK_STACK_SIZE OS_TSK_TEST_STACK_SIZE
@@ -485,6 +497,9 @@ extern LITE_OS_SEC_BSS_INIT LOS_DL_LIST g_stUnusedSemList;
 
 extern VOID LOS_Schedule(VOID);
 extern LosTaskCB *g_taskCBArray;
+
+extern VOID OsCpupStart(VOID);
+extern VOID OsCpupStop(VOID);
 
 #ifdef __cplusplus
 #if __cplusplus

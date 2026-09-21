@@ -197,27 +197,27 @@ STATIC VOID LOS_TraceIsrExit(UINT32 hwiNum)
 
 STATIC VOID LOS_TraceSwtmrCreate(const SWTMR_CTRL_S *swtmr)
 {
-    LOS_TRACE(SWTMR_CREATE, swtmr->usTimerID);
+    LOS_TRACE(SWTMR_CREATE, swtmr->timerId);
 }
 
 STATIC VOID LOS_TraceSwtmrDelete(const SWTMR_CTRL_S *swtmr)
 {
-    LOS_TRACE(SWTMR_DELETE, swtmr->usTimerID);
+    LOS_TRACE(SWTMR_DELETE, swtmr->timerId);
 }
 
 STATIC VOID LOS_TraceSwtmrExpired(const SWTMR_CTRL_S *swtmr)
 {
-    LOS_TRACE(SWTMR_EXPIRED, swtmr->usTimerID);
+    LOS_TRACE(SWTMR_EXPIRED, swtmr->timerId);
 }
 
 STATIC VOID LOS_TraceSwtmrStart(const SWTMR_CTRL_S *swtmr)
 {
-    LOS_TRACE(SWTMR_START, swtmr->usTimerID, swtmr->ucMode, swtmr->uwInterval);
+    LOS_TRACE(SWTMR_START, swtmr->timerId, swtmr->mode, swtmr->interval);
 }
 
 STATIC VOID LOS_TraceSwtmrStop(const SWTMR_CTRL_S *swtmr)
 {
-    LOS_TRACE(SWTMR_STOP, swtmr->usTimerID);
+    LOS_TRACE(SWTMR_STOP, swtmr->timerId);
 }
 
 VOID OsTraceCnvInit(VOID)

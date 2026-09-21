@@ -95,7 +95,7 @@ static UINT32 TestCase(VOID)
 
     g_testCount = 0;
 
-    taskStack1 = LOS_MemAlloc(OS_TASK_STACK_ADDR, task1.uwStackSize);
+    taskStack1 = LOS_MemAllocAlign(OS_TASK_STACK_ADDR, task1.uwStackSize, 8);
     task1.stackAddr = (UINTPTR)taskStack1;
     ICUNIT_ASSERT_NOT_EQUAL(task1.stackAddr, 0, task1.stackAddr);
 
@@ -109,7 +109,7 @@ static UINT32 TestCase(VOID)
     task1.pcName = "Tsk058B";
     task1.usTaskPrio = TASK_PRIO_TEST - 1;
 
-    taskStack2 = LOS_MemAlloc(OS_TASK_STACK_ADDR, task1.uwStackSize);
+    taskStack2 = LOS_MemAllocAlign(OS_TASK_STACK_ADDR, task1.uwStackSize, 8);
     task1.stackAddr = (UINTPTR)taskStack2;
     ICUNIT_GOTO_NOT_EQUAL(task1.stackAddr, 0, task1.stackAddr, EXIT);
 

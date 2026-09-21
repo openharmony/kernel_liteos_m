@@ -1,6 +1,43 @@
+# Interrupt controller drivers.
+# Each board selects the controller(s) for its platform explicitly
+# (LOSCFG_<CONTROLLER>=y in kernel_configs/debug.config); only the
+# selected driver source is compiled into the interrupt module (see
+# BUILD.gn). One controller per platform — co-selection would be a
+# duplicate-symbol link error (each driver defines its own
+# g_hwiControllerOps + HwiControllerOpsGet).
+
 config RISCV_LCMP_CLIC
     bool "RISC-V LCMP CLIC interrupt controller"
+    depends on ARCH_RISCV
     select ARCH_INTERRUPT_TAKEOVER
     help
       RISC-V Core-Local Interrupt Controller (CLIC) for LinxCore.
       Used by HI3322. Does not auto-clear pending bits (unlike PLIC).
+
+config RISCV_HIMIDEERV200_PLIC
+    bool "HiSilicon himideerv200 PLIC interrupt controller"
+    depends on ARCH_RISCV
+    select ARCH_INTERRUPT_TAKEOVER
+    help
+      HiSilicon himideerv200 Platform Level Interrupt Controller for
+      WS63 (riscv31 core). CSR-based (no memory map): vectors 0..31
+      via mie/mip, 32..95 via LOCIEN0/1. Source replacement for the
+      prebuilt libinterrupt.a. Software trigger is not supported.
+
+config ARM_GIC_V2
+    bool "ARM GICv2 interrupt controller"
+    depends on ARCH_ARM_AARCH32
+    select ARCH_INTERRUPT_TAKEOVER
+    help
+      ARM Generic Interrupt Controller v2. Used by Cortex-A7
+      (Hi3516DV300, QEMU ARM virt). Compatible with GICv1.
+
+config CORTEX_M_NVIC
+    bool "ARM Cortex-M NVIC interrupt controller"
+    depends on ARCH_CORTEX_M3 || ARCH_CORTEX_M4 || ARCH_CORTEX_M7 || ARCH_CORTEX_M33 || ARCH_CORTEX_M55
+    select ARCH_INTERRUPT_TAKEOVER
+    help
+      ARM Nested Vectored Interrupt Controller, built into all
+      Cortex-M cores (register layout per ARMv7-M). All Cortex-M
+      variants (m3/m4/m7/m33/m55, gcc/iar/keil) consume the shared
+      driver-layer implementation in arm_nvic.c.

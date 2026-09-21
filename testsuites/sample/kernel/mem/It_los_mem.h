@@ -218,7 +218,14 @@ VOID ItLosTick008(void);
 VOID ItLosTick009(void);
 VOID ItLosTick010(void);
 VOID ItLosTick011(void);
+VOID ItLosTick012(void);
+VOID ItLosTick013(void);
 VOID ItLosMem301(void);
+VOID ItLosMem310(void);
+VOID ItLosMem311(void);
+VOID ItLosMem312(void);
+VOID ItLosMem313(void);
+VOID ItLosMem314(void);
 #ifdef LOSCFG_MEM_MUL_POOL_ALLOC
 #define TEST_POOL_MAX_NUM       4
 #define TEST_EACH_POOL_SIZE     0x2000

@@ -271,6 +271,37 @@ LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoull010, Function | Medium
     return 0;
 }
 
+/* *
+ * @tc.number    : TEST_STDLIB_STRTOULL_011
+ * @tc.name      : strtoull accepts negative input by wrapping, negative overflow sets ERANGE
+ * @tc.desc      : [C- SOFTWARE -0200]
+ * 移植自 musl libc-test/src/functional/strtol.c:99-104 与 :111-113："-1" 按模
+ * 回绕返回 ULLONG_MAX 且不置 ERANGE（errno 保持 0）；"-18446744073709551616"
+ * 负向溢出 clamp 到 ULLONG_MAX 并置 ERANGE，endptr 均停在数字串尾。
+ */
+LITE_TEST_CASE(PosixStdlibStrtoullTest, testStdlibStrtoullNeg001, Function | MediumTest | Level1)
+{
+    char nPtr[] = "-1";
+    char *endPtr = NULL;
+    unsigned long long ret;
+
+    /* "-1" 模回绕为 ULLONG_MAX，负数本身不触发 ERANGE */
+    errno = 0;
+    ret = strtoull(nPtr, &endPtr, 10);
+    ICUNIT_ASSERT_EQUAL(ret, ULLONG_MAX, ret);
+    ICUNIT_ASSERT_EQUAL(errno, 0, errno);
+    ICUNIT_ASSERT_EQUAL(endPtr - nPtr, 2, (int)(endPtr - nPtr));
+
+    /* 负向溢出 -18446744073709551616 clamp 到 ULLONG_MAX 并置 ERANGE */
+    char nPtrNeg[] = "-18446744073709551616";
+    errno = 0;
+    ret = strtoull(nPtrNeg, &endPtr, 10);
+    ICUNIT_ASSERT_EQUAL(ret, ULLONG_MAX, ret);
+    ICUNIT_ASSERT_EQUAL(errno, ERANGE, errno);
+    ICUNIT_ASSERT_EQUAL(endPtr - nPtrNeg, 21, (int)(endPtr - nPtrNeg));
+    return 0;
+}
+
 RUN_TEST_SUITE(PosixStdlibStrtoullTest);
 
 
@@ -289,6 +320,7 @@ void PosixStdlibStrtoullFuncTest()
     RUN_ONE_TESTCASE(testStdlibStrtoull008);
     RUN_ONE_TESTCASE(testStdlibStrtoull009);
     RUN_ONE_TESTCASE(testStdlibStrtoull010);
+    RUN_ONE_TESTCASE(testStdlibStrtoullNeg001);
 
     return;
 }

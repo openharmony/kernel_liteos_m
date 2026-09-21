@@ -528,7 +528,8 @@ VOID OsLmsPrintMemInfo(UINTPTR addr)
     UINTPTR shadowAddr = 0;
     UINT32 shadowOffset = 0;
     LmsMemListNode *nodeInfo = NULL;
-    INT32 isCheckAddr, x, y;
+    INT32 isCheckAddr;
+    UINT32 x, y;
 
     nodeInfo = OsLmsGetPoolNodeFromAddr(addr);
     if (nodeInfo == NULL) {
