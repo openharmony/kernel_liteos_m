@@ -13,6 +13,9 @@ config ARCH_ARM_AARCH32
 #
 # Architecture Versions
 #
+config ARCH_ARM_V6M
+    bool
+
 config ARCH_ARM_V7M
     bool
 
@@ -27,6 +30,7 @@ config ARCH_ARM_V5TE
 
 config ARCH_ARM_VER
     string
+    default "armv6-m" if ARCH_ARM_V6M
     default "armv7-m" if ARCH_ARM_V7M
     default "armv7-a" if ARCH_ARM_V7A
     default "armv8-m" if ARCH_ARM_V8M
@@ -94,6 +98,11 @@ config ARCH_FPU
 #
 # Supported Processor Cores
 #
+config ARCH_CORTEX_M0_PLUS
+    bool
+    select ARCH_ARM_V6M
+    select ARCH_ARM_AARCH32
+
 config ARCH_CORTEX_M3
     bool
     select ARCH_ARM_V7M
@@ -126,6 +135,7 @@ config ARCH_ARM9
 
 config ARCH_CPU
     string
+    default "cortex-m0plus" if ARCH_CORTEX_M0_PLUS && !COMPILER_ICCARM
     default "cortex-m3" if ARCH_CORTEX_M3 && !COMPILER_ICCARM
     default "cortex-m4" if ARCH_CORTEX_M4 && !COMPILER_ICCARM
     default "cortex-m7" if ARCH_CORTEX_M7 && !COMPILER_ICCARM

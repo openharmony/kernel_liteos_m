@@ -80,7 +80,7 @@ VOID OsSchedResched(VOID)
 	runTask = OsCurrTaskGet();
 	LOS_ASSERT(runTask != NULL);
 
-#ifdef LOSCFG_SCHED_LATENCY
+#if defined(LOSCFG_SCHED_LATENCY) && (LOSCFG_KERNEL_SIGNAL == 1)
     if (OsSignalRestorePending()) {
         ArchTaskSchedule(runTask, runTask);
         return;
@@ -248,7 +248,6 @@ UINT32 OsSchedSuspend(LosTaskCB *taskCB)
     UINT32 intSave;
     UINT16 tempStatus;
     UINT32 errRet = LOS_OK;
-    BOOL isPmMode = FALSE;
 
     SCHEDULER_LOCK(intSave);
 
@@ -278,12 +277,12 @@ UINT32 OsSchedSuspend(LosTaskCB *taskCB)
     }
 
 #if (LOSCFG_KERNEL_PM == 1)
-    isPmMode = OsIsPmMode();
-#endif
+    BOOL isPmMode = OsIsPmMode();
 
     if ((taskCB->taskStatus & (OS_TASK_STATUS_PEND_TIME | OS_TASK_STATUS_DELAY)) && isPmMode) {
         OsSchedFreezeTask(taskCB);
     }
+#endif
 
     taskCB->taskStatus |= OS_TASK_STATUS_SUSPEND;
     OsHookCall(LOS_HOOK_TYPE_MOVEDTASKTOSUSPENDEDLIST, taskCB);
@@ -381,10 +380,11 @@ VOID OsSchedDelay(LosTaskCB *runTask, UINT32 tick)
 
 BOOL OsSchedResume(LosTaskCB *taskCB)
 {
+#if (LOSCFG_KERNEL_PM == 1)
     if (taskCB->taskStatus & OS_TASK_FLAG_FREEZE) {
         OsSchedUnfreezeTask(taskCB);
     }
-
+#endif
     taskCB->taskStatus &= (~OS_TASK_STATUS_SUSPEND);
     if (!(taskCB->taskStatus & (OS_TASK_STATUS_DELAY | OS_TASK_STATUS_PEND))) {
         OsSchedTaskEnQueue(taskCB);

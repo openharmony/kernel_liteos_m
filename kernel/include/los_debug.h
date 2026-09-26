@@ -135,9 +135,17 @@ typedef enum {
  * @see LOS_Printf
  */
 #if (LOSCFG_KERNEL_PRINTF == 1)
-extern INT32 printf(const CHAR *fmt, ...);
 extern INT32 OsLogLevelCheck(INT32 level);
 extern VOID LOS_Printf(LogModuleType type, INT32 level, const CHAR *fmt, ...);
+#elif (LOSCFG_KERNEL_PRINTF == 2)
+extern INT32 printf(const CHAR *fmt, ...);
+extern VOID LOS_Printf(LogModuleType type, INT32 level, const CHAR *fmt, ...);
+extern INT32 OsLogLevelCheck(INT32 level);
+#define LOS_Printf(type, level, fmt, args...)   do { \
+    if (!OsLogLevelCheck(level)) {                   \
+        printf(fmt, ##args);                         \
+    }                                                \
+} while (0)
 #elif (LOSCFG_KERNEL_PRINTF == 0)
 #define LOS_Printf(type, level, fmt, args...)
 #else
