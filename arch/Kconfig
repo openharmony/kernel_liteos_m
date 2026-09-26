@@ -43,6 +43,12 @@ config ARCH_UNALIGNED_EXC
     help
      This option will enable unaligned exception.
 
+config EXC_SIMPLE_INFO
+    bool "Enable Exception Simple Info"
+    default n
+    help
+      This option is used to reduce exc output info.
+
 config ARCH_TIMER_VENDOR
     bool "Use vendor-provided timer instead of arch default"
     default n

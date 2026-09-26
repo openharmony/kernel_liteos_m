@@ -587,6 +587,7 @@ osStatus_t osThreadResume(osThreadId_t thread_id)
     }
 }
 
+#ifdef LOSCFG_TASK_JOINABLE
 osStatus_t osThreadDetach(osThreadId_t thread_id)
 {
     UINT32 ret;
@@ -624,6 +625,7 @@ osStatus_t osThreadJoin(osThreadId_t thread_id)
 
     return osOK;
 }
+#endif
 
 osStatus_t osThreadTerminate(osThreadId_t thread_id)
 {

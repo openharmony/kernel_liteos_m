@@ -34,7 +34,7 @@ config ARM_GIC_V2
 
 config CORTEX_M_NVIC
     bool "ARM Cortex-M NVIC interrupt controller"
-    depends on ARCH_CORTEX_M3 || ARCH_CORTEX_M4 || ARCH_CORTEX_M7 || ARCH_CORTEX_M33 || ARCH_CORTEX_M55
+    depends on ARCH_CORTEX_M0_PLUS || ARCH_CORTEX_M3 || ARCH_CORTEX_M4 || ARCH_CORTEX_M7 || ARCH_CORTEX_M33 || ARCH_CORTEX_M55
     select ARCH_INTERRUPT_TAKEOVER
     help
       ARM Nested Vectored Interrupt Controller, built into all
