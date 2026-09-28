@@ -23,8 +23,12 @@
 #include "los_cpup_pri.h"
 #endif
 
-/* Cortex-M exception vector number for HardFault (CMSIS IRQn value). */
+/* Cortex-M exception vector number for Exception (CMSIS IRQn value). */
+#define NMI_IRQN                    (-14)
 #define HARDFAULT_IRQN              (-13)
+#define MEMMANAGE_IRQN              (-12)  /* ARMv7-M only; reserved slot on ARMv6-M */
+#define BUSFAULT_IRQN               (-11)  /* ARMv7-M only; reserved slot on ARMv6-M */
+#define USAGEFAULT_IRQN             (-10)  /* ARMv7-M only; reserved slot on ARMv6-M */
 
 /* ---- HwiControllerOps callbacks ----
  * All callbacks receive EXTERNAL irq numbers (0-based). Range-check against
@@ -167,11 +171,11 @@ LITE_OS_SEC_TEXT_INIT VOID HalHwiInit(VOID)
         hwiForm[index] = (HWI_PROC_FUNC)HalInterrupt;
     }
     /* Exception handler register */
-    hwiForm[NonMaskableInt_IRQn + OS_SYS_VECTOR_CNT]   = (HWI_PROC_FUNC)HalExcNMI;
+    hwiForm[NMI_IRQN + OS_SYS_VECTOR_CNT]              = (HWI_PROC_FUNC)HalExcNMI;
     hwiForm[HARDFAULT_IRQN + OS_SYS_VECTOR_CNT]        = (HWI_PROC_FUNC)HalExcHardFault;
-    hwiForm[MemoryManagement_IRQn + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalExcMemFault;
-    hwiForm[BusFault_IRQn + OS_SYS_VECTOR_CNT]         = (HWI_PROC_FUNC)HalExcBusFault;
-    hwiForm[UsageFault_IRQn + OS_SYS_VECTOR_CNT]       = (HWI_PROC_FUNC)HalExcUsageFault;
+    hwiForm[MEMMANAGE_IRQN + OS_SYS_VECTOR_CNT]        = (HWI_PROC_FUNC)HalExcMemFault;
+    hwiForm[BUSFAULT_IRQN + OS_SYS_VECTOR_CNT]         = (HWI_PROC_FUNC)HalExcBusFault;
+    hwiForm[USAGEFAULT_IRQN + OS_SYS_VECTOR_CNT]       = (HWI_PROC_FUNC)HalExcUsageFault;
     hwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalExcSvcCall;
     hwiForm[PendSV_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalPendSV;
     hwiForm[SysTick_IRQn + OS_SYS_VECTOR_CNT]          = (HWI_PROC_FUNC)SysTick_Handler;

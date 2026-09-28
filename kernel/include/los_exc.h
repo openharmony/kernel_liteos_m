@@ -33,13 +33,17 @@
 #define _LOS_EXC_H
 
 #include "los_typedef.h"
+#ifdef LOSCFG_KERNEL_BACKTRACE
 #include "los_backtrace.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
+#ifdef LOSCFG_KERNEL_BACKTRACE
 #define OsBackTrace LOS_BackTrace
+#endif
 
 #ifndef LOS_PANIC
 #define LOS_PANIC(fmt, ...) LOS_Panic(fmt, ##__VA_ARGS__)
