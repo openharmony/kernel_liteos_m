@@ -1,7 +1,7 @@
 config CORTEX_M_SYSTICK
     bool "ARM Cortex-M SysTick"
     default n
-    depends on ARCH_CORTEX_M3 || ARCH_CORTEX_M4 || ARCH_CORTEX_M7 || ARCH_CORTEX_M55
+    depends on ARCH_CORTEX_M0_PLUS || ARCH_CORTEX_M3 || ARCH_CORTEX_M4 || ARCH_CORTEX_M7 || ARCH_CORTEX_M55
     select ARCH_TIMER_VENDOR
     select TIMER_ARCH_BRIDGE
     help

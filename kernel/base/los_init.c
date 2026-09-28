@@ -128,7 +128,9 @@ LITE_OS_SEC_TEXT_INIT VOID LOS_Panic(const CHAR *fmt, ...)
     va_start(ap, fmt);
 #if (LOSCFG_KERNEL_PRINTF == 1)
     UartVprintf(fmt, ap);
-#elif (LOSCFG_KERNEL_PRINTF > 1)
+#elif (LOSCFG_KERNEL_PRINTF == 2)
+    vprintf(fmt, ap);
+#elif (LOSCFG_KERNEL_PRINTF > 2)
     {
         CHAR buf[256];
         va_list apCopy;

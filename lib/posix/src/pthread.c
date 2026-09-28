@@ -503,6 +503,7 @@ void pthread_testcancel(void)
     }
 }
 
+#ifdef LOSCFG_TASK_JOINABLE
 int pthread_join(pthread_t thread, void **retval)
 {
     UINTPTR result;
@@ -548,6 +549,7 @@ int pthread_detach(pthread_t thread)
 
     return 0;
 }
+#endif
 
 void pthread_exit(void *retVal)
 {

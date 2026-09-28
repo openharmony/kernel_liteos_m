@@ -695,23 +695,29 @@ VOID OsIdleHandler(VOID)
 LITE_OS_SEC_TEXT_INIT VOID OsTaskEntry(UINT32 taskId)
 {
     LosTaskCB *taskCB = OS_TCB_FROM_TID(taskId);
+    VOID *ret = NULL;
 
     LOS_SpinUnlockNoSched(&g_taskSpin);
     (VOID)LOS_IntUnLock();
 
 #ifndef LOSCFG_TASK_JOINABLE
+#ifdef  LOSCFG_KERNEL_TASK_ENTRY_VOID_PTR
     (VOID)taskCB->taskEntry(taskCB->args);
+#else
+    (VOID)taskCB->taskEntry(taskCB->arg);
+#endif
 #else
 #ifdef  LOSCFG_KERNEL_TASK_ENTRY_VOID_PTR
     taskCB->taskRetval = (UINTPTR)taskCB->taskEntry(taskCB->args);
 #else
     taskCB->taskRetval = (UINTPTR)taskCB->taskEntry(taskCB->arg);
 #endif
+    ret = (VOID *)taskCB->taskRetval;
 #endif
     UINT32 intSave = LOS_IntLock();
     OsPercpuGet()->taskLockCnt = 0;
     LOS_IntRestore(intSave);
-    (VOID)OsTaskDelete(taskCB->taskId, (UINTPTR)taskCB->taskRetval);
+    (VOID)OsTaskDelete(taskCB->taskId, (UINTPTR)ret);
 }
 
 STATIC UINT32 OsTaskInitParamCheck(const TSK_INIT_PARAM_S *initParam)
