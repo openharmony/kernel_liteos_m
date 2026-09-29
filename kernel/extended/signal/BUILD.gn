@@ -29,6 +29,7 @@
 import("//kernel/liteos_m/liteos.gni")
 
 module_name = get_path_info(rebase_path("."), "name")
+module_switch = defined(LOSCFG_KERNEL_SIGNAL)
 kernel_module(module_name) {
   sources = [ "los_signal.c" ]
   configs += [ "$LITEOSTOPDIR:warn_config" ]

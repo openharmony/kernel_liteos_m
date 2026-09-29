@@ -32,6 +32,7 @@ config MEM_FREE_BY_TASKID
 
 config KERNEL_MEM_SLAB_EXTENTION
     bool "Enable Mem SLAB Extension"
+    default y if KERNEL_RAM_PRESET_STANDARD
     default n
     depends on KERNEL_MEM_ALLOC
     depends on KERNEL_MEM_BESTFIT || KERNEL_MEM_BESTFIT_LITTLE
@@ -43,6 +44,7 @@ config KERNEL_MEM_SLAB_AUTO_EXPANSION_MODE
 
 config MEM_TASK_STAT
     bool "Enable Memory Task Usage Statistics"
+    default y if KERNEL_RAM_PRESET_STANDARD
     default n
     depends on KERNEL_MEM_BESTFIT || KERNEL_MEM_BESTFIT_LITTLE
     help

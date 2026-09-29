@@ -230,6 +230,10 @@ void TestKernel(void)
 #if (LOS_KERNEL_SHELL_TEST == 1)
     ItSuiteLosShell();
 #endif
+
+#if (LOS_KERNEL_TCB_VERIFY_TEST == 1)
+    ItSuiteLosTcbVerify();
+#endif
 }
 
 #if (CMSIS_OS_VER == 2)
