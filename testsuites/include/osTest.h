@@ -118,6 +118,7 @@ extern "C" {
 #define LOS_KERNEL_SIGNAL_TEST 1
 #endif
 #define LOS_KERNEL_MISC_TEST 1
+#define LOS_KERNEL_TCB_VERIFY_TEST 1
 
 #if (LOSCFG_KERNEL_TRACE == 1)
 #define LOS_KERNEL_TRACE_TEST 1
@@ -458,6 +459,7 @@ extern VOID ItSuiteLosSignal(void);
 extern VOID ItSuiteLosMisc(void);
 extern VOID ItSuiteLosExc(void);
 extern VOID ItSuiteLosShell(void);
+extern VOID ItSuiteLosTcbVerify(void);
 
 extern int PthreadFuncTestSuite(void);
 
