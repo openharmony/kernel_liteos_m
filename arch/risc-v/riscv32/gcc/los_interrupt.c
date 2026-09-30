@@ -141,6 +141,7 @@ LITE_OS_SEC_TEXT HWI_HANDLE_FORM_S *HalGetHwiForm(VOID)
     return g_hwiForm;
 }
 
+#ifdef LOSCFG_KERNEL_BACKTRACE
 STATIC VOID ExcBackTrace(UINTPTR fp)
 {
     UINTPTR LR[LOSCFG_BACKTRACE_DEPTH] = { 0 };
@@ -157,6 +158,7 @@ STATIC VOID ExcBackTrace(UINTPTR fp)
     }
     PRINTK("----- traceback end -----\n");
 }
+#endif
 
 STATIC VOID ExcInfoDisplayContext(const LosExcInfo *exc)
 {
@@ -198,7 +200,9 @@ STATIC VOID ExcInfoDisplayContext(const LosExcInfo *exc)
     PRINTK("t5         = 0x%x\n", taskContext->t5);
     PRINTK("t6         = 0x%x\n", taskContext->t6);
 
+#ifdef LOSCFG_KERNEL_BACKTRACE
     ExcBackTrace(taskContext->s0);
+#endif
 }
 
 STATIC VOID ExcInfoDisplay(VOID)

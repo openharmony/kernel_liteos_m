@@ -324,7 +324,7 @@ extern "C" {
  * Configuration item for semaphore module tailoring
  */
 #ifndef LOSCFG_BASE_IPC_SEM
-#define LOSCFG_BASE_IPC_SEM                                 1
+#define LOSCFG_BASE_IPC_SEM                                 0
 #endif
 
 /**
@@ -351,7 +351,7 @@ extern "C" {
  * Configuration item for mutex module tailoring
  */
 #ifndef LOSCFG_BASE_IPC_MUX
-#define LOSCFG_BASE_IPC_MUX                                 1
+#define LOSCFG_BASE_IPC_MUX                                 0
 #endif
 
 /**
@@ -370,7 +370,7 @@ extern "C" {
  * Configuration item for queue module tailoring
  */
 #ifndef LOSCFG_BASE_IPC_QUEUE
-#define LOSCFG_BASE_IPC_QUEUE                               1
+#define LOSCFG_BASE_IPC_QUEUE                               0
 #endif
 
 /**
@@ -398,7 +398,7 @@ extern "C" {
  * Configuration item for software timer module tailoring
  */
 #ifndef LOSCFG_BASE_CORE_SWTMR
-#define LOSCFG_BASE_CORE_SWTMR                              1
+#define LOSCFG_BASE_CORE_SWTMR                              0
 #endif
 
 /**
