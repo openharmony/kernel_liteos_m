@@ -1,5 +1,6 @@
 config SHELL
     bool "Enable Shell"
+    default y if KERNEL_RAM_PRESET_STANDARD
     default n
     depends on DEBUG_VERSION
     select USE_SHELL

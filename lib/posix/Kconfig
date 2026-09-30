@@ -32,6 +32,8 @@ config POSIX_API
     default y
     help
       Answer Y to enable LiteOS support POSIX API.
+      Kept on across all RAM presets because musl libc and libsec depend
+      on errno/malloc/pthread_mutex provided by this layer.
 
 if POSIX_API
 
@@ -40,21 +42,25 @@ config POSIX_THREAD_API
     default y
     help
       Answer Y to enable LiteOS support POSIX Thread API.
+      Kept on because musl libc stdio (__lockfile) depends on pthread_mutex.
 
 config POSIX_SEM_API
     bool "Enable POSIX Semaphore API"
+    default n if KERNEL_RAM_PRESET_TINY || KERNEL_RAM_PRESET_SMALL
     default y
     help
       Answer Y to enable LiteOS support POSIX Semaphore API.
 
 config POSIX_CLOCK_API
     bool "Enable POSIX Clock API"
+    default n if KERNEL_RAM_PRESET_TINY || KERNEL_RAM_PRESET_SMALL
     default y
     help
       Answer Y to enable LiteOS support POSIX Clock API.
 
 config POSIX_MQUEUE_API
     bool "Enable POSIX Mqueue API"
+    default n if KERNEL_RAM_PRESET_TINY || KERNEL_RAM_PRESET_SMALL
     default y
     help
       Answer Y to enable LiteOS support POSIX Mqueue API.
@@ -62,6 +68,7 @@ config POSIX_MQUEUE_API
 
 config POSIX_PIPE_API
     bool "Enable POSIX Pipe API"
+    default n if KERNEL_RAM_PRESET_TINY || KERNEL_RAM_PRESET_SMALL
     default y
     help
       Answer Y to enable LiteOS support POSIX Pipe API.
@@ -85,5 +92,6 @@ config POSIX_MALLOC_API
     default y
     help
       Answer Y to enable LiteOS support POSIX MALLOC API.
+      Kept on because musl libc and libsec depend on malloc/free.
 
 endif # POSIX_API

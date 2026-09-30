@@ -148,6 +148,7 @@ group("testsuites") {
     "sample/kernel/task:test_task",
     "sample/kernel/misc:test_misc",
     "sample/kernel/exc:test_exc",
+    "sample/kernel/tcb_verify:test_tcb_verify",
     "sample/posix:test_posix",
     "sample/kernel/atomic:test_atomic",
     "unittest/posix:posix_test",
